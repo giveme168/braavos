@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+  ${self.base_head()}
+  ${self.base_body()}
+</html>
+
+<%def name="base_head()">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="Sun, 6 Mar 2014 01:00:00 GMT">
+  <link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon">
+  ${self.base_css()}
+  ${self.base_script()}
+  ${self.extra_head()}
+</head>
+</%def>
+
+<%def name="base_css()">
+<link rel="stylesheet" href="http://cdn.staticfile.org/twitter-bootstrap/3.1.1/css/bootstrap.min.css" type="text/css">
+<link rel="stylesheet" href="/static/css/base.css" type="text/css">
+</%def>
+
+<%def name="base_script()">
+<script src="http://cdn.staticfile.org/jquery/2.1.1-rc2/jquery.min.js"></script>
+<script src="http://cdn.staticfile.org/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
+</%def>
+
+
+<%def name="base_body()">
+<body>
+  ${self.content()}
+  ${self.footer()}
+  ${self.bottom_script()}
+</body>
+</%def>
+
+<%def name="content()"></%def>
+<%def name="footer()">
+<div id="footer">
+  <div class="container text-center">
+    <p>inad.com</p>
+  </div>
+</div>
+</%def>
+
+<%def name="extra_head()"></%def>
+<%def name="bottom_script()"></%def>

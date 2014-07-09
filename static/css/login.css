@@ -1,0 +1,40 @@
+.form-unit {
+    width: 480px;
+    margin: 30px auto;
+    padding: 50px;
+    box-shadow: 0 0 10px 4px rgba(0, 0, 0, .04);
+    background-color: white;
+}
+.brand:hover{
+    text-decoration: none;
+}
+.brand h1{
+    color: #333;
+}
+.form-unit > h3 {
+    text-align: center;
+    font-family: 'Open Sans', arial;
+    -webkit-font-smoothing: antialiased;
+    color: #555;
+    font-size: 18px;
+    font-weight: 400;
+    margin: 25px 0;
+}
+.auth-form input {
+    height: 48px;
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+.auth-form .btn {
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 4px;
+    width: 100%;
+    margin: 10px 0;
+    display: inline-block;
+    outline: none;
+}
+.auth-form .errors{
+    color: #CC6655;
+}

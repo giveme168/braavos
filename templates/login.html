@@ -1,0 +1,31 @@
+<%inherit file="/base.html"/>
+
+<%def name="content()">
+<div class="form-unit">
+  <a href="/" class="brand text-center">
+    <h1>InAD 广告平台</h1>
+  </a>
+  <h3>请使用您的InAD帐号</h3>
+  <form class="auth-form form-horizontal" method="POST" action="/login">
+    ${form.csrf_token()}
+    ${self.field_render(form.email)}
+    ${self.field_render(form.password)}
+    <input type="submit" class="btn btn-primary btn-large" value="登录"/>
+  </form>
+</div>
+</%def>
+
+<%def name="field_render(field)">
+%if field.errors: 
+<div class="errors">
+  ${','.join(field.errors)}
+</div>
+%endif
+<div class="form-field">
+  ${field(class_='form-control', placeholder=field.label.text)}
+</div>
+</%def>
+
+<%def name="extra_head()">
+<link rel="stylesheet" href="/static/css/login.css" type="text/css">
+</%def>
