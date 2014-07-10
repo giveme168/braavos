@@ -1,5 +1,6 @@
 body{
     min-height: 100%;
+    background-color: #eee;
 }
 .container-fluid{
     max-width: 95%;
@@ -29,4 +30,24 @@ body{
     font-weight: normal;
     font-size: 16px;
     line-height: 23px;
+}
+
+.bra-box{
+    padding: 15px;
+    box-shadow: 0 0 6px 4px rgba(0, 0, 0, .04);
+    background-color: white;
+    display: inline-block;
+    vertical-align: top;
+}
+.bra-left{
+    width: 220px;
+    margin-left: 30px;
+    margin-right: 30px;
+}
+.bra-main{
+    min-width: 990px;
+}
+
+.bra-left .list-group-item {
+    border: none; 
 }

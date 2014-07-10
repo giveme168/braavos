@@ -10,6 +10,13 @@ TEAM_TYPE_INAD = 2         # inad内部team
 TEAM_TYPE_ADMIN = 1        # 管理员
 TEAM_TYPE_SUPER_ADMIN = 0  # 超级管理员
 
+TEAM_TYPE_CN = {
+    TEAM_TYPE_MEDIUM: u"媒体",
+    TEAM_TYPE_INAD: u"内部",
+    TEAM_TYPE_ADMIN: u"管理员",
+    TEAM_TYPE_SUPER_ADMIN: u"系统管理员"
+}
+
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -65,3 +72,7 @@ class Team(db.Model):
 
     def __repr__(self):
         return '<Team %s>' % (self.name)
+
+    @property
+    def type_cn(self):
+        return TEAM_TYPE_CN[self.type]
