@@ -1,10 +1,10 @@
-<%inherit file="/site_base.html"/>
+{% extends "/site_base.html" %}
 
-<%def name="left_box()">
+{% block left_box%}
 <div class="col-md-3">
 <ul class="nav nav-pills nav-stacked" role="tablist">
   <li><a href="/user/teams">Teams</a></li>
   <li><a href="/user/users">Users</a></li>
 </ul>
 </div>
-</%def>
+{% endblock %}

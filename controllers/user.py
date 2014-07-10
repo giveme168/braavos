@@ -1,6 +1,6 @@
 #-*- coding: UTF-8 -*-
 from flask import Blueprint, request, redirect, url_for
-from flask.ext.mako import render_template as tpl
+from flask import render_template as tpl
 from flask.ext.login import login_user, login_required, logout_user
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
