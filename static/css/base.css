@@ -1,3 +1,32 @@
 body{
     min-height: 100%;
 }
+.container-fluid{
+    max-width: 95%;
+}
+.navbar {
+    min-height: 40px;
+}
+.nav > li > a {
+    padding: 10px 15px;
+}
+.navbar-brand {
+    padding: 10px 15px;
+    height: 40px;
+    font-weight: bold;
+}
+.navbar-default .navbar-brand, .navbar-default .navbar-brand:hover{
+    *color: #08c;
+    *color: #339999;
+}
+.navbar-default {
+    border: 1px solid transparent;
+    background-color: #fff;
+    border-color: #e7e7e7;
+}
+.navbar-default .navbar-nav>li>a, .navbar-default .navbar-nav>li>a:hover, .navbar-default .navbar-nav>li>a:focus {
+    *color: #08c;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 23px;
+}

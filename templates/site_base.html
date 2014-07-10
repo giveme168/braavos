@@ -1,0 +1,32 @@
+<%inherit file="/base.html"/>
+
+<%def name="content()">
+    ${self.navigation()}
+    <div class="container">
+    ${self.left_box()}
+    ${self.main_box()}
+    </div>
+</%def>
+<%def name="navigation()">
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+       <a class="navbar-brand" href="#">InAD</a>
+    </div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="#">订单</a></li>
+        <li><a href="#">广告位</a></li>
+        <li><a href="#">用户</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#">Name</a></li>
+        <li><a href="#">[退出]</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+</%def>
+<%def name="left_box()"></%def>
+<%def name="main_box()"></%def>
