@@ -1,48 +1,33 @@
 #-*- coding: UTF-8 -*-
-from flask import Flask, request
+from flask import Flask
 from flask.ext.mako import MakoTemplates
-from flask.ext.mako import render_template as tpl
+from flask.ext.login import LoginManager
 from config import DEBUG, SECRET_KEY, SQLALCHEMY_DATABASE_URI
+from urls import register_blueprint
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SECRET_KEY'] = SECRET_KEY
+
+# mako
 app.config['MAKO_DEFAULT_FILTERS'] = ['decode.utf_8', 'h']
 app.config['MAKO_TRANSLATE_EXCEPTIONS'] = False
 mako = MakoTemplates(app)
 
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    from forms.login import LoginForm
-    form = LoginForm(request.form)
-    if request.method == 'POST' and form.validate():
-        return u"登录成功"
-    return tpl('login.html', form=form)
+# login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "user.login"
 
 
-@app.route('/teams')
-def teams():
-    from models.user import Team
-    teams = Team.query.all()
-    return tpl('teams.html', teams=teams)
-
-
-@app.route('/users')
-def users():
+@login_manager.user_loader
+def load_user(userid):
     from models.user import User
-    users = User.query.all()
-    return tpl('users.html', users=users)
+    return User.query.filter_by(id=userid).first()
 
+# urls
+register_blueprint(app)
 
-@app.route('/user/new')
-def new_user():
-    pass
-
-
-@app.route('/team/new')
-def new_team():
-    pass
 
 if __name__ == '__main__':
     app.debug = DEBUG

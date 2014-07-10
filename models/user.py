@@ -40,14 +40,17 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.pwdhash, password)
 
-    def add(self):
-        if not User.query.filter_by(email=self.email).first():
-            db.session.add(self)
-            db.session.commit()
+    def get_id(self):
+        return self.id
 
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+    def is_anonymous(self):
+        return False
+
+    def is_active(self):
+        return self.status == USER_STATUS_ON
+
+    def is_authenticated(self):
+        return self.is_active()
 
 
 class Team(db.Model):
@@ -62,11 +65,3 @@ class Team(db.Model):
 
     def __repr__(self):
         return '<Team %s>' % (self.name)
-
-    def add(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()

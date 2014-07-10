@@ -18,7 +18,7 @@ class LoginForm(Form):
 
         user = User.query.filter_by(email=self.email.data.lower()).first()
         if user and user.check_password(self.password.data):
-            return True
+            return user
         else:
             self.email.errors.append(u"用户名或者密码错误.")
             return False

@@ -6,7 +6,7 @@
     <h1>InAD 广告平台</h1>
   </a>
   <h3>请使用您的InAD帐号</h3>
-  <form class="auth-form form-horizontal" method="POST" action="/login">
+  <form class="auth-form form-horizontal" method="POST">
     ${form.csrf_token()}
     ${self.field_render(form.email)}
     ${self.field_render(form.password)}
