@@ -10,15 +10,19 @@ USER_STATUS_CN = {
     USER_STATUS_ON: u"有效"
 }
 
-TEAM_TYPE_MEDIUM = 3       # 媒体
-TEAM_TYPE_INAD = 2         # inad内部team
+TEAM_TYPE_MEDIUM = 5       # 媒体
+TEAM_TYPE_OPERATER = 4     # 內部-執行
+TEAM_TYPE_SELLER = 3       # 內部-銷售
+TEAM_TYPE_INAD = 2         # 内部-其他
 TEAM_TYPE_ADMIN = 1        # 管理员
 TEAM_TYPE_SUPER_ADMIN = 0  # 超级管理员
 
 TEAM_TYPE_CN = {
+    TEAM_TYPE_OPERATER: u"内部-执行",
+    TEAM_TYPE_SELLER: u"内部-销售",
     TEAM_TYPE_MEDIUM: u"媒体",
-    TEAM_TYPE_INAD: u"内部",
-    TEAM_TYPE_ADMIN: u"管理员",
+    TEAM_TYPE_INAD: u"内部-其他",
+    TEAM_TYPE_ADMIN: u" 广告管理员",
     TEAM_TYPE_SUPER_ADMIN: u"系统管理员"
 }
 
@@ -85,3 +89,9 @@ class Team(db.Model, BaseModelMixin):
     @property
     def type_cn(self):
         return TEAM_TYPE_CN[self.type]
+
+    def is_super_admin(self):
+        return self.type == TEAM_TYPE_SUPER_ADMIN
+
+    def is_admin(self):
+        return self.is_super_admin() or self.type == TEAM_TYPE_ADMIN

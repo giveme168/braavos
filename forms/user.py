@@ -23,6 +23,24 @@ class LoginForm(Form):
             return False
 
 
+class PwdChangeForm(Form):
+    old_password = PasswordField(u'原密码', [validators.Required(u"请输入原密码.")])
+    password = PasswordField(u'新密码', [validators.Required(u"请输入您的密码."),
+                                            validators.EqualTo('confirm', message=u'两次输入密码不一致')])
+    confirm = PasswordField(u'再次输入新密码', [validators.Required(u"请再次输入您的密码.")])
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+
+    def validate(self, user):
+        if not Form.validate(self):
+            return False
+        if not user.check_password(self.old_password.data):
+            self.old_password.errors.append(u"原密码错误.")
+            return False
+        return True
+
+
 class NewTeamForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
     type = SelectField(u'类型', coerce=int)

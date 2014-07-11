@@ -1,6 +1,6 @@
 #-*- coding: UTF-8 -*-
-from flask import Flask
-from flask.ext.login import LoginManager
+from flask import Flask, g
+from flask.ext.login import LoginManager, current_user
 from config import DEBUG, SECRET_KEY, SQLALCHEMY_DATABASE_URI
 from urls import register_blueprint
 
@@ -19,6 +19,14 @@ login_manager.login_view = "user.login"
 def load_user(userid):
     from models.user import User
     return User.get(userid)
+
+
+@app.before_request
+def request_user():
+    if current_user and current_user.is_authenticated():
+        g.user = current_user
+    else:
+        g.user = None
 
 # urls
 register_blueprint(app)

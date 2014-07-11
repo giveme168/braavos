@@ -4,6 +4,7 @@
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3>User - {{user.name}}</h3>
+    {% if g.user.team.is_admin() or g.user==user %}
     <div class="errors">
         {{','.join(form.name.errors+form.email.errors+form.phone.errors+form.team.errors)}}
     </div>
@@ -29,9 +30,20 @@
         <label for="status">{{form.status.label.text}}</label>
         {{form.status(class_='form-control')}}
       </div>
-        <input type="submit" class="btn btn-primary btn-sm" value="提交"/>
-        <a href="{{url_for('user.users')}}" class="btn btn-default btn-sm"> 返回</a>
+        <input type="submit" class="btn btn-primary btn-sm" value="保存"/>
+        <a href="{{url_for('user.pwd_reset', user_id=user.id)}}" class="btn btn-danger btn-sm"> 重设密码</a>
+    </form>
+    <br>
+    <br>
+    <div>* 重设密码统一设置为 pwd123</div>
+    {% else %}
+    <table class="table table-bordered table-striped">
+        <tr><th>名字</th><td>{{user.name}}</td></tr>
+        <tr><th>邮箱</th><td>{{user.email}}</td></tr>
+        <tr><th>手机</th><td>{{user.phone}}</td></tr>
+        <tr><th>Team</th><td>{{user.team.name}}</td></tr>
     </table>
+    {% endif %}
 </div>
 <style>
     .form-control{width: 300px;}
