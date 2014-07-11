@@ -2,6 +2,9 @@ body{
     min-height: 100%;
     background-color: #eee;
 }
+.errors{
+    color: #CC6655;
+}
 .container-fluid{
     max-width: 95%;
 }

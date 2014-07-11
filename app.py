@@ -5,6 +5,7 @@ from config import DEBUG, SECRET_KEY, SQLALCHEMY_DATABASE_URI
 from urls import register_blueprint
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SECRET_KEY'] = SECRET_KEY
 

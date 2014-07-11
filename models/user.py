@@ -1,9 +1,14 @@
 #-*- coding: UTF-8 -*-
 from werkzeug.security import generate_password_hash, check_password_hash
-from libs.db import db
+from . import db, BaseModelMixin
 
 USER_STATUS_ON = 1         # 有效
 USER_STATUS_OFF = 0        # 停用
+
+USER_STATUS_CN = {
+    USER_STATUS_OFF: u"停用",
+    USER_STATUS_ON: u"有效"
+}
 
 TEAM_TYPE_MEDIUM = 3       # 媒体
 TEAM_TYPE_INAD = 2         # inad内部team
@@ -18,7 +23,7 @@ TEAM_TYPE_CN = {
 }
 
 
-class User(db.Model):
+class User(db.Model, BaseModelMixin):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
@@ -60,7 +65,7 @@ class User(db.Model):
         return self.is_active()
 
 
-class Team(db.Model):
+class Team(db.Model, BaseModelMixin):
     __tablename__ = 'team'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
