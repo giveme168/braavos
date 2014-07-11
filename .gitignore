@@ -1,5 +1,7 @@
-env
-migrations
-local_config.py
+/env
+/migrations
+/local_config.py
+/venv
+/data
 *.pyc
 *.swp
