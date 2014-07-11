@@ -64,6 +64,10 @@ class User(db.Model, BaseModelMixin):
     def is_authenticated(self):
         return self.is_active()
 
+    @classmethod
+    def get_by_email(cls, email):
+        return cls.query.filter_by(email=email).first()
+
 
 class Team(db.Model, BaseModelMixin):
     __tablename__ = 'team'

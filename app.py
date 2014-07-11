@@ -18,7 +18,7 @@ login_manager.login_view = "user.login"
 @login_manager.user_loader
 def load_user(userid):
     from models.user import User
-    return User.query.filter_by(id=userid).first()
+    return User.get(userid)
 
 # urls
 register_blueprint(app)

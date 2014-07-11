@@ -28,7 +28,7 @@ def logout():
 @login_required
 def teams():
     from models.user import Team
-    teams = Team.query.all()
+    teams = Team.all()
     return tpl('teams.html', teams=teams)
 
 
@@ -36,7 +36,7 @@ def teams():
 @login_required
 def users():
     from models.user import User
-    users = User.query.all()
+    users = User.all()
     return tpl('users.html', users=users)
 
 

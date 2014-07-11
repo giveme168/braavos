@@ -15,7 +15,7 @@ class LoginForm(Form):
         if not Form.validate(self):
             return False
         from models.user import User
-        user = User.query.filter_by(email=self.email.data.lower()).first()
+        user = User.get_by_email(email=self.email.data.lower())
         if user and user.check_password(self.password.data):
             return user
         else:
@@ -48,13 +48,13 @@ class NewUserForm(Form):
         from models.user import Team, USER_STATUS_CN
         Form.__init__(self, *args, **kwargs)
         self.status.choices = USER_STATUS_CN.items()
-        self.team.choices = [(t.id, t.name) for t in Team.query.all()]
+        self.team.choices = [(t.id, t.name) for t in Team.all()]
 
     def validate(self, vali_email=True):
         if not Form.validate(self):
             return False
         from models.user import User
-        user = User.query.filter_by(email=self.email.data.lower()).first()
+        user = User.get_by_email(email=self.email.data.lower())
         if vali_email and user:
             self.email.errors.append(u' 该邮箱用户已存在')
             return False
