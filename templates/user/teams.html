@@ -1,0 +1,22 @@
+{% extends "/user_base.html" %}
+{% block title %}Teams{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>Team列表</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>#id</th>
+            <th>Name</th>
+            <th>Type</th>
+        </tr>
+        {% for t in teams %}
+        <tr>
+            <td>{{t.id}}</td>
+            <td><a href="/user/team_detail/{{t.id}}">{{t.name}}</a></td>
+            <td>{{t.type_cn}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

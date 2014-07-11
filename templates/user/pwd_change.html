@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}登录{% endblock %}
+
+{% block content %}
+<div class="form-unit">
+  <a href="/" class="brand text-center">
+    <h1>InAD 广告平台</h1>
+  </a>
+  <h3> 帐号密码修改</h3>
+  <form class="auth-form form-horizontal" method="POST">
+    {{ form.csrf_token() }}
+    <div class="errors">
+      {{ ','.join(form.old_password.errors+form.password.errors+form.confirm.errors) }}
+    </div>
+    <div class="form-field">
+      {{ form.old_password(class_='form-control', placeholder=form.old_password.label.text) }}
+    </div>
+    <div class="form-field">
+      {{ form.password(class_='form-control', placeholder=form.password.label.text) }}
+    </div>
+    <div class="form-field">
+      {{ form.confirm(class_='form-control', placeholder=form.confirm.label.text) }}
+    </div>
+    <input type="submit" class="btn btn-primary btn-large" value="更改"/>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/login.css" type="text/css">
+{% endblock %}

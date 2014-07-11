@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+
+{% block content %}
+    {% block navigation %}
+    <nav class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+           <a class="navbar-brand" href="#">InAD</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><a href="#">订单</a></li>
+            <li><a href="#">广告位</a></li>
+            <li><a href="#">用户</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            {%if g.user %}
+            <li><a href="{{url_for('user.user_detail', user_id=g.user.id)}}">{{g.user.name}}</a></li>
+            <li><a href="{{url_for('user.logout')}}">[退出]</a></li>
+            {% endif %}
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container-fluid -->
+    </nav>
+    {% endblock %}
+    {% block left_box %}{% endblock %}
+    {% block main_box %}{% endblock %}
+{% endblock %}
+

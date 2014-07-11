@@ -1,0 +1,20 @@
+{% extends "/site_base.html" %}
+
+{% block left_box%}
+<div class="bra-left bra-box">
+  <div class="list-group">
+      <a class="list-group-item" href="{{url_for('user.teams')}}">
+        <span class="glyphicon glyphicon-stats"></span> Teams
+    </a>
+    <a class="list-group-item" href="{{url_for('user.users')}}">
+        <span class="glyphicon glyphicon-user"></span> Users
+    </a>
+    <a class="list-group-item" href="{{url_for('user.new_team')}}">
+        <span class="glyphicon glyphicon-plus"></span> New Team
+    </a>
+    <a class="list-group-item" href="{{url_for('user.new_user')}}">
+        <span class="glyphicon glyphicon-plus"></span> New User
+    </a>
+  </div>
+</div>
+{% endblock %}

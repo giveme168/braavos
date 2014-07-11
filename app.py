@@ -1,25 +1,35 @@
 #-*- coding: UTF-8 -*-
-from flask import Flask, request
-from flask.ext.mako import MakoTemplates
-from flask.ext.mako import render_template as tpl
+from flask import Flask, g
+from flask.ext.login import LoginManager, current_user
 from config import DEBUG, SECRET_KEY, SQLALCHEMY_DATABASE_URI
+from urls import register_blueprint
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SECRET_KEY'] = SECRET_KEY
-app.config['MAKO_DEFAULT_FILTERS'] = ['decode.utf_8', 'h']
-app.config['MAKO_TRANSLATE_EXCEPTIONS'] = False
-mako = MakoTemplates(app)
+
+# login manager
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "user.login"
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+@login_manager.user_loader
+def load_user(userid):
     from models.user import User
-    from forms.login import LoginForm
-    form = LoginForm(request.form)
-    if request.method == 'POST' and form.validate():
-        return u"登录成功"
-    return tpl('login.html', form=form)
+    return User.get(userid)
+
+
+@app.before_request
+def request_user():
+    if current_user and current_user.is_authenticated():
+        g.user = current_user
+    else:
+        g.user = None
+
+# urls
+register_blueprint(app)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}登录{% endblock %}
+
+{% block content %}
+<div class="form-unit">
+  <a href="/" class="brand text-center">
+    <h1>InAD 广告平台</h1>
+  </a>
+  <h3>请使用您的InAD帐号</h3>
+  <form class="auth-form form-horizontal" method="POST">
+    {{ form.csrf_token() }}
+    {% if form.email.errors %} 
+    <div class="errors">
+      {{ ','.join(form.email.errors) }}
+    </div>
+    {% endif %}
+    <div class="form-field">
+      {{ form.email(class_='form-control', placeholder=form.email.label.text) }}
+    </div>
+    <div class="form-field">
+      {{ form.password(class_='form-control', placeholder=form.password.label.text) }}
+    </div>
+    <input type="submit" class="btn btn-primary btn-large" value="登录"/>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/login.css" type="text/css">
+{% endblock %}
