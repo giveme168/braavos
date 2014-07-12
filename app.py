@@ -1,5 +1,5 @@
 #-*- coding: UTF-8 -*-
-from flask import Flask, g
+from flask import Flask, g, request, url_for
 from flask.ext.login import LoginManager, current_user
 from config import DEBUG, SECRET_KEY, SQLALCHEMY_DATABASE_URI
 from urls import register_blueprint
@@ -25,8 +25,8 @@ def load_user(userid):
 def request_user():
     if current_user and current_user.is_authenticated():
         g.user = current_user
-    else:
-        g.user = None
+    elif url_for('user.login') != request.path and not request.path.startswith(u'/static/'):
+        return login_manager.unauthorized()
 
 # urls
 register_blueprint(app)

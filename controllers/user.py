@@ -1,7 +1,7 @@
 #-*- coding: UTF-8 -*-
 from flask import Blueprint, request, redirect, url_for, abort
 from flask import render_template as tpl
-from flask.ext.login import login_user, login_required, logout_user, current_user
+from flask.ext.login import login_user, logout_user, current_user
 from . import admin_required
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
@@ -27,7 +27,6 @@ def logout():
 
 
 @user_bp.route('/password_change', methods=['GET', 'POST'])
-@login_required
 def pwd_change():
     from forms.user import PwdChangeForm
     form = PwdChangeForm(request.form)
@@ -41,7 +40,6 @@ def pwd_change():
 
 
 @user_bp.route('/teams')
-@login_required
 @admin_required
 def teams():
     from models.user import Team
@@ -50,7 +48,6 @@ def teams():
 
 
 @user_bp.route('/users')
-@login_required
 @admin_required
 def users():
     from models.user import User
@@ -59,7 +56,6 @@ def users():
 
 
 @user_bp.route('/new_team', methods=['GET', 'POST'])
-@login_required
 @admin_required
 def new_team():
     from forms.user import NewTeamForm
@@ -74,7 +70,6 @@ def new_team():
 
 
 @user_bp.route('/team_detail/<team_id>', methods=['GET', 'POST'])
-@login_required
 @admin_required
 def team_detail(team_id):
     from forms.user import NewTeamForm
@@ -95,7 +90,6 @@ def team_detail(team_id):
 
 
 @user_bp.route('/new_user', methods=['GET', 'POST'])
-@login_required
 @admin_required
 def new_user():
     from forms.user import NewUserForm
@@ -110,7 +104,6 @@ def new_user():
 
 
 @user_bp.route('/user_detail/<user_id>', methods=['GET', 'POST'])
-@login_required
 def user_detail(user_id):
     from forms.user import NewUserForm
     from models.user import User, Team
@@ -136,7 +129,6 @@ def user_detail(user_id):
 
 
 @user_bp.route('/pwd_reset/<user_id>')
-@login_required
 @admin_required
 def pwd_reset(user_id):
     from models.user import User
