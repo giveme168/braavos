@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.6"
+  - "2.7"
+install:
+  - pip install -r requirements.txt
+script:
+  - py.test --tb=short tests --random
+notifications:
+  slack: onemoment:PuhHVHeFZDi3zg7ome8zT0yB
