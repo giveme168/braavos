@@ -1,3 +1,5 @@
+[![Build Status](https://drone.io/github.com/borngods/braavos/status.png)](https://drone.io/github.com/borngods/braavos/latest)
+
 ## Braavos
 
 How To:
