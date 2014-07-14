@@ -2,6 +2,7 @@
 from flask import Blueprint, request, redirect, url_for, abort, g
 from flask import render_template as tpl
 from flask.ext.login import login_user, logout_user, current_user
+
 from . import admin_required
 from models.user import Team, User
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
