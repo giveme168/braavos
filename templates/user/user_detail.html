@@ -10,28 +10,36 @@
     </div>
     <form class="form" method="POST">
       {{form.csrf_token}}
+      {% set hidden = '' if g.user.team.is_admin() else 'hidden' %}
       <div class="form-group">
         <label for="name">{{form.name.label.text}}</label>
         {{form.name(class_='form-control', placeholder=form.name.label.text)}}
       </div>
       <div class="form-group">
         <label for="email">{{form.email.label.text}}</label>
+        {% if g.user.team.is_admin() %}
         {{form.email(class_='form-control', placeholder=form.email.label.text)}}
+        {% else %}
+        {{form.email(class_='form-control', placeholder=form.email.label.text, readonly="readonly")}}
+        {% endif %}
       </div>
       <div class="form-group">
         <label for="phone">{{form.phone.label.text}}</label>
         {{form.phone(class_='form-control', placeholder=form.phone.label.text)}}
       </div>
-      <div class="form-group">
+      <div class="form-group {{hidden}}">
         <label for="team">{{form.team.label.text}}</label>
         {{form.team(class_='form-control')}}
       </div>
-      <div class="form-group">
+      <div class="form-group {{hidden}}">
         <label for="status">{{form.status.label.text}}</label>
         {{form.status(class_='form-control')}}
       </div>
         <input type="submit" class="btn btn-primary btn-sm" value="保存"/>
+        <a href="{{url_for('user.pwd_change')}}" class="btn btn-info btn-sm">  修改密码</a>
+        {% if g.user.team.is_admin() %}
         <a href="{{url_for('user.pwd_reset', user_id=user.id)}}" class="btn btn-danger btn-sm"> 重设密码</a>
+        {% endif %}
     </form>
     <br>
     <br>

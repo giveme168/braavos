@@ -3,12 +3,15 @@ from flask import Flask, g, request, url_for
 from flask.ext.login import LoginManager, current_user
 from config import DEBUG, SECRET_KEY, SQLALCHEMY_DATABASE_URI
 from urls import register_blueprint
+from libs.db import init_db
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SECRET_KEY'] = SECRET_KEY
 
+# init db
+init_db(app)
 # login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
