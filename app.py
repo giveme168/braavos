@@ -11,9 +11,8 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SECRET_KEY'] = SECRET_KEY
 
-# init db
 init_db(app)
-# login manager
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "user.login"

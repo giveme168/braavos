@@ -6,9 +6,9 @@ from flask.ext.login import login_user, logout_user, current_user
 from . import admin_required
 from models.user import Team, User
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
+from config import DEFAULT_PASSWORD
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
-DEFAULT_PASSWORD = 'pwd123'
 
 
 @user_bp.route('/login', methods=['GET', 'POST'])
@@ -106,7 +106,7 @@ def user_detail(user_id):
         if form.validate(vali_email=False):
             user.name = form.name.data
             user.phone = form.phone.data
-            if g.user.team.is_admin():  #   只有管理员才有权限修改 email team status
+            if g.user.team.is_admin():  # 只有管理员才有权限修改 email team status
                 user.email = form.email.data
                 user.team = Team.get(form.team.data)
                 user.status = form.status.data
@@ -117,7 +117,7 @@ def user_detail(user_id):
         form.phone.data = user.phone
         form.team.data = user.team
         form.status.data = user.status
-    return tpl('user_detail.html', user=user, form=form)
+    return tpl('user_detail.html', user=user, form=form, DEFAULT_PASSWORD=DEFAULT_PASSWORD)
 
 
 @user_bp.route('/mine')
