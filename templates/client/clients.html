@@ -1,0 +1,22 @@
+{% extends "/client_base.html" %}
+{% block title %} 客户列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3> 客户列表</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>#id</th>
+            <th>名字</th>
+            <th>行业</th>
+        </tr>
+        {% for c in clients %}
+        <tr>
+            <td>{{c.id}}</td>
+            <td><a href="{{url_for("client.client_detail", client_id=c.id)}}">{{c.name}}</a></td>
+            <td>{{c.industry_cn}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
