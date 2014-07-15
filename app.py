@@ -1,15 +1,18 @@
 #-*- coding: UTF-8 -*-
-from flask import Flask, g
+from flask import Flask, g, request, url_for
 from flask.ext.login import LoginManager, current_user
+
 from config import DEBUG, SECRET_KEY, SQLALCHEMY_DATABASE_URI
 from urls import register_blueprint
+from libs.db import init_db
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SECRET_KEY'] = SECRET_KEY
 
-# login manager
+init_db(app)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "user.login"
@@ -25,8 +28,8 @@ def load_user(userid):
 def request_user():
     if current_user and current_user.is_authenticated():
         g.user = current_user
-    else:
-        g.user = None
+    elif url_for('user.login') != request.path and not request.path.startswith(u'/static/'):
+        return login_manager.unauthorized()
 
 # urls
 register_blueprint(app)

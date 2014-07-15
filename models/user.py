@@ -1,5 +1,6 @@
 #-*- coding: UTF-8 -*-
 from werkzeug.security import generate_password_hash, check_password_hash
+
 from . import db, BaseModelMixin
 
 USER_STATUS_ON = 1         # 有效

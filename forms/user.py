@@ -2,6 +2,8 @@
 from flask.ext.wtf import Form
 from wtforms import TextField, validators, PasswordField, SelectField
 
+from models.user import User, Team, TEAM_TYPE_CN, USER_STATUS_CN
+
 
 class LoginForm(Form):
     email = TextField(u'邮箱', [validators.Required(u"请输入邮箱地址."),
@@ -14,7 +16,6 @@ class LoginForm(Form):
     def validate(self):
         if not Form.validate(self):
             return False
-        from models.user import User
         user = User.get_by_email(email=self.email.data.lower())
         if user and user.check_password(self.password.data):
             return user
@@ -46,7 +47,6 @@ class NewTeamForm(Form):
     type = SelectField(u'类型', coerce=int)
 
     def __init__(self, *args, **kwargs):
-        from models.user import TEAM_TYPE_CN
         Form.__init__(self, *args, **kwargs)
         self.type.choices = TEAM_TYPE_CN.items()
 
@@ -63,7 +63,6 @@ class NewUserForm(Form):
     team = SelectField(u'Team', coerce=int)
 
     def __init__(self, *args, **kwargs):
-        from models.user import Team, USER_STATUS_CN
         Form.__init__(self, *args, **kwargs)
         self.status.choices = USER_STATUS_CN.items()
         self.team.choices = [(t.id, t.name) for t in Team.all()]
@@ -71,7 +70,6 @@ class NewUserForm(Form):
     def validate(self, vali_email=True):
         if not Form.validate(self):
             return False
-        from models.user import User
         user = User.get_by_email(email=self.email.data.lower())
         if vali_email and user:
             self.email.errors.append(u' 该邮箱用户已存在')

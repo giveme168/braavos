@@ -1,16 +1,18 @@
 #-*- coding: UTF-8 -*-
-from flask import Blueprint, request, redirect, url_for, abort
+from flask import Blueprint, request, redirect, url_for, abort, g
 from flask import render_template as tpl
-from flask.ext.login import login_user, login_required, logout_user, current_user
+from flask.ext.login import login_user, logout_user, current_user
+
 from . import admin_required
+from models.user import Team, User
+from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
+from config import DEFAULT_PASSWORD
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
-DEFAULT_PASSWORD = 'pwd123'
 
 
 @user_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    from forms.user import LoginForm
     form = LoginForm(request.form)
     if request.method == 'POST':
         user = form.validate()
@@ -27,9 +29,7 @@ def logout():
 
 
 @user_bp.route('/password_change', methods=['GET', 'POST'])
-@login_required
 def pwd_change():
-    from forms.user import PwdChangeForm
     form = PwdChangeForm(request.form)
     if request.method == 'POST':
         user = current_user
@@ -41,29 +41,22 @@ def pwd_change():
 
 
 @user_bp.route('/teams')
-@login_required
 @admin_required
 def teams():
-    from models.user import Team
     teams = Team.all()
     return tpl('teams.html', teams=teams)
 
 
 @user_bp.route('/users')
-@login_required
 @admin_required
 def users():
-    from models.user import User
     users = User.all()
     return tpl('users.html', users=users)
 
 
 @user_bp.route('/new_team', methods=['GET', 'POST'])
-@login_required
 @admin_required
 def new_team():
-    from forms.user import NewTeamForm
-    from models.user import Team
     form = NewTeamForm(request.form)
     if request.method == 'POST':
         if form.validate():
@@ -74,11 +67,8 @@ def new_team():
 
 
 @user_bp.route('/team_detail/<team_id>', methods=['GET', 'POST'])
-@login_required
 @admin_required
 def team_detail(team_id):
-    from forms.user import NewTeamForm
-    from models.user import Team
     team = Team.get(team_id)
     if not team:
         abort(404)
@@ -95,11 +85,8 @@ def team_detail(team_id):
 
 
 @user_bp.route('/new_user', methods=['GET', 'POST'])
-@login_required
 @admin_required
 def new_user():
-    from forms.user import NewUserForm
-    from models.user import User, Team
     form = NewUserForm(request.form)
     if request.method == 'POST':
         if form.validate():
@@ -110,10 +97,7 @@ def new_user():
 
 
 @user_bp.route('/user_detail/<user_id>', methods=['GET', 'POST'])
-@login_required
 def user_detail(user_id):
-    from forms.user import NewUserForm
-    from models.user import User, Team
     user = User.get(user_id)
     if not user:
         abort(404)
@@ -121,10 +105,11 @@ def user_detail(user_id):
     if request.method == 'POST':
         if form.validate(vali_email=False):
             user.name = form.name.data
-            user.email = form.email.data
             user.phone = form.phone.data
-            user.team = Team.get(form.team.data)
-            user.status = form.status.data
+            if g.user.team.is_admin():  # 只有管理员才有权限修改 email team status
+                user.email = form.email.data
+                user.team = Team.get(form.team.data)
+                user.status = form.status.data
             user.save()
     else:
         form.name.data = user.name
@@ -132,14 +117,17 @@ def user_detail(user_id):
         form.phone.data = user.phone
         form.team.data = user.team
         form.status.data = user.status
-    return tpl('user_detail.html', user=user, form=form)
+    return tpl('user_detail.html', user=user, form=form, DEFAULT_PASSWORD=DEFAULT_PASSWORD)
+
+
+@user_bp.route('/mine')
+def mine():
+    return redirect(url_for('user.user_detail', user_id=g.user.id))
 
 
 @user_bp.route('/pwd_reset/<user_id>')
-@login_required
 @admin_required
 def pwd_reset(user_id):
-    from models.user import User
     user = User.get(user_id)
     if not user:
         abort(404)
