@@ -85,7 +85,7 @@ class Team(db.Model, BaseModelMixin):
         self.type = type
 
     def __repr__(self):
-        return '<Team %s>' % (self.name)
+        return '<Team %s, type=%s>' % (self.name, self.type_cn)
 
     @property
     def type_cn(self):

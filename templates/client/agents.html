@@ -1,0 +1,20 @@
+{% extends "/client_base.html" %}
+{% block title %}  代理列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3> 代理列表</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>#id</th>
+            <th>名字</th>
+        </tr>
+        {% for a in agents %}
+        <tr>
+            <td>{{a.id}}</td>
+            <td><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

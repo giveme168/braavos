@@ -1,0 +1,21 @@
+{% extends "/client_base.html" %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>新建 代理</h3>
+    <div class="errors">
+        {{','.join(form.name.errors)}}
+    </div>
+    <form class="form" method="POST">
+      {{form.csrf_token}}
+      <div class="form-group">
+        <label for="name">{{form.name.label.text}}</label>
+        {{form.name(class_='form-control', placeholder=form.name.label.text)}}
+      </div>
+        <input type="submit" class="btn btn-primary btn-sm" value="提交"/>
+    </table>
+    <style>
+        .form-control{width: 300px;}
+    </style>
+</div>
+{% endblock %}
