@@ -10,15 +10,13 @@
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-            <li><a href="#">订单</a></li>
-            <li><a href="#">广告位</a></li>
-            <li><a href="#">用户</a></li>
+            <li><a href="{{url_for('client.index')}}">客户</a></li>
+            <li><a href="{{url_for('medium.index')}}">媒体</a></li>
+            <li><a href="{{url_for('user.index')}}">用户</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            {%if g.user %}
             <li><a href="{{url_for('user.mine')}}">{{g.user.name}}</a></li>
             <li><a href="{{url_for('user.logout')}}">[退出]</a></li>
-            {% endif %}
           </ul>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container-fluid -->

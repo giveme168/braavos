@@ -96,3 +96,6 @@ class Team(db.Model, BaseModelMixin):
 
     def is_admin(self):
         return self.is_super_admin() or self.type == TEAM_TYPE_ADMIN
+
+    def is_medium(self):
+        return self.type == TEAM_TYPE_MEDIUM

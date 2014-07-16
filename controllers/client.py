@@ -8,6 +8,11 @@ from forms.client import NewClientForm, NewAgentForm
 client_bp = Blueprint('client', __name__, template_folder='../templates/client')
 
 
+@client_bp.route('/', methods=['GET'])
+def index():
+    return redirect(url_for('client.clients'))
+
+
 @client_bp.route('/new_client', methods=['GET', 'POST'])
 def new_client():
     form = NewClientForm(request.form)
