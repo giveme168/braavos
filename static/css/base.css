@@ -5,6 +5,10 @@ body{
 .errors{
     color: #CC6655;
 }
+.bra-form-control{
+    width: 300px;
+    display: inline-block;
+}
 .container-fluid{
     max-width: 95%;
 }

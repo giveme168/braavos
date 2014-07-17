@@ -19,6 +19,8 @@ def new_client():
     if request.method == 'POST' and form.validate():
         client = Client(form.name.data, form.industry.data)
         client.add()
+        if request.values.get('next'):
+            return redirect(request.values.get('next'))
         return redirect(url_for("client.clients"))
     return tpl('client.html', form=form)
 
@@ -29,6 +31,8 @@ def new_agent():
     if request.method == 'POST' and form.validate():
         agent = Agent(form.name.data)
         agent.add()
+        if request.values.get('next'):
+            return redirect(request.values.get('next'))
         return redirect(url_for("client.agents"))
     return tpl('agent.html', form=form)
 

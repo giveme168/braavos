@@ -10,9 +10,12 @@
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
+            <li><a href="{{url_for('order.index')}}">订单</a></li>
             <li><a href="{{url_for('client.index')}}">客户</a></li>
+            {% if g.user.team.is_admin() %}
             <li><a href="{{url_for('medium.index')}}">媒体</a></li>
             <li><a href="{{url_for('user.index')}}">用户</a></li>
+            {% endif %}
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="{{url_for('user.mine')}}">{{g.user.name}}</a></li>

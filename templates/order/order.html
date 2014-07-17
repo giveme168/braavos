@@ -1,0 +1,40 @@
+{% extends "/order_base.html" %}
+{% from 'form.html' import form_field %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <form class="form form-horizontal" method="POST">
+      {{form.csrf_token}}
+      {% set field=form.client%}
+      <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">{{field.label.text}} : </label>
+        <div class="col-sm-10">
+            {{field(class_='form-control bra-form-control chosen-select', placeholder="选择一个客户...")}}
+            <span class="errors">{{','.join(field.errors)}}</span>
+            <span><a href="{{url_for('client.new_client', next=url_for('order.new_order'))}}">新建客户</a></span>
+        </div>
+      </div>
+      {{ form_field(form.campaign) }}
+      {{ form_field(form.medium) }}
+      {{ form_field(form.order_type) }}
+      {{ form_field(form.contract) }}
+      {{ form_field(form.money) }}
+      {% set field=form.agent%}
+      <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">{{field.label.text}} : </label>
+        <div class="col-sm-10">
+            {{field(class_='form-control bra-form-control', placeholder=field.label.text)}}
+            <span class="errors">{{','.join(field.errors)}}</span>
+            <span><a href="{{url_for('client.new_agent', next=url_for('order.new_order'))}}">新建代理</a></span>
+        </div>
+      </div>
+      {{ form_field(form.direct_sales) }}
+      {{ form_field(form.agent_sales) }}
+      {{ form_field(form.creator) }}
+      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+    </form>
+</div>
+<script>
+$("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10});
+</script>
+{% endblock %}

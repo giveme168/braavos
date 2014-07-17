@@ -1,0 +1,24 @@
+{% extends "/order_base.html" %}
+{% block title %}订单列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3> 订单列表</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>订单名</th>
+            <th>投放媒体</th>
+            <th>代理商</th>
+            <th>创建者</th>
+        </tr>
+        {% for o in orders %}
+        <tr>
+            <td><a href="{{url_for("order.order_detail", order_id=o.id)}}">{{o.name}}</a></td>
+            <td>{{o.medium.name}}</td>
+            <td>{{o.agent.name if o.agent else '无'}}</td>
+            <td>{{o.creator.name}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
