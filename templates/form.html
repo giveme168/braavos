@@ -7,6 +7,7 @@
           {% else %}
             {{field(class_='form-control bra-form-control', placeholder=field.label.text)}}
           {% endif %}
+            <span class="tips">{{field.description}}</span>
             <span class="errors">{{','.join(field.errors)}}</span>
         </div>
       </div>

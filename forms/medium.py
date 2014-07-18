@@ -1,8 +1,9 @@
 #-*- coding: UTF-8 -*-
 from flask.ext.wtf import Form
-from wtforms import TextField, validators, SelectField
+from wtforms import IntegerField, TextField, validators, SelectField, TextAreaField, SelectMultipleField
 
 from models.user import Team
+from models.medium import STATUS_CN, TARGET_CN, AdSize, AdPosition, AdUnit, Medium, POSITION_LEVEL_CN
 
 
 class NewMediumForm(Form):
@@ -15,3 +16,46 @@ class NewMediumForm(Form):
 
     def validate(self):
         return Form.validate(self)
+
+
+class SizeForm(Form):
+    width = IntegerField(u'Width', [validators.Required(u"请输入宽度.")])
+    height = IntegerField(u'Height', [validators.Required(u"请输入高度.")])
+
+
+class UnitForm(Form):
+    name = TextField(u'名字', [validators.Required(u"请输入名字.")])
+    description = TextAreaField(u'描述', [validators.Required(u"请输入描述.")])
+    size = SelectField(u'大小', coerce=int)
+    margin = TextField(u'外边距', [validators.Required(u"请输入外边距.")], default="0px 0px 0px 0px")
+    target = SelectField(u'target', coerce=int)
+    status = SelectField(u'状态', coerce=int)
+    positions = SelectMultipleField(u'属于以下展示位置', coerce=int)
+    medium = SelectField(u'所属媒体', coerce=int)
+    estimate_num = IntegerField(u'预估量', [validators.Required(u"请输入预估量.")])
+
+    def __init__(self, *args, **kwargs):
+        super(UnitForm, self).__init__(*args, **kwargs)
+        self.target.choices = TARGET_CN.items()
+        self.status.choices = STATUS_CN.items()
+        self.size.choices = [(x.id, x.name) for x in AdSize.all()]
+        self.positions.choices = [(x.id, x.name) for x in AdPosition.all()]
+        self.medium.choices = [(x.id, x.name) for x in Medium.all()]
+
+
+class PositionForm(Form):
+    name = TextField(u'名字', [validators.Required(u"请输入名字.")])
+    description = TextAreaField(u'描述', [validators.Required(u"请输入描述.")])
+    size = SelectField(u'大小', coerce=int)
+    status = SelectField(u'状态', coerce=int)
+    units = SelectMultipleField(u'包含以下广告单元', coerce=int)
+    medium = SelectField(u'所属媒体', coerce=int)
+    level = SelectField(u'资源类别', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(PositionForm, self).__init__(*args, **kwargs)
+        self.status.choices = STATUS_CN.items()
+        self.size.choices = [(x.id, x.name) for x in AdSize.all()]
+        self.units.choices = [(x.id, x.name) for x in AdUnit.all()]
+        self.medium.choices = [(x.id, x.name) for x in Medium.all()]
+        self.level.choices = POSITION_LEVEL_CN.items()

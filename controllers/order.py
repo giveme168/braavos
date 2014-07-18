@@ -26,7 +26,8 @@ def new_order():
                       medium=Medium.get(form.medium.data), order_type=form.order_type.data,
                       contract=form.contract.data, money=form.money.data,
                       agent=Agent.get(form.agent.data), direct_sales=User.gets(form.direct_sales.data),
-                      agent_sales=User.gets(form.agent_sales.data), creator=g.user,
+                      agent_sales=User.gets(form.agent_sales.data), operaters=User.gets(form.operaters.data),
+                      planers=User.gets(form.planers.data), designers=User.gets(form.designers.data), creator=g.user,
                       create_time=datetime.datetime.now())
         order.add()
         return redirect(url_for("order.orders"))
@@ -51,11 +52,15 @@ def order_detail(order_id):
         order.agent = Agent.get(form.agent.data)
         order.direct_sales = User.gets(form.direct_sales.data)
         order.agent_sales = User.gets(form.agent_sales.data)
+        order.operaters = User.gets(form.operaters.data)
+        order.designers = User.gets(form.designers.data)
+        order.planers = User.gets(form.planers.data)
         order.save()
         return redirect(url_for("order.orders"))
     else:
         form.client.data = order.client.id
         form.campaign.data = order.campaign
+        form.medium.choices = [(order.medium.id, order.medium.name)]
         form.medium.data = order.medium.id
         form.order_type.data = order.order_type
         form.contract.data = order.contract
@@ -63,6 +68,9 @@ def order_detail(order_id):
         form.agent.data = order.agent.id
         form.direct_sales.data = [u.id for u in order.direct_sales]
         form.agent_sales.data = [u.id for u in order.agent_sales]
+        form.operaters.data = [u.id for u in order.operaters]
+        form.designers.data = [u.id for u in order.designers]
+        form.planers.data = [u.id for u in order.planers]
         form.creator.data = g.user.name
     return tpl('order.html', form=form)
 
