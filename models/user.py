@@ -50,6 +50,10 @@ class User(db.Model, BaseModelMixin):
     def __repr__(self):
         return '<User %s, %s>' % (self.name, self.email)
 
+    @property
+    def display_name(self):
+        return "%s@%s" % (self.name, self.team.name)
+
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
         db.session.commit()

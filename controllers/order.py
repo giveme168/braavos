@@ -1,4 +1,6 @@
 #-*- coding: UTF-8 -*-
+import datetime
+
 from flask import Blueprint, request, redirect, abort, url_for, g
 from flask import render_template as tpl
 
@@ -24,7 +26,8 @@ def new_order():
                       medium=Medium.get(form.medium.data), order_type=form.order_type.data,
                       contract=form.contract.data, money=form.money.data,
                       agent=Agent.get(form.agent.data), direct_sales=User.gets(form.direct_sales.data),
-                      agent_sales=User.gets(form.agent_sales.data), creator=g.user)
+                      agent_sales=User.gets(form.agent_sales.data), creator=g.user,
+                      create_time=datetime.datetime.now())
         order.add()
         return redirect(url_for("order.orders"))
     else:

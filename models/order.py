@@ -1,4 +1,6 @@
 #-*- coding: UTF-8 -*-
+import datetime
+
 from . import db, BaseModelMixin
 
 ORDER_TYPE_NORMAL = 0         # 标准广告
@@ -9,16 +11,16 @@ ORDER_TYPE_CN = {
 
 direct_sales = db.Table('order_direct_sales',
                         db.Column('sale_id', db.Integer, db.ForeignKey('user.id')),
-                        db.Column('order_id', db.Integer, db.ForeignKey('order.id'))
+                        db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id'))
                         )
 agent_sales = db.Table('order_agent_sales',
                        db.Column('agent_sale_id', db.Integer, db.ForeignKey('user.id')),
-                       db.Column('order_id', db.Integer, db.ForeignKey('order.id'))
+                       db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id'))
                        )
 
 
 class Order(db.Model, BaseModelMixin):
-    __tablename__ = 'order'
+    __tablename__ = 'bra_order'
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
     client = db.relationship('Client', backref=db.backref('orders', lazy='dynamic'))
@@ -36,9 +38,10 @@ class Order(db.Model, BaseModelMixin):
                                   backref=db.backref('agent_orders', lazy='dynamic'))
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_orders', lazy='dynamic'))
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def __init__(self, client, campaign, medium, order_type, contract, money,
-                 agent, direct_sales, agent_sales, creator):
+                 agent, direct_sales, agent_sales, creator, create_time):
         self.client = client
         self.campaign = campaign.title()
         self.medium = medium
@@ -49,6 +52,7 @@ class Order(db.Model, BaseModelMixin):
         self.direct_sales = direct_sales
         self.agent_sales = agent_sales
         self.creator = creator
+        self.create_time = create_time
 
     def __repr__(self):
         return '<Order %s>' % (self.name)

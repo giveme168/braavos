@@ -63,11 +63,12 @@ def users():
 @admin_required
 def new_team():
     form = NewTeamForm(request.form)
-    if request.method == 'POST':
-        if form.validate():
-            team = Team(form.name.data, form.type.data)
-            team.add()
-            return redirect(url_for("user.teams"))
+    if request.method == 'POST' and form.validate():
+        team = Team(form.name.data, form.type.data)
+        team.add()
+        if request.values.get('next'):
+            return redirect(request.values.get('next'))
+        return redirect(url_for("user.teams"))
     return tpl('new_team.html', form=form)
 
 

@@ -2,7 +2,7 @@
 from flask.ext.wtf import Form
 from wtforms import TextField, validators, PasswordField, SelectField
 
-from models.user import User, Team, TEAM_TYPE_CN, USER_STATUS_CN
+from models.user import User, Team, TEAM_TYPE_CN, USER_STATUS_CN, TEAM_TYPE_MEDIUM
 
 
 class LoginForm(Form):
@@ -44,7 +44,7 @@ class PwdChangeForm(Form):
 
 class NewTeamForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
-    type = SelectField(u'类型', coerce=int)
+    type = SelectField(u'类型', coerce=int, default=TEAM_TYPE_MEDIUM)
 
     def __init__(self, *args, **kwargs):
         Form.__init__(self, *args, **kwargs)

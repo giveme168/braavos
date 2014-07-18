@@ -31,4 +31,10 @@ class OrderForm(Form):
         self.creator.readonly = True
 
     def validate(self):
-        return Form.validate(self)
+        if Form.validate(self):
+            if any(self.direct_sales.data + self.agent_sales.data):
+                return True
+            else:
+                self.direct_sales.errors.append(u"直接销售和渠道销售不能全为空")
+                return False
+        return False
