@@ -21,7 +21,7 @@ class OrderForm(Form):
     creator = TextField(u'创建者')
 
     def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
+        super(OrderForm, self).__init__(*args, **kwargs)
         self.client.choices = [(c.id, c.name) for c in Client.all()]
         self.medium.choices = [(m.id, m.name) for m in Medium.all()]
         self.order_type.choices = ORDER_TYPE_CN.items()

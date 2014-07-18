@@ -11,7 +11,7 @@ class LoginForm(Form):
     password = PasswordField(u'密码', [validators.Required(u"请输入您的密码.")])
 
     def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
+        super(LoginForm, self).__init__(*args, **kwargs)
 
     def validate(self):
         if not Form.validate(self):
@@ -31,7 +31,7 @@ class PwdChangeForm(Form):
     confirm = PasswordField(u'再次输入新密码', [validators.Required(u"请再次输入您的密码.")])
 
     def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
+        super(PwdChangeForm, self).__init__(*args, **kwargs)
 
     def validate(self, user):
         if not Form.validate(self):
@@ -47,7 +47,7 @@ class NewTeamForm(Form):
     type = SelectField(u'类型', coerce=int, default=TEAM_TYPE_MEDIUM)
 
     def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
+        super(NewTeamForm, self).__init__(*args, **kwargs)
         self.type.choices = TEAM_TYPE_CN.items()
 
     def validate(self):
@@ -63,7 +63,7 @@ class NewUserForm(Form):
     team = SelectField(u'Team', coerce=int)
 
     def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
+        super(NewUserForm, self).__init__(*args, **kwargs)
         self.status.choices = USER_STATUS_CN.items()
         self.team.choices = [(t.id, t.name) for t in Team.all()]
 

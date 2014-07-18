@@ -10,7 +10,7 @@ class NewMediumForm(Form):
     owner = SelectField(u'管理组', coerce=int)
 
     def __init__(self, *args, **kwargs):
-        Form.__init__(self, *args, **kwargs)
+        super(NewMediumForm, self).__init__(*args, **kwargs)
         self.owner.choices = [(t.id, t.name) for t in Team.all() if t.is_medium()]
 
     def validate(self):
