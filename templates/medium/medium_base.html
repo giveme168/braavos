@@ -1,0 +1,14 @@
+{% extends "/site_base.html" %}
+
+{% block left_box%}
+<div class="bra-left bra-box">
+  <div class="list-group">
+    <a class="list-group-item" href="{{url_for('medium.mediums')}}">
+        <span class="glyphicon glyphicon-stats"></span> 媒体 
+    </a>
+    <a class="list-group-item" href="{{url_for('medium.new_medium')}}">
+        <span class="glyphicon glyphicon-plus"></span> 新建媒体
+    </a>
+  </div>
+</div>
+{% endblock %}

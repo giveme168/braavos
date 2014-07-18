@@ -11,6 +11,11 @@ from config import DEFAULT_PASSWORD
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
 
 
+@user_bp.route('/', methods=['GET'])
+def index():
+    return redirect(url_for('user.teams'))
+
+
 @user_bp.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
@@ -58,11 +63,12 @@ def users():
 @admin_required
 def new_team():
     form = NewTeamForm(request.form)
-    if request.method == 'POST':
-        if form.validate():
-            team = Team(form.name.data, form.type.data)
-            team.add()
-            return redirect(url_for("user.teams"))
+    if request.method == 'POST' and form.validate():
+        team = Team(form.name.data, form.type.data)
+        team.add()
+        if request.values.get('next'):
+            return redirect(request.values.get('next'))
+        return redirect(url_for("user.teams"))
     return tpl('new_team.html', form=form)
 
 
@@ -115,7 +121,7 @@ def user_detail(user_id):
         form.name.data = user.name
         form.email.data = user.email
         form.phone.data = user.phone
-        form.team.data = user.team
+        form.team.data = user.team_id
         form.status.data = user.status
     return tpl('user_detail.html', user=user, form=form, DEFAULT_PASSWORD=DEFAULT_PASSWORD)
 

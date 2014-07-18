@@ -8,12 +8,19 @@ from forms.client import NewClientForm, NewAgentForm
 client_bp = Blueprint('client', __name__, template_folder='../templates/client')
 
 
+@client_bp.route('/', methods=['GET'])
+def index():
+    return redirect(url_for('client.clients'))
+
+
 @client_bp.route('/new_client', methods=['GET', 'POST'])
 def new_client():
     form = NewClientForm(request.form)
     if request.method == 'POST' and form.validate():
         client = Client(form.name.data, form.industry.data)
         client.add()
+        if request.values.get('next'):
+            return redirect(request.values.get('next'))
         return redirect(url_for("client.clients"))
     return tpl('client.html', form=form)
 
@@ -24,6 +31,8 @@ def new_agent():
     if request.method == 'POST' and form.validate():
         agent = Agent(form.name.data)
         agent.add()
+        if request.values.get('next'):
+            return redirect(request.values.get('next'))
         return redirect(url_for("client.agents"))
     return tpl('agent.html', form=form)
 

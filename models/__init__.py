@@ -20,5 +20,9 @@ class BaseModelMixin():
         return cls.query.filter_by(id=model_id).first()
 
     @classmethod
+    def gets(cls, model_ids):
+        return [cls.get(id) for id in model_ids]
+
+    @classmethod
     def all(cls):
         return cls.query.all()

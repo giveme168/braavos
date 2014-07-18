@@ -1,6 +1,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
+from app import app
 from models.user import User, Team, TEAM_TYPE_SUPER_ADMIN
 
 team = Team('Test Admin Team', type=TEAM_TYPE_SUPER_ADMIN)
