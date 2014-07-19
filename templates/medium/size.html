@@ -1,0 +1,13 @@
+{% extends "/order_base.html" %}
+{% from 'form.html' import form_field %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <form class="form form-horizontal" method="POST">
+      {{form.csrf_token}}
+      {{ form_field(form.width) }}
+      {{ form_field(form.height) }}
+      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+    </form>
+</div>
+{% endblock %}

@@ -30,11 +30,21 @@
       </div>
       {{ form_field(form.direct_sales) }}
       {{ form_field(form.agent_sales) }}
+      {{ form_field(form.operaters) }}
+      {{ form_field(form.designers) }}
+      {{ form_field(form.planers) }}
       {{ form_field(form.creator) }}
       <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
     </form>
 </div>
 <script>
-$("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10});
+$(document).ready(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10});
+{% if form.contract.data %}
+{% if form.contract.data != '' %}
+    $('#contract').attr("readonly",true);
+{% endif %}
+{% endif %}
+});
 </script>
 {% endblock %}
