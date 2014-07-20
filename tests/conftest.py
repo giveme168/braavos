@@ -49,30 +49,3 @@ def session(db, request):
 
     request.addfinalizer(teardown)
     return session
-
-'''
-from sqlalchemy import create_engine
-from braavos.libs.db import db
-
-
-@pytest.fixture(scope='session')
-def connection(request):
-    engine = create_engine('postgresql://localhost/test_bar')
-    db.Base.metadata.create_all(engine)
-    connection = engine.connect()
-    db.session.registry.clear()
-    db.session.configure(bind=connection)
-    db.Base.metadata.bind = engine
-    request.addfinalizer(db.Base.metadata.drop_all)
-    return connection
-
-
-@pytest.fixture
-def db_session(request, connection):
-    from transaction import abort
-    trans = connection.begin()
-    request.addfinalizer(trans.rollback)
-    request.addfinalizer(abort)
-
-    return db.session
-'''
