@@ -1,6 +1,6 @@
 import pytest
-from braavos.factory import create_app
-from braavos.libs.db import db as _db
+from factory import create_app
+from libs.db import db as _db
 
 
 @pytest.fixture(scope='session')

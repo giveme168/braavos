@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from braavos.libs.db import db
+from libs.db import db
 
 
 class BaseModelMixin():

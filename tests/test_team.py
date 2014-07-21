@@ -1,6 +1,6 @@
 # coding: utf-8
 from pytest_bdd import scenario, given, when, then
-from braavos.models.user import Team
+from models.user import Team
 
 
 @scenario('team.feature', 'use name, create team')
