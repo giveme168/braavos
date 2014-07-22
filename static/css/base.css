@@ -2,6 +2,9 @@ body{
     min-height: 100%;
     background-color: #eee;
 }
+#footer {
+    margin-top: 20px;
+}
 .errors{
     color: #CC6655;
 }
@@ -57,4 +60,8 @@ body{
 
 .bra-left .list-group-item {
     border: none; 
+}
+
+.tab-pane {
+    padding-top: 20px;
 }

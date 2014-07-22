@@ -1,9 +1,5 @@
-from braavos.models.user import User, Team
-from braavos.config import DEFAULT_PASSWORD
-
-
-def test_hello():
-    assert 1 == 1
+from models.user import User, Team
+from config import DEFAULT_PASSWORD
 
 
 def test_create_user(session):
@@ -13,3 +9,6 @@ def test_create_user(session):
     user1.add()
     users = User.all()
     assert len(users) == 1
+    assert User.get_by_email('testuser1@inad.com')
+    user1.delete()
+    team1.delete()

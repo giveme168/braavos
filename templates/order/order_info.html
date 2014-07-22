@@ -1,0 +1,45 @@
+{% from 'form.html' import form_field %}
+{% macro order_info_form(form) -%}
+<form class="form form-horizontal" method="POST">
+    {{form.csrf_token}}
+    {% set field=form.client%}
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">{{field.label.text}} : </label>
+        <div class="col-sm-10">
+            {{field(class_='form-control bra-form-control chosen-select', placeholder="选择一个客户...")}}
+            <span class="errors">{{','.join(field.errors)}}</span>
+            <span><a href="{{url_for('client.new_client', next=request.path)}}">新建客户</a></span>
+        </div>
+    </div>
+    {{ form_field(form.campaign) }}
+    {{ form_field(form.medium) }}
+    {{ form_field(form.order_type) }}
+    {{ form_field(form.contract) }}
+    {{ form_field(form.money) }}
+    {% set field=form.agent%}
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">{{field.label.text}} : </label>
+        <div class="col-sm-10">
+            {{field(class_='form-control bra-form-control', placeholder=field.label.text)}}
+            <span class="errors">{{','.join(field.errors)}}</span>
+            <span><a href="{{url_for('client.new_agent', next=request.path)}}">新建代理</a></span>
+        </div>
+    </div>
+    {{ form_field(form.direct_sales) }}
+    {{ form_field(form.agent_sales) }}
+    {{ form_field(form.operaters) }}
+    {{ form_field(form.designers) }}
+    {{ form_field(form.planers) }}
+    {{ form_field(form.creator) }}
+    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+</form>
+<script>
+$(document).ready(function(){
+  {% if form.contract.data %}
+  {% if form.contract.data != '' %}
+  $('#contract').attr("readonly",true);
+  {% endif %}
+  {% endif %}
+});
+</script>
+{%- endmacro %}

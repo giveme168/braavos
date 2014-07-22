@@ -8,3 +8,6 @@ serve:
 	python app.py
 
 web: db_refresh serve
+
+test:
+	py.test --tb=short tests --random
