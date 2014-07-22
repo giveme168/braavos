@@ -1,0 +1,8 @@
+{% extends "/order_base.html" %}
+{% from 'order_info.html' import order_info_form %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+     {{ order_info_form(form) }}
+</div>
+{% endblock %}

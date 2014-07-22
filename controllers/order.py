@@ -33,7 +33,7 @@ def new_order():
         return redirect(url_for("order.orders"))
     else:
         form.creator.data = g.user.name
-    return tpl('order.html', form=form)
+    return tpl('new_order.html', form=form)
 
 
 @order_bp.route('/order_detail/<order_id>', methods=['GET', 'POST'])
@@ -72,7 +72,7 @@ def order_detail(order_id):
         form.designers.data = [u.id for u in order.designers]
         form.planers.data = [u.id for u in order.planers]
         form.creator.data = g.user.name
-    return tpl('order.html', form=form)
+    return tpl('order.html', form=form, order=order)
 
 
 @order_bp.route('/orders', methods=['GET'])
