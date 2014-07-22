@@ -1,50 +1,23 @@
 {% extends "/order_base.html" %}
-{% from 'form.html' import form_field %}
+{% from 'order_info.html' import order_info_form %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
-    <form class="form form-horizontal" method="POST">
-      {{form.csrf_token}}
-      {% set field=form.client%}
-      <div class="form-group">
-        <label for="name" class="col-sm-2 control-label">{{field.label.text}} : </label>
-        <div class="col-sm-10">
-            {{field(class_='form-control bra-form-control chosen-select', placeholder="选择一个客户...")}}
-            <span class="errors">{{','.join(field.errors)}}</span>
-            <span><a href="{{url_for('client.new_client', next=url_for('order.new_order'))}}">新建客户</a></span>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active"><a href="#home" role="tab" data-toggle="tab">基础信息</a></li>
+        <li><a href="#schedule" role="tab" data-toggle="tab">排期预订</a></li>
+        <li><a href="#items" role="tab" data-toggle="tab">订单项</a></li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane active" id="home">
+          {{ order_info_form(form) }}
         </div>
-      </div>
-      {{ form_field(form.campaign) }}
-      {{ form_field(form.medium) }}
-      {{ form_field(form.order_type) }}
-      {{ form_field(form.contract) }}
-      {{ form_field(form.money) }}
-      {% set field=form.agent%}
-      <div class="form-group">
-        <label for="name" class="col-sm-2 control-label">{{field.label.text}} : </label>
-        <div class="col-sm-10">
-            {{field(class_='form-control bra-form-control', placeholder=field.label.text)}}
-            <span class="errors">{{','.join(field.errors)}}</span>
-            <span><a href="{{url_for('client.new_agent', next=url_for('order.new_order'))}}">新建代理</a></span>
+        <div class="tab-pane" id="schedule">
         </div>
-      </div>
-      {{ form_field(form.direct_sales) }}
-      {{ form_field(form.agent_sales) }}
-      {{ form_field(form.operaters) }}
-      {{ form_field(form.designers) }}
-      {{ form_field(form.planers) }}
-      {{ form_field(form.creator) }}
-      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
-    </form>
+        <div class="tab-pane" id="items">
+        </div>
+    </div>
 </div>
-<script>
-$(document).ready(function(){
-    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10});
-{% if form.contract.data %}
-{% if form.contract.data != '' %}
-    $('#contract').attr("readonly",true);
-{% endif %}
-{% endif %}
-});
-</script>
 {% endblock %}

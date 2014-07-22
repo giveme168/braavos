@@ -58,3 +58,7 @@ body{
 .bra-left .list-group-item {
     border: none; 
 }
+
+.tab-pane {
+    padding-top: 20px;
+}
