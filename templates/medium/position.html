@@ -18,6 +18,8 @@
             <span><a href="{{url_for('medium.new_size', next=request.path)}}">新建尺寸</a></span>
         </div>
       </div>
+      {{ form_field(form.ad_type) }}
+      {{ form_field(form.cpd_num) }}
       {{ form_field(form.status) }}
       {{ form_field(form.units) }}
       <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>

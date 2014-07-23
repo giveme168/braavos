@@ -28,6 +28,14 @@ POSITION_LEVEL_CN = {
     POSITION_LEVEL_C: u"C",
 }
 
+AD_TYPE_NORMAL = 0
+AD_TYPE_CPD = 1
+AD_TYPE_REMNANT = 2
+
+AD_TYPE_CN = {
+    AD_TYPE_NORMAL: u"标准/CPM",
+    AD_TYPE_CPD: u"CPD",
+}
 
 ad_position_unit_table = db.Table('ad_position_unit',
                                   db.Column('position_id', db.Integer, db.ForeignKey('ad_position.id')),
@@ -120,14 +128,18 @@ class AdPosition(db.Model, BaseModelMixin):
                             backref=db.backref('positions', lazy='dynamic'))
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
     medium = db.relationship('Medium', backref=db.backref('positions', lazy='dynamic'))
+    ad_type = db.Column(db.Integer)
+    cpd_num = db.Column(db.Integer)
 
-    def __init__(self, name, description, size, status, medium, level=POSITION_LEVEL_A):
+    def __init__(self, name, description, size, status, medium, level=POSITION_LEVEL_A, ad_type=AD_TYPE_NORMAL, cpd_num=0):
         self.name = name.title()
         self.description = description.title()
         self.size = size
         self.status = status
         self.medium = medium
         self.level = level
+        self.ad_type = ad_type
+        self.cpd_num = cpd_num
 
     def __repr__(self):
         return '<AdPosition %s>' % (self.name)
@@ -143,3 +155,10 @@ class AdPosition(db.Model, BaseModelMixin):
     @property
     def level_cn(self):
         return POSITION_LEVEL_CN[self.level]
+
+    @property
+    def ad_type_cn(self):
+        return AD_TYPE_CN[self.ad_type]
+
+    def is_cpd(self):
+        return self.ad_type == AD_TYPE_CPD

@@ -116,7 +116,8 @@ def new_position():
     if request.method == 'POST' and form.validate():
         adPosition = AdPosition(name=form.name.data, description=form.description.data,
                                 size=AdSize.get(form.size.data), status=form.status.data,
-                                medium=Medium.get(form.medium.data), level=form.level.data)
+                                medium=Medium.get(form.medium.data), level=form.level.data,
+                                ad_type=form.ad_type.data, cpd_num=form.cpd_num.data)
         adPosition.units = AdUnit.gets(form.units.data)
         adPosition.add()
         return redirect(url_for("medium.positions"))
@@ -137,6 +138,8 @@ def position_detail(position_id):
         position.units = AdUnit.gets(form.units.data)
         position.medium = Medium.get(form.medium.data)
         position.level = form.level.data
+        position.ad_type = form.ad_type.data
+        position.cpd_num = form.cpd_num.data
         position.save()
         return redirect(url_for("medium.positions"))
     else:
@@ -147,6 +150,8 @@ def position_detail(position_id):
         form.units.data = [x.id for x in position.units]
         form.medium.data = position.medium.id
         form.level.data = position.level
+        form.ad_type.data = position.ad_type
+        form.cpd_num.data = position.cpd_num
     return tpl('position.html', form=form)
 
 

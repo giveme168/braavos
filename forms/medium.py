@@ -3,7 +3,8 @@ from flask.ext.wtf import Form
 from wtforms import IntegerField, TextField, validators, SelectField, TextAreaField, SelectMultipleField
 
 from models.user import Team
-from models.medium import STATUS_CN, TARGET_CN, AdSize, AdPosition, AdUnit, Medium, POSITION_LEVEL_CN
+from models.medium import (AdSize, AdPosition, AdUnit, Medium,
+                           STATUS_CN, TARGET_CN, POSITION_LEVEL_CN, AD_TYPE_CN)
 
 
 class NewMediumForm(Form):
@@ -51,6 +52,8 @@ class PositionForm(Form):
     units = SelectMultipleField(u'包含以下广告单元', coerce=int)
     medium = SelectField(u'所属媒体', coerce=int)
     level = SelectField(u'资源类别', coerce=int)
+    ad_type = SelectField(u'投放类型', coerce=int)
+    cpd_num = IntegerField(u'CPD量(非CPD置0)', [validators.Required(u"请输入CPD量.")])
 
     def __init__(self, *args, **kwargs):
         super(PositionForm, self).__init__(*args, **kwargs)
@@ -59,3 +62,4 @@ class PositionForm(Form):
         self.units.choices = [(x.id, x.name) for x in AdUnit.all()]
         self.medium.choices = [(x.id, x.name) for x in Medium.all()]
         self.level.choices = POSITION_LEVEL_CN.items()
+        self.ad_type.choices = AD_TYPE_CN.items()
