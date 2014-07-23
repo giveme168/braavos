@@ -1,6 +1,7 @@
 #-*- coding: UTF-8 -*-
 import os
 import sys
+import datetime
 sys.path.insert(0, os.path.abspath('.'))
 
 from app import app
@@ -10,6 +11,7 @@ db.create_all()
 from models.user import User, Team, TEAM_TYPE_SUPER_ADMIN
 from models.medium import Medium, AdSize, AdUnit, AdPosition, TARGET_BLANK, STATUS_ON
 from models.client import Client, Agent
+from models.order import Order
 
 team = Team('管理员', type=TEAM_TYPE_SUPER_ADMIN)
 team.add()
@@ -39,3 +41,7 @@ client.add()
 
 agent = Agent("测试代理")
 agent.add()
+
+order = Order(client, "测试活动", medium, 0, "", 1000,
+              agent, [user], [], [], [], [], user, datetime.datetime.now())
+order.add()

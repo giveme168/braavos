@@ -1,0 +1,29 @@
+{% extends "/item_base.html" %}
+{% from 'form.html' import form_field %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <form class="form form-horizontal" method="POST">
+        {{form.csrf_token}}
+        {{ form_field(form.order) }}
+        {{ form_field(form.sale_type) }}
+        {% set field=form.special_sale %}
+        <div class="form-group">
+            <label for="special_sale" class="col-sm-2 control-label">{{field.label.text}} : </label>
+            <div class="col-sm-10">
+                <div class="bra-form-control">
+                {% for subfield in field %}
+                    {{ subfield }}
+                    {{ subfield.label }}
+                {% endfor %}
+                </div>
+                <span class="errors">{{','.join(field.errors)}}</span>
+            </div>
+        </div>
+        {{ form_field(form.description) }}
+        <a class="btn btn-primary btn-sm col-md-offset-2">下一步</a>
+        <a class="btn btn-default btn-sm col-md-offset-2" href="{{url_for("order.order_detail", order_id=order.id)}}">返回</a>
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+    </form>
+</div>
+{% endblock %}

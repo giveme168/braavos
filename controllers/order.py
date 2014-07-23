@@ -71,7 +71,7 @@ def order_detail(order_id):
         form.operaters.data = [u.id for u in order.operaters]
         form.designers.data = [u.id for u in order.designers]
         form.planers.data = [u.id for u in order.planers]
-        form.creator.data = g.user.name
+        form.creator.data = order.creator.name
     return tpl('order.html', form=form, order=order)
 
 

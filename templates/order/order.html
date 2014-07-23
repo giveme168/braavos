@@ -16,6 +16,7 @@
           {{ order_info_form(form) }}
         </div>
         <div class="tab-pane" id="schedule">
+            <a class="btn btn-default" href="{{url_for("item.new_item", order=order.id)}}">新建排期</a>
         </div>
         <div class="tab-pane" id="items">
         </div>
