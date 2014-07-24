@@ -43,6 +43,7 @@ class AdItem(db.Model, BaseModelMixin):
     ad_type = db.Column(db.Integer)  # 广告类型: 标准, CPD, 补余
     priority = db.Column(db.Integer)  # 优先级
     speed = db.Column(db.Integer)  # 投放速度
+    status = db.Column(db.Integer)  # 状态
     # 创建者
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_items', lazy='dynamic'))
@@ -57,7 +58,7 @@ class AdItem(db.Model, BaseModelMixin):
         self.create_time = create_time
 
     def __repr__(self):
-        return '<Order %s>' % (self.name)
+        return '<AdItem %s>' % (self.name)
 
     @property
     def name(self):
@@ -66,3 +67,31 @@ class AdItem(db.Model, BaseModelMixin):
     @property
     def sale_type_cn(self):
         return SALE_TYPE_CN[self.sale_type]
+
+    @classmethod
+    def gets_by_position(cls, position):
+        return cls.query.filter_by(position_id=position.id)
+
+
+class AdSchedule(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_schedule'
+
+    id = db.Column(db.Integer, primary_key=True)
+    item_id = db.Column(db.Integer, db.ForeignKey('bra_item.id'))
+    item = db.relationship('AdItem', backref=db.backref('schedules', lazy='dynamic'))
+    num = db.Column(db.Integer)  # 投放量
+    start_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
+
+    def __init__(self, item, num, start_time, end_time):
+        self.item = item
+        self.num = num
+        self.start_time = start_time
+        self.end_time = end_time
+
+    def __repr__(self):
+        return '<AdSchedule %s-%s-%s>' % (self.item.name, self.start_time, self.end_time)
+
+    @property
+    def units(self):
+        return self.item.position.units

@@ -40,7 +40,7 @@ class UnitForm(Form):
         self.target.choices = TARGET_CN.items()
         self.status.choices = STATUS_CN.items()
         self.size.choices = [(x.id, x.name) for x in AdSize.all()]
-        self.positions.choices = [(x.id, x.name) for x in AdPosition.all()]
+        self.positions.choices = [(x.id, x.display_name) for x in AdPosition.all()]
         self.medium.choices = [(x.id, x.name) for x in Medium.all()]
 
 
@@ -59,7 +59,7 @@ class PositionForm(Form):
         super(PositionForm, self).__init__(*args, **kwargs)
         self.status.choices = STATUS_CN.items()
         self.size.choices = [(x.id, x.name) for x in AdSize.all()]
-        self.units.choices = [(x.id, x.name) for x in AdUnit.all()]
+        self.units.choices = [(x.id, x.display_name) for x in AdUnit.all()]
         self.medium.choices = [(x.id, x.name) for x in Medium.all()]
         self.level.choices = POSITION_LEVEL_CN.items()
         self.ad_type.choices = AD_TYPE_CN.items()

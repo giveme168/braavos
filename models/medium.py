@@ -1,12 +1,6 @@
 #-*- coding: UTF-8 -*-
 from . import db, BaseModelMixin
-
-STATUS_ON = 1         # 有效
-STATUS_OFF = 0        # 停用
-STATUS_CN = {
-    STATUS_OFF: u"停用",
-    STATUS_ON: u"有效"
-}
+from .consts import STATUS_CN
 
 TARGET_TOP = 1
 TARGET_BLANK = 0
@@ -113,6 +107,19 @@ class AdUnit(db.Model, BaseModelMixin):
     def display_name(self):
         return "%s(%s)" % (self.name, self.medium.name)
 
+    @property
+    def schedule_num(self):
+        """
+        每个展示位置的的预订量按照比例分配到所拥有的广告单元上,
+        再加和计算该单元的预订量
+        """
+        return sum([x.schedule_num * (self.estimate_num / x.estimate_num) for x in self.positions])
+
+    @property
+    def retain_num(self):
+        retain_num = self.estimate_num - self.schedule_num
+        return retain_num if retain_num > 0 else 0
+
 
 class AdPosition(db.Model, BaseModelMixin):
     __tablename__ = 'ad_position'
@@ -131,7 +138,7 @@ class AdPosition(db.Model, BaseModelMixin):
     ad_type = db.Column(db.Integer)
     cpd_num = db.Column(db.Integer)
 
-    def __init__(self, name, description, size, status, medium, level=POSITION_LEVEL_A, ad_type=AD_TYPE_NORMAL, cpd_num=0):
+    def __init__(self, name, description, size, status, medium, level=POSITION_LEVEL_A, ad_type=AD_TYPE_NORMAL, cpd_num=1):
         self.name = name.title()
         self.description = description.title()
         self.size = size
@@ -162,3 +169,25 @@ class AdPosition(db.Model, BaseModelMixin):
 
     def is_cpd(self):
         return self.ad_type == AD_TYPE_CPD
+
+    @property
+    def estimate_num(self):
+        """预估量为所有广告单元的和"""
+        return sum([x.estimate_num for x in self.units])
+
+    @property
+    def estimate_num_per_cpd(self):
+        """每个CPD的预估量"""
+        return self.estimate_num / self.cpd_num if self.cpd_num > 0 else self.estimate_num
+
+    @property
+    def schedule_num(self):
+        """该位置的排期预订量, 通过所有订单项的排期计算"""
+        schedules = []
+        for x in self.items:
+            schedules.extend(x.schedules)
+        return sum([x.num for x in list(set(schedules))])
+
+    @property
+    def retain_num(self):
+        return sum([x.retain_num for x in self.units])

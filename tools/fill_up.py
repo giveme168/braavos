@@ -16,6 +16,10 @@ from models.order import Order
 team = Team('管理员', type=TEAM_TYPE_SUPER_ADMIN)
 team.add()
 
+medium_team = Team('管理员', type=TEAM_TYPE_SUPER_ADMIN)
+medium_team.add()
+
+
 for x in range(5):
     email = "test%s@inad.com" % x
     password = 'pwd123'
@@ -23,18 +27,32 @@ for x in range(5):
     user = User(email, email, password, phone, team)
     user.add()
 
-medium = Medium("测试媒体", owner=team)
+medium = Medium("测试媒体", owner=medium_team)
 medium.add()
 
 size = AdSize(200, 70)
 size.add()
 
 unit = AdUnit("测试广告单元", "测试", size, "0px 0px 0px 0px",
-              TARGET_BLANK, STATUS_ON, medium)
+              TARGET_BLANK, STATUS_ON, medium, 10000)
 unit.add()
+
+unit2 = AdUnit("测试广告单元2", "测试", size, "0px 0px 0px 0px",
+               TARGET_BLANK, STATUS_ON, medium, 10000)
+unit2.add()
+
+unit3 = AdUnit("测试广告单元3", "测试", size, "0px 0px 0px 0px",
+               TARGET_BLANK, STATUS_ON, medium, 10000)
+unit3.add()
 
 position = AdPosition("测试展示位置", "测试", size, STATUS_ON, medium)
 position.add()
+position.units = [unit, unit2]
+
+position2 = AdPosition("测试展示位置2", "测试", size, STATUS_ON, medium)
+position2.add()
+position2.units = [unit2, unit3]
+
 
 client = Client("测试客户", 0)
 client.add()
