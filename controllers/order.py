@@ -1,9 +1,8 @@
 #-*- coding: UTF-8 -*-
-import json
 from datetime import datetime, timedelta
 
 from flask import Blueprint, request, redirect, abort, url_for, g
-from flask import render_template as tpl, jsonify
+from flask import render_template as tpl, json
 
 from models.order import Order
 from models.client import Client, Agent
@@ -142,7 +141,7 @@ def schedules_post(order_id):
     status, msg = check_schedules_post(data)
     if not status:
         add_schedules(order, data)
-    return jsonify({'status': status, 'msg': msg})
+    return json.dumps({'status': status, 'msg': msg})
 
 
 def schdule_info(date, num):
@@ -164,7 +163,7 @@ def schedule_info():
     start_date = datetime.strptime(request.values.get('start'), '%Y-%m-%d')
     end_date = datetime.strptime(request.values.get('end'), '%Y-%m-%d')
     position = AdPosition.get(request.values.get('position'))
-    return jsonify(get_schedule(position, start_date, end_date))
+    return json.dumps(get_schedule(position, start_date, end_date))
 
 
 @order_bp.route('/position_list', methods=['GET'])
@@ -172,7 +171,7 @@ def position_list():
     order = Order.get(request.values.get('order'))
     sale_type = request.values.get('sale_type')
     special_sale = request.values.get('special_sale')
-    return jsonify([(p.id, p.display_name) for p in AdPosition.all()])
+    return json.dumps([(p.id, p.display_name) for p in AdPosition.all()])
 
 
 @order_bp.route('/item_detail/<item_id>', methods=["GET", "POST"])
