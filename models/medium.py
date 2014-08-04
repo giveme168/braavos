@@ -1,4 +1,6 @@
 #-*- coding: UTF-8 -*-
+from datetime import timedelta
+
 from . import db, BaseModelMixin
 from .consts import STATUS_CN
 
@@ -9,17 +11,19 @@ TARGET_CN = {
     TARGET_BLANK: u"_blank"
 }
 
-POSITION_LEVEL_A = 11
+POSITION_LEVEL_A1 = 11
 POSITION_LEVEL_A2 = 12
 POSITION_LEVEL_B = 21
-POSITION_LEVEL_B2 = 22
 POSITION_LEVEL_C = 31
+POSITION_LEVEL_Y = 41
+POSITION_LEVEL_APP = 51
 POSITION_LEVEL_CN = {
-    POSITION_LEVEL_A: u"A",
+    POSITION_LEVEL_A1: u"A1",
     POSITION_LEVEL_A2: u"A2",
     POSITION_LEVEL_B: u"B",
-    POSITION_LEVEL_B2: u"B2",
     POSITION_LEVEL_C: u"C",
+    POSITION_LEVEL_Y: u"软性资源",
+    POSITION_LEVEL_APP: u"APP",
 }
 
 AD_TYPE_NORMAL = 0
@@ -107,17 +111,15 @@ class AdUnit(db.Model, BaseModelMixin):
     def display_name(self):
         return "%s(%s)" % (self.name, self.medium.name)
 
-    @property
-    def schedule_num(self):
+    def schedule_num(self, date):
         """
         每个展示位置的的预订量按照比例分配到所拥有的广告单元上,
         再加和计算该单元的预订量
         """
-        return sum([x.schedule_num * (self.estimate_num / x.estimate_num) for x in self.positions])
+        return sum([x.schedule_num(date) * (self.estimate_num / x.estimate_num) for x in self.positions])
 
-    @property
-    def retain_num(self):
-        retain_num = self.estimate_num - self.schedule_num
+    def retain_num(self, date):
+        retain_num = self.estimate_num - self.schedule_num(date)
         return retain_num if retain_num > 0 else 0
 
 
@@ -137,8 +139,9 @@ class AdPosition(db.Model, BaseModelMixin):
     medium = db.relationship('Medium', backref=db.backref('positions', lazy='dynamic'))
     ad_type = db.Column(db.Integer)
     cpd_num = db.Column(db.Integer)
+    max_order_num = db.Column(db.Integer)
 
-    def __init__(self, name, description, size, status, medium, level=POSITION_LEVEL_A, ad_type=AD_TYPE_NORMAL, cpd_num=1):
+    def __init__(self, name, description, size, status, medium, level=POSITION_LEVEL_A1, ad_type=AD_TYPE_NORMAL, cpd_num=1, max_order_num=0):
         self.name = name.title()
         self.description = description.title()
         self.size = size
@@ -147,6 +150,7 @@ class AdPosition(db.Model, BaseModelMixin):
         self.level = level
         self.ad_type = ad_type
         self.cpd_num = cpd_num
+        self.max_order_num = max_order_num
 
     def __repr__(self):
         return '<AdPosition %s>' % (self.name)
@@ -172,7 +176,7 @@ class AdPosition(db.Model, BaseModelMixin):
 
     @property
     def estimate_num(self):
-        """预估量为所有广告单元的和"""
+        """预估量是所有广告单元的和, 表示改位置最大投放量, 所以拥有同相同广告单元的位置不能同时预订"""
         return sum([x.estimate_num for x in self.units])
 
     @property
@@ -180,14 +184,23 @@ class AdPosition(db.Model, BaseModelMixin):
         """每个CPD的预估量"""
         return self.estimate_num / self.cpd_num if self.cpd_num > 0 else self.estimate_num
 
-    @property
-    def schedule_num(self):
-        """该位置的排期预订量, 通过所有订单项的排期计算"""
+    def schedule_num(self, date):
+        """该位置的排期预订量, 通过所有预订这个位置的订单项的这一天的量计算"""
         schedules = []
-        for x in self.items:
+        for x in self.order_items:
             schedules.extend(x.schedules)
-        return sum([x.num for x in list(set(schedules))])
+        return sum([x.num_by_date(date) for x in schedules]) if schedules else 0
 
-    @property
-    def retain_num(self):
-        return sum([x.retain_num for x in self.units])
+    def retain_num(self, date):
+        """剩余量, 所有广告单元的剩余量"""
+        return sum([x.retain_num(date) for x in self.units])
+
+    def can_order_num(self, date):
+        """可预订量"""
+        return min(self.max_order_num, self.retain_num(date))
+
+    def can_order_schedule(self, start_date, end_date):
+        schedules = []
+        for n in range((end_date - start_date).days + 1):
+            schedules.append((start_date + timedelta(n), self.can_order_num(start_date + timedelta(n))))
+        return schedules

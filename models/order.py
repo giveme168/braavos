@@ -76,11 +76,11 @@ class Order(db.Model, BaseModelMixin):
         self.create_time = create_time
 
     def __repr__(self):
-        return '<Order %s>' % (self.name)
+        return '<Order %s>' % (self.id)
 
     @property
     def name(self):
-        return "%s-%s-%s" % (self.contract or u"合同号暂缺", self.client.name, self.campaign)
+        return u"%s-%s-%s" % (self.contract or u"合同号暂缺", self.client.name, self.campaign)
 
     @property
     def order_type_cn(self):

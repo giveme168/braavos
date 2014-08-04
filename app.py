@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from flask import g, request, url_for
+from flask import g, request, url_for, redirect
 from flask.ext.login import LoginManager, current_user
 
 from config import DEBUG
@@ -26,6 +26,11 @@ def request_user():
         g.user = current_user
     elif url_for('user.login') != request.path and not request.path.startswith(u'/static/'):
         return login_manager.unauthorized()
+
+
+@app.route('/')
+def index():
+    return redirect(url_for('order.index'))
 
 # urls
 register_blueprint(app)

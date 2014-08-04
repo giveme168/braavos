@@ -4,7 +4,7 @@
 STATUS_ON = 1         # 有效
 STATUS_OFF = 0        # 停用
 STATUS_CN = {
-    STATUS_OFF: u"停用",
+    STATUS_OFF: u"暂停",
     STATUS_ON: u"有效"
 }
 

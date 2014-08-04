@@ -1,0 +1,23 @@
+{% extends "/order_base.html" %}
+{% from 'form.html' import form_field %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+<form class="form form-horizontal" method="POST">
+    {{form.csrf_token}}
+    {{ form_field(form.order) }}
+    {{ form_field(form.sale_type) }}
+    {{ form_field(form.special_sale) }}
+    {{ form_field(form.position) }}
+    {{ form_field(form.description) }}
+    {{ form_field(form.ad_type) }}
+    {{ form_field(form.price) }}
+    {{ form_field(form.priority) }}
+    {{ form_field(form.speed) }}
+    {{ form_field(form.item_status) }}
+    {{ form_field(form.status) }}
+    {{ form_field(form.creator) }}
+    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+</form>
+
+{% endblock %}

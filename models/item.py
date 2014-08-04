@@ -1,18 +1,19 @@
 #-*- coding: UTF-8 -*-
-import datetime
+from datetime import datetime, timedelta
 
 from . import db, BaseModelMixin
+from consts import STATUS_CN
 
 SALE_TYPE_NORMAL = 0         # 标准, 购买
 SALE_TYPE_GIFT = 1           # 配送
 SALE_TYPE_REMNANT = 2         # 补量
-SALE_TYPE_CPC = 3            # CPC
+#SALE_TYPE_CPC = 3            # CPC
 
 SALE_TYPE_CN = {
     SALE_TYPE_NORMAL: u"标准/购买",
     SALE_TYPE_GIFT: u"配送",
     SALE_TYPE_REMNANT: u"补量",
-    SALE_TYPE_CPC: u"CPC",
+    #SALE_TYPE_CPC: u"CPC",
 }
 
 AD_TYPE_NORMAL = 0
@@ -23,6 +24,38 @@ AD_TYPE_CN = {
     AD_TYPE_NORMAL: u"标准/CPM",
     AD_TYPE_CPD: u"CPD",
     AD_TYPE_REMNANT: u"补余",
+}
+
+PRIORITY_MID = 0
+PRIORITY_HIG = 1
+PRIORITY_LOW = 2
+
+PRIORITY_CN = {
+    PRIORITY_MID: u"普通",
+    PRIORITY_HIG: u"高",
+    PRIORITY_LOW: u"低",
+}
+
+SPEED_NORMAL = 0
+SPEED_ASAP = 1
+
+SPEED_CN = {
+    SPEED_NORMAL: u"均匀",
+    SPEED_ASAP: u"越快越好"
+}
+
+ITEM_STATUS_NEW = 0
+ITEM_STATUS_PRE_APPLY = 1
+ITEM_STATUS_PRE = 2
+ITEM_STATUS_ORDER_APPLY = 3
+ITEM_STATUS_ORDER = 4
+
+ITEM_STATUS_CN = {
+    ITEM_STATUS_NEW: u"新建",
+    ITEM_STATUS_PRE_APPLY: u"申请预下单",
+    ITEM_STATUS_PRE: u"已预下单(资源已锁定)",
+    ITEM_STATUS_ORDER_APPLY: u"申请下单",
+    ITEM_STATUS_ORDER: u"已下单"
 }
 
 
@@ -40,14 +73,15 @@ class AdItem(db.Model, BaseModelMixin):
     special_sale = db.Column(db.Boolean)  # 特殊投放
     price = db.Column(db.Integer)
     # 投放
-    ad_type = db.Column(db.Integer)  # 广告类型: 标准, CPD, 补余
-    priority = db.Column(db.Integer)  # 优先级
-    speed = db.Column(db.Integer)  # 投放速度
-    status = db.Column(db.Integer)  # 状态
+    ad_type = db.Column(db.Integer, default=0)  # 广告类型: 标准, CPD, 补余
+    priority = db.Column(db.Integer, default=0)  # 优先级
+    speed = db.Column(db.Integer, default=0)  # 投放速度
+    status = db.Column(db.Integer, default=1)  # 状态: 暂停, 投放
+    item_status = db.Column(db.Integer, default=0)  # 状态: 预下单, 下单
     # 创建者
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_items', lazy='dynamic'))
-    create_time = db.Column(db.DateTime, default=datetime.datetime.now)
+    create_time = db.Column(db.DateTime, default=datetime.now())
 
     def __init__(self, order, sale_type, special_sale, position, creator, create_time):
         self.order = order
@@ -62,11 +96,15 @@ class AdItem(db.Model, BaseModelMixin):
 
     @property
     def name(self):
-        return "%s-%s" % (self.position.name, self.description or "")
+        return "%s-%s-%s" % (self.order.name, self.position.name, self.description or "")
 
     @property
     def sale_type_cn(self):
         return SALE_TYPE_CN[self.sale_type]
+
+    @property
+    def status_cn(self):
+        return STATUS_CN[self.status]
 
     @classmethod
     def gets_by_position(cls, position):
@@ -95,3 +133,42 @@ class AdSchedule(db.Model, BaseModelMixin):
     @property
     def units(self):
         return self.item.position.units
+
+    @property
+    def start_date(self):
+        return datetime(self.start_time.year, self.start_time.month, self.start_time.day)
+
+    @property
+    def end_date(self):
+        return datetime(self.end_time.year, self.end_time.month, self.end_time.day)
+
+    @property
+    def total_seconds(self):
+        return (self.end_time - self.start_time).total_seconds()
+
+    @property
+    def firstday_secounds(self):
+        if self.end_date > self.start_date:
+            return (self.start_date + timedelta(days=1) - self.start_time).total_seconds()
+        else:
+            return self.total_seconds
+
+    @property
+    def lastday_secounds(self):
+        if self.end_date > self.start_date:
+            return (self.end_time - self.end_date).total_seconds()
+        else:
+            return self.total_seconds
+
+    def num_by_date(self, date):
+        """计算平均分配到每天的投放量"""
+        if date < self.start_date or date > self.end_date:  # 不在日期内
+            return 0
+        elif date == self.start_date and date == self.end_date:  # 投放开始结束在同一天
+            return self.num
+        elif date == self.start_date:  # 第一天
+            return int(self.num * self.firstday_secounds / self.total_seconds)
+        elif date == self.end_date:  # 最后一天
+            return int(self.num * self.lastday_secounds / self.total_seconds)
+        else:  # 其中某一天
+            return int(self.num * timedelta(days=1).total_secounds / self.total_seconds)

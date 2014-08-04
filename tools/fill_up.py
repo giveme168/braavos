@@ -9,7 +9,8 @@ from libs.db import db
 db.create_all()
 
 from models.user import User, Team, TEAM_TYPE_SUPER_ADMIN
-from models.medium import Medium, AdSize, AdUnit, AdPosition, TARGET_BLANK, STATUS_ON
+from models.medium import Medium, AdSize, AdUnit, AdPosition, TARGET_BLANK
+from models.consts import STATUS_ON
 from models.client import Client, Agent
 from models.order import Order
 

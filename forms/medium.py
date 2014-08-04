@@ -53,7 +53,9 @@ class PositionForm(Form):
     medium = SelectField(u'所属媒体', coerce=int)
     level = SelectField(u'资源类别', coerce=int)
     ad_type = SelectField(u'投放类型', coerce=int)
-    cpd_num = IntegerField(u'CPD量(非CPD置0)', [validators.Required(u"请输入CPD量.")])
+    cpd_num = IntegerField(u'CPD量(CPD有效)', default=0)
+    estimate_num = IntegerField(u'预估量(自动计算)', default=0)
+    max_order_num = IntegerField(u'最大预订(CPM有效)', default=0)
 
     def __init__(self, *args, **kwargs):
         super(PositionForm, self).__init__(*args, **kwargs)

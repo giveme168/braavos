@@ -1,5 +1,6 @@
 {% extends "/order_base.html" %}
 {% from 'order_info.html' import order_info_form %}
+{% from 'order_items.html' import order_items %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
@@ -7,7 +8,7 @@
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
         <li class="active"><a href="#home" role="tab" data-toggle="tab">基础信息</a></li>
-        <li><a href="#schedule" role="tab" data-toggle="tab">排期预订</a></li>
+        <li><a href="{{url_for("order.new_item", order_id=order.id)}}">排期预订</a></li>
         <li><a href="#items" role="tab" data-toggle="tab">订单项</a></li>
     </ul>
     <!-- Tab panes -->
@@ -16,9 +17,10 @@
           {{ order_info_form(form) }}
         </div>
         <div class="tab-pane" id="schedule">
-            <a class="btn btn-default" href="{{url_for("item.new_item", order=order.id)}}">新建排期</a>
+            <a class="btn btn-default" href="{{url_for("order.new_item", order_id=order.id)}}">新建排期</a>
         </div>
         <div class="tab-pane" id="items">
+          {{ order_items(order) }}
         </div>
     </div>
 </div>
