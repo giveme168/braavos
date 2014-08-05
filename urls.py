@@ -5,7 +5,7 @@ from controllers.order import order_bp
 
 
 def register_blueprint(app):
-    app.register_blueprint(user_bp, url_prefix='/user')
-    app.register_blueprint(client_bp, url_prefix='/client')
-    app.register_blueprint(medium_bp, url_prefix='/medium')
-    app.register_blueprint(order_bp, url_prefix='/order')
+    app.register_blueprint(user_bp, url_prefix='/users')
+    app.register_blueprint(client_bp, url_prefix='/clients')
+    app.register_blueprint(medium_bp, url_prefix='/mediums')
+    app.register_blueprint(order_bp, url_prefix='/orders')

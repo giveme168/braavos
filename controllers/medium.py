@@ -24,7 +24,7 @@ def new_medium():
     return tpl('medium.html', form=form)
 
 
-@medium_bp.route('/medium_detail/<medium_id>', methods=['GET', 'POST'])
+@medium_bp.route('/medium/<medium_id>', methods=['GET', 'POST'])
 def medium_detail(medium_id):
     medium = Medium.get(medium_id)
     if not medium:
@@ -73,7 +73,7 @@ def new_unit():
     return tpl('unit.html', form=form)
 
 
-@medium_bp.route('/unit_detail/<unit_id>', methods=['GET', 'POST'])
+@medium_bp.route('/unit/<unit_id>', methods=['GET', 'POST'])
 def unit_detail(unit_id):
     unit = AdUnit.get(unit_id)
     if not unit:
@@ -125,7 +125,7 @@ def new_position():
     return tpl('position.html', form=form, show_estimate=False)
 
 
-@medium_bp.route('/position_detail/<position_id>', methods=['GET', 'POST'])
+@medium_bp.route('/position/<position_id>', methods=['GET', 'POST'])
 def position_detail(position_id):
     position = AdPosition.get(position_id)
     if not position:

@@ -37,7 +37,7 @@ def new_agent():
     return tpl('agent.html', form=form)
 
 
-@client_bp.route('/client_detail/<client_id>', methods=['GET', 'POST'])
+@client_bp.route('/client/<client_id>', methods=['GET', 'POST'])
 def client_detail(client_id):
     client = Client.get(client_id)
     if not client:
@@ -54,7 +54,7 @@ def client_detail(client_id):
     return tpl('client.html', form=form)
 
 
-@client_bp.route('/agent_detail/<agent_id>', methods=['GET', 'POST'])
+@client_bp.route('/agent/<agent_id>', methods=['GET', 'POST'])
 def agent_detail(agent_id):
     agent = Agent.get(agent_id)
     if not agent:
