@@ -99,9 +99,12 @@ def new_item(order_id):
 def check_schedules_post(data):
     """检查排期数据是否合法"""
     try:
+        items = json.loads(data)
+    except ValueError:
+        return '1', "JSON数据格式出错啦"
+    else:
         status = 0
         msg = ''
-        items = json.loads(data)
         for item in items:
             position = AdPosition.get(item['position'])
             for (date_str, num_str) in item['schedule'].items():
@@ -110,8 +113,6 @@ def check_schedules_post(data):
                 if position.can_order_num(date) < num:
                     status = 1
                     msg += u'%s 最多只能预订 %s \n' % (position.display_name, position.can_order_num(date))
-    except:
-        return '1', "数据解析出错啦"
     return status, msg
 
 
