@@ -4,24 +4,41 @@
 
 {% block main_box%}
 <div class="bra-main bra-box">
-    <h4>{{ order.name }}</h4>
-    <!-- Nav tabs -->
-    <ul class="nav nav-tabs" role="tablist">
-        <li class="active"><a href="#home" role="tab" data-toggle="tab">基础信息</a></li>
-        <li><a href="{{url_for("order.new_item", order_id=order.id)}}">排期预订</a></li>
-        <li><a href="#items" role="tab" data-toggle="tab">订单项</a></li>
-    </ul>
-    <!-- Tab panes -->
-    <div class="tab-content">
-        <div class="tab-pane active" id="home">
-          {{ order_info_form(form) }}
+    <h4>
+        {{ order.name }}
+        <a class="btn btn-sm btn-info" href="{{url_for("order.new_item", order_id=order.id)}}">排期预订</a>
+    </h4>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 订单设置 </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {{ order_info_form(form) }}
+                </div>
+            </div>
         </div>
-        <div class="tab-pane" id="schedule">
-            <a class="btn btn-default" href="{{url_for("order.new_item", order_id=order.id)}}">新建排期</a>
-        </div>
-        <div class="tab-pane" id="items">
-          {{ order_items(order) }}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"> 已预订排期 </a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse">
+                <div class="panel-body">
+                    {{ order_items(order) }}
+                </div>
+            </div>
         </div>
     </div>
 </div>
+<script>
+$(document).ready(function(){
+    $("#collapseOne").collapse('hide');
+    $("#collapseTwo").collapse('show');
+});
+</script>
 {% endblock %}

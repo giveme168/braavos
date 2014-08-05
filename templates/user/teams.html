@@ -7,13 +7,13 @@
     <table class="table table-bordered table-striped">
         <tr>
             <th>#id</th>
-            <th>Name</th>
-            <th>Type</th>
+            <th>姓名</th>
+            <th>类型</th>
         </tr>
         {% for t in teams %}
         <tr>
             <td>{{t.id}}</td>
-            <td><a href="/user/team_detail/{{t.id}}">{{t.name}}</a></td>
+            <td><a href="{{url_for("user.team_detail", team_id=t.id)}}">{{t.name}}</a></td>
             <td>{{t.type_cn}}</td>
         </tr>
         {% endfor %}
