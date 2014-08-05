@@ -96,7 +96,7 @@ class AdItem(db.Model, BaseModelMixin):
 
     @property
     def name(self):
-        return "%s-%s-%s" % (self.order.name, self.position.name, self.description or "")
+        return "%s-%s" % (self.position.name, self.description or u"描述")
 
     @property
     def sale_type_cn(self):
@@ -109,6 +109,22 @@ class AdItem(db.Model, BaseModelMixin):
     @classmethod
     def gets_by_position(cls, position):
         return cls.query.filter_by(position_id=position.id)
+
+    @property
+    def start_time(self):
+        return min([s.start_time for s in self.schedules]) if self.schedules else None
+
+    @property
+    def start_time_cn(self):
+        return self.start_time.strftime("%Y-%m-%d %H:%M:%S") if self.start_time else u"起始时间"
+
+    @property
+    def end_time(self):
+        return min([s.end_time for s in self.schedules]) if self.schedules else None
+
+    @property
+    def end_time_cn(self):
+        return self.end_time.strftime("%Y-%m-%d %H:%M:%S") if self.end_time else u"起始时间"
 
 
 class AdSchedule(db.Model, BaseModelMixin):

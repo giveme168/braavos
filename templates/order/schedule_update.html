@@ -1,0 +1,41 @@
+<h3>投放安排 <a href="#" id="schedule-switch" class="btn btn-sm btn-default">收起/显示</a></h3>
+<table id="schedule-table" class="table table-bordered table-tript">
+  <tr>
+    <th>开始</th>
+    <th>结束</th>
+    <th>投放量</th>
+    <th>操作</th>
+  </tr>
+  {% for x in item.schedules %}
+    <tr>
+      <form action='{{url_for("order.schedule_update", schedule_id=x.id)}}' method="POST">
+        <td>
+          <input type="text" name="start_time" value="{{x.start_time.strftime("%Y-%m-%d %H:%M:%S")}}" class="datetimepicker form-control" data-date-format="yyyy-mm-dd hh:ii:ss">
+        </td>
+        <td>
+          <input type="text" name="end_time" value="{{x.end_time.strftime("%Y-%m-%d %H:%M:%S")}}" class="datetimepicker form-control" data-date-format="yyyy-mm-dd hh:ii:ss">
+        </td>
+        <td>
+          <input type="text" name="num" value="{{x.num}}" class="form-control" />
+        </td>
+        <td>
+          <input type="submit" value="保存" class="btn btn-sm btn-primary"/>
+          <a href='{{url_for("order.schedule_delete", schedule_id=x.id)}}' class="btn btn-sm btn-danger">删除</a>
+        </td>
+      </form>
+    </tr>
+  {% endfor %}
+</table>
+<script>
+$(document).ready(function(){
+    $("#schedule-switch").click(function(){
+        $("#schedule-table").slideToggle('slow');
+    });
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        //minView: 2
+      });    
+});
+</script>

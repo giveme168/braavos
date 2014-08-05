@@ -38,7 +38,7 @@ def new_order():
     return tpl('new_order.html', form=form)
 
 
-@order_bp.route('/order_detail/<order_id>', methods=['GET', 'POST'])
+@order_bp.route('/order/<order_id>', methods=['GET', 'POST'])
 def order_detail(order_id):
     order = Order.get(order_id)
     if not order:
@@ -83,7 +83,7 @@ def orders():
     return tpl('orders.html', orders=orders)
 
 
-@order_bp.route('/order_detail/<order_id>/new_item')
+@order_bp.route('/order/<order_id>/new_item')
 def new_item(order_id):
     order = Order.get(order_id)
     if not order:
@@ -132,7 +132,7 @@ def add_schedules(order, data):
             schedule.add()
 
 
-@order_bp.route('/order_detail/<order_id>/schedules_post/', methods=["POST"])
+@order_bp.route('/order/<order_id>/schedules_post/', methods=["POST"])
 def schedules_post(order_id):
     """AJAX 提交排期数据"""
     order = Order.get(order_id)
@@ -169,13 +169,13 @@ def schedule_info():
 
 @order_bp.route('/position_list', methods=['GET'])
 def position_list():
-    order = Order.get(request.values.get('order'))
-    sale_type = request.values.get('sale_type')
-    special_sale = request.values.get('special_sale')
+    #order = Order.get(request.values.get('order'))
+    #sale_type = request.values.get('sale_type')
+    #special_sale = request.values.get('special_sale')
     return json.dumps([(p.id, p.display_name) for p in AdPosition.all()])
 
 
-@order_bp.route('/item_detail/<item_id>', methods=["GET", "POST"])
+@order_bp.route('/item/<item_id>', methods=["GET", "POST"])
 def item_detail(item_id):
     item = AdItem.get(item_id)
     if not item:
@@ -211,3 +211,29 @@ def item_detail(item_id):
         form.creator.readonly = True
 
     return tpl('item.html', form=form, item=item)
+
+
+@order_bp.route('/schedule/<schedule_id>/update', methods=["POST"])
+def schedule_update(schedule_id):
+    schedule = AdSchedule.get(schedule_id)
+    if not schedule:
+        abort(404)
+    start_time = datetime.strptime(request.form.get('start_time'), "%Y-%m-%d %H:%M:%S")
+    end_time = datetime.strptime(request.form.get('end_time'), "%Y-%m-%d %H:%M:%S")
+    num = request.form.get('num')
+    schedule.start_time = start_time
+    schedule.end_time = end_time
+    schedule.num = num
+    schedule.save()
+    return redirect(url_for("order.item_detail", item_id=schedule.item.id))
+
+
+@order_bp.route('/schedule/<schedule_id>/delete')
+def schedule_delete(schedule_id):
+    schedule = AdSchedule.get(schedule_id)
+    if not schedule:
+        abort(404)
+    else:
+        item = schedule.item
+        schedule.delete()
+        return redirect(url_for("order.item_detail", item_id=item.id))
