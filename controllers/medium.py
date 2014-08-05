@@ -118,7 +118,7 @@ def new_position():
                                 size=AdSize.get(form.size.data), status=form.status.data,
                                 medium=Medium.get(form.medium.data), level=form.level.data,
                                 ad_type=form.ad_type.data, cpd_num=form.cpd_num.data,
-                                max_order_num=form.max_order_num.data)
+                                max_order_num=form.max_order_num.data, price=form.price.data)
         adPosition.units = AdUnit.gets(form.units.data)
         adPosition.add()
         return redirect(url_for("medium.positions"))
@@ -142,6 +142,7 @@ def position_detail(position_id):
         position.ad_type = form.ad_type.data
         position.cpd_num = form.cpd_num.data
         position.max_order_num = form.max_order_num.data
+        position.price = form.price.data
         position.save()
         return redirect(url_for("medium.positions"))
     else:
@@ -155,6 +156,7 @@ def position_detail(position_id):
         form.ad_type.data = position.ad_type
         form.cpd_num.data = position.cpd_num
         form.max_order_num.data = position.max_order_num
+        form.price.data = position.price
         form.estimate_num.data = position.estimate_num
         form.estimate_num.readonly = True
     return tpl('position.html', form=form, show_estimate=True)
