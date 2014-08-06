@@ -61,7 +61,7 @@ class Order(db.Model, BaseModelMixin):
     def __init__(self, client, campaign, medium, order_type, contract, money,
                  agent, direct_sales, agent_sales, operaters, designers, planers, creator, create_time):
         self.client = client
-        self.campaign = campaign.title()
+        self.campaign = campaign
         self.medium = medium
         self.order_type = order_type
         self.contract = contract

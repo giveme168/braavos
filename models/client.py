@@ -11,7 +11,7 @@ class Client(db.Model, BaseModelMixin):
     industry = db.Column(db.Integer)
 
     def __init__(self, name, industry):
-        self.name = name.title()
+        self.name = name
         self.industry = industry
 
     def __repr__(self):
@@ -29,7 +29,7 @@ class Agent(db.Model, BaseModelMixin):
     name = db.Column(db.String(100))
 
     def __init__(self, name):
-        self.name = name.title()
+        self.name = name
 
     def __repr__(self):
         return '<Agent %s>' % (self.name)

@@ -50,7 +50,7 @@ class Medium(db.Model, BaseModelMixin):
     owner = db.relationship('Team', backref=db.backref('mediums', lazy='dynamic'))
 
     def __init__(self, name, owner):
-        self.name = name.title()
+        self.name = name
         self.owner = owner
 
     def __repr__(self):
@@ -91,8 +91,8 @@ class AdUnit(db.Model, BaseModelMixin):
     estimate_num = db.Column(db.Integer)
 
     def __init__(self, name, description, size, margin, target, status, medium, estimate_num=0):
-        self.name = name.title()
-        self.description = description.title()
+        self.name = name
+        self.description = description
         self.size = size
         self.margin = margin
         self.target = target
@@ -143,8 +143,8 @@ class AdPosition(db.Model, BaseModelMixin):
     price = db.Column(db.Integer)
 
     def __init__(self, name, description, size, status, medium, level=POSITION_LEVEL_A1, ad_type=AD_TYPE_NORMAL, cpd_num=1, max_order_num=0, price=0):
-        self.name = name.title()
-        self.description = description.title()
+        self.name = name
+        self.description = description
         self.size = size
         self.status = status
         self.medium = medium
