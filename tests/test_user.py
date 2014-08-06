@@ -8,10 +8,10 @@ def _add_team(name):
     return team
 
 
-def _add_user(name, pwd):
+def _add_user(name, pwd, phone='1234567'):
     team = _add_team('testteam1')
     user = User(name=name, email=(name + '@inad.com'),
-                password=pwd, phone='1234567', team=team)
+                password=pwd, phone=phone, team=team)
     user.add()
     return user
 
