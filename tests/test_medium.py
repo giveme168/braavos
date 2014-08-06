@@ -45,6 +45,14 @@ def test_size(session):
     assert size2.width == 300
     assert size2.height == 50
 
+    size.width = 400
+    size.height = 80
+    size.save()
+
+    size3 = AdSize.get(size.id)
+    assert size3.width == 400
+    assert size3.height == 80
+
 
 def test_unit(session):
     unit = _add_unit('testunit', 300)
@@ -59,3 +67,11 @@ def test_position(session):
 
     position2 = AdPosition.get(position.id)
     assert position2.name == 'testposition'
+
+    unit = _add_unit('testunit', 300)
+    assert len(position.units) == 0
+    position.units = [unit]
+
+    position3 = AdPosition.get(position.id)
+    assert unit in position3.units
+    assert position3 in unit.positions
