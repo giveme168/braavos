@@ -116,7 +116,7 @@ class AdUnit(db.Model, BaseModelMixin):
         每个展示位置的的预订量按照比例分配到所拥有的广告单元上,
         再加和计算该单元的预订量
         """
-        return sum([x.schedule_num(date) * (self.estimate_num / x.estimate_num) for x in self.positions])
+        return int(sum([x.schedule_num(date) * (float(self.estimate_num) / float(x.estimate_num)) for x in self.positions]))
 
     def retain_num(self, date):
         retain_num = self.estimate_num - self.schedule_num(date)
@@ -192,15 +192,19 @@ class AdPosition(db.Model, BaseModelMixin):
         """
         return self.estimate_num / self.cpd_num if self.cpd_num > 1 else self.estimate_num
 
-    def schedule_num(self, date):
+    def schedules_by_date(self, _date):
+        schedules = []
+        for x in self.order_items:  # 预订这个位置的订单项
+            schedules.extend(x.schedules_by_date(_date))  # 这些订单项的排期
+        return schedules
+
+    def schedule_num(self, _date):
         """
         该位置的已经预订的量,
         通过所有预订这个位置的订单项的这一天的量计算
         """
-        schedules = []
-        for x in self.order_items:  # 预订这个位置的订单项
-            schedules.extend(x.schedules_by_date(date))  # 这些订单项的排期
-        return sum([x.num for x in schedules]) if schedules else 0
+        schedules = self.schedules_by_date(_date)
+        return sum([s.num for s in schedules]) if schedules else 0
 
     def retain_num(self, date):
         """剩余量, 所有广告单元的剩余量"""

@@ -122,8 +122,8 @@ class AdItem(db.Model, BaseModelMixin):
     def end_date_cn(self):
         return self.end_date.strftime("%Y-%m-%d") if self.end_date else u"起始时间"
 
-    def schedules_by_date(self, date):
-        return [s for s in self.schedules if s.date == date]
+    def schedules_by_date(self, _date):
+        return [s for s in self.schedules if s.date == _date]
 
 
 class AdSchedule(db.Model, BaseModelMixin):
