@@ -108,11 +108,11 @@ def check_schedules_post(data):
         for item in items:
             position = AdPosition.get(item['position'])
             for (date_str, num_str) in item['schedule'].items():
-                date = datetime.strptime(date_str, '%Y-%m-%d')
+                _date = datetime.strptime(date_str, '%Y-%m-%d').date()
                 num = int(num_str)
-                if position.can_order_num(date) < num:
+                if position.can_order_num(_date) < num:
                     status = 1
-                    msg += u'%s 最多只能预订 %s \n' % (position.display_name, position.can_order_num(date))
+                    msg += u'%s 最多只能预订 %s \n' % (position.display_name, position.can_order_num(_date))
     return status, msg
 
 
@@ -126,10 +126,9 @@ def add_schedules(order, data):
         adItem.price = position.price
         adItem.add()
         for (date_str, num_str) in item['schedule'].items():
-            start_time = datetime.strptime(date_str, '%Y-%m-%d')
-            end_time = start_time + timedelta(days=1, seconds=-1)
+            _date = datetime.strptime(date_str, '%Y-%m-%d').date()
             num = int(num_str)
-            schedule = AdSchedule(item=adItem, num=num, start_time=start_time, end_time=end_time)
+            schedule = AdSchedule(item=adItem, num=num, date=_date)
             schedule.add()
 
 
@@ -155,15 +154,15 @@ def get_schedule(position, start_date, end_date):
            "name": position.display_name,
            "start": start_date.strftime("%Y-%m-%d"),
            "end": end_date.strftime("%Y-%m-%d")}
-    ret['schedules'] = [schdule_info(date, num) for date, num in position.can_order_schedule(start_date, end_date)]
+    ret['schedules'] = [schdule_info(_date, num) for _date, num in position.can_order_schedule(start_date, end_date)]
     return ret
 
 
 @order_bp.route('/schedule_info', methods=['GET'])
 def schedule_info():
     """ajax 获取排期数据"""
-    start_date = datetime.strptime(request.values.get('start'), '%Y-%m-%d')
-    end_date = datetime.strptime(request.values.get('end'), '%Y-%m-%d')
+    start_date = datetime.strptime(request.values.get('start'), '%Y-%m-%d').date()
+    end_date = datetime.strptime(request.values.get('end'), '%Y-%m-%d').date()
     position = AdPosition.get(request.values.get('position'))
     return json.dumps(get_schedule(position, start_date, end_date))
 
@@ -219,11 +218,13 @@ def schedule_update(schedule_id):
     schedule = AdSchedule.get(schedule_id)
     if not schedule:
         abort(404)
-    start_time = datetime.strptime(request.form.get('start_time'), "%Y-%m-%d %H:%M:%S")
-    end_time = datetime.strptime(request.form.get('end_time'), "%Y-%m-%d %H:%M:%S")
+    _date = datetime.strptime(request.form.get('date'), "%Y-%m-%d").date()
+    start = datetime.strptime(request.form.get('start'), "%H:%M:%S").time()
+    end = datetime.strptime(request.form.get('end'), "%H:%M:%S").time()
     num = request.form.get('num')
-    schedule.start_time = start_time
-    schedule.end_time = end_time
+    schedule.date = _date
+    schedule.start = start
+    schedule.end = end
     schedule.num = num
     schedule.save()
     return redirect(url_for("order.item_detail", item_id=schedule.item.id))

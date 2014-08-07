@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, time, datetime
 
 from models.item import AdItem, AdSchedule
 from test_order import _add_order
@@ -6,20 +6,21 @@ from test_medium import _add_position
 from test_user import _add_user
 
 
-def _add_item():
+def _add_item(position=None):
     order = _add_order()
-    position = _add_position('testposition')
+    position = position or _add_position('testposition')
     user = _add_user('testuseritem', 'pwd')
     item = AdItem(order, 0, 0, position, user, datetime.now())
     item.add()
     return item
 
 
-def _add_schedule():
-    item = _add_item()
-    start = datetime.today()
-    end = start + timedelta(days=1, seconds=-1)
-    schedule = AdSchedule(item, 300, start, end)
+def _add_schedule(item=None, num=300):
+    item = item or _add_item()
+    today = date.today()
+    start = time.min
+    end = time.max
+    schedule = AdSchedule(item, num, today, start, end)
     schedule.add()
     return schedule
 

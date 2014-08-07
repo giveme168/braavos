@@ -1,8 +1,9 @@
-<h3>投放安排 <a href="#" id="schedule-switch" class="btn btn-sm btn-default">收起/显示</a></h3>
+<h3>投放安排</h3>
 <table id="schedule-table" class="table table-bordered table-tript">
   <tr>
-    <th>开始</th>
-    <th>结束</th>
+    <th>日期</th>
+    <th>开始时间</th>
+    <th>结束时间</th>
     <th>投放量</th>
     <th>操作</th>
   </tr>
@@ -10,10 +11,13 @@
     <tr>
       <form action='{{url_for("order.schedule_update", schedule_id=x.id)}}' method="POST">
         <td>
-          <input type="text" name="start_time" value="{{x.start_time.strftime("%Y-%m-%d %H:%M:%S")}}" class="datetimepicker form-control" data-date-format="yyyy-mm-dd hh:ii:ss">
+          <input type="text" name="date" value="{{x.date.strftime("%Y-%m-%d")}}" class="datepicker form-control" data-date-format="yyyy-mm-dd">
         </td>
         <td>
-          <input type="text" name="end_time" value="{{x.end_time.strftime("%Y-%m-%d %H:%M:%S")}}" class="datetimepicker form-control" data-date-format="yyyy-mm-dd hh:ii:ss">
+          <input type="text" name="start" value="{{x.start.strftime("%H:%M:%S")}}" class="timepicker form-control" data-date-format="hh:ii:ss">
+        </td>
+        <td>
+          <input type="text" name="end" value="{{x.end.strftime("%H:%M:%S")}}" class="timepicker form-control" data-date-format="hh:ii:ss">
         </td>
         <td>
           <input type="text" name="num" value="{{x.num}}" class="form-control" />
@@ -28,14 +32,11 @@
 </table>
 <script>
 $(document).ready(function(){
-    $("#schedule-switch").click(function(){
-        $("#schedule-table").slideToggle('slow');
-    });
-    $('.datetimepicker').datetimepicker({
+    $('.datepicker').datetimepicker({
         autoclose: true,
         todayHighlight: true,
         language: 'zh-CN',
-        //minView: 2
-      });    
+        minView: 2
+      });
 });
 </script>

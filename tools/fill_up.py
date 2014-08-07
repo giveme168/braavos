@@ -46,11 +46,11 @@ unit3 = AdUnit("测试广告单元3", "测试", size, "0px 0px 0px 0px",
                TARGET_BLANK, STATUS_ON, medium, 10000)
 unit3.add()
 
-position = AdPosition("测试展示位置", "测试", size, STATUS_ON, medium)
+position = AdPosition("测试展示位置", "测试", size, STATUS_ON, medium, max_order_num=700)
 position.add()
 position.units = [unit, unit2]
 
-position2 = AdPosition("测试展示位置2", "测试", size, STATUS_ON, medium)
+position2 = AdPosition("测试展示位置2", "测试", size, STATUS_ON, medium, max_order_num=800)
 position2.add()
 position2.units = [unit2, unit3]
 

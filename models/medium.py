@@ -178,20 +178,29 @@ class AdPosition(db.Model, BaseModelMixin):
 
     @property
     def estimate_num(self):
-        """预估量是所有广告单元的和, 表示改位置最大投放量, 所以拥有同相同广告单元的位置不能同时预订"""
+        """
+        预估量是所有广告单元一天预估量的和, 表示这个位置最大投放量,
+        所以拥有同相同广告单元的位置不能同时预订, 否则可能会超
+        所以每个展示位置需要制定一个最大预订值
+        """
         return sum([x.estimate_num for x in self.units])
 
     @property
     def estimate_num_per_cpd(self):
-        """每个CPD的预估量"""
-        return self.estimate_num / self.cpd_num if self.cpd_num > 0 else self.estimate_num
+        """
+        平均每个CPD的预估量
+        """
+        return self.estimate_num / self.cpd_num if self.cpd_num > 1 else self.estimate_num
 
     def schedule_num(self, date):
-        """该位置的排期预订量, 通过所有预订这个位置的订单项的这一天的量计算"""
+        """
+        该位置的已经预订的量,
+        通过所有预订这个位置的订单项的这一天的量计算
+        """
         schedules = []
-        for x in self.order_items:
-            schedules.extend(x.schedules)
-        return sum([x.num_by_date(date) for x in schedules]) if schedules else 0
+        for x in self.order_items:  # 预订这个位置的订单项
+            schedules.extend(x.schedules_by_date(date))  # 这些订单项的排期
+        return sum([x.num for x in schedules]) if schedules else 0
 
     def retain_num(self, date):
         """剩余量, 所有广告单元的剩余量"""
@@ -204,5 +213,6 @@ class AdPosition(db.Model, BaseModelMixin):
     def can_order_schedule(self, start_date, end_date):
         schedules = []
         for n in range((end_date - start_date).days + 1):
-            schedules.append((start_date + timedelta(n), self.can_order_num(start_date + timedelta(n))))
+            _date = start_date + timedelta(days=n)
+            schedules.append((_date, self.can_order_num(_date)))
         return schedules

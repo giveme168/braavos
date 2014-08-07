@@ -1,5 +1,5 @@
 #-*- coding: UTF-8 -*-
-from datetime import datetime, timedelta
+from datetime import datetime, time
 
 from . import db, BaseModelMixin
 from consts import STATUS_CN
@@ -106,25 +106,24 @@ class AdItem(db.Model, BaseModelMixin):
     def status_cn(self):
         return STATUS_CN[self.status]
 
-    @classmethod
-    def gets_by_position(cls, position):
-        return cls.query.filter_by(position_id=position.id)
+    @property
+    def start_date(self):
+        return min([s.date for s in self.schedules]) if self.schedules else None
 
     @property
-    def start_time(self):
-        return min([s.start_time for s in self.schedules]) if self.schedules else None
+    def start_date_cn(self):
+        return self.start_date.strftime("%Y-%m-%d") if self.start_date else u"起始时间"
 
     @property
-    def start_time_cn(self):
-        return self.start_time.strftime("%Y-%m-%d %H:%M:%S") if self.start_time else u"起始时间"
+    def end_date(self):
+        return max([s.date for s in self.schedules]) if self.schedules else None
 
     @property
-    def end_time(self):
-        return min([s.end_time for s in self.schedules]) if self.schedules else None
+    def end_date_cn(self):
+        return self.end_date.strftime("%Y-%m-%d") if self.end_date else u"起始时间"
 
-    @property
-    def end_time_cn(self):
-        return self.end_time.strftime("%Y-%m-%d %H:%M:%S") if self.end_time else u"起始时间"
+    def schedules_by_date(self, date):
+        return [s for s in self.schedules if s.date == date]
 
 
 class AdSchedule(db.Model, BaseModelMixin):
@@ -134,57 +133,20 @@ class AdSchedule(db.Model, BaseModelMixin):
     item_id = db.Column(db.Integer, db.ForeignKey('bra_item.id'))
     item = db.relationship('AdItem', backref=db.backref('schedules', lazy='dynamic'))
     num = db.Column(db.Integer)  # 投放量
-    start_time = db.Column(db.DateTime)
-    end_time = db.Column(db.DateTime)
+    date = db.Column(db.Date)  # 投放日期
+    start = db.Column(db.Time)  # 开始时间
+    end = db.Column(db.Time)  # 结束时间
 
-    def __init__(self, item, num, start_time, end_time):
+    def __init__(self, item, num, date, start=time.min, end=time.max):
         self.item = item
         self.num = num
-        self.start_time = start_time
-        self.end_time = end_time
+        self.date = date
+        self.start = start
+        self.end = end
 
     def __repr__(self):
-        return '<AdSchedule %s-%s-%s>' % (self.item.name, self.start_time, self.end_time)
+        return '<AdSchedule %s-%s>' % (self.item.name, self.date)
 
     @property
     def units(self):
         return self.item.position.units
-
-    @property
-    def start_date(self):
-        return datetime(self.start_time.year, self.start_time.month, self.start_time.day)
-
-    @property
-    def end_date(self):
-        return datetime(self.end_time.year, self.end_time.month, self.end_time.day)
-
-    @property
-    def total_seconds(self):
-        return (self.end_time - self.start_time).total_seconds()
-
-    @property
-    def firstday_secounds(self):
-        if self.end_date > self.start_date:
-            return (self.start_date + timedelta(days=1) - self.start_time).total_seconds()
-        else:
-            return self.total_seconds
-
-    @property
-    def lastday_secounds(self):
-        if self.end_date > self.start_date:
-            return (self.end_time - self.end_date).total_seconds()
-        else:
-            return self.total_seconds
-
-    def num_by_date(self, date):
-        """计算平均分配到每天的投放量"""
-        if date < self.start_date or date > self.end_date:  # 不在日期内
-            return 0
-        elif date == self.start_date and date == self.end_date:  # 投放开始结束在同一天
-            return self.num
-        elif date == self.start_date:  # 第一天
-            return int(self.num * self.firstday_secounds / self.total_seconds)
-        elif date == self.end_date:  # 最后一天
-            return int(self.num * self.lastday_secounds / self.total_seconds)
-        else:  # 其中某一天
-            return int(self.num * timedelta(days=1).total_secounds / self.total_seconds)
