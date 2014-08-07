@@ -214,9 +214,23 @@ class AdPosition(db.Model, BaseModelMixin):
         """可预订量"""
         return min(self.max_order_num, self.retain_num(date))
 
-    def can_order_schedule(self, start_date, end_date):
+    def can_order_num_schedule(self, start_date, end_date):
+        """在start和end之间可以预订的量"""
         schedules = []
         for n in range((end_date - start_date).days + 1):
             _date = start_date + timedelta(days=n)
             schedules.append((_date, self.can_order_num(_date)))
         return schedules
+
+    def get_schedule(self, start_date, end_date):
+        """格式化预订量"""
+        ret = {"position": self.id,
+               "name": self.display_name,
+               "start": start_date.strftime("%Y-%m-%d"),
+               "end": end_date.strftime("%Y-%m-%d")}
+        ret['schedules'] = [schdule_info(_date, num) for _date, num in self.can_order_num_schedule(start_date, end_date)]
+        return ret
+
+
+def schdule_info(date, num):
+    return (date.strftime("%Y-%m-%d"), num, date.isoweekday())

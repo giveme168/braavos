@@ -146,26 +146,13 @@ def schedules_post(order_id):
     return jsonify({'status': status, 'msg': msg})
 
 
-def schdule_info(date, num):
-    return (date.strftime("%Y-%m-%d"), num, date.isoweekday())
-
-
-def get_schedule(position, start_date, end_date):
-    ret = {"position": position.id,
-           "name": position.display_name,
-           "start": start_date.strftime("%Y-%m-%d"),
-           "end": end_date.strftime("%Y-%m-%d")}
-    ret['schedules'] = [schdule_info(_date, num) for _date, num in position.can_order_schedule(start_date, end_date)]
-    return ret
-
-
 @order_bp.route('/schedule_info', methods=['GET'])
 def schedule_info():
     """ajax 获取排期数据"""
     start_date = datetime.strptime(request.values.get('start'), '%Y-%m-%d').date()
     end_date = datetime.strptime(request.values.get('end'), '%Y-%m-%d').date()
     position = AdPosition.get(request.values.get('position'))
-    return jsonify(get_schedule(position, start_date, end_date))
+    return jsonify(position.get_schedule(start_date, end_date))
 
 
 @order_bp.route('/position_list', methods=['GET'])
