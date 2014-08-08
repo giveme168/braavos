@@ -31,8 +31,3 @@ class ItemForm(Form):
         self.speed.choices = SPEED_CN.items()
         self.item_status.choices = ITEM_STATUS_CN.items()
         self.status.choices = STATUS_CN.items()
-
-    def validate(self):
-        if Form.validate(self):
-            return True
-        return False

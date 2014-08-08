@@ -50,9 +50,6 @@ class NewTeamForm(Form):
         super(NewTeamForm, self).__init__(*args, **kwargs)
         self.type.choices = TEAM_TYPE_CN.items()
 
-    def validate(self):
-        return Form.validate(self)
-
 
 class NewUserForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])

@@ -1,5 +1,9 @@
 {% macro form_field(field) -%}
+      {% if field.hidden %}
+      <div class="form-group" style="display: none;">
+      {% else %}
       <div class="form-group">
+      {% endif %}
         <label for="name" class="col-sm-2 control-label">{{field.label.text}} : </label>
         <div class="col-sm-10">
           {% if field.readonly %}

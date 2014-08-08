@@ -36,6 +36,7 @@ def new_order():
         return redirect(url_for("order.orders"))
     else:
         form.creator.data = g.user.name
+    form.order_type.hidden = True
     return tpl('new_order.html', form=form)
 
 
@@ -75,6 +76,7 @@ def order_detail(order_id):
         form.designers.data = [u.id for u in order.designers]
         form.planers.data = [u.id for u in order.planers]
         form.creator.data = order.creator.name
+    form.order_type.hidden = True
     return tpl('order.html', form=form, order=order)
 
 

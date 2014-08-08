@@ -15,9 +15,6 @@ class NewMediumForm(Form):
         super(NewMediumForm, self).__init__(*args, **kwargs)
         self.owner.choices = [(t.id, t.name) for t in Team.all() if t.is_medium()]
 
-    def validate(self):
-        return Form.validate(self)
-
 
 class SizeForm(Form):
     width = IntegerField(u'Width', [validators.Required(u"请输入宽度.")])

@@ -13,15 +13,9 @@ class NewClientForm(Form):
         super(NewClientForm, self).__init__(*args, **kwargs)
         self.industry.choices = CLIENT_INDUSTRY_CN.items()
 
-    def validate(self):
-        return Form.validate(self)
-
 
 class NewAgentForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
 
     def __init__(self, *args, **kwargs):
         super(NewAgentForm, self).__init__(*args, **kwargs)
-
-    def validate(self):
-        return Form.validate(self)
