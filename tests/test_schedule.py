@@ -23,7 +23,6 @@ def test_schedule(session):
     _date = date.today()
     start = time.min
     end = time.max
-    print _date
 
     assert position1.schedule_num(_date) == 0
     assert position2.schedule_num(_date) == 0
