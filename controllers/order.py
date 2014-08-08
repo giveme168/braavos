@@ -33,7 +33,7 @@ def new_order():
                       planers=User.gets(form.planers.data), designers=User.gets(form.designers.data), creator=g.user,
                       create_time=datetime.now())
         order.add()
-        return redirect(url_for("order.orders"))
+        return redirect(url_for("order.order_detail", order_id=order.id))
     else:
         form.creator.data = g.user.name
     form.order_type.hidden = True
@@ -60,7 +60,6 @@ def order_detail(order_id):
         order.designers = User.gets(form.designers.data)
         order.planers = User.gets(form.planers.data)
         order.save()
-        return redirect(url_for("order.orders"))
     else:
         form.client.data = order.client.id
         form.campaign.data = order.campaign
