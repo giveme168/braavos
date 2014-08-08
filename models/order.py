@@ -61,7 +61,7 @@ class Order(db.Model, BaseModelMixin):
     def __init__(self, client, campaign, medium, order_type, contract, money,
                  agent, direct_sales, agent_sales, operaters, designers, planers, creator, create_time):
         self.client = client
-        self.campaign = campaign.title()
+        self.campaign = campaign
         self.medium = medium
         self.order_type = order_type
         self.contract = contract
@@ -76,11 +76,11 @@ class Order(db.Model, BaseModelMixin):
         self.create_time = create_time
 
     def __repr__(self):
-        return '<Order %s>' % (self.name)
+        return '<Order %s>' % (self.id)
 
     @property
     def name(self):
-        return "%s-%s-%s" % (self.contract or u"合同号暂缺", self.client.name, self.campaign)
+        return u"%s-%s-%s" % (self.contract or u"合同号暂缺", self.client.name, self.campaign)
 
     @property
     def order_type_cn(self):

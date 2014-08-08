@@ -55,7 +55,7 @@ body{
     margin-right: 30px;
 }
 .bra-main{
-    min-width: 990px;
+    width: 990px;
 }
 
 .bra-left .list-group-item {

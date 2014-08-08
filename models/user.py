@@ -40,7 +40,7 @@ class User(db.Model, BaseModelMixin):
     team = db.relationship('Team', backref=db.backref('users', lazy='dynamic'))
 
     def __init__(self, name, email, password, phone, team, status=USER_STATUS_ON):
-        self.name = name.title()
+        self.name = name
         self.email = email.lower()
         self.set_password(password)
         self.phone = phone
@@ -85,7 +85,7 @@ class Team(db.Model, BaseModelMixin):
     type = db.Column(db.Integer)
 
     def __init__(self, name, type=TEAM_TYPE_MEDIUM):
-        self.name = name.title()
+        self.name = name
         self.type = type
 
     def __repr__(self):

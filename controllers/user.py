@@ -72,7 +72,7 @@ def new_team():
     return tpl('new_team.html', form=form)
 
 
-@user_bp.route('/team_detail/<team_id>', methods=['GET', 'POST'])
+@user_bp.route('/team/<team_id>', methods=['GET', 'POST'])
 @admin_required
 def team_detail(team_id):
     team = Team.get(team_id)
@@ -102,7 +102,7 @@ def new_user():
     return tpl('new_user.html', form=form)
 
 
-@user_bp.route('/user_detail/<user_id>', methods=['GET', 'POST'])
+@user_bp.route('/user/<user_id>', methods=['GET', 'POST'])
 def user_detail(user_id):
     user = User.get(user_id)
     if not user:

@@ -1,23 +1,15 @@
 {% extends "/user_base.html" %}
+{% from 'form.html' import form_field %}
 {% block title %}NewTeam{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3>{{team.name}} - Team</h3>
-    <div class="errors">
-        {{','.join(form.name.errors+form.type.errors)}}
-    </div>
-    <form class="form" method="POST">
+    <form class="form form-horizontal" method="POST">
       {{form.csrf_token}}
-      <div class="form-group">
-        <label for="name">{{form.name.label.text}}</label>
-        {{form.name(class_='form-control', placeholder=form.name.label.text)}}
-      </div>
-      <div class="form-group">
-        <label for="type">{{form.type.label.text}}</label>
-        {{form.type(class_='form-control', placeholder=form.type.label.text)}}
-      </div>
-        <input type="submit" class="btn btn-primary btn-sm" value="提交"/>
+        {{ form_field(form.name) }}
+        {{ form_field(form.type) }}
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
         <a href="{{url_for('user.teams')}}" class="btn btn-default btn-sm"> 返回</a>
     </table>
     <h3>User列表</h3>

@@ -1,0 +1,20 @@
+{% macro order_items(order) -%}
+<table class="table table-bordered table-striped">
+    <tr>
+      <th>名称</th>
+      <th>开始</th>
+      <th>结束</th>
+      <th>售卖类型</th>
+      <th>状态</th>
+    </tr>
+    {% for i in order.items %}
+    <tr>
+      <td><a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.name}}</a></td>
+      <td>{{i.start_time_cn}}</td>
+      <td>{{i.end_time_cn}}</td>
+      <td>{{i.sale_type_cn}}</td>
+      <td>{{i.status_cn}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{%- endmacro %}

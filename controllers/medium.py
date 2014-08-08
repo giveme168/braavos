@@ -24,7 +24,7 @@ def new_medium():
     return tpl('medium.html', form=form)
 
 
-@medium_bp.route('/medium_detail/<medium_id>', methods=['GET', 'POST'])
+@medium_bp.route('/medium/<medium_id>', methods=['GET', 'POST'])
 def medium_detail(medium_id):
     medium = Medium.get(medium_id)
     if not medium:
@@ -73,7 +73,7 @@ def new_unit():
     return tpl('unit.html', form=form)
 
 
-@medium_bp.route('/unit_detail/<unit_id>', methods=['GET', 'POST'])
+@medium_bp.route('/unit/<unit_id>', methods=['GET', 'POST'])
 def unit_detail(unit_id):
     unit = AdUnit.get(unit_id)
     if not unit:
@@ -116,14 +116,16 @@ def new_position():
     if request.method == 'POST' and form.validate():
         adPosition = AdPosition(name=form.name.data, description=form.description.data,
                                 size=AdSize.get(form.size.data), status=form.status.data,
-                                medium=Medium.get(form.medium.data), level=form.level.data)
+                                medium=Medium.get(form.medium.data), level=form.level.data,
+                                ad_type=form.ad_type.data, cpd_num=form.cpd_num.data,
+                                max_order_num=form.max_order_num.data, price=form.price.data)
         adPosition.units = AdUnit.gets(form.units.data)
         adPosition.add()
         return redirect(url_for("medium.positions"))
-    return tpl('position.html', form=form)
+    return tpl('position.html', form=form, show_estimate=False)
 
 
-@medium_bp.route('/position_detail/<position_id>', methods=['GET', 'POST'])
+@medium_bp.route('/position/<position_id>', methods=['GET', 'POST'])
 def position_detail(position_id):
     position = AdPosition.get(position_id)
     if not position:
@@ -137,6 +139,10 @@ def position_detail(position_id):
         position.units = AdUnit.gets(form.units.data)
         position.medium = Medium.get(form.medium.data)
         position.level = form.level.data
+        position.ad_type = form.ad_type.data
+        position.cpd_num = form.cpd_num.data
+        position.max_order_num = form.max_order_num.data
+        position.price = form.price.data
         position.save()
         return redirect(url_for("medium.positions"))
     else:
@@ -147,7 +153,13 @@ def position_detail(position_id):
         form.units.data = [x.id for x in position.units]
         form.medium.data = position.medium.id
         form.level.data = position.level
-    return tpl('position.html', form=form)
+        form.ad_type.data = position.ad_type
+        form.cpd_num.data = position.cpd_num
+        form.max_order_num.data = position.max_order_num
+        form.price.data = position.price
+        form.estimate_num.data = position.estimate_num
+        form.estimate_num.readonly = True
+    return tpl('position.html', form=form, show_estimate=True)
 
 
 @medium_bp.route('/positions', methods=['GET'])

@@ -1,0 +1,42 @@
+<h3>投放安排</h3>
+<table id="schedule-table" class="table table-bordered table-tript">
+  <tr>
+    <th>日期</th>
+    <th>开始时间</th>
+    <th>结束时间</th>
+    <th>投放量</th>
+    <th>操作</th>
+  </tr>
+  {% for x in item.schedules %}
+    <tr>
+      <form action='{{url_for("order.schedule_update", schedule_id=x.id)}}' method="POST">
+        <td>
+          <input type="text" name="date" value="{{x.date.strftime("%Y-%m-%d")}}" class="datepicker form-control" data-date-format="yyyy-mm-dd">
+        </td>
+        <td>
+          <input type="text" name="start" value="{{x.start.strftime("%H:%M:%S")}}" class="timepicker form-control" data-date-format="hh:ii:ss">
+        </td>
+        <td>
+          <input type="text" name="end" value="{{x.end.strftime("%H:%M:%S")}}" class="timepicker form-control" data-date-format="hh:ii:ss">
+        </td>
+        <td>
+          <input type="text" name="num" value="{{x.num}}" class="form-control" />
+        </td>
+        <td>
+          <input type="submit" value="保存" class="btn btn-sm btn-primary"/>
+          <a href='{{url_for("order.schedule_delete", schedule_id=x.id)}}' class="btn btn-sm btn-danger">删除</a>
+        </td>
+      </form>
+    </tr>
+  {% endfor %}
+</table>
+<script>
+$(document).ready(function(){
+    $('.datepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+      });
+});
+</script>

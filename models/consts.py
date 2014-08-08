@@ -1,5 +1,13 @@
 #-*- coding: UTF-8 -*-
 
+#  状态
+STATUS_ON = 1         # 有效
+STATUS_OFF = 0        # 停用
+STATUS_CN = {
+    STATUS_OFF: u"暂停",
+    STATUS_ON: u"有效"
+}
+
 #  客户行业 新增行业只能在列表最后增加
 CLIENT_INDUSTRY_LIST = [
     u"IT",
