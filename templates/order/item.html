@@ -10,7 +10,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 订单项设置 </a>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 信息 </a>
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">
@@ -37,7 +37,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"> 投放时间 </a>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"> 投放安排 </a>
                 </h4>
             </div>
             <div id="collapseTwo" class="panel-collapse collapse">
@@ -49,4 +49,10 @@
     </div>
 
 </div>
+<script>
+$(document).ready(function(){
+    $("#collapseOne").collapse('hide');
+    $("#collapseTwo").collapse('show');
+});
+</script>
 {% endblock %}

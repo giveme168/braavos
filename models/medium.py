@@ -120,7 +120,7 @@ class AdUnit(db.Model, BaseModelMixin):
 
     def retain_num(self, date):
         retain_num = self.estimate_num - self.schedule_num(date)
-        return retain_num if retain_num > 0 else 0
+        return max(retain_num, 0)
 
 
 class AdPosition(db.Model, BaseModelMixin):
@@ -204,7 +204,7 @@ class AdPosition(db.Model, BaseModelMixin):
         通过所有预订这个位置的订单项的这一天的量计算
         """
         schedules = self.schedules_by_date(_date)
-        return sum([s.num for s in schedules]) if schedules else 0
+        return sum([s.num for s in schedules])
 
     def retain_num(self, date):
         """剩余量, 所有广告单元的剩余量"""
