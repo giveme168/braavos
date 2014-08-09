@@ -14,6 +14,7 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI  = 'sqlite://'
 
 class DevelopmentConfig(Config):
+    """Use local_config overwrite this"""
     pass
 
 try:

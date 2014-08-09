@@ -2,7 +2,6 @@
 from flask import g, request, url_for, redirect
 from flask.ext.login import LoginManager, current_user
 
-from config import DEBUG
 from factory import create_app
 from urls import register_blueprint
 
@@ -37,5 +36,5 @@ register_blueprint(app)
 
 
 if __name__ == '__main__':
-    app.debug = DEBUG
+    app.debug = app.config['DEBUG']
     app.run(host='0.0.0.0', port=8000)
