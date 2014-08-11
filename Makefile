@@ -11,3 +11,6 @@ web: db_refresh serve
 
 test:
 	py.test --tb=short tests --random
+
+clean_pyc:
+	find . -name '*.pyc' -delete
