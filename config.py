@@ -14,6 +14,7 @@ class TestingConfig(Config):
 
 
 class DevelopmentConfig(Config):
+    """Use local_config overwrite this"""
     pass
 
 config_object = 'config.DevelopmentConfig'
