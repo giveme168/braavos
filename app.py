@@ -4,9 +4,10 @@ from flask.ext.login import LoginManager, current_user
 
 from factory import create_app
 from urls import register_blueprint
+from config import config_object
 
 
-app = create_app()
+app = create_app(config_object)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -36,5 +37,4 @@ register_blueprint(app)
 
 
 if __name__ == '__main__':
-    app.debug = app.config['DEBUG']
     app.run(host='0.0.0.0', port=8000)
