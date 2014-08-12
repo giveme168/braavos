@@ -1,7 +1,7 @@
 Flask==0.10.1
 Flask-Login==0.2.11
 Flask-Migrate==1.2.0
--e git+https://github.com/mitsuhiko/flask-sqlalchemy.git@e8607437960c0816b3c4a2bb461ca79afb5da1ff#egg=Flask_SQLAlchemy-origin/HEAD
+-e git+https://github.com/mitsuhiko/flask-sqlalchemy.git#egg=Flask-SQLAlchemy
 Flask-Script==2.0.5
 Flask-WTF==0.9.5
 Jinja2==2.7.3
