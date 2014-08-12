@@ -18,5 +18,5 @@ def restart_service():
 def deploy():
     prepare_deploy()
     with cd(env.directory):
-        run("git pull")
+        run("git pull origin master")
     restart_service()
