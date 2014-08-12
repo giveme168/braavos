@@ -10,7 +10,7 @@ SALE_TYPE_REMNANT = 2         # 补量
 #SALE_TYPE_CPC = 3            # CPC
 
 SALE_TYPE_CN = {
-    SALE_TYPE_NORMAL: u"标准/购买",
+    SALE_TYPE_NORMAL: u"购买",
     SALE_TYPE_GIFT: u"配送",
     SALE_TYPE_REMNANT: u"补量",
     #SALE_TYPE_CPC: u"CPC",
@@ -21,7 +21,7 @@ AD_TYPE_CPD = 1
 AD_TYPE_REMNANT = 2
 
 AD_TYPE_CN = {
-    AD_TYPE_NORMAL: u"标准/CPM",
+    AD_TYPE_NORMAL: u"CPM",
     AD_TYPE_CPD: u"CPD",
     AD_TYPE_REMNANT: u"补余",
 }
