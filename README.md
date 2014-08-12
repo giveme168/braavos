@@ -1,4 +1,4 @@
-[![Build Status](https://drone.io/github.com/borngods/braavos/status.png)](https://drone.io/github.com/borngods/braavos/latest)
+[![Build Status](http://ci.inad.com/github.com/borngods/braavos/status.svg?branch=master)](http://ci.inad.com/github.com/borngods/braavos)
 
 ## Braavos
 
