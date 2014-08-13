@@ -123,15 +123,15 @@ def add_schedules(order, data):
     items = json.loads(data)
     for item in items:
         position = AdPosition.get(item['position'])
-        adItem = AdItem(order=order, sale_type=item['sale_type'], special_sale=item['special_sale'],
+        ad_item = AdItem(order=order, sale_type=item['sale_type'], special_sale=item['special_sale'],
                         position=position, creator=g.user, create_time=datetime.now())
-        adItem.price = position.price
-        adItem.description = item['description']
-        adItem.add()
+        ad_item.price = position.price
+        ad_item.description = item['description']
+        ad_item.add()
         for (date_str, num_str) in item['schedule'].items():
             _date = datetime.strptime(date_str, '%Y-%m-%d').date()
             num = int(num_str)
-            schedule = AdSchedule(item=adItem, num=num, date=_date)
+            schedule = AdSchedule(item=ad_item, num=num, date=_date)
             schedule.add()
 
 
