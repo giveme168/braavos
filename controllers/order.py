@@ -124,7 +124,7 @@ def add_schedules(order, data):
     for item in items:
         position = AdPosition.get(item['position'])
         ad_item = AdItem(order=order, sale_type=item['sale_type'], special_sale=item['special_sale'],
-                        position=position, creator=g.user, create_time=datetime.now())
+                         position=position, creator=g.user, create_time=datetime.now())
         ad_item.price = position.price
         ad_item.description = item['description']
         ad_item.add()
@@ -148,7 +148,7 @@ def schedules_post(order_id):
     return jsonify({'status': status, 'msg': msg})
 
 
-@order_bp.route('/schedule_info', methods=['GET'])
+@order_bp.route('/schedule_info/', methods=['GET'])
 def schedule_info():
     """ajax 获取排期数据"""
     start_date = datetime.strptime(request.values.get('start'), '%Y-%m-%d').date()
