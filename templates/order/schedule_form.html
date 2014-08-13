@@ -230,9 +230,27 @@ $(document).ready(function(){
         }
         return ret;
     }
+    function check_sent_data(sent_data){
+      if(sent_data.length==0){
+        alert("所有排期项都为空!");
+        return false;
+      }
+      // 检查是否有相同售卖类型+展示位置   同一个售卖类型下, 相同展示位置只能有一个排期
+      var unique_schedule = [];
+      for(var x in sent_data){
+        schedule = sent_data[x];
+        var schedule_str = "type:"+schedule['sale_type']+"position:"+schedule['position'];
+        if($.inArray(schedule_str, unique_schedule) > -1){
+            alert("每种售卖类型下(购买, 配送, 补量), 相同的展示位置只能预订一次, 如有重复, 请合并成一个排期项!");
+            return false;
+        }else{
+            unique_schedule.push(schedule_str);
+        }
+      }
+      return true;
+    }
     function post_schedules(sent_data){
-      if(sent_data.length==0){alert("所有排期项都为空!");}
-      else{
+      if(check_sent_data(sent_data)){
         $.post('{{url_for("order.schedules_post", order_id=order.id)}}',
           {data: $.toJSON(sent_data)},
           function(data) {
