@@ -126,6 +126,7 @@ def add_schedules(order, data):
         adItem = AdItem(order=order, sale_type=item['sale_type'], special_sale=item['special_sale'],
                         position=position, creator=g.user, create_time=datetime.now())
         adItem.price = position.price
+        adItem.description = item['description']
         adItem.add()
         for (date_str, num_str) in item['schedule'].items():
             _date = datetime.strptime(date_str, '%Y-%m-%d').date()

@@ -39,12 +39,22 @@
       </select>
     </div>
   </div>
+  <div class="form-group form-description">
+    <label for="description" class="col-md-2 control-label">特殊要求: </label>
+    <div class="col-md-8">
+      <textarea class="description form-control" name="description" placeholder="请写明特殊投放要求, 或定向条件"/>
+    </div>
+  </div>
  <div class="form-group">
     <table class="table table-striped table-bordered" id="schedule-table">
     </table>
   </div>
  <div class="form-group">
-    <a class="schedule-delete btn btn-default"><span class="glyphicon glyphicon-minus"></span> Delete</a>
+    <label class="col-md-2 control-label">总预订量: </label>
+    <div class="col-md-2">
+        <div class="col-md-2 schedule-sum" style="padding-top: 7px;"> 0 </div>
+    </div>
+    <a class="schedule-delete btn btn-default">取消</a>
  </div>
 </div>
 </script>
@@ -62,6 +72,7 @@ $(document).ready(function(){
       $(this).parents(".schedule-saletype").find("#schedule-content").append(schedule_tpl);
 
       load_schedule($(this).parents(".schedule-saletype").find(".schedule-form").last().find(".position"));
+      $(this).parents(".schedule-saletype").find(".schedule-form").last().find(".form-description").hide();
     });
     // 删除排期
     $("body").on('click', ".schedule-delete", function(){
@@ -74,8 +85,9 @@ $(document).ready(function(){
         if((schedule[1])>0){
           var td = '<td class="weekday-'+weekday+'"><div class="sch-date">' + 
             schedule[0] + 
-            '</div><div class="sch-num"><input type="text" class="order-num" name="' + schedule[0] +
-            '" value="0"/>' + ' / '+ schedule[1] +'</div></td>';
+            '</div><div class="sch-num">' +
+            '<input type="text" class="order-num" name="' + schedule[0] +
+            '" value="0" data-max="'+schedule[1]+'"/>' + ' / '+ schedule[1] +'</div></td>';
         }
         else{
           var td = '<td><div class="sch-date">' + schedule[0] + '</div><div class="sch-num">无资源</div></td>';
@@ -86,7 +98,7 @@ $(document).ready(function(){
     }
     // 排期表单 单元
     function schedule_header(schedule){
-        var _content = '<tr> <th>周一</th> <th>周二</th> <th>周三</th> <th>周四</th> <th>周五</th> <th>周六</th> <th>周日</th></tr>',
+        var _content = '<tr> <th class="info">周一</th> <th class="info">周二</th> <th class="info">周三</th> <th class="info">周四</th> <th class="info">周五</th> <th class="success">周六</th> <th class="success">周日</th></tr>',
         weekday = schedule[2];
         if(weekday > 1){
           _content = _content + '<tr>';
@@ -114,6 +126,39 @@ $(document).ready(function(){
     $("body").on('change', ".position-select", function(){
       load_schedule($(this));
     });
+    // 展示位置特殊投放
+    $("body").on('change', ".special_sale", function(){
+        if($(this).val() == '0'){
+            $(this).parents('.schedule-form').find('.form-description').hide();
+        }else{
+            $(this).parents('.schedule-form').find('.form-description').show();
+        }
+    });
+    // 预订数量改变
+    $("body").on('keyup', ".order-num", function(){
+        var form = $(this).parents('.schedule-form');
+        var sum = get_sum_and_check_order_num($(form).find(".order-num"));
+        $(form).find(".schedule-sum").html(sum);
+    });
+    function get_sum_and_check_order_num(schedules){
+      var sum = 0;
+      if(schedules.length > 0){
+        for(var x=0; x<schedules.length; x++){
+          var schedule = schedules[x];
+          if($(schedule).val() > 0){
+            var max = parseInt($(schedule).data('max')),
+                val = parseInt($(schedule).val());
+            sum = sum + val;
+            if(val > max){
+                $(schedule).parent().parent().addClass('danger');
+            }else{
+                $(schedule).parent().parent().removeClass('danger');
+            }
+          }
+        }
+      }
+      return sum;
+    }
     // 整理要提交的排期数据
     function get_form_schedule_data(schedules){
       var ret = {};
@@ -135,6 +180,11 @@ $(document).ready(function(){
               form_data = {};
               form_data['sale_type'] = $(form).parent().data('saletype');
               form_data['special_sale'] = $(form).find(".special_sale").val();
+              if(form_data['special_sale'] == '0'){
+                form_data['description'] = "";
+              }else{
+                form_data['description'] = $(form).find(".description").val(); 
+              }
               form_data['position'] = $(form).find(".position").val();
               form_data['schedule'] = get_form_schedule_data($(form).find(".order-num"));
               if(!$.isEmptyObject(form_data['schedule'])){ ret.push(form_data);}
