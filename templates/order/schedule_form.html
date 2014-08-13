@@ -11,7 +11,7 @@
 </div>
 {% endfor %}
 
-<a href="#" id="form-submit" class="btn btn-primary btn-sm col-md-offset-8" >生成订单项</a>
+<a href="#" id="form-submit" class="btn btn-primary btn col-md-offset-5" >预订资源</a>
 <style>
     th {text-align: center;}
     .sch-date {text-align: center;}
@@ -50,6 +50,17 @@
     </table>
   </div>
  <div class="form-group">
+    <label class="col-md-2 control-label">快速预订工具: </label>
+    <div class="col-md-2">
+      <input class="form-control speed-value" value='0'/>
+    </div>
+    <div class="col-md-4">
+      <a class="speed-workday btn btn-info">工作日</a>
+      <a class="speed-weekend btn btn-success">仅周末</a>
+      <a class="speed-all btn btn-primary">全部</a>
+    </div>
+ </div>
+ <div class="form-group">
     <label class="col-md-2 control-label">总预订量: </label>
     <div class="col-md-2">
         <div class="col-md-2 schedule-sum" style="padding-top: 7px;"> 0 </div>
@@ -81,9 +92,14 @@ $(document).ready(function(){
  
     // 排期表单 单元
     function schedule_td(schedule){
-        var weekday = schedule[2];
+        var weekday = schedule[2],
+            workday_or_weekend = 'workday';
+        if(weekday == 6){ workday_or_weekend = 'weekend'; }
+        if(weekday == 7){ workday_or_weekend = 'weekend'; }
         if((schedule[1])>0){
-          var td = '<td class="weekday-'+weekday+'"><div class="sch-date">' + 
+          var td = '<td class="weekday-'+weekday+
+            ' ' + workday_or_weekend + 
+            '"><div class="sch-date">' + 
             schedule[0] + 
             '</div><div class="sch-num">' +
             '<input type="text" class="order-num" name="' + schedule[0] +
@@ -136,10 +152,16 @@ $(document).ready(function(){
     });
     // 预订数量改变
     $("body").on('keyup', ".order-num", function(){
-        var form = $(this).parents('.schedule-form');
-        var sum = get_sum_and_check_order_num($(form).find(".order-num"));
-        $(form).find(".schedule-sum").html(sum);
+        check_all_order_num();
     });
+    function check_all_order_num(){
+        var forms = $('.schedule-form');
+        for(var x=0; x<forms.length; x++){
+          var form = forms[x],
+              sum = get_sum_and_check_order_num($(form).find(".order-num"));
+          $(form).find(".schedule-sum").html(sum);
+        }
+    }
     function get_sum_and_check_order_num(schedules){
       var sum = 0;
       if(schedules.length > 0){
@@ -159,6 +181,22 @@ $(document).ready(function(){
       }
       return sum;
     }
+    // 快速预订
+    $("body").on('click', ".speed-workday", function(){
+        var speed_val = $(this).parent().parent().find('.speed-value').val();
+        $(this).parents('.schedule-form').find('.workday').find('.order-num').val(speed_val);
+        check_all_order_num();
+    });
+    $("body").on('click', ".speed-weekend", function(){
+        var speed_val = $(this).parent().parent().find('.speed-value').val();
+        $(this).parents('.schedule-form').find('.weekend').find('.order-num').val(speed_val);
+        check_all_order_num();
+    });
+    $("body").on('click', ".speed-all", function(){
+        var speed_val = $(this).parent().parent().find('.speed-value').val();
+        $(this).parents('.schedule-form').find('.order-num').val(speed_val);
+        check_all_order_num();
+    });
     // 整理要提交的排期数据
     function get_form_schedule_data(schedules){
       var ret = {};
