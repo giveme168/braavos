@@ -1,6 +1,6 @@
 #-*- coding: UTF-8 -*-
 from flask import Blueprint, request, redirect, abort, url_for
-from flask import render_template as tpl
+from flask import render_template as tpl, flash
 
 from models.client import Client, Agent
 from forms.client import NewClientForm, NewAgentForm
@@ -19,6 +19,7 @@ def new_client():
     if request.method == 'POST' and form.validate():
         client = Client(form.name.data, form.industry.data)
         client.add()
+        flash(u'新建客户(%s)成功!' % client.name, 'success')
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect(url_for("client.clients"))
@@ -31,6 +32,7 @@ def new_agent():
     if request.method == 'POST' and form.validate():
         agent = Agent(form.name.data)
         agent.add()
+        flash(u'新建代理(%s)成功!' % agent.name, 'success')
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect(url_for("client.agents"))
@@ -47,7 +49,7 @@ def client_detail(client_id):
         client.name = form.name.data
         client.industry = form.industry.data
         client.save()
-        return redirect(url_for("client.clients"))
+        flash(u'保存成功', 'success')
     else:
         form.name.data = client.name
         form.industry.data = client.industry
@@ -63,7 +65,7 @@ def agent_detail(agent_id):
     if request.method == 'POST' and form.validate():
         agent.name = form.name.data
         agent.save()
-        return redirect(url_for("client.agents"))
+        flash(u'保存成功', 'success')
     else:
         form.name.data = agent.name
     return tpl('agent.html', form=form)

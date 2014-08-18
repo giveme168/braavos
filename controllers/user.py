@@ -1,6 +1,6 @@
 #-*- coding: UTF-8 -*-
 from flask import Blueprint, request, redirect, url_for, abort, g
-from flask import render_template as tpl
+from flask import render_template as tpl, flash
 from flask.ext.login import login_user, logout_user, current_user
 
 from . import admin_required
@@ -66,9 +66,10 @@ def new_team():
     if request.method == 'POST' and form.validate():
         team = Team(form.name.data, form.type.data)
         team.add()
+        flash(u'新建团队(%s)成功!' % team.name, 'success')
         if request.values.get('next'):
             return redirect(request.values.get('next'))
-        return redirect(url_for("user.teams"))
+        return redirect(url_for("user.team_detail", team_id=team.id))
     return tpl('new_team.html', form=form)
 
 
@@ -84,6 +85,7 @@ def team_detail(team_id):
             team.name = form.name.data
             team.type = form.type.data
             team.save()
+            flash(u'保存成功!', 'success')
     else:
         form.name.data = team.name
         form.type.data = team.type
@@ -98,6 +100,7 @@ def new_user():
         if form.validate():
             user = User(form.name.data, form.email.data, DEFAULT_PASSWORD, form.phone.data, Team.get(form.team.data), form.status.data)
             user.add()
+            flash(u'新建用户(%s)成功!' % user.name, 'success')
             return redirect(url_for("user.users"))
     return tpl('new_user.html', form=form)
 
@@ -117,6 +120,7 @@ def user_detail(user_id):
                 user.team = Team.get(form.team.data)
                 user.status = form.status.data
             user.save()
+            flash(u'保存成功!', 'success')
     else:
         form.name.data = user.name
         form.email.data = user.email

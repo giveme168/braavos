@@ -1,6 +1,6 @@
 #-*- coding: UTF-8 -*-
 from flask import Blueprint, request, redirect, abort, url_for
-from flask import render_template as tpl
+from flask import render_template as tpl, flash
 
 from models.medium import Medium, AdSize, AdUnit, AdPosition
 from forms.medium import NewMediumForm, SizeForm, UnitForm, PositionForm
@@ -20,7 +20,8 @@ def new_medium():
     if request.method == 'POST' and form.validate():
         medium = Medium(form.name.data, Team.get(form.owner.data))
         medium.add()
-        return redirect(url_for("medium.mediums"))
+        flash(u'新建媒体(%s)成功!' % medium.name, 'success')
+        return redirect(url_for("medium.medium_detail", medium_id=medium.id))
     return tpl('medium.html', form=form)
 
 
@@ -34,7 +35,7 @@ def medium_detail(medium_id):
         medium.name = form.name.data
         medium.owner = Team.get(form.owner.data)
         medium.save()
-        return redirect(url_for("medium.mediums"))
+        flash(u'保存成功!', 'success')
     else:
         form.name.data = medium.name
         form.owner.data = medium.owner_id
@@ -51,8 +52,9 @@ def mediums():
 def new_size():
     form = SizeForm(request.form)
     if request.method == 'POST' and form.validate():
-        adSize = AdSize(form.width.data, form.height.data)
-        adSize.add()
+        ad_size = AdSize(form.width.data, form.height.data)
+        ad_size.add()
+        flash(u'新建尺寸(%sx%s)成功!' % (ad_size.width, ad_size.height), 'success')
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect("/")
@@ -69,7 +71,7 @@ def new_unit():
                         medium=Medium.get(form.medium.data), estimate_num=form.estimate_num.data)
         adUnit.positions = AdPosition.gets(form.positions.data)
         adUnit.add()
-        return redirect(url_for("medium.unit_to_position",unit_id=adUnit.id))
+        return redirect(url_for("medium.unit_to_position", unit_id=adUnit.id))
     return tpl('unit.html', form=form)
 
 
@@ -90,7 +92,7 @@ def unit_detail(unit_id):
         unit.medium = Medium.get(form.medium.data)
         unit.estimate_num = form.estimate_num.data
         unit.save()
-        return redirect(url_for("medium.units"))
+        flash(u'保存成功!', 'success')
     else:
         form.name.data = unit.name
         form.description.data = unit.description
@@ -114,14 +116,15 @@ def units():
 def new_position():
     form = PositionForm(request.form)
     if request.method == 'POST' and form.validate():
-        adPosition = AdPosition(name=form.name.data, description=form.description.data,
-                                size=AdSize.get(form.size.data), status=form.status.data,
-                                medium=Medium.get(form.medium.data), level=form.level.data,
-                                ad_type=form.ad_type.data, cpd_num=form.cpd_num.data,
-                                max_order_num=form.max_order_num.data, price=form.price.data)
-        adPosition.units = AdUnit.gets(form.units.data)
-        adPosition.add()
-        return redirect(url_for("medium.positions"))
+        ad_position = AdPosition(name=form.name.data, description=form.description.data,
+                                 size=AdSize.get(form.size.data), status=form.status.data,
+                                 medium=Medium.get(form.medium.data), level=form.level.data,
+                                 ad_type=form.ad_type.data, cpd_num=form.cpd_num.data,
+                                 max_order_num=form.max_order_num.data, price=form.price.data)
+        ad_position.units = AdUnit.gets(form.units.data)
+        ad_position.add()
+        flash(u'新建展示位置成功!', 'success')
+        return redirect(url_for("medium.position_detail", position_id=ad_position.id))
     return tpl('position.html', form=form, show_estimate=False)
 
 
@@ -137,7 +140,7 @@ def unit_to_position(unit_id):
                                 max_order_num=form.max_order_num.data, price=form.price.data)
         adPosition.units = AdUnit.gets(form.units.data)
         adPosition.add()
-        return redirect(url_for("medium.position_detail",position_id=adPosition.id))
+        return redirect(url_for("medium.position_detail", position_id=adPosition.id))
     else:
         form.name.data = unit.name
         form.description.data = unit.description
@@ -167,7 +170,7 @@ def position_detail(position_id):
         position.max_order_num = form.max_order_num.data
         position.price = form.price.data
         position.save()
-        return redirect(url_for("medium.positions"))
+        flash(u'保存成功!', 'success')
     else:
         form.name.data = position.name
         form.description.data = position.description
