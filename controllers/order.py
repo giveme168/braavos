@@ -9,7 +9,7 @@ from forms.item import ItemForm
 
 from models.client import Client, Agent
 from models.medium import Medium, AdPosition
-from models.item import AdItem, AdSchedule, SALE_TYPE_CN
+from models.item import AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW
 from models.order import Order
 from models.user import User
 
@@ -127,6 +127,7 @@ def add_schedules(order, data):
                          position=position, creator=g.user, create_time=datetime.now())
         ad_item.price = position.price
         ad_item.description = item['description']
+        ad_item.item_status = ITEM_STATUS_NEW
         ad_item.add()
         for (date_str, num_str) in item['schedule'].items():
             _date = datetime.strptime(date_str, '%Y-%m-%d').date()

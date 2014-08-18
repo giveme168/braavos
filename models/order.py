@@ -2,6 +2,8 @@
 import datetime
 
 from . import db, BaseModelMixin
+from item import (ITEM_STATUS_NEW, ITEM_STATUS_PRE_APPLY, ITEM_STATUS_PRE,
+                  ITEM_STATUS_ORDER_APPLY, ITEM_STATUS_ORDER)
 
 ORDER_TYPE_NORMAL = 0         # 标准广告
 
@@ -85,3 +87,27 @@ class Order(db.Model, BaseModelMixin):
     @property
     def order_type_cn(self):
         return ORDER_TYPE_CN[self.order_type]
+
+    def items_by_status(self, status):
+        sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
+        return filter(lambda x: x.item_status == status, sorted_items)
+
+    @property
+    def items_new(self):
+        return self.items_by_status(ITEM_STATUS_NEW)
+
+    @property
+    def items_pre_apply(self):
+        return self.items_by_status(ITEM_STATUS_PRE_APPLY)
+
+    @property
+    def items_pre(self):
+        return self.items_by_status(ITEM_STATUS_PRE)
+
+    @property
+    def items_order_apply(self):
+        return self.items_by_status(ITEM_STATUS_ORDER_APPLY)
+
+    @property
+    def items_order(self):
+        return self.items_by_status(ITEM_STATUS_ORDER)
