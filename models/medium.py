@@ -193,10 +193,7 @@ class AdPosition(db.Model, BaseModelMixin):
         return self.estimate_num / self.cpd_num if self.cpd_num > 1 else self.estimate_num
 
     def schedules_by_date(self, _date):
-        schedules = []
-        for x in self.order_items:  # 预订这个位置的订单项
-            schedules.extend(x.schedules_by_date(_date))  # 这些订单项的排期
-        return schedules
+        return [x.schedule_by_date(_date) for x in self.order_items if x.schedule_by_date(_date)]
 
     def schedule_num(self, _date):
         """

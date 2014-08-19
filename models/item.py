@@ -45,16 +45,16 @@ SPEED_CN = {
 }
 
 ITEM_STATUS_NEW = 0
-ITEM_STATUS_PRE_APPLY = 1
-ITEM_STATUS_PRE = 2
+ITEM_STATUS_PRE = 1
+ITEM_STATUS_PRE_PASS = 2
 ITEM_STATUS_ORDER_APPLY = 3
 ITEM_STATUS_ORDER = 4
 
 ITEM_STATUS_CN = {
     ITEM_STATUS_NEW: u"新建",
-    ITEM_STATUS_PRE_APPLY: u"申请预下单",
-    ITEM_STATUS_PRE: u"已预下单(资源已锁定)",
-    ITEM_STATUS_ORDER_APPLY: u"申请下单",
+    ITEM_STATUS_PRE: u"预下单",
+    ITEM_STATUS_PRE_PASS: u"预下单(通过)",
+    ITEM_STATUS_ORDER_APPLY: u"下单(待审核)",
     ITEM_STATUS_ORDER: u"已下单"
 }
 
@@ -122,8 +122,13 @@ class AdItem(db.Model, BaseModelMixin):
     def end_date_cn(self):
         return self.end_date.strftime("%Y-%m-%d") if self.end_date else u"起始时间"
 
-    def schedules_by_date(self, _date):
-        return [s for s in self.schedules if s.date == _date]
+    def schedule_by_date(self, _date):
+        schedules = [s for s in self.schedules if s.date == _date]
+        return schedules[0] if schedules else None
+
+    @property
+    def schedule_sum(self):
+        return sum([x.num for x in self.schedules])
 
 
 class AdSchedule(db.Model, BaseModelMixin):

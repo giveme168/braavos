@@ -1,45 +1,62 @@
-{% macro items_tab_content(items) -%}
-<table class="table table-bordered table-striped">
+{% macro items_tab_content(items_info) -%}
+<table class="table table-bordered table-hover table-striped table-condensed text-center">
   <tr>
-    <th>名称</th>
-    <th>开始</th>
-    <th>结束</th>
-    <th>售卖类型</th>
+    <th rowspan="2" style="min-width: 40px;">售卖类型</th>
+    <th rowspan="2" style="min-width: 80px;">展示位置</th>
+    {% for m, m_len in items_info['months'].items() %}
+        <th colspan="{{m_len}}" class="text-center">{{m}} 月</th>
+    {% endfor %}
+    <th rowspan="2" style="min-width: 40px;">刊例价格</th>
+    <th rowspan="2">总预订量</th>
   </tr>
-  {% for i in items %}
   <tr>
-    <td><a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.name}}</a></td>
-    <td>{{i.start_time_cn}}</td>
-    <td>{{i.end_time_cn}}</td>
-    <td>{{i.sale_type_cn}}</td>
+    {% for d in items_info['dates'] %}
+      {% if d.isoweekday() in [6, 7] %}
+      <td class="bg-success">{{d.day}}</td>
+      {% else %}
+      <td class="bg-info">{{d.day}}</td>
+      {% endif %}
+    {% endfor %}
   </tr>
+  {% for v, sale_type_cn, sale_type_items in items_info['items'] %}
+    {% for i in sale_type_items %}
+    <tr>
+      {% if loop.index == 1 %}
+      <td rowspan="{{sale_type_items|length}}" style="vertical-align: middle;">{{sale_type_cn}}</td>
+      {% endif %}
+      <td><a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.position.name}}</a></td>
+      {% for d in items_info['dates'] %}
+        <th>{{i.schedule_by_date(d).num}}</th>
+      {% endfor %}
+      <td>{{i.position.price}}</td>
+      <td>{{i.schedule_sum}}</td>
+    </tr>
+    {% endfor %}
   {% endfor %}
 </table>
 {%- endmacro %}
 
 {% macro order_items(order) -%}
 <ul class="nav nav-pills" role="tablist">
-  <li role="presentation" class="active"><a href="#new" role="tab" data-toggle="tab">新排期</a></li>
-  <li role="presentation"><a href="#pre-apply" role="tab" data-toggle="tab">申请预下单</a></li>
-  <li role="presentation"><a href="#pre" role="tab" data-toggle="tab">已预下单</a></li>
-  <li role="presentation"><a href="#order-apply" role="tab" data-toggle="tab">申请下单</a></li>
-  <li role="presentation"><a href="#order" role="tab" data-toggle="tab">已下单</a></li>
+  {% for status_items_info in order.items_info() %}
+  {% if loop.index == 1 %}
+  <li role="presentation" class="active"><a href="#tab-{{loop.index}}" role="tab" data-toggle="tab">{{status_items_info['status_cn']}}</a></li>
+  {% else %}
+  <li role="presentation"><a href="#tab-{{loop.index}}" role="tab" data-toggle="tab">{{status_items_info['status_cn']}}</a></li>
+  {% endif %}
+  {% endfor %}
 </ul>
 <div class="tab-content">
-  <div class="tab-pane fade in active" id="new">
-    {{ items_tab_content(order.items_new) }}
+  {% for status_items_info in order.items_info() %}
+  {% if loop.index == 1 %}
+  <div class="tab-pane fade in active" id="tab-{{loop.index}}" style="overflow-x:auto;overflow-y:hidden;">
+    {{ items_tab_content(status_items_info) }}
   </div>
-  <div class="tab-pane fade" id="pre-apply">
-    {{ items_tab_content(order.items_pre_apply) }}
+  {% else %}
+  <div class="tab-pane fade" id="tab-{{loop.index}}" style="overflow-x:auto;overflow-y:hidden;">
+    {{ items_tab_content(status_items_info) }}
   </div>
-  <div class="tab-pane fade" id="pre">
-    {{ items_tab_content(order.items_pre) }}
-  </div>
-  <div class="tab-pane fade" id="order-apply">
-    {{ items_tab_content(order.items_order_apply) }}
-  </div>
-  <div class="tab-pane fade" id="order">
-    {{ items_tab_content(order.items_order) }}
-  </div>
+  {% endif %}
+  {% endfor %}
 </div>
 {%- endmacro %}

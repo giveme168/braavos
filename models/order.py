@@ -2,8 +2,7 @@
 import datetime
 
 from . import db, BaseModelMixin
-from item import (ITEM_STATUS_NEW, ITEM_STATUS_PRE_APPLY, ITEM_STATUS_PRE,
-                  ITEM_STATUS_ORDER_APPLY, ITEM_STATUS_ORDER)
+from item import ITEM_STATUS_CN, SALE_TYPE_CN
 
 ORDER_TYPE_NORMAL = 0         # 标准广告
 
@@ -92,22 +91,46 @@ class Order(db.Model, BaseModelMixin):
         sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
         return filter(lambda x: x.item_status == status, sorted_items)
 
-    @property
-    def items_new(self):
-        return self.items_by_status(ITEM_STATUS_NEW)
+    def items_info_by_items(self, items):
+        ret = {}
+        start_dates = [x.start_date for x in items if x.start_date]
+        end_dates = [x.end_date for x in items if x.end_date]
+        start = start_dates and min(start_dates)
+        end = end_dates and max(end_dates)
+        if start and end:
+            m_dict = {}
+            dates_list = []
+            for x in range(0, (end - start).days + 1):
+                current = start + datetime.timedelta(days=x)
 
-    @property
-    def items_pre_apply(self):
-        return self.items_by_status(ITEM_STATUS_PRE_APPLY)
+                d_list = m_dict.get(current.month, [])
+                d_list.append(current)
+                m_dict[current.month] = d_list
 
-    @property
-    def items_pre(self):
-        return self.items_by_status(ITEM_STATUS_PRE)
+                dates_list.append(current)
+            ret['dates'] = dates_list
+            ret['months'] = dict([(m, len(d_list)) for m, d_list in m_dict.items()])
+        else:
+            ret['dates'] = []
+            ret['months'] = {}
+        sale_type_items = []
+        for v, sale_type_cn in SALE_TYPE_CN.items():
+            sale_type_items.append((v, SALE_TYPE_CN[v], [x for x in items if x.sale_type == v]))
+        ret['items'] = sale_type_items
+        return ret
 
-    @property
-    def items_order_apply(self):
-        return self.items_by_status(ITEM_STATUS_ORDER_APPLY)
+    def items_info_by_status(self, status):
+        items = self.items_by_status(status)
+        ret = self.items_info_by_items(items)
+        ret['status_cn'] = ITEM_STATUS_CN[status]
+        return ret
 
-    @property
-    def items_order(self):
-        return self.items_by_status(ITEM_STATUS_ORDER)
+    def items_info_all(self):
+        ret = self.items_info_by_items(self.items)
+        ret['status_cn'] = u"全部"
+        return ret
+
+    def items_info(self):
+        items_info = [self.items_info_by_status(x) for x in ITEM_STATUS_CN]
+        items_info.append(self.items_info_all())
+        return items_info
