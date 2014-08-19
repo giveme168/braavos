@@ -69,7 +69,7 @@ def new_unit():
                         medium=Medium.get(form.medium.data), estimate_num=form.estimate_num.data)
         adUnit.positions = AdPosition.gets(form.positions.data)
         adUnit.add()
-        return redirect(url_for("medium.units"))
+        return redirect(url_for("medium.unit_to_position",unit_id=adUnit.id))
     return tpl('unit.html', form=form)
 
 
@@ -123,6 +123,29 @@ def new_position():
         adPosition.add()
         return redirect(url_for("medium.positions"))
     return tpl('position.html', form=form, show_estimate=False)
+
+
+@medium_bp.route('/position_by_unit/<unit_id>', methods=['GET', 'POST'])
+def unit_to_position(unit_id):
+    unit = AdUnit.get(unit_id)
+    form = PositionForm(request.form)
+    if request.method == 'POST' and form.validate():
+        adPosition = AdPosition(name=form.name.data, description=form.description.data,
+                                size=AdSize.get(form.size.data), status=form.status.data,
+                                medium=Medium.get(form.medium.data), level=form.level.data,
+                                ad_type=form.ad_type.data, cpd_num=form.cpd_num.data,
+                                max_order_num=form.max_order_num.data, price=form.price.data)
+        adPosition.units = AdUnit.gets(form.units.data)
+        adPosition.add()
+        return redirect(url_for("medium.position_detail",position_id=adPosition.id))
+    else:
+        form.name.data = unit.name
+        form.description.data = unit.description
+        form.medium.data = unit.medium.id
+        form.size.data = unit.size.id
+        form.status.data = unit.status
+        form.units.data = [unit.id]
+    return tpl('position.html', form=form, show_estimate=True)
 
 
 @medium_bp.route('/position/<position_id>', methods=['GET', 'POST'])
