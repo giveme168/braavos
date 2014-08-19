@@ -6,6 +6,9 @@ from models.client import Client, Agent
 from models.medium import Medium
 from models.order import ORDER_TYPE_CN
 from models.user import User
+from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
+                         TEAM_TYPE_OPERATER, TEAM_TYPE_AGENT_SELLER,
+                         TEAM_TYPE_DIRECT_SELLER)
 
 
 class OrderForm(Form):
@@ -29,11 +32,11 @@ class OrderForm(Form):
         self.medium.choices = [(m.id, m.name) for m in Medium.all()]
         self.order_type.choices = ORDER_TYPE_CN.items()
         self.agent.choices = [(m.id, m.name) for m in Agent.all()]
-        self.direct_sales.choices = [(m.id, m.name) for m in User.all()]
-        self.agent_sales.choices = [(m.id, m.name) for m in User.all()]
-        self.operaters.choices = [(m.id, m.name) for m in User.all()]
-        self.designers.choices = [(m.id, m.name) for m in User.all()]
-        self.planers.choices = [(m.id, m.name) for m in User.all()]
+        self.direct_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER)]
+        self.agent_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_AGENT_SELLER)]
+        self.operaters.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_OPERATER)]
+        self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
+        self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
         self.creator.readonly = True
 
     def validate(self):

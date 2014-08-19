@@ -1,12 +1,13 @@
 #-*- coding: UTF-8 -*-
 from flask import Blueprint, request, redirect, url_for, abort, g
-from flask import render_template as tpl
+from flask import render_template as tpl, flash
 from flask.ext.login import login_user, logout_user, current_user
 
 from . import admin_required
-from models.user import Team, User
+from models.user import Team, User, USER_STATUS_CN
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
 from config import DEFAULT_PASSWORD
+from libs.signals import password_changed_signal
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
 
@@ -40,6 +41,7 @@ def pwd_change():
         user = current_user
         if form.validate(user):
             user.set_password(form.password.data)
+            password_changed_signal.send(user)
             logout_user()
             return redirect(url_for('user.login'))
     return tpl('pwd_change.html', form=form)
@@ -66,9 +68,10 @@ def new_team():
     if request.method == 'POST' and form.validate():
         team = Team(form.name.data, form.type.data)
         team.add()
+        flash(u'新建团队(%s)成功!' % team.name, 'success')
         if request.values.get('next'):
             return redirect(request.values.get('next'))
-        return redirect(url_for("user.teams"))
+        return redirect(url_for("user.team_detail", team_id=team.id))
     return tpl('new_team.html', form=form)
 
 
@@ -84,6 +87,7 @@ def team_detail(team_id):
             team.name = form.name.data
             team.type = form.type.data
             team.save()
+            flash(u'保存成功!', 'success')
     else:
         form.name.data = team.name
         form.type.data = team.type
@@ -98,6 +102,7 @@ def new_user():
         if form.validate():
             user = User(form.name.data, form.email.data, DEFAULT_PASSWORD, form.phone.data, Team.get(form.team.data), form.status.data)
             user.add()
+            flash(u'新建用户(%s)成功!' % user.name, 'success')
             return redirect(url_for("user.users"))
     return tpl('new_user.html', form=form)
 
@@ -117,12 +122,19 @@ def user_detail(user_id):
                 user.team = Team.get(form.team.data)
                 user.status = form.status.data
             user.save()
+            flash(u'保存成功!', 'success')
     else:
         form.name.data = user.name
         form.email.data = user.email
         form.phone.data = user.phone
         form.team.data = user.team_id
         form.status.data = user.status
+    if not g.user.team.is_admin():
+        form.email.readonly = True
+        form.team.readonly = True
+        form.status.readonly = True
+        form.status.choices = [(user.status, USER_STATUS_CN[user.status])]
+        form.team.choices = [(user.team_id, user.team.name)]
     return tpl('user_detail.html', user=user, form=form, DEFAULT_PASSWORD=DEFAULT_PASSWORD)
 
 

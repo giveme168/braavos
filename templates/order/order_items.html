@@ -1,20 +1,45 @@
-{% macro order_items(order) -%}
+{% macro items_tab_content(items) -%}
 <table class="table table-bordered table-striped">
-    <tr>
-      <th>名称</th>
-      <th>开始</th>
-      <th>结束</th>
-      <th>售卖类型</th>
-      <th>状态</th>
-    </tr>
-    {% for i in order.items %}
-    <tr>
-      <td><a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.name}}</a></td>
-      <td>{{i.start_time_cn}}</td>
-      <td>{{i.end_time_cn}}</td>
-      <td>{{i.sale_type_cn}}</td>
-      <td>{{i.status_cn}}</td>
-      </tr>
-    {% endfor %}
-  </table>
+  <tr>
+    <th>名称</th>
+    <th>开始</th>
+    <th>结束</th>
+    <th>售卖类型</th>
+  </tr>
+  {% for i in items %}
+  <tr>
+    <td><a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.name}}</a></td>
+    <td>{{i.start_time_cn}}</td>
+    <td>{{i.end_time_cn}}</td>
+    <td>{{i.sale_type_cn}}</td>
+  </tr>
+  {% endfor %}
+</table>
+{%- endmacro %}
+
+{% macro order_items(order) -%}
+<ul class="nav nav-pills" role="tablist">
+  <li role="presentation" class="active"><a href="#new" role="tab" data-toggle="tab">新排期</a></li>
+  <li role="presentation"><a href="#pre-apply" role="tab" data-toggle="tab">申请预下单</a></li>
+  <li role="presentation"><a href="#pre" role="tab" data-toggle="tab">已预下单</a></li>
+  <li role="presentation"><a href="#order-apply" role="tab" data-toggle="tab">申请下单</a></li>
+  <li role="presentation"><a href="#order" role="tab" data-toggle="tab">已下单</a></li>
+</ul>
+<div class="tab-content">
+  <div class="tab-pane fade in active" id="new">
+    {{ items_tab_content(order.items_new) }}
+  </div>
+  <div class="tab-pane fade" id="pre-apply">
+    {{ items_tab_content(order.items_pre_apply) }}
+  </div>
+  <div class="tab-pane fade" id="pre">
+    {{ items_tab_content(order.items_pre) }}
+  </div>
+  <div class="tab-pane fade" id="order-apply">
+    {{ items_tab_content(order.items_order_apply) }}
+  </div>
+  <div class="tab-pane fade" id="order">
+    {{ items_tab_content(order.items_order) }}
+  </div>
+</div>
 {%- endmacro %}

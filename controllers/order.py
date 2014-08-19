@@ -2,14 +2,14 @@
 from datetime import datetime, timedelta
 
 from flask import Blueprint, request, redirect, abort, url_for, g
-from flask import render_template as tpl, json, jsonify
+from flask import render_template as tpl, json, jsonify, flash
 
 from forms.order import OrderForm
 from forms.item import ItemForm
 
 from models.client import Client, Agent
 from models.medium import Medium, AdPosition
-from models.item import AdItem, AdSchedule, SALE_TYPE_CN
+from models.item import AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW
 from models.order import Order
 from models.user import User
 
@@ -33,6 +33,7 @@ def new_order():
                       planers=User.gets(form.planers.data), designers=User.gets(form.designers.data), creator=g.user,
                       create_time=datetime.now())
         order.add()
+        flash(u'新建订单成功!', 'suceess')
         return redirect(url_for("order.order_detail", order_id=order.id))
     else:
         form.creator.data = g.user.name
@@ -60,6 +61,7 @@ def order_detail(order_id):
         order.designers = User.gets(form.designers.data)
         order.planers = User.gets(form.planers.data)
         order.save()
+        flash(u'订单信息保存成功!', 'success')
     else:
         form.client.data = order.client.id
         form.campaign.data = order.campaign
@@ -127,6 +129,7 @@ def add_schedules(order, data):
                          position=position, creator=g.user, create_time=datetime.now())
         ad_item.price = position.price
         ad_item.description = item['description']
+        ad_item.item_status = ITEM_STATUS_NEW
         ad_item.add()
         for (date_str, num_str) in item['schedule'].items():
             _date = datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -145,6 +148,7 @@ def schedules_post(order_id):
     status, msg = check_schedules_post(data)
     if not status:
         add_schedules(order, data)
+        flash(u'排期提交成功!', 'success')
     return jsonify({'status': status, 'msg': msg})
 
 
@@ -182,6 +186,7 @@ def item_detail(item_id):
         item.item_status = form.item_status.data
         item.status = form.status.data
         item.save()
+        flash(u'保存成功!', 'success')
     else:
         form.order.data = item.order.name
         form.sale_type.data = item.sale_type
@@ -217,6 +222,7 @@ def schedule_update(schedule_id):
     schedule.end = end
     schedule.num = num
     schedule.save()
+    flash(u'保存成功!', 'success')
     return redirect(url_for("order.item_detail", item_id=schedule.item.id))
 
 
@@ -228,4 +234,5 @@ def schedule_delete(schedule_id):
     else:
         item = schedule.item
         schedule.delete()
+        flash(u'删除成功!', 'success')
         return redirect(url_for("order.item_detail", item_id=item.id))
