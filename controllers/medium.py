@@ -6,7 +6,14 @@ from models.medium import Medium, AdSize, AdUnit, AdPosition
 from forms.medium import NewMediumForm, SizeForm, UnitForm, PositionForm
 from models.user import Team
 
+from . import admin_required_before_request
+
 medium_bp = Blueprint('medium', __name__, template_folder='../templates/medium')
+
+
+@medium_bp.before_request
+def request_user():
+    admin_required_before_request()
 
 
 @medium_bp.route('/', methods=['GET'])

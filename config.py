@@ -2,10 +2,20 @@ DEFAULT_PASSWORD = 'default_password'
 
 
 class Config(object):
-    SECRET_KEY = 'b8e2b80a27c64f79b7dc8293c1cc370a'
+    SECRET_KEY = 'your key'
     DEBUG = False
     TESTING = False
     SQLALCHEMY_DATABASE_URI = 'postgresql://vagrant:vagrant@localhost/braavos'
+
+    MAIL_SERVER = 'smtp.qq.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = 'your name'
+    MAIL_PASSWORD = 'your password'
+    DEFAULT_MAIL_SENDER = 'your email'
+    MAIL_DEBUG = DEBUG
+    MAIL_SUPPRESS_SEND = DEBUG
 
 
 class TestingConfig(Config):

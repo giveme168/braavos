@@ -10,3 +10,8 @@ def admin_required(func):
             return func(*args, **kwargs)
         return abort(401)
     return decorated_view
+
+
+def admin_required_before_request():
+    if not g.user or not g.user.team.is_admin():
+        return abort(401)

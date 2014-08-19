@@ -4,8 +4,14 @@ from flask import render_template as tpl, flash
 
 from models.client import Client, Agent
 from forms.client import NewClientForm, NewAgentForm
+from . import admin_required_before_request
 
 client_bp = Blueprint('client', __name__, template_folder='../templates/client')
+
+
+@client_bp.before_request
+def request_user():
+    admin_required_before_request()
 
 
 @client_bp.route('/', methods=['GET'])
