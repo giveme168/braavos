@@ -1,38 +1,18 @@
 {% extends "/user_base.html" %}
+{% from 'form.html' import form_field %}
 {% block title %}New User{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3>新建User</h3>
-    <div class="errors">
-        {{','.join(form.name.errors+form.email.errors+form.phone.errors+form.team.errors)}}
-    </div>
-    <form class="form" method="POST">
+    <form class="form form-horizontal" method="POST">
       {{form.csrf_token}}
-      <div class="form-group">
-        <label for="name">{{form.name.label.text}}</label>
-        {{form.name(class_='form-control', placeholder=form.name.label.text)}}
-      </div>
-      <div class="form-group">
-        <label for="email">{{form.email.label.text}}</label>
-        {{form.email(class_='form-control', placeholder=form.email.label.text)}}
-      </div>
-      <div class="form-group">
-        <label for="phone">{{form.phone.label.text}}</label>
-        {{form.phone(class_='form-control', placeholder=form.phone.label.text)}}
-      </div>
-      <div class="form-group">
-        <label for="team">{{form.team.label.text}}</label>
-        {{form.team(class_='form-control')}}
-      </div>
-      <div class="form-group">
-        <label for="status">{{form.status.label.text}}</label>
-        {{form.status(class_='form-control')}}
-      </div>
-        <input type="submit" class="btn btn-primary btn-sm" value="提交"/>
+      {{ form_field(form.name) }}
+      {{ form_field(form.email) }}
+      {{ form_field(form.phone) }}
+      {{ form_field(form.team) }}
+      {{ form_field(form.status) }}
+       <input type="submit" class="btn btn-primary btn-sm" value="提交"/>
     </table>
 </div>
-<style>
-    .form-control{width: 300px;}
-</style>
 {% endblock %}
