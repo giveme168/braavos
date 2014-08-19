@@ -11,17 +11,23 @@ USER_STATUS_CN = {
     USER_STATUS_ON: u"有效"
 }
 
-TEAM_TYPE_MEDIUM = 5       # 媒体
-TEAM_TYPE_OPERATER = 4     # 內部-執行
-TEAM_TYPE_SELLER = 3       # 內部-銷售
+TEAM_TYPE_MEDIUM = 8       # 媒体
+TEAM_TYPE_DESIGNER = 7       # 內部-设计
+TEAM_TYPE_PLANNER = 6       # 內部-策划
+TEAM_TYPE_OPERATER = 5     # 內部-執行
+TEAM_TYPE_AGENT_SELLER = 4       # 內部-渠道銷售
+TEAM_TYPE_DIRECT_SELLER = 3       # 內部-直客銷售
 TEAM_TYPE_INAD = 2         # 内部-其他
 TEAM_TYPE_ADMIN = 1        # 管理员
 TEAM_TYPE_SUPER_ADMIN = 0  # 超级管理员
 
 TEAM_TYPE_CN = {
-    TEAM_TYPE_OPERATER: u"内部-执行",
-    TEAM_TYPE_SELLER: u"内部-销售",
     TEAM_TYPE_MEDIUM: u"媒体",
+    TEAM_TYPE_DESIGNER: u"内部-设计",
+    TEAM_TYPE_PLANNER: u"内部-策划",
+    TEAM_TYPE_OPERATER: u"内部-执行",
+    TEAM_TYPE_AGENT_SELLER: u"内部-渠道销售",
+    TEAM_TYPE_DIRECT_SELLER: u"内部-直客销售",
     TEAM_TYPE_INAD: u"内部-其他",
     TEAM_TYPE_ADMIN: u" 广告管理员",
     TEAM_TYPE_SUPER_ADMIN: u"系统管理员"
@@ -76,6 +82,10 @@ class User(db.Model, BaseModelMixin):
     @classmethod
     def get_by_email(cls, email):
         return cls.query.filter_by(email=email).first()
+
+    @classmethod
+    def gets_by_team_type(cls, team_type):
+        return [x for x in cls.all() if x.team.type == team_type]
 
 
 class Team(db.Model, BaseModelMixin):

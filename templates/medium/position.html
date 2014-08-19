@@ -9,15 +9,7 @@
       {{ form_field(form.description) }}
       {{ form_field(form.medium) }}
       {{ form_field(form.level) }}
-      {% set field=form.size%}
-      <div class="form-group">
-        <label for="size" class="col-sm-2 control-label">{{field.label.text}} : </label>
-        <div class="col-sm-10">
-            {{field(class_='form-control bra-form-control', placeholder=field.label.text)}}
-            <span class="errors">{{','.join(field.errors)}}</span>
-            <span><a href="{{url_for('medium.new_size', next=request.path)}}">新建尺寸</a></span>
-        </div>
-      </div>
+      {{ form_field(form.size) }}
       {{ form_field(form.ad_type) }}
       {{ form_field(form.price) }}
       {{ form_field(form.max_order_num) }}
