@@ -6,8 +6,8 @@ from flask.ext.login import login_user, logout_user, current_user
 from . import admin_required
 from models.user import Team, User, USER_STATUS_CN
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
-from libs.mail import send_simple_mail
 from config import DEFAULT_PASSWORD
+from libs.signals import password_changed_signal
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
 
@@ -41,9 +41,7 @@ def pwd_change():
         user = current_user
         if form.validate(user):
             user.set_password(form.password.data)
-            send_simple_mail(u'InAd帐号密码重设通知',
-                             recipients=[user.email],
-                             body=u'您的InAd帐号密码已经被重新设置, 如果不是您的操作, 请联系广告平台管理员')
+            password_changed_signal.send(user)
             logout_user()
             return redirect(url_for('user.login'))
     return tpl('pwd_change.html', form=form)
@@ -153,7 +151,4 @@ def pwd_reset(user_id):
         abort(404)
     user.set_password(DEFAULT_PASSWORD)
     user.save()
-    send_simple_mail(u'InAd帐号密码重设通知',
-                     recipients=[user.email],
-                     body=u'您的InAd帐号密码已经被重新设置, 请联系广告平台管理员获取默认密码')
     return redirect(url_for('user.users'))
