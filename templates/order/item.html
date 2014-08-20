@@ -7,6 +7,7 @@
         <a class="btn btn-default btn-sm" href="{{url_for("order.order_detail", order_id=item.order.id)}}">返回</a>
     </h4>
     <div class="panel-group" id="accordion">
+        {% if item.is_schedule_lock %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
@@ -34,20 +35,46 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"> 投放安排 </a>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"> 排期 </a>
                 </h4>
             </div>
             <div id="collapseTwo" class="panel-collapse collapse">
+                <div class="panel-body">
+                    {% include 'schedule_simple_update.html' %}
+                </div>
+            </div>
+        </div>
+        {% if item.is_schedule_lock %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"> 详细投放安排 </a>
+                </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse">
                 <div class="panel-body">
                     {% include 'schedule_update.html' %}
                 </div>
             </div>
         </div>
-    </div>
+        {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour"> 广告素材 </a>
+                </h4>
+            </div>
+            <div id="collapseFour" class="panel-collapse collapse">
+                <div class="panel-body">
 
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script>
 $(document).ready(function(){

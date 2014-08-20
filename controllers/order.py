@@ -208,6 +208,41 @@ def item_detail(item_id):
     return tpl('item.html', form=form, item=item)
 
 
+@order_bp.route('/item/<item_id>/schedule_simple_update', methods=["POST"])
+def schedule_simple_update(item_id):
+    item = AdItem.get(item_id)
+    if not item:
+        return jsonify({'msg': u"出错啦, 排期不存在"})
+    if item.is_schedule_lock:
+        return jsonify({'msg': u"资源已经锁定, 不可修改"})
+    data = request.values.get('data')
+    msg = ""
+    status = 0
+    schedules_info = json.loads(data)
+    # 检查是否有超过最大预订量
+    for date_str, num in schedules_info.items():
+        _date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        if num > item.position.can_order_num(_date):
+            msg = date_str + "预订量超过最大可预订量"
+            status = 1
+
+    if not status:
+        for date_str, num in schedules_info.items():
+            _date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            _schedule = item.schedule_by_date(_date)
+            if _schedule:
+                if num == 0:
+                    _schedule.delete()
+                else:
+                    _schedule.num = num
+                    _schedule.save()
+            elif num != 0:
+                _schedule = AdSchedule(item, num, _date)
+                _schedule.add()
+        msg = u"排期修改成功!"
+    return jsonify({'msg': msg, 'status': status})
+
+
 @order_bp.route('/schedule/<schedule_id>/update', methods=["POST"])
 def schedule_update(schedule_id):
     schedule = AdSchedule.get(schedule_id)
@@ -222,7 +257,7 @@ def schedule_update(schedule_id):
     schedule.end = end
     schedule.num = num
     schedule.save()
-    flash(u'保存成功!', 'success')
+    flash(u'投放安排保存成功!', 'success')
     return redirect(url_for("order.item_detail", item_id=schedule.item.id))
 
 

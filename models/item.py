@@ -1,5 +1,5 @@
 #-*- coding: UTF-8 -*-
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 from . import db, BaseModelMixin
 from consts import STATUS_CN
@@ -129,6 +129,27 @@ class AdItem(db.Model, BaseModelMixin):
     @property
     def schedule_sum(self):
         return sum([x.num for x in self.schedules])
+
+    def get_schedule_info_by_week(self):
+        ret = {}
+        for x in range((self.end_date - self.start_date).days + 1):
+            _date = self.start_date + timedelta(days=x)
+            schedule = self.schedule_by_date(_date)
+            info_dict = {}
+            info_dict['date'] = _date
+            info_dict['schedule'] = schedule
+            info_dict['num'] = schedule.num if schedule else 0
+            info_dict['can_order_num'] = self.position.can_order_num(_date)
+            week = _date.isocalendar()[1]
+            weekday = _date.isoweekday()
+            week_info = ret.get(week, {})
+            week_info[weekday] = info_dict
+            ret[week] = week_info
+        return ret
+
+    @property
+    def is_schedule_lock(self):
+        return self.item_status != ITEM_STATUS_NEW
 
 
 class AdSchedule(db.Model, BaseModelMixin):

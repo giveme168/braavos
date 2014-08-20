@@ -6,7 +6,7 @@
     <th>投放量</th>
     <th>操作</th>
   </tr>
-  {% for x in item.schedules %}
+  {% for x in item.schedules|sort(attribute='date') %}
     <tr>
       <form action='{{url_for("order.schedule_update", schedule_id=x.id)}}' method="POST">
         <td>
