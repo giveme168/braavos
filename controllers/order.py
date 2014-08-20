@@ -219,13 +219,11 @@ def schedule_simple_update(item_id):
     msg = ""
     status = 0
     schedules_info = json.loads(data)
-    # 检查是否有超过最大预订量
     for date_str, num in schedules_info.items():
         _date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        if num > item.position.can_order_num(_date):
-            msg = date_str + "预订量超过最大可预订量"
+        if not item.position.check_order_num(_date, num):
+            msg = date_str + u"预订量超过最大可预订量"
             status = 1
-
     if not status:
         for date_str, num in schedules_info.items():
             _date = datetime.strptime(date_str, '%Y-%m-%d').date()
@@ -248,14 +246,10 @@ def schedule_update(schedule_id):
     schedule = AdSchedule.get(schedule_id)
     if not schedule:
         abort(404)
-    _date = datetime.strptime(request.form.get('date'), "%Y-%m-%d").date()
-    start = datetime.strptime(request.form.get('start'), "%H:%M:%S").time()
-    end = datetime.strptime(request.form.get('end'), "%H:%M:%S").time()
-    num = request.form.get('num')
-    schedule.date = _date
-    schedule.start = start
-    schedule.end = end
-    schedule.num = num
+    schedule.date = datetime.strptime(request.form.get('date'), "%Y-%m-%d").date()
+    schedule.start = datetime.strptime(request.form.get('start'), "%H:%M:%S").time()
+    schedule.end = datetime.strptime(request.form.get('end'), "%H:%M:%S").time()
+    schedule.num = request.form.get('num')
     schedule.save()
     flash(u'投放安排保存成功!', 'success')
     return redirect(url_for("order.item_detail", item_id=schedule.item.id))
@@ -266,11 +260,10 @@ def schedule_delete(schedule_id):
     schedule = AdSchedule.get(schedule_id)
     if not schedule:
         abort(404)
-    else:
-        item = schedule.item
-        schedule.delete()
-        flash(u'删除成功!', 'success')
-        return redirect(url_for("order.item_detail", item_id=item.id))
+    item = schedule.item
+    schedule.delete()
+    flash(u'删除成功!', 'success')
+    return redirect(url_for("order.item_detail", item_id=item.id))
 
 
 @order_bp.route('/order/<order_id>/items/update/', methods=['POST'])

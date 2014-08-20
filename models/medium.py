@@ -211,6 +211,9 @@ class AdPosition(db.Model, BaseModelMixin):
         """可预订量"""
         return min(self.max_order_num, self.retain_num(date))
 
+    def check_order_num(self, date, num):
+        return num <= self.order_num(date)
+
     def can_order_num_schedule(self, start_date, end_date):
         """在start和end之间可以预订的量"""
         schedules = []
