@@ -67,8 +67,8 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(1)) }}
       <div>
-        <input class="btn btn-sm btn-primary" type="submit" name="action" value="通过(预下单审批)"/>
-        <input class="btn btn-sm btn-primary" type="submit" name="action" value="不通过(预下单审批)"/>
+        <input class="btn btn-sm btn-success" type="submit" name="action" value="通过(预下单审批)"/>
+        <input class="btn btn-sm btn-warning" type="submit" name="action" value="不通过(预下单审批)"/>
       </div>
     </form>
   </div>
@@ -84,8 +84,8 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(3)) }}
       <div>
-        <input class="btn btn-sm btn-primary" type="submit" name="action" value="通过(下单审批)"/>
-        <input class="btn btn-sm btn-primary" type="submit" name="action" value="不通过(下单审批)"/>
+        <input class="btn btn-sm btn-success" type="submit" name="action" value="通过(下单审批)"/>
+        <input class="btn btn-sm btn-warning" type="submit" name="action" value="不通过(下单审批)"/>
       </div>
     </form>
   </div>
