@@ -151,6 +151,31 @@ class AdItem(db.Model, BaseModelMixin):
     def is_schedule_lock(self):
         return self.item_status != ITEM_STATUS_NEW
 
+    # 预下单, 下单, 审批
+    def pre_order(self):
+        self.item_status = ITEM_STATUS_PRE
+        self.save()
+
+    def pre_order_pass(self):
+        self.item_status = ITEM_STATUS_PRE_PASS
+        self.save()
+
+    def pre_order_reject(self):
+        self.item_status = ITEM_STATUS_NEW
+        self.save()
+
+    def order_apply(self):
+        self.item_status = ITEM_STATUS_ORDER_APPLY
+        self.save()
+
+    def order_pass(self):
+        self.item_status = ITEM_STATUS_ORDER
+        self.save()
+
+    def order_reject(self):
+        self.item_status = ITEM_STATUS_PRE_PASS
+        self.save()
+
 
 class AdSchedule(db.Model, BaseModelMixin):
     __tablename__ = 'bra_schedule'

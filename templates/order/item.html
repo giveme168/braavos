@@ -48,7 +48,7 @@
                 </div>
             </div>
         </div>
-        {% if item.is_schedule_lock %}
+        {% if g.user.team.is_admin() %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">

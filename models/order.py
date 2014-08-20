@@ -4,6 +4,7 @@ import datetime
 from . import db, BaseModelMixin
 from item import ITEM_STATUS_CN, SALE_TYPE_CN
 
+
 ORDER_TYPE_NORMAL = 0         # 标准广告
 
 ORDER_TYPE_CN = {

@@ -271,3 +271,32 @@ def schedule_delete(schedule_id):
         schedule.delete()
         flash(u'删除成功!', 'success')
         return redirect(url_for("order.item_detail", item_id=item.id))
+
+
+@order_bp.route('/order/<order_id>/items/update/', methods=['POST'])
+def items_status_update(order_id):
+    order = Order.get(order_id)
+    if not order:
+        abort(404)
+    item_ids = request.form.getlist('item_id')
+    items = AdItem.gets(item_ids)
+    action = request.form.get('action')
+    if action == u"预下单":
+        for i in items:
+            i.pre_order()
+    elif action == u"通过(预下单审批)":
+        for i in items:
+            i.pre_order_pass()
+    elif action == u"不通过(预下单审批)":
+        for i in items:
+            i.pre_order_reject()
+    elif action == u"申请下单":
+        for i in items:
+            i.order_apply()
+    elif action == u"通过(下单审批)":
+        for i in items:
+            i.order_pass()
+    elif action == u"不通过(下单审批)":
+        for i in items:
+            i.order_reject()
+    return redirect(url_for('order.order_detail', order_id=order.id))
