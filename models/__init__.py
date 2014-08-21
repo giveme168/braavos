@@ -2,7 +2,7 @@
 from libs.db import db
 
 
-class BaseModelMixin():
+class BaseModelMixin(object):
 
     def add(self):
         db.session.add(self)

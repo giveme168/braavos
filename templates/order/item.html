@@ -1,5 +1,6 @@
 {% extends "/order_base.html" %}
 {% from 'form.html' import form_field %}
+{% from 'comments.html' import comments_box %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
@@ -75,6 +76,7 @@
             </div>
         </div>
     </div>
+    <div>{{ comments_box(item) }}</div>
 </div>
 <script>
 $(document).ready(function(){

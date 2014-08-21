@@ -3,7 +3,8 @@ import datetime
 from collections import defaultdict
 
 from . import db, BaseModelMixin
-from item import ITEM_STATUS_CN, SALE_TYPE_CN
+from .comment import CommentMixin
+from .item import ITEM_STATUS_CN, SALE_TYPE_CN
 
 
 ORDER_TYPE_NORMAL = 0         # 标准广告
@@ -34,7 +35,7 @@ planer_users = db.Table('order_users_planer',
                         )
 
 
-class Order(db.Model, BaseModelMixin):
+class Order(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'bra_order'
     id = db.Column(db.Integer, primary_key=True)
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
