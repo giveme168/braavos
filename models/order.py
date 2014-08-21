@@ -1,5 +1,6 @@
 #-*- coding: UTF-8 -*-
 import datetime
+from collections import defaultdict
 
 from . import db, BaseModelMixin
 from item import ITEM_STATUS_CN, SALE_TYPE_CN
@@ -99,18 +100,14 @@ class Order(db.Model, BaseModelMixin):
         start = start_dates and min(start_dates)
         end = end_dates and max(end_dates)
         if start and end:
-            m_dict = {}
+            m_dict = defaultdict(list)
             dates_list = []
             for x in range(0, (end - start).days + 1):
                 current = start + datetime.timedelta(days=x)
-
-                d_list = m_dict.get(current.month, [])
-                d_list.append(current)
-                m_dict[current.month] = d_list
-
+                m_dict[current.month].append(current)
                 dates_list.append(current)
             ret['dates'] = dates_list
-            ret['months'] = dict([(m, len(d_list)) for m, d_list in m_dict.items()])
+            ret['months'] = {m: len(d_list) for m, d_list in m_dict.items()}
         else:
             ret['dates'] = []
             ret['months'] = {}

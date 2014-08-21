@@ -58,6 +58,22 @@ ITEM_STATUS_CN = {
     ITEM_STATUS_ORDER: u"已下单"
 }
 
+ITEM_STATUS_ACTION_PRE_ORDER = 0
+ITEM_STATUS_ACTION_PRE_ORDER_PASS = 1
+ITEM_STATUS_ACTION_PRE_ORDER_REJECT = 2
+ITEM_STATUS_ACTION_ORDER_APPLY = 3
+ITEM_STATUS_ACTION_ORDER_PASS = 4
+ITEM_STATUS_ACTION_ORDER_REJECT = 5
+
+ITEM_STATUS_ACTION_CN = {
+    ITEM_STATUS_ACTION_PRE_ORDER: u"预下单",
+    ITEM_STATUS_ACTION_PRE_ORDER_PASS: u"通过(预下单)",
+    ITEM_STATUS_ACTION_PRE_ORDER_REJECT: u"不通过(预下单)",
+    ITEM_STATUS_ACTION_ORDER_APPLY: u"申请下单",
+    ITEM_STATUS_ACTION_ORDER_PASS: u"通过(下单)",
+    ITEM_STATUS_ACTION_ORDER_REJECT: u"不通过(下单)"
+}
+
 
 class AdItem(db.Model, BaseModelMixin):
     __tablename__ = 'bra_item'
@@ -151,30 +167,25 @@ class AdItem(db.Model, BaseModelMixin):
     def is_schedule_lock(self):
         return self.item_status != ITEM_STATUS_NEW
 
-    # 预下单, 下单, 审批
-    def pre_order(self):
-        self.item_status = ITEM_STATUS_PRE
-        self.save()
+    @classmethod
+    def update_items_with_action(cls, items, action):
+        next_status = ITEM_STATUS_PRE
+        if action == ITEM_STATUS_ACTION_PRE_ORDER:
+            next_status = ITEM_STATUS_PRE
+        elif action == ITEM_STATUS_ACTION_PRE_ORDER_PASS:
+            next_status = ITEM_STATUS_PRE_PASS
+        elif action == ITEM_STATUS_ACTION_PRE_ORDER_REJECT:
+            next_status = ITEM_STATUS_NEW
+        elif action == ITEM_STATUS_ACTION_ORDER_APPLY:
+            next_status = ITEM_STATUS_ORDER_APPLY
+        elif action == ITEM_STATUS_ACTION_ORDER_PASS:
+            next_status = ITEM_STATUS_ORDER
+        elif action == ITEM_STATUS_ACTION_ORDER_REJECT:
+            next_status = ITEM_STATUS_PRE_PASS
 
-    def pre_order_pass(self):
-        self.item_status = ITEM_STATUS_PRE_PASS
-        self.save()
-
-    def pre_order_reject(self):
-        self.item_status = ITEM_STATUS_NEW
-        self.save()
-
-    def order_apply(self):
-        self.item_status = ITEM_STATUS_ORDER_APPLY
-        self.save()
-
-    def order_pass(self):
-        self.item_status = ITEM_STATUS_ORDER
-        self.save()
-
-    def order_reject(self):
-        self.item_status = ITEM_STATUS_PRE_PASS
-        self.save()
+        for i in items:
+            i.item_status = next_status
+            i.save()
 
 
 class AdSchedule(db.Model, BaseModelMixin):

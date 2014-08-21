@@ -1,6 +1,7 @@
 from flask import Flask
 from libs.db import db
 from libs.mail import mail
+from filters import register_filter
 
 
 def create_app(config_object='config.DevelopmentConfig'):
@@ -11,4 +12,5 @@ def create_app(config_object='config.DevelopmentConfig'):
     db.app = app
     mail.init_app(app)
     mail.app = app
+    register_filter(app)
     return app

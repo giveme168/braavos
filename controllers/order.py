@@ -79,7 +79,10 @@ def order_detail(order_id):
         form.planers.data = [u.id for u in order.planers]
         form.creator.data = order.creator.name
     form.order_type.hidden = True
-    return tpl('order.html', form=form, order=order)
+    context = {'form': form,
+               'order': order,
+               }
+    return tpl('order.html', **context)
 
 
 @order_bp.route('/orders', methods=['GET'])
@@ -274,23 +277,7 @@ def items_status_update(order_id):
         abort(404)
     item_ids = request.form.getlist('item_id')
     items = AdItem.gets(item_ids)
-    action = request.form.get('action')
-    if action == u"预下单":
-        for i in items:
-            i.pre_order()
-    elif action == u"通过(预下单审批)":
-        for i in items:
-            i.pre_order_pass()
-    elif action == u"不通过(预下单审批)":
-        for i in items:
-            i.pre_order_reject()
-    elif action == u"申请下单":
-        for i in items:
-            i.order_apply()
-    elif action == u"通过(下单审批)":
-        for i in items:
-            i.order_pass()
-    elif action == u"不通过(下单审批)":
-        for i in items:
-            i.order_reject()
+    action = int(request.form.get('action'))
+    AdItem.update_items_with_action(items, action)
+
     return redirect(url_for('order.order_detail', order_id=order.id))

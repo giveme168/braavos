@@ -46,6 +46,10 @@
 </table>
 {%- endmacro %}
 
+{% macro button_by_action(action) -%}
+  <button class="btn btn-sm btn-primary" type="submit" name="action" value="{{action}}">{{action | item_status_action_cn}}</button>
+{%- endmacro %}
+
 {% macro order_items(order) -%}
 <ul class="nav nav-pills" role="tablist">
   <li role="presentation" class="active"><a href="#tab-0" role="tab" data-toggle="tab">新建</a></li>
@@ -59,7 +63,7 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(0)) }}
       <div>
-        <input class="btn btn-sm btn-primary" type="submit" name="action" value="预下单"/>
+        {{ button_by_action(0) }}
       </div>
     </form>
   </div>
@@ -67,8 +71,8 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(1)) }}
       <div>
-        <input class="btn btn-sm btn-success" type="submit" name="action" value="通过(预下单审批)"/>
-        <input class="btn btn-sm btn-warning" type="submit" name="action" value="不通过(预下单审批)"/>
+        {{ button_by_action(1) }}
+        {{ button_by_action(2) }}
       </div>
     </form>
   </div>
@@ -76,7 +80,7 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(2)) }}
       <div>
-        <input class="btn btn-sm btn-primary" type="submit" name="action" value="申请下单"/>
+        {{ button_by_action(3) }}
       </div>
     </form>
   </div>
@@ -84,8 +88,8 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(3)) }}
       <div>
-        <input class="btn btn-sm btn-success" type="submit" name="action" value="通过(下单审批)"/>
-        <input class="btn btn-sm btn-warning" type="submit" name="action" value="不通过(下单审批)"/>
+        {{ button_by_action(4) }}
+        {{ button_by_action(5) }}
       </div>
     </form>
   </div>
