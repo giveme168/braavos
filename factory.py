@@ -1,4 +1,6 @@
 from flask import Flask
+from raven.contrib.flask import Sentry
+
 from libs.db import db
 from libs.mail import mail
 from filters import register_filter
@@ -13,4 +15,5 @@ def create_app(config_object='config.DevelopmentConfig'):
     mail.init_app(app)
     mail.app = app
     register_filter(app)
+    sentry = Sentry(app)
     return app
