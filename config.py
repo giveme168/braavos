@@ -17,6 +17,8 @@ class Config(object):
     MAIL_DEBUG = DEBUG
     MAIL_SUPPRESS_SEND = DEBUG
 
+    SENTRY_DSN = ''
+
 
 class TestingConfig(Config):
     TESTING = True
