@@ -1,8 +1,8 @@
 #-*- coding: UTF-8 -*-
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 from . import db, BaseModelMixin
-from consts import STATUS_CN
+from consts import STATUS_CN, DATE_FORMAT
 
 SALE_TYPE_NORMAL = 0         # 标准, 购买
 SALE_TYPE_GIFT = 1           # 配送
@@ -45,17 +45,33 @@ SPEED_CN = {
 }
 
 ITEM_STATUS_NEW = 0
-ITEM_STATUS_PRE_APPLY = 1
-ITEM_STATUS_PRE = 2
+ITEM_STATUS_PRE = 1
+ITEM_STATUS_PRE_PASS = 2
 ITEM_STATUS_ORDER_APPLY = 3
 ITEM_STATUS_ORDER = 4
 
 ITEM_STATUS_CN = {
     ITEM_STATUS_NEW: u"新建",
-    ITEM_STATUS_PRE_APPLY: u"申请预下单",
-    ITEM_STATUS_PRE: u"已预下单(资源已锁定)",
-    ITEM_STATUS_ORDER_APPLY: u"申请下单",
+    ITEM_STATUS_PRE: u"预下单",
+    ITEM_STATUS_PRE_PASS: u"预下单(通过)",
+    ITEM_STATUS_ORDER_APPLY: u"下单(待审核)",
     ITEM_STATUS_ORDER: u"已下单"
+}
+
+ITEM_STATUS_ACTION_PRE_ORDER = 0
+ITEM_STATUS_ACTION_PRE_ORDER_PASS = 1
+ITEM_STATUS_ACTION_PRE_ORDER_REJECT = 2
+ITEM_STATUS_ACTION_ORDER_APPLY = 3
+ITEM_STATUS_ACTION_ORDER_PASS = 4
+ITEM_STATUS_ACTION_ORDER_REJECT = 5
+
+ITEM_STATUS_ACTION_CN = {
+    ITEM_STATUS_ACTION_PRE_ORDER: u"预下单",
+    ITEM_STATUS_ACTION_PRE_ORDER_PASS: u"通过(预下单)",
+    ITEM_STATUS_ACTION_PRE_ORDER_REJECT: u"不通过(预下单)",
+    ITEM_STATUS_ACTION_ORDER_APPLY: u"申请下单",
+    ITEM_STATUS_ACTION_ORDER_PASS: u"通过(下单)",
+    ITEM_STATUS_ACTION_ORDER_REJECT: u"不通过(下单)"
 }
 
 
@@ -112,7 +128,7 @@ class AdItem(db.Model, BaseModelMixin):
 
     @property
     def start_date_cn(self):
-        return self.start_date.strftime("%Y-%m-%d") if self.start_date else u"起始时间"
+        return self.start_date.strftime(DATE_FORMAT) if self.start_date else u"起始时间"
 
     @property
     def end_date(self):
@@ -120,10 +136,56 @@ class AdItem(db.Model, BaseModelMixin):
 
     @property
     def end_date_cn(self):
-        return self.end_date.strftime("%Y-%m-%d") if self.end_date else u"起始时间"
+        return self.end_date.strftime(DATE_FORMAT) if self.end_date else u"起始时间"
 
-    def schedules_by_date(self, _date):
-        return [s for s in self.schedules if s.date == _date]
+    def schedule_by_date(self, _date):
+        schedules = [s for s in self.schedules if s.date == _date]
+        return schedules[0] if schedules else None
+
+    @property
+    def schedule_sum(self):
+        return sum([x.num for x in self.schedules])
+
+    def get_schedule_info_by_week(self):
+        ret = {}
+        for x in range((self.end_date - self.start_date).days + 1):
+            _date = self.start_date + timedelta(days=x)
+            schedule = self.schedule_by_date(_date)
+            info_dict = {}
+            info_dict['date'] = _date
+            info_dict['schedule'] = schedule
+            info_dict['num'] = schedule.num if schedule else 0
+            info_dict['can_order_num'] = self.position.can_order_num(_date)
+            week = _date.isocalendar()[1]
+            weekday = _date.isoweekday()
+            week_info = ret.get(week, {})
+            week_info[weekday] = info_dict
+            ret[week] = week_info
+        return ret
+
+    @property
+    def is_schedule_lock(self):
+        return self.item_status != ITEM_STATUS_NEW
+
+    @classmethod
+    def update_items_with_action(cls, items, action):
+        next_status = ITEM_STATUS_PRE
+        if action == ITEM_STATUS_ACTION_PRE_ORDER:
+            next_status = ITEM_STATUS_PRE
+        elif action == ITEM_STATUS_ACTION_PRE_ORDER_PASS:
+            next_status = ITEM_STATUS_PRE_PASS
+        elif action == ITEM_STATUS_ACTION_PRE_ORDER_REJECT:
+            next_status = ITEM_STATUS_NEW
+        elif action == ITEM_STATUS_ACTION_ORDER_APPLY:
+            next_status = ITEM_STATUS_ORDER_APPLY
+        elif action == ITEM_STATUS_ACTION_ORDER_PASS:
+            next_status = ITEM_STATUS_ORDER
+        elif action == ITEM_STATUS_ACTION_ORDER_REJECT:
+            next_status = ITEM_STATUS_PRE_PASS
+
+        for i in items:
+            i.item_status = next_status
+            i.save()
 
 
 class AdSchedule(db.Model, BaseModelMixin):

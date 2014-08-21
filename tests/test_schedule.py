@@ -1,4 +1,4 @@
-from datetime import date, time
+from datetime import date
 
 from models.item import AdSchedule
 from helper import add_unit, add_position, add_item
@@ -21,8 +21,6 @@ def test_schedule(session):
     item2 = add_item(position=position2)
 
     _date = date.today()
-    start = time.min
-    end = time.max
 
     assert position1.schedule_num(_date) == 0
     assert position2.schedule_num(_date) == 0
@@ -36,21 +34,19 @@ def test_schedule(session):
     assert position1.retain_num(_date) == 1500
     assert position2.retain_num(_date) == 1500
 
-    schedule1 = AdSchedule(item1, 500, _date, start, end)
+    schedule1 = AdSchedule(item1, 500, _date)
     schedule1.add()
-    schedule2 = AdSchedule(item2, 100, _date, start, end)
+    schedule2 = AdSchedule(item2, 100, _date)
     schedule2.add()
-    schedule3 = AdSchedule(item1, 300, _date, start, end)
-    schedule3.add()
 
-    assert position1.schedule_num(_date) == 800
+    assert position1.schedule_num(_date) == 500
     assert position2.schedule_num(_date) == 100
 
-    assert unit1.schedule_num(_date) == 480
-    assert unit2.schedule_num(_date) == 420
+    assert unit1.schedule_num(_date) == 320
+    assert unit2.schedule_num(_date) == 280
 
-    assert unit1.retain_num(_date) == 320
-    assert unit2.retain_num(_date) == 280
+    assert unit1.retain_num(_date) == 480
+    assert unit2.retain_num(_date) == 420
 
-    assert position1.retain_num(_date) == 600
-    assert position2.retain_num(_date) == 600
+    assert position1.retain_num(_date) == 900
+    assert position2.retain_num(_date) == 900

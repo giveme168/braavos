@@ -1,0 +1,90 @@
+<form class="form form-horizontal schedule-form" method="POST">
+<div class="well schedule-form">
+ <div class="form-group">
+    <table class="table table-striped table-bordered" id="schedule-table">
+        <tr> 
+          <th class="info">周一</th> 
+          <th class="info">周二</th> 
+          <th class="info">周三</th> 
+          <th class="info">周四</th> 
+          <th class="info">周五</th> 
+          <th class="success">周六</th> 
+          <th class="success">周日</th>
+        </tr>
+        {% for week, week_info in item.get_schedule_info_by_week().items() %}
+        <tr class="week-{{week}}">
+          {% for weekday in range(1, 8) %}
+            {% set schedule_info = week_info.get(weekday) %}
+            {% if schedule_info %}
+            <td class="weekday-{{weekday}} {{'weekend' if weekday in [6, 7] else 'workday'}}">
+              <div class="sch-date">{{schedule_info['date']}}</div>
+              <div class="sch-num">
+                <input type="text" class="order-num" name="{{schedule_info['date']}}" 
+                  value="{{schedule_info['num']}}" data-max="{{schedule_info['can_order_num']}}"> 
+                / {{schedule_info['can_order_num']}}
+              </div>
+            </td>
+            {% else %}
+            <td></td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+  </div>
+ <div class="form-group">
+    <label class="col-md-2 control-label">快速预订工具: </label>
+    <div class="col-md-2">
+      <input class="form-control speed-value" value='0'/>
+    </div>
+    <div class="col-md-4">
+      <a class="speed-workday btn btn-info">工作日</a>
+      <a class="speed-weekend btn btn-success">仅周末</a>
+      <a class="speed-all btn btn-primary">全部</a>
+    </div>
+ </div>
+ <div class="form-group">
+    <label class="col-md-2 control-label">总预订量: </label>
+    <div class="col-md-2">
+        <div class="col-md-2 schedule-sum" style="padding-top: 7px;"> 0 </div>
+    </div>
+    <a class="btn btn-primary" id="schedule-save">保存</a>
+ </div>
+</div>
+</form>
+<style>
+    th {text-align: center;}
+    .sch-date {text-align: center;}
+    .sch-num {text-align: center;}
+    .sch-num input{display: inline-block; width: 50px; text-align: right;}
+</style>
+<script src="/static/js/schedule.js"></script>
+<script>
+$(document).ready(function(){
+  check_all_order_num();
+  $("#schedule-save").click(function(){
+    var sent_data = {},
+       data_legal = true;
+    $(".order-num").each(function(){
+      var name = $(this)[0].name,
+        value = parseInt($(this).val()),
+        max = $(this).data('max');
+      if(value > max){
+        alert(name + '预订量超过最大值!');
+        data_legal = false;
+      }
+      else{
+        sent_data[name] = value;
+      }
+    });
+    if(data_legal){
+       $.post('{{url_for("order.schedule_simple_update", item_id=item.id)}}',
+          {data: $.toJSON(sent_data)},
+          function(data) {
+            alert(data['msg']);
+          },
+          'json');
+    }
+  });
+});
+</script>

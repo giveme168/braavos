@@ -82,7 +82,7 @@ $(document).ready(function(){
     $("body").on('keyup', ".order-num", function(){
         check_all_order_num();
     });
-    function check_all_order_num(){
+    check_all_order_num = function(){
         var forms = $('.schedule-form');
         for(var x=0; x<forms.length; x++){
           var form = forms[x],
@@ -126,7 +126,7 @@ $(document).ready(function(){
         check_all_order_num();
     });
     // 整理要提交的排期数据
-    function get_form_schedule_data(schedules){
+    get_form_schedule_data = function(schedules){
       var ret = {};
       if(schedules.length > 0){
         for(var x=0; x<schedules.length; x++){
@@ -138,7 +138,7 @@ $(document).ready(function(){
       }
       return ret;
     }
-    function get_form_all_data(){
+    get_form_all_data = function(){
         var ret = [];
         if($(".schedule-form").length > 0){
           for(var x=0; x<$(".schedule-form").length; x++){

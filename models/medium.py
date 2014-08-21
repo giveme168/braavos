@@ -2,7 +2,7 @@
 from datetime import timedelta
 
 from . import db, BaseModelMixin
-from .consts import STATUS_CN
+from .consts import STATUS_CN, DATE_FORMAT
 
 TARGET_TOP = 1
 TARGET_BLANK = 0
@@ -193,10 +193,7 @@ class AdPosition(db.Model, BaseModelMixin):
         return self.estimate_num / self.cpd_num if self.cpd_num > 1 else self.estimate_num
 
     def schedules_by_date(self, _date):
-        schedules = []
-        for x in self.order_items:  # 预订这个位置的订单项
-            schedules.extend(x.schedules_by_date(_date))  # 这些订单项的排期
-        return schedules
+        return [x.schedule_by_date(_date) for x in self.order_items if x.schedule_by_date(_date)]
 
     def schedule_num(self, _date):
         """
@@ -214,6 +211,9 @@ class AdPosition(db.Model, BaseModelMixin):
         """可预订量"""
         return min(self.max_order_num, self.retain_num(date))
 
+    def check_order_num(self, date, num):
+        return num <= self.order_num(date)
+
     def can_order_num_schedule(self, start_date, end_date):
         """在start和end之间可以预订的量"""
         schedules = []
@@ -226,11 +226,11 @@ class AdPosition(db.Model, BaseModelMixin):
         """格式化预订量"""
         ret = {"position": self.id,
                "name": self.display_name,
-               "start": start_date.strftime("%Y-%m-%d"),
-               "end": end_date.strftime("%Y-%m-%d")}
+               "start": start_date.strftime(DATE_FORMAT),
+               "end": end_date.strftime(DATE_FORMAT)}
         ret['schedules'] = [schdule_info(_date, num) for _date, num in self.can_order_num_schedule(start_date, end_date)]
         return ret
 
 
 def schdule_info(date, num):
-    return (date.strftime("%Y-%m-%d"), num, date.isoweekday())
+    return (date.strftime(DATE_FORMAT), num, date.isoweekday())
