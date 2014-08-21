@@ -12,6 +12,7 @@ from models.medium import Medium, AdPosition
 from models.item import AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW
 from models.order import Order
 from models.user import User
+from models.consts import DATE_FORMAT, TIME_FORMAT
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
@@ -112,7 +113,7 @@ def check_schedules_post(data):
         for item in items:
             position = AdPosition.get(item['position'])
             for (date_str, num_str) in item['schedule'].items():
-                _date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                _date = datetime.strptime(date_str, DATE_FORMAT).date()
                 num = int(num_str)
                 if position.can_order_num(_date) < num:
                     status = 1
@@ -132,7 +133,7 @@ def add_schedules(order, data):
         ad_item.item_status = ITEM_STATUS_NEW
         ad_item.add()
         for (date_str, num_str) in item['schedule'].items():
-            _date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            _date = datetime.strptime(date_str, DATE_FORMAT).date()
             num = int(num_str)
             schedule = AdSchedule(item=ad_item, num=num, date=_date)
             schedule.add()
@@ -155,8 +156,8 @@ def schedules_post(order_id):
 @order_bp.route('/schedule_info/', methods=['GET'])
 def schedule_info():
     """ajax 获取排期数据"""
-    start_date = datetime.strptime(request.values.get('start'), '%Y-%m-%d').date()
-    end_date = datetime.strptime(request.values.get('end'), '%Y-%m-%d').date()
+    start_date = datetime.strptime(request.values.get('start'), DATE_FORMAT).date()
+    end_date = datetime.strptime(request.values.get('end'), DATE_FORMAT).date()
     position = AdPosition.get(request.values.get('position'))
     return jsonify(position.get_schedule(start_date, end_date))
 
@@ -220,13 +221,13 @@ def schedule_simple_update(item_id):
     status = 0
     schedules_info = json.loads(data)
     for date_str, num in schedules_info.items():
-        _date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        _date = datetime.strptime(date_str, DATE_FORMAT).date()
         if not item.position.check_order_num(_date, num):
             msg = date_str + u"预订量超过最大可预订量"
             status = 1
     if not status:
         for date_str, num in schedules_info.items():
-            _date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            _date = datetime.strptime(date_str, DATE_FORMAT).date()
             _schedule = item.schedule_by_date(_date)
             if _schedule:
                 if num == 0:
@@ -246,9 +247,9 @@ def schedule_update(schedule_id):
     schedule = AdSchedule.get(schedule_id)
     if not schedule:
         abort(404)
-    schedule.date = datetime.strptime(request.form.get('date'), "%Y-%m-%d").date()
-    schedule.start = datetime.strptime(request.form.get('start'), "%H:%M:%S").time()
-    schedule.end = datetime.strptime(request.form.get('end'), "%H:%M:%S").time()
+    schedule.date = datetime.strptime(request.form.get('date'), DATE_FORMAT).date()
+    schedule.start = datetime.strptime(request.form.get('start'), TIME_FORMAT).time()
+    schedule.end = datetime.strptime(request.form.get('end'), TIME_FORMAT).time()
     schedule.num = request.form.get('num')
     schedule.save()
     flash(u'投放安排保存成功!', 'success')

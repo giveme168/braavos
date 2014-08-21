@@ -2,7 +2,7 @@
 from datetime import datetime, time, timedelta
 
 from . import db, BaseModelMixin
-from consts import STATUS_CN
+from consts import STATUS_CN, DATE_FORMAT
 
 SALE_TYPE_NORMAL = 0         # 标准, 购买
 SALE_TYPE_GIFT = 1           # 配送
@@ -112,7 +112,7 @@ class AdItem(db.Model, BaseModelMixin):
 
     @property
     def start_date_cn(self):
-        return self.start_date.strftime("%Y-%m-%d") if self.start_date else u"起始时间"
+        return self.start_date.strftime(DATE_FORMAT) if self.start_date else u"起始时间"
 
     @property
     def end_date(self):
@@ -120,7 +120,7 @@ class AdItem(db.Model, BaseModelMixin):
 
     @property
     def end_date_cn(self):
-        return self.end_date.strftime("%Y-%m-%d") if self.end_date else u"起始时间"
+        return self.end_date.strftime(DATE_FORMAT) if self.end_date else u"起始时间"
 
     def schedule_by_date(self, _date):
         schedules = [s for s in self.schedules if s.date == _date]

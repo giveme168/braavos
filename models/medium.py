@@ -2,7 +2,7 @@
 from datetime import timedelta
 
 from . import db, BaseModelMixin
-from .consts import STATUS_CN
+from .consts import STATUS_CN, DATE_FORMAT
 
 TARGET_TOP = 1
 TARGET_BLANK = 0
@@ -226,11 +226,11 @@ class AdPosition(db.Model, BaseModelMixin):
         """格式化预订量"""
         ret = {"position": self.id,
                "name": self.display_name,
-               "start": start_date.strftime("%Y-%m-%d"),
-               "end": end_date.strftime("%Y-%m-%d")}
+               "start": start_date.strftime(DATE_FORMAT),
+               "end": end_date.strftime(DATE_FORMAT)}
         ret['schedules'] = [schdule_info(_date, num) for _date, num in self.can_order_num_schedule(start_date, end_date)]
         return ret
 
 
 def schdule_info(date, num):
-    return (date.strftime("%Y-%m-%d"), num, date.isoweekday())
+    return (date.strftime(DATE_FORMAT), num, date.isoweekday())
