@@ -8,8 +8,9 @@ comment_bp = Blueprint('comment', __name__)
 
 @comment_bp.route('/add/', methods=['POST'])
 def add():
-    identify = request.values.get('identify')
+    target_type = request.values.get('target_type')
+    target_id = request.values.get('target_id')
     msg = request.values.get('msg')
-    comment = Comment(identify, msg, g.user)
+    comment = Comment(target_type, target_id, msg, g.user)
     comment.add()
     return jsonify({'msg': "msg add success"})

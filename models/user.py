@@ -1,5 +1,5 @@
 #-*- coding: UTF-8 -*-
-import md5
+from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from . import db, BaseModelMixin
@@ -90,7 +90,7 @@ class User(db.Model, BaseModelMixin):
 
     @property
     def avatar(self, size=48):
-        return "http://www.gravatar.com/avatar/%s?s=%s&d=identicon" % (md5.md5(self.email).hexdigest(), size)
+        return "http://www.gravatar.com/avatar/%s?s=%s&d=identicon" % (md5(self.email).hexdigest(), size)
 
 
 class Team(db.Model, BaseModelMixin):

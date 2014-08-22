@@ -22,13 +22,14 @@
     </div>
     {% endfor %}
   </div>
-  <div class="comment-form col-md-12">
+  <form role="form" class="form comment-form col-md-12">
     <div class="comment col-md-12">
       <div class="comment-avatar col-md-1">
         <img src="{{g.user.avatar}}"/>
       </div>
       <div class="col-md-11">
-        <input class="hide comment_identify" name="comment_identify" value="{{owner.comment_identify}}"/>
+        <input class="hide target_type" name="target_type" value="{{owner.target_type}}"/>
+        <input class="hide target_id" name="target_id" value="{{owner.target_id}}"/>
         <div class="form-group">
           <textarea name="msg" class="form-control msg" rows="3" placeholder="写下你的留言, 最多300字"></textarea>
         </div>
@@ -37,7 +38,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </form>
 </div>
 <style>
 .comment {padding: 10px; font-size: 12px; line-height: 120%; text-align: left; border-bottom: 1px solid #e2e2e2;}
@@ -48,14 +49,14 @@
 <script>
 $(document).ready(function(){
     $("#comment-add").click(function(){
-        var comment_identify = $(this).parents('.comment-form').find('.comment_identify').val(),
-            msg = $(this).parents('.comment-form').find('.msg').val();
+        var sent_data = $(this).parents('.comment-form').serialize();
         $.post('{{url_for("comment.add")}}',
-          {identify: comment_identify, msg: msg},
+          sent_data,
           function(data){
             location.reload();
           },
           'json');
+        return false;
     });
 });
 </script>
