@@ -6,7 +6,7 @@ from models.client import Client, Agent
 from models.order import Order
 from models.medium import Medium, AdSize, AdUnit, AdPosition
 from models.item import AdItem, AdSchedule
-from models.material import Material
+from models.material import Material, MATERIAL_TYPE_RAW
 
 
 def add_team(name):
@@ -105,10 +105,10 @@ def add_schedule(item=None, num=300):
     return schedule
 
 
-def add_material(item=None, material_type=None, name=None):
+def add_material(item=None, material_type=MATERIAL_TYPE_RAW, name=None):
     item = item or add_item()
     user = get_default_user()
     name = name or 'test_material'
-    material = Material(name, material_type, item, user)
+    material = Material(name, item, user, material_type)
     material.add()
     return material
