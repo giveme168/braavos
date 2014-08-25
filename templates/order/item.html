@@ -68,13 +68,22 @@
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
                         <span>广告素材</span>
-                        <a href="{{url_for('material.new_material', item_id=item.id)}}" class="btn btn-sm btn-primary col-md-offset-1" style="color:white;">新建素材</a>
                     </a>
+                    <div class="btn-group col-md-offset-1">
+                      <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
+                        新建广告 <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" role="menu">
+                        <li><a href="{{url_for('material.new_image_material', item_id=item.id)}}">图片广告</a></li>
+                        <li class="divider"></li>
+                        <li><a href="{{url_for('material.new_material', item_id=item.id)}}">原生广告</a></li>
+                      </ul>
+                    </div>
                 </h4>
             </div>
             <div id="collapseFour" class="panel-collapse collapse">
                 <div class="panel-body">
-
+                    {% include 'item_materials.html' %}
                 </div>
             </div>
         </div>
@@ -85,6 +94,7 @@
 $(document).ready(function(){
     $("#collapseOne").collapse('hide');
     $("#collapseTwo").collapse('show');
+    $("#collapseFour").collapse('show');
 });
 </script>
 {% endblock %}

@@ -14,11 +14,9 @@ body{
 }
 .container-fluid{
     max-width: 95%;
-    margin-top: 10px;
 }
 .navbar {
-    background: url("/static/imgs/top-pattern.png") top repeat-x;
-    min-height: 50px;
+    min-height: 40px;
     width: 100%;
 }
 .nav > li > a {

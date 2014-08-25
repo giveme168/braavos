@@ -1,4 +1,6 @@
 #-*- coding: UTF-8 -*-
+from flask import url_for
+
 from . import db, BaseModelMixin
 from .consts import STATUS_CN
 
@@ -46,6 +48,12 @@ class Material(db.Model, BaseModelMixin):
     @property
     def status_cn(self):
         return STATUS_CN[self.status]
+
+    def path(self):
+        if self.type == MATERIAL_TYPE_PICTURE:
+            return url_for('material.image_material', material_id=self.id)
+        else:
+            return url_for('material.raw_material', material_id=self.id)
 
 
 class ImageMaterial(Material):

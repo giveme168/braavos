@@ -3,7 +3,11 @@
 
 {% block main_box%}
 <div class="bra-main bra-box">
+    {% if material %}
+    <h3>原生广告 <a href="{{url_for('order.item_detail', item_id=material.item.id)}}" class="btn btn-sm btn-default">返回</a></h3>
+    {% else %}
     <h3>原生广告</h3>
+    {% endif %}
     <form class="form form-horizontal" method="POST">
       {{ form.csrf_token }}
       {{ form_field(form.name) }}

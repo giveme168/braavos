@@ -47,7 +47,7 @@ def raw_material(material_id):
         form.name.data = material.name
         form.code.data = material.code
         form.status.data = material.status
-    return tpl('material_raw.html', form=form)
+    return tpl('material_raw.html', form=form, material=material)
 
 
 @material_bp.route('/new_image_material/item/<item_id>', methods=['GET', 'POST'])
@@ -89,4 +89,4 @@ def image_material(material_id):
         form.image_link.data = material.image_link
         form.click_link.data = material.click_link
         form.monitor_link.data = material.monitor_link
-    return tpl('material_image.html', form=form)
+    return tpl('material_image.html', form=form, material=material)
