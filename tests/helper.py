@@ -6,6 +6,7 @@ from models.client import Client, Agent
 from models.order import Order
 from models.medium import Medium, AdSize, AdUnit, AdPosition
 from models.item import AdItem, AdSchedule
+from models.material import Material
 
 
 def add_team(name):
@@ -102,3 +103,12 @@ def add_schedule(item=None, num=300):
     schedule = AdSchedule(item, num, today, start, end)
     schedule.add()
     return schedule
+
+
+def add_material(item=None, material_type=None, name=None):
+    item = item or add_item()
+    user = get_default_user()
+    name = name or 'test_material'
+    material = Material(name, material_type, item, user)
+    material.add()
+    return material
