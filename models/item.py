@@ -2,6 +2,7 @@
 from datetime import datetime, time, timedelta
 
 from . import db, BaseModelMixin
+from .comment import CommentMixin
 from consts import STATUS_CN, DATE_FORMAT
 
 SALE_TYPE_NORMAL = 0         # 标准, 购买
@@ -75,7 +76,7 @@ ITEM_STATUS_ACTION_CN = {
 }
 
 
-class AdItem(db.Model, BaseModelMixin):
+class AdItem(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'bra_item'
     # 基础
     id = db.Column(db.Integer, primary_key=True)

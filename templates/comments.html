@@ -1,0 +1,63 @@
+{% macro comments_box(owner) -%}
+<div class="comments_box col-md-12">
+  <div class="comments col-md-12">
+    {% for c in owner.get_comments() %}
+    <div class="comment col-md-12">
+      <div class="comment-avatar col-md-1">
+        <img src="{{c.creator.avatar}}"/>
+      </div>
+      <div class="col-md-11">
+        <div class="comment-head">
+          <strong>
+            {{c.creator.name}}
+          </strong>
+          <span class="comment-time">
+            {{c.create_time.strftime("%Y-%m-%d %H:%M:%S")}}
+          </span>
+        </div>
+        <div class="comment-content">
+          <p> {{c.msg|urlize(40, true) }} </p>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <form role="form" class="form comment-form col-md-12">
+    <div class="comment col-md-12">
+      <div class="comment-avatar col-md-1">
+        <img src="{{g.user.avatar}}"/>
+      </div>
+      <div class="col-md-11">
+        <input class="hide target_type" name="target_type" value="{{owner.target_type}}"/>
+        <input class="hide target_id" name="target_id" value="{{owner.target_id}}"/>
+        <div class="form-group">
+          <textarea name="msg" class="form-control msg" rows="3" placeholder="写下你的留言, 最多300字"></textarea>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-xs btn-default" id="comment-add">回复</>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<style>
+.comment {padding: 10px; font-size: 12px; line-height: 120%; text-align: left; border-bottom: 1px solid #e2e2e2;}
+.comment-time {font-size: 11px; color: #ccc; margin-left: 10px;}
+.comment-content {padding: 10px;}
+.comment-form {margin-top: 10px;}
+</style>
+<script>
+$(document).ready(function(){
+    $("#comment-add").click(function(){
+        var sent_data = $(this).parents('.comment-form').serialize();
+        $.post('{{url_for("comment.add")}}',
+          sent_data,
+          function(data){
+            location.reload();
+          },
+          'json');
+        return false;
+    });
+});
+</script>
+{%- endmacro %}
