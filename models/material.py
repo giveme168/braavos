@@ -22,12 +22,12 @@ class Material(db.Model, BaseModelMixin):
     name = db.Column(db.String(100))
     type = db.Column(db.Integer)
     item_id = db.Column(db.Integer, db.ForeignKey('bra_item.id'))
-    item = db.relationship('AdItem', backref=db.backref('materials', lazy='dynamic'))
+    item = db.relationship('AdItem', backref=db.backref('materials', lazy='dynamic', enable_typechecks=False))
     code = db.Column(db.Text())  # 原生广告代码
     props = db.Column(db.PickleType())  # 广告属性, 一个字典, PikleType可以存储大部分 Python 实例
     status = db.Column(db.Integer, default=1)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator = db.relationship('User', backref=db.backref('created_material', lazy='dynamic'))
+    creator = db.relationship('User', backref=db.backref('created_material', lazy='dynamic', enable_typechecks=False))
 
     def __init__(self, name, item, creator, type=MATERIAL_TYPE_RAW):
         self.name = name

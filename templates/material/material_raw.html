@@ -1,0 +1,15 @@
+{% extends "/material_base.html" %}
+{% from 'form.html' import form_field %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>原生广告</h3>
+    <form class="form form-horizontal" method="POST">
+      {{ form.csrf_token }}
+      {{ form_field(form.name) }}
+      {{ form_field(form.code) }}
+      {{ form_field(form.status) }}
+      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+    </table>
+</div>
+{% endblock %}

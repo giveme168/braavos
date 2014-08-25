@@ -66,7 +66,10 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour"> 广告素材 </a>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+                        <span>广告素材</span>
+                        <a href="{{url_for('material.new_material', item_id=item.id)}}" class="btn btn-sm btn-primary col-md-offset-1" style="color:white;">新建素材</a>
+                    </a>
                 </h4>
             </div>
             <div id="collapseFour" class="panel-collapse collapse">
