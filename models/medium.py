@@ -221,7 +221,7 @@ class AdPosition(db.Model, BaseModelMixin):
     def can_order_num_schedule(self, start_date, end_date):
         """在start和end之间可以预订的量"""
         days = (end_date - start_date).days + 1
-        schedules = [(start_date + timedelta(days=n))
+        schedules = [(start_date + timedelta(days=n), self.can_order_num(start_date + timedelta(days=n)))
                      for n in range(days)]
         return schedules
 
