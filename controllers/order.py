@@ -26,15 +26,14 @@ def index():
 def new_order():
     form = OrderForm(request.form)
     if request.method == 'POST' and form.validate():
-        order = Order(client=Client.get(form.client.data), campaign=form.campaign.data,
-                      medium=Medium.get(form.medium.data), order_type=form.order_type.data,
-                      contract=form.contract.data, money=form.money.data,
-                      agent=Agent.get(form.agent.data), direct_sales=User.gets(form.direct_sales.data),
-                      agent_sales=User.gets(form.agent_sales.data), operaters=User.gets(form.operaters.data),
-                      planers=User.gets(form.planers.data), designers=User.gets(form.designers.data), creator=g.user,
-                      create_time=datetime.now())
-        order.add()
-        flash(u'新建订单成功!', 'suceess')
+        order = Order.add(client=Client.get(form.client.data), campaign=form.campaign.data,
+                          medium=Medium.get(form.medium.data), order_type=form.order_type.data,
+                          contract=form.contract.data, money=form.money.data,
+                          agent=Agent.get(form.agent.data), direct_sales=User.gets(form.direct_sales.data),
+                          agent_sales=User.gets(form.agent_sales.data), operaters=User.gets(form.operaters.data),
+                          planers=User.gets(form.planers.data), designers=User.gets(form.designers.data), creator=g.user,
+                          create_time=datetime.now())
+        flash(u'新建订单成功!', 'success')
         return redirect(url_for("order.order_detail", order_id=order.id))
     else:
         form.creator.data = g.user.name
@@ -129,17 +128,16 @@ def add_schedules(order, data):
     items = json.loads(data)
     for item in items:
         position = AdPosition.get(item['position'])
-        ad_item = AdItem(order=order, sale_type=item['sale_type'], special_sale=item['special_sale'],
-                         position=position, creator=g.user, create_time=datetime.now())
+        ad_item = AdItem.add(order=order, sale_type=item['sale_type'], special_sale=item['special_sale'],
+                             position=position, creator=g.user, create_time=datetime.now())
         ad_item.price = position.price
         ad_item.description = item['description']
         ad_item.item_status = ITEM_STATUS_NEW
-        ad_item.add()
+        ad_item.save()
         for (date_str, num_str) in item['schedule'].items():
             _date = datetime.strptime(date_str, DATE_FORMAT).date()
             num = int(num_str)
-            schedule = AdSchedule(item=ad_item, num=num, date=_date)
-            schedule.add()
+            AdSchedule.add(item=ad_item, num=num, date=_date)
 
 
 @order_bp.route('/order/<order_id>/schedules_post/', methods=["POST"])
@@ -239,8 +237,7 @@ def schedule_simple_update(item_id):
                     _schedule.num = num
                     _schedule.save()
             elif num != 0:
-                _schedule = AdSchedule(item, num, _date)
-                _schedule.add()
+                _schedule = AdSchedule.add(item, num, _date)
         msg = u"排期修改成功!"
     return jsonify({'msg': msg, 'status': status})
 

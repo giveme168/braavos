@@ -1,0 +1,14 @@
+<table class="table table-bordered table-striped">
+  <tr>
+    <th>名字</th>
+    <th>类型</th>
+    <th>状态</th>
+  </tr>
+  {% for m in item.materials %}
+  <tr>
+    <th><a href="{{m.path()}}">{{m.name}}</a></th>
+    <th>{{m.type_cn}}</th>
+    <th>{{m.status_cn}}</th>
+  </tr>
+  {% endfor %}
+</table>

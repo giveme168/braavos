@@ -37,8 +37,7 @@ class CommentMixin():
         return self.id
 
     def add_comment(self, user, msg):
-        comment = Comment(self.target_type, self.target_id, msg, user, datetime.datetime.now())
-        comment.add()
+        Comment.add(self.target_type, self.target_id, msg, user, datetime.datetime.now())
 
     def get_comments(self):
         return Comment.query.filter_by(target_type=self.target_type,

@@ -34,10 +34,8 @@ def test_schedule(session):
     assert position1.retain_num(_date) == 1500
     assert position2.retain_num(_date) == 1500
 
-    schedule1 = AdSchedule(item1, 500, _date)
-    schedule1.add()
-    schedule2 = AdSchedule(item2, 100, _date)
-    schedule2.add()
+    schedule1 = AdSchedule.add(item1, 500, _date)
+    schedule2 = AdSchedule.add(item2, 100, _date)
 
     assert position1.schedule_num(_date) == 500
     assert position2.schedule_num(_date) == 100

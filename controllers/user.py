@@ -66,8 +66,7 @@ def users():
 def new_team():
     form = NewTeamForm(request.form)
     if request.method == 'POST' and form.validate():
-        team = Team(form.name.data, form.type.data)
-        team.add()
+        team = Team.add(form.name.data, form.type.data)
         flash(u'新建团队(%s)成功!' % team.name, 'success')
         if request.values.get('next'):
             return redirect(request.values.get('next'))
@@ -100,8 +99,9 @@ def new_user():
     form = NewUserForm(request.form)
     if request.method == 'POST':
         if form.validate():
-            user = User(form.name.data, form.email.data, DEFAULT_PASSWORD, form.phone.data, Team.get(form.team.data), form.status.data)
-            user.add()
+            user = User.add(form.name.data, form.email.data, DEFAULT_PASSWORD,
+                            form.phone.data, Team.get(form.team.data),
+                            form.status.data)
             flash(u'新建用户(%s)成功!' % user.name, 'success')
             return redirect(url_for("user.users"))
     return tpl('new_user.html', form=form)

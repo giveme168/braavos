@@ -3,6 +3,7 @@ from controllers.client import client_bp
 from controllers.medium import medium_bp
 from controllers.order import order_bp
 from controllers.comment import comment_bp
+from controllers.material import material_bp
 
 
 def register_blueprint(app):
@@ -11,3 +12,4 @@ def register_blueprint(app):
     app.register_blueprint(medium_bp, url_prefix='/mediums')
     app.register_blueprint(order_bp, url_prefix='/orders')
     app.register_blueprint(comment_bp, url_prefix='/comments')
+    app.register_blueprint(material_bp, url_prefix='/materials')
