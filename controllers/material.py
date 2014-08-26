@@ -21,10 +21,10 @@ def new_material(item_id):
         abort(404)
     form = RawMaterialForm(request.form)
     if request.method == 'POST' and form.validate():
-        material = Material(name=form.name.data, item=item, creator=g.user)
+        material = Material.add(name=form.name.data, item=item, creator=g.user)
         material.code = form.code.data
         material.status = form.status.data
-        material.add()
+        material.save()
         flash(u'新建素材(%s)成功!' % material.name, 'success')
         return redirect(url_for('material.raw_material', material_id=material.id))
     return tpl('material_raw.html', form=form)
@@ -57,12 +57,12 @@ def new_image_material(item_id):
         abort(404)
     form = ImageMaterialForm(request.form)
     if request.method == 'POST' and form.validate():
-        material = ImageMaterial(name=form.name.data, item=item, creator=g.user)
+        material = ImageMaterial.add(name=form.name.data, item=item, creator=g.user)
         material.status = form.status.data
+        material.save()
         material.image_link = form.image_link.data
         material.click_link = form.click_link.data
         material.monitor_link = form.monitor_link.data
-        material.add()
         flash(u'新建素材(%s)成功!' % material.name, 'success')
         return redirect(url_for('material.image_material', material_id=material.id))
     return tpl('material_image.html', form=form)

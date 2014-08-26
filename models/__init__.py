@@ -4,9 +4,12 @@ from libs.db import db
 
 class BaseModelMixin(object):
 
-    def add(self):
-        db.session.add(self)
+    @classmethod
+    def add(cls, *args, **kwargs):
+        _instance = cls(*args, **kwargs)
+        db.session.add(_instance)
         db.session.commit()
+        return _instance
 
     def delete(self):
         db.session.delete(self)
@@ -17,7 +20,7 @@ class BaseModelMixin(object):
 
     @classmethod
     def get(cls, model_id):
-        return cls.query.filter_by(id=model_id).first()
+        return cls.query.get(model_id)
 
     @classmethod
     def gets(cls, model_ids):

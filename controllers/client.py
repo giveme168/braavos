@@ -23,8 +23,7 @@ def index():
 def new_client():
     form = NewClientForm(request.form)
     if request.method == 'POST' and form.validate():
-        client = Client(form.name.data, form.industry.data)
-        client.add()
+        client = Client.add(form.name.data, form.industry.data)
         flash(u'新建客户(%s)成功!' % client.name, 'success')
         if request.values.get('next'):
             return redirect(request.values.get('next'))
@@ -36,8 +35,7 @@ def new_client():
 def new_agent():
     form = NewAgentForm(request.form)
     if request.method == 'POST' and form.validate():
-        agent = Agent(form.name.data)
-        agent.add()
+        agent = Agent.add(form.name.data)
         flash(u'新建代理(%s)成功!' % agent.name, 'success')
         if request.values.get('next'):
             return redirect(request.values.get('next'))
