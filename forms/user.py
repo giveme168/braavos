@@ -10,9 +10,6 @@ class LoginForm(Form):
                                   validators.Email(u"请输入正确的邮箱地址.")])
     password = PasswordField(u'密码', [validators.Required(u"请输入您的密码.")])
 
-    def __init__(self, *args, **kwargs):
-        super(LoginForm, self).__init__(*args, **kwargs)
-
     def validate(self):
         if not Form.validate(self):
             return False
@@ -29,9 +26,6 @@ class PwdChangeForm(Form):
     password = PasswordField(u'新密码', [validators.Required(u"请输入您的密码."),
                                             validators.EqualTo('confirm', message=u'两次输入密码不一致')])
     confirm = PasswordField(u'再次输入新密码', [validators.Required(u"请再次输入您的密码.")])
-
-    def __init__(self, *args, **kwargs):
-        super(PwdChangeForm, self).__init__(*args, **kwargs)
 
     def validate(self, user):
         if not Form.validate(self):

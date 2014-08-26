@@ -63,7 +63,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def __init__(self, client, campaign, medium, order_type, contract, money,
-                 agent, direct_sales, agent_sales, operaters, designers, planers, creator, create_time):
+                 agent, direct_sales, agent_sales, operaters, designers, planers,
+                 creator, create_time=None):
         self.client = client
         self.campaign = campaign
         self.medium = medium

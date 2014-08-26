@@ -63,7 +63,7 @@ class User(db.Model, BaseModelMixin):
 
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
-        db.session.commit()
+        self.save()
 
     def check_password(self, password):
         return check_password_hash(self.pwdhash, password)

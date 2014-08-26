@@ -116,7 +116,8 @@ class AdUnit(db.Model, BaseModelMixin):
         每个展示位置的的预订量按照比例分配到所拥有的广告单元上,
         再加和计算该单元的预订量
         """
-        return int(sum([x.schedule_num(date) * (float(self.estimate_num) / float(x.estimate_num)) for x in self.positions]))
+        return int(sum([x.schedule_num(date) * (float(self.estimate_num) / x.estimate_num)
+                        for x in self.positions]))
 
     def retain_num(self, date):
         retain_num = self.estimate_num - self.schedule_num(date)
@@ -142,7 +143,9 @@ class AdPosition(db.Model, BaseModelMixin):
     max_order_num = db.Column(db.Integer)
     price = db.Column(db.Integer)
 
-    def __init__(self, name, description, size, status, medium, level=POSITION_LEVEL_A1, ad_type=AD_TYPE_NORMAL, cpd_num=1, max_order_num=0, price=0):
+    def __init__(self, name, description, size, status, medium,
+                 level=POSITION_LEVEL_A1, ad_type=AD_TYPE_NORMAL,
+                 cpd_num=1, max_order_num=0, price=0):
         self.name = name
         self.description = description
         self.size = size
@@ -193,7 +196,8 @@ class AdPosition(db.Model, BaseModelMixin):
         return self.estimate_num / self.cpd_num if self.cpd_num > 1 else self.estimate_num
 
     def schedules_by_date(self, _date):
-        return [x.schedule_by_date(_date) for x in self.order_items if x.schedule_by_date(_date)]
+        return [x.schedule_by_date(_date)
+                for x in self.order_items if x.schedule_by_date(_date)]
 
     def schedule_num(self, _date):
         """
@@ -216,10 +220,9 @@ class AdPosition(db.Model, BaseModelMixin):
 
     def can_order_num_schedule(self, start_date, end_date):
         """在start和end之间可以预订的量"""
-        schedules = []
-        for n in range((end_date - start_date).days + 1):
-            _date = start_date + timedelta(days=n)
-            schedules.append((_date, self.can_order_num(_date)))
+        days = (end_date - start_date).days + 1
+        schedules = [(start_date + timedelta(days=n))
+                     for n in range(days)]
         return schedules
 
     def get_schedule(self, start_date, end_date):
@@ -228,7 +231,8 @@ class AdPosition(db.Model, BaseModelMixin):
                "name": self.display_name,
                "start": start_date.strftime(DATE_FORMAT),
                "end": end_date.strftime(DATE_FORMAT)}
-        ret['schedules'] = [schdule_info(_date, num) for _date, num in self.can_order_num_schedule(start_date, end_date)]
+        ret['schedules'] = [schdule_info(_date, num)
+                            for _date, num in self.can_order_num_schedule(start_date, end_date)]
         return ret
 
 
