@@ -14,7 +14,8 @@ class Comment(db.Model, BaseModelMixin):
     creator = db.relationship('User', backref=db.backref('comments', lazy='dynamic'))
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
 
-    def __init__(self, target_type, target_id, msg, creator, create_time=datetime.datetime.now()):
+    def __init__(self, target_type, target_id, msg, creator,
+                 create_time=None):
         self.target_type = target_type
         self.target_id = target_id
         self.msg = msg
@@ -40,4 +41,5 @@ class CommentMixin():
         comment.add()
 
     def get_comments(self):
-        return Comment.query.filter_by(target_type=self.target_type, target_id=self.target_id).order_by(Comment.create_time)
+        return Comment.query.filter_by(target_type=self.target_type,
+                                       target_id=self.target_id).order_by(Comment.create_time)
