@@ -3,9 +3,40 @@
 
 {% block main_box%}
 <div class="bra-main bra-box">
-    <h3>
-        {{ title }}
-    </h3>
-    {% include 'position_info.html' %}
+    <h3>{{ title }}</h3>
+    <form class="form form-horizontal" method="POST">
+      {{form.csrf_token}}
+      {{ form_field(form.name) }}
+      {{ form_field(form.description) }}
+      {{ form_field(form.medium) }}
+      {{ form_field(form.level) }}
+      {{ form_field(form.size) }}
+      {{ form_field(form.ad_type) }}
+      {{ form_field(form.price) }}
+      {{ form_field(form.max_order_num) }}
+      {{ form_field(form.cpd_num) }}
+      {{ form_field(form.status) }}
+      {{ form_field(form.units) }}
+      {% if show_estimate %}
+      {{ form_field(form.estimate_num)}}
+      {% endif %}
+      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+    </form>
 </div>
+<script>
+$(document).ready(function(){
+    function ad_type_change(){
+         if($("#ad_type").val() == 0){
+            $("#max_order_num").parents(".form-group").show();
+            $("#cpd_num").parents(".form-group").hide();
+        }
+        if($("#ad_type").val() == 1){
+            $("#max_order_num").parents(".form-group").hide();
+            $("#cpd_num").parents(".form-group").show();
+        }
+    }
+    $("#ad_type").change(ad_type_change);
+    ad_type_change();
+});
+</script>
 {% endblock %}

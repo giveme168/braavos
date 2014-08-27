@@ -28,7 +28,7 @@ def new_client():
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect(url_for("client.clients"))
-    return tpl('new_client.html', form=form)
+    return tpl('client.html', form=form, title=u"新建客户")
 
 
 @client_bp.route('/new_agent', methods=['GET', 'POST'])
@@ -40,7 +40,7 @@ def new_agent():
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect(url_for("client.agents"))
-    return tpl('new_agent.html', form=form)
+    return tpl('agent.html', form=form, title=u"新建代理")
 
 
 @client_bp.route('/client/<client_id>', methods=['GET', 'POST'])
@@ -57,7 +57,7 @@ def client_detail(client_id):
     else:
         form.name.data = client.name
         form.industry.data = client.industry
-    return tpl('client.html', form=form)
+    return tpl('client.html', form=form, title=client.name)
 
 
 @client_bp.route('/agent/<agent_id>', methods=['GET', 'POST'])
@@ -72,7 +72,7 @@ def agent_detail(agent_id):
         flash(u'保存成功', 'success')
     else:
         form.name.data = agent.name
-    return tpl('agent.html', form=form)
+    return tpl('agent.html', form=form, title=agent.name)
 
 
 @client_bp.route('/clients', methods=['GET'])

@@ -9,12 +9,16 @@ from forms.item import ItemForm
 
 from models.client import Client, Agent
 from models.medium import Medium, AdPosition
-from models.item import AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW
+from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
+                           ITEM_STATUS_ACTION_PRE_ORDER_REJECT,
+                           ITEM_STATUS_ACTION_ORDER_REJECT)
 from models.order import Order
 from models.user import User
 from models.consts import DATE_FORMAT, TIME_FORMAT
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
+
+ORDER_REJECT = (ITEM_STATUS_ACTION_PRE_ORDER_REJECT, ITEM_STATUS_ACTION_ORDER_REJECT)
 
 
 @order_bp.route('/', methods=['GET'])
@@ -280,9 +284,8 @@ def items_status_update(order_id, step):
     else:
         items = AdItem.gets(item_ids)
         action = int(request.form.get('action'))
-        print action
         AdItem.update_items_with_action(items, action)
-        if(action is 2 or action is 5):
+        if(action in ORDER_REJECT):
             step = int(step) - 1
         else:
             step = int(step) + 1

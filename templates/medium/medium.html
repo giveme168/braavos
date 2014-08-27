@@ -3,9 +3,19 @@
 
 {% block main_box%}
 <div class="bra-main bra-box">
-    <h3>
-        {{ form.name.data }}
-    </h3>
-    {% include 'medium_info.html' %}
+    <h3>{{ title }}</h3>
+    <form class="form form-horizontal" method="POST">
+      {{form.csrf_token}}
+      {{ form_field(form.name) }}
+      <div class="form-group">
+        <label for="owner" class="col-sm-2 control-label">{{form.owner.label.text}} : </label>
+        <div class="col-sm-10">
+            {{form.owner(class_='form-control bra-form-control', placeholder=form.owner.label.text)}}
+            <span class="errors">{{','.join(form.owner.errors)}}</span>
+            <span><a href="{{url_for('user.new_team', next=request.path)}}">新建组</a></span>
+        </div>
+      </div>
+        <input type="submit" class="btn btn-primary btn-sm col-sm-offset-2" value="提交"/>
+    </table>
 </div>
 {% endblock %}

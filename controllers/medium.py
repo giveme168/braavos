@@ -28,7 +28,7 @@ def new_medium():
         medium = Medium.add(form.name.data, Team.get(form.owner.data))
         flash(u'新建媒体(%s)成功!' % medium.name, 'success')
         return redirect(url_for("medium.medium_detail", medium_id=medium.id))
-    return tpl('new_medium.html', form=form)
+    return tpl('medium.html', form=form, title=u"新建媒体")
 
 
 @medium_bp.route('/medium/<medium_id>', methods=['GET', 'POST'])
@@ -45,7 +45,7 @@ def medium_detail(medium_id):
     else:
         form.name.data = medium.name
         form.owner.data = medium.owner_id
-    return tpl('medium.html', form=form)
+    return tpl('medium.html', form=form, title=medium.name)
 
 
 @medium_bp.route('/mediums', methods=['GET'])
@@ -77,7 +77,7 @@ def new_unit():
         adUnit.positions = AdPosition.gets(form.positions.data)
         adUnit.save()
         return redirect(url_for("medium.unit_to_position", unit_id=adUnit.id))
-    return tpl('new_unit.html', form=form)
+    return tpl('unit.html', form=form, title=u"新建广告单元")
 
 
 @medium_bp.route('/unit/<unit_id>', methods=['GET', 'POST'])
@@ -130,7 +130,7 @@ def new_position():
         ad_position.save()
         flash(u'新建展示位置成功!', 'success')
         return redirect(url_for("medium.position_detail", position_id=ad_position.id))
-    return tpl('new_position.html', form=form, show_estimate=False)
+    return tpl('position.html', form=form, show_estimate=False, title=u"新建展示位置")
 
 
 @medium_bp.route('/position_by_unit/<unit_id>', methods=['GET', 'POST'])
@@ -153,7 +153,7 @@ def unit_to_position(unit_id):
         form.size.data = unit.size.id
         form.status.data = unit.status
         form.units.data = [unit.id]
-    return tpl('new_position.html', form=form, show_estimate=True)
+    return tpl('position.html', form=form, show_estimate=True, title=u"新建展示位置")
 
 
 @medium_bp.route('/position/<position_id>', methods=['GET', 'POST'])
