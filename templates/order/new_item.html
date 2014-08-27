@@ -3,7 +3,7 @@
 
 {% block main_box%}
 <div class="bra-main bra-box">
-    <a class="btn btn-default btn-sm" href="{{url_for("order.order_detail", order_id=order.id)}}">返回</a>
+    <a class="btn btn-default btn-sm" href="{{url_for("order.order_detail", order_id=order.id,step=0)}}">返回</a>
     <form class="form form-horizontal" method="POST">
       <div class="form-group">
         <label for="order_name" class="col-md-2 control-label">所属订单 : </label>

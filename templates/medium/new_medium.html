@@ -1,11 +1,9 @@
 {% extends "/medium_base.html" %}
-{% from 'form.html' import form_field %}
+{% from 'order_info.html' import order_info_form %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
-    <h3>
-        {{ form.name.data }}
-    </h3>
+    <h3>新建媒体</h3>
     {% include 'medium_info.html' %}
 </div>
 {% endblock %}

@@ -28,7 +28,7 @@ def new_client():
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect(url_for("client.clients"))
-    return tpl('client.html', form=form)
+    return tpl('new_client.html', form=form)
 
 
 @client_bp.route('/new_agent', methods=['GET', 'POST'])
@@ -40,7 +40,7 @@ def new_agent():
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect(url_for("client.agents"))
-    return tpl('agent.html', form=form)
+    return tpl('new_agent.html', form=form)
 
 
 @client_bp.route('/client/<client_id>', methods=['GET', 'POST'])

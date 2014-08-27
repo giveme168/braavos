@@ -41,8 +41,8 @@ def new_order():
     return tpl('new_order.html', form=form)
 
 
-@order_bp.route('/order/<order_id>', methods=['GET', 'POST'])
-def order_detail(order_id):
+@order_bp.route('/order/<order_id>/<step>', methods=['GET', 'POST'])
+def order_detail(order_id, step):
     order = Order.get(order_id)
     if not order:
         abort(404)
@@ -80,6 +80,7 @@ def order_detail(order_id):
     form.order_type.hidden = True
     context = {'form': form,
                'order': order,
+               'step': step,
                }
     return tpl('order.html', **context)
 
@@ -267,14 +268,22 @@ def schedule_delete(schedule_id):
     return redirect(url_for("order.item_detail", item_id=item.id))
 
 
-@order_bp.route('/order/<order_id>/items/update/', methods=['POST'])
-def items_status_update(order_id):
+@order_bp.route('/order/<order_id>/items/update/<step>', methods=['POST'])
+def items_status_update(order_id, step):
     order = Order.get(order_id)
     if not order:
         abort(404)
     item_ids = request.form.getlist('item_id')
-    items = AdItem.gets(item_ids)
-    action = int(request.form.get('action'))
-    AdItem.update_items_with_action(items, action)
-
-    return redirect(url_for('order.order_detail', order_id=order.id))
+    if not item_ids:
+        flash(u"请选择订单项")
+        return redirect(url_for('order.order_detail', order_id=order.id, step=step))
+    else:
+        items = AdItem.gets(item_ids)
+        action = int(request.form.get('action'))
+        print action
+        AdItem.update_items_with_action(items, action)
+        if(action is 2 or action is 5):
+            step = int(step) - 1
+        else:
+            step = int(step) + 1
+        return redirect(url_for('order.order_detail', order_id=order.id, step=step))

@@ -1,0 +1,14 @@
+<div class="errors">
+    {{','.join(form.name.errors)}}
+</div>
+<form class="form" method="POST">
+    {{form.csrf_token}}
+    <div class="form-group">
+        <label for="name">{{form.name.label.text}}</label>
+        {{form.name(class_='form-control', placeholder=form.name.label.text)}}
+    </div>
+    <input type="submit" class="btn btn-primary btn-sm" value="提交"/>
+</form>
+<style>
+    .form-control{width: 300px;}
+</style>

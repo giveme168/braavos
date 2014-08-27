@@ -6,3 +6,6 @@
 *.pyc
 *.swp
 .DS_Store
+*~
+*.html~
+*.py~
