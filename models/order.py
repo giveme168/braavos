@@ -1,9 +1,10 @@
 #-*- coding: UTF-8 -*-
 import datetime
 from collections import defaultdict
+from flask import url_for
 
 from . import db, BaseModelMixin
-from .comment import CommentMixin
+from models.mixin.comment import CommentMixin
 from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
                    ITEM_STATUS_LEADER_ACTIONS)
 
@@ -145,3 +146,6 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
             return any([user.is_admin(), user.is_leader(), user.team == self.medium.owner])
         else:
             return self.can_admin(user)
+
+    def path(self):
+        return url_for('order.order_detail', order_id=self.id, step=0)

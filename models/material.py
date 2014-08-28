@@ -3,6 +3,7 @@ from flask import url_for
 
 from . import db, BaseModelMixin
 from .consts import STATUS_CN
+from models.mixin.comment import CommentMixin
 
 MATERIAL_TYPE_RAW = 0
 MATERIAL_TYPE_PICTURE = 1
@@ -17,7 +18,7 @@ MATERIAL_TYPE_CN = {
 }
 
 
-class Material(db.Model, BaseModelMixin):
+class Material(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'materials'
 
     id = db.Column(db.Integer, primary_key=True)

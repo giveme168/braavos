@@ -25,20 +25,16 @@ class Comment(db.Model, BaseModelMixin):
     def __repr__(self):
         return '<Comment %s, target:%s-%s>' % (self.id, self.target_type, self.target_id)
 
-
-class CommentMixin():
-
     @property
-    def target_type(self):
-        return self.__class__.__name__
+    def target(self):
+        from .order import Order
+        from .item import AdItem
+        from .material import Material
 
-    @property
-    def target_id(self):
-        return self.id
+        TARGET_DICT = {
+            'Order': Order,
+            'AdItem': AdItem,
+            'Material': Material,
+        }
 
-    def add_comment(self, user, msg):
-        Comment.add(self.target_type, self.target_id, msg, user, datetime.datetime.now())
-
-    def get_comments(self):
-        return Comment.query.filter_by(target_type=self.target_type,
-                                       target_id=self.target_id).order_by(Comment.create_time)
+        return TARGET_DICT[self.target_type].get(self.target_id)

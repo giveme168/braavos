@@ -1,8 +1,9 @@
 #-*- coding: UTF-8 -*-
 from datetime import datetime, time, timedelta
+from flask import url_for
 
 from . import db, BaseModelMixin
-from .comment import CommentMixin
+from models.mixin.comment import CommentMixin
 from consts import STATUS_CN, DATE_FORMAT
 
 SALE_TYPE_NORMAL = 0         # 标准, 购买
@@ -176,7 +177,7 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
         return self.item_status != ITEM_STATUS_NEW
 
     @classmethod
-    def update_items_with_action(cls, items, action):
+    def update_items_with_action(cls, items, action, user):
         next_status = ITEM_STATUS_PRE
         if action == ITEM_STATUS_ACTION_PRE_ORDER:
             next_status = ITEM_STATUS_PRE
@@ -194,6 +195,10 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
         for i in items:
             i.item_status = next_status
             i.save()
+            i.add_comment(user, "%s : %s " % (i.name, ITEM_STATUS_ACTION_CN[action]))
+
+    def path(self):
+        return url_for('order.item_detail', item_id=self.id)
 
 
 class AdSchedule(db.Model, BaseModelMixin):

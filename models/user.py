@@ -1,6 +1,7 @@
 #-*- coding: UTF-8 -*-
 from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask import url_for
 
 from . import db, BaseModelMixin
 
@@ -99,6 +100,9 @@ class User(db.Model, BaseModelMixin):
 
     def is_leader(self):
         return self.team.type == TEAM_TYPE_LEADER
+
+    def path(self):
+        return url_for('user.user_detail', user_id=self.id)
 
 
 class Team(db.Model, BaseModelMixin):

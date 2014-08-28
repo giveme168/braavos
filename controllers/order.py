@@ -287,14 +287,15 @@ def items_status_update(order_id, step):
     item_ids = request.form.getlist('item_id')
     if not item_ids:
         flash(u"请选择订单项")
-        return redirect(url_for('order.order_detail', order_id=order.id, step=step))
     else:
         items = AdItem.gets(item_ids)
         action = int(request.form.get('action'))
-        AdItem.update_items_with_action(items, action)
+        AdItem.update_items_with_action(items, action, g.user)
+        msg = '\n\n'.join(['%s : %s' % (item.name, ITEM_STATUS_ACTION_CN[action]) for item in items])
+        order.add_comment(g.user, msg)
         flash(u'%s个排期项%s' % (len(items), ITEM_STATUS_ACTION_CN[action]))
         step = get_next_step(step, action)
-        return redirect(url_for('order.order_detail', order_id=order.id, step=step))
+    return redirect(url_for('order.order_detail', order_id=order.id, step=step))
 
 
 def get_next_step(step, action):

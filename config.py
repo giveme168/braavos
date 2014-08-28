@@ -18,6 +18,7 @@ class Config(object):
     MAIL_SUPPRESS_SEND = DEBUG
 
     SENTRY_DSN = ''
+    DOMAIN = 'http://z.inad.com'
 
 
 class TestingConfig(Config):
