@@ -68,11 +68,11 @@ class PositionForm(Form):
 
     def validate(self):
         if Form.validate(self):
-            if self.ad_type.data is AD_TYPE_NORMAL:
+            if self.ad_type.data == AD_TYPE_NORMAL:
                 if self.max_order_num.data > self.estimate_num.data:
                     self.max_order_num.errors.append(u"最大预订不能大于预估量")
                     return False
-            elif self.ad_type.data is AD_TYPE_CPD:
+            elif self.ad_type.data == AD_TYPE_CPD:
                 if self.cpd_num.data > self.estimate_num.data:
                     self.cpd_num.errors.append(u"CPD量不能大于预估量")
                     return False

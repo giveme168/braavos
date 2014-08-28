@@ -285,8 +285,13 @@ def items_status_update(order_id, step):
         items = AdItem.gets(item_ids)
         action = int(request.form.get('action'))
         AdItem.update_items_with_action(items, action)
-        if(action in ORDER_REJECT):
-            step = int(step) - 1
-        else:
-            step = int(step) + 1
+        step = get_next_step(step, action)
         return redirect(url_for('order.order_detail', order_id=order.id, step=step))
+
+
+def get_next_step(step, action):
+    if action in ORDER_REJECT:
+        step = int(step) - 1
+    else:
+        step = int(step) + 1
+    return step
