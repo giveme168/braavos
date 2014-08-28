@@ -10,8 +10,9 @@ from forms.item import ItemForm
 from models.client import Client, Agent
 from models.medium import Medium, AdPosition
 from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
-                           ITEM_STATUS_ACTION_PRE_ORDER_REJECT,
-                           ITEM_STATUS_ACTION_ORDER_REJECT)
+                         ITEM_STATUS_ACTION_PRE_ORDER_REJECT,
+                         ITEM_STATUS_ACTION_ORDER_REJECT,
+                         ITEM_STATUS_ACTION_CN)
 from models.order import Order
 from models.user import User
 from models.consts import DATE_FORMAT, TIME_FORMAT
@@ -285,6 +286,7 @@ def items_status_update(order_id, step):
         items = AdItem.gets(item_ids)
         action = int(request.form.get('action'))
         AdItem.update_items_with_action(items, action)
+        flash(u'%s个排期项%s' % (len(items), ITEM_STATUS_ACTION_CN[action]))
         step = get_next_step(step, action)
         return redirect(url_for('order.order_detail', order_id=order.id, step=step))
 
