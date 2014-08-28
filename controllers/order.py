@@ -9,12 +9,16 @@ from forms.item import ItemForm
 
 from models.client import Client, Agent
 from models.medium import Medium, AdPosition
-from models.item import AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW
+from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
+                           ITEM_STATUS_ACTION_PRE_ORDER_REJECT,
+                           ITEM_STATUS_ACTION_ORDER_REJECT)
 from models.order import Order
 from models.user import User
 from models.consts import DATE_FORMAT, TIME_FORMAT
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
+
+ORDER_REJECT = (ITEM_STATUS_ACTION_PRE_ORDER_REJECT, ITEM_STATUS_ACTION_ORDER_REJECT)
 
 
 @order_bp.route('/', methods=['GET'])
@@ -41,8 +45,8 @@ def new_order():
     return tpl('new_order.html', form=form)
 
 
-@order_bp.route('/order/<order_id>', methods=['GET', 'POST'])
-def order_detail(order_id):
+@order_bp.route('/order/<order_id>/<step>', methods=['GET', 'POST'])
+def order_detail(order_id, step):
     order = Order.get(order_id)
     if not order:
         abort(404)
@@ -80,6 +84,7 @@ def order_detail(order_id):
     form.order_type.hidden = True
     context = {'form': form,
                'order': order,
+               'step': step,
                }
     return tpl('order.html', **context)
 
@@ -267,14 +272,26 @@ def schedule_delete(schedule_id):
     return redirect(url_for("order.item_detail", item_id=item.id))
 
 
-@order_bp.route('/order/<order_id>/items/update/', methods=['POST'])
-def items_status_update(order_id):
+@order_bp.route('/order/<order_id>/items/update/<step>', methods=['POST'])
+def items_status_update(order_id, step):
     order = Order.get(order_id)
     if not order:
         abort(404)
     item_ids = request.form.getlist('item_id')
-    items = AdItem.gets(item_ids)
-    action = int(request.form.get('action'))
-    AdItem.update_items_with_action(items, action)
+    if not item_ids:
+        flash(u"请选择订单项")
+        return redirect(url_for('order.order_detail', order_id=order.id, step=step))
+    else:
+        items = AdItem.gets(item_ids)
+        action = int(request.form.get('action'))
+        AdItem.update_items_with_action(items, action)
+        step = get_next_step(step, action)
+        return redirect(url_for('order.order_detail', order_id=order.id, step=step))
 
-    return redirect(url_for('order.order_detail', order_id=order.id))
+
+def get_next_step(step, action):
+    if action in ORDER_REJECT:
+        step = int(step) - 1
+    else:
+        step = int(step) + 1
+    return step

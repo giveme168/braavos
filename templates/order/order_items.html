@@ -50,17 +50,17 @@
   <button class="btn btn-sm btn-primary" type="submit" name="action" value="{{action}}">{{action | item_status_action_cn}}</button>
 {%- endmacro %}
 
-{% macro order_items(order) -%}
+{% macro order_items(order, step) -%}
 <ul class="nav nav-pills" role="tablist">
-  <li role="presentation" class="active"><a href="#tab-0" role="tab" data-toggle="tab">新建</a></li>
-  <li role="presentation"><a href="#tab-1" role="tab" data-toggle="tab">预下单</a></li>
-  <li role="presentation"><a href="#tab-2" role="tab" data-toggle="tab">预下单(通过)</a></li>
-  <li role="presentation"><a href="#tab-3" role="tab" data-toggle="tab">下单(待审核)</a></li>
-  <li role="presentation"><a href="#tab-4" role="tab" data-toggle="tab">已下单</a></li>
+  <li role="presentation" class="active"><a id="0" href="#tab-0" role="tab" data-toggle="tab">新建</a></li>
+  <li role="presentation"><a id="1" href="#tab-1" role="tab" data-toggle="tab">预下单</a></li>
+  <li role="presentation"><a id="2" href="#tab-2" role="tab" data-toggle="tab">预下单(通过)</a></li>
+  <li role="presentation"><a id="3" href="#tab-3" role="tab" data-toggle="tab">下单(待审核)</a></li>
+  <li role="presentation"><a id="4" href="#tab-4" role="tab" data-toggle="tab">已下单</a></li>
 </ul>
 <div class="tab-content">
   <div class="tab-pane fade in active" id="tab-0">
-    <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=0)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(0)) }}
       <div>
         {{ button_by_action(0) }}
@@ -68,7 +68,7 @@
     </form>
   </div>
   <div class="tab-pane fade" id="tab-1">
-    <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=1)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(1)) }}
       <div>
         {{ button_by_action(1) }}
@@ -77,7 +77,7 @@
     </form>
   </div>
   <div class="tab-pane fade" id="tab-2">
-    <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=2)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(2)) }}
       <div>
         {{ button_by_action(3) }}
@@ -85,7 +85,7 @@
     </form>
   </div>
   <div class="tab-pane fade" id="tab-3">
-    <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=3)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(3)) }}
       <div>
         {{ button_by_action(4) }}
@@ -94,7 +94,7 @@
     </form>
   </div>
   <div class="tab-pane fade" id="tab-4">
-    <form action="{{url_for('order.items_status_update', order_id=order.id)}}" method="POST">
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=4)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(4)) }}
     </form>
   </div>
@@ -102,4 +102,10 @@
 <style>
 .tab-pane {padding-bottom: 15px; overflow-x:auto;overflow-y:hidden;}
 </style>
+<script>
+$(document).ready(function(){
+    var step = "a#" + {{ step }};
+    $(step).click();
+});
+</script>
 {%- endmacro %}

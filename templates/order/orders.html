@@ -14,7 +14,7 @@
         </tr>
         {% for o in orders %}
         <tr>
-            <td><a href="{{url_for("order.order_detail", order_id=o.id)}}">{{o.name}}</a></td>
+            <td><a href="{{url_for("order.order_detail", order_id=o.id, step=0)}}">{{o.name}}</a></td>
             <td>{{o.medium.name}}</td>
             <td>{{o.agent.name if o.agent else '无'}}</td>
             <td>{{o.creator.display_name}}</td>

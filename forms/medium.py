@@ -4,7 +4,8 @@ from wtforms import IntegerField, TextField, validators, SelectField, TextAreaFi
 
 from models.user import Team
 from models.medium import (AdSize, AdPosition, AdUnit, Medium,
-                           STATUS_CN, TARGET_CN, POSITION_LEVEL_CN, AD_TYPE_CN)
+                           STATUS_CN, TARGET_CN, POSITION_LEVEL_CN, AD_TYPE_CN,
+                           AD_TYPE_NORMAL, AD_TYPE_CPD)
 
 
 class NewMediumForm(Form):
@@ -63,3 +64,18 @@ class PositionForm(Form):
         self.medium.choices = [(x.id, x.name) for x in Medium.all()]
         self.level.choices = POSITION_LEVEL_CN.items()
         self.ad_type.choices = AD_TYPE_CN.items()
+        self.estimate_num.readonly = True
+
+    def validate(self):
+        if Form.validate(self):
+            if self.ad_type.data == AD_TYPE_NORMAL:
+                if self.max_order_num.data > self.estimate_num.data:
+                    self.max_order_num.errors.append(u"最大预订不能大于预估量")
+                    return False
+            elif self.ad_type.data == AD_TYPE_CPD:
+                if self.cpd_num.data > self.estimate_num.data:
+                    self.cpd_num.errors.append(u"CPD量不能大于预估量")
+                    return False
+            return True
+        else:
+            return False

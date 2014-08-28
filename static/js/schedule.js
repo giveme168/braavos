@@ -183,7 +183,7 @@ $(document).ready(function(){
           {data: $.toJSON(sent_data)},
           function(data) {
             if(data['status'] == '0'){
-            window.location.href = "/orders/order/"+order_id;
+            window.location.href = "/orders/order/"+order_id+"/0";
             }
             else{
               alert(data['msg']);
