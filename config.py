@@ -25,7 +25,7 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
 
-class DevelopmentConfig(Config):
+class DevelopmentConfig(object):
     """Use local_config overwrite this"""
     pass
 
@@ -33,5 +33,5 @@ config_object = 'config.DevelopmentConfig'
 
 try:
     from local_config import *
-except:
+except ImportError:
     pass
