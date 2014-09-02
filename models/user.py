@@ -1,6 +1,7 @@
 #-*- coding: UTF-8 -*-
 from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask import url_for
 
 from . import db, BaseModelMixin
 
@@ -12,6 +13,7 @@ USER_STATUS_CN = {
     USER_STATUS_ON: u"有效"
 }
 
+TEAM_TYPE_LEADER = 9       # 媒体
 TEAM_TYPE_MEDIUM = 8       # 媒体
 TEAM_TYPE_DESIGNER = 7       # 內部-设计
 TEAM_TYPE_PLANNER = 6       # 內部-策划
@@ -30,6 +32,7 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_AGENT_SELLER: u"内部-渠道销售",
     TEAM_TYPE_DIRECT_SELLER: u"内部-直客销售",
     TEAM_TYPE_INAD: u"内部-其他",
+    TEAM_TYPE_LEADER: u"内部-Leader",
     TEAM_TYPE_ADMIN: u" 广告管理员",
     TEAM_TYPE_SUPER_ADMIN: u"系统管理员"
 }
@@ -91,6 +94,15 @@ class User(db.Model, BaseModelMixin):
     @property
     def avatar(self, size=48):
         return "http://www.gravatar.com/avatar/%s?s=%s&d=identicon" % (md5(self.email).hexdigest(), size)
+
+    def is_admin(self):
+        return self.team.is_admin()
+
+    def is_leader(self):
+        return self.team.type == TEAM_TYPE_LEADER
+
+    def path(self):
+        return url_for('user.user_detail', user_id=self.id)
 
 
 class Team(db.Model, BaseModelMixin):

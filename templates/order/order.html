@@ -25,8 +25,10 @@
             <div class="panel-heading">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"> 排期 </a>
+                    {% if order.can_admin(g.user) %}
+                    <a class="btn btn-sm btn-primary col-md-offset-1" style="color: white;" href="{{url_for("order.new_item", order_id=order.id)}}">排期预订</a>
+                    {% endif %}
                 </h4>
-                <a class="btn btn-sm btn-primary col-md-offset-1" style="color: white;" href="{{url_for("order.new_item", order_id=order.id)}}">排期预订</a>
             </div>
             <div id="collapseTwo" class="panel-collapse collapse">
                 <div class="panel-body">

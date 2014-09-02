@@ -10,8 +10,9 @@ from forms.item import ItemForm
 from models.client import Client, Agent
 from models.medium import Medium, AdPosition
 from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
-                           ITEM_STATUS_ACTION_PRE_ORDER_REJECT,
-                           ITEM_STATUS_ACTION_ORDER_REJECT)
+                         ITEM_STATUS_ACTION_PRE_ORDER_REJECT,
+                         ITEM_STATUS_ACTION_ORDER_REJECT,
+                         ITEM_STATUS_ACTION_CN)
 from models.order import Order
 from models.user import User
 from models.consts import DATE_FORMAT, TIME_FORMAT
@@ -38,34 +39,37 @@ def new_order():
                           planers=User.gets(form.planers.data), designers=User.gets(form.designers.data), creator=g.user,
                           create_time=datetime.now())
         flash(u'新建订单成功!', 'success')
-        return redirect(url_for("order.order_detail", order_id=order.id))
+        return redirect(url_for("order.order_detail", order_id=order.id, step=0))
     else:
         form.creator.data = g.user.name
     form.order_type.hidden = True
     return tpl('new_order.html', form=form)
 
 
-@order_bp.route('/order/<order_id>/<step>', methods=['GET', 'POST'])
+@order_bp.route('/order/<order_id>/<step>/', methods=['GET', 'POST'])
 def order_detail(order_id, step):
     order = Order.get(order_id)
     if not order:
         abort(404)
     form = OrderForm(request.form)
-    if request.method == 'POST' and form.validate():
-        order.client = Client.get(form.client.data)
-        order.campaign = form.campaign.data
-        order.medium = Medium.get(form.medium.data)
-        order.order_type = form.order_type.data
-        order.contract = form.contract.data
-        order.money = form.money.data
-        order.agent = Agent.get(form.agent.data)
-        order.direct_sales = User.gets(form.direct_sales.data)
-        order.agent_sales = User.gets(form.agent_sales.data)
-        order.operaters = User.gets(form.operaters.data)
-        order.designers = User.gets(form.designers.data)
-        order.planers = User.gets(form.planers.data)
-        order.save()
-        flash(u'订单信息保存成功!', 'success')
+    if request.method == 'POST':
+        if not order.can_admin(g.user):
+            flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
+        elif form.validate():
+            order.client = Client.get(form.client.data)
+            order.campaign = form.campaign.data
+            order.medium = Medium.get(form.medium.data)
+            order.order_type = form.order_type.data
+            order.contract = form.contract.data
+            order.money = form.money.data
+            order.agent = Agent.get(form.agent.data)
+            order.direct_sales = User.gets(form.direct_sales.data)
+            order.agent_sales = User.gets(form.agent_sales.data)
+            order.operaters = User.gets(form.operaters.data)
+            order.designers = User.gets(form.designers.data)
+            order.planers = User.gets(form.planers.data)
+            order.save()
+            flash(u'订单信息保存成功!', 'success')
     else:
         form.client.data = order.client.id
         form.campaign.data = order.campaign
@@ -100,6 +104,9 @@ def new_item(order_id):
     order = Order.get(order_id)
     if not order:
         abort(404)
+    if not order.can_admin(g.user):
+        flash(u'您没有创建排期的权限, 请联系订单创建者和销售同事!', 'danger')
+        return redirect(url_for('order.order_detail', order_id=order.id, step=0))
     start_date = datetime.today()
     end_date = start_date + timedelta(days=30)
     positions = [(x.id, x.display_name) for x in AdPosition.all()]
@@ -280,13 +287,15 @@ def items_status_update(order_id, step):
     item_ids = request.form.getlist('item_id')
     if not item_ids:
         flash(u"请选择订单项")
-        return redirect(url_for('order.order_detail', order_id=order.id, step=step))
     else:
         items = AdItem.gets(item_ids)
         action = int(request.form.get('action'))
-        AdItem.update_items_with_action(items, action)
+        AdItem.update_items_with_action(items, action, g.user)
+        msg = '\n\n'.join(['%s : %s' % (item.name, ITEM_STATUS_ACTION_CN[action]) for item in items])
+        order.add_comment(g.user, msg)
+        flash(u'%s个排期项%s' % (len(items), ITEM_STATUS_ACTION_CN[action]))
         step = get_next_step(step, action)
-        return redirect(url_for('order.order_detail', order_id=order.id, step=step))
+    return redirect(url_for('order.order_detail', order_id=order.id, step=step))
 
 
 def get_next_step(step, action):

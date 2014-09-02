@@ -46,8 +46,10 @@
 </table>
 {%- endmacro %}
 
-{% macro button_by_action(action) -%}
+{% macro button_by_action(order, action) -%}
+{% if order.can_action(g.user, action) %}
   <button class="btn btn-sm btn-primary" type="submit" name="action" value="{{action}}">{{action | item_status_action_cn}}</button>
+{% endif %}
 {%- endmacro %}
 
 {% macro order_items(order, step) -%}
@@ -63,7 +65,7 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id, step=0)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(0)) }}
       <div>
-        {{ button_by_action(0) }}
+        {{ button_by_action(order, 0) }}
       </div>
     </form>
   </div>
@@ -71,8 +73,8 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id, step=1)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(1)) }}
       <div>
-        {{ button_by_action(1) }}
-        {{ button_by_action(2) }}
+        {{ button_by_action(order, 1) }}
+        {{ button_by_action(order, 2) }}
       </div>
     </form>
   </div>
@@ -80,7 +82,7 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id, step=2)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(2)) }}
       <div>
-        {{ button_by_action(3) }}
+        {{ button_by_action(order, 3) }}
       </div>
     </form>
   </div>
@@ -88,8 +90,8 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id, step=3)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(3)) }}
       <div>
-        {{ button_by_action(4) }}
-        {{ button_by_action(5) }}
+        {{ button_by_action(order, 4) }}
+        {{ button_by_action(order, 5) }}
       </div>
     </form>
   </div>

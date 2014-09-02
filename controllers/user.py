@@ -43,7 +43,7 @@ def pwd_change():
             user.set_password(form.password.data)
             password_changed_signal.send(user)
             logout_user()
-            return redirect(url_for('user.login'))
+            return redirect('/')
     return tpl('pwd_change.html', form=form)
 
 

@@ -1,10 +1,12 @@
 #-*- coding: UTF-8 -*-
 import datetime
 from collections import defaultdict
+from flask import url_for
 
 from . import db, BaseModelMixin
-from .comment import CommentMixin
-from .item import ITEM_STATUS_CN, SALE_TYPE_CN
+from models.mixin.comment import CommentMixin
+from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
+                   ITEM_STATUS_LEADER_ACTIONS)
 
 
 ORDER_TYPE_NORMAL = 0         # 标准广告
@@ -134,3 +136,16 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         items_info = [self.items_info_by_status(x) for x in ITEM_STATUS_CN]
         items_info.append(self.items_info_all())
         return items_info
+
+    def can_admin(self, user):
+        admin_users = self.direct_sales + self.agent_sales + self.operaters
+        return any([user.is_admin(), self.creator_id == user.id, user in admin_users])
+
+    def can_action(self, user, action):
+        if action in ITEM_STATUS_LEADER_ACTIONS:
+            return any([user.is_admin(), user.is_leader(), user.team == self.medium.owner])
+        else:
+            return self.can_admin(user)
+
+    def path(self):
+        return url_for('order.order_detail', order_id=self.id, step=0)
