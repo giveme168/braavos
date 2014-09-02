@@ -3,6 +3,7 @@
 /local_config.py
 /venv
 /data
+/src
 *.pyc
 *.swp
 .DS_Store
