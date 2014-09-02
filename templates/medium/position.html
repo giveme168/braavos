@@ -1,27 +1,10 @@
 {% extends "/medium_base.html" %}
-{% from 'form.html' import form_field %}
+{% from 'form.html' import form_tpl %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
     <h3>{{ title }}</h3>
-    <form class="form form-horizontal" method="POST">
-      {{form.csrf_token}}
-      {{ form_field(form.name) }}
-      {{ form_field(form.description) }}
-      {{ form_field(form.medium) }}
-      {{ form_field(form.level) }}
-      {{ form_field(form.size) }}
-      {{ form_field(form.ad_type) }}
-      {{ form_field(form.price) }}
-      {{ form_field(form.max_order_num) }}
-      {{ form_field(form.cpd_num) }}
-      {{ form_field(form.status) }}
-      {{ form_field(form.units) }}
-      {% if show_estimate %}
-      {{ form_field(form.estimate_num)}}
-      {% endif %}
-      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
-    </form>
+    {{ form_tpl(form) }}
 </div>
 <script>
 $(document).ready(function(){

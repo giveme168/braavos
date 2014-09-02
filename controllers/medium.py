@@ -130,7 +130,8 @@ def new_position():
         ad_position.save()
         flash(u'新建展示位置成功!', 'success')
         return redirect(url_for("medium.position_detail", position_id=ad_position.id))
-    return tpl('position.html', form=form, show_estimate=False, title=u"新建展示位置")
+    form.estimate_num.hidden = True
+    return tpl('position.html', form=form, title=u"新建展示位置")
 
 
 @medium_bp.route('/position_by_unit/<unit_id>', methods=['GET', 'POST'])
@@ -153,7 +154,8 @@ def unit_to_position(unit_id):
         form.size.data = unit.size.id
         form.status.data = unit.status
         form.units.data = [unit.id]
-    return tpl('position.html', form=form, show_estimate=True, title=u"新建展示位置")
+    form.estimate_num.hidden = True
+    return tpl('position.html', form=form, title=u"创建广告单元(%s)对应的展示位置" % unit.name)
 
 
 @medium_bp.route('/position/<position_id>', methods=['GET', 'POST'])
@@ -190,7 +192,7 @@ def position_detail(position_id):
         form.price.data = position.price
         form.estimate_num.data = position.estimate_num
         form.estimate_num.readonly = True
-    return tpl('position.html', form=form, show_estimate=True, title=position.display_name)
+    return tpl('position.html', form=form, title=position.display_name)
 
 
 @medium_bp.route('/positions', methods=['GET'])

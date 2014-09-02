@@ -1,15 +1,10 @@
 {% extends "/user_base.html" %}
-{% from 'form.html' import form_field %}
+{% from 'form.html' import form_tpl %}
 {% block title %}NewTeam{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3>新建Team</h3>
-    <form class="form form-horizontal" method="POST">
-      {{form.csrf_token}}
-      {{ form_field(form.name) }}
-      {{ form_field(form.type) }}
-      <input type="submit" class="btn btn-primary btn-sm" value="提交"/>
-    </table>
+    {{ form_tpl(form) }}
 </div>
 {% endblock %}
