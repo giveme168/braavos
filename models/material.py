@@ -1,8 +1,11 @@
 #-*- coding: UTF-8 -*-
+import json
 from flask import url_for
+from sqlalchemy.ext.mutable import MutableDict
 
 from . import db, BaseModelMixin
 from .consts import STATUS_CN
+from .files import get_full_path
 from models.mixin.comment import CommentMixin
 
 MATERIAL_TYPE_RAW = 0
@@ -27,7 +30,7 @@ class Material(db.Model, BaseModelMixin, CommentMixin):
     item_id = db.Column(db.Integer, db.ForeignKey('bra_item.id'))
     item = db.relationship('AdItem', backref=db.backref('materials', lazy='dynamic', enable_typechecks=False))
     code = db.Column(db.Text())  # 原生广告代码
-    props = db.Column(db.PickleType())  # 广告属性, 一个字典, PikleType可以存储大部分 Python 实例
+    props = db.Column(MutableDict.as_mutable(db.PickleType(pickler=json)))  # 广告属性, 一个字典, PikleType可以存储大部分 Python 实例
     status = db.Column(db.Integer, default=1)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_material', lazy='dynamic', enable_typechecks=False))
@@ -67,12 +70,16 @@ class ImageMaterial(Material):
         self.props = {}
 
     @property
-    def image_link(self):
-        return self.props.get('image_link', '')
+    def image_file(self):
+        return self.props.get('image_file', '')
 
-    @image_link.setter
-    def image_link(self, link):
-        self.props['image_link'] = link
+    @image_file.setter
+    def image_file(self, filename):
+        self.props['image_file'] = filename
+
+    @property
+    def image_link(self):
+        return get_full_path(self.image_file)
 
     @property
     def click_link(self):

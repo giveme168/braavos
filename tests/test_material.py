@@ -14,17 +14,22 @@ def test_material(session):
 
 def test_image_material(session):
     material = add_material(name='test', material_type=MATERIAL_TYPE_PICTURE)
+    assert material.name == 'test'
 
     material2 = ImageMaterial.get(material.id)
-    material2.image_link = "test_link"
-    material2.click_link = "test_link"
-    material2.monitor_link = "test_link"
+    material2.name = 'test2'
+    material2.image_file = "test_file2"
+    material2.click_link = "test_link2"
+    material2.monitor_link = "test_link2"
+    material2.save()
 
-    assert material2.image_link == "test_link"
-    assert material2.click_link == "test_link"
-    assert material2.monitor_link == "test_link"
+    assert material2.name == 'test2'
+    assert material2.image_file == "test_file2"
+    assert material2.click_link == "test_link2"
+    assert material2.monitor_link == "test_link2"
 
     material3 = ImageMaterial.get(material2.id)
-    assert material3.image_link == "test_link"
-    assert material3.click_link == "test_link"
-    assert material3.monitor_link == "test_link"
+    assert material3.name == 'test2'
+    assert material3.image_file == "test_file2"
+    assert material3.click_link == "test_link2"
+    assert material3.monitor_link == "test_link2"

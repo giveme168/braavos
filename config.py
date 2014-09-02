@@ -20,6 +20,8 @@ class Config(object):
     SENTRY_DSN = ''
     DOMAIN = 'http://z.inad.com'
 
+    UPLOAD_DIR = '/tmp/braavos/'
+
 
 class TestingConfig(Config):
     TESTING = True

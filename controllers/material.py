@@ -59,10 +59,10 @@ def new_image_material(item_id):
     if request.method == 'POST' and form.validate():
         material = ImageMaterial.add(name=form.name.data, item=item, creator=g.user)
         material.status = form.status.data
-        material.save()
-        material.image_link = form.image_link.data
+        material.image_file = form.image_file.data
         material.click_link = form.click_link.data
         material.monitor_link = form.monitor_link.data
+        material.save()
         flash(u'新建素材(%s)成功!' % material.name, 'success')
         return redirect(url_for('material.image_material', material_id=material.id))
     return tpl('material_image.html', form=form)
@@ -77,16 +77,16 @@ def image_material(material_id):
     if request.method == 'POST':
         if form.validate():
             material.name = form.name.data
-            material.image_link = form.image_link.data
+            material.status = form.status.data
+            material.image_file = form.image_file.data
             material.click_link = form.click_link.data
             material.monitor_link = form.monitor_link.data
-            material.status = form.status.data
             material.save()
             flash(u'素材(%s)保存成功!' % material.name, 'success')
     else:
         form.name.data = material.name
         form.status.data = material.status
-        form.image_link.data = material.image_link
+        form.image_file.data = material.image_file
         form.click_link.data = material.click_link
         form.monitor_link.data = material.monitor_link
     return tpl('material_image.html', form=form, material=material)

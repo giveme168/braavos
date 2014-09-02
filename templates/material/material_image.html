@@ -1,5 +1,6 @@
 {% extends "/material_base.html" %}
 {% from 'form.html' import form_field %}
+{% from 'form.html' import upload_field %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
@@ -11,11 +12,18 @@
     <form class="form form-horizontal" method="POST">
       {{ form.csrf_token }}
       {{ form_field(form.name) }}
-      {{ form_field(form.image_link) }}
+      {{ upload_field(form.image_file) }}
       {{ form_field(form.click_link) }}
       {{ form_field(form.monitor_link) }}
       {{ form_field(form.status) }}
       <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
-    </table>
+    </form>
 </div>
+<script>
+$(document).ready(function(){
+    $('#image_file').change(function(){
+        $('#name').val($('#name').val()+$(this).val().split('.')[0]);
+    });         
+});
+</script>
 {% endblock %}
