@@ -15,5 +15,6 @@ def create_app(config_object='config.DevelopmentConfig'):
     mail.init_app(app)
     mail.app = app
     register_filter(app)
-    sentry = Sentry(app)
+    if not app.debug:
+        Sentry(app)
     return app
