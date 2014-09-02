@@ -9,9 +9,9 @@ def get_relative_path(filename):
 def get_full_path(filename):
     return get_relative_path(filename)
 
-ALLOWED_EXTENSIONS = set(['txt'])
+ALLOWED_EXTENSIONS = ['.txt']
 
 
 def allowed_file(filename):
     return True
-    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+    return filename and filename.endswith(ALLOWED_EXTENSIONS)
