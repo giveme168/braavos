@@ -5,7 +5,7 @@ from sqlalchemy.ext.mutable import MutableDict
 
 from . import db, BaseModelMixin
 from .consts import STATUS_CN
-from .files import get_full_path
+from libs.files import get_full_path
 from models.mixin.comment import CommentMixin
 
 MATERIAL_TYPE_RAW = 0

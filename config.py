@@ -19,12 +19,14 @@ class Config(object):
 
     SENTRY_DSN = ''
     DOMAIN = 'http://z.inad.com'
-
-    UPLOAD_DIR = '/tmp/braavos/'
+    UPLOADED_FILES_DEST = '/tmp/braavos/'
+    UPLOADED_FILES_URL = '/files/'
 
 
 class TestingConfig(Config):
     TESTING = True
+    MAIL_DEBUG = True
+    MAIL_SUPPRESS_SEND = True
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
 
 
