@@ -10,8 +10,8 @@
       {% for m, m_len in items_info['months'].items() %}
           <th colspan="{{m_len}}" class="text-center">{{m}} 月</th>
       {% endfor %}
-      <th rowspan="2" style="min-width: 40px;">刊例价格</th>
       <th rowspan="2">总预订量</th>
+      <th rowspan="2" style="min-width: 40px;">刊例单价</th>
     </tr>
     <tr>
       {% for d in items_info['dates'] %}
@@ -36,9 +36,9 @@
         <td><a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.position.name}}</a></td>
         {% for d in items_info['dates'] %}
           <th>{{i.schedule_by_date(d).num}}</th>
-        {% endfor %}
-        <td>{{i.position.price}}</td>
+        {% endfor %}        
         <td>{{i.schedule_sum}}</td>
+        <td>{{i.position.price}}</td>
       </tr>
       {% endfor %}
     {% endfor %}
@@ -50,6 +50,10 @@
 {% if order.can_action(g.user, action) %}
   <button class="btn btn-sm btn-primary" type="submit" name="action" value="{{action}}">{{action | item_status_action_cn}}</button>
 {% endif %}
+{%- endmacro %}
+
+{% macro button_export_schedule(step, order) -%}
+ <a class="btn btn-sm btn-primary" href="{{ url_for('order.export_schedule', step=step, order_id=order.id) }}" name="export_schedule" value="{{step}}">导出排期</a>
 {%- endmacro %}
 
 {% macro order_items(order, step) -%}
@@ -66,6 +70,7 @@
       {{ items_tab_content(order.items_info_by_status(0)) }}
       <div>
         {{ button_by_action(order, 0) }}
+        {{ button_export_schedule(0, order)}}
       </div>
     </form>
   </div>
@@ -75,6 +80,7 @@
       <div>
         {{ button_by_action(order, 1) }}
         {{ button_by_action(order, 2) }}
+        {{ button_export_schedule(1, order)}}
       </div>
     </form>
   </div>
@@ -83,15 +89,17 @@
       {{ items_tab_content(order.items_info_by_status(2)) }}
       <div>
         {{ button_by_action(order, 3) }}
+        {{ button_export_schedule(2, order)}}
       </div>
     </form>
   </div>
   <div class="tab-pane fade" id="tab-3">
     <form action="{{url_for('order.items_status_update', order_id=order.id, step=3)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(3)) }}
-      <div>
+      <div>   
         {{ button_by_action(order, 4) }}
         {{ button_by_action(order, 5) }}
+        {{ button_export_schedule(3, order)}}
       </div>
     </form>
   </div>
@@ -99,6 +107,9 @@
     <form action="{{url_for('order.items_status_update', order_id=order.id, step=4)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(4)) }}
     </form>
+    <div>
+        {{ button_export_schedule(4, order)}}
+    </div>
   </div>
 </div>
 <style>
