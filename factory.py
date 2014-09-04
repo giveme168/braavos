@@ -3,6 +3,7 @@ from raven.contrib.flask import Sentry
 
 from libs.db import db
 from libs.mail import mail
+from libs.files import uploads_conf
 from filters import register_filter
 
 
@@ -17,4 +18,5 @@ def create_app(config_object='config.DevelopmentConfig'):
     register_filter(app)
     if not app.debug:
         Sentry(app)
+    uploads_conf(app)
     return app

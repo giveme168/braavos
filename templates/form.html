@@ -28,3 +28,18 @@
       <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
     </form>
 {%- endmacro %}
+
+{% macro upload_field(field) -%}
+      <div class="form-group file-widget">
+        <label for="name" class="col-sm-2 control-label">{{field.label.text}} : </label>
+        <div class="col-sm-10">
+            {{field(class_='form-control bra-form-control', placeholder=field.label.text)}}
+            <button class="file-widget-wrapper btn btn-default">
+              <span>上传</span>
+              <input class="file-widget-button" type="file" name="file"/>
+            </button>
+            <span class="tips">{{field.description}}</span>
+            <span class="errors">{{','.join(field.errors)}}</span>
+        </div>
+      </div>
+{%- endmacro %}

@@ -1,28 +1,21 @@
 {% extends "/user_base.html" %}
-{% from 'form.html' import form_field %}
+{% from 'form.html' import form_tpl %}
 {% block title %}用户 - {{user.name}}{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3>用户 - {{user.name}}</h3>
     {% if g.user.team.is_admin() or g.user==user %}
-    <form class="form form-horizontal" method="POST">
-      {{form.csrf_token}}
-      {{ form_field(form.name) }}
-      {{ form_field(form.email) }}
-      {{ form_field(form.phone) }}
-      {{ form_field(form.team) }}
-      {{ form_field(form.status) }}
-
-        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
-        <a href="{{url_for('user.pwd_change')}}" class="btn btn-info btn-sm col-md-offset-1">  修改密码</a>
-        {% if g.user.team.is_admin() %}
-        <a href="{{url_for('user.pwd_reset', user_id=user.id)}}" class="btn btn-danger btn-sm"> 重设密码</a>
-        {% endif %}
-    </form>
-    <br>
-    <br>
-    <div>* 重设密码统一设置为 {{DEFAULT_PASSWORD}}</div>
+    {{ form_tpl(form) }}
+    <div style="margin-top: 30px;">
+    <a href="{{url_for('user.pwd_change')}}" class="btn btn-info btn-sm col-md-offset-1">  修改密码</a>
+    {% if g.user.team.is_admin() %}
+    <a href="{{url_for('user.pwd_reset', user_id=user.id)}}" class="btn btn-danger btn-sm"> 重设密码</a>
+    {% endif %}
+    </div>
+    <div style="margin-top: 30px;">
+        * 重设密码统一设置为 {{DEFAULT_PASSWORD}}
+    </div>
     {% else %}
     <table class="table table-bordered table-striped">
         <tr><th>名字</th><td>{{user.name}}</td></tr>

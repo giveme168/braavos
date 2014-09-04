@@ -1,14 +1,9 @@
 {% extends "/medium_base.html" %}
-{% from 'form.html' import form_field %}
+{% from 'form.html' import form_tpl %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
     <h3>新建尺寸</h3>
-    <form class="form form-horizontal" method="POST">
-      {{form.csrf_token}}
-      {{ form_field(form.width) }}
-      {{ form_field(form.height) }}
-      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
-    </form>
+    {{ form_tpl(form) }}
 </div>
 {% endblock %}
