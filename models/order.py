@@ -2,11 +2,15 @@
 import datetime
 from collections import defaultdict
 from flask import url_for
+from xlwt import Utils
 
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
                    ITEM_STATUS_LEADER_ACTIONS)
+from models.excel import (ExcelCellItem, StyleFactory,
+    EXCEL_DATE_TYPE_MERGE, EXCEL_DATE_TYPE_STR, EXCEL_DATE_TYPE_FORMULA,
+    EXCEL_DATE_TYPE_NUM, COLOUR_RED, COLOUR_LIGHT_GRAY)
 
 
 ORDER_TYPE_NORMAL = 0         # 标准广告
@@ -149,3 +153,123 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
     def path(self):
         return url_for('order.order_detail', order_id=self.id, step=0)
+
+    def get_excel_table_by_status(self, status):
+        items_info = self.items_info_by_status(status)
+        excel_table = []
+        temp_row = []
+        date_start_row = 2
+        date_start_col = 3
+        # 表头
+        temp_row.append(
+            ExcelCellItem(EXCEL_DATE_TYPE_STR, u"售卖类型", StyleTypes.header, 1, 0))
+        temp_row.append(
+            ExcelCellItem(EXCEL_DATE_TYPE_STR, u"展示位置", StyleTypes.header, 1, 0))
+        temp_row.append(
+            ExcelCellItem(EXCEL_DATE_TYPE_STR, u"广告标准", StyleTypes.header, 1, 0))
+        for m, m_len in items_info['months'].items():
+            temp_row.append(
+                ExcelCellItem(EXCEL_DATE_TYPE_NUM, str(m) + u"月", StyleTypes.header, 0, m_len - 1))
+            for i in range(0, m_len - 1):
+                temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        temp_row.append(
+                ExcelCellItem(EXCEL_DATE_TYPE_STR, u"总预订量", StyleTypes.header, 1, 0))
+        temp_row.append(
+            ExcelCellItem(EXCEL_DATE_TYPE_STR, u"刊例单价", StyleTypes.header, 1, 0))
+        temp_row.append(
+            ExcelCellItem(EXCEL_DATE_TYPE_STR, u"刊例总价", StyleTypes.header, 1, 0))
+        temp_row.append(
+            ExcelCellItem(EXCEL_DATE_TYPE_STR, u"折扣", StyleTypes.header, 1, 0))
+        temp_row.append(
+            ExcelCellItem(EXCEL_DATE_TYPE_STR, u"净价", StyleTypes.header, 1, 0))
+        excel_table.append(temp_row)  # 第一行写完
+        temp_row = []
+        temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        for d in items_info['dates']:
+            if d.isoweekday() in [6, 7]:
+                temp_row.append(
+                    ExcelCellItem(EXCEL_DATE_TYPE_NUM, d.day, StyleTypes.base_weekend))
+            else:
+                temp_row.append(
+                    ExcelCellItem(EXCEL_DATE_TYPE_NUM, d.day, StyleTypes.base))
+        temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        excel_table.append(temp_row)  # 第二行写完
+        # 填表
+        temp_row = []
+        for v, sale_type_cn, sale_type_items in items_info['items']:
+            if not len(sale_type_items):
+                break
+            if sale_type_cn == u"配送":
+                item_type = StyleTypes.gift
+                item_weekend_type = StyleTypes.gift_weekend
+            else:
+                item_type = StyleTypes.base
+                item_weekend_type = StyleTypes.base_weekend
+            temp_row.append(
+                ExcelCellItem(EXCEL_DATE_TYPE_STR, sale_type_cn, item_type, len(sale_type_items) - 1, 0))
+            index = 1
+            for item in sale_type_items:
+                if index != 1:
+                    temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+                temp_row.append(
+                    ExcelCellItem(EXCEL_DATE_TYPE_STR, item.position.name, item_type))
+                temp_row.append(
+                    ExcelCellItem(EXCEL_DATE_TYPE_STR, item.position.size.name, item_type))
+                for i in range(0, len(items_info['dates'])):
+                    d = items_info['dates'][i]
+                    if d.isoweekday() in [6, 7]:
+                        if item.schedule_by_date(d):
+                            temp_row.append(
+                                ExcelCellItem(EXCEL_DATE_TYPE_NUM, item.schedule_by_date(d).num, item_weekend_type))
+                        else:
+                            temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_NUM, " ", item_weekend_type))
+                    else:
+                        if item.schedule_by_date(d):
+                            temp_row.append(
+                                ExcelCellItem(EXCEL_DATE_TYPE_NUM, item.schedule_by_date(d).num, item_type))
+                        else:
+                            temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_NUM, " ", item_type))
+                temp_row.append(
+                        ExcelCellItem(EXCEL_DATE_TYPE_NUM, item.schedule_sum, item_type))
+                temp_row.append(
+                        ExcelCellItem(EXCEL_DATE_TYPE_NUM, item.position.price, item_type))
+                temp_row.append(
+                        ExcelCellItem(EXCEL_DATE_TYPE_NUM, item.schedule_sum * item.position.price, item_type))
+                excel_table.append(temp_row)
+                index += 1
+                temp_row = []
+        #totle
+        temp_row.append(
+                ExcelCellItem(EXCEL_DATE_TYPE_STR, "total", StyleTypes.base, 0, 2))
+        temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        temp_row.append(ExcelCellItem(EXCEL_DATE_TYPE_MERGE))
+        for i in range(0, len(items_info['dates']) + 1):
+            formula = 'SUM(%s:%s)' % (
+                Utils.rowcol_to_cell(date_start_row, date_start_col + i),
+                Utils.rowcol_to_cell(len(excel_table) - 1, date_start_col + i))
+            temp_row.append(
+                        ExcelCellItem(EXCEL_DATE_TYPE_FORMULA, formula, StyleTypes.base))
+        temp_row.append(
+                        ExcelCellItem(EXCEL_DATE_TYPE_STR, "/", StyleTypes.base))
+        formula = 'SUM(%s:%s)' % (
+                Utils.rowcol_to_cell(date_start_row, len(temp_row)),
+                Utils.rowcol_to_cell(len(excel_table) - 1, len(temp_row)))
+        temp_row.append(
+                        ExcelCellItem(EXCEL_DATE_TYPE_FORMULA, formula, StyleTypes.base))
+        excel_table.append(temp_row)
+        return excel_table
+
+
+class StyleTypes(object):
+        """The Style of the Excel's unit"""
+        base = StyleFactory().style
+        header = StyleFactory().bold().style
+        gift = StyleFactory().font_colour(COLOUR_RED).style
+        base_weekend = StyleFactory().bg_colour(COLOUR_LIGHT_GRAY).style
+        gift_weekend = StyleFactory().font_colour(COLOUR_RED).bg_colour(COLOUR_LIGHT_GRAY).style

@@ -316,9 +316,9 @@ def get_next_step(step, action):
 @order_bp.route('/schedule_file/<order_id>/<step>', methods=['GET', 'POST'])
 def export_schedule(order_id, step):
     order = Order.get(order_id)
-    items_info = order.items_info_by_status(int(step))
+    excel_table = order.get_excel_table_by_status(int(step))
     filename = (order.name + "-" + ITEM_STATUS_CN[int(step)] + ".xls").encode('utf-8')
-    xls = Excel(items_info).xls
+    xls = Excel().write_excle(excel_table)
     response = get_download_response(xls, filename)
     return response
 
