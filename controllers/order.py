@@ -21,6 +21,7 @@ from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
 from models.order import Order
 from models.user import User
 from models.consts import DATE_FORMAT, TIME_FORMAT
+from models.excel import Excel
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
