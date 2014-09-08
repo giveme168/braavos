@@ -1,4 +1,4 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 from flask import Blueprint, request, redirect, abort, url_for
 from flask import render_template as tpl, flash
 

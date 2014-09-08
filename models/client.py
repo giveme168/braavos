@@ -1,4 +1,4 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 from . import db, BaseModelMixin
 from consts import CLIENT_INDUSTRY_CN
 

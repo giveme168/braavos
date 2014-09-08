@@ -1,4 +1,4 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 from datetime import datetime, time, timedelta
 from flask import url_for
 
@@ -9,13 +9,13 @@ from consts import STATUS_CN, DATE_FORMAT
 SALE_TYPE_NORMAL = 0         # 标准, 购买
 SALE_TYPE_GIFT = 1           # 配送
 SALE_TYPE_REMNANT = 2         # 补量
-#SALE_TYPE_CPC = 3            # CPC
+# SALE_TYPE_CPC = 3            # CPC
 
 SALE_TYPE_CN = {
     SALE_TYPE_NORMAL: u"购买",
     SALE_TYPE_GIFT: u"配送",
     SALE_TYPE_REMNANT: u"补量",
-    #SALE_TYPE_CPC: u"CPC",
+    # SALE_TYPE_CPC: u"CPC",
 }
 
 AD_TYPE_NORMAL = 0

@@ -1,4 +1,4 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for

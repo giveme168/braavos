@@ -1,4 +1,4 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 from datetime import datetime, timedelta
 
 from flask import Blueprint, request, redirect, abort, url_for, g
@@ -36,8 +36,8 @@ def new_order():
                           contract=form.contract.data, money=form.money.data,
                           agent=Agent.get(form.agent.data), direct_sales=User.gets(form.direct_sales.data),
                           agent_sales=User.gets(form.agent_sales.data), operaters=User.gets(form.operaters.data),
-                          planers=User.gets(form.planers.data), designers=User.gets(form.designers.data), creator=g.user,
-                          create_time=datetime.now())
+                          planers=User.gets(form.planers.data), designers=User.gets(form.designers.data),
+                          creator=g.user, create_time=datetime.now())
         flash(u'新建订单成功!', 'success')
         return redirect(url_for("order.order_detail", order_id=order.id, step=0))
     else:
@@ -177,9 +177,9 @@ def schedule_info():
 
 @order_bp.route('/position_list', methods=['GET'])
 def position_list():
-    #order = Order.get(request.values.get('order'))
-    #sale_type = request.values.get('sale_type')
-    #special_sale = request.values.get('special_sale')
+    # order = Order.get(request.values.get('order'))
+    # sale_type = request.values.get('sale_type')
+    # special_sale = request.values.get('special_sale')
     return jsonify([(p.id, p.display_name) for p in AdPosition.all()])
 
 
