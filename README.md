@@ -11,7 +11,7 @@
 
   1. 创建数据库
   2. 配置local_config.py, 填写SQLALCHEMY_DATABASE_URI地址
-  3. make hooks  # 初始化 git hooks
+  3. make hook  # 初始化 git hooks
   4. make web  # 初始化数据库, 填充测试数据, 启动server 
 
 ### 啟動postgresql
