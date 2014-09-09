@@ -1,5 +1,4 @@
-#-*- coding: UTF-8 -*-
-#import os
+# -*- coding: UTF-8 -*-
 from flask import Blueprint, request, current_app as app, abort
 from flask import jsonify, send_from_directory
 from libs.files import files_set
