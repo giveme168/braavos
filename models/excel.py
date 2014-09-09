@@ -1,4 +1,4 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 from xlwt import (XFStyle, Font, Alignment,
     Borders, Pattern, Workbook, Utils, Formula)
 
