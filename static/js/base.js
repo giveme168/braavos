@@ -1,5 +1,7 @@
 $(document).ready(function(){
+  // 多选选择器
   $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10});
+  // 全选操作
   $(".checkbox_all").click(function(){
     $(this).parents('table').find(".checkbox_one").prop('checked', $(this)[0].checked);
   });
@@ -8,7 +10,7 @@ $(document).ready(function(){
       $(this).parents('table').find(".checkbox_all").prop('checked', false);
     }
   });
-
+ // 上传文件组件
   $(".file-widget-button").change(function () {
     var data = new FormData();
     data.append('file', this.files[0]);
@@ -33,4 +35,7 @@ $(document).ready(function(){
             }
         });
   });
+
+//代码预览高亮
+  hljs.initHighlightingOnLoad();
 });

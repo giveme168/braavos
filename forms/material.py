@@ -21,6 +21,7 @@ class ImageMaterialForm(Form):
     image_file = TextField(u'图片链接', [validators.Required(u"请输入名字.")])
     click_link = TextField(u'跳转链接(点击检测)', [validators.Required(u"请输入名字."), validators.URL(u"请输入正确的链接")])
     monitor_link = TextField(u'展示检测')
+    code = TextAreaField(u'自定义代码')
 
     def __init__(self, *args, **kwargs):
         super(ImageMaterialForm, self).__init__(*args, **kwargs)

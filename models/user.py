@@ -95,6 +95,9 @@ class User(db.Model, BaseModelMixin):
     def avatar(self, size=48):
         return "http://www.gravatar.com/avatar/%s?s=%s&d=identicon" % (md5(self.email).hexdigest(), size)
 
+    def is_super_admin(self):
+        return self.team.is_super_admin()
+
     def is_admin(self):
         return self.team.is_admin()
 

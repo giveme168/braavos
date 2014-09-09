@@ -3,10 +3,12 @@ import json
 from flask import url_for
 from sqlalchemy.ext.mutable import MutableDict
 
-from . import db, BaseModelMixin
-from .consts import STATUS_CN
-from libs.files import get_full_path
+from models import db, BaseModelMixin
+from models.consts import STATUS_CN
 from models.mixin.comment import CommentMixin
+from libs.files import get_full_path
+
+from .consts import IMAGE_HTML_TPL
 
 MATERIAL_TYPE_RAW = 0
 MATERIAL_TYPE_PICTURE = 1
@@ -53,11 +55,27 @@ class Material(db.Model, BaseModelMixin, CommentMixin):
     def status_cn(self):
         return STATUS_CN[self.status]
 
+    @property
+    def width(self):
+        return self.item.position.size.width
+
+    @property
+    def height(self):
+        return self.item.position.size.height
+
     def path(self):
         if self.type == MATERIAL_TYPE_PICTURE:
             return url_for('material.image_material', material_id=self.id)
         else:
             return url_for('material.raw_material', material_id=self.id)
+
+    @property
+    def html(self):
+        return self.code
+
+    @property
+    def preview_path(self):
+        return url_for('material.raw_preview', material_id=self.id)
 
 
 class ImageMaterial(Material):
@@ -96,3 +114,18 @@ class ImageMaterial(Material):
     @monitor_link.setter
     def monitor_link(self, link):
         self.props['image_monitor'] = link
+
+    @property
+    def html(self):
+        if self.code:
+            return self.code
+        context = {'image_link': self.image_link,
+                   'click_link': self.click_link,
+                   'monitor_link': self.monitor_link,
+                   'width': self.width,
+                   'height': self.height}
+        return IMAGE_HTML_TPL.format(**context)
+
+    @property
+    def preview_path(self):
+        return url_for('material.image_preview', material_id=self.id)
