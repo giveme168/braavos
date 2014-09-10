@@ -14,3 +14,6 @@ test:
 
 clean_pyc:
 	find . -name '*.pyc' -delete
+
+hook:
+	cp hooks/pre-commit .git/hooks/

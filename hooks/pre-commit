@@ -1,0 +1,3 @@
+#!/bin/sh
+pep8 --config=.pep8 models controllers tests
+flake8 --max-line-length=120 models controllers tests

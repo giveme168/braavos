@@ -15,7 +15,7 @@ def given_team_name():
 
 @when('创建对应名字的team')
 def when_create_team(session):
-    team1 = Team.add(name='OneTeam')
+    Team.add(name='OneTeam')
 
 
 @then('用这个名字的 1 个team被创建了.')
