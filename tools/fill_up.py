@@ -38,10 +38,10 @@ unit2 = AdUnit.add("测试广告单元2", "测试", size, "0px 0px 0px 0px",
 unit3 = AdUnit.add("测试广告单元3", "测试", size, "0px 0px 0px 0px",
                    TARGET_BLANK, STATUS_ON, medium, 10000)
 
-position = AdPosition.add("测试展示位置", "测试", size, STATUS_ON, medium, max_order_num=700)
+position = AdPosition.add("测试展示位置", "测试", size, "测试标准", STATUS_ON, medium, max_order_num=700)
 position.units = [unit, unit2]
 
-position2 = AdPosition.add("测试展示位置2", "测试", size, STATUS_ON, medium, max_order_num=800)
+position2 = AdPosition.add("测试展示位置2", "测试", size, "测试标准", STATUS_ON, medium, max_order_num=800)
 position2.units = [unit2, unit3]
 
 

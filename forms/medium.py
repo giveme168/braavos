@@ -46,6 +46,7 @@ class PositionForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
     description = TextAreaField(u'描述', [validators.Required(u"请输入描述.")])
     size = SelectField(u'大小', coerce=int)
+    standard = TextField(u'广告标准', [validators.Required(u"请输入广告标准.")])
     status = SelectField(u'状态', coerce=int, default=1)
     units = SelectMultipleField(u'包含以下广告单元', coerce=int)
     medium = SelectField(u'所属媒体', coerce=int)
@@ -65,17 +66,19 @@ class PositionForm(Form):
         self.level.choices = POSITION_LEVEL_CN.items()
         self.ad_type.choices = AD_TYPE_CN.items()
         self.estimate_num.readonly = True
+        self.estimate_num.hidden = False
 
     def validate(self):
         if Form.validate(self):
-            if self.ad_type.data == AD_TYPE_NORMAL:
-                if self.max_order_num.data > self.estimate_num.data:
-                    self.max_order_num.errors.append(u"最大预订不能大于预估量(如果新添加了广告单元, 请先保存, 然后根据计算所得调整)")
-                    return False
-            elif self.ad_type.data == AD_TYPE_CPD:
-                if self.cpd_num.data > self.estimate_num.data:
-                    self.cpd_num.errors.append(u"CPD量不能大于预估量")
-                    return False
+            if not self.estimate_num.hidden:
+                if self.ad_type.data == AD_TYPE_NORMAL:
+                    if self.max_order_num.data > self.estimate_num.data:
+                        self.max_order_num.errors.append(u"最大预订不能大于预估量(如果新添加了广告单元, 请先保存, 然后根据计算所得调整)")
+                        return False
+                elif self.ad_type.data == AD_TYPE_CPD:
+                    if self.cpd_num.data > self.estimate_num.data:
+                        self.cpd_num.errors.append(u"CPD量不能大于预估量")
+                        return False
             return True
         else:
             return False

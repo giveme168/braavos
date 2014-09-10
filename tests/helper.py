@@ -53,7 +53,7 @@ def add_unit(name, estimate_num, medium=None):
 def add_position(name, medium=None):
     size = add_size(300, 50)
     medium = medium or add_medium('testmedium')
-    position = AdPosition.add(name, '', size, 1, medium)
+    position = AdPosition.add(name, '', size, '', 1, medium)
     return position
 
 
@@ -81,7 +81,7 @@ def add_item(position=None):
     order = add_order()
     position = position or add_position('testposition')
     user = get_default_user()
-    item = AdItem.add(order, 0, 0, position, user, datetime.now())
+    item = AdItem.add(order, 0, False, position, user, datetime.now())
     return item
 
 
