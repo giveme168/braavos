@@ -120,17 +120,18 @@ def units():
 @medium_bp.route('/new_position', methods=['GET', 'POST'])
 def new_position():
     form = PositionForm(request.form)
+    form.estimate_num.hidden = True
     if request.method == 'POST' and form.validate():
         ad_position = AdPosition.add(name=form.name.data, description=form.description.data,
-                                     size=AdSize.get(form.size.data), status=form.status.data,
-                                     medium=Medium.get(form.medium.data), level=form.level.data,
-                                     ad_type=form.ad_type.data, cpd_num=form.cpd_num.data,
-                                     max_order_num=form.max_order_num.data, price=form.price.data)
+                                     size=AdSize.get(form.size.data), standard=form.standard.data,
+                                     status=form.status.data, medium=Medium.get(form.medium.data),
+                                     level=form.level.data, ad_type=form.ad_type.data,
+                                     cpd_num=form.cpd_num.data, max_order_num=form.max_order_num.data,
+                                     price=form.price.data)
         ad_position.units = AdUnit.gets(form.units.data)
         ad_position.save()
         flash(u'新建展示位置成功!', 'success')
         return redirect(url_for("medium.position_detail", position_id=ad_position.id))
-    form.estimate_num.hidden = True
     return tpl('position.html', form=form, title=u"新建展示位置")
 
 
@@ -138,12 +139,14 @@ def new_position():
 def unit_to_position(unit_id):
     unit = AdUnit.get(unit_id)
     form = PositionForm(request.form)
+    form.estimate_num.hidden = True
     if request.method == 'POST' and form.validate():
-        adPosition = AdPosition.add(name=form.name.data, description=form.description.data,
-                                    size=AdSize.get(form.size.data), status=form.status.data,
-                                    medium=Medium.get(form.medium.data), level=form.level.data,
-                                    ad_type=form.ad_type.data, cpd_num=form.cpd_num.data,
-                                    max_order_num=form.max_order_num.data, price=form.price.data)
+        ad_position = AdPosition.add(name=form.name.data, description=form.description.data,
+                                     size=AdSize.get(form.size.data), standard=form.standard.data,
+                                     status=form.status.data, medium=Medium.get(form.medium.data),
+                                     level=form.level.data, ad_type=form.ad_type.data,
+                                     cpd_num=form.cpd_num.data, max_order_num=form.max_order_num.data,
+                                     price=form.price.data)
         adPosition.units = AdUnit.gets(form.units.data)
         adPosition.save()
         return redirect(url_for("medium.position_detail", position_id=adPosition.id))
@@ -154,7 +157,6 @@ def unit_to_position(unit_id):
         form.size.data = unit.size.id
         form.status.data = unit.status
         form.units.data = [unit.id]
-    form.estimate_num.hidden = True
     return tpl('position.html', form=form, title=u"创建广告单元(%s)对应的展示位置" % unit.name)
 
 
@@ -168,6 +170,7 @@ def position_detail(position_id):
         position.name = form.name.data
         position.description = form.description.data
         position.size = AdSize.get(form.size.data)
+        position.standard = form.standard.data
         position.status = form.status.data
         position.units = AdUnit.gets(form.units.data)
         position.medium = Medium.get(form.medium.data)
@@ -182,6 +185,7 @@ def position_detail(position_id):
         form.name.data = position.name
         form.description.data = position.description
         form.size.data = position.size.id
+        form.standard.data = position.standard
         form.status.data = position.status
         form.units.data = [x.id for x in position.units]
         form.medium.data = position.medium.id

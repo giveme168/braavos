@@ -46,14 +46,18 @@ def add_size(width, height):
 def add_unit(name, estimate_num, medium=None):
     size = add_size(300, 50)
     medium = medium or add_medium('testmedium')
-    unit = AdUnit.add(name, '', size, '', 0, 1, medium, estimate_num)
+    unit = AdUnit.add(
+        name=name, description='', size=size,
+        margin='', target=0, status=1, medium=medium,
+        estimate_num=estimate_num)
     return unit
 
 
 def add_position(name, medium=None):
     size = add_size(300, 50)
     medium = medium or add_medium('testmedium')
-    position = AdPosition.add(name, '', size, 1, medium)
+    position = AdPosition.add(
+        name=name, description='', size=size, standard='', status=1, medium=medium)
     return position
 
 
@@ -72,8 +76,11 @@ def add_order():
     medium = add_medium('testmedium')
     client = add_client('testclient')
     agent = add_agent('testagent')
-    order = Order.add(client, 'testcampaign', medium, 0, 'testcontract', 1000, agent,
-                      [user], [], [], [], [], user, datetime.now())
+    order = Order.add(
+        client=client, campaign='testcampaign', medium=medium, order_type=0,
+        contract='testcontract', money=1000, agent=agent, direct_sales=[user],
+        agent_sales=[], operaters=[], designers=[], planers=[], creator=user,
+        create_time=datetime.now())
     return order
 
 
@@ -81,7 +88,9 @@ def add_item(position=None):
     order = add_order()
     position = position or add_position('testposition')
     user = get_default_user()
-    item = AdItem.add(order, 0, 0, position, user, datetime.now())
+    item = AdItem.add(
+        order=order, sale_type=0, special_sale=False,
+        position=position, creator=user, create_time=datetime.now())
     return item
 
 
@@ -90,7 +99,7 @@ def add_schedule(item=None, num=300):
     today = date.today()
     start = time.min
     end = time.max
-    schedule = AdSchedule.add(item, num, today, start, end)
+    schedule = AdSchedule.add(item=item, num=num, date=today, start=start, end=end)
     return schedule
 
 
@@ -98,5 +107,5 @@ def add_material(item=None, material_type=MATERIAL_TYPE_RAW, name=None):
     item = item or add_item()
     user = get_default_user()
     name = name or 'test_material'
-    material = Material.add(name, item, user, material_type)
+    material = Material.add(name=name, item=item, creator=user, type=material_type)
     return material

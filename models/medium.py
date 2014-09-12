@@ -132,6 +132,7 @@ class AdPosition(db.Model, BaseModelMixin):
     description = db.Column(db.String(500))
     size_id = db.Column(db.Integer, db.ForeignKey('ad_size.id'))
     size = db.relationship('AdSize', backref=db.backref('adPositions', lazy='dynamic'))
+    standard = db.Column(db.String(100))
     status = db.Column(db.Integer)
     level = db.Column(db.Integer)
     units = db.relationship('AdUnit', secondary=ad_position_unit_table,
@@ -143,12 +144,13 @@ class AdPosition(db.Model, BaseModelMixin):
     max_order_num = db.Column(db.Integer)
     price = db.Column(db.Integer)
 
-    def __init__(self, name, description, size, status, medium,
+    def __init__(self, name, description, size, standard, status, medium,
                  level=POSITION_LEVEL_A1, ad_type=AD_TYPE_NORMAL,
                  cpd_num=1, max_order_num=0, price=0):
         self.name = name
         self.description = description
         self.size = size
+        self.standard = standard
         self.status = status
         self.medium = medium
         self.level = level
