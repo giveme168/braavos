@@ -1,14 +1,12 @@
 # -*- coding: UTF-8 -*-
 import json
-from flask import url_for
+from flask import url_for, render_template
 from sqlalchemy.ext.mutable import MutableDict
 
 from models import db, BaseModelMixin
 from models.consts import STATUS_CN
 from models.mixin.comment import CommentMixin
 from libs.files import get_full_path
-
-from .consts import IMAGE_HTML_TPL
 
 MATERIAL_TYPE_RAW = 0
 MATERIAL_TYPE_PICTURE = 1
@@ -124,7 +122,8 @@ class ImageMaterial(Material):
                    'monitor_link': self.monitor_link,
                    'width': self.width,
                    'height': self.height}
-        return IMAGE_HTML_TPL.format(**context)
+        rt = render_template('/material_tpl/image.html', **context)
+        return rt
 
     @property
     def preview_path(self):
