@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 from flask import Blueprint, request, redirect, abort, g, url_for
-from flask import render_template as tpl, flash
+from flask import render_template as tpl, flash, Response
 
 from models.item import AdItem
 from models.material import Material, ImageMaterial
@@ -50,6 +50,16 @@ def raw_material(material_id):
     return tpl('material_raw.html', form=form, material=material)
 
 
+@material_bp.route('/material/<material_id>/preview/')
+def raw_preview(material_id):
+    material = Material.get(material_id)
+    if not material or not material.html:
+        abort(404)
+    response = Response()
+    response.set_data(material.html)
+    return response
+
+
 @material_bp.route('/new_image_material/item/<item_id>', methods=['GET', 'POST'])
 def new_image_material(item_id):
     item = AdItem.get(item_id)
@@ -62,6 +72,7 @@ def new_image_material(item_id):
         material.image_file = form.image_file.data
         material.click_link = form.click_link.data
         material.monitor_link = form.monitor_link.data
+        material.code = form.code.data
         material.save()
         flash(u'新建素材(%s)成功!' % material.name, 'success')
         return redirect(url_for('material.image_material', material_id=material.id))
@@ -81,6 +92,7 @@ def image_material(material_id):
             material.image_file = form.image_file.data
             material.click_link = form.click_link.data
             material.monitor_link = form.monitor_link.data
+            material.code = form.code.data
             material.save()
             flash(u'素材(%s)保存成功!' % material.name, 'success')
     else:
@@ -89,4 +101,15 @@ def image_material(material_id):
         form.image_file.data = material.image_file
         form.click_link.data = material.click_link
         form.monitor_link.data = material.monitor_link
+        form.code.data = material.code
     return tpl('material_image.html', form=form, material=material)
+
+
+@material_bp.route('/image_material/<material_id>/preview/')
+def image_preview(material_id):
+    material = ImageMaterial.get(material_id)
+    if not material or not material.html:
+        abort(404)
+    response = Response()
+    response.set_data(material.html)
+    return response

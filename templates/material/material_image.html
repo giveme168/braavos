@@ -16,8 +16,19 @@
       {{ form_field(form.click_link) }}
       {{ form_field(form.monitor_link) }}
       {{ form_field(form.status) }}
+      {% if g.user.is_super_admin %}
+      {{ form_field(form.code) }}
+      {% else %}
+      <div class="hide">
+      {{ form_field(form.code) }}
+      </div>
+      {% endif %}
       <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
     </form>
+    <h4>效果预览 :</h4>
+    <iframe src="{{ material.preview_path }}" style="margin: 10px;" width="{{material.width}}" height="{{material.height}}"></iframe>
+    <h4>代码预览 :</h4>
+    <pre><code>{{ material.html }}</code></pre >
 </div>
 <script>
 $(document).ready(function(){
