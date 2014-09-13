@@ -1,15 +1,13 @@
-{% for (k, v) in SALE_TYPE_CN.items() %}
 <div class="panel panel-info schedule-saletype">
   <div class="panel-heading">
-    <label>售卖类型: {{v}} </label>
+    <label>售卖类型: {{ SALE_TYPE_CN[type|int] }} </label>
   </div>
   <div class="panel-body">
-    <div id="schedule-content" data-saletype="{{k}}">
+    <div id="schedule-content" data-saletype="{{ type }}">
     </div>
-    <a href="#" class="schedule-add btn btn-default"><span class="glyphicon glyphicon-plus"></span> 展示位置({{v}})</a>
+    <a href="#" class="schedule-add btn btn-default"><span class="glyphicon glyphicon-plus"></span> 展示位置({{ SALE_TYPE_CN[type|int] }})</a>
   </div>
 </div>
-{% endfor %}
 
 <a href="#" id="form-submit" class="btn btn-primary btn col-md-offset-5" >预订资源</a>
 <style>
