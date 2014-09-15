@@ -89,6 +89,7 @@ def order_detail(order_id, step):
     context = {'form': form,
                'order': order,
                'step': step,
+               'SALE_TYPE_CN': SALE_TYPE_CN
                }
     return tpl('order.html', **context)
 
@@ -99,8 +100,8 @@ def orders():
     return tpl('orders.html', orders=orders)
 
 
-@order_bp.route('/order/<order_id>/new_item')
-def new_item(order_id):
+@order_bp.route('/order/<order_id>/new_item/<type>')
+def new_item(order_id, type):
     order = Order.get(order_id)
     if not order:
         abort(404)
@@ -111,7 +112,7 @@ def new_item(order_id):
     end_date = start_date + timedelta(days=30)
     positions = [(x.id, x.display_name) for x in AdPosition.all()]
     return tpl('new_item.html', order=order, positions=positions,
-               start_date=start_date, end_date=end_date,
+               start_date=start_date, end_date=end_date, type=type,
                SALE_TYPE_CN=SALE_TYPE_CN, SPECIAL_SALE_CN={0: u"否", 1: u"是"})
 
 

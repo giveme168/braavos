@@ -26,7 +26,21 @@
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"> 排期 </a>
                     {% if order.can_admin(g.user) %}
-                    <a class="btn btn-sm btn-primary col-md-offset-1" style="color: white;" href="{{url_for("order.new_item", order_id=order.id)}}">排期预订</a>
+                    <div class="btn-group col-md-offset-1">
+                      <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
+                        排期预订 <span class="caret"></span>
+                      </button>                      
+                      <ul class="dropdown-menu" role="menu">
+                      {% set index = 0 %}
+                      {% for (k, v) in SALE_TYPE_CN.items() %}
+                        {% if index != 0 %}
+                            <li class="divider"></li>
+                        {% endif %}
+                        {% set index = index + 1%}
+                        <li><a href="{{url_for("order.new_item", order_id=order.id, type=k )}}">{{v}}</a></li>
+                      {% endfor %}
+                      </ul>
+                    </div>
                     {% endif %}
                 </h4>
             </div>
