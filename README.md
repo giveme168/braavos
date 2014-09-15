@@ -9,17 +9,11 @@
 
 ### How To Start:
 
-  1. 创建数据库
-  2. 配置local_config.py, 填写SQLALCHEMY_DATABASE_URI地址
-  3. make hook  # 初始化 git hooks
-  4. make web  # 初始化数据库, 填充测试数据, 启动server 
-
-### 啟動postgresql
-
-1. initdb -D data
-2. postmaster -D data
-3. createdb braavos
-
+- 1. create database
+- 2. edit local_config.py, SQLALCHEMY_DATABASE_URI is required
+- 3. pip install -r requirements.txt  # in your virtual env
+- 4. make hook  # init git hooks
+- 5. make web  # = make clear + make fill + make server 
 
 ### Test
 
@@ -33,6 +27,6 @@
 
 ### Deploy
 
-  1. install fabric
-  2. add your id_rsa.pub to /home/inad/.ssh/authorized_keys
-  3. fab deploy # 参考tool/fabfile.py
+- 1. install fabric
+- 2. add your id_rsa.pub to /home/inad/.ssh/authorized_keys on our server
+- 3. fab deploy # read the tool/fabfile.py
