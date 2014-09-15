@@ -29,17 +29,17 @@ def checkout_latest():
     env.release = time.strftime('%Y%m%d%H%M%S')
     run("cd %(path)s/repository; git pull origin master" % env)
     run('cp -R %(path)s/repository %(path)s/releases/%(release)s; rm -rf %(path)s/releases/%(release)s/.git*' % env)
+    run('cd %(path)s/releases/%(release)s; cp %(path)s/conf/local_config.py local_config.py' % env)
 
 
 def install_requirements():
     """Install the required packages using pip"""
-    run('cd %(path)s; pip install -r ./releases/current/requirements.txt' % env)
+    run('cd %(path)s/releases/%(release)s; pip install -r requirements.txt' % env)
 
 
 def migrate():
     """Run our migrations"""
-    run('cd %(path)s/releases/current; python manage.py syncdb --noinput --migrate' % env)
-    run('cd %(path)s/releases/current; python manage.py migrate --noinput core' % env)
+    run('cd %(path)s/releases/%(release)s; python manage.py db upgrade' % env)
 
 
 def symlink_current_release():
@@ -47,8 +47,6 @@ def symlink_current_release():
     with settings(warn_only=True):
         run('cd %(path)s; rm releases/previous; mv releases/current releases/previous;' % env)
     run('cd %(path)s; ln -s %(release)s releases/current' % env)
-    """ production local config"""
-    run('cd %(path)s/releases/current/; cp %(path)s/conf/local_config.py local_config.py' % env)
 
 
 @task
@@ -74,6 +72,6 @@ def deploy():
     checkout_latest()
     activate_virtualenv()
     install_requirements()
-    #migrate()
+    migrate()
     symlink_current_release()
     restart_server()
