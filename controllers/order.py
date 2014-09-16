@@ -1,7 +1,12 @@
 # -*- coding: UTF-8 -*-
+import StringIO
+import mimetypes
+from werkzeug.datastructures import Headers
 from datetime import datetime, timedelta
 
-from flask import Blueprint, request, redirect, abort, url_for, g
+from models.excel import Excel
+
+from flask import Blueprint, request, redirect, abort, url_for, g, Response
 from flask import render_template as tpl, json, jsonify, flash
 
 from forms.order import OrderForm
@@ -12,10 +17,11 @@ from models.medium import Medium, AdPosition
 from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
                          ITEM_STATUS_ACTION_PRE_ORDER_REJECT,
                          ITEM_STATUS_ACTION_ORDER_REJECT,
-                         ITEM_STATUS_ACTION_CN)
+                         ITEM_STATUS_ACTION_CN, ITEM_STATUS_CN)
 from models.order import Order
 from models.user import User
 from models.consts import DATE_FORMAT, TIME_FORMAT
+from models.excel import Excel
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
@@ -305,3 +311,35 @@ def get_next_step(step, action):
     else:
         step = int(step) + 1
     return step
+
+
+@order_bp.route('/schedule_file/<order_id>/<step>', methods=['GET', 'POST'])
+def export_schedule(order_id, step):
+    order = Order.get(order_id)
+    excel_table = order.get_excel_table_by_status(int(step))
+    filename = (order.name + "-" + ITEM_STATUS_CN[int(step)] + ".xls").encode('utf-8')
+    xls = Excel().write_excle(excel_table)
+    response = get_download_response(xls, filename)
+    return response
+
+
+def get_download_response(xls, filename):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    xls.save(output)
+    response.data = output.getvalue()
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
