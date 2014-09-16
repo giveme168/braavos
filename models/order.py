@@ -245,7 +245,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
                 excel_table.append(temp_row)
                 index += 1
                 temp_row = []
-        #totle
+        # totle
         temp_row.append(
             ExcelCellItem(EXCEL_DATA_TYPE_STR, "total", StyleTypes.base, 0, 2))
         temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
