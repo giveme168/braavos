@@ -31,6 +31,8 @@ def send_mail(*args, **kwargs):
 
 @async
 def send_simple_mail(subject, recipients, body=''):
+    if not recipients:
+        return
     body += u"""
 
                 本邮件由系统代发, 请不要直接回复

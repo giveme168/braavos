@@ -83,6 +83,11 @@ ITEM_STATUS_ACTION_CN = {
     ITEM_STATUS_ACTION_ORDER_REJECT: u"不通过(下单)"
 }
 
+ITEM_ACTION_CN = {
+    ITEM_STATUS_ACTION_PRE_ORDER: u"预下单",
+    ITEM_STATUS_ACTION_ORDER_APPLY: u"下单"
+}
+
 
 class AdItem(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'bra_item'
@@ -225,3 +230,11 @@ class AdSchedule(db.Model, BaseModelMixin):
     @property
     def units(self):
         return self.item.position.units
+
+
+class ChangeStateApply(object):
+    def __init__(self, type, leaders, order):
+        self.type = type
+        self.leaders = leaders
+        self.order = order
+        self.type_cn = ITEM_ACTION_CN[type]

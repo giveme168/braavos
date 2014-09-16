@@ -17,15 +17,19 @@ from models.medium import Medium, AdPosition
 from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
                          ITEM_STATUS_ACTION_PRE_ORDER_REJECT,
                          ITEM_STATUS_ACTION_ORDER_REJECT,
-                         ITEM_STATUS_ACTION_CN, ITEM_STATUS_CN)
+                         ITEM_STATUS_ACTION_CN, ITEM_STATUS_CN,
+                         ITEM_STATUS_PRE_PASS, ChangeStateApply)
 from models.order import Order
-from models.user import User
+from models.user import User, TEAM_TYPE_LEADER
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
+
+from libs.signals import change_state_apply_signal
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
 ORDER_REJECT = (ITEM_STATUS_ACTION_PRE_ORDER_REJECT, ITEM_STATUS_ACTION_ORDER_REJECT)
+STATUS_APPLLY = (ITEM_STATUS_NEW, ITEM_STATUS_PRE_PASS)
 
 
 @order_bp.route('/', methods=['GET'])
@@ -58,6 +62,7 @@ def order_detail(order_id, step):
     if not order:
         abort(404)
     form = OrderForm(request.form)
+    leaders = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_LEADER)]
     if request.method == 'POST':
         if not order.can_admin(g.user):
             flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
@@ -93,6 +98,7 @@ def order_detail(order_id, step):
         form.creator.data = order.creator.name
     form.order_type.hidden = True
     context = {'form': form,
+               'leaders': leaders,
                'order': order,
                'step': step,
                'SALE_TYPE_CN': SALE_TYPE_CN
@@ -292,11 +298,22 @@ def items_status_update(order_id, step):
     if not order:
         abort(404)
     item_ids = request.form.getlist('item_id')
+    leaders = request.form.getlist('leader')
     if not item_ids:
         flash(u"请选择订单项")
     else:
-        items = AdItem.gets(item_ids)
         action = int(request.form.get('action'))
+        if int(step) in STATUS_APPLLY:
+            if not leaders:
+                flash(u"请选择Leader")
+                return redirect(url_for('order.order_detail', order_id=order.id, step=step))
+            else:
+                apply = ChangeStateApply(
+                    action,
+                    [User.get(m).email for m in leaders],
+                    order)
+                change_state_apply_signal.send(apply)
+        items = AdItem.gets(item_ids)
         AdItem.update_items_with_action(items, action, g.user)
         msg = '\n\n'.join(['%s : %s' % (item.name, ITEM_STATUS_ACTION_CN[action]) for item in items])
         order.add_comment(g.user, msg)
