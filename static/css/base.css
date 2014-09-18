@@ -95,3 +95,15 @@ body{
     opacity: 0;
     filter: alpha(opacity=0);
 }
+
+.col-sm-2-1 {
+    float: left;
+    position: relative;
+    min-height: 1px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.col_change_state_button {
+    margin-bottom: 15px;
+}

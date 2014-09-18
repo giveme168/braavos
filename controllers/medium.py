@@ -141,15 +141,15 @@ def unit_to_position(unit_id):
     form = PositionForm(request.form)
     form.estimate_num.hidden = True
     if request.method == 'POST' and form.validate():
-        ad_position = AdPosition.add(name=form.name.data, description=form.description.data,
-                                     size=AdSize.get(form.size.data), standard=form.standard.data,
-                                     status=form.status.data, medium=Medium.get(form.medium.data),
-                                     level=form.level.data, ad_type=form.ad_type.data,
-                                     cpd_num=form.cpd_num.data, max_order_num=form.max_order_num.data,
-                                     price=form.price.data)
-        adPosition.units = AdUnit.gets(form.units.data)
-        adPosition.save()
-        return redirect(url_for("medium.position_detail", position_id=adPosition.id))
+        position = AdPosition.add(name=form.name.data, description=form.description.data,
+                                  size=AdSize.get(form.size.data), standard=form.standard.data,
+                                  status=form.status.data, medium=Medium.get(form.medium.data),
+                                  level=form.level.data, ad_type=form.ad_type.data,
+                                  cpd_num=form.cpd_num.data, max_order_num=form.max_order_num.data,
+                                  price=form.price.data)
+        position.units = AdUnit.gets(form.units.data)
+        position.save()
+        return redirect(url_for("medium.position_detail", position_id=position.id))
     else:
         form.name.data = unit.name
         form.description.data = unit.description

@@ -13,7 +13,7 @@ class Config(object):
     MAIL_USE_SSL = True
     MAIL_USERNAME = 'your name'
     MAIL_PASSWORD = 'your password'
-    DEFAULT_MAIL_SENDER = 'your email'
+    MAIL_DEFAULT_SENDER = 'your email'
     MAIL_DEBUG = DEBUG
     MAIL_SUPPRESS_SEND = DEBUG
 
