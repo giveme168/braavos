@@ -4,8 +4,6 @@ import mimetypes
 from werkzeug.datastructures import Headers
 from datetime import datetime, timedelta
 
-from models.excel import Excel
-
 from flask import Blueprint, request, redirect, abort, url_for, g, Response
 from flask import render_template as tpl, json, jsonify, flash
 

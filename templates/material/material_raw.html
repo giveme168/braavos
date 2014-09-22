@@ -9,9 +9,11 @@
     <h3>原生广告</h3>
     {% endif %}
     {{ form_tpl(form) }}
+    {% if material %}
     <h4>效果预览 :</h4>
     <iframe src="{{ material.preview_path }}" width="{{material.width}}" height="{{material.height}}"></iframe>
     <h4>代码预览 :</h4>
     <pre><code>{{ material.html }}</code></pre >
+    {% endif %}
 </div>
 {% endblock %}

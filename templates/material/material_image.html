@@ -25,10 +25,12 @@
       {% endif %}
       <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
     </form>
+    {% if material %}
     <h4>效果预览 :</h4>
     <iframe src="{{ material.preview_path }}" style="margin: 10px;" width="{{material.width}}" height="{{material.height}}"></iframe>
     <h4>代码预览 :</h4>
     <pre><code>{{ material.html }}</code></pre >
+    {% endif %}
 </div>
 <script>
 $(document).ready(function(){

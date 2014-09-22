@@ -1,10 +1,10 @@
 # -*- coding: UTF-8 -*-
-from xlwt import XFStyle, Font, Alignment, Borders, Pattern, Workbook, Utils, Formula
+from xlwt import Alignment, Borders
 
 from models.excel import (
     StyleFactory, FONT_SIZE_UNIT, COLOUR_RED, COLOUR_LIGHT_GRAY, COLOUR_BLACK)
 from models.order import StyleTypes
-from helper import add_order, add_schedule
+from helper import add_schedule
 
 
 def test_factory():
