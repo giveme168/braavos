@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 from xlwt import (
     XFStyle, Font, Alignment, Borders,
-    Pattern, Workbook, Utils, Formula)
+    Pattern, Workbook, Formula)
 
 COLOUR_RED = 2
 COLOUR_LIGHT_GRAY = 22

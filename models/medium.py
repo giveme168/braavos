@@ -104,6 +104,10 @@ class AdUnit(db.Model, BaseModelMixin):
         return '<AdUnit %s>' % (self.name)
 
     @property
+    def target_cn(self):
+        return TARGET_CN[self.target]
+
+    @property
     def status_cn(self):
         return STATUS_CN[self.status]
 

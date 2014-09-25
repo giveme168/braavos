@@ -85,6 +85,10 @@ class ImageMaterial(Material):
         self.creator = creator
         self.props = {}
 
+    def save(self):
+        self.code = self.html
+        db.session.commit()
+
     @property
     def image_file(self):
         return self.props.get('image_file', '')
@@ -92,6 +96,7 @@ class ImageMaterial(Material):
     @image_file.setter
     def image_file(self, filename):
         self.props['image_file'] = filename
+        self.save()
 
     @property
     def image_link(self):
@@ -104,6 +109,7 @@ class ImageMaterial(Material):
     @click_link.setter
     def click_link(self, link):
         self.props['image_click'] = link
+        self.save()
 
     @property
     def monitor_link(self):
@@ -112,11 +118,10 @@ class ImageMaterial(Material):
     @monitor_link.setter
     def monitor_link(self, link):
         self.props['image_monitor'] = link
+        self.save()
 
     @property
     def html(self):
-        if self.code:
-            return self.code
         context = {'image_link': self.image_link,
                    'click_link': self.click_link,
                    'monitor_link': self.monitor_link,

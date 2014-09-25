@@ -12,16 +12,6 @@ def prepare_deploy():
     local("echo ------------------------")
 
 
-def activate_virtualenv():
-    run('cd %s' % env.path)
-    run('export PYENV_ROOT="/home/inad/.pyenv"')
-    run('export PATH="/home/inad/.pyenv/bin:$PATH"')
-    run('eval "$(pyenv init -)"')
-    run('eval "$(pyenv virtualenv-init -)"')
-    run('eval "$(pyenv activate inadenv)"')
-    run('export PATH="$PYENV_ROOT/versions/inadenv/bin/:$PATH"')
-
-
 @task
 def checkout_latest():
     """Pull the latest code into the git repo and copy to a timestamped release directory"""
@@ -34,12 +24,12 @@ def checkout_latest():
 
 def install_requirements():
     """Install the required packages using pip"""
-    run('cd %(path)s/releases/%(release)s; pip install -r requirements.txt' % env)
+    run('cd %(path)s/releases/%(release)s; pyenv shell inadenv; pip install -r requirements.txt' % env)
 
 
 def migrate():
     """Run our migrations"""
-    run('cd %(path)s/releases/%(release)s; python manage.py db upgrade' % env)
+    run('cd %(path)s/releases/%(release)s; pyenv shell inadenv; python manage.py db upgrade' % env)
 
 
 def symlink_current_release():
@@ -70,7 +60,6 @@ def rollback():
 def deploy():
     prepare_deploy()
     checkout_latest()
-    activate_virtualenv()
     install_requirements()
     migrate()
     symlink_current_release()
