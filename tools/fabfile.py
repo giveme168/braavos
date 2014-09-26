@@ -64,3 +64,8 @@ def deploy():
     migrate()
     symlink_current_release()
     restart_server()
+
+
+@task
+def export():
+    run('bash /home/inad/apps/braavos/start_export')
