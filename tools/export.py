@@ -24,7 +24,7 @@ DATA_EXPIRES_TIME = 60 * 60 * 24
 
 
 def get_export_schedules_units(_date=datetime.date.today()):
-    schedules = AdSchedule.query.filter_by(date=_date)
+    schedules = AdSchedule.export_schedules(_date)
     return [schedule_info(s) for s in schedules], units_info(schedules)
 
 
@@ -74,5 +74,7 @@ if __name__ == '__main__':
     ad_schedules_key = "AD:Date:%s:Schedules" % _date.strftime(DATE_FORMAT)
     ad_units_key = "AD:Date:%s:Units" % _date.strftime(DATE_FORMAT)
     s_info, u_info = get_export_schedules_units()
+    print s_info
+    print u_info
     redis_client.setex(ad_schedules_key, DATA_EXPIRES_TIME, json.dumps(s_info))
     redis_client.setex(ad_units_key, DATA_EXPIRES_TIME, json.dumps(u_info))
