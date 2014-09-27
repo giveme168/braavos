@@ -6,15 +6,19 @@
 
 - 1. postgresql
 - 2. [pyenv](https://github.com/yyuu/pyenv) + [pyenv-virtualenv](https://github.com/yyuu/pyenv-virtualenv)
+  - pyenv virtualenv braavos
 
 ### How To Start:
 
 - 1. create database on postgresql #[PostgreSQL新手入门](http://www.ruanyifeng.com/blog/2013/12/getting_started_with_postgresql.html)
+  - createdb braavos
 - 2. edit local_config.py, SQLALCHEMY_DATABASE_URI is required
+  - cp local_config.py.sample local_config.py
+  - edit local_config.py
 - 3. pip install -r requirements.txt  # in your virtual env
 - 4. make hook  # init git hooks
-- 5. make web  # = make clear + make fill + make server 
-- 6. use Account0: test0@inad.com Password: pwd123 to login
+- 5. make web  # = make clear + make fill + make serve
+- 6. use Account0: test0@inad.com Password: default_password to login
 
 
 ### Filled Data When make fill
