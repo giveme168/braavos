@@ -1,5 +1,6 @@
 {% macro items_tab_content(items_info) -%}
-<table class="table table-bordered table-hover table-striped table-condensed text-center">
+<div class="table-responsive" style="overflow-x: scroll">
+<table class="table table-bordered table-hover table-striped table-condensed text-center"]>
   <thead>
     <tr>
       <th rowspan="2" style="min-width: 40px;">售卖类型</th>
@@ -23,7 +24,7 @@
       {% endfor %}
     </tr>
   </thead>
-  </tbody>
+  <tbody>
     {% for v, sale_type_cn, sale_type_items in items_info['items'] %}
       {% for i in sale_type_items %}
       <tr>
@@ -33,10 +34,16 @@
         <td>
           <input type="checkbox" class="checkbox_one" name="item_id" value="{{i.id}}">
         </td>
-        <td><a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.position.name}}</a></td>
+        {% if i.status == 1 %}
+        <td>
+        {% else %}
+        <td style="background: #f2dede">
+        {% endif %}
+          <a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.position.name}}</a>
+        </td>
         {% for d in items_info['dates'] %}
           <th>{{i.schedule_by_date(d).num}}</th>
-        {% endfor %}        
+        {% endfor %}
         <td>{{i.schedule_sum}}</td>
         <td>{{i.position.price}}</td>
       </tr>
@@ -44,6 +51,7 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
 {%- endmacro %}
 
 {% macro button_by_action(order, action) -%}
@@ -57,9 +65,9 @@
 {%- endmacro %}
 
 {% macro leader_select(step, leaders) -%}
-<div class="form-group">      
+<div class="form-group">
         <label for="name" class="col-sm-2-1 control-label">Leader : </label>
-        <div class="col-sm-5">          
+        <div class="col-sm-5">
             <select class="form-control bra-form-control" id="leader{{step}}" multiple="" name="leader" placeholder="Leader">
               {% for (k,m) in leaders %}
               <option value="{{k}}">{{m}}</option>
@@ -121,10 +129,12 @@
   <div class="tab-pane fade" id="tab-4">
     <form action="{{url_for('order.items_status_update', order_id=order.id, step=4)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(4)) }}
-    </form>
-    <div>
+      <div class="col_change_state_button">
+        {{ button_by_action(order, 6) }}
+        {{ button_by_action(order, 7) }}
         {{ button_export_schedule(4, order)}}
-    </div>
+      </div>
+    </form>
   </div>
 </div>
 <style>

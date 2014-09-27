@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 import StringIO
 import mimetypes
 from werkzeug.datastructures import Headers
@@ -335,9 +335,9 @@ def items_status_update(order_id, step):
 
 def get_next_step(step, action):
     if action in ORDER_REJECT:
-        step = int(step) - 1
+        step = max(int(step) - 1, 0)
     else:
-        step = int(step) + 1
+        step = min(int(step) + 1, 4)
     return step
 
 
