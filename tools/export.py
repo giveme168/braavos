@@ -74,7 +74,5 @@ if __name__ == '__main__':
     ad_schedules_key = "AD:Date:%s:Schedules" % _date.strftime(DATE_FORMAT)
     ad_units_key = "AD:Date:%s:Units" % _date.strftime(DATE_FORMAT)
     s_info, u_info = get_export_schedules_units()
-    print s_info
-    print u_info
     redis_client.setex(ad_schedules_key, DATA_EXPIRES_TIME, json.dumps(s_info))
     redis_client.setex(ad_units_key, DATA_EXPIRES_TIME, json.dumps(u_info))

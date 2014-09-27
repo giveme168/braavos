@@ -4,12 +4,12 @@
 
 ### Develop Dependence
 
-- 1. postgresql or sqllite
+- 1. postgresql
 - 2. [pyenv](https://github.com/yyuu/pyenv) + [pyenv-virtualenv](https://github.com/yyuu/pyenv-virtualenv)
 
 ### How To Start:
 
-- 1. create database
+- 1. create database on postgresql #[PostgreSQL新手入门](http://www.ruanyifeng.com/blog/2013/12/getting_started_with_postgresql.html)
 - 2. edit local_config.py, SQLALCHEMY_DATABASE_URI is required
 - 3. pip install -r requirements.txt  # in your virtual env
 - 4. make hook  # init git hooks
