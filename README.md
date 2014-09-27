@@ -14,6 +14,14 @@
 - 3. pip install -r requirements.txt  # in your virtual env
 - 4. make hook  # init git hooks
 - 5. make web  # = make clear + make fill + make server 
+- 6. use Account0: test0@inad.com Password: pwd123 to login
+
+
+### Filled Data When make fill
+
+- Account: test0@inad.com Password: pwd123  Role: Admin
+- Account: test1@inad.com Password: pwd123  Role: Leader
+- Account: test2@inad.com Password: pwd123  Role: Saler
 
 ### Test
 
@@ -23,7 +31,8 @@
 
 - 1. nginx
 - 2. supervisor
-- 3. gunicorn
+- 3. [pyenv](https://github.com/yyuu/pyenv) + [pyenv-virtualenv](https://github.com/yyuu/pyenv-virtualenv)
+- 4. gunicorn
 
 ### Deploy
 

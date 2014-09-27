@@ -1,3 +1,20 @@
 class DevelopmentConfig(object):
+    MAIL_SERVER = 'smtp.qq.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = 'YourName@inad.com'
+    MAIL_PASSWORD = 'YourPassword'
+    MAIL_DEFAULT_SENDER = 'YourName@inad.com'
+    MAIL_DEBUG = False
+    MAIL_SUPPRESS_SEND = False
+
+    SECRET_KEY = 'a hash key'
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/braavos'
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'postgresql://vagrant:vagrant@localhost/braavos'
+
+    DOMAIN = 'http://dev:8000'
+    AD_DOMAIN = 'http://dev:8002'
+    UPLOADED_FILES_DEST = '/tmp/braavos/'
+    UPLOADED_FILES_URL = '/files/'
