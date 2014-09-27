@@ -17,3 +17,6 @@ clean_pyc:
 
 hook:
 	cp hooks/pre-commit .git/hooks/
+
+export:
+	python tools/export.py

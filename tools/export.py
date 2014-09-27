@@ -24,7 +24,7 @@ DATA_EXPIRES_TIME = 60 * 60 * 24
 
 
 def get_export_schedules_units(_date=datetime.date.today()):
-    schedules = AdSchedule.query.filter_by(date=_date)
+    schedules = AdSchedule.export_schedules(_date)
     return [schedule_info(s) for s in schedules], units_info(schedules)
 
 

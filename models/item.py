@@ -1,10 +1,10 @@
 # -*- coding: UTF-8 -*-
-from datetime import datetime, time, timedelta
+import datetime
 from flask import url_for
 
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
-from consts import STATUS_CN, DATE_FORMAT
+from consts import STATUS_CN, STATUS_ON, DATE_FORMAT
 
 SALE_TYPE_NORMAL = 0         # 标准, 购买
 SALE_TYPE_GIFT = 1           # 配送
@@ -111,7 +111,7 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
     # 创建者
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_items', lazy='dynamic'))
-    create_time = db.Column(db.DateTime, default=datetime.now())
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now())
 
     def __init__(self, order, sale_type, special_sale, position, creator, create_time):
         self.order = order
@@ -127,6 +127,11 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
     @property
     def name(self):
         return "%s-%s" % (self.position.name, self.description or u"描述")
+
+    def is_active(self):
+        return all([self.status == STATUS_ON,
+                    self.item_status == ITEM_STATUS_ORDER,
+                    self.materials.count() > 0])
 
     @property
     def sale_type_cn(self):
@@ -163,7 +168,7 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
     def get_schedule_info_by_week(self):
         ret = {}
         for x in range((self.end_date - self.start_date).days + 1):
-            _date = self.start_date + timedelta(days=x)
+            _date = self.start_date + datetime.timedelta(days=x)
             schedule = self.schedule_by_date(_date)
             info_dict = {}
             info_dict['date'] = _date
@@ -217,7 +222,7 @@ class AdSchedule(db.Model, BaseModelMixin):
     start = db.Column(db.Time)  # 开始时间
     end = db.Column(db.Time)  # 结束时间
 
-    def __init__(self, item, num, date, start=time.min, end=time.max):
+    def __init__(self, item, num, date, start=datetime.time.min, end=datetime.time.max):
         self.item = item
         self.num = num
         self.date = date
@@ -230,6 +235,10 @@ class AdSchedule(db.Model, BaseModelMixin):
     @property
     def units(self):
         return self.item.position.units
+
+    @classmethod
+    def export_schedules(cls, _date=datetime.date.today()):
+        return [s for s in cls.all() if s.date == _date and s.item.is_active()]
 
 
 class ChangeStateApply(object):
