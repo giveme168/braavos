@@ -21,6 +21,7 @@ from models.order import Order
 from models.user import User, TEAM_TYPE_LEADER
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
+from models.material import Material
 
 from libs.signals import change_state_apply_signal
 
@@ -108,6 +109,18 @@ def order_detail(order_id, step):
 def orders():
     orders = Order.all()
     return tpl('orders.html', orders=orders)
+
+
+@order_bp.route('/items', methods=['GET'])
+def items():
+    items = AdItem.all()
+    return tpl('items.html', items=items)
+
+
+@order_bp.route('/materials', methods=['GET'])
+def materials():
+    materials = Material.all()
+    return tpl('materials.html', materials=materials)
 
 
 @order_bp.route('/order/<order_id>/new_item/<type>')
