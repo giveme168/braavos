@@ -83,7 +83,7 @@ ITEM_STATUS_ACTION_CN = {
     ITEM_STATUS_ACTION_ORDER_APPLY: u"申请下单",
     ITEM_STATUS_ACTION_ORDER_PASS: u"通过(下单)",
     ITEM_STATUS_ACTION_ORDER_REJECT: u"不通过(下单)",
-    ITEM_STATUS_ACTION_ACTIVE: u"激活",
+    ITEM_STATUS_ACTION_ACTIVE: u"开启",
     ITEM_STATUS_ACTION_PAUSE: u"暂停",
 }
 
@@ -198,23 +198,30 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
     def update_items_with_action(cls, items, action, user):
         next_status = ITEM_STATUS_PRE
         status = STATUS_ON
+
         print 'start to update'
         if action == ITEM_STATUS_ACTION_PRE_ORDER:
             next_status = ITEM_STATUS_PRE
+            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_PRE_ORDER_PASS:
             next_status = ITEM_STATUS_PRE_PASS
+            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_PRE_ORDER_REJECT:
             next_status = ITEM_STATUS_NEW
+            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_ORDER_APPLY:
             next_status = ITEM_STATUS_ORDER_APPLY
+            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_ORDER_PASS:
             next_status = ITEM_STATUS_ORDER
+            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_ORDER_REJECT:
             next_status = ITEM_STATUS_PRE_PASS
+            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_ACTIVE:
             next_status = ITEM_STATUS_ORDER
+            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_PAUSE:
-            print 'pause'
             next_status = ITEM_STATUS_ORDER
             status = STATUS_OFF
 
