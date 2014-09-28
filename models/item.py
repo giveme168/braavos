@@ -137,6 +137,10 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
                     self.item_status == ITEM_STATUS_ORDER,
                     self.materials.count() > 0])
 
+    # used in the templates
+    def is_status_on(self):
+        return self.status == STATUS_ON
+
     @property
     def sale_type_cn(self):
         return SALE_TYPE_CN[self.sale_type]
@@ -194,7 +198,7 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
     def update_items_with_action(cls, items, action, user):
         next_status = ITEM_STATUS_PRE
         status = STATUS_ON
-
+        print 'start to update'
         if action == ITEM_STATUS_ACTION_PRE_ORDER:
             next_status = ITEM_STATUS_PRE
         elif action == ITEM_STATUS_ACTION_PRE_ORDER_PASS:
@@ -210,13 +214,13 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
         elif action == ITEM_STATUS_ACTION_ACTIVE:
             next_status = ITEM_STATUS_ORDER
         elif action == ITEM_STATUS_ACTION_PAUSE:
+            print 'pause'
             next_status = ITEM_STATUS_ORDER
             status = STATUS_OFF
 
         for i in items:
             i.item_status = next_status
             i.status = status
-            print i.position.name, i.status, next_status
             i.save()
             i.add_comment(user, "%s : %s " % (i.name, ITEM_STATUS_ACTION_CN[action]))
 
