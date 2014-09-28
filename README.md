@@ -26,7 +26,7 @@
 
 ### 开发流程
 
-- 1.Fork
+- 1.Fork & Clone
 - 2.创建您的特性分支 (git checkout -b my-new-feature)
 - 3.提交您的改动 (git commit -am 'Added some feature')
 - 4.将您的修改记录提交到远程 git 仓库 (git push origin my-new-feature)
