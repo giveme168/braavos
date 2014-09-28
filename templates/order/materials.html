@@ -1,0 +1,22 @@
+{% extends "/order_base.html" %}
+{% block title %}广告素材列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3> 广告素材列表</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>素材名</th>
+            <th>所属订单项</th>
+            <th>创建者</th>
+        </tr>
+        {% for m in materials %}
+        <tr>
+            <td><a href="{{m.path()}}">{{m.name}}</a></td>
+            <td><a href="{{url_for("order.item_detail", item_id=m.item.id)}}">{{m.item.name}}</a></td>
+            <td>{{m.creator.name}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
