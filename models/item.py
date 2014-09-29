@@ -199,7 +199,6 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
         next_status = ITEM_STATUS_PRE
         status = STATUS_ON
 
-        print 'start to update'
         if action == ITEM_STATUS_ACTION_PRE_ORDER:
             next_status = ITEM_STATUS_PRE
         elif action == ITEM_STATUS_ACTION_PRE_ORDER_PASS:
