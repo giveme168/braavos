@@ -218,7 +218,7 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
 
         # update the item_status or the status based on the action
         for i in items:
-            if (action == ITEM_STATUS_ACTION_ACTIVE) or (action == ITEM_STATUS_ACTION_PAUSE):
+            if action in [ITEM_STATUS_ACTION_ACTIVE, ITEM_STATUS_ACTION_PAUSE]:
                 i.status = status
             else:
                 i.item_status = next_status
