@@ -53,8 +53,8 @@ ITEM_STATUS_ORDER_APPLY = 3
 ITEM_STATUS_ORDER = 4
 
 ITEM_STATUS_CN = {
-    ITEM_STATUS_NEW: u"新建",
-    ITEM_STATUS_PRE: u"预下单",
+    ITEM_STATUS_NEW: u"未下单",
+    ITEM_STATUS_PRE: u"预下单(待审核)",
     ITEM_STATUS_PRE_PASS: u"预下单(通过)",
     ITEM_STATUS_ORDER_APPLY: u"下单(待审核)",
     ITEM_STATUS_ORDER: u"已下单"
@@ -76,6 +76,11 @@ ITEM_STATUS_LEADER_ACTIONS = [
     ITEM_STATUS_ACTION_ORDER_REJECT
 ]
 
+ITEM_STATUS_AGREE_ACTION = [
+    ITEM_STATUS_ACTION_PRE_ORDER_PASS,
+    ITEM_STATUS_ACTION_ORDER_PASS
+]
+
 ITEM_STATUS_ACTION_CN = {
     ITEM_STATUS_ACTION_PRE_ORDER: u"预下单",
     ITEM_STATUS_ACTION_PRE_ORDER_PASS: u"通过(预下单)",
@@ -89,8 +94,14 @@ ITEM_STATUS_ACTION_CN = {
 
 ITEM_ACTION_CN = {
     ITEM_STATUS_ACTION_PRE_ORDER: u"预下单",
-    ITEM_STATUS_ACTION_ORDER_APPLY: u"下单"
+    ITEM_STATUS_ACTION_ORDER_APPLY: u"下单",
+    ITEM_STATUS_ACTION_PRE_ORDER_PASS: u"预下单通过",
+    ITEM_STATUS_ACTION_PRE_ORDER_REJECT: u"预下单不通过",
+    ITEM_STATUS_ACTION_ORDER_PASS: u"下单通过",
+    ITEM_STATUS_ACTION_ORDER_REJECT: u"下单不通过"
 }
+
+ORDER_REJECT = (ITEM_STATUS_ACTION_PRE_ORDER_REJECT, ITEM_STATUS_ACTION_ORDER_REJECT)
 
 
 class AdItem(db.Model, BaseModelMixin, CommentMixin):
@@ -228,6 +239,14 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
     def path(self):
         return url_for('order.item_detail', item_id=self.id)
 
+    @classmethod
+    def get_next_step(self, step, action):
+        if action in ORDER_REJECT:
+            step = int(step) - 1
+        else:
+            step = int(step) + 1
+        return step
+
 
 class AdSchedule(db.Model, BaseModelMixin):
     __tablename__ = 'bra_schedule'
@@ -260,8 +279,9 @@ class AdSchedule(db.Model, BaseModelMixin):
 
 
 class ChangeStateApply(object):
-    def __init__(self, type, leaders, order):
-        self.type = type
-        self.leaders = leaders
+    def __init__(self, step, type, receiver, order):
+        self.receiver = receiver
         self.order = order
         self.type_cn = ITEM_ACTION_CN[type]
+        self.next_step = AdItem.get_next_step(step, type)
+        self.agree = type in ITEM_STATUS_AGREE_ACTION

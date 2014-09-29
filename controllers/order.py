@@ -13,22 +13,22 @@ from forms.item import ItemForm
 from models.client import Client, Agent
 from models.medium import Medium, AdPosition
 from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
-                         ITEM_STATUS_ACTION_PRE_ORDER_REJECT,
-                         ITEM_STATUS_ACTION_ORDER_REJECT,
-                         ITEM_STATUS_ACTION_CN, ITEM_STATUS_CN,
-                         ITEM_STATUS_PRE_PASS, ChangeStateApply)
+                         ITEM_STATUS_ACTION_CN, ITEM_STATUS_CN, ChangeStateApply,
+                         ITEM_STATUS_LEADER_ACTIONS,
+                         ITEM_STATUS_ACTION_PRE_ORDER,
+                         ITEM_STATUS_ACTION_ORDER_APPLY)
 from models.order import Order
 from models.user import User, TEAM_TYPE_LEADER
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
 from models.material import Material
 
-from libs.signals import change_state_apply_signal
+from libs.signals import order_apply_signal, reply_apply_signal
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
-ORDER_REJECT = (ITEM_STATUS_ACTION_PRE_ORDER_REJECT, ITEM_STATUS_ACTION_ORDER_REJECT)
-STATUS_APPLLY = (ITEM_STATUS_NEW, ITEM_STATUS_PRE_PASS)
+
+STATUS_APPLLY = (ITEM_STATUS_ACTION_PRE_ORDER, ITEM_STATUS_ACTION_ORDER_APPLY)
 
 
 @order_bp.route('/', methods=['GET'])
@@ -314,31 +314,32 @@ def items_status_update(order_id, step):
         flash(u"请选择订单项")
     else:
         action = int(request.form.get('action'))
-        if int(step) in STATUS_APPLLY:
+        if action in STATUS_APPLLY:
             if not leaders:
                 flash(u"请选择Leader")
                 return redirect(url_for('order.order_detail', order_id=order.id, step=step))
             else:
                 apply = ChangeStateApply(
+                    step,
                     action,
                     [User.get(m).email for m in leaders],
                     order)
-                change_state_apply_signal.send(apply)
+                order_apply_signal.send(apply)
+                flash(u"请在2个自然日内与审核Leaer联系")
+        if action in ITEM_STATUS_LEADER_ACTIONS:
+            apply = ChangeStateApply(
+                step,
+                action,
+                [order.creator.email],
+                order)
+            reply_apply_signal.send(apply)
         items = AdItem.gets(item_ids)
         AdItem.update_items_with_action(items, action, g.user)
         msg = '\n\n'.join(['%s : %s' % (item.name, ITEM_STATUS_ACTION_CN[action]) for item in items])
         order.add_comment(g.user, msg)
-        flash(u'%s个排期项%s' % (len(items), ITEM_STATUS_ACTION_CN[action]))
-        step = get_next_step(step, action)
+        flash(u'%s个排期项%s。请将理由在留言板上留言说明' % (len(items), ITEM_STATUS_ACTION_CN[action]))
+        step = AdItem.get_next_step(step, action)
     return redirect(url_for('order.order_detail', order_id=order.id, step=step))
-
-
-def get_next_step(step, action):
-    if action in ORDER_REJECT:
-        step = max(int(step) - 1, 0)
-    else:
-        step = min(int(step) + 1, 4)
-    return step
 
 
 @order_bp.route('/schedule_file/<order_id>/<step>', methods=['GET', 'POST'])
