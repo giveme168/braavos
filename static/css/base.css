@@ -107,3 +107,8 @@ body{
 .col_change_state_button {
     margin-bottom: 15px;
 }
+
+.table-container {
+    overflow-x: scroll;
+    margin-bottom : 5px;
+}

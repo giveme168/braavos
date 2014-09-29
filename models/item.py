@@ -1,10 +1,10 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 import datetime
 from flask import url_for
 
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
-from consts import STATUS_CN, STATUS_ON, DATE_FORMAT
+from consts import STATUS_CN, STATUS_ON, DATE_FORMAT, STATUS_OFF
 
 SALE_TYPE_NORMAL = 0         # 标准, 购买
 SALE_TYPE_GIFT = 1           # 配送
@@ -66,6 +66,8 @@ ITEM_STATUS_ACTION_PRE_ORDER_REJECT = 2
 ITEM_STATUS_ACTION_ORDER_APPLY = 3
 ITEM_STATUS_ACTION_ORDER_PASS = 4
 ITEM_STATUS_ACTION_ORDER_REJECT = 5
+ITEM_STATUS_ACTION_ACTIVE = 6
+ITEM_STATUS_ACTION_PAUSE = 7
 
 ITEM_STATUS_LEADER_ACTIONS = [
     ITEM_STATUS_ACTION_PRE_ORDER_PASS,
@@ -80,7 +82,9 @@ ITEM_STATUS_ACTION_CN = {
     ITEM_STATUS_ACTION_PRE_ORDER_REJECT: u"不通过(预下单)",
     ITEM_STATUS_ACTION_ORDER_APPLY: u"申请下单",
     ITEM_STATUS_ACTION_ORDER_PASS: u"通过(下单)",
-    ITEM_STATUS_ACTION_ORDER_REJECT: u"不通过(下单)"
+    ITEM_STATUS_ACTION_ORDER_REJECT: u"不通过(下单)",
+    ITEM_STATUS_ACTION_ACTIVE: u"开启",
+    ITEM_STATUS_ACTION_PAUSE: u"暂停",
 }
 
 ITEM_ACTION_CN = {
@@ -132,6 +136,10 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
         return all([self.status == STATUS_ON,
                     self.item_status == ITEM_STATUS_ORDER,
                     self.materials.count() > 0])
+
+    # used in the templates
+    def is_status_on(self):
+        return self.status == STATUS_ON
 
     @property
     def sale_type_cn(self):
@@ -189,6 +197,8 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
     @classmethod
     def update_items_with_action(cls, items, action, user):
         next_status = ITEM_STATUS_PRE
+        status = STATUS_ON
+
         if action == ITEM_STATUS_ACTION_PRE_ORDER:
             next_status = ITEM_STATUS_PRE
         elif action == ITEM_STATUS_ACTION_PRE_ORDER_PASS:
@@ -201,9 +211,17 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
             next_status = ITEM_STATUS_ORDER
         elif action == ITEM_STATUS_ACTION_ORDER_REJECT:
             next_status = ITEM_STATUS_PRE_PASS
+        elif action == ITEM_STATUS_ACTION_ACTIVE:
+            status = STATUS_ON
+        elif action == ITEM_STATUS_ACTION_PAUSE:
+            status = STATUS_OFF
 
+        # update the item_status or the status based on the action
         for i in items:
-            i.item_status = next_status
+            if action in [ITEM_STATUS_ACTION_ACTIVE, ITEM_STATUS_ACTION_PAUSE]:
+                i.status = status
+            else:
+                i.item_status = next_status
             i.save()
             i.add_comment(user, "%s : %s " % (i.name, ITEM_STATUS_ACTION_CN[action]))
 

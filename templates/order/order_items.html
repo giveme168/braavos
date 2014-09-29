@@ -1,30 +1,33 @@
+{% set ACTION_ACTIVE = 6 %}
+{% set ACTION_PAUSE = 7 %}
 {% macro items_tab_content(items_info) -%}
-<table class="table table-bordered table-hover table-striped table-condensed text-center">
-  <thead>
-    <tr>
-      <th rowspan="2" style="min-width: 40px;">售卖类型</th>
-      <th rowspan="2" style="min-width: 40px;" class="text-center">
-        <input type="checkbox" class="checkbox_all">
-      </th>
-      <th rowspan="2" style="min-width: 80px;">展示位置</th>
-      {% for m, m_len in items_info['months'].items() %}
-          <th colspan="{{m_len}}" class="text-center">{{m}} 月</th>
-      {% endfor %}
-      <th rowspan="2">总预订量</th>
-      <th rowspan="2" style="min-width: 40px;">刊例单价</th>
-    </tr>
-    <tr>
-      {% for d in items_info['dates'] %}
+<div class="table-container">
+  <table class="table table-bordered table-striped table-condensed text-center"]>
+    <thead>
+      <tr>
+        <th rowspan="2" style="min-width: 40px;">售卖类型</th>
+        <th rowspan="2" style="min-width: 40px;" class="text-center">
+          <input type="checkbox" class="checkbox_all">
+        </th>
+        <th rowspan="2" style="min-width: 80px;">展示位置</th>
+        {% for m, m_len in items_info['months'].items() %}
+        <th colspan="{{m_len}}" class="text-center">{{m}} 月</th>
+        {% endfor %}
+        <th rowspan="2">总预订量</th>
+        <th rowspan="2" style="min-width: 40px;">刊例单价</th>
+      </tr>
+      <tr>
+        {% for d in items_info['dates'] %}
         {% if d.isoweekday() in [6, 7] %}
         <td class="bg-success">{{d.day}}</td>
         {% else %}
         <td class="bg-info">{{d.day}}</td>
         {% endif %}
-      {% endfor %}
-    </tr>
-  </thead>
-  </tbody>
-    {% for v, sale_type_cn, sale_type_items in items_info['items'] %}
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for v, sale_type_cn, sale_type_items in items_info['items'] %}
       {% for i in sale_type_items %}
       <tr>
         {% if loop.index == 1 %}
@@ -33,17 +36,24 @@
         <td>
           <input type="checkbox" class="checkbox_one" name="item_id" value="{{i.id}}">
         </td>
-        <td><a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.position.name}}</a></td>
+        {% if i.is_status_on() %}
+        <td>
+        {% else %}
+        <td style="background: #f2dede">
+        {% endif %}
+          <a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.position.name}}</a>
+        </td>
         {% for d in items_info['dates'] %}
-          <th>{{i.schedule_by_date(d).num}}</th>
-        {% endfor %}        
+        <th>{{i.schedule_by_date(d).num}}</th>
+        {% endfor %}
         <td>{{i.schedule_sum}}</td>
         <td>{{i.position.price}}</td>
       </tr>
       {% endfor %}
-    {% endfor %}
-  </tbody>
-</table>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {%- endmacro %}
 
 {% macro button_by_action(order, action) -%}
@@ -57,9 +67,9 @@
 {%- endmacro %}
 
 {% macro leader_select(step, leaders) -%}
-<div class="form-group">      
+<div class="form-group">
         <label for="name" class="col-sm-2-1 control-label">Leader : </label>
-        <div class="col-sm-5">          
+        <div class="col-sm-5">
             <select class="form-control bra-form-control" id="leader{{step}}" multiple="" name="leader" placeholder="Leader">
               {% for (k,m) in leaders %}
               <option value="{{k}}">{{m}}</option>
@@ -121,10 +131,12 @@
   <div class="tab-pane fade" id="tab-4">
     <form action="{{url_for('order.items_status_update', order_id=order.id, step=4)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(4)) }}
-    </form>
-    <div>
+      <div class="col_change_state_button">
+        {{ button_by_action(order, ACTION_ACTIVE) }}
+        {{ button_by_action(order, ACTION_PAUSE) }}
         {{ button_export_schedule(4, order)}}
-    </div>
+      </div>
+    </form>
   </div>
 </div>
 <style>
