@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 from flask import Blueprint, request, redirect, url_for, abort, g
 from flask import render_template as tpl, flash
 from flask.ext.login import login_user, logout_user, current_user
@@ -26,7 +26,7 @@ def login():
             login_user(user)
             if user.check_password(DEFAULT_PASSWORD):
                 flash(u'您还在使用默认密码, 请及时<a href="%s">修改您的密码!</a>' % url_for('user.pwd_change'), 'danger')
-            return redirect(request.args.get("next") or url_for("user.teams"))
+            return redirect(request.args.get("next", "/")
     return tpl('login.html', form=form)
 
 
