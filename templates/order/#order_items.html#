@@ -1,0 +1,151 @@
+{% set ACTION_ACTIVE = 6 %}
+{% set ACTION_PAUSE = 7 %}
+{% macro items_tab_content(items_info) -%}
+<div class="table-container">
+  <table class="table table-bordered table-striped table-condensed text-center"]>
+    <thead>
+      <tr>
+        <th rowspan="2" style="min-width: 40px;">售卖类型</th>
+        <th rowspan="2" style="min-width: 40px;" class="text-center">
+          <input type="checkbox" class="checkbox_all">
+        </th>
+        <th rowspan="2" style="min-width: 80px;">展示位置</th>
+        {% for m, m_len in items_info['months'].items() %}
+        <th colspan="{{m_len}}" class="text-center">{{m}} 月</th>
+        {% endfor %}
+        <th rowspan="2">总预订量</th>
+        <th rowspan="2" style="min-width: 40px;">刊例单价</th>
+      </tr>
+      <tr>
+        {% for d in items_info['dates'] %}
+        {% if d.isoweekday() in [6, 7] %}
+        <td class="bg-success">{{d.day}}</td>
+        {% else %}
+        <td class="bg-info">{{d.day}}</td>
+        {% endif %}
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for v, sale_type_cn, sale_type_items in items_info['items'] %}
+      {% for i in sale_type_items %}
+      <tr>
+        {% if loop.index == 1 %}
+        <td rowspan="{{sale_type_items|length}}" style="vertical-align: middle;">{{sale_type_cn}}</td>
+        {% endif %}
+        <td>
+          <input type="checkbox" class="checkbox_one" name="item_id" value="{{i.id}}">
+        </td>
+        {% if i.is_status_on() %}
+        <td>
+        {% else %}
+        <td style="background: #f2dede">
+        {% endif %}
+          <a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.position.name}}</a>
+        </td>
+        {% for d in items_info['dates'] %}
+        <th>{{i.schedule_by_date(d).num}}</th>
+        {% endfor %}
+        <td>{{i.schedule_sum}}</td>
+        <td>{{i.position.price}}</td>
+      </tr>
+      {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{%- endmacro %}
+
+{% macro button_by_action(order, action) -%}
+{% if order.can_action(g.user, action) %}
+  <button class="btn btn-sm btn-primary" type="submit" name="action" value="{{action}}">{{action | item_status_action_cn}}</button>
+{% endif %}
+{%- endmacro %}
+
+{% macro button_export_schedule(step, order) -%}
+ <a class="btn btn-sm btn-primary" href="{{ url_for('order.export_schedule', step=step, order_id=order.id) }}" name="export_schedule" value="{{step}}">导出排期</a>
+{%- endmacro %}
+
+{% macro leader_select(step, leaders) -%}
+<div class="form-group">
+        <label for="name" class="col-sm-2-1 control-label">Leader : </label>
+        <div class="col-sm-5">
+            <select class="form-control bra-form-control" id="leader{{step}}" multiple="" name="leader" placeholder="Leader">
+              {% for (k,m) in leaders %}
+              <option value="{{k}}">{{m}}</option>
+              {% endfor %}
+              </select>
+        </div>
+  </div>
+{%- endmacro %}
+
+{% macro order_items(order, step, leaders) -%}
+<ul class="nav nav-pills" role="tablist">
+  <li role="presentation" class="active"><a id="0" href="#tab-0" role="tab" data-toggle="tab">新建</a></li>
+  <li role="presentation"><a id="1" href="#tab-1" role="tab" data-toggle="tab">预下单</a></li>
+  <li role="presentation"><a id="2" href="#tab-2" role="tab" data-toggle="tab">预下单(通过)</a></li>
+  <li role="presentation"><a id="3" href="#tab-3" role="tab" data-toggle="tab">下单(待审核)</a></li>
+  <li role="presentation"><a id="4" href="#tab-4" role="tab" data-toggle="tab">已下单</a></li>
+</ul>
+<div class="tab-content">
+  <div class="tab-pane fade in active" id="tab-0">
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=0)}}" method="POST">
+      {{ items_tab_content(order.items_info_by_status(0)) }}
+      <div class="col_change_state_button">
+        {{ leader_select(0, leaders) }}
+        {{ button_by_action(order, 0) }}
+        {{ button_export_schedule(0, order)}}
+      </div>
+    </form>
+  </div>
+  <div class="tab-pane fade" id="tab-1">
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=1)}}" method="POST">
+      {{ items_tab_content(order.items_info_by_status(1)) }}
+      <div class="col_change_state_button">
+        {{ button_by_action(order, 1) }}
+        {{ button_by_action(order, 2) }}
+        {{ button_export_schedule(1, order)}}
+      </div>
+    </form>
+  </div>
+  <div class="tab-pane fade" id="tab-2">
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=2)}}" method="POST">
+      {{ items_tab_content(order.items_info_by_status(2)) }}
+      <div class="col_change_state_button">
+        {{ leader_select(3, leaders) }}
+        {{ button_by_action(order, 3) }}
+        {{ button_export_schedule(2, order)}}
+      </div>
+    </form>
+  </div>
+  <div class="tab-pane fade" id="tab-3">
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=3)}}" method="POST">
+      {{ items_tab_content(order.items_info_by_status(3)) }}
+      <div class="col_change_state_button">
+        {{ button_by_action(order, 4) }}
+        {{ button_by_action(order, 5) }}
+        {{ button_export_schedule(3, order)}}
+      </div>
+    </form>
+  </div>
+  <div class="tab-pane fade" id="tab-4">
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=4)}}" method="POST">
+      {{ items_tab_content(order.items_info_by_status(4)) }}
+      <div class="col_change_state_button">
+        {{ button_by_action(order, ACTION_ACTIVE) }}
+        {{ button_by_action(order, ACTION_PAUSE) }}
+        {{ button_export_schedule(4, order)}}
+      </div>
+    </form>
+  </div>
+</div>
+<style>
+.tab-pane {padding-bottom: 15px; overflow-x:auto;overflow-y:hidden;overflow: visible;}
+</style>
+<script>
+$(document).ready(function(){
+    var step = "a#" + {{ step }};
+    $(step).click();
+});
+</script>
+{%- endmacro %}

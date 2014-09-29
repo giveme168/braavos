@@ -202,32 +202,27 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
         print 'start to update'
         if action == ITEM_STATUS_ACTION_PRE_ORDER:
             next_status = ITEM_STATUS_PRE
-            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_PRE_ORDER_PASS:
             next_status = ITEM_STATUS_PRE_PASS
-            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_PRE_ORDER_REJECT:
             next_status = ITEM_STATUS_NEW
-            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_ORDER_APPLY:
             next_status = ITEM_STATUS_ORDER_APPLY
-            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_ORDER_PASS:
             next_status = ITEM_STATUS_ORDER
-            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_ORDER_REJECT:
             next_status = ITEM_STATUS_PRE_PASS
-            status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_ACTIVE:
-            next_status = ITEM_STATUS_ORDER
             status = STATUS_ON
         elif action == ITEM_STATUS_ACTION_PAUSE:
-            next_status = ITEM_STATUS_ORDER
             status = STATUS_OFF
 
+        # update the item_status or the status based on the action
         for i in items:
-            i.item_status = next_status
-            i.status = status
+            if (action == ITEM_STATUS_ACTION_ACTIVE) or (action == ITEM_STATUS_ACTION_PAUSE):
+                i.status = status
+            else:
+                i.item_status = next_status
             i.save()
             i.add_comment(user, "%s : %s " % (i.name, ITEM_STATUS_ACTION_CN[action]))
 
