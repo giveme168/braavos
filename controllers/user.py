@@ -25,7 +25,7 @@ def login():
         if user:
             login_user(user)
             if user.check_password(DEFAULT_PASSWORD):
-                flash(u'您还在使用默认密码, 请及时到个人页面修改您的密码!', 'danger')
+                flash(u'您还在使用默认密码, 请及时<a href="%s">修改您的密码!</a>' % url_for('user.pwd_change'), 'danger')
             return redirect(request.args.get("next") or url_for("user.teams"))
     return tpl('login.html', form=form)
 
