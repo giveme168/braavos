@@ -132,10 +132,19 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin):
     def name(self):
         return "%s-%s" % (self.position.name, self.description or u"描述")
 
-    def is_active(self):
+    def is_online_ready(self):
+        """是否可以开始投放, 供导出数据的时候使用"""
         return all([self.status == STATUS_ON,
                     self.item_status == ITEM_STATUS_ORDER,
                     self.materials.count() > 0])
+
+    def is_online_by_date(self, _date):
+        """是否正在投放"""
+        return self.is_online_ready() and self.schedule_by_date(_date)
+
+    def is_online_now(self):
+        """当前是否正在投放"""
+        return self.is_online_by_date(datetime.date.today())
 
     # used in the templates
     def is_status_on(self):
@@ -255,8 +264,8 @@ class AdSchedule(db.Model, BaseModelMixin):
         return self.item.position.units
 
     @classmethod
-    def export_schedules(cls, _date=datetime.date.today()):
-        return [s for s in cls.all() if s.date == _date and s.item.is_active()]
+    def export_schedules(cls, _date):
+        return [s for s in cls.all() if s.date == _date and s.item.is_online_by_date(_date)]
 
 
 class ChangeStateApply(object):
