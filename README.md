@@ -33,10 +33,10 @@
 - 1.Fork & Clone
 - 2.git remote add upstream https://github.com/borngods/braavos.git
     git pull upstream
-- 2.创建您的特性分支 (git checkout -b my-new-feature)
-- 3.提交您的改动 (git commit -am 'Added some feature')
-- 4.将您的修改记录提交到远程 git 仓库 (git push origin my-new-feature)
-- 5.然后到 github 网站的该 git 远程仓库的 my-new-feature 分支下发起 Pull Request
+- 3.创建您的特性分支 (git checkout -b my-new-feature)
+- 4.提交您的改动 (git commit -am 'Added some feature')
+- 5.将您的修改记录提交到远程 git 仓库 (git push origin my-new-feature)
+- 6.然后到 github 网站的该 git 远程仓库的 my-new-feature 分支下发起 Pull Request
 
 ### Test
 
