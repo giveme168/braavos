@@ -149,8 +149,7 @@ class AdPosition(db.Model, BaseModelMixin):
     price = db.Column(db.Integer)
 
     def __init__(self, name, description, size, standard, status, medium,
-                 level=POSITION_LEVEL_A1, ad_type=AD_TYPE_NORMAL,
-                 cpd_num=1, max_order_num=0, price=0):
+                 level=POSITION_LEVEL_A1, ad_type=AD_TYPE_NORMAL, price=0):
         self.name = name
         self.description = description
         self.size = size
@@ -159,8 +158,6 @@ class AdPosition(db.Model, BaseModelMixin):
         self.medium = medium
         self.level = level
         self.ad_type = ad_type
-        self.cpd_num = cpd_num
-        self.max_order_num = max_order_num
         self.price = price
 
     def __repr__(self):
