@@ -20,4 +20,4 @@ def when_create_team(session):
 
 @then('用这个名字的 1 个team被创建了.')
 def then_create_a_team(session):
-    assert len(Team.all()) == 1
+    assert len(Team.query.filter_by(name='OneTeam').all()) == 1
