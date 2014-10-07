@@ -23,33 +23,38 @@ from models.consts import TIME_FORMAT, DATE_FORMAT
 DATA_EXPIRES_TIME = 60 * 60 * 24
 
 
-def get_export_schedules_units(_date=datetime.date.today()):
+def get_export_items(_date):
+    """所有该日期需要投放的排期, 广告单元索引"""
     schedules = AdSchedule.export_schedules(_date)
-    return [schedule_info(s) for s in schedules], units_info(schedules)
+    return items_info_by_schedule(schedules)
 
 
-def schedule_info(schedule):
-    item = schedule.item
-    ret = {'schedule_id': schedule.id,
-           'item_id': item.id,
-           'units': [u.id for u in schedule.units],
-           'materials': [material_info(m) for m in item.materials],
-           'schedule_num': schedule.num,
-           'start_time': schedule.start.strftime(TIME_FORMAT),
-           'end_time': schedule.end.strftime(TIME_FORMAT),
+def items_info_by_schedule(schedules):
+    """根据排期返回订单项信息的字典"""
+    ret = {}
+    for s in schedules:
+        ret[s.item.id] = item_info(s, s.item)
+    return ret
+
+
+def item_info(schedule, item):
+    """排期信息"""
+    ret = {'schedule_id': schedule.id,  # 排期id
+           'item_id': item.id,  # 订单项id
+           'units': [u.id for u in schedule.units],  # 投放单元
+           'materials': [material_info(m) for m in item.materials],  # 投放素材
+           'schedule_num': schedule.num,  # 投放量
+           'start_time': schedule.start.strftime(TIME_FORMAT),  # 起始时间
+           'end_time': schedule.end.strftime(TIME_FORMAT),  # 结束时间
            }
     return ret
 
 
-def units_info(schedules):
+def get_export_units(_date):
+    """广告单元索引信息,(订单项, 单元尺寸)"""
     ret = {}
-    for s in schedules:
-        for u in s.units:
-            u_info = ret.get(u.id, {'items': [], 'info': unit_info(u)})
-            items_set = set(u_info.get('items', []))
-            items_set.add(s.item.id)
-            u_info['items'] = list(items_set)
-            ret[u.id] = u_info
+    for u in AdUnit.all():
+        ret[str(u.id)] = {'items': [str(i.id) for i in u.online_order_items_by_date(_date)], 'info': unit_info(u)}
     return ret
 
 
@@ -71,8 +76,9 @@ def material_info(material):
 
 if __name__ == '__main__':
     _date = datetime.date.today()
-    ad_schedules_key = "AD:Date:%s:Schedules" % _date.strftime(DATE_FORMAT)
+    ad_items_key = "AD:Date:%s:Items" % _date.strftime(DATE_FORMAT)
     ad_units_key = "AD:Date:%s:Units" % _date.strftime(DATE_FORMAT)
-    s_info, u_info = get_export_schedules_units()
-    redis_client.setex(ad_schedules_key, DATA_EXPIRES_TIME, json.dumps(s_info))
+    i_info = get_export_items(datetime.date.today())
+    u_info = get_export_units(datetime.date.today())
+    redis_client.setex(ad_items_key, DATA_EXPIRES_TIME, json.dumps(i_info))
     redis_client.setex(ad_units_key, DATA_EXPIRES_TIME, json.dumps(u_info))

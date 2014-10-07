@@ -127,6 +127,18 @@ class AdUnit(db.Model, BaseModelMixin):
         retain_num = self.estimate_num - self.schedule_num(date)
         return max(retain_num, 0)
 
+    @property
+    def order_items(self):
+        """所有关联的订单项"""
+        _items = []
+        for p in self.positions:
+            for i in p.order_items:
+                _items.append(i)
+        return _items
+
+    def online_order_items_by_date(self, _date):
+        return [i for i in self.order_items if i.is_online_by_date(_date)]
+
 
 class AdPosition(db.Model, BaseModelMixin):
     __tablename__ = 'ad_position'
