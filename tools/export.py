@@ -38,7 +38,7 @@ def items_info_by_schedule(schedules):
 
 
 def item_info(schedule, item):
-    """排期信息"""
+    """排期信息 对照Storm中的 models.item.Item"""
     ret = {'schedule_id': schedule.id,  # 排期id
            'item_id': item.id,  # 订单项id
            'units': [u.id for u in schedule.units],  # 投放单元
@@ -54,12 +54,14 @@ def get_export_units(_date):
     """广告单元索引信息,(订单项, 单元尺寸)"""
     ret = {}
     for u in AdUnit.all():
-        ret[str(u.id)] = {'items': [str(i.id) for i in u.online_order_items_by_date(_date)], 'info': unit_info(u)}
+        items = [str(i.id) for i in u.online_order_items_by_date(_date)]
+        ret[str(u.id)] = unit_info(u, items)
     return ret
 
 
-def unit_info(unit):
+def unit_info(unit, items):
     ret = {'unit_id': unit.id,
+           'items': items,
            'width': unit.size.width,
            'height': unit.size.height,
            'margin': unit.margin,
