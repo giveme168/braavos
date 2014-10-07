@@ -10,12 +10,16 @@
 $(document).ready(function(){
     function ad_type_change(){
          if($("#ad_type").val() == 0){
-            $("#max_order_num").parents(".form-group").show();
-            $("#cpd_num").parents(".form-group").hide();
+            if($("#cpd_num").parents(".form-group").css("display") != "none"){                
+                $("#max_order_num").parents(".form-group").show();
+                $("#cpd_num").parents(".form-group").hide();
+            }            
         }
         if($("#ad_type").val() == 1){
-            $("#max_order_num").parents(".form-group").hide();
-            $("#cpd_num").parents(".form-group").show();
+            if($("#max_order_num").parents(".form-group").css("display") != "none"){
+                $("#max_order_num").parents(".form-group").hide();
+                $("#cpd_num").parents(".form-group").show();
+            }
         }
     }
     $("#ad_type").change(ad_type_change);
