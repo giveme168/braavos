@@ -4,6 +4,7 @@ from raven.contrib.flask import Sentry
 from libs.db import db
 from libs.mail import mail
 from libs.files import uploads_conf
+from libs.redis_client import redis
 from filters import register_filter
 
 
@@ -13,6 +14,7 @@ def create_app(config_object='config.DevelopmentConfig'):
     app.debug = app.config['DEBUG']
     db.init_app(app)
     db.app = app
+    redis.init_app(app)
     mail.init_app(app)
     mail.app = app
     register_filter(app)
