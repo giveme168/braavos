@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import date, time, datetime
 
 from config import DEFAULT_PASSWORD
@@ -7,6 +8,7 @@ from models.order import Order
 from models.medium import Medium, AdSize, AdUnit, AdPosition
 from models.item import AdItem, AdSchedule
 from models.material import Material, MATERIAL_TYPE_RAW
+from .test_consts import TEST_POSITION, TEST_MEDIUM
 
 
 def add_team(name):
@@ -45,7 +47,7 @@ def add_size(width, height):
 
 def add_unit(name, estimate_num, medium=None):
     size = add_size(300, 50)
-    medium = medium or add_medium('testmedium')
+    medium = medium or add_medium(TEST_MEDIUM)
     unit = AdUnit.add(
         name=name, description='', size=size,
         margin='', target=0, status=1, medium=medium,
@@ -55,7 +57,7 @@ def add_unit(name, estimate_num, medium=None):
 
 def add_position(name, medium=None):
     size = add_size(300, 50)
-    medium = medium or add_medium('testmedium')
+    medium = medium or add_medium(TEST_MEDIUM)
     position = AdPosition.add(
         name=name, description='', size=size, standard='', status=1, medium=medium)
     return position
@@ -73,7 +75,7 @@ def add_agent(name):
 
 def add_order():
     user = get_default_user()
-    medium = add_medium('testmedium')
+    medium = add_medium(TEST_MEDIUM)
     client = add_client('testclient')
     agent = add_agent('testagent')
     order = Order.add(
@@ -86,7 +88,7 @@ def add_order():
 
 def add_item(position=None):
     order = add_order()
-    position = position or add_position('testposition')
+    position = position or add_position(TEST_POSITION)
     user = get_default_user()
     item = AdItem.add(
         order=order, sale_type=0, special_sale=False,
@@ -109,3 +111,9 @@ def add_material(item=None, material_type=MATERIAL_TYPE_RAW, name=None):
     name = name or 'test_material'
     material = Material.add(name=name, item=item, creator=user, type=material_type)
     return material
+
+
+def get_position(name, medium=None):
+    medium = medium or add_medium(TEST_MEDIUM)
+    position = AdPosition.query.filter_by(name=name).first()
+    return position
