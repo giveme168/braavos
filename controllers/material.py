@@ -50,14 +50,18 @@ def raw_material(material_id):
     return tpl('material_raw.html', form=form, material=material)
 
 
+def material_preview_response(material):
+    if not material or not material.processed_html:
+        abort(404)
+    response = Response()
+    response.set_data(material.processed_html)
+    return response
+
+
 @material_bp.route('/material/<material_id>/preview/')
 def raw_preview(material_id):
     material = Material.get(material_id)
-    if not material or not material.html:
-        abort(404)
-    response = Response()
-    response.set_data(material.html)
-    return response
+    return material_preview_response(material)
 
 
 @material_bp.route('/new_image_material/item/<item_id>', methods=['GET', 'POST'])
@@ -108,8 +112,4 @@ def image_material(material_id):
 @material_bp.route('/image_material/<material_id>/preview/')
 def image_preview(material_id):
     material = ImageMaterial.get(material_id)
-    if not material or not material.html:
-        abort(404)
-    response = Response()
-    response.set_data(material.html)
-    return response
+    return material_preview_response(material)

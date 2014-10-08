@@ -73,6 +73,11 @@ class Material(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
         return self.code
 
     @property
+    def processed_html(self):
+        if self.html:
+            return self.html.replace("%%CLICK%%", "")  # 预览的时候, 去掉CLICK宏
+
+    @property
     def preview_path(self):
         return url_for('material.raw_preview', material_id=self.id)
 
