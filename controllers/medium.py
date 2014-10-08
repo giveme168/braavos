@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 from flask import Blueprint, request, redirect, abort, url_for
 from flask import render_template as tpl, flash
 
@@ -200,6 +200,7 @@ def position_detail(position_id):
         form.price.data = position.price
         form.estimate_num.data = position.estimate_num
         form.estimate_num.readonly = True
+        form.units.choices = [(x.id, x.display_name) for x in AdUnit.query.filter_by(medium_id=position.medium_id)]
     return tpl('position.html', form=form, title=position.display_name)
 
 
