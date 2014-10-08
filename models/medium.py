@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from . import db, BaseModelMixin
 from .consts import STATUS_CN, DATE_FORMAT
+from models.mixin.delivery import DeliveryMixin
 
 TARGET_TOP = 1
 TARGET_BLANK = 0
@@ -75,7 +76,7 @@ class AdSize(db.Model, BaseModelMixin):
         return "%s x %s" % (self.width, self.height)
 
 
-class AdUnit(db.Model, BaseModelMixin):
+class AdUnit(db.Model, BaseModelMixin, DeliveryMixin):
     __tablename__ = 'ad_unit'
 
     id = db.Column(db.Integer, primary_key=True)

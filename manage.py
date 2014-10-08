@@ -10,6 +10,7 @@ from models.item import AdItem, AdSchedule
 from models.material import Material
 from models.medium import Medium, AdSize, AdUnit, AdPosition
 from models.order import Order
+from models.delivery import Delivery
 
 migrate = Migrate(app, db)
 manager = Manager(app)

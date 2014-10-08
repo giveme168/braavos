@@ -6,14 +6,6 @@ from models.comment import Comment
 
 class CommentMixin():
 
-    @property
-    def target_type(self):
-        return self.__class__.__name__
-
-    @property
-    def target_id(self):
-        return self.id
-
     def add_comment(self, user, msg):
         c = Comment.add(self.target_type, self.target_id, msg, user, datetime.datetime.now())
         add_comment_signal.send(c)
