@@ -4,23 +4,66 @@
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3> 订单列表</h3>
+    <div class="search">
+        <input type="text" id="search_info" value="{{search_info}}" onkeypress="javascript:enter_search();">&nbsp;
+        <input type="button" name="search" value="搜索" class="btn btn-small btn-primary" onclick="javascript:search();">
+    </div>
     <table class="table table-bordered table-striped">
         <tr>
             <th>订单名</th>
             <th>投放媒体</th>
+            <th><a href="javascript:sort('start_date');">开始时间</a></th>
+            <th><a href="javascript:sort('end_date');">结束时间</a></th>
             <th>代理商</th>
             <th>创建者</th>
+            <th>投放状态</th>
             <th>创建时间</th>
         </tr>
         {% for o in orders %}
         <tr>
             <td><a href="{{url_for("order.order_detail", order_id=o.id, step=0)}}">{{o.name}}</a></td>
             <td>{{o.medium.name}}</td>
+            <td>{{o.start_date_cn}}</td>
+            <td>{{o.end_date_cn}}</td>
             <td>{{o.agent.name if o.agent else '无'}}</td>
             <td>{{o.creator.display_name}}</td>
+            <th>{{'就绪'}}</th>
             <td>{{o.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
         </tr>
         {% endfor %}
     </table>
 </div>
+<script>
+function sort(value){
+    var orderby = '{{orderby}}'
+    var sortby = '{{sortby}}'
+    if (value == sortby) {
+        if (orderby == 'desc'){
+            orderby = 'asc'
+        } else {
+            orderby = 'desc'
+        }
+    } else {
+        sortby = value
+        orderby = 'desc'
+    }
+    window.location.href = '/orders/orders?sortby='+sortby+'&orderby='+orderby
+}
+
+function search(){
+    search_info = $('#search_info').val();
+    if ('' == search_info){
+        alert('请输入查询内容！');
+        return
+    }
+    window.location.href = '/orders/orders?searchinfo='+escape(search_info);
+}
+
+function enter_search(){
+    //按下‘Enter’键
+    if(event.keyCode == 13){
+        search();
+    }
+}
+</script>
 {% endblock %}
