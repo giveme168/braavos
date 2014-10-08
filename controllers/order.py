@@ -46,7 +46,7 @@ def new_order():
                           agent=Agent.get(form.agent.data), direct_sales=User.gets(form.direct_sales.data),
                           agent_sales=User.gets(form.agent_sales.data), operaters=User.gets(form.operaters.data),
                           planers=User.gets(form.planers.data), designers=User.gets(form.designers.data),
-                          creator=g.user, create_time=datetime.now())
+                          creator=g.user, discount=form.discount.data, create_time=datetime.now())
         flash(u'新建订单成功!', 'success')
         return redirect(url_for("order.order_detail", order_id=order.id, step=0))
     else:
@@ -78,6 +78,7 @@ def order_detail(order_id, step):
             order.operaters = User.gets(form.operaters.data)
             order.designers = User.gets(form.designers.data)
             order.planers = User.gets(form.planers.data)
+            order.discount = form.discount.data
             order.save()
             flash(u'订单信息保存成功!', 'success')
     else:
@@ -94,6 +95,7 @@ def order_detail(order_id, step):
         form.operaters.data = [u.id for u in order.operaters]
         form.designers.data = [u.id for u in order.designers]
         form.planers.data = [u.id for u in order.planers]
+        form.discount.data = order.discount
         form.creator.data = order.creator.name
     form.order_type.hidden = True
     context = {'form': form,

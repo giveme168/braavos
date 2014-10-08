@@ -4,7 +4,7 @@ from wtforms import TextField, validators, SelectField, SelectMultipleField, Int
 
 from models.client import Client, Agent
 from models.medium import Medium
-from models.order import ORDER_TYPE_CN
+from models.order import ORDER_TYPE_CN, DISCOUNT_SALE, DISCOUNT_SELECT
 from models.user import User
 from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
                          TEAM_TYPE_OPERATER, TEAM_TYPE_AGENT_SELLER,
@@ -24,6 +24,7 @@ class OrderForm(Form):
     operaters = SelectMultipleField(u'执行', coerce=int)
     designers = SelectMultipleField(u'设计', coerce=int)
     planers = SelectMultipleField(u'策划', coerce=int)
+    discount = SelectField(u'折扣', coerce=int)
     creator = TextField(u'创建者')
 
     def __init__(self, *args, **kwargs):
@@ -37,12 +38,17 @@ class OrderForm(Form):
         self.operaters.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_OPERATER)]
         self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
         self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
+        self.discount.choices = DISCOUNT_SALE.items()
         self.creator.readonly = True
 
     def validate(self):
         if Form.validate(self):
             if any(self.direct_sales.data + self.agent_sales.data):
-                return True
+                if self.discount.data != DISCOUNT_SELECT:
+                    return True
+                else:
+                    self.discount.errors.append(u"请选择折扣")
+                    return False
             else:
                 self.direct_sales.errors.append(u"直接销售和渠道销售不能全为空")
                 return False
