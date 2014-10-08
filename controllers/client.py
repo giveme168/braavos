@@ -23,8 +23,13 @@ def index():
 def new_client():
     form = NewClientForm(request.form)
     if request.method == 'POST' and form.validate():
-        client = Client.add(form.name.data, form.industry.data)
-        flash(u'新建客户(%s)成功!' % client.name, 'success')
+        db_client_name = Client.name_exist(form.name.data)
+        if not db_client_name:
+            client = Client.add(form.name.data, form.industry.data)
+            flash(u'新建客户(%s)成功!' % client.name, 'success')
+        else:
+            flash(u'新建客户(%s)失败,名称被占用!' % form.name.data, 'danger')
+            return tpl('client.html', form=form, title=u"新建客户")
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect(url_for("client.clients"))
@@ -35,8 +40,13 @@ def new_client():
 def new_agent():
     form = NewAgentForm(request.form)
     if request.method == 'POST' and form.validate():
-        agent = Agent.add(form.name.data)
-        flash(u'新建代理(%s)成功!' % agent.name, 'success')
+        db_agent_name = Agent.name_exist(form.name.data)
+        if not db_agent_name:
+            agent = Agent.add(form.name.data)
+            flash(u'新建代理(%s)成功!' % agent.name, 'success')
+        else:
+            flash(u'新建代理(%s)失败，名称已经被占用!' % form.name.data, 'danger')
+            return tpl('agent.html', form=form, title=u"新建代理")
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect(url_for("client.agents"))
