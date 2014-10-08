@@ -6,6 +6,7 @@ from sqlalchemy.ext.mutable import MutableDict
 from models import db, BaseModelMixin
 from models.consts import STATUS_CN
 from models.mixin.comment import CommentMixin
+from models.mixin.delivery import DeliveryMixin
 from libs.files import get_full_path
 
 MATERIAL_TYPE_RAW = 0
@@ -21,7 +22,7 @@ MATERIAL_TYPE_CN = {
 }
 
 
-class Material(db.Model, BaseModelMixin, CommentMixin):
+class Material(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
     __tablename__ = 'materials'
 
     id = db.Column(db.Integer, primary_key=True)

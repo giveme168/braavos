@@ -22,6 +22,8 @@ class Config(object):
     UPLOADED_FILES_DEST = '/tmp/braavos/'
     UPLOADED_FILES_URL = '/files/'
 
+    REDIS_URL = "redis://@localhost:6379/0"
+
 
 class TestingConfig(Config):
     TESTING = True

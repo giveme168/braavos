@@ -3,15 +3,14 @@ import os
 import sys
 import datetime
 import json
-from redis import StrictRedis
 sys.path.insert(0, os.path.abspath('.'))
 
 from factory import create_app
 from config import config_object
 
 app = create_app(config_object)
-redis_client = StrictRedis(host='localhost', port=6379, db=0)
 
+from libs.redis_client import redis
 from models.user import User, Team
 from models.medium import Medium, AdSize, AdUnit, AdPosition
 from models.client import Client, Agent
@@ -20,7 +19,7 @@ from models.item import AdSchedule
 from models.material import Material
 from models.consts import TIME_FORMAT, DATE_FORMAT
 
-DATA_EXPIRES_TIME = 60 * 60 * 24
+DATA_EXPIRES_TIME = datetime.timedelta(days=1)
 
 
 def get_export_items(_date):
@@ -82,5 +81,5 @@ if __name__ == '__main__':
     ad_units_key = "AD:Date:%s:Units" % _date.strftime(DATE_FORMAT)
     i_info = get_export_items(datetime.date.today())
     u_info = get_export_units(datetime.date.today())
-    redis_client.setex(ad_items_key, DATA_EXPIRES_TIME, json.dumps(i_info))
-    redis_client.setex(ad_units_key, DATA_EXPIRES_TIME, json.dumps(u_info))
+    redis.setex(ad_items_key, DATA_EXPIRES_TIME, json.dumps(i_info))
+    redis.setex(ad_units_key, DATA_EXPIRES_TIME, json.dumps(u_info))

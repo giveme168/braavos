@@ -1,3 +1,5 @@
+import datetime
+
 from helper import add_material
 from models.material import Material, ImageMaterial, MATERIAL_TYPE_PICTURE
 
@@ -10,6 +12,14 @@ def test_material(session):
     material2 = Material.get(material.id)
     assert material2.name == 'test'
     assert material2.props.get('a') == 'aaa'
+
+
+def test_material_delivery(session):
+    material = add_material(name='test')
+    date = datetime.date.today()
+    assert material.get_monitor_num(date) == 0
+    material.set_monitor_num(date, 500)
+    assert material.get_monitor_num(date) == 500
 
 
 def test_image_material(session):

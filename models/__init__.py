@@ -4,6 +4,14 @@ from libs.db import db
 
 class BaseModelMixin(object):
 
+    @property
+    def target_type(self):
+        return self.__class__.__name__
+
+    @property
+    def target_id(self):
+        return self.id
+
     @classmethod
     def add(cls, *args, **kwargs):
         _instance = cls(*args, **kwargs)

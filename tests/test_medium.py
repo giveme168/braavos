@@ -1,3 +1,5 @@
+import datetime
+
 from models.medium import Medium, AdSize, AdUnit, AdPosition
 from helper import add_medium, add_size, add_unit, add_position
 
@@ -31,6 +33,14 @@ def test_unit(session):
     unit2 = AdUnit.get(unit.id)
     assert unit2.name == 'testunit'
     assert unit2.estimate_num == 300
+
+
+def test_unit_delivery(session):
+    unit = add_unit('testunit', 300)
+    date = datetime.date.today()
+    assert unit.get_monitor_num(date) == 0
+    unit.set_monitor_num(date, 500)
+    assert unit.get_monitor_num(date) == 500
 
 
 def test_position(session):

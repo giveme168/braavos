@@ -4,6 +4,7 @@ from flask import url_for
 
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
+from models.mixin.delivery import DeliveryMixin
 from consts import STATUS_CN, STATUS_ON, DATE_FORMAT, STATUS_OFF
 
 SALE_TYPE_NORMAL = 0         # 标准, 购买
@@ -104,7 +105,7 @@ ITEM_ACTION_CN = {
 ORDER_REJECT = (ITEM_STATUS_ACTION_PRE_ORDER_REJECT, ITEM_STATUS_ACTION_ORDER_REJECT)
 
 
-class AdItem(db.Model, BaseModelMixin, CommentMixin):
+class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
     __tablename__ = 'bra_item'
     # 基础
     id = db.Column(db.Integer, primary_key=True)
