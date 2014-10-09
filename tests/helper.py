@@ -117,3 +117,7 @@ def get_position(name, medium=None):
     medium = medium or add_medium(TEST_MEDIUM)
     position = AdPosition.query.filter_by(name=name).first()
     return position
+
+
+def get_medium_by_name(name):
+    return Medium.query.filter_by(name=name).first()
