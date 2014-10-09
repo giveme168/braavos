@@ -68,8 +68,13 @@ def users():
 def new_team():
     form = NewTeamForm(request.form)
     if request.method == 'POST' and form.validate():
-        team = Team.add(form.name.data, form.type.data)
-        flash(u'新建团队(%s)成功!' % team.name, 'success')
+        db_team_name = Team.name_exist(form.name.data)
+        if not db_team_name:
+            team = Team.add(form.name.data, form.type.data)
+            flash(u'新建团队(%s)成功!' % team.name, 'success')
+        else:
+            flash(u'新建团队(%s)失败，团队名称已经存在!' % form.name.data, 'danger')
+            return tpl('new_team.html', form=form)
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect(url_for("user.team_detail", team_id=team.id))
@@ -101,10 +106,14 @@ def new_user():
     form = NewUserForm(request.form)
     if request.method == 'POST':
         if form.validate():
-            user = User.add(form.name.data, form.email.data, DEFAULT_PASSWORD,
-                            form.phone.data, Team.get(form.team.data),
-                            form.status.data)
-            flash(u'新建用户(%s)成功!' % user.name, 'success')
+            db_user_name = User.name_exist(form.name.data)
+            if not db_user_name:
+                user = User.add(form.name.data, form.email.data, DEFAULT_PASSWORD, form.phone.data,
+                                Team.get(form.team.data), form.status.data)
+                flash(u'新建用户(%s)成功!' % user.name, 'success')
+            else:
+                flash(u'新建用户(%s)失败，用户名已经存在!' % form.name.data, 'danger')
+                return tpl('new_user.html', form=form)
             return redirect(url_for("user.users"))
     return tpl('new_user.html', form=form)
 

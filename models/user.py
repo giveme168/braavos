@@ -91,6 +91,11 @@ class User(db.Model, BaseModelMixin):
     def gets_by_team_type(cls, team_type):
         return [x for x in cls.all() if x.team.type == team_type]
 
+    @classmethod
+    def name_exist(cls, name):
+        is_exist = User.query.filter_by(name=name).count() > 0
+        return is_exist
+
     @property
     def avatar(self, size=48):
         return "http://www.gravatar.com/avatar/%s?s=%s&d=identicon" % (md5(self.email).hexdigest(), size)
@@ -120,6 +125,11 @@ class Team(db.Model, BaseModelMixin):
 
     def __repr__(self):
         return '<Team %s, type=%s>' % (self.name, self.type_cn)
+
+    @classmethod
+    def name_exist(cls, name):
+        is_exist = Team.query.filter_by(name=name).count() > 0
+        return is_exist
 
     @property
     def type_cn(self):
