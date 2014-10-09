@@ -136,7 +136,7 @@ def new_item(order_id, type):
         return redirect(url_for('order.order_detail', order_id=order.id, step=0))
     start_date = datetime.today()
     end_date = start_date + timedelta(days=30)
-    positions = [(x.id, x.display_name) for x in AdPosition.all()]
+    positions = [(x.id, x.display_name) for x in order.medium.positions]
     return tpl('new_item.html', order=order, positions=positions,
                start_date=start_date, end_date=end_date, type=type,
                SALE_TYPE_CN=SALE_TYPE_CN, SPECIAL_SALE_CN={0: u"否", 1: u"是"})
