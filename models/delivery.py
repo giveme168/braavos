@@ -2,7 +2,7 @@
 from . import db, BaseModelMixin
 
 DELIVERY_TYPE_MONITOR = 0
-DELIVERY_TYPE_CLICK = 0
+DELIVERY_TYPE_CLICK = 1
 
 
 class Delivery(db.Model, BaseModelMixin):
