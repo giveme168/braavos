@@ -13,7 +13,7 @@ from forms.item import ItemForm
 from models.client import Client, Agent
 from models.medium import Medium, AdPosition
 from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
-                         ITEM_STATUS_ACTION_CN, ITEM_STATUS_CN, ChangeStateApply,
+                         ITEM_STATUS_ACTION_CN, ChangeStateApply,
                          ITEM_STATUS_LEADER_ACTIONS,
                          ITEM_STATUS_ACTION_PRE_ORDER,
                          ITEM_STATUS_ACTION_ORDER_APPLY)
@@ -344,12 +344,11 @@ def items_status_update(order_id, step):
     return redirect(url_for('order.order_detail', order_id=order.id, step=step))
 
 
-@order_bp.route('/schedule_file/<order_id>/<step>', methods=['GET', 'POST'])
-def export_schedule(order_id, step):
+@order_bp.route('/schedule_file/<order_id>', methods=['GET', 'POST'])
+def export_schedule(order_id):
     order = Order.get(order_id)
-    excel_table = order.get_excel_table_by_status(int(step))
-    filename = (order.name + "-" + ITEM_STATUS_CN[int(step)] + ".xls").encode('utf-8')
-    xls = Excel().write_excle(excel_table)
+    filename = ("%s-%s.xls" % (order.name, datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+    xls = Excel().write_excle(order.excel_table)
     response = get_download_response(xls, filename)
     return response
 

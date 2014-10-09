@@ -67,7 +67,7 @@ def font_colour_assert(style, colour):
 def test_excel_data(session):
     schedule = add_schedule()
     order = schedule.item.order
-    excel_table = order.get_excel_table_by_status(0)
+    excel_table = order.excel_table
     assert len(excel_table) == 4
-    assert len(excel_table[0]) == 9
+    assert len(excel_table[0]) == 10
     assert excel_table[2][4].data == 300

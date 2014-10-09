@@ -62,8 +62,8 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro button_export_schedule(step, order) -%}
- <a class="btn btn-sm btn-primary" href="{{ url_for('order.export_schedule', step=step, order_id=order.id) }}" name="export_schedule" value="{{step}}">导出排期</a>
+{% macro button_export_schedule(order) -%}
+ <a class="btn-sm btn-primary button-export" href="{{ url_for('order.export_schedule', order_id=order.id) }}" name="export_schedule">导出排期</a>
 {%- endmacro %}
 
 {% macro leader_select(step, leaders) -%}
@@ -94,7 +94,6 @@
       <div class="col_change_state_button">
         {{ leader_select(0, leaders) }}
         {{ button_by_action(order, 0) }}
-        {{ button_export_schedule(0, order)}}
       </div>
     </form>
   </div>
@@ -104,7 +103,6 @@
       <div class="col_change_state_button">
         {{ button_by_action(order, 1) }}
         {{ button_by_action(order, 2) }}
-        {{ button_export_schedule(1, order)}}
       </div>
     </form>
   </div>
@@ -114,7 +112,6 @@
       <div class="col_change_state_button">
         {{ leader_select(3, leaders) }}
         {{ button_by_action(order, 3) }}
-        {{ button_export_schedule(2, order)}}
       </div>
     </form>
   </div>
@@ -124,7 +121,6 @@
       <div class="col_change_state_button">
         {{ button_by_action(order, 4) }}
         {{ button_by_action(order, 5) }}
-        {{ button_export_schedule(3, order)}}
       </div>
     </form>
   </div>
@@ -134,7 +130,6 @@
       <div class="col_change_state_button">
         {{ button_by_action(order, ACTION_ACTIVE) }}
         {{ button_by_action(order, ACTION_PAUSE) }}
-        {{ button_export_schedule(4, order)}}
       </div>
     </form>
   </div>

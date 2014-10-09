@@ -1,6 +1,6 @@
 {% extends "/order_base.html" %}
 {% from 'order_info.html' import order_info_form %}
-{% from 'order_items.html' import order_items %}
+{% from 'order_items.html' import order_items, button_export_schedule %}
 {% from 'comments.html' import comments_box %}
 
 {% block main_box%}
@@ -29,7 +29,8 @@
                     <div class="btn-group col-md-offset-1">
                       <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">
                         预订资源 <span class="caret"></span>
-                      </button>                      
+                      </button>
+                      {{ button_export_schedule(order)}}
                       <ul class="dropdown-menu" role="menu">
                       {% set index = 0 %}
                       {% for (k, v) in SALE_TYPE_CN.items() %}
