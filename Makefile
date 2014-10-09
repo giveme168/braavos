@@ -20,3 +20,6 @@ hook:
 
 export:
 	python tools/export.py
+
+import:
+	python tools/import_delivery.py
