@@ -20,6 +20,28 @@ ORDER_TYPE_CN = {
     ORDER_TYPE_NORMAL: u"标准广告(CPM, CPD)",
 }
 
+DISCOUNT_70 = 70
+DISCOUNT_60 = 60
+DISCOUNT_50 = 50
+DISCOUNT_GIFT = 0
+DISCOUNT_ADD = 100
+DISCOUNT_SELECT = 0
+
+DISCOUNT_CN = {
+    DISCOUNT_50: u'5折',
+    DISCOUNT_60: u'6折',
+    DISCOUNT_70: u'7折',
+    DISCOUNT_GIFT: u'配送',
+    DISCOUNT_ADD: u'无折扣',
+}
+
+DISCOUNT_SALE = {
+    DISCOUNT_SELECT: u'请选择',
+    DISCOUNT_50: u'5折',
+    DISCOUNT_60: u'6折',
+    DISCOUNT_70: u'7折',
+}
+
 direct_sales = db.Table('order_direct_sales',
                         db.Column('sale_id', db.Integer, db.ForeignKey('user.id')),
                         db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id'))
@@ -68,10 +90,11 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
+    discount = db.Column(db.Integer)
 
     def __init__(self, client, campaign, medium, order_type, contract, money,
                  agent, direct_sales, agent_sales, operaters, designers, planers,
-                 creator, create_time=None):
+                 creator, create_time=None, discount=100):
         self.client = client
         self.campaign = campaign
         self.medium = medium
@@ -86,6 +109,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         self.planers = planers
         self.creator = creator
         self.create_time = create_time
+        self.discount = discount
 
     def __repr__(self):
         return '<Order %s>' % (self.id)
