@@ -69,3 +69,8 @@ def deploy():
 @task
 def export():
     run('bash /home/inad/apps/braavos/start_export')
+
+
+@task
+def import_delivery():
+    run('bash /home/inad/apps/braavos/start_import')
