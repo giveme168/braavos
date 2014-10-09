@@ -84,7 +84,8 @@ def order_detail(order_id, step):
     else:
         form.client.data = order.client.id
         form.campaign.data = order.campaign
-        form.medium.choices = [(order.medium.id, order.medium.name)]
+        if not g.user.is_admin():
+            form.medium.choices = [(order.medium.id, order.medium.name)]
         form.medium.data = order.medium.id
         form.order_type.data = order.order_type
         form.contract.data = order.contract
