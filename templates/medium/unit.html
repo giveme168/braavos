@@ -5,6 +5,12 @@
 <div class="bra-main bra-box">
     <h3>{{ title }}</h3>
     {{ form_tpl(form) }}
+    {% if unit %}
+    <h4>广告位代码 :</h4>
+    <pre><code>{{'<div class="inad-ad" data-inad-uid="%s"></div>' %  unit.id}}</code></pre>
+    <h4>在html body最后加入JS :</h4>
+    <pre><code>{{'<script src="http://cdn.staticfile.org/jquery/2.1.1-rc2/jquery.min.js"></script>\n<!--如果页面中已经加载了JQuery, 则不需要再次加载-->\n<script src="http://y.inad.com/static/show_ads.js"></script>'}}</code></pre>
+    {% endif %}
 </div>
 <script>
 $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10});

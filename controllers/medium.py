@@ -108,7 +108,7 @@ def unit_detail(unit_id):
         form.positions.data = [x.id for x in unit.positions]
         form.medium.data = unit.medium.id
         form.estimate_num.data = unit.estimate_num
-    return tpl('unit.html', form=form, title=unit.display_name)
+    return tpl('unit.html', form=form, title=unit.display_name, unit=unit)
 
 
 @medium_bp.route('/units', methods=['GET'])
