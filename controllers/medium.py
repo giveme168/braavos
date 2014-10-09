@@ -70,10 +70,14 @@ def new_size():
 def new_unit():
     form = UnitForm(request.form)
     if request.method == 'POST' and form.validate():
-        adUnit = AdUnit.add(name=form.name.data, description=form.description.data,
-                            size=AdSize.get(form.size.data), margin=form.margin.data,
-                            target=form.target.data, status=form.status.data,
-                            medium=Medium.get(form.medium.data), estimate_num=form.estimate_num.data)
+        adUnit = AdUnit.add(name=form.name.data,
+                            description=form.description.data,
+                            size=AdSize.get(form.size.data),
+                            margin=form.margin.data,
+                            target=form.target.data,
+                            status=form.status.data,
+                            medium=Medium.get(form.medium.data),
+                            estimate_num=form.estimate_num.data)
         adUnit.positions = AdPosition.gets(form.positions.data)
         adUnit.save()
         return redirect(url_for("medium.unit_to_position", unit_id=adUnit.id))
@@ -86,18 +90,19 @@ def unit_detail(unit_id):
     if not unit:
         abort(404)
     form = UnitForm(request.form)
-    if request.method == 'POST' and form.validate():
-        unit.name = form.name.data
-        unit.description = form.description.data
-        unit.size = AdSize.get(form.size.data)
-        unit.margin = form.margin.data
-        unit.target = form.target.data
-        unit.status = form.status.data
-        unit.positions = AdPosition.gets(form.positions.data)
-        unit.medium = Medium.get(form.medium.data)
-        unit.estimate_num = form.estimate_num.data
-        unit.save()
-        flash(u'保存成功!', 'success')
+    if request.method == 'POST':
+        if form.validate():
+            unit.name = form.name.data
+            unit.description = form.description.data
+            unit.size = AdSize.get(form.size.data)
+            unit.margin = form.margin.data
+            unit.target = form.target.data
+            unit.status = form.status.data
+            unit.positions = AdPosition.gets(form.positions.data)
+            unit.medium = Medium.get(form.medium.data)
+            unit.estimate_num = form.estimate_num.data
+            unit.save()
+            flash(u'保存成功!', 'success')
     else:
         form.name.data = unit.name
         form.description.data = unit.description
@@ -123,17 +128,23 @@ def new_position():
     form.estimate_num.hidden = True
     form.cpd_num.hidden = True
     form.max_order_num.hidden = True
-    if request.method == 'POST' and form.validate():
-        ad_position = AdPosition.add(name=form.name.data, description=form.description.data,
-                                     size=AdSize.get(form.size.data), standard=form.standard.data,
-                                     status=form.status.data, medium=Medium.get(form.medium.data),
-                                     level=form.level.data, ad_type=form.ad_type.data, price=form.price.data)
-        ad_position.units = AdUnit.gets(form.units.data)
-        ad_position.cpd_num = sum([x.estimate_num for x in ad_position.units])
-        ad_position.max_order_num = sum([x.estimate_num for x in ad_position.units])
-        ad_position.save()
-        flash(u'新建展示位置成功!', 'success')
-        return redirect(url_for("medium.position_detail", position_id=ad_position.id))
+    if request.method == 'POST':
+        if form.validate():
+            ad_position = AdPosition.add(name=form.name.data,
+                                         description=form.description.data,
+                                         size=AdSize.get(form.size.data),
+                                         standard=form.standard.data,
+                                         status=form.status.data,
+                                         medium=Medium.get(form.medium.data),
+                                         level=form.level.data,
+                                         ad_type=form.ad_type.data,
+                                         price=form.price.data)
+            ad_position.units = AdUnit.gets(form.units.data)
+            ad_position.cpd_num = sum([x.estimate_num for x in ad_position.units])
+            ad_position.max_order_num = sum([x.estimate_num for x in ad_position.units])
+            ad_position.save()
+            flash(u'新建展示位置成功!', 'success')
+            return redirect(url_for("medium.position_detail", position_id=ad_position.id))
     return tpl('position.html', form=form, title=u"新建展示位置")
 
 
@@ -141,19 +152,26 @@ def new_position():
 def unit_to_position(unit_id):
     unit = AdUnit.get(unit_id)
     form = PositionForm(request.form)
+    form.units.choices = [(x.id, x.display_name) for x in AdUnit.query.filter_by(medium_id=unit.medium_id)]
     form.estimate_num.hidden = True
     form.cpd_num.hidden = True
     form.max_order_num.hidden = True
-    if request.method == 'POST' and form.validate():
-        position = AdPosition.add(name=form.name.data, description=form.description.data,
-                                  size=AdSize.get(form.size.data), standard=form.standard.data,
-                                  status=form.status.data, medium=Medium.get(form.medium.data),
-                                  level=form.level.data, ad_type=form.ad_type.data, price=form.price.data)
-        position.units = AdUnit.gets(form.units.data)
-        position.cpd_num = sum([x.estimate_num for x in position.units])
-        position.max_order_num = sum([x.estimate_num for x in position.units])
-        position.save()
-        return redirect(url_for("medium.position_detail", position_id=position.id))
+    if request.method == 'POST':
+        if form.validate():
+            position = AdPosition.add(name=form.name.data,
+                                      description=form.description.data,
+                                      size=AdSize.get(form.size.data),
+                                      standard=form.standard.data,
+                                      status=form.status.data,
+                                      medium=Medium.get(form.medium.data),
+                                      level=form.level.data,
+                                      ad_type=form.ad_type.data,
+                                      price=form.price.data)
+            position.units = AdUnit.gets(form.units.data)
+            position.cpd_num = sum([x.estimate_num for x in position.units])
+            position.max_order_num = sum([x.estimate_num for x in position.units])
+            position.save()
+            return redirect(url_for("medium.position_detail", position_id=position.id))
     else:
         form.name.data = unit.name
         form.description.data = unit.description
@@ -170,21 +188,23 @@ def position_detail(position_id):
     if not position:
         abort(404)
     form = PositionForm(request.form)
-    if request.method == 'POST' and form.validate():
-        position.name = form.name.data
-        position.description = form.description.data
-        position.size = AdSize.get(form.size.data)
-        position.standard = form.standard.data
-        position.status = form.status.data
-        position.units = AdUnit.gets(form.units.data)
-        position.medium = Medium.get(form.medium.data)
-        position.level = form.level.data
-        position.ad_type = form.ad_type.data
-        position.cpd_num = form.cpd_num.data
-        position.max_order_num = form.max_order_num.data
-        position.price = form.price.data
-        position.save()
-        flash(u'保存成功!', 'success')
+    form.units.choices = [(x.id, x.display_name) for x in AdUnit.query.filter_by(medium_id=position.medium_id)]
+    if request.method == 'POST':
+        if form.validate():
+            position.name = form.name.data
+            position.description = form.description.data
+            position.size = AdSize.get(form.size.data)
+            position.standard = form.standard.data
+            position.status = form.status.data
+            position.units = AdUnit.gets(form.units.data)
+            position.medium = Medium.get(form.medium.data)
+            position.level = form.level.data
+            position.ad_type = form.ad_type.data
+            position.cpd_num = form.cpd_num.data
+            position.max_order_num = form.max_order_num.data
+            position.price = form.price.data
+            position.save()
+            flash(u'保存成功!', 'success')
     else:
         form.name.data = position.name
         form.description.data = position.description
@@ -200,7 +220,6 @@ def position_detail(position_id):
         form.price.data = position.price
         form.estimate_num.data = position.estimate_num
         form.estimate_num.readonly = True
-        form.units.choices = [(x.id, x.display_name) for x in AdUnit.query.filter_by(medium_id=position.medium_id)]
     return tpl('position.html', form=form, title=position.display_name)
 
 

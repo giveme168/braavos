@@ -41,6 +41,18 @@ class UnitForm(Form):
         self.positions.choices = [(x.id, x.display_name) for x in AdPosition.all()]
         self.medium.choices = [(x.id, x.name) for x in Medium.all()]
 
+    def validate(self):
+        if Form.validate(self):
+            positions = AdPosition.gets(self.positions.data)
+            medium = Medium.get(self.medium.data)
+            for p in positions:
+                if p.medium != medium:
+                    self.positions.errors.append(u"%s不属于%s" % (p.display_name, medium.name))
+                    return False
+            return True
+        else:
+            return False
+
 
 class PositionForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
@@ -64,6 +76,7 @@ class PositionForm(Form):
         self.medium.choices = [(x.id, x.name) for x in Medium.all()]
         self.level.choices = POSITION_LEVEL_CN.items()
         self.ad_type.choices = AD_TYPE_CN.items()
+        self.units.choices = [(x.id, x.display_name) for x in AdUnit.all()]
         self.estimate_num.readonly = True
         self.estimate_num.hidden = False
 
@@ -78,6 +91,12 @@ class PositionForm(Form):
                     if self.cpd_num.data > self.estimate_num.data:
                         self.cpd_num.errors.append(u"CPD量不能大于预估量")
                         return False
+            units = AdUnit.gets(self.units.data)
+            medium = Medium.get(self.medium.data)
+            for u in units:
+                if u.medium != medium:
+                    self.units.errors.append(u"%s不属于%s" % (u.display_name, medium.name))
+                    return False
             return True
         else:
             return False
