@@ -39,6 +39,7 @@ class UnitForm(Form):
         self.status.choices = STATUS_CN.items()
         self.size.choices = [(x.id, x.name) for x in AdSize.all()]
         self.positions.choices = [(x.id, x.display_name) for x in AdPosition.all()]
+
         self.medium.choices = [(x.id, x.name) for x in Medium.all()]
 
     def validate(self):

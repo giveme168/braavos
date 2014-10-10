@@ -121,3 +121,7 @@ def get_position(name, medium=None):
 
 def get_medium_by_name(name):
     return Medium.query.filter_by(name=name).first()
+
+
+def get_unit(name):
+    return AdUnit.query.filter_by(name=name).first()
