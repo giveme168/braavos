@@ -1,6 +1,7 @@
 body{
     min-height: 100%;
     background-color: #eee;
+    min-width: 1265px;
 }
 #footer {
     margin-top: 20px;
@@ -51,7 +52,7 @@ body{
     vertical-align: top;
 }
 .bra-left{
-    width: 220px;
+    width: 210px;
     margin-left: 30px;
     margin-right: 30px;
 }
@@ -111,4 +112,21 @@ body{
 .table-container {
     overflow-x: scroll;
     margin-bottom : 5px;
+}
+
+.button-export {
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+    margin-left: 5px;
 }

@@ -42,6 +42,9 @@ DISCOUNT_SALE = {
     DISCOUNT_70: u'7折',
 }
 
+HEADER_BEFORE_DATE = [u"售卖类型", u"预订状态", u"展示位置", u"广告标准"]
+HEADER_AFTER_DATE = [u"总预订量", u"刊例单价", u"刊例总价", u"折扣", u"净价"]
+
 direct_sales = db.Table('order_direct_sales',
                         db.Column('sale_id', db.Integer, db.ForeignKey('user.id')),
                         db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id'))
@@ -179,39 +182,29 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     def path(self):
         return url_for('order.order_detail', order_id=self.id, step=0)
 
-    def get_excel_table_by_status(self, status):
-        items_info = self.items_info_by_status(status)
+    @property
+    def excel_table(self):
+        items_info = self.items_info_all()
         excel_table = []
         temp_row = []
         data_start_row = 2
-        data_start_col = 3
+        data_start_col = 4
         # 表头
-        temp_row.append(
-            ExcelCellItem(EXCEL_DATA_TYPE_STR, u"售卖类型", StyleTypes.header, 1, 0))
-        temp_row.append(
-            ExcelCellItem(EXCEL_DATA_TYPE_STR, u"展示位置", StyleTypes.header, 1, 0))
-        temp_row.append(
-            ExcelCellItem(EXCEL_DATA_TYPE_STR, u"广告标准", StyleTypes.header, 1, 0))
+        for header_cn in HEADER_BEFORE_DATE:
+            temp_row.append(
+                ExcelCellItem(EXCEL_DATA_TYPE_STR, header_cn, StyleTypes.header, 1, 0))
         for m, m_len in items_info['months'].items():
             temp_row.append(
                 ExcelCellItem(EXCEL_DATA_TYPE_NUM, str(m) + u"月", StyleTypes.header, 0, m_len - 1))
             for i in range(0, m_len - 1):
                 temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
-        temp_row.append(
-            ExcelCellItem(EXCEL_DATA_TYPE_STR, u"总预订量", StyleTypes.header, 1, 0))
-        temp_row.append(
-            ExcelCellItem(EXCEL_DATA_TYPE_STR, u"刊例单价", StyleTypes.header, 1, 0))
-        temp_row.append(
-            ExcelCellItem(EXCEL_DATA_TYPE_STR, u"刊例总价", StyleTypes.header, 1, 0))
-        temp_row.append(
-            ExcelCellItem(EXCEL_DATA_TYPE_STR, u"折扣", StyleTypes.header, 1, 0))
-        temp_row.append(
-            ExcelCellItem(EXCEL_DATA_TYPE_STR, u"净价", StyleTypes.header, 1, 0))
+        for header_cn in HEADER_AFTER_DATE:
+            temp_row.append(
+                ExcelCellItem(EXCEL_DATA_TYPE_STR, header_cn, StyleTypes.header, 1, 0))
         excel_table.append(temp_row)  # 第一行写完
         temp_row = []
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
+        for i in range(0, len(HEADER_BEFORE_DATE)):
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
         for d in items_info['dates']:
             if d.isoweekday() in [6, 7]:
                 temp_row.append(
@@ -219,11 +212,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
             else:
                 temp_row.append(
                     ExcelCellItem(EXCEL_DATA_TYPE_NUM, d.day, StyleTypes.base))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
+        for i in range(0, len(HEADER_AFTER_DATE)):
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
         excel_table.append(temp_row)  # 第二行写完
         # 填表
         temp_row = []
@@ -243,9 +233,11 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
                 if index != 1:
                     temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
                 temp_row.append(
+                    ExcelCellItem(EXCEL_DATA_TYPE_STR, ITEM_STATUS_CN[item.item_status], item_type))
+                temp_row.append(
                     ExcelCellItem(EXCEL_DATA_TYPE_STR, item.position.name, item_type))
                 temp_row.append(
-                    ExcelCellItem(EXCEL_DATA_TYPE_STR, item.position.size.name, item_type))
+                    ExcelCellItem(EXCEL_DATA_TYPE_STR, item.position.standard_cn, item_type))
                 for i in range(0, len(items_info['dates'])):
                     d = items_info['dates'][i]
                     if d.isoweekday() in [6, 7]:
@@ -260,18 +252,39 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
                                 ExcelCellItem(EXCEL_DATA_TYPE_NUM, item.schedule_by_date(d).num, item_type))
                         else:
                             temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, " ", item_type))
+                formula = 'SUM(%s:%s)' % (
+                    Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, data_start_col),
+                    Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, len(temp_row) - 1))
                 temp_row.append(
-                    ExcelCellItem(EXCEL_DATA_TYPE_NUM, item.schedule_sum, item_type))
+                    ExcelCellItem(EXCEL_DATA_TYPE_FORMULA, formula, item_type))  # 总预订量
                 temp_row.append(
-                    ExcelCellItem(EXCEL_DATA_TYPE_NUM, item.position.price, item_type))
+                    ExcelCellItem(EXCEL_DATA_TYPE_NUM, item.position.price, item_type))  # 刊例单价
+                formula = '%s*%s' % (
+                    Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, len(temp_row) - 2),
+                    Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, len(temp_row) - 1))
                 temp_row.append(
-                    ExcelCellItem(EXCEL_DATA_TYPE_NUM, item.schedule_sum * item.position.price, item_type))
+                    ExcelCellItem(EXCEL_DATA_TYPE_FORMULA, formula, item_type))  # 刊例总价
+                if sale_type_cn == u"配送":
+                    temp_row.append(
+                        ExcelCellItem(EXCEL_DATA_TYPE_NUM, float(DISCOUNT_GIFT) / 100, StyleTypes.gift_discount))
+                elif sale_type_cn == u"补量":
+                    temp_row.append(
+                        ExcelCellItem(EXCEL_DATA_TYPE_NUM, float(DISCOUNT_ADD) / 100, StyleTypes.discount))
+                else:
+                    temp_row.append(
+                        ExcelCellItem(EXCEL_DATA_TYPE_NUM, float(self.discount) / 100, StyleTypes.discount))
+                formula = '%s*%s' % (
+                    Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, len(temp_row) - 2),
+                    Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, len(temp_row) - 1))
+                temp_row.append(
+                    ExcelCellItem(EXCEL_DATA_TYPE_FORMULA, formula, item_type))  # 净价
                 excel_table.append(temp_row)
                 index += 1
                 temp_row = []
         # totle
         temp_row.append(
-            ExcelCellItem(EXCEL_DATA_TYPE_STR, "total", StyleTypes.base, 0, 2))
+            ExcelCellItem(EXCEL_DATA_TYPE_STR, "total", StyleTypes.base, 0, 3))
+        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
         temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
         temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_MERGE))
         for i in range(0, len(items_info['dates']) + 1):
@@ -280,6 +293,13 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
                 Utils.rowcol_to_cell(len(excel_table) - 1, data_start_col + i))
             temp_row.append(
                 ExcelCellItem(EXCEL_DATA_TYPE_FORMULA, formula, StyleTypes.base))
+        temp_row.append(
+            ExcelCellItem(EXCEL_DATA_TYPE_STR, "/", StyleTypes.base))
+        formula = 'SUM(%s:%s)' % (
+            Utils.rowcol_to_cell(data_start_row, len(temp_row)),
+            Utils.rowcol_to_cell(len(excel_table) - 1, len(temp_row)))
+        temp_row.append(
+            ExcelCellItem(EXCEL_DATA_TYPE_FORMULA, formula, StyleTypes.base))
         temp_row.append(
             ExcelCellItem(EXCEL_DATA_TYPE_STR, "/", StyleTypes.base))
         formula = 'SUM(%s:%s)' % (
@@ -298,3 +318,5 @@ class StyleTypes(object):
         gift = StyleFactory().font_colour(COLOUR_RED).style
         base_weekend = StyleFactory().bg_colour(COLOUR_LIGHT_GRAY).style
         gift_weekend = StyleFactory().font_colour(COLOUR_RED).bg_colour(COLOUR_LIGHT_GRAY).style
+        discount = StyleFactory().font_num('0%').style
+        gift_discount = StyleFactory().font_colour(COLOUR_RED).font_num('0%').style

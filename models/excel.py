@@ -55,6 +55,10 @@ class StyleFactory(object):
         self.style.font = font
         return self
 
+    def font_num(self, num_code):
+        self.style.num_format_str = num_code
+        return self
+
 
 class ExcelCellItem(object):
     """docstring for ExcelCellItem"""
