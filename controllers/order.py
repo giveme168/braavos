@@ -114,12 +114,18 @@ def orders():
     sortby = request.args.get('sortby', '')
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
+    medium_id = int(request.args.get('selected_medium', 0))
     reverse = orderby != 'asc'
-    if sortby and len(orders) and hasattr(orders[0], sortby):
-        orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+    if medium_id:
+        orders = [o for o in orders if medium_id == o.medium.id]
     if search_info != '':
         orders = [o for o in orders if search_info in o.name]
-    return tpl('orders.html', orders=orders, sortby=sortby, orderby=orderby, search_info=search_info)
+    if sortby and len(orders) and hasattr(orders[0], sortby):
+        orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+    select_medium = [(m.id, m.name) for m in Medium.all()]
+    select_medium.insert(0, (0, u'全部媒体'))
+    return tpl('orders.html', orders=orders, medium=select_medium, medium_id=medium_id,
+               sortby=sortby, orderby=orderby, search_info=search_info)
 
 
 @order_bp.route('/items', methods=['GET'])
