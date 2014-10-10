@@ -74,3 +74,9 @@ def export():
 @task
 def import_delivery():
     run('bash /home/inad/apps/braavos/start_import')
+
+
+@task
+def pg_dump():
+    """dump database"""
+    run('bash /home/inad/apps/braavos/start_dump')

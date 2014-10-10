@@ -33,8 +33,8 @@ class DeliveryMixin():
 
     def set_monitor_num(self, date, num):
         delivery_type = DELIVERY_TYPE_MONITOR
-        return self.set_delivery_num(date, delivery_type)
+        return self.set_delivery_num(date, delivery_type, num)
 
     def set_click_num(self, date, num):
         delivery_type = DELIVERY_TYPE_CLICK
-        return self.set_delivery_num(date, delivery_type)
+        return self.set_delivery_num(date, delivery_type, num)
