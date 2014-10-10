@@ -26,7 +26,12 @@ POSITION_LEVEL_CN = {
     POSITION_LEVEL_Y: u"软性资源",
     POSITION_LEVEL_APP: u"APP",
 }
-
+LAUNCH_STRATEGY_A = 0
+LAUNCH_STRATEGY_B = 1
+LAUNCH_STRATEGY = {
+    LAUNCH_STRATEGY_A: u"不可定向",
+    LAUNCH_STRATEGY_B: u"定向投放(地域/精准)"
+}
 AD_TYPE_NORMAL = 0
 AD_TYPE_CPD = 1
 AD_TYPE_REMNANT = 2
@@ -163,9 +168,10 @@ class AdPosition(db.Model, BaseModelMixin):
     cpd_num = db.Column(db.Integer)
     max_order_num = db.Column(db.Integer)
     price = db.Column(db.Integer)
+    launch_strategy = db.Column(db.Integer)
 
     def __init__(self, name, description, size, standard, status, medium,
-                 level=POSITION_LEVEL_A1, ad_type=AD_TYPE_NORMAL, price=0, max_order_num=0):
+                 level=POSITION_LEVEL_A1, ad_type=AD_TYPE_NORMAL, launch_strategy=1, price=0, max_order_num=0):
         self.name = name
         self.description = description
         self.size = size
@@ -176,6 +182,7 @@ class AdPosition(db.Model, BaseModelMixin):
         self.ad_type = ad_type
         self.price = price
         self.max_order_num = max_order_num
+        self.launch_strategy = launch_strategy
 
     def __repr__(self):
         return '<AdPosition %s>' % (self.name)
