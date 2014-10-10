@@ -12,6 +12,7 @@ from models.excel import (
     ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
     EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
     EXCEL_DATA_TYPE_NUM, COLOUR_RED, COLOUR_LIGHT_GRAY)
+from consts import DATE_FORMAT
 
 
 ORDER_TYPE_NORMAL = 0         # 标准广告
@@ -181,6 +182,24 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
     def path(self):
         return url_for('order.order_detail', order_id=self.id, step=0)
+
+    @property
+    def start_date(self):
+        start_dates = [i.start_date for i in self.items]
+        return min(start_dates) if start_dates else datetime.date(1900, 1, 1)
+
+    @property
+    def start_date_cn(self):
+        return self.start_date.strftime(DATE_FORMAT) if self.start_date != datetime.date(1900, 1, 1) else u"无订单项"
+
+    @property
+    def end_date(self):
+        end_dates = [i.end_date for i in self.items]
+        return max(end_dates) if end_dates else datetime.date(1900, 1, 1)
+
+    @property
+    def end_date_cn(self):
+        return self.end_date.strftime(DATE_FORMAT) if self.end_date != datetime.date(1900, 1, 1) else u"无订单项"
 
     @property
     def excel_table(self):

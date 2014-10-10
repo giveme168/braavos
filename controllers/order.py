@@ -111,7 +111,15 @@ def order_detail(order_id, step):
 @order_bp.route('/orders', methods=['GET'])
 def orders():
     orders = Order.all()
-    return tpl('orders.html', orders=orders)
+    sortby = request.args.get('sortby', '')
+    orderby = request.args.get('orderby', '')
+    search_info = request.args.get('searchinfo', '')
+    reverse = orderby != 'asc'
+    if sortby and len(orders) and hasattr(orders[0], sortby):
+        orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+    if search_info != '':
+        orders = [o for o in orders if search_info in o.name]
+    return tpl('orders.html', orders=orders, sortby=sortby, orderby=orderby, search_info=search_info)
 
 
 @order_bp.route('/items', methods=['GET'])
