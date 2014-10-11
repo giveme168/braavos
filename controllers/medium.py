@@ -69,6 +69,11 @@ def new_size():
 @medium_bp.route('/new_unit', methods=['GET', 'POST'])
 def new_unit():
     form = UnitForm(request.form)
+
+    if form.medium.data:
+        form.positions.choices = [(x.id, x.display_name)
+                                  for x in AdPosition.query.filter_by(medium_id=form.medium.data)]
+
     if request.method == 'POST' and form.validate():
         adUnit = AdUnit.add(name=form.name.data,
                             description=form.description.data,
@@ -90,6 +95,7 @@ def unit_detail(unit_id):
     if not unit:
         abort(404)
     form = UnitForm(request.form)
+
     if request.method == 'POST':
         if form.validate():
             unit.name = form.name.data
@@ -103,6 +109,10 @@ def unit_detail(unit_id):
             unit.estimate_num = form.estimate_num.data
             unit.save()
             flash(u'保存成功!', 'success')
+
+        if form.medium.data:
+            form.positions.choices = [(x.id, x.display_name)
+                                      for x in AdPosition.query.filter_by(medium_id=form.medium.data)]
     else:
         form.name.data = unit.name
         form.description.data = unit.description
@@ -111,6 +121,7 @@ def unit_detail(unit_id):
         form.target.data = unit.target
         form.status.data = unit.status
         form.positions.data = [x.id for x in unit.positions]
+        form.positions.choices = [(x.id, x.display_name) for x in AdPosition.query.filter_by(medium_id=unit.medium.id)]
         form.medium.data = unit.medium.id
         form.estimate_num.data = unit.estimate_num
     return tpl('unit.html', form=form, title=unit.display_name, unit=unit)
@@ -128,6 +139,10 @@ def new_position():
     form.estimate_num.hidden = True
     form.cpd_num.hidden = True
     form.max_order_num.hidden = True
+
+    if form.medium.data:
+        form.units.choices = [(x.id, x.display_name) for x in AdUnit.query.filter_by(medium_id=form.medium.data)]
+
     if request.method == 'POST':
         if form.validate():
             ad_position = AdPosition.add(name=form.name.data,
@@ -152,10 +167,13 @@ def new_position():
 def unit_to_position(unit_id):
     unit = AdUnit.get(unit_id)
     form = PositionForm(request.form)
-    form.units.choices = [(x.id, x.display_name) for x in AdUnit.query.filter_by(medium_id=unit.medium_id)]
     form.estimate_num.hidden = True
     form.cpd_num.hidden = True
     form.max_order_num.hidden = True
+    form.medium.hidden = True
+
+    form.units.choices = [(x.id, x.display_name) for x in AdUnit.query.filter_by(medium_id=unit.medium_id)]
+
     if request.method == 'POST':
         if form.validate():
             position = AdPosition.add(name=form.name.data,
