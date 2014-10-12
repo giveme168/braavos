@@ -58,11 +58,23 @@ def mediums():
 def new_size():
     form = SizeForm(request.form)
     if request.method == 'POST' and form.validate():
-        ad_size = AdSize.add(form.width.data, form.height.data)
-        flash(u'新建尺寸(%sx%s)成功!' % (ad_size.width, ad_size.height), 'success')
-        if request.values.get('next'):
-            return redirect(request.values.get('next'))
-        return redirect("/")
+        existing_adsizes = AdSize.all()
+        should_add = True
+
+        for size in existing_adsizes:
+            if size.width == form.width.data and size.height == form.height.data:
+                should_add = False
+                break
+
+        if should_add:
+            ad_size = AdSize.add(form.width.data, form.height.data)
+
+            flash(u'新建尺寸(%sx%s)成功!' % (ad_size.width, ad_size.height), 'success')
+            if request.values.get('next'):
+                return redirect(request.values.get('next'))
+                return redirect("/")
+        else:
+            flash(u'已存在该尺寸')
     return tpl('size.html', form=form)
 
 
@@ -140,8 +152,11 @@ def new_position():
     form.cpd_num.hidden = True
     form.max_order_num.hidden = True
 
-    if form.medium.data:
-        form.units.choices = [(x.id, x.display_name) for x in AdUnit.query.filter_by(medium_id=form.medium.data)]
+    # the medium and size field will be set value at the same time: any data post to server side
+    if form.medium.data and form.size.data:
+        form_size = AdSize.get(form.size.data)
+        form.units.choices = [(x.id, x.display_name)
+                              for x in AdUnit.query.filter_by(medium_id=form.medium.data, size=form_size)]
 
     if request.method == 'POST':
         if form.validate():
@@ -171,8 +186,7 @@ def unit_to_position(unit_id):
     form.cpd_num.hidden = True
     form.max_order_num.hidden = True
     form.medium.hidden = True
-
-    form.units.choices = [(x.id, x.display_name) for x in AdUnit.query.filter_by(medium_id=unit.medium_id)]
+    form.units.hidden = True
 
     if request.method == 'POST':
         if form.validate():
@@ -197,6 +211,8 @@ def unit_to_position(unit_id):
         form.size.data = unit.size.id
         form.status.data = unit.status
         form.units.data = [unit.id]
+
+    form.size.hidden = True
     return tpl('position.html', form=form, title=u"创建广告单元(%s)对应的展示位置" % unit.name)
 
 
@@ -206,7 +222,8 @@ def position_detail(position_id):
     if not position:
         abort(404)
     form = PositionForm(request.form)
-    form.units.choices = [(x.id, x.display_name) for x in AdUnit.query.filter_by(medium_id=position.medium_id)]
+    form.units.choices = [(x.id, x.display_name) for x in position.suitable_units]
+
     if request.method == 'POST':
         if form.validate():
             position.name = form.name.data

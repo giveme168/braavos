@@ -26,6 +26,10 @@ def test_size(session):
     assert size3.width == 400
     assert size3.height == 80
 
+    size4 = add_size(400, 80)
+    assert size4.id != size3.id
+    assert size4 == size3
+
 
 def test_unit(session):
     unit = add_unit('testunit', 300)
