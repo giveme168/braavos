@@ -10,6 +10,7 @@
             <th>名字</th>
             <th>描述</th>
             <th>资源类别</th>
+            <th>所属媒体</th>
             <th>投放类型</th>
             <th>尺寸</th>
             <th>刊例单价</th>
@@ -21,6 +22,7 @@
             <td><a href="{{url_for("medium.position_detail", position_id=m.id)}}">{{m.display_name}}</a></td>
             <td>{{m.description}}</td>
             <td>{{m.level_cn}}</td>
+            <td>{{m.medium.name}}
             <td>{{m.ad_type_cn}}</td>
             <td>{{m.size.name}}</td>
             <td>{{m.price}}</td>

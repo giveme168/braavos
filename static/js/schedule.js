@@ -66,6 +66,22 @@ $(document).ready(function(){
             position.parents(".schedule-form").find("#schedule-table").html(table_content);
           });
     }
+    set_readonly_by_date = function(){
+        schedules = $('.schedule-form').find(".order-num")
+        for(var x=0; x<schedules.length; x++){
+            var schedule = schedules[x];
+            if(!check_date($(schedule).attr("name"))){
+                $(schedule).attr("readonly",true);
+            }
+        }
+    }
+    check_date = function(date_str){
+        var date_arr = date_str.split("-");   
+        var date = new Date(date_arr[0],parseInt(date_arr[1])-1,parseInt(date_arr[2])+1); 
+        var today = new Date();
+        return date>=today;
+    }
+    set_readonly_by_date();
     // 展示位置改变, 重新加载数据
     $("body").on('change', ".position-select", function(){
       load_schedule($(this));
