@@ -32,7 +32,7 @@ def new_material(item_id):
 
 @material_bp.route('/material/<material_id>/', methods=['GET', 'POST'])
 def raw_material(material_id):
-    material = ImageMaterial.get(material_id)
+    material = Material.get(material_id)
     if not material:
         abort(404)
     form = RawMaterialForm(request.form)
