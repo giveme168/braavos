@@ -79,7 +79,10 @@ class Material(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
 
     @property
     def preview_path(self):
-        return url_for('material.raw_preview', material_id=self.id)
+        if self.type == MATERIAL_TYPE_PICTURE:
+            return url_for('material.image_preview', material_id=self.id)
+        else:
+            return url_for('material.raw_preview', material_id=self.id)
 
 
 class ImageMaterial(Material):
@@ -135,7 +138,3 @@ class ImageMaterial(Material):
                    'height': self.height}
         rt = render_template('/material_tpl/image.html', **context)
         return rt
-
-    @property
-    def preview_path(self):
-        return url_for('material.image_preview', material_id=self.id)
