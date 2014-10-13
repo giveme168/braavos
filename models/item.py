@@ -171,6 +171,10 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
         return STATUS_CN[self.status]
 
     @property
+    def item_state_cn(self):
+        return ITEM_STATUS_CN[self.item_status]
+
+    @property
     def start_date(self):
         return min([s.date for s in self.schedules]) if self.schedules else None
 
