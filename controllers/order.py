@@ -111,6 +111,22 @@ def order_detail(order_id, step):
 @order_bp.route('/orders', methods=['GET'])
 def orders():
     orders = Order.all()
+    return display_orders(orders, u'订单列表')
+
+
+@order_bp.route('/my_orders', methods=['GET'])
+def my_orders():
+    orders = Order.get_order_by_user(g.user)
+    return display_orders(orders, u'我的订单列表')
+
+
+@order_bp.route('/per_orders', methods=['GET'])
+def per_orders():
+    orders = Order.all_per_order()
+    return display_orders(orders, u'预下单订单列表')
+
+
+def display_orders(orders, title):
     sortby = request.args.get('sortby', '')
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')

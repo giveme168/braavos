@@ -7,7 +7,8 @@ from xlwt import Utils
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
-                   ITEM_STATUS_LEADER_ACTIONS)
+                   ITEM_STATUS_LEADER_ACTIONS, ITEM_STATUS_PRE,
+                   ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY)
 from models.excel import (
     ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
     EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
@@ -126,6 +127,17 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     def order_type_cn(self):
         return ORDER_TYPE_CN[self.order_type]
 
+    @classmethod
+    def all_per_order(cls):
+        return [o for o in cls.all() if len(o.pre_tiems)]
+
+    @property
+    def pre_tiems(self):
+        sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
+        return filter(
+            lambda x: x.item_status in [ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY],
+            sorted_items)
+
     def items_by_status(self, status):
         sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
         return filter(lambda x: x.item_status == status, sorted_items)
@@ -179,6 +191,14 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
             return any([user.is_admin(), user.is_leader(), user.team == self.medium.owner])
         else:
             return self.can_admin(user)
+
+    def have_owner(self, user):
+        owner = self.direct_sales + self.agent_sales + self.operaters + self.designers + self.planers
+        return any([user.is_admin(), self.creator_id == user.id, user in owner])
+
+    @classmethod
+    def get_order_by_user(cls, user):
+        return [o for o in cls.all() if o.have_owner(user)]
 
     def path(self):
         return url_for('order.order_detail', order_id=self.id, step=0)

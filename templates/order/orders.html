@@ -3,7 +3,7 @@
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3> 订单列表</h3>
+    <h3> {{title}}</h3>
     <div class="search">
         <input type="text" id="search_info" value="{{search_info}}" onkeypress="javascript:enter_search();">&nbsp;
         <select class="form-control" id="search_select" name="medium" placeholder="媒体">
@@ -56,11 +56,11 @@ function sort(value){
         sortby = value
         orderby = 'desc'
     }
-    window.location.href = '/orders/orders?sortby='+sortby+'&orderby='+orderby+'&searchinfo='+encodeURIComponent($('#search_info').val())+'&selected_medium='+($('#search_select').val());
+    window.location.href = window.location.pathname+'?sortby='+sortby+'&orderby='+orderby+'&searchinfo='+encodeURIComponent($('#search_info').val())+'&selected_medium='+($('#search_select').val());
 }
 
 function search(){
-    window.location.href = '/orders/orders?searchinfo='+encodeURIComponent($('#search_info').val())+'&selected_medium='+($('#search_select').val());
+    window.location.href = window.location.pathname+'?searchinfo='+encodeURIComponent($('#search_info').val())+'&selected_medium='+($('#search_select').val());
 }
 
 function enter_search(){
