@@ -8,7 +8,7 @@ from models.order import Order
 from models.medium import Medium, AdSize, AdUnit, AdPosition
 from models.item import AdItem, AdSchedule
 from models.material import Material, MATERIAL_TYPE_RAW
-from .test_consts import TEST_POSITION, TEST_MEDIUM
+from .test_consts import TEST_POSITION, TEST_MEDIUM, TEST_DEFAULT_MEDIUM
 
 
 def add_team(name):
@@ -35,7 +35,7 @@ def get_default_user():
 
 
 def add_medium(name):
-    team = add_team('testteam')
+    team = add_team(TEST_DEFAULT_MEDIUM)
     medium = Medium.add(name, team)
     return medium
 
@@ -45,8 +45,8 @@ def add_size(width, height):
     return size
 
 
-def add_unit(name, estimate_num, medium=None):
-    size = add_size(300, 50)
+def add_unit(name, estimate_num, medium=None, size=None):
+    size = size or add_size(300, 50)
     medium = medium or add_medium(TEST_MEDIUM)
     unit = AdUnit.add(
         name=name, description='', size=size,
@@ -55,8 +55,8 @@ def add_unit(name, estimate_num, medium=None):
     return unit
 
 
-def add_position(name, medium=None):
-    size = add_size(300, 50)
+def add_position(name, medium=None, size=None):
+    size = size or add_size(300, 50)
     medium = medium or add_medium(TEST_MEDIUM)
     position = AdPosition.add(
         name=name, description='', size=size, standard='', status=1, medium=medium)

@@ -71,6 +71,9 @@ class AdSize(db.Model, BaseModelMixin):
     def __repr__(self):
         return "<AdSize %sx%s>" % (self.width, self.height)
 
+    def __eq__(self, other):
+        return self.width == other.width and self.height == other.height
+
     @property
     def name(self):
         return "%s x %s" % (self.width, self.height)
@@ -227,6 +230,10 @@ class AdPosition(db.Model, BaseModelMixin):
         """
         schedules = self.schedules_by_date(_date)
         return sum([s.num for s in schedules])
+
+    @property
+    def suitable_units(self):
+        return AdUnit.query.filter_by(medium_id=self.medium.id, size=self.size)
 
     def retain_num(self, date):
         """剩余量, 所有广告单元的剩余量"""
