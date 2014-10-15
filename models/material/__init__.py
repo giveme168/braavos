@@ -84,6 +84,14 @@ class Material(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
         else:
             return url_for('material.raw_preview', material_id=self.id)
 
+    def is_online_by_date(self, _date):
+        """该日期是否有投放"""
+        return self.item.is_online_by_date(_date)
+
+    @classmethod
+    def online_materials(cls, _date):
+        return [m for m in cls.all() if m.is_online_by_date(_date)]
+
 
 class ImageMaterial(Material):
 
