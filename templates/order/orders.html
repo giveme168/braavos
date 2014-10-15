@@ -6,6 +6,15 @@
     <h3> 订单列表</h3>
     <div class="search">
         <input type="text" id="search_info" value="{{search_info}}" onkeypress="javascript:enter_search();">&nbsp;
+        <select class="form-control" id="search_select" name="medium" placeholder="媒体">
+            {% for v,m in medium %}
+                {% if v==medium_id|int %}
+                <option selected="" value="{{v}}">{{m}}</option>
+                {% else %}
+                <option value="{{v}}">{{m}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
         <input type="button" name="search" value="搜索" class="btn btn-small btn-primary" onclick="javascript:search();">
     </div>
     <table class="table table-bordered table-striped">
@@ -47,16 +56,11 @@ function sort(value){
         sortby = value
         orderby = 'desc'
     }
-    window.location.href = '/orders/orders?sortby='+sortby+'&orderby='+orderby
+    window.location.href = '/orders/orders?sortby='+sortby+'&orderby='+orderby+'&searchinfo='+encodeURIComponent($('#search_info').val())+'&selected_medium='+($('#search_select').val());
 }
 
 function search(){
-    search_info = $('#search_info').val();
-    if ('' == search_info){
-        alert('请输入查询内容！');
-        return
-    }
-    window.location.href = '/orders/orders?searchinfo='+escape(search_info);
+    window.location.href = '/orders/orders?searchinfo='+encodeURIComponent($('#search_info').val())+'&selected_medium='+($('#search_select').val());
 }
 
 function enter_search(){
@@ -66,4 +70,5 @@ function enter_search(){
     }
 }
 </script>
+
 {% endblock %}

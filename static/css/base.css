@@ -158,3 +158,8 @@ body{
     opacity: 1;
     border: 1px solid #ccc;
 }
+
+#search_select{
+    width: 150px;
+    height: 34px;
+}
