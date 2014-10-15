@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import date
 from pytest_bdd import scenario, given, when, then
-from models.item import AdSchedule
+
+from models.item import AdSchedule, AdItem, ITEM_STATUS_ACTION_PRE_ORDER
+from models.user import User
 from helper import add_unit, add_position, add_item, get_position
 from .test_consts import TEST_POSITION, TEST_UNIT
 
@@ -18,10 +20,12 @@ def init_one_postion(session):
     position.units = [unit]
 
 
-@when('order an item with 600')
+@when('order an item with 600 and change its state to per_order')
 def order_item(session):
     item = add_item(get_position(TEST_POSITION))
     AdSchedule(item, 600, date.today())
+    user = User.get_by_email('testuser1@inad.com')
+    AdItem.update_items_with_action([item], ITEM_STATUS_ACTION_PRE_ORDER, user)
 
 
 @then('order successfully')

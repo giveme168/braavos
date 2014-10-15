@@ -1,7 +1,8 @@
 from datetime import date
 
-from models.item import AdSchedule
+from models.item import AdSchedule, AdItem, ITEM_STATUS_ACTION_PRE_ORDER
 from helper import add_unit, add_position, add_item
+from models.user import User
 
 
 def test_schedule(session):
@@ -36,6 +37,10 @@ def test_schedule(session):
 
     AdSchedule.add(item1, 500, _date)
     AdSchedule.add(item2, 100, _date)
+
+    user = User.get_by_email('testuser1@inad.com')
+    AdItem.update_items_with_action([item1], ITEM_STATUS_ACTION_PRE_ORDER, user)
+    AdItem.update_items_with_action([item2], ITEM_STATUS_ACTION_PRE_ORDER, user)
 
     assert position1.schedule_num(_date) == 500
     assert position2.schedule_num(_date) == 100
