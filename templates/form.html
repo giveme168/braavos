@@ -8,6 +8,8 @@
         <div class="col-sm-10">
           {% if field.readonly %}
             {{field(class_='form-control bra-form-control', placeholder=field.label.text, readonly="readonly")}}
+          {% elif field.disabled %}
+	    {{field(class_='form-control bra-form-control', placeholder=field.label.text, disabled="disabled")}}
           {% else %}
             {{field(class_='form-control bra-form-control', placeholder=field.label.text)}}
           {% endif %}

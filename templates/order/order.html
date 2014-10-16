@@ -1,6 +1,6 @@
 {% extends "/order_base.html" %}
 {% from 'order_info.html' import order_info_form %}
-{% from 'order_items.html' import order_items, button_export_schedule %}
+{% from 'order_items.html' import order_items, button_export_schedule, order_every_items %}
 {% from 'comments.html' import comments_box %}
 
 {% block main_box%}
@@ -51,7 +51,8 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-default">
+	 <div class="panel panel-default">
+            <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 订单项 </a>
@@ -59,6 +60,7 @@
             </div>
             <div id="collapse3" class="panel-collapse collapse in">
                 <div class="panel-body">
+                    {{ order_every_items(order)}}
                 </div>
             </div>
         </div>
@@ -72,5 +74,16 @@ $(document).ready(function(){
     $("#collapseOne").collapse('hide');
     $("#collapseTwo").collapse('show');
 });
+
+function show_items_detail(id){
+    var tab1=document.getElementById("items_thead"+id);
+    var tab2=document.getElementById("items_thead_content"+id);
+    var tab3=document.getElementById("material_thead"+id);
+    var tab4=document.getElementById("material_thead_content"+id);
+    tab1.style.display=(tab1.style.display=="none"?"":"none");
+    tab2.style.display=(tab2.style.display=="none"?"":"none");
+    tab3.style.display=(tab3.style.display=="none"?"":"none");
+    tab4.style.display=(tab4.style.display=="none"?"":"none");
+}
 </script>
 {% endblock %}
