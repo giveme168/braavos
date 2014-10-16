@@ -41,7 +41,7 @@ def item_info(schedule, item):
     ret = {'schedule_id': schedule.id,  # 排期id
            'item_id': item.id,  # 订单项id
            'units': [u.id for u in schedule.units],  # 投放单元
-           'materials': [material_info(m) for m in item.materials],  # 投放素材
+           'materials': [m.id for m in item.materials],  # 投放素材
            'schedule_num': schedule.num,  # 投放量
            'start_time': schedule.start.strftime(TIME_FORMAT),  # 起始时间
            'end_time': schedule.end.strftime(TIME_FORMAT),  # 结束时间
@@ -54,7 +54,8 @@ def get_export_units(_date):
     ret = {}
     for u in AdUnit.all():
         items = [str(i.id) for i in u.online_order_items_by_date(_date)]
-        ret[str(u.id)] = unit_info(u, items)
+        if items:
+            ret[str(u.id)] = unit_info(u, items)
     return ret
 
 
@@ -75,11 +76,22 @@ def material_info(material):
     return ret
 
 
+def get_export_materials(_date):
+    """当天的广告素材索引信息, 素材id, 素材html"""
+    ret = {}
+    for m in Material.online_materials(_date):
+        ret[str(m.id)] = material_info(m)
+    return ret
+
+
 if __name__ == '__main__':
     _date = datetime.date.today()
     ad_items_key = "AD:Date:%s:Items" % _date.strftime(DATE_FORMAT)
     ad_units_key = "AD:Date:%s:Units" % _date.strftime(DATE_FORMAT)
+    ad_materials_key = "AD:Date:%s:Materials" % _date.strftime(DATE_FORMAT)
     i_info = get_export_items(datetime.date.today())
     u_info = get_export_units(datetime.date.today())
+    m_info = get_export_materials(datetime.date.today())
     redis.setex(ad_items_key, DATA_EXPIRES_TIME, json.dumps(i_info))
     redis.setex(ad_units_key, DATA_EXPIRES_TIME, json.dumps(u_info))
+    redis.setex(ad_materials_key, DATA_EXPIRES_TIME, json.dumps(m_info))
