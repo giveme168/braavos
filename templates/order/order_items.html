@@ -272,9 +272,9 @@ $(document).ready(function(){
     <td>{{t.name}}</td>
     <td>{{t.type}}</td>
     <td>{{t.status}}</td>
-    <td>{{t.get_monitor_num_all()}}</td>
-    <td>{{t.get_click_num_all()}}</td>
-    <td>{{t.get_ctr}}</td>
+    <td>{{item.get_monitor_num_all()}}</td>
+    <td>{{item.get_click_num_all()}}</td>
+    <td>{{item.get_ctr(None)}}</td>
   </tr>
 	{% endfor %}
 </thead>
