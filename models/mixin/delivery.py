@@ -23,15 +23,15 @@ class DeliveryMixin():
     def get_monitor_num_all(self):
         delivery_type = DELIVERY_TYPE_MONITOR
         deliverys = Delivery.query.filter_by(target_type=self.target_type,
-                                            target_id=self.target_id,
-                                            delivery_type=delivery_type)
+                                             target_id=self.target_id,
+                                             delivery_type=delivery_type)
         return sum([x.value for x in deliverys]) if deliverys.count() else 0
 
     def get_click_num_all(self):
         delivery_type = DELIVERY_TYPE_CLICK
         deliverys = Delivery.query.filter_by(target_type=self.target_type,
-                                            target_id=self.target_id,
-                                            delivery_type=delivery_type)
+                                             target_id=self.target_id,
+                                             delivery_type=delivery_type)
         return sum([x.value for x in deliverys]) if deliverys.count() else 0
 
     def set_delivery_num(self, date, delivery_type, num):
