@@ -5,7 +5,7 @@ from wtforms import IntegerField, TextField, validators, SelectField, TextAreaFi
 from models.user import Team
 from models.medium import (AdSize, AdPosition, AdUnit, Medium,
                            STATUS_CN, TARGET_CN, POSITION_LEVEL_CN, AD_TYPE_CN,
-                           AD_TYPE_NORMAL, AD_TYPE_CPD)
+                           AD_TYPE_NORMAL, AD_TYPE_CPD, LAUNCH_STRATEGY)
 
 
 class NewMediumForm(Form):
@@ -68,6 +68,7 @@ class PositionForm(Form):
     cpd_num = IntegerField(u'CPD量(CPD有效)', default=0)
     estimate_num = IntegerField(u'预估量(自动计算)', default=0)
     max_order_num = IntegerField(u'最大预订(CPM有效)', default=0)
+    launch_strategy = SelectField(u'投放策略', coerce=int, default=1)
     price = IntegerField(u'单价', default=0)
 
     def __init__(self, *args, **kwargs):
@@ -80,6 +81,7 @@ class PositionForm(Form):
         self.units.choices = [(x.id, x.display_name) for x in AdUnit.all()]
         self.estimate_num.readonly = True
         self.estimate_num.hidden = False
+        self.launch_strategy.choices = LAUNCH_STRATEGY.items()
 
     def validate(self):
         if Form.validate(self):
