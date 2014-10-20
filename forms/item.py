@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
-from flask.ext.wtf import Form
 from wtforms import TextField, TextAreaField, SelectField, IntegerField
 
+from libs.wtf import Form
 from models.item import SALE_TYPE_CN, AD_TYPE_CN, ITEM_STATUS_CN, PRIORITY_CN, SPEED_CN
 from models.consts import STATUS_CN
 

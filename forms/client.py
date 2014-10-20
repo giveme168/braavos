@@ -1,7 +1,7 @@
 #-*- coding: UTF-8 -*-
-from flask.ext.wtf import Form
 from wtforms import TextField, validators, SelectField
 
+from libs.wtf import Form
 from models.client import CLIENT_INDUSTRY_CN
 
 
