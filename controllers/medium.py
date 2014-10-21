@@ -231,8 +231,11 @@ def position_detail(position_id):
             position.cpd_num = form.cpd_num.data
             position.max_order_num = form.max_order_num.data
             position.price = form.price.data
+            position.launch_strategy = form.launch_strategy.data
             position.save()
             flash(u'保存成功!', 'success')
+        else:
+            flash(u'保存失败!', 'danger')
     else:
         form.name.data = position.name
         form.description.data = position.description
@@ -243,10 +246,11 @@ def position_detail(position_id):
         form.medium.data = position.medium.id
         form.level.data = position.level
         form.ad_type.data = position.ad_type
-        form.cpd_num.data = position.cpd_num
+        form.cpd_num.data = position.cpd_num or 0
         form.max_order_num.data = position.max_order_num
         form.price.data = position.price
         form.estimate_num.data = position.estimate_num
+        form.launch_strategy.data = position.launch_strategy
         form.estimate_num.readonly = True
     return tpl('position.html', form=form, title=position.display_name)
 
