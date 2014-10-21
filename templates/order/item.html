@@ -8,11 +8,11 @@
         <a class="btn btn-default btn-sm" href="{{url_for("order.order_detail", order_id=item.order.id, step=0)}}">返回</a>
     </h4>
     <div class="panel-group" id="accordion">
-        {% if item.is_schedule_lock %}
+        {% if item.is_schedule_lock  and  item.is_action_order %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 信息 </a>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 投放控制 </a>
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">
@@ -31,7 +31,9 @@
                         {{ form_field(form.item_status) }}
                         {{ form_field(form.status) }}
                         {{ form_field(form.creator) }}
+			{% if g.user.team.is_admin() %}
                         <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+ 			{% endif %}
                     </form>
                 </div>
             </div>
@@ -63,6 +65,7 @@
             </div>
         </div>
         {% endif %}
+	{% if item.is_action_order %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
@@ -88,6 +91,7 @@
             </div>
         </div>
     </div>
+	{% endif %}
     <div>{{ comments_box(item) }}</div>
 </div>
 <script>

@@ -175,6 +175,10 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
         return ITEM_STATUS_CN[self.item_status]
 
     @property
+    def is_action_order(self):
+        return self.item_status == ITEM_STATUS_ORDER
+
+    @property
     def start_date(self):
         return min([s.date for s in self.schedules]) if self.schedules else None
 
@@ -197,6 +201,22 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
     @property
     def schedule_sum(self):
         return sum([x.num for x in self.schedules])
+
+    def get_ctr(self, date):
+        if date:
+            return (str(round(float(self.get_click_num(date)) / float(self.get_monitor_num(date)),
+                    2) * 100) + '%') if self.get_monitor_num(date) else 0.0
+        else:
+            return (str(round(float(self.get_click_num_all()) / float(self.get_monitor_num_all()),
+                    2) * 100) + '%') if self.get_monitor_num_all() else 0.0
+
+    def get_finshed_proper(self, date):
+        if date:
+            num = sum([t.num for t in self.schedules if t.date == date])
+            return (str(round(float(self.get_monitor_num(date)) / float(num), 2) * 100) + '%') if num else 0.0
+        else:
+            return (str(round(float(self.get_monitor_num_all()) / float(self.schedule_sum),
+                    2) * 100) + '%') if self.schedule_sum else 0.0
 
     def get_schedule_info_by_week(self):
         ret = {}

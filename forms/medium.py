@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
-from flask.ext.wtf import Form
 from wtforms import IntegerField, TextField, validators, SelectField, TextAreaField, SelectMultipleField
 
+from libs.wtf import Form
 from models.user import Team
 from models.medium import (AdSize, AdPosition, AdUnit, Medium,
                            STATUS_CN, TARGET_CN, POSITION_LEVEL_CN, AD_TYPE_CN,

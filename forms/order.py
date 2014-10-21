@@ -1,7 +1,7 @@
 #-*- coding: UTF-8 -*-
-from flask.ext.wtf import Form
 from wtforms import TextField, validators, SelectField, SelectMultipleField, IntegerField
 
+from libs.wtf import Form
 from models.client import Client, Agent
 from models.medium import Medium
 from models.order import ORDER_TYPE_CN, DISCOUNT_SALE, DISCOUNT_SELECT

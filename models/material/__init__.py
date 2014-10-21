@@ -78,6 +78,11 @@ class Material(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
             return self.html.replace("%%CLICK%%", "")  # 预览的时候, 去掉CLICK宏
 
     @property
+    def get_ctr(self):
+        return (str(round(float(self.get_click_num_all()) / float(self.get_monitor_num_all()),
+                    2) * 100) + '%') if self.get_monitor_num_all() else 0.0
+
+    @property
     def preview_path(self):
         if self.type == MATERIAL_TYPE_PICTURE:
             return url_for('material.image_preview', material_id=self.id)

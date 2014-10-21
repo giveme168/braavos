@@ -275,7 +275,8 @@ def item_detail(item_id):
         form.order.readonly = True
         form.position.readonly = True
         form.creator.readonly = True
-
+    if not g.user.is_admin():
+        form.disable_all()
     return tpl('item.html', form=form, item=item)
 
 

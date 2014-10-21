@@ -1,14 +1,16 @@
 {% set ACTION_ACTIVE = 6 %}
 {% set ACTION_PAUSE = 7 %}
-{% macro items_tab_content(items_info) -%}
+{% macro items_tab_content(items_info, ordered=False) -%}
 <div class="table-container">
   <table class="table table-bordered table-striped table-condensed text-center"]>
     <thead>
       <tr>
         <th rowspan="2" style="min-width: 40px;">售卖类型</th>
+ 	  {% if ordered == False %}
         <th rowspan="2" style="min-width: 40px;" class="text-center">
           <input type="checkbox" class="checkbox_all">
         </th>
+           {% endif %}
         <th rowspan="2" style="min-width: 80px;">展示位置</th>
         {% for m, m_len in items_info['months'].items() %}
         <th colspan="{{m_len}}" class="text-center">{{m}} 月</th>
@@ -33,9 +35,11 @@
         {% if loop.index == 1 %}
         <td rowspan="{{sale_type_items|length}}" style="vertical-align: middle;">{{sale_type_cn}}</td>
         {% endif %}
+        {% if ordered == False %}
         <td>
           <input type="checkbox" class="checkbox_one" name="item_id" value="{{i.id}}">
         </td>
+        {% endif %}
         {% if i.is_status_on() %}
         <td>
         {% else %}
@@ -55,6 +59,8 @@
   </table>
 </div>
 {%- endmacro %}
+
+
 
 {% macro button_by_action(order, action) -%}
 {% if order.can_action(g.user, action) %}
@@ -126,10 +132,8 @@
   </div>
   <div class="tab-pane fade" id="tab-4">
     <form action="{{url_for('order.items_status_update', order_id=order.id, step=4)}}" method="POST">
-      {{ items_tab_content(order.items_info_by_status(4)) }}
+      {{ items_tab_content(order.items_info_by_status(4),True) }}
       <div class="col_change_state_button">
-        {{ button_by_action(order, ACTION_ACTIVE) }}
-        {{ button_by_action(order, ACTION_PAUSE) }}
       </div>
     </form>
   </div>
@@ -143,4 +147,137 @@ $(document).ready(function(){
     $(step).click();
 });
 </script>
+{%- endmacro %}
+
+{% macro ordered_items(order)-%}
+<div>
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=4)}}" method="POST">
+      {{ items_order_content(order.items_info_by_status(4)) }}
+	 <div class="col_change_state_button">
+        {{ button_by_action(order, ACTION_ACTIVE) }}
+        {{ button_by_action(order, ACTION_PAUSE) }}
+</div>
+    </form>
+  </div>
+{%- endmacro %}
+
+{% macro items_order_content(items_info)-%}
+<div>
+<table class="table table-bordered table-striped">
+   <thead>
+     <tr >
+       <td>售卖类型</td>
+       <td>
+         <input type="checkbox" class="checkbox_all"/>
+       </td>
+       <td>展示位置</td>
+       <td>开始时间</td>
+       <td>结束时间</td>
+       <td>目标展示数</td>
+       <td>已经展示数</td>
+       <td>点击数</td>
+       <td>CTR</td>
+       <td>进度</td>
+       <td>投放控制</td>
+      </tr>
+   <thead>
+<tbody class="table table-bordered table-striped">
+       {% for v, sale_type_cn, sale_type_items in items_info['items'] %}
+       {% for i in sale_type_items %}
+  <tr >
+    <td>{{sale_type_cn}}</td>
+    <td>
+      <input type="checkbox" class="checkbox_one" name="item_id" value="{{i.id}}"/>
+    </td>
+	{% if i.is_status_on() %}
+    <td>
+        {% else %}
+    <td style="background: #f2dede">
+        {% endif %}
+      <input type="button" id="{{i.id}}"  onclick="show_items_detail(this.id);" value="{{i.position.name}}"/>
+    </td>
+    <td>{{i.start_date}}</td>
+    <td>{{i.end_date}}</td>
+    <td>{{i.schedule_sum}}</td>
+    <td>{{i.get_monitor_num_all()}}</td>
+    <td>{{i.get_click_num_all()}}</td>
+    <td>{{i.get_ctr(None)}}</td>
+    <td>{{i.get_finshed_proper(None)}}</td>
+    <td><a href="/orders/item/{{i.id}}">投放控制</a></td>
+  </tr> {{  order_every_items_detail(i) }}
+    {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+<script>
+  $(document).ready(function(){
+    $("#collapseOne").collapse('hide');
+    $("#collapseTwo").collapse('show');
+});
+
+  function show_items_detail(id){
+    var tab1=document.getElementById("items_thead"+id);
+    var tab2=document.getElementById("items_thead_content"+id);
+    var tab3=document.getElementById("material_thead"+id);
+    var tab4=document.getElementById("material_thead_content"+id);
+    tab1.style.display=(tab1.style.display=="none"?"":"none");
+    tab2.style.display=(tab2.style.display=="none"?"":"none");
+    tab3.style.display=(tab3.style.display=="none"?"":"none");
+    tab4.style.display=(tab4.style.display=="none"?"":"none");
+}
+</script>
+{%- endmacro %}
+
+{% macro order_every_items_detail(item)  -%}
+<div>
+  <tbody>
+    <thead id="items_thead{{item.id}}" style="display: none">
+      <tr>
+        <td rowspan="2">日期</td>
+        <td rowspan="2">状态</td>
+        <td rowspan="2">目标展示数</td>
+        <td rowspan="2">已经展示数</td>
+        <td rowspan="2">点击数</td>
+        <td rowspan="2">CTR</td>
+        <td rowspan="2">进度</td>
+      </tr>
+    </thead>
+    <thead id="items_thead_content{{item.id}}"style="display: none">
+	{% for t in item.schedules %}
+      <tr>
+        <td>{{t.date}}</td>
+	<td>{{item.item_state_cn}}</td>
+        <td>{{t.num}}</td>
+        <td>{{item.get_monitor_num(t.date)}}</td>
+        <td>{{item.get_click_num(t.date)}}</td>
+        <td>{{item.get_ctr(t.date)}}</td>
+        <td>{{item.get_finshed_proper(t.date)}}</td>
+      </tr>
+        {% endfor %}
+    </thead>
+<thead id="material_thead{{item.id}}" style="display: none">
+  <tr>
+    <td rowspan="2">素材名称</td>
+    <td rowspan="2">广告类型</td>
+    <td rowspan="2">状态</td>
+    <td rowspan="2">已展示数</td>
+    <td rowspan="2">点击数</td>
+    <td rowspan="2">CTR</td>
+  </tr>
+</thead>
+<thead id="material_thead_content{{item.id}}"style="display: none">
+	{%  for t in item.materials %}
+  <tr>	
+    <td>{{t.name}}</td>
+    <td>{{t.type}}</td>
+    <td>{{t.status}}</td>
+    <td>{{t.get_monitor_num_all()}}</td>
+    <td>{{t.get_click_num_all()}}</td>
+    <td>{{t.get_ctr}}</td>
+  </tr>
+	{% endfor %}
+</thead>
+</tbody>
+</div>
 {%- endmacro %}
