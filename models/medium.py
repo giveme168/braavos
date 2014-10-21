@@ -4,6 +4,7 @@ from datetime import timedelta
 from . import db, BaseModelMixin
 from .consts import STATUS_CN, DATE_FORMAT
 from models.mixin.delivery import DeliveryMixin
+from models.item import OCCUPY_RESOURCE_STATUS, ITEM_STATUS_ORDER
 
 TARGET_TOP = 1
 TARGET_BLANK = 0
@@ -41,6 +42,22 @@ AD_TYPE_CN = {
     AD_TYPE_CPD: u"CPD",
 }
 
+EMPTY = 0
+TWENTY_FIVE = 25
+FIFTY = 50
+SEVENTY_FIVE = 75
+HUNDERD = 100
+ERROR = 101
+
+OCCUPY_RESOURCE_PRECENT_CN = {
+    EMPTY: "",
+    TWENTY_FIVE: "twenty-five",
+    FIFTY: "fifty",
+    SEVENTY_FIVE: "seventy-five",
+    HUNDERD: "hundred",
+    ERROR: "error"
+}
+
 ad_position_unit_table = db.Table('ad_position_unit',
                                   db.Column('position_id', db.Integer, db.ForeignKey('ad_position.id')),
                                   db.Column('unit_id', db.Integer, db.ForeignKey('ad_unit.id'))
@@ -61,6 +78,9 @@ class Medium(db.Model, BaseModelMixin):
 
     def __repr__(self):
         return '<Medium %s>' % (self.name)
+
+    def positions_info_by_date(self):
+        return positions_info(self.positions)
 
 
 class AdSize(db.Model, BaseModelMixin):
@@ -129,8 +149,8 @@ class AdUnit(db.Model, BaseModelMixin, DeliveryMixin):
         每个展示位置的的预订量按照比例分配到所拥有的广告单元上,
         再加和计算该单元的预订量
         """
-        return int(sum([x.schedule_num(date) * (float(self.estimate_num) / x.estimate_num)
-                        for x in self.positions]))
+        return int(round(sum([x.schedule_num(date) * (float(self.estimate_num) / x.estimate_num)
+                         for x in self.positions])))
 
     def retain_num(self, date):
         retain_num = self.estimate_num - self.schedule_num(date)
@@ -236,7 +256,12 @@ class AdPosition(db.Model, BaseModelMixin):
         通过所有预订这个位置的订单项的这一天的量计算
         """
         schedules = self.schedules_by_date(_date)
-        return sum([s.num for s in schedules])
+        return sum([s.num for s in schedules if s.item.item_status in OCCUPY_RESOURCE_STATUS])
+
+    def ordered_num(self, _date):
+        """该位置的已经下单的量"""
+        schedules = self.schedules_by_date(_date)
+        return sum([s.num for s in schedules if s.item.item_status == ITEM_STATUS_ORDER])
 
     @property
     def suitable_units(self):
@@ -270,6 +295,65 @@ class AdPosition(db.Model, BaseModelMixin):
                             for _date, num in self.can_order_num_schedule(start_date, end_date)]
         return ret
 
+    def storage_percent_cn(self, date):
+        percent = self.storage_percent(date)
+        if percent == EMPTY:
+            return OCCUPY_RESOURCE_PRECENT_CN[EMPTY]
+        elif percent <= TWENTY_FIVE:
+            return OCCUPY_RESOURCE_PRECENT_CN[TWENTY_FIVE]
+        elif percent <= FIFTY:
+            return OCCUPY_RESOURCE_PRECENT_CN[FIFTY]
+        elif percent <= SEVENTY_FIVE:
+            return OCCUPY_RESOURCE_PRECENT_CN[SEVENTY_FIVE]
+        elif percent <= HUNDERD:
+            return OCCUPY_RESOURCE_PRECENT_CN[HUNDERD]
+        else:
+            return OCCUPY_RESOURCE_PRECENT_CN[ERROR]
+
+    def storage_percent(self, date):
+        current_num = self.schedule_num(date)
+        retain_num = self.retain_num(date)
+        min_num = 1 if current_num > 0 else 0
+        return max([current_num * 100 / (retain_num + current_num), min_num])
+
+    def get_storage_info(self, date):
+        ret = {"position": self.id,
+               "estimate_num": self.estimate_num,
+               "ordered_num": self.ordered_num(date),
+               "per_ordered_num": self.schedule_num(date) - self.ordered_num(date),
+               "remain_num": self.retain_num(date)}
+        ret['orders'] = [order_info(o, self, date) for o in self.get_orders_by_date(date)]
+        return ret
+
+    def get_orders_by_date(self, date):
+        orders = [i.order for i in self.order_items if i.schedule_by_date(date)]
+        return list(set(orders))
+
+    @classmethod
+    def all_positions_info_by_date(cls):
+        return positions_info(cls.all())
+
+
+def positions_info(positions):
+    positions_info = []
+    level_dict = sorted(POSITION_LEVEL_CN.iteritems(), key=lambda d: d[0])
+    for v, level_cn in level_dict:
+        temp_positions = [p for p in positions if p.level == v]
+        positions_info.append((v, POSITION_LEVEL_CN[v], temp_positions))
+    return positions_info
+
 
 def schdule_info(date, num):
     return (date.strftime(DATE_FORMAT), num, date.isoweekday())
+
+
+def order_info(order, position, date):
+    order_info_dic = {}
+    order_info_dic["name"] = order.name
+    order_info_dic["URL"] = order.path()
+    order_info_dic["occupy_num"] = order.occupy_num_by_date_position(date, position)
+    order_info_dic["state_cn"] = "&".join(order.items_status_cn)
+    order_info_dic["date_cn"] = u"%s至%s" % (order.start_date_cn, order.end_date_cn)
+    order_info_dic["special_sale"] = u"是" if order.special_sale_in_position(position) else u"否"
+    order_info_dic["creator"] = order.creator.name
+    return order_info_dic

@@ -7,8 +7,9 @@ from xlwt import Utils
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
-                   ITEM_STATUS_LEADER_ACTIONS, ITEM_STATUS_PRE,
-                   ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY)
+                   ITEM_STATUS_LEADER_ACTIONS, OCCUPY_RESOURCE_STATUS,
+                   ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY,
+                   ITEM_STATUS_ORDER)
 from models.excel import (
     ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
     EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
@@ -220,6 +221,31 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     @property
     def end_date_cn(self):
         return self.end_date.strftime(DATE_FORMAT) if self.end_date != datetime.date(1900, 1, 1) else u"无订单项"
+
+    def occupy_num_by_date_position(self, date, position):
+        return sum(
+            [i.schedule_sum_by_date(date) for i in self.items
+             if i.item_status in OCCUPY_RESOURCE_STATUS and i.position == position])
+
+    @property
+    def items_status(self):
+        return list(set([i.item_status for i in self.items]))
+
+    @property
+    def items_status_cn(self):
+        """只关心预下单状态和已下单状态"""
+        items_status_cn = []
+        if (ITEM_STATUS_PRE in self.items_status
+            or ITEM_STATUS_PRE_PASS in self.items_status
+                or ITEM_STATUS_ORDER_APPLY in self.items_status):
+            items_status_cn.append(u'预下单')
+        if ITEM_STATUS_ORDER in self.items_status:
+            items_status_cn.append(u'已下单')
+        return items_status_cn
+
+    def special_sale_in_position(self, position):
+        special_sale_items = [i for i in self.items if i.position == position and i.special_sale]
+        return len(special_sale_items)
 
     @property
     def excel_table(self):

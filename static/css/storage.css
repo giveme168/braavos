@@ -1,0 +1,173 @@
+#storage_info {
+	display: none;
+	position: absolute;
+	width: 270px;
+}
+
+.arrow-outside, .arrow-inside {
+	position: relative;
+	width: 0;
+	height: 0;
+	display: inline-block;
+	border: 10px solid transparent;
+}
+
+.arrow-outside {
+	border-right: 10px solid #ddd;
+	left: 0;
+	top: 10px;
+}
+
+.arrow-inside {
+	border-right: 10px solid #fff;
+	left: -23px;
+	top: 10px;
+	z-index: 20;
+}
+
+.tip-info {
+	background-color: #fff;
+	border: 1px solid #ddd;
+	padding: 10px;
+	min-width: 200px;
+}
+
+.hd {
+	float: right;
+}
+
+.loading {
+	height: 4px
+}
+
+td.cell {
+	cursor: pointer;
+}
+
+.table th {
+	text-align: center;
+	vertical-align: middle;
+}
+
+.arrow,
+    .arrow-wrap {
+	border-width: 10px;
+	border-style: dashed solid dashed;
+	position: absolute;
+	width: 0;
+	height: 0;
+	border-color: transparent;
+}
+
+.pos-left .arrow,
+    .pos-left .arrow-wrap {
+	border-left-color: white;
+	top: 10px;
+	left: 269px;
+}
+
+.pos-left .arrow-wrap {
+	left: 270px;
+	border-left-color: #ddd;
+}
+
+.pos-right .arrow,
+    .pos-right .arrow-wrap {
+	border-right-color: white;
+	top: 10px;
+	left: -20px;
+}
+
+.pos-right .arrow-wrap {
+	left: -21px;
+	border-right-color: #ddd;
+}
+
+.tip-info ul {
+	padding: 0px;
+	list-style: none
+}
+
+.storage-stat {
+	border-bottom: 1px dashed #ddd;
+}
+/*table*/
+.storage-table {
+	width: 950px;
+	table-layout: fixed;
+}
+.th-cell {
+	width: 25px;
+}
+
+.th-name {
+	width: 160px;
+}
+
+.th-level {
+	width: 40px;
+}
+
+#storage-table td {
+	line-height: 16px;
+	font-size: 12px;
+	text-align: center;
+	vertical-align: middle;
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	padding-left: 3px;
+}
+
+#storage-table .cell {
+	width: 25px;
+	background-color: #fff;
+}
+
+.hundred,
+    #storage-table .hundred,
+    #storage-table .hundred:hover {
+	background-color: #000099;
+}
+
+.seventy-five,
+    #storage-table .seventy-five,
+    #storage-table .seventy-five:hover {
+	background-color: #3333FF;
+}
+
+.fifty,
+    #storage-table .fifty,
+    #storage-table .fifty:hover {
+	background-color: #6699FF;
+}
+
+.twenty-five,
+    #storage-table .twenty-five,
+    #storage-table .twenty-five:hover {
+	background-color: #99CCFF;
+}
+
+.stat-item {
+	display: inline-block;
+	width: 25px;
+	height: 25px;
+	border: 1px solid #ddd;
+	vertical-align: middle;
+	margin-top: -3px;
+}
+
+.stat-info {
+	margin: 15px 0;
+}
+
+.table thead:first-child tr th.non_workday, .table thead:first-child tr td.non_workday {
+	background-color: #FCC;
+}
+
+.top-attached-table {
+	display: none;
+	background-color: #fff;
+	border-bottom: 1px solid #ddd;
+	border-left: 1px solid #ddd;
+	box-shadow: 0 3px 2px -2px pink;
+}

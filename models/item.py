@@ -53,6 +53,19 @@ ITEM_STATUS_PRE_PASS = 2
 ITEM_STATUS_ORDER_APPLY = 3
 ITEM_STATUS_ORDER = 4
 
+OCCUPY_RESOURCE_STATUS = [
+    ITEM_STATUS_PRE,
+    ITEM_STATUS_PRE_PASS,
+    ITEM_STATUS_ORDER_APPLY,
+    ITEM_STATUS_ORDER
+]
+
+PER_ORDER_ITEM_STATUS = [
+    ITEM_STATUS_PRE,
+    ITEM_STATUS_PRE_PASS,
+    ITEM_STATUS_ORDER_APPLY
+]
+
 ITEM_STATUS_CN = {
     ITEM_STATUS_NEW: u"未下单",
     ITEM_STATUS_PRE: u"预下单(待审核)",
@@ -197,6 +210,10 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
     def schedule_by_date(self, _date):
         schedules = [s for s in self.schedules if s.date == _date]
         return schedules[0] if schedules else None
+
+    def schedule_sum_by_date(self, _date):
+        schedules_num = [s.num for s in self.schedules if s.date == _date]
+        return sum(schedules_num) if schedules_num else 0
 
     @property
     def schedule_sum(self):
