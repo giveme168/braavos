@@ -27,8 +27,9 @@ def import_target_delivery(date, delivery_type, target, target_cls):
     for k in redis.keys(unit_key_pattern):
         uid = k.split(target + ':')[-1]
         num = redis.get(k)
-        unit = target_cls.get(uid)
-        unit.set_delivery_num(date, delivery_type, num)
+        if uid.isdigit():
+            unit = target_cls.get(uid)
+            unit.set_delivery_num(date, delivery_type, num)
 
 
 def import_unit_delivery(date):
