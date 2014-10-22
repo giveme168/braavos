@@ -16,13 +16,7 @@
       {{ form_field(form.click_link) }}
       {{ form_field(form.monitor_link) }}
       {{ form_field(form.status) }}
-      {% if g.user.is_super_admin %}
       {{ form_field(form.code) }}
-      {% else %}
-      <div class="hide">
-      {{ form_field(form.code) }}
-      </div>
-      {% endif %}
       <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
     </form>
     {% if material %}
