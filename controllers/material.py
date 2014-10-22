@@ -70,6 +70,7 @@ def new_image_material(item_id):
     if not item:
         abort(404)
     form = ImageMaterialForm(request.form)
+    form.code.hidden = True
     if request.method == 'POST' and form.validate():
         material = ImageMaterial.add(name=form.name.data, item=item, creator=g.user)
         material.status = form.status.data
@@ -89,6 +90,7 @@ def image_material(material_id):
     if not material:
         abort(404)
     form = ImageMaterialForm(request.form)
+    form.code.hidden = True
     if request.method == 'POST':
         if form.validate():
             material.name = form.name.data
