@@ -19,6 +19,7 @@
       {{ form_field(form.code) }}
       <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
     </form>
+    <img src="about:blank" id="image" name="image" alt="test" style="display: none;"/> 
     {% if material %}
     <h4>效果预览 :</h4>
     <iframe src="{{ material.preview_path }}" style="margin: 10px;" width="{{material.width}}" height="{{material.height}}"></iframe>
@@ -28,9 +29,27 @@
 </div>
 <script>
 $(document).ready(function(){
+    var width = {{ item.position.size.width }};
+    var height = {{ item.position.size.height }};
+    $('#file').change(function(){
+        var image = $('#image')
+        var reader = new FileReader(); //这个是HTML5特有的
+        reader.readAsDataURL($('#file')[0].files[0]); 
+        reader.onload = function(e){ 
+            image.attr('src', this.result);
+            if(image[0].width != width||image[0].height != height){
+              $('input.btn').attr('disabled',true)
+              alert("您上传的图片大小不合要求！图片大小应为："+width+"*"+height+" 请重新上传后提交！")
+              }
+          else{
+            $('input.btn').attr('disabled',false)
+            undata_file($('#file')[0])
+          }
+        }
+    });
     $('#image_file').change(function(){
-        $('#name').val($('#name').val()+$(this).val().split('.')[0]);
-    });         
+      $('#name').val($('#name').val()+$('#image_file').val().split('.')[0])
+    });
 });
 </script>
 {% endblock %}

@@ -81,7 +81,7 @@ def new_image_material(item_id):
         material.save()
         flash(u'新建素材(%s)成功!' % material.name, 'success')
         return redirect(url_for('material.image_material', material_id=material.id))
-    return tpl('material_image.html', form=form)
+    return tpl('material_image.html', form=form, item=item)
 
 
 @material_bp.route('/image_material/<material_id>/', methods=['GET', 'POST'])
@@ -108,7 +108,7 @@ def image_material(material_id):
         form.click_link.data = material.click_link
         form.monitor_link.data = material.monitor_link
         form.code.data = material.code
-    return tpl('material_image.html', form=form, material=material)
+    return tpl('material_image.html', form=form, material=material, item=material.item)
 
 
 @material_bp.route('/image_material/<material_id>/preview/')

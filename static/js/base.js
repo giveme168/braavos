@@ -11,10 +11,10 @@ $(document).ready(function(){
     }
   });
  // 上传文件组件
-  $(".file-widget-button").change(function () {
+  undata_file=function (file_input) {
     var data = new FormData();
-    data.append('file', this.files[0]);
-    var fileNameContainer = $(this).parents('.file-widget').find('.form-control');
+    data.append('file', file_input.files[0]);
+    var fileNameContainer = $(file_input).parents('.file-widget').find('.form-control');
     $.ajax({
             type:'POST',
             url: '/files/upload',
@@ -34,7 +34,7 @@ $(document).ready(function(){
               alert('上传失败啦!');
             }
         });
-  });
+  }
 
 //代码预览高亮
   hljs.initHighlightingOnLoad();
