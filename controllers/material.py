@@ -115,3 +115,29 @@ def image_material(material_id):
 def image_preview(material_id):
     material = ImageMaterial.get(material_id)
     return material_preview_response(material)
+
+
+@material_bp.route('/copy_material/<item_id>', methods=['POST'])
+def copy_material(item_id):
+    item_ids = request.form.getlist('item_id')
+    material_ids = request.form.getlist('material_id')
+    if not material_ids:
+        flash(u"请选择素材")
+    elif not item_ids:
+        flash(u"请选择订单项")
+    else:
+        items = [AdItem.get(i_id) for i_id in item_ids]
+        for m_id in material_ids:
+            material = Material.get(m_id)
+            for i in items:
+                new_material = Material.add(
+                    name="%s_copy" % material.name,
+                    item=i,
+                    creator=g.user,
+                    type=material.type)
+                new_material.code = material.code
+                new_material.status = material.status
+                new_material.props = material.props
+                new_material.save()
+        flash(u'拷贝%s素材到个%s订单项成功!' % (len(material_ids), len(item_ids)), 'success')
+    return redirect(url_for('order.item_detail', item_id=item_id))

@@ -1,11 +1,15 @@
 <table class="table table-bordered table-striped">
   <tr>
+    <th class="text-center">
+          <input type="checkbox" class="checkbox_all">
+    </th>
     <th>名字</th>
     <th>类型</th>
     <th>状态</th>
   </tr>
   {% for m in item.materials %}
   <tr>
+    <th><input type="checkbox" class="checkbox_one" name="material_id" value="{{m.id}}"></th>
     <th><a href="{{m.path()}}">{{m.name}}</a></th>
     <th>{{m.type_cn}}</th>
     <th>{{m.status_cn}}</th>
