@@ -120,31 +120,31 @@ td.cell {
 
 #storage-table .cell {
 	width: 25px;
-	background-color: #fff;
+	background-color: rgb(255,255,255);
 }
 
 .hundred,
     #storage-table .hundred,
     #storage-table .hundred:hover {
-	background-color: #000099;
+	background-color: rgb(65,105,225);
 }
 
 .seventy-five,
     #storage-table .seventy-five,
     #storage-table .seventy-five:hover {
-	background-color: #3333FF;
+	background-color: rgb(100,149,237);
 }
 
 .fifty,
     #storage-table .fifty,
     #storage-table .fifty:hover {
-	background-color: #6699FF;
+	background-color: rgb(135,206,225);
 }
 
 .twenty-five,
     #storage-table .twenty-five,
     #storage-table .twenty-five:hover {
-	background-color: #99CCFF;
+	background-color: rgb(176,226,255);
 }
 
 .stat-item {
