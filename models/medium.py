@@ -277,6 +277,8 @@ class AdPosition(db.Model, BaseModelMixin):
         item_nums = [
             i.schedule_sums_by_dates(dates_list) for i in self.order_items
             if i.item_status in OCCUPY_RESOURCE_STATUS]
+        if not item_nums:
+            return [0] * len(dates_list)
         temp = map(list, itertools.izip(*item_nums))
         return [sum(d) for d in temp]
 
