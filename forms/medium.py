@@ -10,7 +10,7 @@ from models.medium import (AdSize, AdPosition, AdUnit, Medium,
 
 class NewMediumForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
-    owner = SelectField(u'管理组', coerce=int)
+    owner = SelectField(u'媒体团队', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(NewMediumForm, self).__init__(*args, **kwargs)
@@ -25,7 +25,7 @@ class SizeForm(Form):
 class UnitForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
     description = TextAreaField(u'描述', [validators.Required(u"请输入描述.")])
-    size = SelectField(u'大小', coerce=int)
+    size = SelectField(u'尺寸', coerce=int)
     margin = TextField(u'外边距', [validators.Required(u"请输入外边距.")], default="0px 0px 0px 0px")
     target = SelectField(u'target', coerce=int)
     status = SelectField(u'状态', coerce=int, default=1)
@@ -58,7 +58,7 @@ class UnitForm(Form):
 class PositionForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
     description = TextAreaField(u'描述', [validators.Required(u"请输入描述.")])
-    size = SelectField(u'大小', coerce=int)
+    size = SelectField(u'尺寸', coerce=int)
     standard = TextField(u'广告标准', [validators.Required(u"请输入广告标准.")])
     status = SelectField(u'状态', coerce=int, default=1)
     units = SelectMultipleField(u'包含以下广告单元', coerce=int)

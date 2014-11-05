@@ -272,11 +272,13 @@ $(document).ready(function(){
   <tr>	
     <td>{{material.name}}</td>
     <td>{{material.type_cn}}</td>
+      {%  if material.type != 0%}
     <td>
-      <iframe src="/materials/image_material/{{material.id}}/preview/"  width="100" height="30">
-      </iframe>
+      <img src="/materials/image_material/{{material.id}}/preview/"  width="100" height="50">
     </td>
-
+      {% else %}
+      <td>原生广告无图片预览</td>
+      {% endif %}
     <td>{{material.status_cn}}</td>
     <td>{{material.get_monitor_num_all()}}</td>
     <td>{{material.get_click_num_all()}}</td>
