@@ -96,6 +96,9 @@ class PositionForm(Form):
                         return False
             units = AdUnit.gets(self.units.data)
             medium = Medium.get(self.medium.data)
+            if not units:
+                self.units.errors.append(u"所含广告单元不能为空")
+                return False
             for u in units:
                 if u.medium != medium:
                     self.units.errors.append(u"%s不属于%s" % (u.display_name, medium.name))
