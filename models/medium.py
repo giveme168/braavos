@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import itertools
 from datetime import timedelta
 
 from . import db, BaseModelMixin
@@ -156,6 +157,19 @@ class AdUnit(db.Model, BaseModelMixin, DeliveryMixin):
         retain_num = self.estimate_num - self.schedule_num(date)
         return max(retain_num, 0)
 
+    def schedule_nums_by_dates(self, dates_list):
+        position_s_nums = [(p.schedule_nums_by_dates(dates_list), p.estimate_num) for p in self.positions]
+        # 每个位置在时间段内每天分配到当前unit的预订量
+        position_to_nuit_nums = []
+        for nums, e_num in position_s_nums:
+            position_to_nuit_nums.append([num * (float(self.estimate_num) / e_num) for num in nums])
+        temp = map(list, itertools.izip(*position_to_nuit_nums))
+        return [int(round(sum(num))) for num in temp]
+
+    def retain_nums_by_dates(self, dates_list):
+        schedule_nums = self.schedule_nums_by_dates(dates_list)
+        return [self.estimate_num - num for num in schedule_nums]
+
     @property
     def order_items(self):
         """所有关联的订单项"""
@@ -258,6 +272,14 @@ class AdPosition(db.Model, BaseModelMixin):
         schedules = self.schedules_by_date(_date)
         return sum([s.num for s in schedules if s.item.item_status in OCCUPY_RESOURCE_STATUS])
 
+    def schedule_nums_by_dates(self, dates_list):
+        # 每个item在时间段内每天的已预订量
+        item_nums = [
+            i.schedule_sums_by_dates(dates_list) for i in self.order_items
+            if i.item_status in OCCUPY_RESOURCE_STATUS]
+        temp = map(list, itertools.izip(*item_nums))
+        return [sum(d) for d in temp]
+
     def ordered_num(self, _date):
         """该位置的已经下单的量"""
         schedules = self.schedules_by_date(_date)
@@ -295,8 +317,7 @@ class AdPosition(db.Model, BaseModelMixin):
                             for _date, num in self.can_order_num_schedule(start_date, end_date)]
         return ret
 
-    def storage_percent_cn(self, date):
-        percent = self.storage_percent(date)
+    def storage_percent_cn(self, percent):
         if percent == EMPTY:
             return OCCUPY_RESOURCE_PRECENT_CN[EMPTY]
         elif percent <= TWENTY_FIVE:
@@ -310,11 +331,22 @@ class AdPosition(db.Model, BaseModelMixin):
         else:
             return OCCUPY_RESOURCE_PRECENT_CN[ERROR]
 
-    def storage_percent(self, date):
-        current_num = self.schedule_num(date)
-        retain_num = self.retain_num(date)
-        min_num = 1 if current_num > 0 else 0
-        return max([current_num * 100 / (retain_num + current_num), min_num])
+    def storage_percent_info(self, start_date, last):
+        """得到一个（预订百分比区间，日期）的列表"""
+        dates_list = []
+        for x in range(0, last):
+            current = start_date + timedelta(days=x)
+            dates_list.append(current)
+        current_nums = self.schedule_nums_by_dates(dates_list)
+        units_retains = [u.retain_nums_by_dates(dates_list) for u in self.units]
+        temp = map(list, itertools.izip(*units_retains))
+        retain_nums = [sum(d) for d in temp]
+        storage_info = []
+        for i in range(0, last):
+            min_num = 1 if current_nums[i] > 0 else 0
+            percent = max([current_nums[i] * 100 / (retain_nums[i] + current_nums[i]), min_num])
+            storage_info.append((self.storage_percent_cn(percent), dates_list[i]))
+        return storage_info
 
     def get_storage_info(self, date):
         ret = {"position": self.id,

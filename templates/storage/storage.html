@@ -90,8 +90,8 @@
         	    <td class="th-level" rowspan="{{positions|length}}">{{level_cn}}</td>
         	{% endif %}
         	<td class="th-name">{{p.name}}</td> 
-        	{% for d in dates_info['dates'] %}
-        	<td class="cell {{p.storage_percent_cn(d)}}" position="{{p.id}}" date="{{d}}"></td>
+        	{% for percent_cn,d in p.storage_percent_info(dates_info['dates'][0], 30) %}
+        	<td class="cell {{percent_cn}}" position="{{p.id}}" date="{{d}}"></td>
         	{% endfor %}
       	</tr>
       	{% endfor %}

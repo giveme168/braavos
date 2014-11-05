@@ -215,6 +215,13 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
         schedules_num = [s.num for s in self.schedules if s.date == _date]
         return sum(schedules_num) if schedules_num else 0
 
+    def schedule_sums_by_dates(self, dates_list):
+        schedule_sums = [0] * len(dates_list)
+        for s in self.schedules:
+            if s.date in dates_list:
+                schedule_sums[dates_list.index(s.date)] += s.num
+        return schedule_sums
+
     @property
     def schedule_sorted(self):
         ad_schedules = [t for t in self.schedules]
