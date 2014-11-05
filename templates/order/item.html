@@ -82,12 +82,36 @@
                         <li><a href="{{url_for('material.new_material', item_id=item.id)}}">原生广告</a></li>
                       </ul>
                     </div>
+                    <button class="btn btn-sm btn-info copy-material" id="copy_to_self" value="">复制</button>
+                    <button class="btn btn-sm btn-success copy-material" id="copy_to_other" value="">复制到……</button>
                 </h4>
             </div>
             <div id="collapseFour" class="panel-collapse collapse">
-                <div class="panel-body">
-                    {% include 'item_materials.html' %}
-                </div>
+                <form action="{{url_for('material.copy_material', item_id=item.id)}}" id="materials_form" method="POST">
+                    <div class="alert-div" id="select_items" style="display: none">
+                        <div class="hd"><h4>复制广告素材到</h4></div>
+                        <div class="form-intro pad-left20 pad-bottom15">
+                        将选中的广告素材复制到其他订单项(仅限于同订单且对应展示位置大小相同)
+                        </div>
+                        <div class="form-group pad-left20 pad-bottom15">
+                            <label for="name" class="col-sm-2-1 control-label">请选择订单项 : </label>
+                                <div class="col-sm-5">
+                                <select class="form-control bra-form-control" multiple="" id="item_id" name="item_id">
+                                    {% for i in item.items_can_copy_material %}              
+                                    <option value="{{i.id}}">{{ i.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="ft">
+                            <button class="btn btn-sm btn-info copy-material marg-right20" type="submit">确定</button>
+                            <button class="btn btn-sm btn-success copy-material" type="button" id="cancel">取消</button>
+                        </div> 
+                    </div>
+                    <div class="panel-body">
+                        {% include 'item_materials.html' %}
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -99,6 +123,16 @@ $(document).ready(function(){
     $("#collapseOne").collapse('hide');
     $("#collapseTwo").collapse('show');
     $("#collapseFour").collapse('show');
+    $("#copy_to_self").click(function(){
+        $("#item_id").val([{{item.id}}])
+        $("form#materials_form").submit();
+    });
+    $("#copy_to_other").click(function(){
+        $("#select_items").show("slow");
+    });
+    $("#cancel").click(function(){
+        $("#select_items").hide("slow");
+    })
 });
 </script>
 {% endblock %}

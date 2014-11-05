@@ -163,3 +163,43 @@ body{
     width: 150px;
     height: 34px;
 }
+
+button.copy-material{
+    margin-left: 5px;
+    border-radius: 3px;
+}
+.alert-div{
+    position: fixed;
+    z-index: 2;
+    width: 550px;
+    top: 25%;
+    right: 25%;
+    background-color: #fff;
+    font-size: 14px;
+    box-shadow: 0px 0px 15px#888888;
+    border-radius: 4px;
+}
+.hd{
+    color: #fff;
+    background: #545867;
+    -moz-border-radius-topleft: 4px;
+    -moz-border-radius-topright: 4px;
+    -webkit-border-top-left-radius: 4px;
+    -webkit-border-top-right-radius: 4px;
+}
+.hd h4{
+    margin-top: 0px;
+    padding: 10px;
+}
+.ft {
+    padding: 20px
+}
+.pad-left20{
+    padding-left: 20px;
+}
+.pad-bottom15{
+    padding-bottom: 15px;
+}
+.marg-right20{
+    margin-right: 20px;
+}

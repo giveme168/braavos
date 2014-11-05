@@ -304,6 +304,10 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
             step = int(step) + 1
         return step
 
+    @property
+    def items_can_copy_material(self):
+        return [i for i in self.order.items if i.position.size == self.position.size and i.is_action_order]
+
 
 class AdSchedule(db.Model, BaseModelMixin):
     __tablename__ = 'bra_schedule'
