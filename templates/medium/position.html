@@ -2,9 +2,38 @@
 {% from 'form.html' import form_tpl %}
 
 {% block main_box%}
-{{ adposition_detail(position) }}
+<div class="bra-main bra-box">
+  <h3>展示位置：{{ title }}</h3>
+
+  {% if position %}
+  <ul class="nav nav-tabs" id="myTab">
+    <li class="active"><a href="#home">信息设置</a></li>
+    <li><a href="#profile">排期</a></li>
+  </ul>
+  {% endif %}
+
+  <div class="tab-content">
+    <div class="tab-pane active" id="home">
+    {{ form_tpl(form) }}
+    </div>
+
+    {% if position %}
+    <div class="tab-pane" id="profile">
+    {{ adposition_detail(position) }}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+
 <script>
 $(document).ready(function(){
+    $('#myTab a:first').tab('show');
+    $('#myTab a').click(function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+
     function ad_type_change(){
          if($("#ad_type").val() == 0){
             if($("#cpd_num").parents(".form-group").css("display") != "none"){                
@@ -26,53 +55,26 @@ $(document).ready(function(){
 {% endblock %}
 
 {% macro adposition_detail(position)  -%}
-    <div class="bra-main bra-box">
-    <h3>展示位置：{{ title }}</h3>
-    {% if position %}
-    <ul class="nav nav-tabs" id="myTab">
-      <li class="active"><a href="#home">信息设置</a></li>
-      <li><a href="#profile">排期</a></li>
-    </ul>
-     {% endif %}
-    <div class="tab-content">
-    <div class="tab-pane active" id="home">
-      {{ form_tpl(form) }}
-    </div>
-    {% if position %}
-      <div class="tab-pane" id="profile">
-          <table class="table table-bordered table-striped">
-            <thead>
-              <tr>
-                <td>订单</td>
-                <td>售卖类型</td>
-                <td>日期</td>
-                <td>状态</td>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in position.order_items %}
-                {% for t in item.schedule_sorted %}
-                <tr>
-                <td>{{ item.order.name }}-{{ item.name }}</td>
-                <td>{{ item.sale_type_cn}}</td>
-                <td>{{t.date}}</td>
-                <td>{{item.item_state_cn}}</td>
-                </tr>
-                {%  endfor %}
-              {%  endfor %}
-            </tbody>
-          </table>
-      </div>
-    {% endif %}
-     <script>
-      $(function () {
-        $('#myTab a:first').tab('show');
-        $('#myTab a').click(function (e) {
-          e.preventDefault();
-          $(this).tab('show');
-        })
-      })
-    </script>
-  </div>
-
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <td>订单</td>
+      <td>售卖类型</td>
+      <td>日期</td>
+      <td>状态</td>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in position.order_items %}
+      {% for t in item.schedule_sorted %}
+      <tr>
+      <td>{{ item.order.name }}-{{ item.name }}</td>
+      <td>{{ item.sale_type_cn}}</td>
+      <td>{{t.date}}</td>
+      <td>{{item.item_state_cn}}</td>
+      </tr>
+      {% endfor %}
+    {% endfor %}
+  </tbody>
+</table>
 {% endmacro %}
