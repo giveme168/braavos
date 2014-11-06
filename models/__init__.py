@@ -36,4 +36,4 @@ class BaseModelMixin(object):
 
     @classmethod
     def all(cls):
-        return cls.query.all()
+        return cls.query.order_by(cls.id)

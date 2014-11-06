@@ -14,6 +14,7 @@
             <th>投放类型</th>
             <th>尺寸</th>
             <th>刊例单价</th>
+            <th>广告单元</th>
             <th>状态</th>
         </tr>
         {% for m in positions %}
@@ -26,6 +27,7 @@
             <td>{{m.ad_type_cn}}</td>
             <td>{{m.size.name}}</td>
             <td>{{m.price}}</td>
+            <td>{{m.units | length}}</td>
             <td>{{m.status_cn}}</td>
         </tr>
         {% endfor %}

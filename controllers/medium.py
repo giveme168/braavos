@@ -252,7 +252,7 @@ def position_detail(position_id):
         form.estimate_num.data = position.estimate_num
         form.launch_strategy.data = position.launch_strategy
         form.estimate_num.readonly = True
-    return tpl('position.html', form=form, title=position.display_name)
+    return tpl('position.html', form=form, title=position.display_name, position=position)
 
 
 @medium_bp.route('/positions', methods=['GET'])
