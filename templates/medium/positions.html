@@ -27,7 +27,7 @@
             <td>{{m.ad_type_cn}}</td>
             <td>{{m.size.name}}</td>
             <td>{{m.price}}</td>
-            <td>{{m.get_units_num}}</td>
+            <td>{{m.units | length}}</td>
             <td>{{m.status_cn}}</td>
         </tr>
         {% endfor %}

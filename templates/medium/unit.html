@@ -19,7 +19,25 @@
         <pre><code>{{'<script src="http://y.inad.com/static/show_ads.js"></script>'}}</code></pre>
         {% endif %}
       </div>
-      <div class="tab-pane" id="profile">
+
+    {{ adunit_detail(unit) }}
+
+    <script>
+      $(function () {
+        $('#myTab a:first').tab('show');
+        $('#myTab a').click(function (e) {
+          e.preventDefault();
+          $(this).tab('show');
+        })
+      })
+    </script>
+</div>
+<script>
+$("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10});
+</script>
+{% endblock %}
+{% macro adunit_detail(unit)-%}
+        <div class="tab-pane" id="profile">
       {% if unit %}
  <table class="table table-bordered table-striped">
    <thead>
@@ -46,17 +64,4 @@
     </div>
     {% endif %}
     </div>
-    <script>
-      $(function () {
-        $('#myTab a:first').tab('show');
-        $('#myTab a').click(function (e) {
-          e.preventDefault();
-          $(this).tab('show');
-        })
-      })
-    </script>
-</div>
-<script>
-$("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10});
-</script>
-{% endblock %}
+{% endmacro %}

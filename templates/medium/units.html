@@ -19,7 +19,7 @@
             <td><a href="{{url_for("medium.unit_detail", unit_id=m.id)}}">{{m.display_name}}</a></td>
             <td>{{m.description}}</td>
             <td>{{m.size.name}}</td>
-            <td>{{m.get_position_num}}</td>
+            <td>{{m.positions.count()}}</td>
             <td>{{m.status_cn}}</td>
         </tr>
         {% endfor %}

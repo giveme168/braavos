@@ -51,7 +51,6 @@ def medium_detail(medium_id):
 @medium_bp.route('/mediums', methods=['GET'])
 def mediums():
     mediums = Medium.all()
-    mediums = sorted(mediums, key=lambda medium: medium.id)
     return tpl('mediums.html', mediums=mediums)
 
 
@@ -143,7 +142,6 @@ def unit_detail(unit_id):
 @medium_bp.route('/units', methods=['GET'])
 def units():
     units = AdUnit.all()
-    units = sorted(units, key=lambda unit: unit.id)
     return tpl('units.html', units=units)
 
 
@@ -260,5 +258,4 @@ def position_detail(position_id):
 @medium_bp.route('/positions', methods=['GET'])
 def positions():
     positions = AdPosition.all()
-    positions = sorted(positions, key=lambda position: position.id)
     return tpl('positions.html', positions=positions)

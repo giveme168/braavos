@@ -168,9 +168,6 @@ class AdUnit(db.Model, BaseModelMixin, DeliveryMixin):
     def online_order_items_by_date(self, _date):
         return [i for i in self.order_items if i.is_online_by_date(_date)]
 
-    @property
-    def get_position_num(self):
-        return len([p for p in self.positions])
 
 class AdPosition(db.Model, BaseModelMixin):
     __tablename__ = 'ad_position'
@@ -331,10 +328,6 @@ class AdPosition(db.Model, BaseModelMixin):
     def get_orders_by_date(self, date):
         orders = [i.order for i in self.order_items if i.schedule_by_date(date)]
         return list(set(orders))
-
-    @property
-    def get_units_num(self):
-        return len([u for u in self.units])
 
     @classmethod
     def all_positions_info_by_date(cls):
