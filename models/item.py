@@ -201,7 +201,7 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
 
     @property
     def end_date(self):
-        return max([s.date for s in self.schedules]) if self.schedules,count() else None
+        return max([s.date for s in self.schedules]) if self.schedules.count() else None
 
     @property
     def end_date_cn(self):
