@@ -3,42 +3,45 @@
 
 {% block main_box%}
 <div class="bra-main bra-box">
-    <h3>广告单元：{{ title }}</h3>
-    {% if unit %}
-    <ul class="nav nav-tabs" id="myTab">
-      <li class="active"><a href="#home">信息设置</a></li>
-      <li><a href="#profile">排期</a></li>
-    </ul>
-    {% endif %}
-    <div class="tab-content">
-      <div class="tab-pane active" id="home"> {{ form_tpl(form) }}
-        {% if unit %}
-        <h4>广告位代码 :</h4>
-        <pre><code>{{'<div class="inad-ad" id="inad-uid-%s" data-inad-uid="%s"></div>' %  (unit.id, unit.id)}}</code></pre>
-        <p>在html body最后加入JS (一个页面只需要加入一次):</p>
-        <pre><code>{{'<script src="http://y.inad.com/static/show_ads.js"></script>'}}</code></pre>
-        {% endif %}
-      </div>
+  <h3>广告单元：{{ title }}</h3>
 
-    {{ adunit_detail(unit) }}
+  {% if unit %}
+  <ul class="nav nav-tabs" id="myTab">
+    <li class="active"><a href="#home">信息设置</a></li>
+    <li><a href="#profile">排期</a></li>
+  </ul>
+  {% endif %}
 
-    <script>
-      $(function () {
-        $('#myTab a:first').tab('show');
-        $('#myTab a').click(function (e) {
-          e.preventDefault();
-          $(this).tab('show');
-        })
-      })
-    </script>
+  <div class="tab-content">
+    <div class="tab-pane active" id="home">
+      {{ form_tpl(form) }}
+      {% if unit %}
+      <h4>广告位代码 :</h4>
+      <pre><code>{{'<div class="inad-ad" id="inad-uid-%s" data-inad-uid="%s"></div>' %  (unit.id, unit.id)}}</code></pre>
+      <p>在html body最后加入JS (一个页面只需要加入一次):</p>
+      <pre><code>{{'<script src="http://y.inad.com/static/show_ads.js"></script>'}}</code></pre>
+      {% endif %}
+    </div>
+    <div class="tab-pane" id="profile">
+      {{ adunit_detail(unit) }}
+    </div>
+  </div>
 </div>
 <script>
+$(function () {
+    $('#myTab a:first').tab('show');
+    $('#myTab a').click(function (e) {
+      e.preventDefault();
+      $(this).tab('show');
+    });
+});
+
 $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10});
 </script>
 {% endblock %}
+
 {% macro adunit_detail(unit)-%}
-        <div class="tab-pane" id="profile">
-      {% if unit %}
+{% if unit %}
  <table class="table table-bordered table-striped">
    <thead>
       <tr>
@@ -49,19 +52,17 @@ $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 1
       </tr>
    </thead>
    <tbody>
-      {%   for item in unit.order_items %}
-          {% for t in item.schedule_sorted %}
+      {% for item in unit.order_items %}
+        {% for t in item.schedule_sorted %}
       <tr>
          <td>{{ item.order.name }}-{{ item.name }}</td>
          <td>{{ item.sale_type_cn}}</td>
          <td>{{t.date}}</td>
          <td>{{item.item_state_cn}}</td>
       </tr>
-           {%  endfor %}
+        {%  endfor %}
       {%  endfor %}
    </tbody>
 </table>
-    </div>
-    {% endif %}
-    </div>
+{% endif %}
 {% endmacro %}
