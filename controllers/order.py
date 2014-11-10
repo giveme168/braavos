@@ -110,7 +110,7 @@ def order_detail(order_id, step):
 
 @order_bp.route('/orders', methods=['GET'])
 def orders():
-    orders = Order.all()
+    orders = [o for o in Order.all()]
     return display_orders(orders, u'订单列表')
 
 
