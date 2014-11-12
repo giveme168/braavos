@@ -13,7 +13,7 @@ from forms.item import ItemForm
 from models.client import Client, Agent
 from models.medium import Medium, AdPosition
 from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
-                         ITEM_STATUS_ACTION_CN, ChangeStateApply,
+                         ITEM_STATUS_ACTION_CN, ChangeStateApply, ITEM_STATUS_ARCHIVE,
                          ITEM_STATUS_LEADER_ACTIONS,
                          ITEM_STATUS_ACTION_PRE_ORDER,
                          ITEM_STATUS_ACTION_ORDER_APPLY)
@@ -289,7 +289,7 @@ def schedule_simple_update(item_id):
     msg = ""
     status = 0
     schedules_info = json.loads(data)
-    last_schedule_sum = item.schedule_sum
+    flag = False
     for date_str, num in schedules_info.items():
         _date = datetime.strptime(date_str, DATE_FORMAT).date()
         if not item.position.check_order_num(_date, num):
@@ -304,18 +304,21 @@ def schedule_simple_update(item_id):
                     _schedule.delete()
                 else:
                     _schedule.num = num
+                    flag = True
                     _schedule.save()
             elif num != 0:
                 _schedule = AdSchedule.add(item, num, _date)
-        if last_schedule_sum != item.schedule_sum and item.schedule_sum:
-            if item.item_status in [1, 2, 3, 4]:
-                item.item_status = item.item_status - 1
+        if flag:
+            if item.schedule_sum:
+                item.change_to_previous_status()
                 item.save()
                 msg = u"当前状态回退至上一状态!"
-        if not item.schedule_sum:
-            item.item_status = 5
-            item.save()
-            msg = u"归档!"
+                if item.item_status == ITEM_STATUS_NEW:
+                    msg = ''
+            else:
+                item.item_status = ITEM_STATUS_ARCHIVE
+                item.save()
+                msg = u"归档!"
         msg = msg + u"排期修改成功!"
     return jsonify({'msg': msg, 'status': status})
 

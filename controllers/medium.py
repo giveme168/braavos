@@ -3,6 +3,7 @@ from flask import Blueprint, request, redirect, abort, url_for
 from flask import render_template as tpl, flash
 
 from models.medium import Medium, AdSize, AdUnit, AdPosition
+from models.item import AdItem
 from forms.medium import NewMediumForm, SizeForm, UnitForm, PositionForm
 from models.user import Team
 
@@ -139,23 +140,9 @@ def unit_detail(unit_id):
         form.estimate_num.data = unit.estimate_num
         sortby = request.args.get('sortby', '')
         orderby = request.args.get('orderby', '')
-        reverse = True
-        if orderby == 'asc':
-            reverse = False
+        reverse = orderby != 'asc'
         items = [o for o in unit.order_items]
-        schedules = []
-        if (not sortby) or sortby == 'item.id':
-            items = sorted(items, key=lambda x: x.id, reverse=reverse)
-            for item in items:
-                schedules = item.schedule_sorted+schedules
-        if sortby == 'date':
-            for item in items:
-                schedules = item.schedule_sorted+schedules
-            schedules = sorted(schedules, key=lambda x: x.date, reverse=reverse)
-        if sortby == 'item.status':
-            items = sorted(items, key=lambda x: x.item_status, reverse=reverse)
-            for item in items:
-                schedules = item.schedule_sorted+schedules
+        schedules = AdItem.items_sort_scheduels(items, sortby, reverse)
     return tpl('unit.html', form=form, title=unit.display_name, unit=unit, schedules=schedules, orderby=orderby)
 
 
@@ -275,25 +262,11 @@ def position_detail(position_id):
         form.estimate_num.readonly = True
         sortby = request.args.get('sortby', '')
         orderby = request.args.get('orderby', '')
-        reverse = True
-        if orderby == 'asc':
-            reverse = False
+        reverse = orderby != 'asc'
         items = [o for o in position.order_items]
-        schedules = []
-        if (not sortby) or sortby == 'item.id':
-            items = sorted(items, key=lambda x: x.id, reverse=reverse)
-            for item in items:
-                schedules = item.schedule_sorted+schedules
-        if sortby == 'date':
-            for item in items:
-                schedules = item.schedule_sorted+schedules
-            schedules = sorted(schedules, key=lambda x: x.date, reverse=reverse)
-        if sortby == 'item.status':
-            items = sorted(items, key=lambda x: x.item_status, reverse=reverse)
-            for item in items:
-                schedules = schedules+item.schedule_sorted
-    return tpl('position.html', form=form, title=position.display_name, position=position, schedules=schedules,
-           orderby=orderby)
+        schedules = AdItem.items_sort_scheduels(items, sortby, reverse)
+    return tpl('position.html', form=form, title=position.display_name,
+               position=position, schedules=schedules, orderby=orderby)
 
 
 @medium_bp.route('/positions', methods=['GET'])
