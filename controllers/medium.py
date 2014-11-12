@@ -125,6 +125,7 @@ def unit_detail(unit_id):
         if form.medium.data:
             form.positions.choices = [(x.id, x.display_name)
                                       for x in AdPosition.query.filter_by(medium_id=form.medium.data)]
+            return tpl('unit.html', form=form, title=unit.display_name, unit=unit)
     else:
         form.name.data = unit.name
         form.description.data = unit.description
@@ -136,7 +137,26 @@ def unit_detail(unit_id):
         form.positions.choices = [(x.id, x.display_name) for x in AdPosition.query.filter_by(medium_id=unit.medium.id)]
         form.medium.data = unit.medium.id
         form.estimate_num.data = unit.estimate_num
-    return tpl('unit.html', form=form, title=unit.display_name, unit=unit)
+        sortby = request.args.get('sortby', '')
+        orderby = request.args.get('orderby', '')
+        reverse = True
+        if orderby == 'asc':
+            reverse = False
+        items = [o for o in unit.order_items]
+        schedules = []
+        if (not sortby) or sortby == 'item.id':
+            items = sorted(items, key=lambda x: x.id, reverse=reverse)
+            for item in items:
+                schedules = item.schedule_sorted+schedules
+        if sortby == 'date':
+            for item in items:
+                schedules = item.schedule_sorted+schedules
+            schedules = sorted(schedules, key=lambda x: x.date, reverse=reverse)
+        if sortby == 'item.status':
+            items = sorted(items, key=lambda x: x.item_status, reverse=reverse)
+            for item in items:
+                schedules = item.schedule_sorted+schedules
+    return tpl('unit.html', form=form, title=unit.display_name, unit=unit, schedules=schedules, orderby=orderby)
 
 
 @medium_bp.route('/units', methods=['GET'])
@@ -236,6 +256,7 @@ def position_detail(position_id):
             flash(u'保存成功!', 'success')
         else:
             flash(u'保存失败!', 'danger')
+        return tpl('position.html', form=form, title=position.display_name, position=position)
     else:
         form.name.data = position.name
         form.description.data = position.description
@@ -252,7 +273,27 @@ def position_detail(position_id):
         form.estimate_num.data = position.estimate_num
         form.launch_strategy.data = position.launch_strategy
         form.estimate_num.readonly = True
-    return tpl('position.html', form=form, title=position.display_name, position=position)
+        sortby = request.args.get('sortby', '')
+        orderby = request.args.get('orderby', '')
+        reverse = True
+        if orderby == 'asc':
+            reverse = False
+        items = [o for o in position.order_items]
+        schedules = []
+        if (not sortby) or sortby == 'item.id':
+            items = sorted(items, key=lambda x: x.id, reverse=reverse)
+            for item in items:
+                schedules = item.schedule_sorted+schedules
+        if sortby == 'date':
+            for item in items:
+                schedules = item.schedule_sorted+schedules
+            schedules = sorted(schedules, key=lambda x: x.date, reverse=reverse)
+        if sortby == 'item.status':
+            items = sorted(items, key=lambda x: x.item_status, reverse=reverse)
+            for item in items:
+                schedules = schedules+item.schedule_sorted
+    return tpl('position.html', form=form, title=position.display_name, position=position, schedules=schedules,
+           orderby=orderby)
 
 
 @medium_bp.route('/positions', methods=['GET'])

@@ -29,7 +29,7 @@
 </div>
 <script>
 $(function () {
-    $('#myTab a:first').tab('show');
+    $('#myTab a:last').tab('show');
     $('#myTab a').click(function (e) {
       e.preventDefault();
       $(this).tab('show');
@@ -43,26 +43,32 @@ $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 1
 {% macro adunit_detail(unit)-%}
 {% if unit %}
  <table class="table table-bordered table-striped">
-   <thead>
       <tr>
-         <td>订单</td>
-         <td>售卖类型</td>
-         <td>日期</td>
-         <td>状态</td>
+         <th><a href="javascript:sort('item.id');">订单</th>
+         <th>售卖类型</th>
+         <th><a href="javascript:sort('date');">日期</th>
+         <th><a href="javascript:sort('item.status');">状态</th >
       </tr>
-   </thead>
-   <tbody>
-      {% for item in unit.order_items %}
-        {% for t in item.schedule_sorted %}
+        {% for schedule in schedules %}
       <tr>
-         <td>{{ item.order.name }}-{{ item.name }}</td>
-         <td>{{ item.sale_type_cn}}</td>
-         <td>{{t.date}}</td>
-         <td>{{item.item_state_cn}}</td>
+         <td><a href="{{url_for("order.order_detail", order_id=schedule.item.order.id, step=0)}}">{{ schedule.item.order.name }}-{{ schedule.item.name }}</td>
+         <td>{{ schedule.item.sale_type_cn}}</td>
+         <td>{{ schedule.date}}</td>
+         <td>{{ schedule.item.item_state_cn}}</td>
       </tr>
-        {%  endfor %}
       {%  endfor %}
-   </tbody>
 </table>
 {% endif %}
+<script>
+  function sort(value){
+  var orderby = '{{orderby}}'
+  var sortby = value
+    if(orderby == 'desc'){
+        orderby = 'asc'
+      }else{
+        orderby = 'desc'
+    }
+    window.location.href = window.location.pathname+'?sortby='+sortby+'&orderby='+orderby;
+  }
+</script>
 {% endmacro %}
