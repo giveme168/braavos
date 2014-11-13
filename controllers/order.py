@@ -301,25 +301,27 @@ def schedule_simple_update(item_id):
             _schedule = item.schedule_by_date(_date)
             if _schedule:
                 if num == 0:
+                    flag = True
                     _schedule.delete()
                 else:
-                    _schedule.num = num
-                    flag = True
-                    _schedule.save()
+                    if _schedule.num != num:
+                        _schedule.num = num
+                        flag = True
+                        _schedule.save()
             elif num != 0:
+                flag = True
                 _schedule = AdSchedule.add(item, num, _date)
         if flag:
             if item.schedule_sum:
                 item.change_to_previous_status()
-                item.save()
-                msg = u"当前状态回退至上一状态!"
+                msg = u"排期修改成功!当前状态回退至上一状态!"
                 if item.item_status == ITEM_STATUS_NEW:
-                    msg = ''
+                    msg = u'排期更改成功!预下单状态不变更!'
             else:
                 item.item_status = ITEM_STATUS_ARCHIVE
-                item.save()
-                msg = u"归档!"
-        msg = msg + u"排期修改成功!"
+                msg = u"当前订单项所有排期总量为0,自动归档!"
+        else:
+            msg = u"当前订单项排期未做修改"
     return jsonify({'msg': msg, 'status': status})
 
 

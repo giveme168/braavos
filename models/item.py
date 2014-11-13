@@ -198,6 +198,7 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
             self.item_status = ITEM_STATUS_PRE_PASS
         if self.item_status == ITEM_STATUS_ORDER:
             self.item_status = ITEM_STATUS_ORDER_APPLY
+        self.save()
 
     @property
     def is_action_order(self):
