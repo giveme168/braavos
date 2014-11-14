@@ -13,7 +13,7 @@ from forms.item import ItemForm
 from models.client import Client, Agent
 from models.medium import Medium, AdPosition
 from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
-                         ITEM_STATUS_ACTION_CN, ChangeStateApply,
+                         ITEM_STATUS_ACTION_CN, ChangeStateApply, ITEM_STATUS_ARCHIVE,
                          ITEM_STATUS_LEADER_ACTIONS,
                          ITEM_STATUS_ACTION_PRE_ORDER,
                          ITEM_STATUS_ACTION_ORDER_APPLY)
@@ -285,12 +285,11 @@ def schedule_simple_update(item_id):
     item = AdItem.get(item_id)
     if not item:
         return jsonify({'msg': u"出错啦, 排期不存在"})
-    if item.is_schedule_lock:
-        return jsonify({'msg': u"资源已经锁定, 不可修改"})
     data = request.values.get('data')
     msg = ""
     status = 0
     schedules_info = json.loads(data)
+    flag = False
     for date_str, num in schedules_info.items():
         _date = datetime.strptime(date_str, DATE_FORMAT).date()
         if not item.position.check_order_num(_date, num):
@@ -302,13 +301,27 @@ def schedule_simple_update(item_id):
             _schedule = item.schedule_by_date(_date)
             if _schedule:
                 if num == 0:
+                    flag = True
                     _schedule.delete()
                 else:
-                    _schedule.num = num
-                    _schedule.save()
+                    if _schedule.num != num:
+                        _schedule.num = num
+                        flag = True
+                        _schedule.save()
             elif num != 0:
+                flag = True
                 _schedule = AdSchedule.add(item, num, _date)
-        msg = u"排期修改成功!"
+        if flag:
+            if item.schedule_sum:
+                item.change_to_previous_status()
+                msg = u"排期修改成功!当前状态回退至上一状态!"
+                if item.item_status == ITEM_STATUS_NEW:
+                    msg = u'排期更改成功!预下单状态不变更!'
+            else:
+                item.item_status = ITEM_STATUS_ARCHIVE
+                msg = u"当前订单项所有排期总量为0,自动归档!"
+        else:
+            msg = u"当前订单项排期未做修改"
     return jsonify({'msg': msg, 'status': status})
 
 

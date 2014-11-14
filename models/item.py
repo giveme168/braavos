@@ -52,6 +52,7 @@ ITEM_STATUS_PRE = 1
 ITEM_STATUS_PRE_PASS = 2
 ITEM_STATUS_ORDER_APPLY = 3
 ITEM_STATUS_ORDER = 4
+ITEM_STATUS_ARCHIVE = 5
 
 OCCUPY_RESOURCE_STATUS = [
     ITEM_STATUS_PRE,
@@ -71,7 +72,8 @@ ITEM_STATUS_CN = {
     ITEM_STATUS_PRE: u"预下单(待审核)",
     ITEM_STATUS_PRE_PASS: u"预下单(通过)",
     ITEM_STATUS_ORDER_APPLY: u"下单(待审核)",
-    ITEM_STATUS_ORDER: u"已下单"
+    ITEM_STATUS_ORDER: u"已下单",
+    ITEM_STATUS_ARCHIVE: u"归档"
 }
 
 ITEM_STATUS_ACTION_PRE_ORDER = 0
@@ -187,6 +189,17 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
     def item_state_cn(self):
         return ITEM_STATUS_CN[self.item_status]
 
+    def change_to_previous_status(self):
+        if self.item_status == ITEM_STATUS_PRE:
+            self.item_status = ITEM_STATUS_NEW
+        if self.item_status == ITEM_STATUS_PRE_PASS:
+            self.item_status = ITEM_STATUS_PRE
+        if self.item_status == ITEM_STATUS_ORDER_APPLY:
+            self.item_status = ITEM_STATUS_PRE_PASS
+        if self.item_status == ITEM_STATUS_ORDER:
+            self.item_status = ITEM_STATUS_ORDER_APPLY
+        self.save()
+
     @property
     def is_action_order(self):
         return self.item_status == ITEM_STATUS_ORDER
@@ -264,6 +277,23 @@ class AdItem(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
             week_info[weekday] = info_dict
             ret[week] = week_info
         return ret
+
+    @staticmethod
+    def items_sort_scheduels(items, sortby, reverse):
+        schedules = []
+        if not sortby or sortby == 'item.id':
+            items = sorted(items, key=lambda x: x.id, reverse=reverse)
+            for item in items:
+                schedules = item.schedule_sorted + schedules
+        if sortby == 'date':
+            for item in items:
+                schedules = item.schedule_sorted + schedules
+            schedules = sorted(schedules, key=lambda x: x.date, reverse=reverse)
+        if sortby == 'item.status':
+            items = sorted(items, key=lambda x: x.item_status, reverse=reverse)
+            for item in items:
+                schedules = item.schedule_sorted + schedules
+        return schedules
 
     @property
     def is_schedule_lock(self):

@@ -3,6 +3,7 @@ from flask import Blueprint, request, redirect, abort, url_for
 from flask import render_template as tpl, flash
 
 from models.medium import Medium, AdSize, AdUnit, AdPosition
+from models.item import AdItem
 from forms.medium import NewMediumForm, SizeForm, UnitForm, PositionForm
 from models.user import Team
 
@@ -125,6 +126,7 @@ def unit_detail(unit_id):
         if form.medium.data:
             form.positions.choices = [(x.id, x.display_name)
                                       for x in AdPosition.query.filter_by(medium_id=form.medium.data)]
+            return tpl('unit.html', form=form, title=unit.display_name, unit=unit)
     else:
         form.name.data = unit.name
         form.description.data = unit.description
@@ -136,7 +138,12 @@ def unit_detail(unit_id):
         form.positions.choices = [(x.id, x.display_name) for x in AdPosition.query.filter_by(medium_id=unit.medium.id)]
         form.medium.data = unit.medium.id
         form.estimate_num.data = unit.estimate_num
-    return tpl('unit.html', form=form, title=unit.display_name, unit=unit)
+        sortby = request.args.get('sortby', '')
+        orderby = request.args.get('orderby', '')
+        reverse = orderby != 'asc'
+        items = [o for o in unit.order_items]
+        schedules = AdItem.items_sort_scheduels(items, sortby, reverse)
+    return tpl('unit.html', form=form, title=unit.display_name, unit=unit, schedules=schedules, orderby=orderby)
 
 
 @medium_bp.route('/units', methods=['GET'])
@@ -236,6 +243,7 @@ def position_detail(position_id):
             flash(u'保存成功!', 'success')
         else:
             flash(u'保存失败!', 'danger')
+        return tpl('position.html', form=form, title=position.display_name, position=position)
     else:
         form.name.data = position.name
         form.description.data = position.description
@@ -252,7 +260,13 @@ def position_detail(position_id):
         form.estimate_num.data = position.estimate_num
         form.launch_strategy.data = position.launch_strategy
         form.estimate_num.readonly = True
-    return tpl('position.html', form=form, title=position.display_name, position=position)
+        sortby = request.args.get('sortby', '')
+        orderby = request.args.get('orderby', '')
+        reverse = orderby != 'asc'
+        items = [o for o in position.order_items]
+        schedules = AdItem.items_sort_scheduels(items, sortby, reverse)
+    return tpl('position.html', form=form, title=position.display_name,
+               position=position, schedules=schedules, orderby=orderby)
 
 
 @medium_bp.route('/positions', methods=['GET'])

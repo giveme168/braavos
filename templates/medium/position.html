@@ -28,7 +28,7 @@
 
 <script>
 $(document).ready(function(){
-    $('#myTab a:first').tab('show');
+    $('#myTab a:last').tab('show');
     $('#myTab a').click(function (e) {
         e.preventDefault();
         $(this).tab('show');
@@ -56,25 +56,33 @@ $(document).ready(function(){
 
 {% macro adposition_detail(position)  -%}
 <table class="table table-bordered table-striped">
-  <thead>
-    <tr>
-      <td>订单</td>
-      <td>售卖类型</td>
-      <td>日期</td>
-      <td>状态</td>
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in position.order_items %}
-      {% for t in item.schedule_sorted %}
-      <tr>
-      <td>{{ item.order.name }}-{{ item.name }}</td>
-      <td>{{ item.sale_type_cn}}</td>
-      <td>{{t.date}}</td>
-      <td>{{item.item_state_cn}}</td>
+   <tr>
+         <th><a href="javascript:sort('item.id');">订单</th>
+         <th>售卖类型</th>
+         <th><a href="javascript:sort('date');">日期</th>
+         <th><a href="javascript:sort('item.status');">状态</th >
       </tr>
-      {% endfor %}
-    {% endfor %}
-  </tbody>
+      {% if schedules %}
+   {% for schedule in schedules %}
+      <tr>
+         <td>{{ schedule.item.order.name }}-{{ schedule.item.name }}</td>
+         <td>{{ schedule.item.sale_type_cn}}</td>
+         <td>{{ schedule.date}}</td>
+         <td>{{ schedule.item.item_state_cn}}</td>
+      </tr>
+      {%  endfor %}
+    {% endif %}
 </table>
+    <script>
+  function sort(value){
+  var orderby = '{{orderby}}'
+  var sortby = value
+    if(orderby == 'desc'){
+        orderby = 'asc'
+      }else{
+        orderby = 'desc'
+    }
+    window.location.href = window.location.pathname+'?sortby='+sortby+'&orderby='+orderby;
+  }
+</script>
 {% endmacro %}
