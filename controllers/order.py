@@ -319,6 +319,7 @@ def schedule_simple_update(item_id):
                     msg = u'排期更改成功!预下单状态不变更!'
             else:
                 item.item_status = ITEM_STATUS_ARCHIVE
+                item.save()
                 msg = u"当前订单项所有排期总量为0,自动归档!"
         else:
             msg = u"当前订单项排期未做修改"
