@@ -36,7 +36,7 @@
        <td>点击数</td>
        <td>CTR</td>
        <td>进度</td>
-       <td>投放控制</td>
+       <td>素材&投放控制</td>
       </tr>
    <thead>
    <tbody class="table table-bordered table-striped">
@@ -61,7 +61,7 @@
       <td>{{i.get_click_num_all()}}</td>
       <td>{{i.get_ctr(None)}}</td>
       <td>{{i.get_finshed_proper(None)}}</td>
-      <td><a href="/orders/item/{{i.id}}">投放控制</a></td>
+      <td><a href="{{url_for('order.item_materials', item_id=i.id)}}">素材&投放控制</a></td>
     </tr>
     {{  order_every_items_detail(i) }}
     {% endfor %}

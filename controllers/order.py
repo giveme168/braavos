@@ -260,8 +260,8 @@ def position_list():
     return jsonify([(p.id, p.display_name) for p in AdPosition.all()])
 
 
-@order_bp.route('/item/<item_id>', methods=["GET", "POST"])
-def item_detail(item_id):
+@order_bp.route('/item/<item_id>/materials', methods=["GET", "POST"])
+def item_materials(item_id):
     item = AdItem.get(item_id)
     if not item:
         abort(404)
@@ -298,6 +298,14 @@ def item_detail(item_id):
     if not g.user.is_admin():
         form.disable_all()
     return tpl('item.html', form=form, item=item)
+
+
+@order_bp.route('/item/<item_id>/schedule', methods=["GET", "POST"])
+def item_schedule(item_id):
+    item = AdItem.get(item_id)
+    if not item:
+        abort(404)
+    return tpl('item_schadule.html', item=item)
 
 
 @order_bp.route('/item/<item_id>/schedule_simple_update', methods=["POST"])

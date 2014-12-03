@@ -46,7 +46,7 @@
         {% else %}
         <td style="background: #f2dede">
         {% endif %}
-          <a href="{{url_for('order.item_detail', item_id=i.id)}}">{{i.position.name}}</a>
+          <a href="{{url_for('order.item_schedule', item_id=i.id)}}">{{i.position.name}}</a>
         </td>
         {% for d in items_info['dates'] %}
         <th>{{i.schedule_by_date(d).num}}</th>
