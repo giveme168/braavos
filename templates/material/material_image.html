@@ -5,7 +5,7 @@
 {% block main_box%}
 <div class="bra-main bra-box">
     {% if material %}
-    <h3>图片广告 <a href="{{url_for('order.item_detail', item_id=material.item.id)}}" class="btn btn-sm btn-default">返回</a></h3>
+    <h3>图片广告 <a href="{{url_for('order.item_materials', item_id=material.item.id)}}" class="btn btn-sm btn-default">返回</a></h3>
     {% else %}
     <h3>图片广告</h3>
     {% endif %}
@@ -48,7 +48,7 @@ $(document).ready(function(){
         }
     });
     $('#image_file').change(function(){
-      $('#name').val($('#name').val()+$('#image_file').val().split('.')[0])
+      $('#name').val($('#image_file').val().split('.')[0])
     });
 });
 </script>

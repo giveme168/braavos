@@ -26,7 +26,7 @@ def new_material(item_id):
         material.status = form.status.data
         material.save()
         flash(u'新建素材(%s)成功!' % material.name, 'success')
-        return redirect(url_for('material.raw_material', material_id=material.id))
+        return redirect(url_for('order.item_materials', item_id=item.id))
     return tpl('material_raw.html', form=form)
 
 
@@ -80,7 +80,7 @@ def new_image_material(item_id):
         material.code = form.code.data
         material.save()
         flash(u'新建素材(%s)成功!' % material.name, 'success')
-        return redirect(url_for('material.image_material', material_id=material.id))
+        return redirect(url_for('order.item_materials', item_id=item.id))
     return tpl('material_image.html', form=form, item=item)
 
 
