@@ -1,27 +1,11 @@
 {% extends "/order_base.html" %}
-{% from 'order_info.html' import order_info_form %}
 {% from 'order_items.html' import order_items, button_export_schedule %}
-{% from 'order_ordered_items.html' import ordered_items %}
 {% from 'comments.html' import comments_box %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
-    <h4>
-        {{ order.name }}
-    </h4>
+    <h4> {{ order.name }} </h4>
     <div class="panel-group" id="accordion">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 订单信息 </a>
-                </h4>
-            </div>
-            <div id="collapseOne" class="panel-collapse collapse in">
-                <div class="panel-body">
-                    {{ order_info_form(form) }}
-                </div>
-            </div>
-        </div>
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
@@ -46,21 +30,9 @@
                     {% endif %}
                 </h4>
             </div>
-            <div id="collapseTwo" class="panel-collapse collapse">
+            <div id="collapseTwo" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_items(order, step, leaders) }}
-                </div>
-            </div>
-        </div>
-            <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 订单项 </a>
-                </h4>
-            </div>
-            <div id="collapse3" class="panel-collapse collapse in">
-                <div class="panel-body">
-                    {{ ordered_items(order)}}
                 </div>
             </div>
         </div>
@@ -69,11 +41,4 @@
         {{ comments_box(order) }}
     </div>
 </div>
-<script>
-$(document).ready(function(){
-    $("#collapseOne").collapse('hide');
-    $("#collapseTwo").collapse('show');
-});
-
-</script>
 {% endblock %}

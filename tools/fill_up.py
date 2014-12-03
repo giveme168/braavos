@@ -28,7 +28,7 @@ saler = User.add(name="saler", email="test2@inad.com", password=DEFAULT_PASSWORD
 
 medium = Medium.add("测试媒体", owner=medium_team)
 
-size = AdSize.add(200, 70)
+size = AdSize.add(180, 180)
 
 unit = AdUnit.add("测试广告单元", "测试", size, "0px 0px 0px 0px",
                   TARGET_BLANK, STATUS_ON, medium, 10000)

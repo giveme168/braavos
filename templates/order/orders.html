@@ -25,19 +25,23 @@
             <th><a href="javascript:sort('end_date');">结束时间</a></th>
             <th>代理商</th>
             <th>创建者</th>
-            <th>投放状态</th>
             <th>创建时间</th>
+            <th>操作</th>
         </tr>
         {% for o in orders %}
         <tr>
-            <td><a href="{{url_for("order.order_detail", order_id=o.id, step=0)}}">{{o.name}}</a></td>
+            <td>{{o.name}}</td>
             <td>{{o.medium.name}}</td>
             <td>{{o.start_date_cn}}</td>
             <td>{{o.end_date_cn}}</td>
             <td>{{o.agent.name if o.agent else '无'}}</td>
             <td>{{o.creator.display_name}}</td>
-            <th>{{'就绪'}}</th>
-            <td>{{o.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+            <td>{{o.create_time.strftime('%Y-%m-%d')}}</td>
+            <td>
+                <a class="btn btn-primary btn-sm" href="{{url_for("order.order_info", order_id=o.id)}}">设置</a>
+                <a class="btn btn-primary btn-sm" href="{{url_for("order.order_detail", order_id=o.id, step=0)}}">排期</a>
+                <a class="btn btn-primary btn-sm" href="{{url_for("order.order_items", order_id=o.id)}}">订单项</a>
+            </td>
         </tr>
         {% endfor %}
     </table>

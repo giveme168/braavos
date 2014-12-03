@@ -55,13 +55,12 @@ def new_order():
     return tpl('new_order.html', form=form)
 
 
-@order_bp.route('/order/<order_id>/<step>/', methods=['GET', 'POST'])
-def order_detail(order_id, step):
+@order_bp.route('/order/<order_id>/info', methods=['GET', 'POST'])
+def order_info(order_id):
     order = Order.get(order_id)
     if not order:
         abort(404)
     form = OrderForm(request.form)
-    leaders = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_LEADER)]
     if request.method == 'POST':
         if not order.can_admin(g.user):
             flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
@@ -100,12 +99,33 @@ def order_detail(order_id, step):
         form.creator.data = order.creator.name
     form.order_type.hidden = True
     context = {'form': form,
-               'leaders': leaders,
+               'order': order,
+               }
+    return tpl('order_detail_info.html', **context)
+
+
+@order_bp.route('/order/<order_id>/<step>/', methods=['GET'])
+def order_detail(order_id, step):
+    order = Order.get(order_id)
+    if not order:
+        abort(404)
+    leaders = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_LEADER)]
+    context = {'leaders': leaders,
                'order': order,
                'step': step,
                'SALE_TYPE_CN': SALE_TYPE_CN
                }
     return tpl('order.html', **context)
+
+
+@order_bp.route('/order/<order_id>/items', methods=['GET'])
+def order_items(order_id):
+    order = Order.get(order_id)
+    if not order:
+        abort(404)
+    context = {'order': order,
+               'SALE_TYPE_CN': SALE_TYPE_CN}
+    return tpl('order_detail_ordered.html', **context)
 
 
 @order_bp.route('/orders', methods=['GET'])
