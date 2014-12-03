@@ -130,51 +130,35 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
     @classmethod
     def all_per_order(cls):
-        return [o for o in cls.all() if len(o.pre_tiems)]
+        """ 所有预下单的订单 """
+        return [o for o in cls.all() if len(o.pre_items)]
 
     @property
-    def pre_tiems(self):
+    def pre_items(self):
+        """预下单的订单项"""
         sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
         return filter(
             lambda x: x.item_status in [ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY],
             sorted_items)
 
     def items_by_status(self, status):
+        """某个状态的订单项"""
         sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
         return filter(lambda x: x.item_status == status, sorted_items)
 
-    def items_info_by_items(self, items):
-        ret = {}
-        start_dates = [x.start_date for x in items if x.start_date]
-        end_dates = [x.end_date for x in items if x.end_date]
-        start = start_dates and min(start_dates)
-        end = end_dates and max(end_dates)
-        if start and end:
-            m_dict = defaultdict(list)
-            dates_list = []
-            for x in range(0, (end - start).days + 1):
-                current = start + datetime.timedelta(days=x)
-                m_dict[current.month].append(current)
-                dates_list.append(current)
-            ret['dates'] = dates_list
-            ret['months'] = {m: len(d_list) for m, d_list in m_dict.items()}
-        else:
-            ret['dates'] = []
-            ret['months'] = {}
-        sale_type_items = []
-        for v, sale_type_cn in SALE_TYPE_CN.items():
-            sale_type_items.append((v, SALE_TYPE_CN[v], [x for x in items if x.sale_type == v]))
-        ret['items'] = sale_type_items
-        return ret
+    def items_status_num(self, num):
+        return len(self.items_by_status(num))
 
     def items_info_by_status(self, status):
+        """某个状态的订单项的格式化信息"""
         items = self.items_by_status(status)
-        ret = self.items_info_by_items(items)
+        ret = items_info_by_items(items)
         ret['status_cn'] = ITEM_STATUS_CN[status]
         return ret
 
     def items_info_all(self):
-        ret = self.items_info_by_items(self.items)
+        """全部订单项的格式化信息"""
+        ret = items_info_by_items(self.items)
         ret['status_cn'] = u"全部"
         return ret
 
@@ -184,21 +168,25 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         return items_info
 
     def can_admin(self, user):
+        """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + self.operaters
         return any([user.is_admin(), self.creator_id == user.id, user in admin_users])
 
     def can_action(self, user, action):
+        """是否拥有leader操作"""
         if action in ITEM_STATUS_LEADER_ACTIONS:
             return any([user.is_admin(), user.is_leader(), user.team == self.medium.owner])
         else:
             return self.can_admin(user)
 
     def have_owner(self, user):
+        """是否可以查看该订单"""
         owner = self.direct_sales + self.agent_sales + self.operaters + self.designers + self.planers
         return any([user.is_admin(), self.creator_id == user.id, user in owner])
 
     @classmethod
     def get_order_by_user(cls, user):
+        """一个用户可以查看的所有订单"""
         return [o for o in cls.all() if o.have_owner(user)]
 
     def path(self):
@@ -229,6 +217,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def items_status(self):
+        """所有订单项的状态"""
         return list(set([i.item_status for i in self.items]))
 
     @property
@@ -242,6 +231,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         if ITEM_STATUS_ORDER in self.items_status:
             items_status_cn.append(u'已下单')
         return items_status_cn
+
+    def status_cn_by_status(self, status):
+        return ITEM_STATUS_CN[status]
 
     def special_sale_in_position(self, position):
         special_sale_items = [i for i in self.items if i.position == position and i.special_sale]
@@ -385,3 +377,28 @@ class StyleTypes(object):
         gift_weekend = StyleFactory().font_colour(COLOUR_RED).bg_colour(COLOUR_LIGHT_GRAY).style
         discount = StyleFactory().font_num('0%').style
         gift_discount = StyleFactory().font_colour(COLOUR_RED).font_num('0%').style
+
+
+def items_info_by_items(items):
+    ret = {}
+    start_dates = [x.start_date for x in items if x.start_date]
+    end_dates = [x.end_date for x in items if x.end_date]
+    start = start_dates and min(start_dates)
+    end = end_dates and max(end_dates)
+    if start and end:
+        m_dict = defaultdict(list)
+        dates_list = []
+        for x in range(0, (end - start).days + 1):
+            current = start + datetime.timedelta(days=x)
+            m_dict[current.month].append(current)
+            dates_list.append(current)
+        ret['dates'] = dates_list
+        ret['months'] = {m: len(d_list) for m, d_list in m_dict.items()}
+    else:
+        ret['dates'] = []
+        ret['months'] = {}
+    sale_type_items = []
+    for v, sale_type_cn in SALE_TYPE_CN.items():
+        sale_type_items.append((v, SALE_TYPE_CN[v], [x for x in items if x.sale_type == v]))
+    ret['items'] = sale_type_items
+    return ret

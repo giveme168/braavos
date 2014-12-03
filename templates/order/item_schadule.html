@@ -1,0 +1,44 @@
+{% extends "/order_base.html" %}
+{% from 'comments.html' import comments_box %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h4>
+        <a class="btn btn-default btn-sm" href="{{url_for("order.order_detail", order_id=item.order.id, step=0)}}">返回</a>
+    </h4>
+    <div class="panel-group" id="accordion">
+        {% if g.user.team.is_admin() %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"> 详细投放安排 </a>
+                </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {% include 'schedule_update.html' %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"> 排期 <{{item.item_state_cn}}></a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {% include 'schedule_simple_update.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>{{ comments_box(item) }}</div>
+</div>
+<script>
+$(document).ready(function(){
+    $("#collapseThree").collapse('hide');
+});
+</script>
+{% endblock %}

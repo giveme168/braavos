@@ -13,7 +13,7 @@
         {% for m in materials %}
         <tr>
             <td><a href="{{m.path()}}">{{m.name}}</a></td>
-            <td><a href="{{url_for("order.item_detail", item_id=m.item.id)}}">{{m.item.name}}</a></td>
+            <td><a href="{{url_for("order.item_materials", item_id=m.item.id)}}">{{m.item.name}}</a></td>
             <td>{{m.creator.name}}</td>
         </tr>
         {% endfor %}

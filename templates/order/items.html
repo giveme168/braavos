@@ -12,7 +12,7 @@
         </tr>
         {% for i in items %}
         <tr>
-            <td><a href="{{url_for("order.item_detail", item_id=i.id)}}">{{i.name}}</a></td>
+            <td><a href="{{url_for("order.item_materials", item_id=i.id)}}">{{i.name}}</a></td>
             <td><a href="{{url_for("order.order_detail", order_id=i.order.id, step=0)}}">{{i.order.name}}</a></td>
             <td>{{i.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
         </tr>
