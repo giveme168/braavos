@@ -86,14 +86,27 @@
   </div>
 {%- endmacro %}
 
+{% macro items_status_num(order, x) -%}
+    {% set num = order.items_status_num(x) %}
+    <span class="badge">{{num or ""}}</span>
+{%- endmacro %}
+
 {% macro order_items(order, step, leaders) -%}
 <ul class="nav nav-pills" role="tablist">
-  <li role="presentation" class="active"><a id="0" href="#tab-0" role="tab" data-toggle="tab">未下单</a></li>
-  <li role="presentation"><a id="1" href="#tab-1" role="tab" data-toggle="tab">预下单(待审核)</a></li>
-  <li role="presentation"><a id="2" href="#tab-2" role="tab" data-toggle="tab">预下单(通过)</a></li>
-  <li role="presentation"><a id="3" href="#tab-3" role="tab" data-toggle="tab">下单(待审核)</a></li>
-  <li role="presentation"><a id="4" href="#tab-4" role="tab" data-toggle="tab">已下单</a></li>
-  <li role="presentation"><a id="5" href="#tab-5" role="tab" data-toggle="tab">归档</a></li>
+  <li role="presentation" class="active">
+    <a id="0" href="#tab-0" role="tab" data-toggle="tab">
+      未下单
+      {{items_status_num(order, 0)}}
+    </a>
+  </li>
+  {% for x in range(1, 6) %}
+  <li role="presentation">
+    <a id="{{x}}" href="#tab-{{x}}" role="tab" data-toggle="tab">
+      {{order.status_cn_by_status(x)}} 
+      {{items_status_num(order, x)}}
+    </a>
+  </li>
+  {% endfor %}
 </ul>
 <div class="tab-content">
   <div class="tab-pane fade in active" id="tab-0">
