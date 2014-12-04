@@ -1,8 +1,9 @@
 {% extends "/order_base.html" %}
-{% from 'order_info.html' import order_info_form %}
+{% from 'order_form_client.html' import order_client_form %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
-     {{ order_info_form(form) }}
+    <h3 class="col-md-offset-1">新建客户订单</h3>
+     {{ order_client_form(form) }}
 </div>
 {% endblock %}
