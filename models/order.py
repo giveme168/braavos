@@ -43,6 +43,7 @@ DISCOUNT_SALE = {
     DISCOUNT_50: u'5折',
     DISCOUNT_60: u'6折',
     DISCOUNT_70: u'7折',
+    DISCOUNT_ADD: u'无折扣',
 }
 
 HEADER_BEFORE_DATE = [u"售卖类型", u"预订状态", u"展示位置", u"广告标准"]
@@ -98,9 +99,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
     discount = db.Column(db.Integer)
 
-    def __init__(self, client, campaign, medium, order_type, contract, money,
-                 agent, direct_sales, agent_sales, operaters, designers, planers,
-                 creator, create_time=None, discount=100):
+    def __init__(self, agent, client, campaign, medium, order_type=ORDER_TYPE_NORMAL, contract="", money=0,
+                 direct_sales=None, agent_sales=None, operaters=None, designers=None, planers=None,
+                 creator=None, create_time=None, discount=DISCOUNT_ADD):
         self.client = client
         self.campaign = campaign
         self.medium = medium
@@ -108,11 +109,11 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         self.contract = contract
         self.money = money
         self.agent = agent
-        self.direct_sales = direct_sales
-        self.agent_sales = agent_sales
-        self.operaters = operaters
-        self.designers = designers
-        self.planers = planers
+        self.direct_sales = direct_sales or []
+        self.agent_sales = agent_sales or []
+        self.operaters = operaters or []
+        self.designers = designers or []
+        self.planers = planers or []
         self.creator = creator
         self.create_time = create_time
         self.discount = discount

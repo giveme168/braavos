@@ -4,14 +4,8 @@ from flask import render_template as tpl, flash
 
 from models.client import Client, Agent
 from forms.client import NewClientForm, NewAgentForm
-from . import admin_required_before_request
 
 client_bp = Blueprint('client', __name__, template_folder='../templates/client')
-
-
-@client_bp.before_request
-def request_user():
-    admin_required_before_request()
 
 
 @client_bp.route('/', methods=['GET'])
@@ -46,11 +40,11 @@ def new_agent():
             flash(u'新建代理(%s)成功!' % agent.name, 'success')
         else:
             flash(u'新建代理(%s)失败，名称已经被占用!' % form.name.data, 'danger')
-            return tpl('agent.html', form=form, title=u"新建代理")
+            return tpl('agent.html', form=form, title=u"新建甲方")
         if request.values.get('next'):
             return redirect(request.values.get('next'))
         return redirect(url_for("client.agents"))
-    return tpl('agent.html', form=form, title=u"新建代理")
+    return tpl('agent.html', form=form, title=u"新建甲方")
 
 
 @client_bp.route('/client/<client_id>', methods=['GET', 'POST'])

@@ -6,7 +6,9 @@ from models.client import CLIENT_INDUSTRY_CN
 
 
 class NewClientForm(Form):
-    name = TextField(u'名字', [validators.Required(u"请输入名字.")])
+    name = TextField(u'客户名字',
+                     [validators.Required(u"请输入名字.")],
+                     description=u"新建之前请确认是否已存在，不要重复创建")
     industry = SelectField(u'行业', coerce=int)
 
     def __init__(self, *args, **kwargs):
@@ -15,4 +17,6 @@ class NewClientForm(Form):
 
 
 class NewAgentForm(Form):
-    name = TextField(u'名字', [validators.Required(u"请输入名字.")])
+    name = TextField(u'甲方全称',
+                     [validators.Required(u"请输入名字.")],
+                     description=u"新建之前请确认是否已存在，不要重复创建")

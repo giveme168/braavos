@@ -15,32 +15,34 @@
                 {% endif %}
             {% endfor %}
         </select>
-        <input type="button" name="search" value="搜索" class="btn btn-small btn-primary" onclick="javascript:search();">
+        <input type="button" name="search" value="搜索" class="btn btn-sm btn-default" onclick="javascript:search();">
     </div>
     <table class="table table-bordered table-striped">
         <tr>
             <th>订单名</th>
+            <th>客户</th>
             <th>投放媒体</th>
             <th><a href="javascript:sort('start_date');">开始时间</a></th>
             <th><a href="javascript:sort('end_date');">结束时间</a></th>
-            <th>代理商</th>
             <th>创建者</th>
             <th>创建时间</th>
             <th>操作</th>
         </tr>
         {% for o in orders %}
         <tr>
-            <td>{{o.name}}</td>
+            <td style="width:160px;">{{o.campaign}}</td>
+            <td>{{o.client.name}}</td>
             <td>{{o.medium.name}}</td>
             <td>{{o.start_date_cn}}</td>
             <td>{{o.end_date_cn}}</td>
-            <td>{{o.agent.name if o.agent else '无'}}</td>
             <td>{{o.creator.display_name}}</td>
             <td>{{o.create_time.strftime('%Y-%m-%d')}}</td>
             <td>
-                <a class="btn btn-primary btn-sm" href="{{url_for("order.order_info", order_id=o.id)}}">设置</a>
-                <a class="btn btn-primary btn-sm" href="{{url_for("order.order_detail", order_id=o.id, step=0)}}">排期</a>
-                <a class="btn btn-primary btn-sm" href="{{url_for("order.order_items", order_id=o.id)}}">订单项</a>
+                <a class="btn btn-primary btn-sm" href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
+                <a class="btn btn-info btn-sm" href="{{url_for("order.order_detail", order_id=o.id, step=0)}}">排期管理</a>
+                <br>
+                <br>
+                <a class="btn btn-success btn-sm" href="{{url_for("order.order_items", order_id=o.id)}}">订单项</a>
             </td>
         </tr>
         {% endfor %}

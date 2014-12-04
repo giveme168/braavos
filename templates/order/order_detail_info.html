@@ -1,5 +1,6 @@
 {% extends "/order_base.html" %}
-{% from 'order_info.html' import order_info_form %}
+{% from 'order_form_client.html' import order_client_form %}
+{% from 'order_form_medium.html' import order_medium_form %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
@@ -8,12 +9,26 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 订单信息 </a>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 客户订单 </a>
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
-                    {{ order_info_form(form) }}
+                    {{ order_client_form(client_form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"> 媒体订单 </a>
+                </h4>
+            </div>
+            <div id="collapse2" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {{ order_medium_form(medium_form) }}
                 </div>
             </div>
         </div>

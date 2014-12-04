@@ -13,6 +13,7 @@ USER_STATUS_CN = {
     USER_STATUS_ON: u"有效"
 }
 
+TEAM_TYPE_CONTRACT = 10       # 內部-合同管理员
 TEAM_TYPE_LEADER = 9       # 媒体
 TEAM_TYPE_MEDIUM = 8       # 媒体
 TEAM_TYPE_DESIGNER = 7       # 內部-设计
@@ -21,7 +22,7 @@ TEAM_TYPE_OPERATER = 5     # 內部-執行
 TEAM_TYPE_AGENT_SELLER = 4       # 內部-渠道銷售
 TEAM_TYPE_DIRECT_SELLER = 3       # 內部-直客銷售
 TEAM_TYPE_INAD = 2         # 内部-其他
-TEAM_TYPE_ADMIN = 1        # 管理员
+TEAM_TYPE_ADMIN = 1        # 广告管理员
 TEAM_TYPE_SUPER_ADMIN = 0  # 超级管理员
 
 TEAM_TYPE_CN = {
@@ -31,6 +32,7 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_OPERATER: u"内部-执行",
     TEAM_TYPE_AGENT_SELLER: u"内部-渠道销售",
     TEAM_TYPE_DIRECT_SELLER: u"内部-直客销售",
+    TEAM_TYPE_CONTRACT: u"内部-合同管理员",
     TEAM_TYPE_INAD: u"内部-其他",
     TEAM_TYPE_LEADER: u"内部-Leader",
     TEAM_TYPE_ADMIN: u" 广告管理员",

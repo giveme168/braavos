@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, request, redirect, abort, url_for, g, Response
 from flask import render_template as tpl, json, jsonify, flash
 
-from forms.order import OrderForm
+from forms.order import ClientOrderForm, MediumOrderForm
 from forms.item import ItemForm
 
 from models.client import Client, Agent
@@ -38,21 +38,44 @@ def index():
 
 @order_bp.route('/new_order', methods=['GET', 'POST'])
 def new_order():
-    form = OrderForm(request.form)
+    form = ClientOrderForm(request.form)
     if request.method == 'POST' and form.validate():
-        order = Order.add(client=Client.get(form.client.data), campaign=form.campaign.data,
-                          medium=Medium.get(form.medium.data), order_type=form.order_type.data,
-                          contract=form.contract.data, money=form.money.data,
-                          agent=Agent.get(form.agent.data), direct_sales=User.gets(form.direct_sales.data),
-                          agent_sales=User.gets(form.agent_sales.data), operaters=User.gets(form.operaters.data),
-                          planers=User.gets(form.planers.data), designers=User.gets(form.designers.data),
-                          creator=g.user, discount=form.discount.data, create_time=datetime.now())
-        flash(u'新建订单成功!', 'success')
-        return redirect(url_for("order.order_detail", order_id=order.id, step=0))
-    else:
-        form.creator.data = g.user.name
-    form.order_type.hidden = True
+        order = Order.add(client=Client.get(form.client.data),
+                          campaign=form.campaign.data,
+                          medium=Medium.get(form.medium.data),
+                          money=form.money.data,
+                          agent=Agent.get(form.agent.data),
+                          direct_sales=User.gets(form.direct_sales.data),
+                          agent_sales=User.gets(form.agent_sales.data),
+                          creator=g.user,
+                          create_time=datetime.now())
+        flash(u'新建客户订单成功, 请补充媒体订单和上传合同!', 'success')
+        return redirect(url_for("order.order_info", order_id=order.id, step=0))
     return tpl('new_order.html', form=form)
+
+
+def get_client_form(order):
+    client_form = ClientOrderForm()
+    client_form.agent.data = order.agent.id
+    client_form.client.data = order.client.id
+    client_form.campaign.data = order.campaign
+    if not g.user.is_admin():
+        client_form.medium.choices = [(order.medium.id, order.medium.name)]
+    client_form.medium.data = order.medium.id
+    client_form.money.data = order.money
+    client_form.direct_sales.data = [u.id for u in order.direct_sales]
+    client_form.agent_sales.data = [u.id for u in order.agent_sales]
+    return client_form
+
+
+def get_medium_form(order):
+    medium_form = MediumOrderForm()
+    #medium_form.money.data = order.money
+    medium_form.operaters.data = [u.id for u in order.operaters]
+    medium_form.designers.data = [u.id for u in order.designers]
+    medium_form.planers.data = [u.id for u in order.planers]
+    medium_form.discount.data = order.discount
+    return medium_form
 
 
 @order_bp.route('/order/<order_id>/info', methods=['GET', 'POST'])
@@ -60,48 +83,42 @@ def order_info(order_id):
     order = Order.get(order_id)
     if not order:
         abort(404)
-    form = OrderForm(request.form)
-    if request.method == 'POST':
+    if request.method == 'GET':
+        context = {'client_form': get_client_form(order),
+                   'medium_form': get_medium_form(order),
+                   'order': order}
+        return tpl('order_detail_info.html', **context)
+    else:
         if not order.can_admin(g.user):
             flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
-        elif form.validate():
-            order.client = Client.get(form.client.data)
-            order.campaign = form.campaign.data
-            order.medium = Medium.get(form.medium.data)
-            order.order_type = form.order_type.data
-            order.contract = form.contract.data
-            order.money = form.money.data
-            order.agent = Agent.get(form.agent.data)
-            order.direct_sales = User.gets(form.direct_sales.data)
-            order.agent_sales = User.gets(form.agent_sales.data)
-            order.operaters = User.gets(form.operaters.data)
-            order.designers = User.gets(form.designers.data)
-            order.planers = User.gets(form.planers.data)
-            order.discount = form.discount.data
-            order.save()
-            flash(u'订单信息保存成功!', 'success')
-    else:
-        form.client.data = order.client.id
-        form.campaign.data = order.campaign
-        if not g.user.is_admin():
-            form.medium.choices = [(order.medium.id, order.medium.name)]
-        form.medium.data = order.medium.id
-        form.order_type.data = order.order_type
-        form.contract.data = order.contract
-        form.money.data = order.money
-        form.agent.data = order.agent.id
-        form.direct_sales.data = [u.id for u in order.direct_sales]
-        form.agent_sales.data = [u.id for u in order.agent_sales]
-        form.operaters.data = [u.id for u in order.operaters]
-        form.designers.data = [u.id for u in order.designers]
-        form.planers.data = [u.id for u in order.planers]
-        form.discount.data = order.discount
-        form.creator.data = order.creator.name
-    form.order_type.hidden = True
-    context = {'form': form,
-               'order': order,
-               }
-    return tpl('order_detail_info.html', **context)
+        info_type = int(request.values.get('info_type', '0'))
+        if info_type == 0:
+            client_form = ClientOrderForm(request.form)
+            medium_form = get_medium_form(order)
+            if client_form.validate():
+                order.agent = Agent.get(client_form.agent.data)
+                order.client = Client.get(client_form.client.data)
+                order.campaign = client_form.campaign.data
+                order.medium = Medium.get(client_form.medium.data)
+                order.money = client_form.money.data
+                order.direct_sales = User.gets(client_form.direct_sales.data)
+                order.agent_sales = User.gets(client_form.agent_sales.data)
+                order.save()
+                flash(u'客户订单保存成功!', 'success')
+        else:
+            medium_form = MediumOrderForm(request.form)
+            client_form = get_client_form(order)
+            if medium_form.validate():
+                order.operaters = User.gets(medium_form.operaters.data)
+                order.designers = User.gets(medium_form.designers.data)
+                order.planers = User.gets(medium_form.planers.data)
+                order.discount = medium_form.discount.data
+                order.save()
+                flash(u'媒体订单保存成功!', 'success')
+        context = {'client_form': client_form,
+                   'medium_form': medium_form,
+                   'order': order}
+        return tpl('order_detail_info.html', **context)
 
 
 @order_bp.route('/order/<order_id>/<step>/', methods=['GET'])
@@ -115,7 +132,7 @@ def order_detail(order_id, step):
                'step': step,
                'SALE_TYPE_CN': SALE_TYPE_CN
                }
-    return tpl('order.html', **context)
+    return tpl('order_detail_schedule.html', **context)
 
 
 @order_bp.route('/order/<order_id>/items', methods=['GET'])
