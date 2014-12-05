@@ -46,6 +46,35 @@ DISCOUNT_SALE = {
     DISCOUNT_ADD: u'无折扣',
 }
 
+CONTRACT_TYPE_NORMAL = 0
+CONTRACT_TYPE_SPECIAL = 1
+CONTRACT_TYPE_CN = {
+    CONTRACT_TYPE_NORMAL: u"标准",
+    CONTRACT_TYPE_SPECIAL: u"非标"
+}
+
+REMINDE_TYPE_60 = 60
+REMINDE_TYPE_90 = 90
+REMINDE_TYPE_CN = {
+    REMINDE_TYPE_60: u"执行结束后60天内",
+    REMINDE_TYPE_90: u"执行结束后90天内"
+}
+
+CONTRACT_STATUS_NEW = 0
+CONTRACT_STATUS_APPLYCONTRACT = 1
+CONTRACT_STATUS_APPLYPASS = 2
+CONTRACT_STATUS_APPLYREJECT = 3
+CONTRACT_STATUS_APPLYPRINT = 4
+CONTRACT_STATUS_PRINTED = 5
+CONTRACT_STATUS_CN = {
+    CONTRACT_STATUS_NEW: u"新建",
+    CONTRACT_STATUS_APPLYCONTRACT: u"申请合同号",
+    CONTRACT_STATUS_APPLYPASS: u"申请合同号通过",
+    CONTRACT_STATUS_APPLYREJECT: u"申请合同号未通过",
+    CONTRACT_STATUS_APPLYPRINT: u"申请打印",
+    CONTRACT_STATUS_PRINTED: u"打印结束"
+}
+
 HEADER_BEFORE_DATE = [u"售卖类型", u"预订状态", u"展示位置", u"广告标准"]
 HEADER_AFTER_DATE = [u"总预订量", u"刊例单价", u"刊例总价", u"折扣", u"净价"]
 
@@ -73,17 +102,31 @@ planer_users = db.Table('order_users_planer',
 
 class Order(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'bra_order'
+
     id = db.Column(db.Integer, primary_key=True)
-    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))
-    client = db.relationship('Client', backref=db.backref('orders', lazy='dynamic'))
-    campaign = db.Column(db.String(100))
-    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
-    medium = db.relationship('Medium', backref=db.backref('orders', lazy='dynamic'))
-    order_type = db.Column(db.Integer)
-    contract = db.Column(db.String(100))
-    money = db.Column(db.Integer)
-    agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))
+    agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))  # 客户合同甲方
     agent = db.relationship('Agent', backref=db.backref('orders', lazy='dynamic'))
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))  # 客户
+    client = db.relationship('Client', backref=db.backref('orders', lazy='dynamic'))
+    campaign = db.Column(db.String(100))  # 活动名称
+    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 投放媒体
+    medium = db.relationship('Medium', backref=db.backref('orders', lazy='dynamic'))
+    order_type = db.Column(db.Integer)  # 订单类型: CPM
+    
+    contract = db.Column(db.String(100))  # 客户合同号
+    money = db.Column(db.Integer)  # 客户合同金额
+    contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
+    client_start = db.Column(db.DateTime)
+    client_end = db.Column(db.DateTime)
+    reminde_type = db.Column(db.Integer)  # 最迟回款类型
+
+    medium_contract = db.Column(db.String(100))  # 媒体合同号
+    medium_money = db.Column(db.Integer)  # 媒体合同金额
+    discount = db.Column(db.Integer)  # 折扣类型
+    medium_start = db.Column(db.DateTime)
+    medium_end = db.Column(db.DateTime)
+    contract_status = db.Column(db.Integer)  # 合同审批状态
+
     direct_sales = db.relationship('User', secondary=direct_sales,
                                    backref=db.backref('direct_orders', lazy='dynamic'))
     agent_sales = db.relationship('User', secondary=agent_sales,
@@ -94,29 +137,44 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
                                 backref=db.backref('design_orders', lazy='dynamic'))
     planers = db.relationship('User', secondary=planer_users,
                               backref=db.backref('plan_orders', lazy='dynamic'))
+
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_orders', lazy='dynamic'))
-    create_time = db.Column(db.DateTime, default=datetime.datetime.now)
-    discount = db.Column(db.Integer)
+    create_time = db.Column(db.DateTime)
 
-    def __init__(self, agent, client, campaign, medium, order_type=ORDER_TYPE_NORMAL, contract="", money=0,
+    def __init__(self, agent, client, campaign, medium, order_type=ORDER_TYPE_NORMAL,
+                 contract="", money=0, contract_type = CONTRACT_TYPE_NORMAL, client_start=None, client_end=None, reminde_type=REMINDE_TYPE_60,
+                 medium_contract="", medium_money=0, discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
                  direct_sales=None, agent_sales=None, operaters=None, designers=None, planers=None,
-                 creator=None, create_time=None, discount=DISCOUNT_ADD):
+                 creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
+        self.agent = agent
         self.client = client
         self.campaign = campaign
         self.medium = medium
         self.order_type = order_type
+
         self.contract = contract
         self.money = money
-        self.agent = agent
+        self.contract_type = contract_type
+        self.client_start = client_start or datetime.datetime.now()
+        self.client_end = client_end or datetime.datetime.now()
+        self.reminde_type = reminde_type
+
+        self.medium_contract = medium_contract
+        self.medium_money = medium_money
+        self.discount = discount
+        self.medium_start = medium_start or datetime.datetime.now()
+        self.medium_end = medium_end or datetime.datetime.now()
+
         self.direct_sales = direct_sales or []
         self.agent_sales = agent_sales or []
         self.operaters = operaters or []
         self.designers = designers or []
         self.planers = planers or []
+
         self.creator = creator
-        self.create_time = create_time
-        self.discount = discount
+        self.create_time = create_time or datetime.datetime.now()
+        self.contract_status = contract_status
 
     def __repr__(self):
         return '<Order %s>' % (self.id)
