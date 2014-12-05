@@ -54,5 +54,4 @@ client = Client.add("测试客户", 0)
 
 agent = Agent.add("测试代理")
 
-order = Order.add(client, "测试活动", medium, 0, "", 1000, agent, [user],
-                  [], [], [], [], user, datetime.datetime.now())
+order = Order.add(agent, client, "测试活动", medium, creator=user)
