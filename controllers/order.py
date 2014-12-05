@@ -40,13 +40,17 @@ def index():
 def new_order():
     form = ClientOrderForm(request.form)
     if request.method == 'POST' and form.validate():
-        order = Order.add(client=Client.get(form.client.data),
+        order = Order.add(agent=Agent.get(form.agent.data),
+                          client=Client.get(form.client.data),
                           campaign=form.campaign.data,
                           medium=Medium.get(form.medium.data),
                           money=form.money.data,
-                          agent=Agent.get(form.agent.data),
+                          client_start=form.client_start.data,
+                          client_end=form.client_end.data,
+                          reminde_date=form.reminde_date.data,
                           direct_sales=User.gets(form.direct_sales.data),
                           agent_sales=User.gets(form.agent_sales.data),
+                          contract_type=form.contract_type.data,
                           creator=g.user,
                           create_time=datetime.now())
         flash(u'新建客户订单成功, 请补充媒体订单和上传合同!', 'success')
@@ -63,14 +67,20 @@ def get_client_form(order):
         client_form.medium.choices = [(order.medium.id, order.medium.name)]
     client_form.medium.data = order.medium.id
     client_form.money.data = order.money
+    client_form.client_start.data = order.client_start
+    client_form.client_end.data = order.client_end
+    client_form.reminde_date.data = order.reminde_date
     client_form.direct_sales.data = [u.id for u in order.direct_sales]
     client_form.agent_sales.data = [u.id for u in order.agent_sales]
+    client_form.contract_type.data = order.contract_type
     return client_form
 
 
 def get_medium_form(order):
     medium_form = MediumOrderForm()
-    #medium_form.money.data = order.money
+    medium_form.medium_money.data = order.medium_money
+    medium_form.medium_start.data = order.medium_start
+    medium_form.medium_end.data = order.medium_end
     medium_form.operaters.data = [u.id for u in order.operaters]
     medium_form.designers.data = [u.id for u in order.designers]
     medium_form.planers.data = [u.id for u in order.planers]
@@ -101,14 +111,21 @@ def order_info(order_id):
                 order.campaign = client_form.campaign.data
                 order.medium = Medium.get(client_form.medium.data)
                 order.money = client_form.money.data
+                order.client_start = client_form.client_start.data
+                order.client_end = client_form.client_end.data
+                order.reminde_date = client_form.reminde_date.data
                 order.direct_sales = User.gets(client_form.direct_sales.data)
                 order.agent_sales = User.gets(client_form.agent_sales.data)
+                order.contract_type = client_form.contract_type.data
                 order.save()
                 flash(u'客户订单保存成功!', 'success')
         else:
             medium_form = MediumOrderForm(request.form)
             client_form = get_client_form(order)
             if medium_form.validate():
+                order.medium_money = medium_form.medium_money.data
+                order.medium_start = medium_form.medium_start.data
+                order.medium_end = medium_form.medium_end.data
                 order.operaters = User.gets(medium_form.operaters.data)
                 order.designers = User.gets(medium_form.designers.data)
                 order.planers = User.gets(medium_form.planers.data)

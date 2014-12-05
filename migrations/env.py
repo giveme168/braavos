@@ -14,6 +14,14 @@ fileConfig(config.config_file_name)
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
+from models.user import User, Team
+from models.client import Client, Agent
+from models.comment import Comment
+from models.item import AdItem, AdSchedule
+from models.material import Material
+from models.medium import Medium, AdSize, AdUnit, AdPosition
+from models.order import Order
+from models.delivery import Delivery
 # target_metadata = mymodel.Base.metadata
 from flask import current_app
 config.set_main_option('sqlalchemy.url', current_app.config.get('SQLALCHEMY_DATABASE_URI'))
