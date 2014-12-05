@@ -53,11 +53,15 @@ CONTRACT_TYPE_CN = {
     CONTRACT_TYPE_SPECIAL: u"非标"
 }
 
-REMINDE_TYPE_60 = 60
-REMINDE_TYPE_90 = 90
-REMINDE_TYPE_CN = {
-    REMINDE_TYPE_60: u"执行结束后60天内",
-    REMINDE_TYPE_90: u"执行结束后90天内"
+RESOURCE_TYPE_AD = 0
+RESOURCE_TYPE_CAMPAIGN = 1
+RESOURCE_TYPE_FRAME = 2
+RESOURCE_TYPE_OTHER = 4
+RESOURCE_TYPE_CN = {
+    RESOURCE_TYPE_AD: u"硬广",
+    RESOURCE_TYPE_CAMPAIGN: u"互动",
+    RESOURCE_TYPE_FRAME: u"框架",
+    RESOURCE_TYPE_OTHER: u"其他"
 }
 
 CONTRACT_STATUS_NEW = 0
@@ -116,15 +120,16 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     contract = db.Column(db.String(100))  # 客户合同号
     money = db.Column(db.Integer)  # 客户合同金额
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
-    client_start = db.Column(db.DateTime)
-    client_end = db.Column(db.DateTime)
-    reminde_type = db.Column(db.Integer)  # 最迟回款类型
+    client_start = db.Column(db.Date)
+    client_end = db.Column(db.Date)
+    reminde_date = db.Column(db.Date)  # 最迟回款日期
+    resource_type = db.Column(db.Integer)  # 资源形式
 
     medium_contract = db.Column(db.String(100))  # 媒体合同号
     medium_money = db.Column(db.Integer)  # 媒体合同金额
     discount = db.Column(db.Integer)  # 折扣类型
-    medium_start = db.Column(db.DateTime)
-    medium_end = db.Column(db.DateTime)
+    medium_start = db.Column(db.Date)
+    medium_end = db.Column(db.Date)
     contract_status = db.Column(db.Integer)  # 合同审批状态
 
     direct_sales = db.relationship('User', secondary=direct_sales,
@@ -143,7 +148,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     create_time = db.Column(db.DateTime)
 
     def __init__(self, agent, client, campaign, medium, order_type=ORDER_TYPE_NORMAL,
-                 contract="", money=0, contract_type = CONTRACT_TYPE_NORMAL, client_start=None, client_end=None, reminde_type=REMINDE_TYPE_60,
+                 contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  medium_contract="", medium_money=0, discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
                  direct_sales=None, agent_sales=None, operaters=None, designers=None, planers=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
@@ -156,15 +161,15 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         self.contract = contract
         self.money = money
         self.contract_type = contract_type
-        self.client_start = client_start or datetime.datetime.now()
-        self.client_end = client_end or datetime.datetime.now()
-        self.reminde_type = reminde_type
+        self.client_start = client_start or datetime.date.today()
+        self.client_end = client_end or datetime.date.today()
+        self.reminde_date = reminde_date or datetime.date.today()
 
         self.medium_contract = medium_contract
         self.medium_money = medium_money
         self.discount = discount
-        self.medium_start = medium_start or datetime.datetime.now()
-        self.medium_end = medium_end or datetime.datetime.now()
+        self.medium_start = medium_start or datetime.date.today()
+        self.medium_end = medium_end or datetime.date.today()
 
         self.direct_sales = direct_sales or []
         self.agent_sales = agent_sales or []

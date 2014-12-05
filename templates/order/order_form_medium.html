@@ -3,6 +3,9 @@
 <form class="form form-horizontal" method="POST">
     <input class="hide" name="info_type" value="1"/>
     {{form.csrf_token}}
+    {{ form_field(form.medium_money) }}
+    {{ form_field(form.medium_start) }}
+    {{ form_field(form.medium_end) }}
     {{ form_field(form.operaters) }}
     {{ form_field(form.designers) }}
     {{ form_field(form.planers) }}
