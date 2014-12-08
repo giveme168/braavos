@@ -18,12 +18,14 @@ from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
                          ITEM_STATUS_ACTION_PRE_ORDER,
                          ITEM_STATUS_ACTION_ORDER_APPLY)
 from models.order import Order
+from models.order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
+    CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT, CONTRACT_STATUS_PRINTED)
 from models.user import User, TEAM_TYPE_LEADER
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
 from models.material import Material
 
-from libs.signals import order_apply_signal, reply_apply_signal
+from libs.signals import order_apply_signal, reply_apply_signal, contract_apply_signal
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
@@ -180,6 +182,41 @@ def order_items(order_id):
     context = {'order': order,
                'SALE_TYPE_CN': SALE_TYPE_CN}
     return tpl('order_detail_ordered.html', **context)
+
+
+@order_bp.route('/order/<order_id>/contract', methods=['POST'])
+def order_contract(order_id):
+    order = Order.get(order_id)
+    if not order:
+        abort(404)
+    action = int(request.values.get('action'))
+    emails = request.values.get('email').split(",")
+    msg = request.values.get('msg', '')
+    action_msg = ''
+    if action == 0:
+        order.contract_status = CONTRACT_STATUS_APPLYCONTRACT
+        action_msg = u"申请合同号审批"
+    elif action == 1:
+        order.contract_status = CONTRACT_STATUS_APPLYPRINT
+        action_msg = u"申请打印合同"
+    elif action == 2:
+        order.contract_status = CONTRACT_STATUS_APPLYPASS
+        action_msg = u"合同号申请被通过"
+    elif action == 3:
+        order.contract_status = CONTRACT_STATUS_APPLYREJECT
+        action_msg = u"合同号申请未被通过"
+    elif action == 4:
+        order.contract_status = CONTRACT_STATUS_PRINTED
+        action_msg = u"合同打印完毕"
+    order.save()
+    if emails:
+        apply_context = {"sender": g.user,
+                         "to": emails + [g.user.email],
+                         "action_msg": action_msg,
+                         "msg": msg,
+                         "order": order}
+        contract_apply_signal.send(apply_context)
+    return redirect(url_for("order.order_info", order_id=order.id))
 
 
 @order_bp.route('/orders', methods=['GET'])

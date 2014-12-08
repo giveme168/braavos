@@ -35,8 +35,9 @@ def send_simple_mail(subject, recipients, body=''):
         return
     body += u"""
 
-                本邮件由系统代发, 请不要直接回复
-                如有任何疑问, 请咨询 promotion@inad.com
-            """
+--------
+本邮件由系统代发, 请不要直接回复
+如有任何疑问, 请咨询 promotion@inad.com
+"""
     with mail.app.app_context():
         mail.send_message(subject, recipients=recipients, body=body)

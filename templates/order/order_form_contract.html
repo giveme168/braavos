@@ -36,17 +36,38 @@
 </form>
 <br><br>
 <div class="col-md-8">
-    {% if order.contract and order.medium_contract %}
-    <a href="#" class="btn btn-sm btn-info">打印申请</a>
-    {% else %}
-    <a href="#" class="btn btn-sm btn-info">合同号申请</a>
-    {% endif %}
-    {% if g.user.is_leader() %}
-    <a href="#" class="btn btn-sm btn-info">申请通过</a>
-    <a href="#" class="btn btn-sm btn-warning">申请拒绝</a>
-    {% endif %}
-    {% if g.user.is_contract() %}
-    <a href="#" class="btn btn-sm btn-info">打印完毕</a>
-    {% endif %}
+  <form class="form form-horizontal" method="POST"i action="{{url_for('order.order_contract', order_id=order.id)}}">
+    <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
+        <div class="col-sm-10">
+            <input class="form-control bra-form-control" id="contract-email"
+            name="email" value="" placeholder="请输入需要提醒人员的邮箱, 逗号分隔"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="msg" class="col-sm-2 control-label">留言 : </label>
+        <div class="col-sm-10">
+            <textarea class="form-control bra-form-control" id="msg"
+            name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">操作 : </label>
+        <div class="col-sm-10">
+            {% if order.contract and order.medium_contract %}
+            <button class="btn btn-sm btn-primary" type="submit" name="action" value="1">打印申请</button>
+            {% else %}
+            <button class="btn btn-sm btn-primary" type="submit" name="action" value="0">合同号申请</button>
+            {% endif %}
+            {% if g.user.is_leader() %}
+            <button class="btn btn-sm btn-primary" type="submit" name="action" value="2">申请通过</button>
+            <button class="btn btn-sm btn-warning" type="submit" name="action" value="3">申请拒绝</button>
+            {% endif %}
+            {% if g.user.is_contract() %}
+            <button class="btn btn-sm btn-primary" type="submit" name="action" value="4">打印完毕</button>
+            {% endif %}
+        </div>
+    </div>
+  </form>
 </div>
 {%- endmacro %}

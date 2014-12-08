@@ -72,11 +72,11 @@ CONTRACT_STATUS_APPLYPRINT = 4
 CONTRACT_STATUS_PRINTED = 5
 CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_NEW: u"新建",
-    CONTRACT_STATUS_APPLYCONTRACT: u"申请合同号",
+    CONTRACT_STATUS_APPLYCONTRACT: u"申请合同号中...",
     CONTRACT_STATUS_APPLYPASS: u"申请合同号通过",
     CONTRACT_STATUS_APPLYREJECT: u"申请合同号未通过",
-    CONTRACT_STATUS_APPLYPRINT: u"申请打印",
-    CONTRACT_STATUS_PRINTED: u"打印结束"
+    CONTRACT_STATUS_APPLYPRINT: u"申请打印中...",
+    CONTRACT_STATUS_PRINTED: u"打印完毕"
 }
 
 HEADER_BEFORE_DATE = [u"售卖类型", u"预订状态", u"展示位置", u"广告标准"]
@@ -186,7 +186,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def name(self):
-        return u"%s-%s-%s" % (self.contract or u"合同号暂缺", self.client.name, self.campaign)
+        return u"%s-%s-%s" % (self.client.name, self.campaign, self.medium.name)
 
     @property
     def order_type_cn(self):

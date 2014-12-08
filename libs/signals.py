@@ -8,6 +8,7 @@ password_changed_signal = braavos_signals.signal('password-changed')
 add_comment_signal = braavos_signals.signal('add-comment')
 order_apply_signal = braavos_signals.signal('order_apply')
 reply_apply_signal = braavos_signals.signal('reply_apply')
+contract_apply_signal = braavos_signals.signal('contract_apply')
 
 
 @password_changed_signal.connect
@@ -70,3 +71,19 @@ def reply_apply(change_state_apply):
                              审核未通过，系统已将资源释放为申请前状态，请及时注意预订资源情况。
                              未通过理由请查看排期下方留言"""
                              % (change_state_apply.order.name, url)))
+
+
+@contract_apply_signal.connect
+def contract_apply(apply_context):
+    order = apply_context['order']
+    url = mail.app.config['DOMAIN'] + url_for("order.order_info", order_id=order.id)
+    send_simple_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
+                     recipients=apply_context['to'],
+                     body=(u"""
+订单:%s 【%s】\n
+链接地址： %s\n
+留言如下: \n
+%s\n
+\n
+by %s\n
+"""% (order.name, apply_context['action_msg'], url, apply_context['msg'], g.user.name)))
