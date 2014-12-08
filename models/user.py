@@ -109,7 +109,10 @@ class User(db.Model, BaseModelMixin):
         return self.team.is_admin()
 
     def is_leader(self):
-        return self.team.type == TEAM_TYPE_LEADER
+        return self.team.is_admin() or self.team.type == TEAM_TYPE_LEADER
+
+    def is_contract(self):
+        return self.team.is_admin() or self.team.type == TEAM_TYPE_CONTRACT
 
     def path(self):
         return url_for('user.user_detail', user_id=self.id)

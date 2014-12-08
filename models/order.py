@@ -72,11 +72,11 @@ CONTRACT_STATUS_APPLYPRINT = 4
 CONTRACT_STATUS_PRINTED = 5
 CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_NEW: u"新建",
-    CONTRACT_STATUS_APPLYCONTRACT: u"申请合同号",
+    CONTRACT_STATUS_APPLYCONTRACT: u"申请合同号中...",
     CONTRACT_STATUS_APPLYPASS: u"申请合同号通过",
     CONTRACT_STATUS_APPLYREJECT: u"申请合同号未通过",
-    CONTRACT_STATUS_APPLYPRINT: u"申请打印",
-    CONTRACT_STATUS_PRINTED: u"打印结束"
+    CONTRACT_STATUS_APPLYPRINT: u"申请打印中...",
+    CONTRACT_STATUS_PRINTED: u"打印完毕"
 }
 
 HEADER_BEFORE_DATE = [u"售卖类型", u"预订状态", u"展示位置", u"广告标准"]
@@ -116,7 +116,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 投放媒体
     medium = db.relationship('Medium', backref=db.backref('orders', lazy='dynamic'))
     order_type = db.Column(db.Integer)  # 订单类型: CPM
-    
+
     contract = db.Column(db.String(100))  # 客户合同号
     money = db.Column(db.Integer)  # 客户合同金额
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
@@ -148,7 +148,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     create_time = db.Column(db.DateTime)
 
     def __init__(self, agent, client, campaign, medium, order_type=ORDER_TYPE_NORMAL,
-                 contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
+                 contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
+                 client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  medium_contract="", medium_money=0, discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
                  direct_sales=None, agent_sales=None, operaters=None, designers=None, planers=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
@@ -186,7 +187,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def name(self):
-        return u"%s-%s-%s" % (self.contract or u"合同号暂缺", self.client.name, self.campaign)
+        return u"%s-%s-%s" % (self.client.name, self.campaign, self.medium.name)
 
     @property
     def order_type_cn(self):
@@ -278,6 +279,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         return sum(
             [i.schedule_sum_by_date(date) for i in self.items
              if i.item_status in OCCUPY_RESOURCE_STATUS and i.position == position])
+
+    @property
+    def contract_status_cn(self):
+        return CONTRACT_STATUS_CN[self.contract_status]
 
     @property
     def items_status(self):
@@ -457,7 +462,7 @@ def items_info_by_items(items):
             m_dict[current.month].append(current)
             dates_list.append(current)
         ret['dates'] = dates_list
-        ret['months'] = {m: len(d_list) for m, d_list in m_dict.items()}
+        ret['months'] = {m: len(d_list) for (m, d_list) in m_dict.items()}
     else:
         ret['dates'] = []
         ret['months'] = {}

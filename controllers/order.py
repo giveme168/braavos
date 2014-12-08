@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, request, redirect, abort, url_for, g, Response
 from flask import render_template as tpl, json, jsonify, flash
 
-from forms.order import ClientOrderForm, MediumOrderForm
+from forms.order import ClientOrderForm, MediumOrderForm, ContractOrderForm
 from forms.item import ItemForm
 
 from models.client import Client, Agent
@@ -18,12 +18,15 @@ from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
                          ITEM_STATUS_ACTION_PRE_ORDER,
                          ITEM_STATUS_ACTION_ORDER_APPLY)
 from models.order import Order
+from models.order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
+                          CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
+                          CONTRACT_STATUS_PRINTED)
 from models.user import User, TEAM_TYPE_LEADER
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
 from models.material import Material
 
-from libs.signals import order_apply_signal, reply_apply_signal
+from libs.signals import order_apply_signal, reply_apply_signal, contract_apply_signal
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
@@ -88,6 +91,13 @@ def get_medium_form(order):
     return medium_form
 
 
+def get_contract_form(order):
+    contract_form = ContractOrderForm()
+    contract_form.contract.data = order.contract
+    contract_form.medium_contract.data = order.medium_contract
+    return contract_form
+
+
 @order_bp.route('/order/<order_id>/info', methods=['GET', 'POST'])
 def order_info(order_id):
     order = Order.get(order_id)
@@ -96,6 +106,7 @@ def order_info(order_id):
     if request.method == 'GET':
         context = {'client_form': get_client_form(order),
                    'medium_form': get_medium_form(order),
+                   'contract_form': get_contract_form(order),
                    'order': order}
         return tpl('order_detail_info.html', **context)
     else:
@@ -105,6 +116,7 @@ def order_info(order_id):
         if info_type == 0:
             client_form = ClientOrderForm(request.form)
             medium_form = get_medium_form(order)
+            contract_form = get_contract_form(order)
             if client_form.validate():
                 order.agent = Agent.get(client_form.agent.data)
                 order.client = Client.get(client_form.client.data)
@@ -119,9 +131,10 @@ def order_info(order_id):
                 order.contract_type = client_form.contract_type.data
                 order.save()
                 flash(u'客户订单保存成功!', 'success')
-        else:
+        elif info_type == 1:
             medium_form = MediumOrderForm(request.form)
             client_form = get_client_form(order)
+            contract_form = get_contract_form(order)
             if medium_form.validate():
                 order.medium_money = medium_form.medium_money.data
                 order.medium_start = medium_form.medium_start.data
@@ -132,8 +145,18 @@ def order_info(order_id):
                 order.discount = medium_form.discount.data
                 order.save()
                 flash(u'媒体订单保存成功!', 'success')
+        elif info_type == 2:
+            contract_form = ContractOrderForm(request.form)
+            client_form = get_client_form(order)
+            medium_form = get_medium_form(order)
+            if contract_form.validate():
+                order.contract = contract_form.contract.data
+                order.medium_contract = contract_form.medium_contract.data
+                order.save()
+                flash(u'合同号保存成功', 'success')
         context = {'client_form': client_form,
                    'medium_form': medium_form,
+                   'contract_form': contract_form,
                    'order': order}
         return tpl('order_detail_info.html', **context)
 
@@ -160,6 +183,41 @@ def order_items(order_id):
     context = {'order': order,
                'SALE_TYPE_CN': SALE_TYPE_CN}
     return tpl('order_detail_ordered.html', **context)
+
+
+@order_bp.route('/order/<order_id>/contract', methods=['POST'])
+def order_contract(order_id):
+    order = Order.get(order_id)
+    if not order:
+        abort(404)
+    action = int(request.values.get('action'))
+    emails = request.values.get('email').split(",")
+    msg = request.values.get('msg', '')
+    action_msg = ''
+    if action == 0:
+        order.contract_status = CONTRACT_STATUS_APPLYCONTRACT
+        action_msg = u"申请合同号审批"
+    elif action == 1:
+        order.contract_status = CONTRACT_STATUS_APPLYPRINT
+        action_msg = u"申请打印合同"
+    elif action == 2:
+        order.contract_status = CONTRACT_STATUS_APPLYPASS
+        action_msg = u"合同号申请被通过"
+    elif action == 3:
+        order.contract_status = CONTRACT_STATUS_APPLYREJECT
+        action_msg = u"合同号申请未被通过"
+    elif action == 4:
+        order.contract_status = CONTRACT_STATUS_PRINTED
+        action_msg = u"合同打印完毕"
+    order.save()
+    if emails:
+        apply_context = {"sender": g.user,
+                         "to": emails + [g.user.email],
+                         "action_msg": action_msg,
+                         "msg": msg,
+                         "order": order}
+        contract_apply_signal.send(apply_context)
+    return redirect(url_for("order.order_info", order_id=order.id))
 
 
 @order_bp.route('/orders', methods=['GET'])

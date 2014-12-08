@@ -1,0 +1,73 @@
+{% from 'form.html' import form_field %}
+{% macro order_contract_form(form, order) -%}
+<form class="form form-horizontal" method="POST">
+  {% if g.user.is_contract() %}
+  <input class="hide" name="info_type" value="2"/>
+  {{form.csrf_token}}
+  <div class="form-group">
+    <label for="name" class="col-sm-2 control-label">合同号申请状态 : </label>
+    <div class="col-sm-10">
+        <label style="height: 34px; padding: 6px 12px;">{{order.contract_status_cn}}</label>
+    </div>
+  </div>
+  {{ form_field(form.contract) }}
+  {{ form_field(form.medium_contract) }}
+  <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+  {% else %}
+  <div class="form-group">
+    <label for="name" class="col-sm-2 control-label">合同号申请状态 : </label>
+    <div class="col-sm-10">
+        <label style="height: 34px; padding: 6px 12px;">{{order.contract_status_cn}}</label>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="name" class="col-sm-2 control-label">客户订单合同号 : </label>
+    <div class="col-sm-10">
+        <label style="height: 34px; padding: 6px 12px;">{{order.contract}}</label>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="name" class="col-sm-2 control-label">媒体订单合同号 : </label>
+    <div class="col-sm-10">
+        <label style="height: 34px; padding: 6px 12px;">{{order.medium_contract}}</label>
+    </div>
+  </div>
+  {% endif %}
+</form>
+<br><br>
+<div class="col-md-8">
+  <form class="form form-horizontal" method="POST"i action="{{url_for('order.order_contract', order_id=order.id)}}">
+    <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
+        <div class="col-sm-10">
+            <input class="form-control bra-form-control" id="contract-email"
+            name="email" value="" placeholder="请输入需要提醒人员的邮箱, 逗号分隔"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="msg" class="col-sm-2 control-label">留言 : </label>
+        <div class="col-sm-10">
+            <textarea class="form-control bra-form-control" id="msg"
+            name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">操作 : </label>
+        <div class="col-sm-10">
+            {% if order.contract and order.medium_contract %}
+            <button class="btn btn-sm btn-primary" type="submit" name="action" value="1">打印申请</button>
+            {% else %}
+            <button class="btn btn-sm btn-primary" type="submit" name="action" value="0">合同号申请</button>
+            {% endif %}
+            {% if g.user.is_leader() %}
+            <button class="btn btn-sm btn-primary" type="submit" name="action" value="2">申请通过</button>
+            <button class="btn btn-sm btn-warning" type="submit" name="action" value="3">申请拒绝</button>
+            {% endif %}
+            {% if g.user.is_contract() %}
+            <button class="btn btn-sm btn-primary" type="submit" name="action" value="4">打印完毕</button>
+            {% endif %}
+        </div>
+    </div>
+  </form>
+</div>
+{%- endmacro %}

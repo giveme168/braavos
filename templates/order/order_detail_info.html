@@ -1,6 +1,7 @@
 {% extends "/order_base.html" %}
 {% from 'order_form_client.html' import order_client_form %}
 {% from 'order_form_medium.html' import order_medium_form %}
+{% from 'order_form_contract.html' import order_contract_form %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
@@ -29,6 +30,20 @@
             <div id="collapse2" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_medium_form(medium_form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 合同状态 </a>
+                </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {{ order_contract_form(contract_form, order) }}
                 </div>
             </div>
         </div>

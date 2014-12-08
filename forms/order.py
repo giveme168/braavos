@@ -47,9 +47,9 @@ class MediumOrderForm(Form):
     medium_money = IntegerField(u'合同金额(人民币元)', default=0)
     medium_start = DateField(u'执行开始')
     medium_end = DateField(u'执行结束')
-    operaters = SelectMultipleField(u'执行', coerce=int)
-    designers = SelectMultipleField(u'设计', coerce=int)
-    planers = SelectMultipleField(u'策划', coerce=int)
+    operaters = SelectMultipleField(u'执行人员', coerce=int)
+    designers = SelectMultipleField(u'设计人员', coerce=int)
+    planers = SelectMultipleField(u'策划人员', coerce=int)
     discount = SelectField(u'折扣', coerce=int)
 
     def __init__(self, *args, **kwargs):
@@ -67,3 +67,8 @@ class MediumOrderForm(Form):
                 self.discount.errors.append(u"请选择折扣")
                 return False
         return False
+
+
+class ContractOrderForm(Form):
+    contract = TextField(u'客户订单合同号')
+    medium_contract = TextField(u'媒体订单合同号')
