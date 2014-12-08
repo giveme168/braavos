@@ -280,6 +280,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
              if i.item_status in OCCUPY_RESOURCE_STATUS and i.position == position])
 
     @property
+    def contract_status_cn(self):
+        return CONTRACT_STATUS_CN[self.contract_status]
+
+    @property
     def items_status(self):
         """所有订单项的状态"""
         return list(set([i.item_status for i in self.items]))
@@ -457,7 +461,7 @@ def items_info_by_items(items):
             m_dict[current.month].append(current)
             dates_list.append(current)
         ret['dates'] = dates_list
-        ret['months'] = {m: len(d_list) for m, d_list in m_dict.items()}
+        ret['months'] = {m:len(d_list) for (m, d_list) in m_dict.items()}
     else:
         ret['dates'] = []
         ret['months'] = {}

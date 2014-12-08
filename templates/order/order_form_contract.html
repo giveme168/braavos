@@ -1,0 +1,52 @@
+{% from 'form.html' import form_field %}
+{% macro order_contract_form(form, order) -%}
+<form class="form form-horizontal" method="POST">
+  {% if g.user.is_contract() %}
+  <input class="hide" name="info_type" value="2"/>
+  {{form.csrf_token}}
+  <div class="form-group">
+    <label for="name" class="col-sm-2 control-label">合同号申请状态 : </label>
+    <div class="col-sm-10">
+        <label style="height: 34px; padding: 6px 12px;">{{order.contract_status_cn}}</label>
+    </div>
+  </div>
+  {{ form_field(form.contract) }}
+  {{ form_field(form.medium_contract) }}
+  <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+  {% else %}
+  <div class="form-group">
+    <label for="name" class="col-sm-2 control-label">合同号申请状态 : </label>
+    <div class="col-sm-10">
+        <label style="height: 34px; padding: 6px 12px;">{{order.contract_status_cn}}</label>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="name" class="col-sm-2 control-label">客户订单合同号 : </label>
+    <div class="col-sm-10">
+        <label style="height: 34px; padding: 6px 12px;">{{order.contract}}</label>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="name" class="col-sm-2 control-label">媒体订单合同号 : </label>
+    <div class="col-sm-10">
+        <label style="height: 34px; padding: 6px 12px;">{{order.medium_contract}}</label>
+    </div>
+  </div>
+  {% endif %}
+</form>
+<br><br>
+<div class="col-md-8">
+    {% if order.contract and order.medium_contract %}
+    <a href="#" class="btn btn-sm btn-info">打印申请</a>
+    {% else %}
+    <a href="#" class="btn btn-sm btn-info">合同号申请</a>
+    {% endif %}
+    {% if g.user.is_leader() %}
+    <a href="#" class="btn btn-sm btn-info">申请通过</a>
+    <a href="#" class="btn btn-sm btn-warning">申请拒绝</a>
+    {% endif %}
+    {% if g.user.is_contract() %}
+    <a href="#" class="btn btn-sm btn-info">打印完毕</a>
+    {% endif %}
+</div>
+{%- endmacro %}
