@@ -116,7 +116,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 投放媒体
     medium = db.relationship('Medium', backref=db.backref('orders', lazy='dynamic'))
     order_type = db.Column(db.Integer)  # 订单类型: CPM
-    
+
     contract = db.Column(db.String(100))  # 客户合同号
     money = db.Column(db.Integer)  # 客户合同金额
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
@@ -148,7 +148,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     create_time = db.Column(db.DateTime)
 
     def __init__(self, agent, client, campaign, medium, order_type=ORDER_TYPE_NORMAL,
-                 contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
+                 contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
+                 client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  medium_contract="", medium_money=0, discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
                  direct_sales=None, agent_sales=None, operaters=None, designers=None, planers=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
@@ -461,7 +462,7 @@ def items_info_by_items(items):
             m_dict[current.month].append(current)
             dates_list.append(current)
         ret['dates'] = dates_list
-        ret['months'] = {m:len(d_list) for (m, d_list) in m_dict.items()}
+        ret['months'] = {m: len(d_list) for (m, d_list) in m_dict.items()}
     else:
         ret['dates'] = []
         ret['months'] = {}

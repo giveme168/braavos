@@ -19,7 +19,8 @@ from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
                          ITEM_STATUS_ACTION_ORDER_APPLY)
 from models.order import Order
 from models.order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
-    CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT, CONTRACT_STATUS_PRINTED)
+                          CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
+                          CONTRACT_STATUS_PRINTED)
 from models.user import User, TEAM_TYPE_LEADER
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
