@@ -21,6 +21,7 @@ from models.item import AdItem, AdSchedule
 from models.material import Material
 from models.medium import Medium, AdSize, AdUnit, AdPosition
 from models.order import Order
+from models.client_order import ClientOrder
 from models.delivery import Delivery
 # target_metadata = mymodel.Base.metadata
 from flask import current_app
