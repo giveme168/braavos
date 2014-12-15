@@ -21,6 +21,7 @@ from models.order import Order
 from models.order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                           CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
                           CONTRACT_STATUS_PRINTED)
+from models.client_order import ClientOrder
 from models.user import User, TEAM_TYPE_LEADER
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
@@ -36,7 +37,7 @@ STATUS_APPLLY = (ITEM_STATUS_ACTION_PRE_ORDER, ITEM_STATUS_ACTION_ORDER_APPLY)
 
 @order_bp.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('order.orders'))
+    return redirect(url_for('order.client_orders'))
 
 
 @order_bp.route('/new_order', methods=['GET', 'POST'])
@@ -254,6 +255,12 @@ def display_orders(orders, title):
     select_medium.insert(0, (0, u'全部媒体'))
     return tpl('orders.html', orders=orders, medium=select_medium, medium_id=medium_id,
                sortby=sortby, orderby=orderby, search_info=search_info)
+
+
+@order_bp.route('/client_orders', methods=['GET'])
+def client_orders():
+    orders = [o for o in ClientOrder.all()]
+    return display_orders(orders, u'客户订单列表')
 
 
 @order_bp.route('/items', methods=['GET'])
