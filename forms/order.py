@@ -15,7 +15,6 @@ class ClientOrderForm(Form):
     agent = SelectField(u'甲方全称', coerce=int)
     client = SelectField(u'客户名称', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
-    medium = SelectField(u'投放媒体', coerce=int, description=u"提交后不可修改")
     money = IntegerField(u'合同金额(人民币元)', default=0)
     client_start = DateField(u'执行开始')
     client_end = DateField(u'执行结束')
@@ -28,7 +27,6 @@ class ClientOrderForm(Form):
         super(ClientOrderForm, self).__init__(*args, **kwargs)
         self.agent.choices = [(m.id, m.name) for m in Agent.all()]
         self.client.choices = [(c.id, c.name) for c in Client.all()]
-        self.medium.choices = [(m.id, m.name) for m in Medium.all()]
         self.direct_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER)]
         self.agent_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_AGENT_SELLER)]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
@@ -44,6 +42,7 @@ class ClientOrderForm(Form):
 
 
 class MediumOrderForm(Form):
+    medium = SelectField(u'投放媒体', coerce=int, description=u"提交后不可修改")
     medium_money = IntegerField(u'合同金额(人民币元)', default=0)
     medium_start = DateField(u'执行开始')
     medium_end = DateField(u'执行结束')
@@ -54,6 +53,7 @@ class MediumOrderForm(Form):
 
     def __init__(self, *args, **kwargs):
         super(MediumOrderForm, self).__init__(*args, **kwargs)
+        self.medium.choices = [(m.id, m.name) for m in Medium.all()]
         self.operaters.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_OPERATER)]
         self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
         self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
@@ -67,8 +67,3 @@ class MediumOrderForm(Form):
                 self.discount.errors.append(u"请选择折扣")
                 return False
         return False
-
-
-class ContractOrderForm(Form):
-    contract = TextField(u'客户订单合同号')
-    medium_contract = TextField(u'媒体订单合同号')

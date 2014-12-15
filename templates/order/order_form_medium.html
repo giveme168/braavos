@@ -1,8 +1,12 @@
 {% from 'form.html' import form_field %}
-{% macro order_medium_form(form) -%}
+{% macro order_medium_form(form, medium_order=None) -%}
+{% if medium_order %}
+<form class="form form-horizontal" method="POST" action="{{medium_order.edit_path()}}">
+{% else %}
 <form class="form form-horizontal" method="POST">
-    <input class="hide" name="info_type" value="1"/>
+{% endif %}
     {{form.csrf_token}}
+    {{ form_field(form.medium) }}
     {{ form_field(form.medium_money) }}
     {{ form_field(form.medium_start) }}
     {{ form_field(form.medium_end) }}

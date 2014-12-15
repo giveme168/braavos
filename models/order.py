@@ -190,6 +190,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         return u"%s-%s-%s" % (self.client.name, self.campaign, self.medium.name)
 
     @property
+    def client_order(self):
+        return self.client_orders.first()
+
+    @property
     def order_type_cn(self):
         return ORDER_TYPE_CN[self.order_type]
 
@@ -249,13 +253,11 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         owner = self.direct_sales + self.agent_sales + self.operaters + self.designers + self.planers
         return any([user.is_admin(), self.creator_id == user.id, user in owner])
 
-    @classmethod
-    def get_order_by_user(cls, user):
-        """一个用户可以查看的所有订单"""
-        return [o for o in cls.all() if o.have_owner(user)]
-
     def path(self):
         return url_for('order.order_detail', order_id=self.id, step=0)
+
+    def edit_path(self):
+        return url_for('order.medium_order', mo_id=self.id)
 
     @property
     def start_date(self):
