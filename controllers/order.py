@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from flask import Blueprint, request, redirect, abort, url_for, g, Response
 from flask import render_template as tpl, json, jsonify, flash
 
-from forms.order import ClientOrderForm, MediumOrderForm, ContractOrderForm
+from forms.order import ClientOrderForm, MediumOrderForm
 from forms.item import ItemForm
 
 from models.client import Client, Agent
@@ -37,26 +37,25 @@ STATUS_APPLLY = (ITEM_STATUS_ACTION_PRE_ORDER, ITEM_STATUS_ACTION_ORDER_APPLY)
 
 @order_bp.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('order.client_orders'))
+    return redirect(url_for('order.orders'))
 
 
 @order_bp.route('/new_order', methods=['GET', 'POST'])
 def new_order():
     form = ClientOrderForm(request.form)
     if request.method == 'POST' and form.validate():
-        order = Order.add(agent=Agent.get(form.agent.data),
-                          client=Client.get(form.client.data),
-                          campaign=form.campaign.data,
-                          medium=Medium.get(form.medium.data),
-                          money=form.money.data,
-                          client_start=form.client_start.data,
-                          client_end=form.client_end.data,
-                          reminde_date=form.reminde_date.data,
-                          direct_sales=User.gets(form.direct_sales.data),
-                          agent_sales=User.gets(form.agent_sales.data),
-                          contract_type=form.contract_type.data,
-                          creator=g.user,
-                          create_time=datetime.now())
+        order = ClientOrder.add(agent=Agent.get(form.agent.data),
+                                client=Client.get(form.client.data),
+                                campaign=form.campaign.data,
+                                money=form.money.data,
+                                client_start=form.client_start.data,
+                                client_end=form.client_end.data,
+                                reminde_date=form.reminde_date.data,
+                                direct_sales=User.gets(form.direct_sales.data),
+                                agent_sales=User.gets(form.agent_sales.data),
+                                contract_type=form.contract_type.data,
+                                creator=g.user,
+                                create_time=datetime.now())
         flash(u'新建客户订单成功, 请补充媒体订单和上传合同!', 'success')
         return redirect(url_for("order.order_info", order_id=order.id, step=0))
     return tpl('new_order.html', form=form)
@@ -67,9 +66,6 @@ def get_client_form(order):
     client_form.agent.data = order.agent.id
     client_form.client.data = order.client.id
     client_form.campaign.data = order.campaign
-    if not g.user.is_admin():
-        client_form.medium.choices = [(order.medium.id, order.medium.name)]
-    client_form.medium.data = order.medium.id
     client_form.money.data = order.money
     client_form.client_start.data = order.client_start
     client_form.client_end.data = order.client_end
@@ -92,37 +88,31 @@ def get_medium_form(order):
     return medium_form
 
 
-def get_contract_form(order):
-    contract_form = ContractOrderForm()
-    contract_form.contract.data = order.contract
-    contract_form.medium_contract.data = order.medium_contract
-    return contract_form
-
-
 @order_bp.route('/order/<order_id>/info', methods=['GET', 'POST'])
 def order_info(order_id):
-    order = Order.get(order_id)
+    order = ClientOrder.get(order_id)
     if not order:
         abort(404)
     if request.method == 'GET':
         context = {'client_form': get_client_form(order),
-                   'medium_form': get_medium_form(order),
-                   'contract_form': get_contract_form(order),
+                   'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
                    'order': order}
         return tpl('order_detail_info.html', **context)
     else:
         if not order.can_admin(g.user):
             flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
+            context = {'client_form': get_client_form(order),
+                       'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
+                       'order': order}
+            return tpl('order_detail_info.html', **context)
+
         info_type = int(request.values.get('info_type', '0'))
         if info_type == 0:
             client_form = ClientOrderForm(request.form)
-            medium_form = get_medium_form(order)
-            contract_form = get_contract_form(order)
             if client_form.validate():
                 order.agent = Agent.get(client_form.agent.data)
                 order.client = Client.get(client_form.client.data)
                 order.campaign = client_form.campaign.data
-                order.medium = Medium.get(client_form.medium.data)
                 order.money = client_form.money.data
                 order.client_start = client_form.client_start.data
                 order.client_end = client_form.client_end.data
@@ -131,35 +121,60 @@ def order_info(order_id):
                 order.agent_sales = User.gets(client_form.agent_sales.data)
                 order.contract_type = client_form.contract_type.data
                 order.save()
-                flash(u'客户订单保存成功!', 'success')
-        elif info_type == 1:
-            medium_form = MediumOrderForm(request.form)
-            client_form = get_client_form(order)
-            contract_form = get_contract_form(order)
-            if medium_form.validate():
-                order.medium_money = medium_form.medium_money.data
-                order.medium_start = medium_form.medium_start.data
-                order.medium_end = medium_form.medium_end.data
-                order.operaters = User.gets(medium_form.operaters.data)
-                order.designers = User.gets(medium_form.designers.data)
-                order.planers = User.gets(medium_form.planers.data)
-                order.discount = medium_form.discount.data
-                order.save()
-                flash(u'媒体订单保存成功!', 'success')
+                flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
         elif info_type == 2:
-            contract_form = ContractOrderForm(request.form)
             client_form = get_client_form(order)
-            medium_form = get_medium_form(order)
-            if contract_form.validate():
-                order.contract = contract_form.contract.data
-                order.medium_contract = contract_form.medium_contract.data
-                order.save()
-                flash(u'合同号保存成功', 'success')
+            order.contract = request.values.get("client_contract", "")
+            order.save()
+            for mo in order.medium_orders:
+                mo.medium_contract = request.values.get("medium_contract_%s" % mo.id, "")
+                mo.save()
+            flash(u'合同号保存成功!', 'success')
         context = {'client_form': client_form,
-                   'medium_form': medium_form,
-                   'contract_form': contract_form,
+                   'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
                    'order': order}
         return tpl('order_detail_info.html', **context)
+
+
+@order_bp.route('/order/<order_id>/new_medium', methods=['GET', 'POST'])
+def order_new_medium(order_id):
+    co = ClientOrder.get(order_id)
+    if not co:
+        abort(404)
+    form = MediumOrderForm(request.form)
+    if request.method == 'POST':
+        mo = Order.add(agent=co.agent, client=co.client, campaign=co.campaign,
+                       medium=Medium.get(form.medium.data),
+                       medium_money=form.medium_money.data,
+                       medium_start=form.medium_start.data,
+                       medium_end=form.medium_end.data,
+                       operaters=User.gets(form.operaters.data),
+                       designers=User.gets(form.designers.data),
+                       planers=User.gets(form.planers.data),
+                       discount=form.discount.data)
+        co.medium_orders = co.medium_orders + [mo]
+        co.save()
+        flash(u'[媒体订单]新建成功!', 'success')
+        return redirect(url_for("order.order_info", order_id=co.id))
+    return tpl('order_new_medium.html', form=form)
+
+
+@order_bp.route('/order/medium_order/<mo_id>/', methods=['POST'])
+def medium_order(mo_id):
+    mo = Order.get(mo_id)
+    if not mo:
+        abort(404)
+    form = MediumOrderForm(request.form)
+    mo.medium_money = form.medium_money.data
+    mo.medium_start = form.medium_start.data
+    mo.medium_end = form.medium_end.data
+    mo.operaters = User.gets(form.operaters.data)
+    mo.designers = User.gets(form.designers.data)
+    mo.planers = User.gets(form.planers.data)
+    mo.discount = form.discount.data
+    mo.save()
+    flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
+    return redirect(url_for("order.order_info", order_id=mo.client_order.id))
 
 
 @order_bp.route('/order/<order_id>/<step>/', methods=['GET'])
@@ -188,7 +203,7 @@ def order_items(order_id):
 
 @order_bp.route('/order/<order_id>/contract', methods=['POST'])
 def order_contract(order_id):
-    order = Order.get(order_id)
+    order = ClientOrder.get(order_id)
     if not order:
         abort(404)
     action = int(request.values.get('action'))
@@ -223,20 +238,14 @@ def order_contract(order_id):
 
 @order_bp.route('/orders', methods=['GET'])
 def orders():
-    orders = [o for o in Order.all()]
-    return display_orders(orders, u'订单列表')
+    orders = [o for o in ClientOrder.all()]
+    return display_orders(orders, u'客户订单列表')
 
 
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
-    orders = Order.get_order_by_user(g.user)
-    return display_orders(orders, u'我的订单列表')
-
-
-@order_bp.route('/per_orders', methods=['GET'])
-def per_orders():
-    orders = Order.all_per_order()
-    return display_orders(orders, u'预下单订单列表')
+    orders = ClientOrder.get_order_by_user(g.user)
+    return display_orders(orders, u'我的客户订单列表')
 
 
 def display_orders(orders, title):
@@ -246,7 +255,7 @@ def display_orders(orders, title):
     medium_id = int(request.args.get('selected_medium', 0))
     reverse = orderby != 'asc'
     if medium_id:
-        orders = [o for o in orders if medium_id == o.medium.id]
+        orders = [o for o in orders if medium_id in o.medium_ids]
     if search_info != '':
         orders = [o for o in orders if search_info in o.name]
     if sortby and len(orders) and hasattr(orders[0], sortby):
@@ -255,12 +264,6 @@ def display_orders(orders, title):
     select_medium.insert(0, (0, u'全部媒体'))
     return tpl('orders.html', orders=orders, medium=select_medium, medium_id=medium_id,
                sortby=sortby, orderby=orderby, search_info=search_info)
-
-
-@order_bp.route('/client_orders', methods=['GET'])
-def client_orders():
-    orders = [o for o in ClientOrder.all()]
-    return display_orders(orders, u'客户订单列表')
 
 
 @order_bp.route('/items', methods=['GET'])

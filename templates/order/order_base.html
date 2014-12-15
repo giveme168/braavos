@@ -9,16 +9,15 @@
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的订单
     </a>
-    <a class="list-group-item" href="{{url_for('order.per_orders')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 预下单订单情况
-    </a>
     {% if g.user.is_admin() %}
+    <!--
     <a class="list-group-item" href="{{url_for('order.items')}}">
       <span class="glyphicon glyphicon-th-list"></span> 订单项
     </a>
     <a class="list-group-item" href="{{url_for('order.materials')}}">
       <span class="glyphicon glyphicon-th-list"></span> 广告素材
     </a>
+    -->
     {% endif %}
     <a class="list-group-item" href="{{url_for('order.new_order')}}">
         <span class="glyphicon glyphicon-plus"></span> 创建订单

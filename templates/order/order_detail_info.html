@@ -23,13 +23,16 @@
     <div class="panel-group" id="accordion">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"> 媒体订单 </a>
-                </h4>
+                <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"> 媒体订单 </a> </h4>
             </div>
             <div id="collapse2" class="panel-collapse collapse in">
                 <div class="panel-body">
-                    {{ order_medium_form(medium_form) }}
+                    {% for mf in medium_forms %}
+                    <div class="well">
+                    {{ order_medium_form(mf[0], mf[1]) }}
+                    </div>
+                    {% endfor %}
+                    <a class="btn btn-sm btn-default" href="{{url_for('order.order_new_medium', order_id=order.id)}}"><span class="glyphicon glyphicon-plus"></span> 媒体订单</a>
                 </div>
             </div>
         </div>
@@ -43,7 +46,7 @@
             </div>
             <div id="collapse3" class="panel-collapse collapse in">
                 <div class="panel-body">
-                    {{ order_contract_form(contract_form, order) }}
+                    {{order_contract_form(order)}}
                 </div>
             </div>
         </div>

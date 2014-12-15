@@ -5,6 +5,7 @@ from flask import url_for
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from .item import ITEM_STATUS_LEADER_ACTIONS
+from consts import DATE_FORMAT
 
 
 CONTRACT_TYPE_NORMAL = 0
@@ -91,8 +92,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin):
     designers = db.relationship('User', secondary=designer_users)
     planers = db.relationship('User', secondary=planer_users)
 
-    medium_orders = db.relationship('Order', secondary=table_medium_orders)
-
+    medium_orders = db.relationship('Order', secondary=table_medium_orders,
+                                    backref=db.backref('client_orders', lazy='dynamic'))
     contract_status = db.Column(db.Integer)  # 合同审批状态
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -133,6 +134,14 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin):
     def name(self):
         return u"%s-%s" % (self.client.name, self.campaign)
 
+    @property
+    def mediums(self):
+        return [x.medium for x in self.medium_orders]
+
+    @property
+    def medium_ids(self):
+        return [x.medium.id for x in self.medium_orders]
+
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + self.operaters
@@ -150,8 +159,29 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin):
         owner = self.direct_sales + self.agent_sales + self.operaters + self.designers + self.planers
         return any([user.is_admin(), self.creator_id == user.id, user in owner])
 
+    @classmethod
+    def get_order_by_user(cls, user):
+        """一个用户可以查看的所有订单"""
+        return [o for o in cls.all() if o.have_owner(user)]
+
     def path(self):
-        return url_for('order.order_detail', order_id=self.id, step=0)
+        return url_for('order.order_info', order_id=self.id)
+
+    @property
+    def start_date(self):
+        return self.client_start
+
+    @property
+    def end_date(self):
+        return self.client_end
+
+    @property
+    def start_date_cn(self):
+        return self.start_date.strftime(DATE_FORMAT)
+
+    @property
+    def end_date_cn(self):
+        return self.end_date.strftime(DATE_FORMAT)
 
     @property
     def contract_status_cn(self):
