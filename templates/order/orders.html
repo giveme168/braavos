@@ -39,13 +39,13 @@
             <td>
                 {% for mo in o.medium_orders %}    
                 {{mo.medium.name}} 
-                <a class="btn btn-info btn-sm" href="{{url_for("order.order_detail", order_id=mo.id, step=0)}}">排期管理</a>
-                <a class="btn btn-success btn-sm" href="{{url_for("order.order_items", order_id=mo.id)}}">订单项</a>
+                <a href="{{url_for("order.order_detail", order_id=mo.id, step=0)}}">排期管理</a>
+                <a href="{{url_for("order.order_items", order_id=mo.id)}}">订单项</a>
                 <br><br>
                 {% endfor %}
             </td>
             <td>
-                <a class="btn btn-primary btn-sm" href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
+                <a href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
             </td>
         </tr>
         {% endfor %}

@@ -76,13 +76,9 @@ def add_agent(name):
 def add_order():
     user = get_default_user()
     medium = add_medium(TEST_MEDIUM)
-    client = add_client('testclient')
-    agent = add_agent('testagent')
-    order = Order.add(
-        client=client, campaign='testcampaign', medium=medium, order_type=0,
-        contract='testcontract', money=1000, agent=agent, direct_sales=[user],
-        agent_sales=[], operaters=[], designers=[], planers=[], creator=user,
-        create_time=datetime.now())
+    order = Order.add(campaign='testcampaign', medium=medium, order_type=0,
+                      contract='testcontract', direct_sales=[user], creator=user,
+                      create_time=datetime.now())
     return order
 
 

@@ -108,10 +108,6 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'bra_order'
 
     id = db.Column(db.Integer, primary_key=True)
-    agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))  # 客户合同甲方
-    agent = db.relationship('Agent', backref=db.backref('orders', lazy='dynamic'))
-    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))  # 客户
-    client = db.relationship('Client', backref=db.backref('orders', lazy='dynamic'))
     campaign = db.Column(db.String(100))  # 活动名称
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 投放媒体
     medium = db.relationship('Medium', backref=db.backref('orders', lazy='dynamic'))
@@ -147,14 +143,12 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     creator = db.relationship('User', backref=db.backref('created_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
 
-    def __init__(self, agent, client, campaign, medium, order_type=ORDER_TYPE_NORMAL,
+    def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  medium_contract="", medium_money=0, discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
                  direct_sales=None, agent_sales=None, operaters=None, designers=None, planers=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
-        self.agent = agent
-        self.client = client
         self.campaign = campaign
         self.medium = medium
         self.order_type = order_type
@@ -187,7 +181,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def name(self):
-        return u"%s-%s-%s" % (self.client.name, self.campaign, self.medium.name)
+        return u"%s-%s" % (self.campaign, self.medium.name)
 
     @property
     def client_order(self):
