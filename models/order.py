@@ -113,52 +113,29 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     medium = db.relationship('Medium', backref=db.backref('orders', lazy='dynamic'))
     order_type = db.Column(db.Integer)  # 订单类型: CPM
 
-    contract = db.Column(db.String(100))  # 客户合同号
-    money = db.Column(db.Integer)  # 客户合同金额
-    contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
-    client_start = db.Column(db.Date)
-    client_end = db.Column(db.Date)
-    reminde_date = db.Column(db.Date)  # 最迟回款日期
-    resource_type = db.Column(db.Integer)  # 资源形式
-
     medium_contract = db.Column(db.String(100))  # 媒体合同号
     medium_money = db.Column(db.Integer)  # 媒体合同金额
     discount = db.Column(db.Integer)  # 折扣类型
     medium_start = db.Column(db.Date)
     medium_end = db.Column(db.Date)
-    contract_status = db.Column(db.Integer)  # 合同审批状态
 
-    direct_sales = db.relationship('User', secondary=direct_sales,
-                                   backref=db.backref('direct_orders', lazy='dynamic'))
-    agent_sales = db.relationship('User', secondary=agent_sales,
-                                  backref=db.backref('agent_orders', lazy='dynamic'))
-    operaters = db.relationship('User', secondary=operater_users,
-                                backref=db.backref('operate_orders', lazy='dynamic'))
-    designers = db.relationship('User', secondary=designer_users,
-                                backref=db.backref('design_orders', lazy='dynamic'))
-    planers = db.relationship('User', secondary=planer_users,
-                              backref=db.backref('plan_orders', lazy='dynamic'))
+    direct_sales = db.relationship('User', secondary=direct_sales)
+    agent_sales = db.relationship('User', secondary=agent_sales)
+    operaters = db.relationship('User', secondary=operater_users)
+    designers = db.relationship('User', secondary=designer_users)
+    planers = db.relationship('User', secondary=planer_users)
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
 
     def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
-                 contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
-                 client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  medium_contract="", medium_money=0, discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
                  direct_sales=None, agent_sales=None, operaters=None, designers=None, planers=None,
-                 creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
+                 creator=None, create_time=None):
         self.campaign = campaign
         self.medium = medium
         self.order_type = order_type
-
-        self.contract = contract
-        self.money = money
-        self.contract_type = contract_type
-        self.client_start = client_start or datetime.date.today()
-        self.client_end = client_end or datetime.date.today()
-        self.reminde_date = reminde_date or datetime.date.today()
 
         self.medium_contract = medium_contract
         self.medium_money = medium_money
@@ -174,7 +151,6 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
-        self.contract_status = contract_status
 
     def __repr__(self):
         return '<Order %s>' % (self.id)

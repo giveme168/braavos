@@ -143,7 +143,7 @@ def order_new_medium(order_id):
         abort(404)
     form = MediumOrderForm(request.form)
     if request.method == 'POST':
-        mo = Order.add(agent=co.agent, client=co.client, campaign=co.campaign,
+        mo = Order.add(campaign=co.campaign,
                        medium=Medium.get(form.medium.data),
                        medium_money=form.medium_money.data,
                        medium_start=form.medium_start.data,
