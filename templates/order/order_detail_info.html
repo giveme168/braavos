@@ -2,6 +2,7 @@
 {% from 'order_form_client.html' import order_client_form %}
 {% from 'order_form_medium.html' import order_medium_form %}
 {% from 'order_form_contract.html' import order_contract_form %}
+{% from 'order_form_attachment.html' import client_order_attachment, medium_order_attachment %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
@@ -16,6 +17,7 @@
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_client_form(client_form) }}
+                    {{ client_order_attachment(order) }}
                 </div>
             </div>
         </div>
@@ -30,6 +32,7 @@
                     {% for mf in medium_forms %}
                     <div class="well">
                     {{ order_medium_form(mf[0], mf[1]) }}
+                    {{ medium_order_attachment(mf[1]) }}
                     </div>
                     {% endfor %}
                     <div class="well" id="new-medium" style="display:none;">

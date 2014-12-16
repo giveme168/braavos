@@ -4,6 +4,7 @@ from flask import url_for
 
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
+from models.mixin.attachment import AttachmentMixin
 from .item import ITEM_STATUS_LEADER_ACTIONS
 from consts import DATE_FORMAT
 
@@ -56,7 +57,7 @@ table_medium_orders = db.Table('client_order_medium_orders',
                                )
 
 
-class ClientOrder(db.Model, BaseModelMixin, CommentMixin):
+class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'bra_client_order'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -170,3 +171,6 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin):
     @property
     def contract_status_cn(self):
         return CONTRACT_STATUS_CN[self.contract_status]
+
+    def attachment_path(self):
+        return url_for('files.client_order_files', order_id=self.id)

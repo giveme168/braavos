@@ -6,6 +6,7 @@ from xlwt import Utils
 
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
+from models.mixin.attachment import AttachmentMixin
 from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
                    ITEM_STATUS_LEADER_ACTIONS, OCCUPY_RESOURCE_STATUS,
                    ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY,
@@ -64,7 +65,7 @@ planer_users = db.Table('order_users_planer',
                         )
 
 
-class Order(db.Model, BaseModelMixin, CommentMixin):
+class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'bra_order'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -185,6 +186,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     def edit_path(self):
         return url_for('order.medium_order', mo_id=self.id)
 
+    def attachment_path(self):
+        return url_for('files.medium_order_files', order_id=self.id)
+
     @property
     def start_date(self):
         return self.medium_start
@@ -205,10 +209,6 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         return sum(
             [i.schedule_sum_by_date(date) for i in self.items
              if i.item_status in OCCUPY_RESOURCE_STATUS and i.position == position])
-
-    @property
-    def contract_status_cn(self):
-        return CONTRACT_STATUS_CN[self.contract_status]
 
     @property
     def items_status(self):

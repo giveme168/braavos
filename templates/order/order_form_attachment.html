@@ -1,0 +1,59 @@
+{% from 'form.html' import form_field %}
+
+{% macro client_order_attachment(order) -%}
+<hr>
+<form method="POST" action="{{url_for('files.client_contract_upload')}}" enctype="multipart/form-data">
+  <button class="file-widget-wrapper btn btn-sm btn-primary">
+    <input class="hide" type="text" name="order" value="{{order.id}}">
+    <span>上传合同</span>
+    <input class="file-widget-button" type="file" name="file">
+  </button>
+  <a class="btn btn-sm btn-primary" href="{{order.get_last_contract_path()}}">下载合同</a>
+</form>
+<form method="POST" action="{{url_for('files.client_schedule_upload')}}" enctype="multipart/form-data">
+  <button class="file-widget-wrapper btn btn-sm btn-info">
+    <input class="hide" type="text" name="order" value="{{order.id}}">
+    <span>上传排期</span>
+    <input class="file-widget-button" type="file" name="file">
+  </button>
+  <a class="btn btn-sm btn-info" href="{{order.get_last_schedule_path()}}">下载排期</a>
+  <a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">所有版本</a>
+</form>
+
+<script>
+$(function(){
+  $('.file-widget-button').change(function(){
+    $(this).parents("form").submit();
+  });
+});
+</script>
+{%- endmacro %}
+
+{% macro medium_order_attachment(order) -%}
+<hr>
+<form method="POST" action="{{url_for('files.medium_contract_upload')}}" enctype="multipart/form-data">
+  <button class="file-widget-wrapper btn btn-sm btn-primary">
+    <input class="hide" type="text" name="order" value="{{order.id}}">
+    <span>上传合同</span>
+    <input class="file-widget-button" type="file" name="file">
+  </button>
+  <a class="btn btn-sm btn-primary" href="{{order.get_last_contract_path()}}">下载合同</a>
+</form>
+<form method="POST" action="{{url_for('files.medium_schedule_upload')}}" enctype="multipart/form-data">
+  <button class="file-widget-wrapper btn btn-sm btn-info">
+    <input class="hide" type="text" name="order" value="{{order.id}}">
+    <span>上传排期</span>
+    <input class="file-widget-button" type="file" name="file">
+  </button>
+  <a class="btn btn-sm btn-info" href="{{order.get_last_schedule_path()}}">下载排期</a>
+  <a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">所有版本</a>
+</form>
+
+<script>
+$(function(){
+  $('.file-widget-button').change(function(){
+    $(this).parents("form").submit();
+  });
+});
+</script>
+{%- endmacro %}
