@@ -100,6 +100,7 @@ def order_info(order_id):
     if request.method == 'GET':
         context = {'client_form': get_client_form(order),
                    'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
+                   'new_medium_form': MediumOrderForm(),
                    'order': order}
         return tpl('order_detail_info.html', **context)
     else:
@@ -107,6 +108,7 @@ def order_info(order_id):
             flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
             context = {'client_form': get_client_form(order),
                        'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
+                       'new_medium_form': MediumOrderForm(),
                        'order': order}
             return tpl('order_detail_info.html', **context)
 
@@ -136,6 +138,7 @@ def order_info(order_id):
                 mo.save()
             flash(u'合同号保存成功!', 'success')
         context = {'client_form': client_form,
+                   'new_medium_form': MediumOrderForm(),
                    'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
                    'order': order}
         return tpl('order_detail_info.html', **context)

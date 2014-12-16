@@ -11,7 +11,7 @@ $(document).ready(function(){
     }
   });
  // 上传文件组件
-  undata_file=function (file_input) {
+  updata_file=function (file_input) {
     var data = new FormData();
     data.append('file', file_input.files[0]);
     var fileNameContainer = $(file_input).parents('.file-widget').find('.form-control');

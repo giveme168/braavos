@@ -1,0 +1,30 @@
+{% extends "/order_base.html" %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>所有合同文件名</th>
+            <th>上传日期</th>
+        </tr>
+        {% for attachment in order.get_contract_attachments()  %}
+        <tr>
+            <td><a href="{{attachment.path}}">{{attachment.filename}}</a></td>
+            <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>所有排期文件名</th>
+            <th>上传日期</th>
+        </tr>
+        {% for attachment in order.get_schedule_attachments()  %}
+        <tr>
+            <td><a href="{{attachment.path}}">{{attachment.filename}}</a></td>
+            <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

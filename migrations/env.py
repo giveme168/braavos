@@ -17,6 +17,7 @@ fileConfig(config.config_file_name)
 from models.user import User, Team
 from models.client import Client, Agent
 from models.comment import Comment
+from models.attachment import Attachment
 from models.item import AdItem, AdSchedule
 from models.material import Material
 from models.medium import Medium, AdSize, AdUnit, AdPosition

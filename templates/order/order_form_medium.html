@@ -1,9 +1,9 @@
 {% from 'form.html' import form_field %}
-{% macro order_medium_form(form, medium_order=None) -%}
+{% macro order_medium_form(form, medium_order=None, order=None) -%}
 {% if medium_order %}
 <form class="form form-horizontal" method="POST" action="{{medium_order.edit_path()}}">
 {% else %}
-<form class="form form-horizontal" method="POST">
+<form class="form form-horizontal" method="POST" action="{{url_for('order.order_new_medium', order_id=order.id)}}">
 {% endif %}
     {{form.csrf_token}}
     {{ form_field(form.medium) }}

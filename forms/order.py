@@ -16,7 +16,7 @@ class ClientOrderForm(Form):
     agent = SelectField(u'甲方全称', coerce=int)
     client = SelectField(u'客户名称', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
-    money = IntegerField(u'合同金额(人民币元)', default=0)
+    money = IntegerField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
     client_end = DateField(u'执行结束')
     reminde_date = DateField(u'最迟回款日期')
@@ -46,7 +46,7 @@ class ClientOrderForm(Form):
 
 class MediumOrderForm(Form):
     medium = SelectField(u'投放媒体', coerce=int, description=u"提交后不可修改")
-    medium_money = IntegerField(u'合同金额(人民币元)', default=0)
+    medium_money = IntegerField(u'合同金额(元)', default=0)
     medium_start = DateField(u'执行开始')
     medium_end = DateField(u'执行结束')
     operaters = SelectMultipleField(u'执行人员', coerce=int)
