@@ -32,7 +32,11 @@
                     {{ order_medium_form(mf[0], mf[1]) }}
                     </div>
                     {% endfor %}
-                    <a class="btn btn-sm btn-default" href="{{url_for('order.order_new_medium', order_id=order.id)}}"><span class="glyphicon glyphicon-plus"></span> 媒体订单</a>
+                    <div class="well" id="new-medium" style="display:none;">
+                      <h4>新建配体订单</h4>
+                      {{ order_medium_form(new_medium_form, order=order) }}
+                    </div>
+                    <button onclick="showNewMedium(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 媒体订单</button>
                 </div>
             </div>
         </div>
@@ -52,4 +56,12 @@
         </div>
     </div>
 </div>
+<script>
+  $(function(){
+    showNewMedium = function(ele){
+      $(ele).hide();
+      $("#new-medium").show();
+    };
+  });
+</script>
 {% endblock %}
