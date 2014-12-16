@@ -232,8 +232,10 @@ def order_contract(order_id):
         action_msg = u"合同打印完毕"
     order.save()
     if emails:
+        to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+        to_emails = list(set(emails + [x.email for x in to_users]))
         apply_context = {"sender": g.user,
-                         "to": emails + [g.user.email],
+                         "to": to_emails,
                          "action_msg": action_msg,
                          "msg": msg,
                          "order": order}

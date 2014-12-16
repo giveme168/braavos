@@ -46,16 +46,14 @@ class User(db.Model, BaseModelMixin):
     name = db.Column(db.String(100))
     email = db.Column(db.String(120), unique=True)
     pwdhash = db.Column(db.String(100))
-    phone = db.Column(db.String(120), unique=True)
     status = db.Column(db.Integer)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
     team = db.relationship('Team', backref=db.backref('users', lazy='dynamic'))
 
-    def __init__(self, name, email, password, phone, team, status=USER_STATUS_ON):
+    def __init__(self, name, email, password, team, status=USER_STATUS_ON):
         self.name = name
         self.email = email.lower()
         self.set_password(password)
-        self.phone = phone
         self.team = team
         self.status = status
 
