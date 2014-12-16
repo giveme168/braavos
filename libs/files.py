@@ -1,7 +1,7 @@
 from flask import current_app as app
-from flaskext.uploads import UploadSet, IMAGES, configure_uploads
+from .uploads import UploadSet, IMAGES, DOCUMENTS, configure_uploads
 
-files_set = UploadSet('files', IMAGES)
+files_set = UploadSet('files', IMAGES + DOCUMENTS)
 
 
 def uploads_conf(app):
