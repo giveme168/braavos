@@ -50,18 +50,6 @@ agent_sales = db.Table('client_order_agent_sales',
                        db.Column('agent_sale_id', db.Integer, db.ForeignKey('user.id')),
                        db.Column('client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
                        )
-operater_users = db.Table('client_order_users_operater',
-                          db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                          db.Column('client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
-                          )
-designer_users = db.Table('client_order_users_designerer',
-                          db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                          db.Column('client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
-                          )
-planer_users = db.Table('client_order_users_planer',
-                        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                        db.Column('client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
-                        )
 table_medium_orders = db.Table('client_order_medium_orders',
                                db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id')),
                                db.Column('client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
@@ -88,9 +76,6 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin):
 
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
-    operaters = db.relationship('User', secondary=operater_users)
-    designers = db.relationship('User', secondary=designer_users)
-    planers = db.relationship('User', secondary=planer_users)
 
     medium_orders = db.relationship('Order', secondary=table_medium_orders,
                                     backref=db.backref('client_orders', lazy='dynamic'))
@@ -103,7 +88,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin):
     def __init__(self, agent, client, campaign, medium_orders=None,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
-                 direct_sales=None, agent_sales=None, operaters=None, designers=None, planers=None,
+                 direct_sales=None, agent_sales=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
         self.agent = agent
         self.client = client
@@ -113,15 +98,14 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin):
         self.contract = contract
         self.money = money
         self.contract_type = contract_type
+
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
         self.reminde_date = reminde_date or datetime.date.today()
+        self.resource_type = resource_type
 
         self.direct_sales = direct_sales or []
         self.agent_sales = agent_sales or []
-        self.operaters = operaters or []
-        self.designers = designers or []
-        self.planers = planers or []
 
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
@@ -144,8 +128,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin):
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        admin_users = self.direct_sales + self.agent_sales + self.operaters
-        return any([user.is_admin(), self.creator_id == user.id, user in admin_users])
+        admin_users = self.direct_sales + self.agent_sales + [self.creator]
+        return user.is_admin() or user in admin_users
 
     def can_action(self, user, action):
         """是否拥有leader操作"""
@@ -156,8 +140,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin):
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales + self.operaters + self.designers + self.planers
-        return any([user.is_admin(), self.creator_id == user.id, user in owner])
+        owner = self.direct_sales + self.agent_sales + [self.creator]
+        return user.is_admin() or user in owner
 
     @classmethod
     def get_order_by_user(cls, user):

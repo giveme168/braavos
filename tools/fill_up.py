@@ -22,9 +22,9 @@ leader_team = Team.add('ledaer', type=TEAM_TYPE_LEADER)
 sale_team = Team.add('ledaer', type=TEAM_TYPE_DIRECT_SELLER)
 
 
-user = User.add(name="admin", email="test0@inad.com", password=DEFAULT_PASSWORD, phone='1234', team=admin_team)
-leader = User.add(name="leader", email="test1@inad.com", password=DEFAULT_PASSWORD, phone='12345', team=leader_team)
-saler = User.add(name="saler", email="test2@inad.com", password=DEFAULT_PASSWORD, phone='12346', team=sale_team)
+user = User.add(name="admin", email="test0@inad.com", password=DEFAULT_PASSWORD, team=admin_team)
+leader = User.add(name="leader", email="test1@inad.com", password=DEFAULT_PASSWORD, team=leader_team)
+saler = User.add(name="saler", email="test2@inad.com", password=DEFAULT_PASSWORD, team=sale_team)
 
 medium = Medium.add("测试媒体", owner=medium_team)
 

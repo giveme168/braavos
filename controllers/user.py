@@ -108,7 +108,7 @@ def new_user():
         if form.validate():
             db_user_name = User.name_exist(form.name.data)
             if not db_user_name:
-                user = User.add(form.name.data, form.email.data, DEFAULT_PASSWORD, form.phone.data,
+                user = User.add(form.name.data, form.email.data, DEFAULT_PASSWORD,
                                 Team.get(form.team.data), form.status.data)
                 flash(u'新建用户(%s)成功!' % user.name, 'success')
             else:
@@ -127,7 +127,6 @@ def user_detail(user_id):
     if request.method == 'POST':
         if form.validate(vali_email=False):
             user.name = form.name.data
-            user.phone = form.phone.data
             if g.user.team.is_admin():  # 只有管理员才有权限修改 email team status
                 user.email = form.email.data
                 user.team = Team.get(form.team.data)
@@ -137,7 +136,6 @@ def user_detail(user_id):
     else:
         form.name.data = user.name
         form.email.data = user.email
-        form.phone.data = user.phone
         form.team.data = user.team_id
         form.status.data = user.status
     if not g.user.team.is_admin():

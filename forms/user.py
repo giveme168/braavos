@@ -23,8 +23,6 @@ class LoginForm(Form):
 
 class PwdChangeForm(Form):
     old_password = PasswordField(u'原密码', [validators.Required(u"请输入原密码.")])
-    password = PasswordField(u'新密码', [validators.Required(u"请输入您的密码."),
-                                            validators.EqualTo('confirm', message=u'两次输入密码不一致')])
     confirm = PasswordField(u'再次输入新密码', [validators.Required(u"请再次输入您的密码.")])
 
     def validate(self, user):
@@ -49,7 +47,6 @@ class NewUserForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
     email = TextField(u'邮箱', [validators.Required(u"请输入邮箱."),
                                   validators.Email(u"请输入正确的邮箱地址.")])
-    phone = TextField(u'手机', [validators.Required(u"请输入手机号.")])
     status = SelectField(u'状态', coerce=int, default=1)
     team = SelectField(u'Team', coerce=int)
 

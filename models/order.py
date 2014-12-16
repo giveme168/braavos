@@ -46,50 +46,10 @@ DISCOUNT_SALE = {
     DISCOUNT_ADD: u'无折扣',
 }
 
-CONTRACT_TYPE_NORMAL = 0
-CONTRACT_TYPE_SPECIAL = 1
-CONTRACT_TYPE_CN = {
-    CONTRACT_TYPE_NORMAL: u"标准",
-    CONTRACT_TYPE_SPECIAL: u"非标"
-}
-
-RESOURCE_TYPE_AD = 0
-RESOURCE_TYPE_CAMPAIGN = 1
-RESOURCE_TYPE_FRAME = 2
-RESOURCE_TYPE_OTHER = 4
-RESOURCE_TYPE_CN = {
-    RESOURCE_TYPE_AD: u"硬广",
-    RESOURCE_TYPE_CAMPAIGN: u"互动",
-    RESOURCE_TYPE_FRAME: u"框架",
-    RESOURCE_TYPE_OTHER: u"其他"
-}
-
-CONTRACT_STATUS_NEW = 0
-CONTRACT_STATUS_APPLYCONTRACT = 1
-CONTRACT_STATUS_APPLYPASS = 2
-CONTRACT_STATUS_APPLYREJECT = 3
-CONTRACT_STATUS_APPLYPRINT = 4
-CONTRACT_STATUS_PRINTED = 5
-CONTRACT_STATUS_CN = {
-    CONTRACT_STATUS_NEW: u"新建",
-    CONTRACT_STATUS_APPLYCONTRACT: u"申请合同号中...",
-    CONTRACT_STATUS_APPLYPASS: u"申请合同号通过",
-    CONTRACT_STATUS_APPLYREJECT: u"申请合同号未通过",
-    CONTRACT_STATUS_APPLYPRINT: u"申请打印中...",
-    CONTRACT_STATUS_PRINTED: u"打印完毕"
-}
 
 HEADER_BEFORE_DATE = [u"售卖类型", u"预订状态", u"展示位置", u"广告标准"]
 HEADER_AFTER_DATE = [u"总预订量", u"刊例单价", u"刊例总价", u"折扣", u"净价"]
 
-direct_sales = db.Table('order_direct_sales',
-                        db.Column('sale_id', db.Integer, db.ForeignKey('user.id')),
-                        db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id'))
-                        )
-agent_sales = db.Table('order_agent_sales',
-                       db.Column('agent_sale_id', db.Integer, db.ForeignKey('user.id')),
-                       db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id'))
-                       )
 operater_users = db.Table('order_users_operater',
                           db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
                           db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id'))
@@ -119,8 +79,6 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
     medium_start = db.Column(db.Date)
     medium_end = db.Column(db.Date)
 
-    direct_sales = db.relationship('User', secondary=direct_sales)
-    agent_sales = db.relationship('User', secondary=agent_sales)
     operaters = db.relationship('User', secondary=operater_users)
     designers = db.relationship('User', secondary=designer_users)
     planers = db.relationship('User', secondary=planer_users)
@@ -131,7 +89,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
     def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
                  medium_contract="", medium_money=0, discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
-                 direct_sales=None, agent_sales=None, operaters=None, designers=None, planers=None,
+                 operaters=None, designers=None, planers=None,
                  creator=None, create_time=None):
         self.campaign = campaign
         self.medium = medium
@@ -143,8 +101,6 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
         self.medium_start = medium_start or datetime.date.today()
         self.medium_end = medium_end or datetime.date.today()
 
-        self.direct_sales = direct_sales or []
-        self.agent_sales = agent_sales or []
         self.operaters = operaters or []
         self.designers = designers or []
         self.planers = planers or []
@@ -208,20 +164,20 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        admin_users = self.direct_sales + self.agent_sales + self.operaters
-        return any([user.is_admin(), self.creator_id == user.id, user in admin_users])
+        admin_users = self.operaters + [self.creator]
+        return user.is_admin() or self.client_order.can_admin(user) or user in admin_users
 
     def can_action(self, user, action):
         """是否拥有leader操作"""
         if action in ITEM_STATUS_LEADER_ACTIONS:
-            return any([user.is_admin(), user.is_leader(), user.team == self.medium.owner])
+            return any([user.is_admin(), user.is_leader()])
         else:
             return self.can_admin(user)
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales + self.operaters + self.designers + self.planers
-        return any([user.is_admin(), self.creator_id == user.id, user in owner])
+        owner = self.operaters + self.designers + self.planers + [self.creator]
+        return user.is_admin() or user in owner or self.client_order.have_owner(user)
 
     def path(self):
         return url_for('order.order_detail', order_id=self.id, step=0)
@@ -231,21 +187,19 @@ class Order(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def start_date(self):
-        start_dates = [i.start_date for i in self.items]
-        return min(start_dates) if start_dates else datetime.date(1900, 1, 1)
+        return self.medium_start
 
     @property
     def start_date_cn(self):
-        return self.start_date.strftime(DATE_FORMAT) if self.start_date != datetime.date(1900, 1, 1) else u"无订单项"
+        return self.start_date.strftime(DATE_FORMAT)
 
     @property
     def end_date(self):
-        end_dates = [i.end_date for i in self.items]
-        return max(end_dates) if end_dates else datetime.date(1900, 1, 1)
+        return self.medium_end
 
     @property
     def end_date_cn(self):
-        return self.end_date.strftime(DATE_FORMAT) if self.end_date != datetime.date(1900, 1, 1) else u"无订单项"
+        return self.end_date.strftime(DATE_FORMAT)
 
     def occupy_num_by_date_position(self, date, position):
         return sum(

@@ -16,22 +16,21 @@ def add_team(name):
     return team
 
 
-def add_user(name, phone, pwd=DEFAULT_PASSWORD):
+def add_user(name, pwd=DEFAULT_PASSWORD):
     team = add_team('testteam1')
     user = User.add(name=name, email=(name + '@inad.com'),
-                    password=pwd, phone=phone, team=team)
+                    password=pwd, team=team)
     return user
 
 
 def get_default_user():
     name = 'defaultuser'
     email = 'defaultuser@inad.com'
-    phone = '7654321'
     user = User.get_by_email(email)
     if user:
         return user
     else:
-        return add_user(name, phone)
+        return add_user(name)
 
 
 def add_medium(name):
@@ -77,7 +76,7 @@ def add_order():
     user = get_default_user()
     medium = add_medium(TEST_MEDIUM)
     order = Order.add(campaign='testcampaign', medium=medium, order_type=0,
-                      direct_sales=[user], creator=user, create_time=datetime.now())
+                      creator=user, create_time=datetime.now())
     return order
 
 

@@ -12,7 +12,6 @@
             <th>#id</th>
             <th>Name</th>
             <th>Email</th>
-            <th>Phone</th>
             <th>Team</th>
             <th>Status</th>
         </tr>
@@ -21,7 +20,6 @@
             <td>{{u.id}}</td>
             <td><a href="{{url_for('user.user_detail', user_id=u.id)}}">{{u.name}}</a></td>
             <td>{{u.email}}</td>
-            <td>{{u.phone}}</td>
             <td><a href="{{url_for('user.team_detail', team_id=u.team.id)}}">{{u.team.name}}</a></td>
             <td>{{'有效' if u.status else '暂停'}}</td>
         </tr>

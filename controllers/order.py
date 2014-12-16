@@ -18,9 +18,9 @@ from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
                          ITEM_STATUS_ACTION_PRE_ORDER,
                          ITEM_STATUS_ACTION_ORDER_APPLY)
 from models.order import Order
-from models.order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
-                          CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
-                          CONTRACT_STATUS_PRINTED)
+from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
+                                 CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
+                                 CONTRACT_STATUS_PRINTED)
 from models.client_order import ClientOrder
 from models.user import User, TEAM_TYPE_LEADER
 from models.consts import DATE_FORMAT, TIME_FORMAT
@@ -54,6 +54,7 @@ def new_order():
                                 direct_sales=User.gets(form.direct_sales.data),
                                 agent_sales=User.gets(form.agent_sales.data),
                                 contract_type=form.contract_type.data,
+                                resource_type=form.resource_type.data,
                                 creator=g.user,
                                 create_time=datetime.now())
         flash(u'新建客户订单成功, 请补充媒体订单和上传合同!', 'success')
@@ -73,11 +74,14 @@ def get_client_form(order):
     client_form.direct_sales.data = [u.id for u in order.direct_sales]
     client_form.agent_sales.data = [u.id for u in order.agent_sales]
     client_form.contract_type.data = order.contract_type
+    client_form.resource_type.data = order.resource_type
     return client_form
 
 
 def get_medium_form(order):
     medium_form = MediumOrderForm()
+    medium_form.medium.choices = [(order.medium.id, order.medium.name)]
+    medium_form.medium.data = order.medium.id
     medium_form.medium_money.data = order.medium_money
     medium_form.medium_start.data = order.medium_start
     medium_form.medium_end.data = order.medium_end
@@ -120,6 +124,7 @@ def order_info(order_id):
                 order.direct_sales = User.gets(client_form.direct_sales.data)
                 order.agent_sales = User.gets(client_form.agent_sales.data)
                 order.contract_type = client_form.contract_type.data
+                order.resource_type = client_form.resource_type.data
                 order.save()
                 flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
         elif info_type == 2:
@@ -227,8 +232,10 @@ def order_contract(order_id):
         action_msg = u"合同打印完毕"
     order.save()
     if emails:
+        to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+        to_emails = list(set(emails + [x.email for x in to_users]))
         apply_context = {"sender": g.user,
-                         "to": emails + [g.user.email],
+                         "to": to_emails,
                          "action_msg": action_msg,
                          "msg": msg,
                          "order": order}
