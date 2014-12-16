@@ -381,6 +381,7 @@ class UploadSet(object):
             folder, name = name.rsplit("/", 1)
 
         basename = lowercase_ext(secure_filename(storage.filename))
+        basename = basename.encode('utf8')
         if name:
             if name.endswith('.'):
                 basename = name + extension(basename)
