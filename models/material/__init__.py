@@ -49,7 +49,7 @@ class Material(db.Model, BaseModelMixin, CommentMixin, DeliveryMixin):
     @property
     def type_cn(self):
         return MATERIAL_TYPE_CN[self.type]
-        
+
     @property
     def status_cn(self):
         return STATUS_CN[self.status]

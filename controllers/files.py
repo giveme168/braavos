@@ -10,7 +10,7 @@ from libs.files import files_set, attachment_set
 files_bp = Blueprint('files', __name__, template_folder='../templates/files')
 
 
-@files_bp.route('/<filename>', methods=['GET'])
+@files_bp.route('/files/<filename>', methods=['GET'])
 def files(filename):
     config = app.upload_set_config.get('files')
     if config is None:
