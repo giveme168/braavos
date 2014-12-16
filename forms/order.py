@@ -4,7 +4,8 @@ from wtforms.fields.html5 import DateField
 from libs.wtf import Form
 from models.client import Client, Agent
 from models.medium import Medium
-from models.order import DISCOUNT_SALE, DISCOUNT_SELECT, CONTRACT_TYPE_CN
+from models.order import DISCOUNT_SALE, DISCOUNT_SELECT
+from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN
 from models.user import User
 from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
                          TEAM_TYPE_OPERATER, TEAM_TYPE_AGENT_SELLER,
@@ -18,9 +19,10 @@ class ClientOrderForm(Form):
     money = IntegerField(u'合同金额(人民币元)', default=0)
     client_start = DateField(u'执行开始')
     client_end = DateField(u'执行结束')
-    reminde_date = DateField(u'回款日期')
+    reminde_date = DateField(u'最迟回款日期')
     direct_sales = SelectMultipleField(u'直客销售', coerce=int)
     agent_sales = SelectMultipleField(u'渠道销售', coerce=int)
+    resource_type = SelectField(u'售卖类型类型', coerce=int)
     contract_type = SelectField(u'合同模板类型', coerce=int)
 
     def __init__(self, *args, **kwargs):
@@ -30,6 +32,7 @@ class ClientOrderForm(Form):
         self.direct_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER)]
         self.agent_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_AGENT_SELLER)]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
+        self.resource_type.choices = RESOURCE_TYPE_CN.items()
 
     def validate(self):
         if Form.validate(self):

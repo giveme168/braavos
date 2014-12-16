@@ -77,7 +77,7 @@ def add_order():
     user = get_default_user()
     medium = add_medium(TEST_MEDIUM)
     order = Order.add(campaign='testcampaign', medium=medium, order_type=0,
-                      direct_sales=[user], creator=user, create_time=datetime.now())
+                      creator=user, create_time=datetime.now())
     return order
 
 
