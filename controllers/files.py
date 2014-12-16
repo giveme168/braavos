@@ -4,7 +4,7 @@ from flask import jsonify, send_from_directory, url_for, redirect, flash
 
 from models.order import Order
 from models.client_order import ClientOrder
-from libs.files import files_set
+from libs.files import files_set, attachment_set
 
 
 files_bp = Blueprint('files', __name__, template_folder='../templates/files')
@@ -13,6 +13,14 @@ files_bp = Blueprint('files', __name__, template_folder='../templates/files')
 @files_bp.route('/<filename>', methods=['GET'])
 def files(filename):
     config = app.upload_set_config.get('files')
+    if config is None:
+        abort(404)
+    return send_from_directory(config.destination, filename)
+
+
+@files_bp.route('/attachment/<filename>', methods=['GET'])
+def attachment(filename):
+    config = app.upload_set_config.get('attachment')
     if config is None:
         abort(404)
     return send_from_directory(config.destination, filename)
@@ -31,7 +39,7 @@ def client_contract_upload():
     order_id = request.values.get('order')
     co = ClientOrder.get(order_id)
     if co and 'file' in request.files:
-        filename = files_set.save(request.files['file'])
+        filename = attachment_set.save(request.files['file'])
         co.add_contract_attachment(g.user, filename)
         flash(u'合同文件上传成功!', 'success')
     else:
@@ -44,7 +52,7 @@ def client_schedule_upload():
     order_id = request.values.get('order')
     co = ClientOrder.get(order_id)
     if co and 'file' in request.files:
-        filename = files_set.save(request.files['file'])
+        filename = attachment_set.save(request.files['file'])
         co.add_schedule_attachment(g.user, filename)
         flash(u'排期文件上传成功!', 'success')
     else:
@@ -57,7 +65,7 @@ def medium_contract_upload():
     order_id = request.values.get('order')
     order = Order.get(order_id)
     if order and 'file' in request.files:
-        filename = files_set.save(request.files['file'])
+        filename = attachment_set.save(request.files['file'])
         order.add_contract_attachment(g.user, filename)
         flash(u'合同文件上传成功!', 'success')
     else:
@@ -70,7 +78,7 @@ def medium_schedule_upload():
     order_id = request.values.get('order')
     order = Order.get(order_id)
     if order and 'file' in request.files:
-        filename = files_set.save(request.files['file'])
+        filename = attachment_set.save(request.files['file'])
         order.add_schedule_attachment(g.user, filename)
         flash(u'排期文件上传成功!', 'success')
     else:

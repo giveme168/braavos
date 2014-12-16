@@ -21,6 +21,8 @@ class Config(object):
     DOMAIN = 'http://z.inad.com'
     UPLOADED_FILES_DEST = '/tmp/braavos/'
     UPLOADED_FILES_URL = '/files/'
+    UPLOADED_ATTACHMENT_DEST = '/tmp/attachment/'
+    UPLOADED_ATTACHMENT_URL = '/files/attachment/'
 
     REDIS_URL = "redis://@localhost:6379/0"
 

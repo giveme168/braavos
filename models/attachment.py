@@ -2,7 +2,7 @@
 import datetime
 
 from . import db, BaseModelMixin
-from libs.files import get_full_path
+from libs.files import get_attachment_path
 
 
 class Attachment(db.Model, BaseModelMixin):
@@ -27,7 +27,7 @@ class Attachment(db.Model, BaseModelMixin):
 
     @property
     def path(self):
-        return get_full_path(self.filename)
+        return get_attachment_path(self.filename)
 
     @property
     def target(self):
