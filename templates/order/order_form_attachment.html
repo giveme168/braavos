@@ -8,7 +8,10 @@
     <span>上传合同</span>
     <input class="file-widget-button" type="file" name="file">
   </button>
-  <a class="btn btn-sm btn-primary" href="{{order.get_last_contract_path()}}">下载合同</a>
+  {% set contract = order.get_last_contract() %}
+  {% if contract %}
+  <a href="{{contract.path}}">{{contract.filename}}</a>
+  {% endif %}
 </form>
 <form method="POST" action="{{url_for('files.client_schedule_upload')}}" enctype="multipart/form-data">
   <button class="file-widget-wrapper btn btn-sm btn-info">
@@ -16,14 +19,23 @@
     <span>上传排期</span>
     <input class="file-widget-button" type="file" name="file">
   </button>
-  <a class="btn btn-sm btn-info" href="{{order.get_last_schedule_path()}}">下载排期</a>
-  <a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">所有版本</a>
+  {% set schedule = order.get_last_schedule() %}
+  {% if schedule %}
+  <a href="{{schedule.path}}">{{schedule.filename}}</a>
+  {% endif %}
 </form>
-
+<a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">查看历史版本</a>
 <script>
 $(function(){
   $('.file-widget-button').change(function(){
-    $(this).parents("form").submit();
+    console.log($(this).val());
+    var filename = $(this).val(),
+      fileExt = filename.substring(filename.lastIndexOf('.')+1, filename.length);
+    if(fileExt == 'csv' || fileExt == 'doc' || fileExt == 'docx' || fileExt == 'xls' || fileExt == 'xlsx'){
+      $(this).parents("form").submit();
+    }else{
+      alert("只能上传doc, docx, xls, xlsx, csv文件");
+    }
   });
 });
 </script>
@@ -37,7 +49,10 @@ $(function(){
     <span>上传合同</span>
     <input class="file-widget-button" type="file" name="file">
   </button>
-  <a class="btn btn-sm btn-primary" href="{{order.get_last_contract_path()}}">下载合同</a>
+  {% set contract = order.get_last_contract() %}
+  {% if contract %}
+  <a href="{{contract.path}}">{{contract.filename}}</a>
+  {% endif %}
 </form>
 <form method="POST" action="{{url_for('files.medium_schedule_upload')}}" enctype="multipart/form-data">
   <button class="file-widget-wrapper btn btn-sm btn-info">
@@ -45,15 +60,10 @@ $(function(){
     <span>上传排期</span>
     <input class="file-widget-button" type="file" name="file">
   </button>
-  <a class="btn btn-sm btn-info" href="{{order.get_last_schedule_path()}}">下载排期</a>
-  <a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">所有版本</a>
+  {% set schedule = order.get_last_schedule() %}
+  {% if schedule %}
+  <a href="{{schedule.path}}">{{schedule.filename}}</a>
+  {% endif %}
 </form>
-
-<script>
-$(function(){
-  $('.file-widget-button').change(function(){
-    $(this).parents("form").submit();
-  });
-});
-</script>
+<a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">查看历史版本</a>
 {%- endmacro %}

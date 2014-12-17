@@ -16,9 +16,8 @@ class AttachmentMixin():
                                           target_id=self.target_id,
                                           attachment_type=ATTACHMENT_TYPE_CONTRACT).order_by(Attachment.create_time.desc())
 
-    def get_last_contract_path(self):
-        attachs = self.get_contract_attachments()
-        return attachs[0].path if attachs.count() else ""
+    def get_last_contract(self):
+        return self.get_contract_attachments().first()
 
     def add_schedule_attachment(self, user, filename):
         Attachment.add(self.target_type, self.target_id, filename, ATTACHMENT_TYPE_SCHEDULE, user, datetime.datetime.now())
@@ -28,6 +27,5 @@ class AttachmentMixin():
                                           target_id=self.target_id,
                                           attachment_type=ATTACHMENT_TYPE_SCHEDULE).order_by(Attachment.create_time.desc())
 
-    def get_last_schedule_path(self):
-        attachs = self.get_schedule_attachments()
-        return attachs[0].path if attachs.count() else ""
+    def get_last_schedule(self):
+        return self.get_schedule_attachments().first()
