@@ -32,9 +32,11 @@ class Agent(db.Model, BaseModelMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
+    framework = db.Column(db.String(100))
 
-    def __init__(self, name):
+    def __init__(self, name, framework=None):
         self.name = name
+        self.framework = framework or ""
 
     @classmethod
     def name_exist(cls, name):
