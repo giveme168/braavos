@@ -37,10 +37,13 @@ def new_agent():
             agent = Agent.add(form.name.data, form.framework.data)
             flash(u'新建代理(%s)成功!' % agent.name, 'success')
         else:
-            flash(u'新建代理(%s)失败，名称已经被占用!' % form.name.data, 'danger')
+            flash(u'新建代理(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
             return tpl('agent.html', form=form, title=u"新建甲方")
         return redirect(url_for("client.agents"))
-    return tpl('agent.html', form=form, title=u"新建甲方")
+    return tpl('agent.html',
+               form=form,
+               title=u"新建甲方",
+               default_framework=Agent.get_new_framework())
 
 
 @client_bp.route('/client/<client_id>', methods=['GET', 'POST'])
@@ -74,7 +77,10 @@ def agent_detail(agent_id):
     else:
         form.name.data = agent.name
         form.framework.data = agent.framework
-    return tpl('agent.html', form=form, title=agent.name)
+    return tpl('agent.html',
+               form=form,
+               title=agent.name,
+               default_framework=agent.get_default_framework())
 
 
 @client_bp.route('/clients', methods=['GET'])

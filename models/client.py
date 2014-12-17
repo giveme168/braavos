@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+import datetime
+
 from . import db, BaseModelMixin
 from consts import CLIENT_INDUSTRY_CN
 
@@ -13,9 +15,6 @@ class Client(db.Model, BaseModelMixin):
     def __init__(self, name, industry):
         self.name = name
         self.industry = industry
-
-    def __repr__(self):
-        return '<Client %s, industry=%s>' % (self.name, self.industry_cn)
 
     @classmethod
     def name_exist(cls, name):
@@ -38,10 +37,27 @@ class Agent(db.Model, BaseModelMixin):
         self.name = name
         self.framework = framework or ""
 
+    def get_default_framework(self):
+        return framework_generator(self.id)
+
     @classmethod
     def name_exist(cls, name):
         is_exist = Agent.query.filter_by(name=name).count() > 0
         return is_exist
 
-    def __repr__(self):
-        return '<Agent %s>' % (self.name)
+    @classmethod
+    def fw_exist(cls, framework):
+        is_exist = Agent.query.filter_by(framework=framework).count() > 0
+        return is_exist
+
+    @classmethod
+    def get_new_framework(cls):
+        return framework_generator(cls.all().count() + 1)
+
+
+def framework_generator(num):
+    code = "ZQC%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
+    code = code.upper()
+    if Agent.fw_exist(code):
+        return framework_generator(num + 1)
+    return code
