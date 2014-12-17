@@ -70,12 +70,14 @@ class Medium(db.Model, BaseModelMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
+    abbreviation = db.Column(db.String(100))
     owner_id = db.Column(db.Integer, db.ForeignKey('team.id'))
     owner = db.relationship('Team', backref=db.backref('mediums', lazy='dynamic'))
 
-    def __init__(self, name, owner):
+    def __init__(self, name, owner, abbreviation=None):
         self.name = name
         self.owner = owner
+        self.abbreviation = abbreviation or ""
 
     def __repr__(self):
         return '<Medium %s>' % (self.name)
