@@ -174,3 +174,19 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def attachment_path(self):
         return url_for('files.client_order_files', order_id=self.id)
+
+    @classmethod
+    def contract_exist(cls, contract):
+        is_exist = cls.query.filter_by(contract=contract).count() > 0
+        return is_exist
+
+    def get_default_contract(self):
+        return contract_generator(self.agent.framework or self.agent.get_default_framework(), self.id)
+
+
+def contract_generator(framework, num):
+    code = "%s-%03x" % (framework, num % 1000)
+    code = code.upper()
+    if ClientOrder.contract_exist(code):
+        return contract_generator(framework, num + 1)
+    return code

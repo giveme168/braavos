@@ -20,3 +20,4 @@ class NewAgentForm(Form):
     name = TextField(u'甲方全称',
                      [validators.Required(u"请输入名字.")],
                      description=u"新建之前请确认是否已存在，不要重复创建")
+    framework = TextField(u'今年框架号')

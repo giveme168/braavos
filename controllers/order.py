@@ -97,51 +97,43 @@ def order_info(order_id):
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
-    if request.method == 'GET':
-        context = {'client_form': get_client_form(order),
-                   'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
-                   'new_medium_form': MediumOrderForm(),
-                   'order': order}
-        return tpl('order_detail_info.html', **context)
-    else:
-        if not order.can_admin(g.user):
-            flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
-            context = {'client_form': get_client_form(order),
-                       'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
-                       'new_medium_form': MediumOrderForm(),
-                       'order': order}
-            return tpl('order_detail_info.html', **context)
-
+    client_form = get_client_form(order)
+    if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
         if info_type == 0:
-            client_form = ClientOrderForm(request.form)
-            if client_form.validate():
-                order.agent = Agent.get(client_form.agent.data)
-                order.client = Client.get(client_form.client.data)
-                order.campaign = client_form.campaign.data
-                order.money = client_form.money.data
-                order.client_start = client_form.client_start.data
-                order.client_end = client_form.client_end.data
-                order.reminde_date = client_form.reminde_date.data
-                order.direct_sales = User.gets(client_form.direct_sales.data)
-                order.agent_sales = User.gets(client_form.agent_sales.data)
-                order.contract_type = client_form.contract_type.data
-                order.resource_type = client_form.resource_type.data
-                order.save()
-                flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
+            if not order.can_admin(g.user):
+                flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
+            else:
+                client_form = ClientOrderForm(request.form)
+                if client_form.validate():
+                    order.agent = Agent.get(client_form.agent.data)
+                    order.client = Client.get(client_form.client.data)
+                    order.campaign = client_form.campaign.data
+                    order.money = client_form.money.data
+                    order.client_start = client_form.client_start.data
+                    order.client_end = client_form.client_end.data
+                    order.reminde_date = client_form.reminde_date.data
+                    order.direct_sales = User.gets(client_form.direct_sales.data)
+                    order.agent_sales = User.gets(client_form.agent_sales.data)
+                    order.contract_type = client_form.contract_type.data
+                    order.resource_type = client_form.resource_type.data
+                    order.save()
+                    flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
         elif info_type == 2:
-            client_form = get_client_form(order)
-            order.contract = request.values.get("client_contract", "")
-            order.save()
-            for mo in order.medium_orders:
-                mo.medium_contract = request.values.get("medium_contract_%s" % mo.id, "")
-                mo.save()
-            flash(u'合同号保存成功!', 'success')
-        context = {'client_form': client_form,
-                   'new_medium_form': MediumOrderForm(),
-                   'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
-                   'order': order}
-        return tpl('order_detail_info.html', **context)
+            if not g.user.is_contract():
+                flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
+            else:
+                order.contract = request.values.get("client_contract", "")
+                order.save()
+                for mo in order.medium_orders:
+                    mo.medium_contract = request.values.get("medium_contract_%s" % mo.id, "")
+                    mo.save()
+                flash(u'合同号保存成功!', 'success')
+    context = {'client_form': client_form,
+               'new_medium_form': MediumOrderForm(),
+               'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
+               'order': order}
+    return tpl('order_detail_info.html', **context)
 
 
 @order_bp.route('/order/<order_id>/new_medium', methods=['GET', 'POST'])
