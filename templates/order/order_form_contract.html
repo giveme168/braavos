@@ -21,6 +21,7 @@
     <label for="name" class="col-sm-2 control-label">[{{mo.medium.name}}]合同号 : </label>
     <div class="col-sm-10">
       <input class="form-control bra-form-control" name="medium_contract_{{mo.id}}"type="text" value="{{mo.medium_contract}}"/>
+      <button class="btn btn-sm btn-default btn-generator" data-contract="{{mo.get_default_contract()}}">生成</button>
     </div>
   </div>
   {% endfor %}
@@ -68,10 +69,9 @@
     <div class="form-group">
         <label class="col-sm-2 control-label">操作 : </label>
         <div class="col-sm-10">
-            {% if order.contract and order.medium_contract %}
-            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">打印申请</button>
-            {% else %}
-            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="0">合同号申请</button>
+            {% if order.can_admin(g.user) %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="0">申请合同号</button>
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请打印</button>
             {% endif %}
             {% if g.user.is_leader() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请通过</button>

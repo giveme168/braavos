@@ -3,11 +3,11 @@
 {% block left_box%}
 <div class="bra-left bra-box">
   <div class="list-group">
-    <a class="list-group-item" href="{{url_for('order.orders')}}">
-        <span class="glyphicon glyphicon-th-list"></span> 订单
-    </a>
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的订单
+    </a>
+    <a class="list-group-item" href="{{url_for('order.orders')}}">
+        <span class="glyphicon glyphicon-th-list"></span> 全部订单
     </a>
     {% if g.user.is_admin() %}
     <!--

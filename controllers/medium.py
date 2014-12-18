@@ -4,8 +4,7 @@ from flask import render_template as tpl, flash
 
 from models.medium import Medium, AdSize, AdUnit, AdPosition
 from models.item import AdItem
-from forms.medium import NewMediumForm, SizeForm, UnitForm, PositionForm
-from models.user import Team
+from forms.medium import SizeForm, UnitForm, PositionForm
 
 from . import admin_required_before_request
 
@@ -19,42 +18,7 @@ def request_user():
 
 @medium_bp.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('medium.mediums'))
-
-
-@medium_bp.route('/new_medium', methods=['GET', 'POST'])
-def new_medium():
-    form = NewMediumForm(request.form)
-    if request.method == 'POST' and form.validate():
-        medium = Medium.add(form.name.data, Team.get(form.owner.data), form.abbreviation.data)
-        flash(u'新建媒体(%s)成功!' % medium.name, 'success')
-        return redirect(url_for("medium.medium_detail", medium_id=medium.id))
-    return tpl('medium.html', form=form, title=u"新建媒体")
-
-
-@medium_bp.route('/medium/<medium_id>', methods=['GET', 'POST'])
-def medium_detail(medium_id):
-    medium = Medium.get(medium_id)
-    if not medium:
-        abort(404)
-    form = NewMediumForm(request.form)
-    if request.method == 'POST' and form.validate():
-        medium.name = form.name.data
-        medium.owner = Team.get(form.owner.data)
-        medium.abbreviation = form.abbreviation.data
-        medium.save()
-        flash(u'保存成功!', 'success')
-    else:
-        form.name.data = medium.name
-        form.owner.data = medium.owner_id
-        form.abbreviation.data = medium.abbreviation
-    return tpl('medium.html', form=form, title=medium.name)
-
-
-@medium_bp.route('/mediums', methods=['GET'])
-def mediums():
-    mediums = Medium.all()
-    return tpl('mediums.html', mediums=mediums)
+    return redirect(url_for('medium.positions'))
 
 
 @medium_bp.route('/new_size', methods=['GET', 'POST'])

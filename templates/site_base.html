@@ -12,7 +12,7 @@
           <ul class="nav navbar-nav">
             <li><a href="{{url_for('order.index')}}">订单</a></li>
             <li><a href="{{url_for('storage.index')}}">库存</a></li>
-            <li><a href="{{url_for('client.index')}}">客户&代理</a></li>
+            <li><a href="{{url_for('client.index')}}">甲方&客户&媒体</a></li>
             {% if g.user.team.is_admin() %}
             <li><a href="{{url_for('medium.index')}}">广告资源</a></li>
             <li><a href="{{url_for('user.index')}}">用户</a></li>

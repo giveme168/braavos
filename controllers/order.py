@@ -33,11 +33,12 @@ order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
 
 STATUS_APPLLY = (ITEM_STATUS_ACTION_PRE_ORDER, ITEM_STATUS_ACTION_ORDER_APPLY)
+ORDER_PAGE_NUM = 50
 
 
 @order_bp.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('order.orders'))
+    return redirect(url_for('order.my_orders'))
 
 
 @order_bp.route('/new_order', methods=['GET', 'POST'])
@@ -240,7 +241,7 @@ def order_contract(order_id):
 
 @order_bp.route('/orders', methods=['GET'])
 def orders():
-    orders = [o for o in ClientOrder.all()]
+    orders = list(ClientOrder.all())
     return display_orders(orders, u'客户订单列表')
 
 
@@ -256,16 +257,24 @@ def display_orders(orders, title):
     search_info = request.args.get('searchinfo', '')
     medium_id = int(request.args.get('selected_medium', 0))
     reverse = orderby != 'asc'
+    page = int(request.args.get('p', 1))
+    start = max(0, (page - 1)) * ORDER_PAGE_NUM
+    orders_len = len(orders)
     if medium_id:
         orders = [o for o in orders if medium_id in o.medium_ids]
     if search_info != '':
         orders = [o for o in orders if search_info in o.name]
-    if sortby and len(orders) and hasattr(orders[0], sortby):
+    if sortby and orders_len and hasattr(orders[0], sortby):
         orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
     select_medium = [(m.id, m.name) for m in Medium.all()]
     select_medium.insert(0, (0, u'全部媒体'))
+    if 0 <= start <= orders_len:
+        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len + 1)]
+    else:
+        orders = orders[0:min(ORDER_PAGE_NUM, orders_len + 1)]
     return tpl('orders.html', orders=orders, medium=select_medium, medium_id=medium_id,
-               sortby=sortby, orderby=orderby, search_info=search_info)
+               sortby=sortby, orderby=orderby, search_info=search_info,
+               page=page)
 
 
 @order_bp.route('/items', methods=['GET'])
