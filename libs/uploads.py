@@ -25,7 +25,7 @@ TEXT = ('txt',)
 #: This contains various office document formats (.rtf, .odf, .ods, .gnumeric,
 #: .abw, .doc, .docx, .xls, and .xlsx). Note that the macro-enabled versions
 #: of Microsoft Office 2007 files are not included.
-DOCUMENTS = tuple('rtf odf ods gnumeric abw doc docx xls xlsx csv'.split())
+DOCUMENTS = tuple('rtf odf ods gnumeric abw doc docx xls xlsx csv pdf'.split())
 
 #: This contains basic image types that are viewable from most browsers (.jpg,
 #: .jpe, .jpeg, .png, .gif, .svg, and .bmp).

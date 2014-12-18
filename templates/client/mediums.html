@@ -1,4 +1,4 @@
-{% extends "/medium_base.html" %}
+{% extends "/client_base.html" %}
 {% block title %} 媒体列表{% endblock %}
 
 {% block main_box %}
@@ -13,7 +13,7 @@
         {% for m in mediums %}
         <tr>
             <td>{{m.id}}</td>
-            <td><a href="{{url_for("medium.medium_detail", medium_id=m.id)}}">{{m.name}}</a></td>
+            <td><a href="{{url_for("client.medium_detail", medium_id=m.id)}}">{{m.name}}</a></td>
             <td>{{m.owner.name}}</td>
         </tr>
         {% endfor %}

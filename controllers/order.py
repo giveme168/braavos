@@ -37,7 +37,7 @@ STATUS_APPLLY = (ITEM_STATUS_ACTION_PRE_ORDER, ITEM_STATUS_ACTION_ORDER_APPLY)
 
 @order_bp.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('order.orders'))
+    return redirect(url_for('order.my_orders'))
 
 
 @order_bp.route('/new_order', methods=['GET', 'POST'])

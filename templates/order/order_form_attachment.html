@@ -31,10 +31,10 @@ $(function(){
     console.log($(this).val());
     var filename = $(this).val(),
       fileExt = filename.substring(filename.lastIndexOf('.')+1, filename.length);
-    if(fileExt == 'csv' || fileExt == 'doc' || fileExt == 'docx' || fileExt == 'xls' || fileExt == 'xlsx'){
+    if(fileExt == 'csv' || fileExt == 'doc' || fileExt == 'docx' || fileExt == 'xls' || fileExt == 'xlsx' || fileExt == 'pdf'){
       $(this).parents("form").submit();
     }else{
-      alert("只能上传doc, docx, xls, xlsx, csv文件");
+      alert("只能上传doc, docx, xls, xlsx, csv, pdf文件");
     }
   });
 });
