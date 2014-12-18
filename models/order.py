@@ -189,6 +189,14 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def attachment_path(self):
         return url_for('files.medium_order_files', order_id=self.id)
 
+    @classmethod
+    def contract_exist(cls, contract):
+        is_exist = cls.query.filter_by(medium_contract=contract).count() > 0
+        return is_exist
+
+    def get_default_contract(self):
+        return contract_generator(self.medium.framework or self.medium.get_default_framework(), self.id)
+
     @property
     def start_date(self):
         return self.medium_start
@@ -397,3 +405,11 @@ def items_info_by_items(items):
         sale_type_items.append((v, SALE_TYPE_CN[v], [x for x in items if x.sale_type == v]))
     ret['items'] = sale_type_items
     return ret
+
+
+def contract_generator(framework, num):
+    code = "%s-%03x" % (framework, num % 1000)
+    code = code.upper()
+    if Order.contract_exist(code):
+        return contract_generator(framework, num + 1)
+    return code

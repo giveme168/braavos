@@ -50,6 +50,23 @@
         </tr>
         {% endfor %}
     </table>
+    <nav>
+      <ul class="pagination">
+        {% if page-1 > 0 %}
+        <li><a href="?p={{page-1}}">&laquo;</a></li>
+        {% endif %}
+        {% if page-2 > 0 %}
+        <li class=""><a href="?p={{page-2}}">{{page-2}}</a></li>
+        {% endif %}
+        {% if page-1 > 0 %}
+        <li class=""><a href="?p={{page-1}}">{{page-1}}</a></li>
+        {% endif %}
+        <li class="active disable"><a href="#">{{page}}</a></li>
+        <li class=""><a href="?p={{page+1}}">{{page+1}}</a></li>
+        <li class=""><a href="?p={{page+2}}">{{page+2}}</a></li>
+        <li><a href="?p={{page+1}}">&raquo;</a></li>
+      </ul>
+    </nav>
 </div>
 <script>
 function sort(value){

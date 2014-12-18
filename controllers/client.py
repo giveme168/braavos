@@ -53,10 +53,11 @@ def new_agent():
 def new_medium():
     form = NewMediumForm(request.form)
     if request.method == 'POST' and form.validate():
-        medium = Medium.add(form.name.data, Team.get(form.owner.data), form.abbreviation.data)
+        medium = Medium.add(form.name.data, Team.get(form.owner.data), form.abbreviation.data, form.framework.data)
         flash(u'新建媒体(%s)成功!' % medium.name, 'success')
         return redirect(url_for("medium.medium_detail", medium_id=medium.id))
-    return tpl('medium.html', form=form, title=u"新建媒体")
+    return tpl('medium.html', form=form, title=u"新建媒体",
+               default_framework=Medium.get_new_framework())
 
 
 @client_bp.route('/client/<client_id>', methods=['GET', 'POST'])
@@ -106,13 +107,16 @@ def medium_detail(medium_id):
         medium.name = form.name.data
         medium.owner = Team.get(form.owner.data)
         medium.abbreviation = form.abbreviation.data
+        medium.framework = form.framework.data
         medium.save()
         flash(u'保存成功!', 'success')
     else:
         form.name.data = medium.name
         form.owner.data = medium.owner_id
         form.abbreviation.data = medium.abbreviation
-    return tpl('medium.html', form=form, title=medium.name)
+        form.framework.data = medium.framework
+    return tpl('medium.html', form=form, title=medium.name,
+               default_framework=Medium.get_new_framework())
 
 
 @client_bp.route('/mediums', methods=['GET'])
