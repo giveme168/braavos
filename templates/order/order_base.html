@@ -9,6 +9,9 @@
     <a class="list-group-item" href="{{url_for('order.orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 全部订单
     </a>
+    <a class="list-group-item" href="{{url_for('order.framework_orders')}}">
+        <span class="glyphicon glyphicon-th-list"></span> 全部框架
+    </a>
     {% if g.user.is_admin() %}
     <!--
     <a class="list-group-item" href="{{url_for('order.items')}}">
@@ -20,7 +23,10 @@
     -->
     {% endif %}
     <a class="list-group-item" href="{{url_for('order.new_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 创建订单
+        <span class="glyphicon glyphicon-plus"></span> 新建订单
+    </a>
+    <a class="list-group-item" href="{{url_for('order.new_framework_order')}}">
+        <span class="glyphicon glyphicon-plus"></span> 新建框架订单
     </a>
   </div>
 </div>
