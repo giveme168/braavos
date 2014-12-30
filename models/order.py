@@ -195,7 +195,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return is_exist
 
     def get_default_contract(self):
-        return contract_generator(self.medium.framework or self.medium.get_default_framework(), self.id)
+        return contract_generator(self.medium.current_framework, self.id)
 
     @property
     def start_date(self):
@@ -410,6 +410,4 @@ def items_info_by_items(items):
 def contract_generator(framework, num):
     code = "%s-%03x" % (framework, num % 1000)
     code = code.upper()
-    if Order.contract_exist(code):
-        return contract_generator(framework, num + 1)
     return code

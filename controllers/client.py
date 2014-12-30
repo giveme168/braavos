@@ -37,7 +37,7 @@ def new_agent():
     if request.method == 'POST' and form.validate():
         db_agent_name = Agent.name_exist(form.name.data)
         if not db_agent_name:
-            agent = Agent.add(form.name.data, form.framework.data)
+            agent = Agent.add(form.name.data)
             flash(u'新建代理(%s)成功!' % agent.name, 'success')
         else:
             flash(u'新建代理(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
@@ -45,19 +45,26 @@ def new_agent():
         return redirect(url_for("client.agents"))
     return tpl('agent.html',
                form=form,
-               title=u"新建甲方",
-               default_framework=Agent.get_new_framework())
+               title=u"新建甲方")
 
 
 @client_bp.route('/new_medium', methods=['GET', 'POST'])
 def new_medium():
     form = NewMediumForm(request.form)
     if request.method == 'POST' and form.validate():
-        medium = Medium.add(form.name.data, Team.get(form.owner.data), form.abbreviation.data, form.framework.data)
-        flash(u'新建媒体(%s)成功!' % medium.name, 'success')
-        return redirect(url_for("medium.medium_detail", medium_id=medium.id))
-    return tpl('medium.html', form=form, title=u"新建媒体",
-               default_framework=Medium.get_new_framework())
+        db_medium_name = Medium.name_exist(form.name.data)
+        db_medium_abbreviation = Medium.abbreviation_exist(form.abbreviation.data)
+        if not db_medium_name and not db_medium_abbreviation:
+            medium = Medium.add(form.name.data, Team.get(form.owner.data), form.abbreviation.data)
+            flash(u'新建媒体(%s)成功!' % medium.name, 'success')
+        elif db_medium_name:
+            flash(u'新建媒体(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
+            return tpl('medium.html', form=form, title=u"新建媒体")
+        else:
+            flash(u'新建媒体(%s)失败, 缩写已经被占用!' % form.name.data, 'danger')
+            return tpl('medium.html', form=form, title=u"新建媒体")
+        return redirect(url_for("client.medium_detail", medium_id=medium.id))
+    return tpl('medium.html', form=form, title=u"新建媒体")
 
 
 @client_bp.route('/client/<client_id>', methods=['GET', 'POST'])
@@ -85,16 +92,13 @@ def agent_detail(agent_id):
     form = NewAgentForm(request.form)
     if request.method == 'POST' and form.validate():
         agent.name = form.name.data
-        agent.framework = form.framework.data
         agent.save()
         flash(u'保存成功', 'success')
     else:
         form.name.data = agent.name
-        form.framework.data = agent.framework
     return tpl('agent.html',
                form=form,
-               title=agent.name,
-               default_framework=agent.get_default_framework())
+               title=agent.name)
 
 
 @client_bp.route('/medium/<medium_id>', methods=['GET', 'POST'])
@@ -107,16 +111,13 @@ def medium_detail(medium_id):
         medium.name = form.name.data
         medium.owner = Team.get(form.owner.data)
         medium.abbreviation = form.abbreviation.data
-        medium.framework = form.framework.data
         medium.save()
         flash(u'保存成功!', 'success')
     else:
         form.name.data = medium.name
         form.owner.data = medium.owner_id
         form.abbreviation.data = medium.abbreviation
-        form.framework.data = medium.framework
-    return tpl('medium.html', form=form, title=medium.name,
-               default_framework=Medium.get_new_framework())
+    return tpl('medium.html', form=form, title=medium.name)
 
 
 @client_bp.route('/mediums', methods=['GET'])

@@ -31,33 +31,21 @@ class Agent(db.Model, BaseModelMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    framework = db.Column(db.String(100))
 
-    def __init__(self, name, framework=None):
+    def __init__(self, name):
         self.name = name
-        self.framework = framework or ""
-
-    def get_default_framework(self):
-        return framework_generator(self.id)
 
     @classmethod
     def name_exist(cls, name):
         is_exist = Agent.query.filter_by(name=name).count() > 0
         return is_exist
 
-    @classmethod
-    def fw_exist(cls, framework):
-        is_exist = Agent.query.filter_by(framework=framework).count() > 0
-        return is_exist
-
-    @classmethod
-    def get_new_framework(cls):
-        return framework_generator(cls.all().count() + 1)
+    @property
+    def current_framework(self):
+        return framework_generator(self.id)
 
 
 def framework_generator(num):
     code = "ZQC%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
     code = code.upper()
-    if Agent.fw_exist(code):
-        return framework_generator(num + 1)
     return code

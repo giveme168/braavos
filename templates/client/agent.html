@@ -5,19 +5,9 @@
 <div class="bra-main bra-box">
     <h3>{{ title }}</h3>
     <form class="form form-horizontal" method="POST">
-      {{form.csrf_token}}
+      {{ form.csrf_token }}
       {{ form_field(form.name) }}
-      {{ form_field(form.framework) }}
       <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
-      <button class="btn btn-sm btn-default" id="fw-gen">生成框架号</button>
     </form>
 </div>
-<script>
-  $(function(){
-    $("#fw-gen").click(function(e){
-        e.preventDefault();
-        $("#framework").val("{{default_framework}}");
-    });
-  });
-</script>
 {% endblock %}
