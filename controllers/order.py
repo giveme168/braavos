@@ -258,7 +258,8 @@ def display_orders(orders, title):
     medium_id = int(request.args.get('selected_medium', 0))
     reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
-    start = max(0, (page - 1)) * ORDER_PAGE_NUM
+    page = max(1, page)
+    start = (page - 1) * ORDER_PAGE_NUM
     orders_len = len(orders)
     if medium_id:
         orders = [o for o in orders if medium_id in o.medium_ids]
@@ -268,10 +269,10 @@ def display_orders(orders, title):
         orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
     select_medium = [(m.id, m.name) for m in Medium.all()]
     select_medium.insert(0, (0, u'全部媒体'))
-    if 0 <= start <= orders_len:
-        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len + 1)]
+    if 0 <= start < orders_len:
+        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
     else:
-        orders = orders[0:min(ORDER_PAGE_NUM, orders_len + 1)]
+        orders = []
     return tpl('orders.html', orders=orders, medium=select_medium, medium_id=medium_id,
                sortby=sortby, orderby=orderby, search_info=search_info,
                page=page)

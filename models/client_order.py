@@ -127,6 +127,18 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def medium_ids(self):
         return [x.medium.id for x in self.medium_orders]
 
+    @property
+    def resource_type_cn(self):
+        return RESOURCE_TYPE_CN.get(self.resource_type)
+
+    @property
+    def direct_sales_names(self):
+        return ",".join([u.name for u in self.direct_sales])
+
+    @property
+    def agent_sales_names(self):
+        return ",".join([u.name for u in self.agent_sales])
+
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + [self.creator]
