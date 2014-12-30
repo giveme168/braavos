@@ -1,0 +1,16 @@
+{% from 'form.html' import form_field %}
+{% macro order_framework_form(form) -%}
+<form class="form form-horizontal" method="POST">
+    {{form.csrf_token}}
+    {{ form_field(form.group) }}
+    {{ form_field(form.description) }}
+    {{ form_field(form.money) }}
+    {{ form_field(form.client_start) }}
+    {{ form_field(form.client_end) }}
+    {{ form_field(form.reminde_date) }}
+    {{ form_field(form.direct_sales) }}
+    {{ form_field(form.agent_sales) }}
+    {{ form_field(form.contract_type) }}
+    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+</form>
+{%- endmacro %}

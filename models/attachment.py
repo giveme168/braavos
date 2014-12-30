@@ -15,9 +15,11 @@ ATTACHMENT_STATUS = {
 
 ATTACHMENT_TYPE_CONTRACT = 0
 ATTACHMENT_TYPE_SCHEDULE = 1
+ATTACHMENT_TYPE_FRAMEWORK = 2
 ATTACHMENT_TYPE = {
     ATTACHMENT_TYPE_CONTRACT: u"合同",
-    ATTACHMENT_TYPE_SCHEDULE: u"排期"
+    ATTACHMENT_TYPE_SCHEDULE: u"排期",
+    ATTACHMENT_TYPE_FRAMEWORK: u"框架"
 }
 
 
@@ -59,10 +61,12 @@ class Attachment(db.Model, BaseModelMixin):
     def target(self):
         from .order import Order
         from .client_order import ClientOrder
+        from .framework_order import FrameworkOrder
 
         TARGET_DICT = {
             'Order': Order,
             'ClientOrder': ClientOrder,
+            'FrameworkOrder': FrameworkOrder,
         }
 
         return TARGET_DICT[self.target_type].get(self.target_id)

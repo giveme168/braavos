@@ -28,11 +28,13 @@ class Comment(db.Model, BaseModelMixin):
     @property
     def target(self):
         from .order import Order
+        from .framework_order import FrameworkOrder
         from .item import AdItem
         from .material import Material
 
         TARGET_DICT = {
             'Order': Order,
+            'FrameworkOrder': FrameworkOrder,
             'AdItem': AdItem,
             'Material': Material,
         }

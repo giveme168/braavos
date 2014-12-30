@@ -7,10 +7,10 @@ from datetime import datetime, timedelta
 from flask import Blueprint, request, redirect, abort, url_for, g, Response
 from flask import render_template as tpl, json, jsonify, flash
 
-from forms.order import ClientOrderForm, MediumOrderForm
+from forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm
 from forms.item import ItemForm
 
-from models.client import Client, Agent
+from models.client import Client, Group, Agent
 from models.medium import Medium, AdPosition
 from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
                          ITEM_STATUS_ACTION_CN, ChangeStateApply, ITEM_STATUS_ARCHIVE,
@@ -22,6 +22,7 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
                                  CONTRACT_STATUS_PRINTED)
 from models.client_order import ClientOrder
+from models.framework_order import FrameworkOrder
 from models.user import User, TEAM_TYPE_LEADER, TEAM_TYPE_CONTRACT
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
@@ -279,6 +280,86 @@ def display_orders(orders, title):
     return tpl('orders.html', orders=orders, medium=select_medium, medium_id=medium_id,
                sortby=sortby, orderby=orderby, search_info=search_info,
                page=page)
+
+
+@order_bp.route('/new_framework_order', methods=['GET', 'POST'])
+def new_framework_order():
+    form = FrameworkOrderForm(request.form)
+    if request.method == 'POST' and form.validate():
+        order = FrameworkOrder.add(group=Group.get(form.group.data),
+                                   description=form.description.data,
+                                   money=form.money.data,
+                                   client_start=form.client_start.data,
+                                   client_end=form.client_end.data,
+                                   reminde_date=form.reminde_date.data,
+                                   direct_sales=User.gets(form.direct_sales.data),
+                                   agent_sales=User.gets(form.agent_sales.data),
+                                   contract_type=form.contract_type.data,
+                                   creator=g.user,
+                                   create_time=datetime.now())
+        flash(u'新建框架订单成功, 请上传合同!', 'success')
+        return redirect(url_for("order.framework_order_info", order_id=order.id))
+    return tpl('new_framework_order.html', form=form)
+
+
+def get_framework_form(order):
+    framework_form = FrameworkOrderForm()
+    framework_form.group.data = order.group.id
+    framework_form.description.data = order.description
+    framework_form.money.data = order.money
+    framework_form.client_start.data = order.client_start
+    framework_form.client_end.data = order.client_end
+    framework_form.reminde_date.data = order.reminde_date
+    framework_form.direct_sales.data = [u.id for u in order.direct_sales]
+    framework_form.agent_sales.data = [u.id for u in order.agent_sales]
+    framework_form.contract_type.data = order.contract_type
+    return framework_form
+
+
+@order_bp.route('/framework_order/<order_id>/info', methods=['GET', 'POST'])
+def framework_order_info(order_id):
+    order = FrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    framework_form = get_framework_form(order)
+    if request.method == 'POST':
+        if not order.can_admin(g.user):
+            flash(u'您没有编辑权限! 请联系该框架的创建者或者销售同事!', 'danger')
+        else:
+            framework_form = FrameworkOrderForm(request.form)
+            if framework_form.validate():
+                order.group = Group.get(framework_form.group.data)
+                order.description = framework_form.description.data
+                order.money = framework_form.money.data
+                order.client_start = framework_form.client_start.data
+                order.client_end = framework_form.client_end.data
+                order.reminde_date = framework_form.reminde_date.data
+                order.direct_sales = User.gets(framework_form.direct_sales.data)
+                order.agent_sales = User.gets(framework_form.agent_sales.data)
+                order.contract_type = framework_form.contract_type.data
+                order.save()
+                flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
+    context = {'framework_form': framework_form,
+               'order': order}
+    return tpl('framework_detail_info.html', **context)
+
+
+@order_bp.route('/framework_orders', methods=['GET'])
+def framework_orders():
+    orders = list(FrameworkOrder.all())
+    return framework_display_orders(orders, u'框架订单列表')
+
+
+def framework_display_orders(orders, title):
+    page = int(request.args.get('p', 1))
+    page = max(1, page)
+    start = (page - 1) * ORDER_PAGE_NUM
+    orders_len = len(orders)
+    if 0 <= start < orders_len:
+        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
+    else:
+        orders = []
+    return tpl('frameworks.html', orders=orders, page=page)
 
 
 @order_bp.route('/items', methods=['GET'])
