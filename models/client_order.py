@@ -181,12 +181,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return is_exist
 
     def get_default_contract(self):
-        return contract_generator(self.agent.framework or self.agent.get_default_framework(), self.id)
+        return contract_generator(self.agent.current_framework, self.id)
 
 
 def contract_generator(framework, num):
     code = "%s-%03x" % (framework, num % 1000)
     code = code.upper()
-    if ClientOrder.contract_exist(code):
-        return contract_generator(framework, num + 1)
     return code

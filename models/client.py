@@ -26,38 +26,44 @@ class Client(db.Model, BaseModelMixin):
         return CLIENT_INDUSTRY_CN[self.industry]
 
 
+class Group(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_group'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+
+    def __init__(self, name):
+        self.name = name
+
+    @classmethod
+    def name_exist(cls, name):
+        is_exist = Group.query.filter_by(name=name).count() > 0
+        return is_exist
+
+
 class Agent(db.Model, BaseModelMixin):
     __tablename__ = 'agent'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    framework = db.Column(db.String(100))
+    group_id = db.Column(db.Integer, db.ForeignKey('bra_group.id'))
+    group = db.relationship('Group', backref=db.backref('agents', lazy='dynamic'))
 
-    def __init__(self, name, framework=None):
+    def __init__(self, name, group=None):
         self.name = name
-        self.framework = framework or ""
-
-    def get_default_framework(self):
-        return framework_generator(self.id)
+        self.group = group
 
     @classmethod
     def name_exist(cls, name):
         is_exist = Agent.query.filter_by(name=name).count() > 0
         return is_exist
 
-    @classmethod
-    def fw_exist(cls, framework):
-        is_exist = Agent.query.filter_by(framework=framework).count() > 0
-        return is_exist
-
-    @classmethod
-    def get_new_framework(cls):
-        return framework_generator(cls.all().count() + 1)
+    @property
+    def current_framework(self):
+        return framework_generator(self.id)
 
 
 def framework_generator(num):
     code = "ZQC%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
     code = code.upper()
-    if Agent.fw_exist(code):
-        return framework_generator(num + 1)
     return code
