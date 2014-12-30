@@ -9,5 +9,20 @@
       {{ form_field(form.name) }}
       <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
     </form>
+    {% if group %}
+    <h3>集团旗下甲方</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>#id</th>
+            <th>甲方全称</th>
+        </tr>
+        {% for a in group.agents %}
+        <tr>
+            <td>{{a.id}}</td>
+            <td><a href="{{url_for('client.agent_detail', agent_id=a.id)}}">{{a.name}}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
 </div>
 {% endblock %}

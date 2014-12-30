@@ -41,10 +41,11 @@ def new_group():
             flash(u'新建甲方集团(%s)成功!' % group.name, 'success')
         else:
             flash(u'新建甲方集团(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
-            return tpl('group.html', form=form, title=u"新建甲方集团")
+            return tpl('group.html', form=form, group=None, title=u"新建甲方集团")
         return redirect(url_for("client.groups"))
     return tpl('group.html',
                form=form,
+               group=None,
                title=u"新建甲方集团")
 
 
@@ -134,6 +135,7 @@ def group_detail(group_id):
         form.name.data = group.name
     return tpl('group.html',
                form=form,
+               group=group,
                title=group.name)
 
 
