@@ -15,7 +15,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 from models.user import User, Team
-from models.client import Client, Agent
+from models.client import Client, Group, Agent
 from models.comment import Comment
 from models.attachment import Attachment
 from models.item import AdItem, AdSchedule

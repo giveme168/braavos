@@ -2,9 +2,9 @@
 from flask import Blueprint, request, redirect, abort, url_for
 from flask import render_template as tpl, flash
 
-from models.client import Client, Agent
+from models.client import Client, Group, Agent
 from models.medium import Medium
-from forms.client import NewClientForm, NewAgentForm
+from forms.client import NewClientForm, NewGroupForm, NewAgentForm
 from forms.medium import NewMediumForm
 from models.user import Team
 
@@ -29,6 +29,23 @@ def new_client():
             return tpl('client.html', form=form, title=u"新建客户")
         return redirect(url_for("client.clients"))
     return tpl('client.html', form=form, title=u"新建客户")
+
+
+@client_bp.route('/new_group', methods=['GET', 'POST'])
+def new_group():
+    form = NewGroupForm(request.form)
+    if request.method == 'POST' and form.validate():
+        db_group_name = Group.name_exist(form.name.data)
+        if not db_group_name:
+            group = Group.add(form.name.data)
+            flash(u'新建甲方集团(%s)成功!' % group.name, 'success')
+        else:
+            flash(u'新建甲方集团(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
+            return tpl('group.html', form=form, title=u"新建甲方集团")
+        return redirect(url_for("client.groups"))
+    return tpl('group.html',
+               form=form,
+               title=u"新建甲方集团")
 
 
 @client_bp.route('/new_agent', methods=['GET', 'POST'])
@@ -101,6 +118,23 @@ def agent_detail(agent_id):
                title=agent.name)
 
 
+@client_bp.route('/group/<group_id>', methods=['GET', 'POST'])
+def group_detail(group_id):
+    group = Group.get(group_id)
+    if not group:
+        abort(404)
+    form = NewGroupForm(request.form)
+    if request.method == 'POST' and form.validate():
+        group.name = form.name.data
+        group.save()
+        flash(u'保存成功', 'success')
+    else:
+        form.name.data = group.name
+    return tpl('group.html',
+               form=form,
+               title=group.name)
+
+
 @client_bp.route('/medium/<medium_id>', methods=['GET', 'POST'])
 def medium_detail(medium_id):
     medium = Medium.get(medium_id)
@@ -130,6 +164,12 @@ def mediums():
 def clients():
     clients = Client.all()
     return tpl('clients.html', clients=clients)
+
+
+@client_bp.route('/groups', methods=['GET'])
+def groups():
+    groups = Group.all()
+    return tpl('groups.html', groups=groups)
 
 
 @client_bp.route('/agents', methods=['GET'])

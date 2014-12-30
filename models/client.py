@@ -26,6 +26,21 @@ class Client(db.Model, BaseModelMixin):
         return CLIENT_INDUSTRY_CN[self.industry]
 
 
+class Group(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_group'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+
+    def __init__(self, name):
+        self.name = name
+
+    @classmethod
+    def name_exist(cls, name):
+        is_exist = Group.query.filter_by(name=name).count() > 0
+        return is_exist
+
+
 class Agent(db.Model, BaseModelMixin):
     __tablename__ = 'agent'
 

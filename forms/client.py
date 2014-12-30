@@ -20,3 +20,9 @@ class NewAgentForm(Form):
     name = TextField(u'甲方全称',
                      [validators.Required(u"请输入名字.")],
                      description=u"新建之前请确认是否已存在，不要重复创建")
+
+
+class NewGroupForm(Form):
+    name = TextField(u'集团名称',
+                     [validators.Required(u"请输入名字.")],
+                     description=u"新建之前请确认是否已存在，不要重复创建")
