@@ -1,15 +1,13 @@
 import datetime
 
-from models.attachment import Attachment
-
-ATTACHMENT_TYPE_CONTRACT = 0
-ATTACHMENT_TYPE_SCHEDULE = 1
+from models.attachment import Attachment, ATTACHMENT_TYPE_CONTRACT, ATTACHMENT_TYPE_SCHEDULE
 
 
 class AttachmentMixin():
 
     def add_contract_attachment(self, user, filename):
         Attachment.add(self.target_type, self.target_id, filename, ATTACHMENT_TYPE_CONTRACT, user, datetime.datetime.now())
+        return self.get_last_contract()
 
     def get_contract_attachments(self):
         return Attachment.query.filter_by(target_type=self.target_type,
@@ -21,6 +19,7 @@ class AttachmentMixin():
 
     def add_schedule_attachment(self, user, filename):
         Attachment.add(self.target_type, self.target_id, filename, ATTACHMENT_TYPE_SCHEDULE, user, datetime.datetime.now())
+        return self.get_last_schedule()
 
     def get_schedule_attachments(self):
         return Attachment.query.filter_by(target_type=self.target_type,

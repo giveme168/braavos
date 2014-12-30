@@ -6,11 +6,13 @@
         <tr>
             <th>所有合同文件名</th>
             <th>上传日期</th>
+            <th>状态</th>
         </tr>
         {% for attachment in order.get_contract_attachments()  %}
         <tr>
             <td><a href="{{attachment.path}}">{{attachment.filename}}</a></td>
             <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+            <td>{{attachment.status_cn}}</td>
         </tr>
         {% endfor %}
     </table>
@@ -18,11 +20,13 @@
         <tr>
             <th>所有排期文件名</th>
             <th>上传日期</th>
+            <th>状态</th>
         </tr>
         {% for attachment in order.get_schedule_attachments()  %}
         <tr>
             <td><a href="{{attachment.path}}">{{attachment.filename}}</a></td>
             <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+            <td>{{attachment.status_cn}}</td>
         </tr>
         {% endfor %}
     </table>

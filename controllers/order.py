@@ -22,10 +22,11 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
                                  CONTRACT_STATUS_PRINTED)
 from models.client_order import ClientOrder
-from models.user import User, TEAM_TYPE_LEADER
+from models.user import User, TEAM_TYPE_LEADER, TEAM_TYPE_CONTRACT
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
 from models.material import Material
+from models.attachment import Attachment
 
 from libs.signals import order_apply_signal, reply_apply_signal, contract_apply_signal
 
@@ -229,6 +230,8 @@ def order_contract(order_id):
     order.save()
     if emails:
         to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+        if action == 2:
+            to_users = to_users + list(User.gets_by_team_type(TEAM_TYPE_CONTRACT))
         to_emails = list(set(emails + [x.email for x in to_users]))
         apply_context = {"sender": g.user,
                          "to": to_emails,
@@ -258,7 +261,8 @@ def display_orders(orders, title):
     medium_id = int(request.args.get('selected_medium', 0))
     reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
-    start = max(0, (page - 1)) * ORDER_PAGE_NUM
+    page = max(1, page)
+    start = (page - 1) * ORDER_PAGE_NUM
     orders_len = len(orders)
     if medium_id:
         orders = [o for o in orders if medium_id in o.medium_ids]
@@ -268,10 +272,10 @@ def display_orders(orders, title):
         orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
     select_medium = [(m.id, m.name) for m in Medium.all()]
     select_medium.insert(0, (0, u'全部媒体'))
-    if 0 <= start <= orders_len:
-        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len + 1)]
+    if 0 <= start < orders_len:
+        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
     else:
-        orders = orders[0:min(ORDER_PAGE_NUM, orders_len + 1)]
+        orders = []
     return tpl('orders.html', orders=orders, medium=select_medium, medium_id=medium_id,
                sortby=sortby, orderby=orderby, search_info=search_info,
                page=page)
@@ -560,3 +564,26 @@ def get_download_response(xls, filename):
     response.headers = response_headers
     response.set_cookie('fileDownload', 'true', path='/')
     return response
+
+
+@order_bp.route('/order/<order_id>attachment/<attachment_id>/<status>', methods=['GET'])
+def attach_status(order_id, attachment_id, status):
+    order = ClientOrder.get(order_id)
+    attachment = Attachment.get(attachment_id)
+    attachment.attachment_status = status
+    attachment.save()
+    attachment_status_email(order, attachment)
+    return redirect(url_for("order.order_info", order_id=order.id))
+
+
+def attachment_status_email(order, attachment):
+    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+    to_emails = list(set([x.email for x in to_users]))
+    action_msg = u"%s文件:%s-%s" % (attachment.type_cn, attachment.filename, attachment.status_cn)
+    msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (attachment.filename, attachment.status_cn)
+    apply_context = {"sender": g.user,
+                     "to": to_emails,
+                     "action_msg": action_msg,
+                     "msg": msg,
+                     "order": order}
+    contract_apply_signal.send(apply_context)
