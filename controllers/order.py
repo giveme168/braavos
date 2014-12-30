@@ -26,6 +26,7 @@ from models.user import User, TEAM_TYPE_LEADER
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
 from models.material import Material
+from models.attachment import Attachment
 
 from libs.signals import order_apply_signal, reply_apply_signal, contract_apply_signal
 
@@ -561,3 +562,12 @@ def get_download_response(xls, filename):
     response.headers = response_headers
     response.set_cookie('fileDownload', 'true', path='/')
     return response
+
+
+@order_bp.route('/order/<order_id>attachment/<attachment_id>/<status>', methods=['GET'])
+def attach_status(order_id, attachment_id, status):
+    order = ClientOrder.get(order_id)
+    attachment = Attachment.get(attachment_id)
+    attachment.attachment_status = status
+    attachment.save()
+    return redirect(url_for("order.order_info", order_id=order.id))
