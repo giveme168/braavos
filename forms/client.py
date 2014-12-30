@@ -2,7 +2,7 @@
 from wtforms import TextField, validators, SelectField
 
 from libs.wtf import Form
-from models.client import CLIENT_INDUSTRY_CN
+from models.client import Group, CLIENT_INDUSTRY_CN
 
 
 class NewClientForm(Form):
@@ -20,6 +20,11 @@ class NewAgentForm(Form):
     name = TextField(u'甲方全称',
                      [validators.Required(u"请输入名字.")],
                      description=u"新建之前请确认是否已存在，不要重复创建")
+    group = SelectField(u'所属集团', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(NewAgentForm, self).__init__(*args, **kwargs)
+        self.group.choices = [(g.id, g.name) for g in Group.all()]
 
 
 class NewGroupForm(Form):

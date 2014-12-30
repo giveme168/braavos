@@ -46,9 +46,12 @@ class Agent(db.Model, BaseModelMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
+    group_id = db.Column(db.Integer, db.ForeignKey('bra_group.id'))
+    group = db.relationship('Group', backref=db.backref('agents', lazy='dynamic'))
 
-    def __init__(self, name):
+    def __init__(self, name, group=None):
         self.name = name
+        self.group = group
 
     @classmethod
     def name_exist(cls, name):

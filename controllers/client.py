@@ -54,7 +54,7 @@ def new_agent():
     if request.method == 'POST' and form.validate():
         db_agent_name = Agent.name_exist(form.name.data)
         if not db_agent_name:
-            agent = Agent.add(form.name.data)
+            agent = Agent.add(form.name.data, Group.get(form.group.data))
             flash(u'新建代理(%s)成功!' % agent.name, 'success')
         else:
             flash(u'新建代理(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
@@ -109,10 +109,12 @@ def agent_detail(agent_id):
     form = NewAgentForm(request.form)
     if request.method == 'POST' and form.validate():
         agent.name = form.name.data
+        agent.group = Group.get(form.group.data)
         agent.save()
         flash(u'保存成功', 'success')
     else:
         form.name.data = agent.name
+        form.group.data = agent.group.id if agent.group else None
     return tpl('agent.html',
                form=form,
                title=agent.name)
