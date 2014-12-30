@@ -13,6 +13,13 @@ ATTACHMENT_STATUS = {
     ATTACHMENT_STATUS_REJECT: u"未通过"
 }
 
+ATTACHMENT_TYPE_CONTRACT = 0
+ATTACHMENT_TYPE_SCHEDULE = 1
+ATTACHMENT_TYPE = {
+    ATTACHMENT_TYPE_CONTRACT: u"合同",
+    ATTACHMENT_TYPE_SCHEDULE: u"排期"
+}
+
 
 class Attachment(db.Model, BaseModelMixin):
     __tablename__ = 'bra_attachment'
@@ -43,6 +50,10 @@ class Attachment(db.Model, BaseModelMixin):
     @property
     def status_cn(self):
         return ATTACHMENT_STATUS.get(self.attachment_status, u"新上传")
+
+    @property
+    def type_cn(self):
+        return ATTACHMENT_TYPE[self.attachment_type]
 
     @property
     def target(self):

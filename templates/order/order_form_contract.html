@@ -69,15 +69,17 @@
     <div class="form-group">
         <label class="col-sm-2 control-label">操作 : </label>
         <div class="col-sm-10">
-            {% if order.can_admin(g.user) %}
+            {% if order.contract_status in [0, 3] and order.can_admin(g.user) %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="0">申请合同号</button>
+            {% endif %}
+            {% if order.contract_status == 2 and order.can_admin(g.user) %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请打印</button>
             {% endif %}
-            {% if g.user.is_leader() %}
+            {% if order.contract_status == 1 and g.user.is_leader() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请通过</button>
             <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="3">申请拒绝</button>
             {% endif %}
-            {% if g.user.is_contract() %}
+            {% if order.contract_status == 4 and g.user.is_contract() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="4">打印完毕</button>
             {% endif %}
         </div>
