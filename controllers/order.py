@@ -654,14 +654,32 @@ def get_download_response(xls, filename):
     return response
 
 
-@order_bp.route('/order/<order_id>attachment/<attachment_id>/<status>', methods=['GET'])
-def attach_status(order_id, attachment_id, status):
+@order_bp.route('/client_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def client_attach_status(order_id, attachment_id, status):
     order = ClientOrder.get(order_id)
+    attachment_status_change(order, attachment_id, status)
+    return redirect(url_for("order.order_info", order_id=order.id))
+
+
+@order_bp.route('/medium_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def medium_attach_status(order_id, attachment_id, status):
+    order = Order.get(order_id)
+    attachment_status_change(order.client_order, attachment_id, status)
+    return redirect(url_for("order.order_info", order_id=order.client_order.id))
+
+
+@order_bp.route('/framework_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def framework_attach_status(order_id, attachment_id, status):
+    order = FrameworkOrder.get(order_id)
+    attachment_status_change(order, attachment_id, status)
+    return redirect(url_for("order.framework_order_info", order_id=order.id))
+
+
+def attachment_status_change(order, attachment_id, status):
     attachment = Attachment.get(attachment_id)
     attachment.attachment_status = status
     attachment.save()
     attachment_status_email(order, attachment)
-    return redirect(url_for("order.order_info", order_id=order.id))
 
 
 def attachment_status_email(order, attachment):

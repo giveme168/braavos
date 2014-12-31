@@ -76,7 +76,7 @@ def reply_apply(change_state_apply):
 @contract_apply_signal.connect
 def contract_apply(apply_context):
     order = apply_context['order']
-    url = mail.app.config['DOMAIN'] + url_for("order.order_info", order_id=order.id)
+    url = mail.app.config['DOMAIN'] + order.info_path()
     send_simple_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
                      recipients=apply_context['to'],
                      body=(u"""
@@ -86,4 +86,4 @@ def contract_apply(apply_context):
 %s\n
 \n
 by %s\n
-"""% (order.name, apply_context['action_msg'], url, apply_context['msg'], g.user.name)))
+""" % (order.name, apply_context['action_msg'], url, apply_context['msg'], g.user.name)))

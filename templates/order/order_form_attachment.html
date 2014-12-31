@@ -1,8 +1,8 @@
 {% from 'form.html' import form_field %}
 
-{% macro client_order_attachment(order) -%}
+{% macro base_order_attachment(order, contract_path, schedule_path) -%}
 <hr>
-<form method="POST" action="{{url_for('files.client_contract_upload')}}" enctype="multipart/form-data">
+<form method="POST" action="{{contract_path}}" enctype="multipart/form-data">
   <button class="file-widget-wrapper btn btn-sm btn-primary">
     <input class="hide" type="text" name="order" value="{{order.id}}">
     <span>上传合同</span>
@@ -15,13 +15,12 @@
     {{contract.status_cn}}
   </a>
     {% if g.user.is_contract() %}
-    <a href="{{url_for('order.attach_status', order_id=order.id, attachment_id=contract.id, status=1)}}" class="btn btn-sm btn-default">已过审</a>
-    <a href="{{url_for('order.attach_status', order_id=order.id, attachment_id=contract.id, status=2)}}" class="btn btn-sm btn-default">不过审</a>
+    <a href="{{order.attach_status_confirm_path(contract)}}" class="btn btn-sm btn-default">已过审</a>
+    <a href="{{order.attach_status_reject_path(contract)}}" class="btn btn-sm btn-default">不过审</a>
     {% endif %}
   {% endif %}
 </form>
-
-<form method="POST" action="{{url_for('files.client_schedule_upload')}}" enctype="multipart/form-data">
+<form method="POST" action="{{schedule_path}}" enctype="multipart/form-data">
   <button class="file-widget-wrapper btn btn-sm btn-info">
     <input class="hide" type="text" name="order" value="{{order.id}}">
     <span>上传排期</span>
@@ -34,12 +33,15 @@
     {{schedule.status_cn}}
   </a>
     {% if g.user.is_contract() %}
-    <a href="{{url_for('order.attach_status', order_id=order.id, attachment_id=schedule.id, status=1)}}" class="btn btn-sm btn-default">已过审</a>
-    <a href="{{url_for('order.attach_status', order_id=order.id, attachment_id=schedule.id, status=2)}}" class="btn btn-sm btn-default">不过审</a>
+    <a href="{{order.attach_status_confirm_path(schedule)}}" class="btn btn-sm btn-default">已过审</a>
+    <a href="{{order.attach_status_reject_path(schedule)}}" class="btn btn-sm btn-default">不过审</a>
     {% endif %}
   {% endif %}
 </form>
 <a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">查看历史版本</a>
+{%- endmacro %}
+
+{% macro base_attachment_script() -%}
 <script>
 $(function(){
   $('.file-widget-button').change(function(){
@@ -56,43 +58,16 @@ $(function(){
 </script>
 {%- endmacro %}
 
+{% macro client_order_attachment(order) -%}
+    {{ base_order_attachment(order, url_for('files.client_contract_upload'), url_for('files.client_schedule_upload')) }}
+    {{ base_attachment_script() }}
+{%- endmacro %}
+
 {% macro medium_order_attachment(order) -%}
-<hr>
-<form method="POST" action="{{url_for('files.medium_contract_upload')}}" enctype="multipart/form-data">
-  <button class="file-widget-wrapper btn btn-sm btn-primary">
-    <input class="hide" type="text" name="order" value="{{order.id}}">
-    <span>上传合同</span>
-    <input class="file-widget-button" type="file" name="file">
-  </button>
-  {% set contract = order.get_last_contract() %}
-  {% if contract %}
-  <a href="{{contract.path}}">
-    {{contract.filename}}
-    {{contract.status_cn}}
-  </a>
-    {% if g.user.is_contract() %}
-    <a href="{{url_for('order.attach_status', order_id=order.id, attachment_id=contract.id, status=1)}}" class="btn btn-sm btn-default">已过审</a>
-    <a href="{{url_for('order.attach_status', order_id=order.id, attachment_id=contract.id, status=2)}}" class="btn btn-sm btn-default">不过审</a>
-    {% endif %}
-  {% endif %}
-</form>
-<form method="POST" action="{{url_for('files.medium_schedule_upload')}}" enctype="multipart/form-data">
-  <button class="file-widget-wrapper btn btn-sm btn-info">
-    <input class="hide" type="text" name="order" value="{{order.id}}">
-    <span>上传排期</span>
-    <input class="file-widget-button" type="file" name="file">
-  </button>
-  {% set schedule = order.get_last_schedule() %}
-  {% if schedule %}
-  <a href="{{schedule.path}}">
-    {{schedule.filename}}
-    {{schedule.status_cn}}
-  </a>
-    {% if g.user.is_contract() %}
-    <a href="{{url_for('order.attach_status', order_id=order.id, attachment_id=schedule.id, status=1)}}" class="btn btn-sm btn-default">已过审</a>
-    <a href="{{url_for('order.attach_status', order_id=order.id, attachment_id=schedule.id, status=2)}}" class="btn btn-sm btn-default">不过审</a>
-    {% endif %}
-  {% endif %}
-</form>
-<a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">查看历史版本</a>
+    {{ base_order_attachment(order, url_for('files.medium_contract_upload'), url_for('files.medium_schedule_upload')) }}
+{%- endmacro %}
+
+{% macro framework_order_attachment(order) -%}
+    {{ base_order_attachment(order, url_for('files.framework_contract_upload'), url_for('files.framework_schedule_upload')) }}
+    {{ base_attachment_script() }}
 {%- endmacro %}

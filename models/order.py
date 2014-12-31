@@ -7,6 +7,7 @@ from xlwt import Utils
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
+from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
                    ITEM_STATUS_LEADER_ACTIONS, OCCUPY_RESOURCE_STATUS,
                    ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY,
@@ -188,6 +189,21 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def attachment_path(self):
         return url_for('files.medium_order_files', order_id=self.id)
+
+    def info_path(self):
+        return url_for("order.order_info", order_id=self.client_order.id)
+
+    def attach_status_confirm_path(self, attachment):
+        return url_for('order.medium_attach_status',
+                       order_id=self.id,
+                       attachment_id=attachment.id,
+                       status=ATTACHMENT_STATUS_PASSED)
+
+    def attach_status_reject_path(self, attachment):
+        return url_for('order.medium_attach_status',
+                       order_id=self.id,
+                       attachment_id=attachment.id,
+                       status=ATTACHMENT_STATUS_REJECT)
 
     @classmethod
     def contract_exist(cls, contract):

@@ -5,6 +5,7 @@ from flask import url_for
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
+from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from consts import DATE_FORMAT
 
 
@@ -139,7 +140,22 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return CONTRACT_STATUS_CN[self.contract_status]
 
     def attachment_path(self):
-        return url_for('files.client_order_files', order_id=self.id)
+        return url_for('files.framework_order_files', order_id=self.id)
+
+    def info_path(self):
+        return url_for("order.framework_order_info", order_id=self.id)
+
+    def attach_status_confirm_path(self, attachment):
+        return url_for('order.framework_attach_status',
+                       order_id=self.id,
+                       attachment_id=attachment.id,
+                       status=ATTACHMENT_STATUS_PASSED)
+
+    def attach_status_reject_path(self, attachment):
+        return url_for('order.framework_attach_status',
+                       order_id=self.id,
+                       attachment_id=attachment.id,
+                       status=ATTACHMENT_STATUS_REJECT)
 
     @classmethod
     def contract_exist(cls, contract):
