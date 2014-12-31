@@ -191,6 +191,9 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def info_path(self):
         return url_for("order.order_info", order_id=self.id)
 
+    def contract_path(self):
+        return url_for("order.client_order_contract", order_id=self.id)
+
     def attach_status_confirm_path(self, attachment):
         return url_for('order.client_attach_status',
                        order_id=self.id,
