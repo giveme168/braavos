@@ -1,5 +1,6 @@
 {% extends "/order_base.html" %}
 {% from 'order_form_framework.html' import order_framework_form %}
+{% from 'order_form_attachment.html' import framework_order_attachment %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
@@ -14,6 +15,7 @@
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_framework_form(framework_form) }}
+                    {{ framework_order_attachment(order) }}
                 </div>
             </div>
         </div>

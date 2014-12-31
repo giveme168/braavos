@@ -260,6 +260,7 @@ def display_orders(orders, title):
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     medium_id = int(request.args.get('selected_medium', 0))
+    group_id = int(request.args.get('selected_group', 0))
     reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
     page = max(1, page)
@@ -267,19 +268,25 @@ def display_orders(orders, title):
     orders_len = len(orders)
     if medium_id:
         orders = [o for o in orders if medium_id in o.medium_ids]
+    if group_id:
+        orders = [o for o in orders if o.agent and o.agent.group and group_id == o.agent.group.id]
     if search_info != '':
         orders = [o for o in orders if search_info in o.name]
     if sortby and orders_len and hasattr(orders[0], sortby):
         orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
-    select_medium = [(m.id, m.name) for m in Medium.all()]
-    select_medium.insert(0, (0, u'全部媒体'))
+    select_mediums = [(m.id, m.name) for m in Medium.all()]
+    select_mediums.insert(0, (0, u'全部媒体'))
+    select_groups = [(g.id, g.name) for g in Group.all()]
+    select_groups.insert(0, (0, u'全部甲方集团'))
     if 0 <= start < orders_len:
         orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
     else:
         orders = []
-    return tpl('orders.html', orders=orders, medium=select_medium, medium_id=medium_id,
-               sortby=sortby, orderby=orderby, search_info=search_info,
-               page=page)
+    return tpl('orders.html', orders=orders,
+               mediums=select_mediums, medium_id=medium_id,
+               groups=select_groups, group_id=group_id,
+               sortby=sortby, orderby=orderby,
+               search_info=search_info, page=page)
 
 
 @order_bp.route('/new_framework_order', methods=['GET', 'POST'])
@@ -647,14 +654,32 @@ def get_download_response(xls, filename):
     return response
 
 
-@order_bp.route('/order/<order_id>attachment/<attachment_id>/<status>', methods=['GET'])
-def attach_status(order_id, attachment_id, status):
+@order_bp.route('/client_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def client_attach_status(order_id, attachment_id, status):
     order = ClientOrder.get(order_id)
+    attachment_status_change(order, attachment_id, status)
+    return redirect(url_for("order.order_info", order_id=order.id))
+
+
+@order_bp.route('/medium_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def medium_attach_status(order_id, attachment_id, status):
+    order = Order.get(order_id)
+    attachment_status_change(order.client_order, attachment_id, status)
+    return redirect(url_for("order.order_info", order_id=order.client_order.id))
+
+
+@order_bp.route('/framework_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def framework_attach_status(order_id, attachment_id, status):
+    order = FrameworkOrder.get(order_id)
+    attachment_status_change(order, attachment_id, status)
+    return redirect(url_for("order.framework_order_info", order_id=order.id))
+
+
+def attachment_status_change(order, attachment_id, status):
     attachment = Attachment.get(attachment_id)
     attachment.attachment_status = status
     attachment.save()
     attachment_status_email(order, attachment)
-    return redirect(url_for("order.order_info", order_id=order.id))
 
 
 def attachment_status_email(order, attachment):
