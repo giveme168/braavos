@@ -77,10 +77,19 @@
 <div class="bra-main bra-box">
     <h3> {{title}}</h3>
     <div class="search">
-        <input type="text" id="search_info" value="{{search_info}}" onkeypress="javascript:enter_search();">&nbsp;
-        <select class="form-control" id="search_select" name="medium" placeholder="媒体">
-            {% for v,m in medium %}
-                {% if v==medium_id|int %}
+        <input class="col-md-2" type="text" id="search_info" value="{{search_info}}" onkeypress="javascript:enter_search();">&nbsp;
+        <select class="col-md-2" id="search_medium" name="medium" placeholder="媒体">
+            {% for v, m in mediums %}
+                {% if v == medium_id|int %}
+                <option selected="" value="{{v}}">{{m}}</option>
+                {% else %}
+                <option value="{{v}}">{{m}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <select class="col-md-2" id="search_group" name="group" placeholder="甲方集团">
+            {% for v, m in groups %}
+                {% if v == group_id|int %}
                 <option selected="" value="{{v}}">{{m}}</option>
                 {% else %}
                 <option value="{{v}}">{{m}}</option>
@@ -130,7 +139,10 @@ function sort(value){
 }
 
 function search(){
-    window.location.href = window.location.pathname+'?searchinfo='+encodeURIComponent($('#search_info').val())+'&selected_medium='+($('#search_select').val());
+    window.location.href = window.location.pathname +
+      '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+      '&selected_medium=' + ($('#search_medium').val()) +
+      '&selected_group=' + ($('#search_group').val());
 }
 
 function enter_search(){
