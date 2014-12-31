@@ -126,7 +126,7 @@ def order_info(order_id):
             if not g.user.is_contract():
                 flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
             else:
-                order.contract = request.values.get("client_contract", "")
+                order.contract = request.values.get("base_contract", "")
                 order.save()
                 for mo in order.medium_orders:
                     mo.medium_contract = request.values.get("medium_contract_%s" % mo.id, "")
@@ -204,14 +204,31 @@ def order_items(order_id):
     return tpl('order_detail_ordered.html', **context)
 
 
-@order_bp.route('/order/<order_id>/contract', methods=['POST'])
-def order_contract(order_id):
+@order_bp.route('/client_order/<order_id>/contract', methods=['POST'])
+def client_order_contract(order_id):
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
     action = int(request.values.get('action'))
     emails = request.values.get('email').split(",")
     msg = request.values.get('msg', '')
+    contract_status_change(order, action, emails, msg)
+    return redirect(url_for("order.order_info", order_id=order.id))
+
+
+@order_bp.route('/framework_order/<order_id>/contract', methods=['POST'])
+def framework_order_contract(order_id):
+    order = FrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    action = int(request.values.get('action'))
+    emails = request.values.get('email').split(",")
+    msg = request.values.get('msg', '')
+    contract_status_change(order, action, emails, msg)
+    return redirect(url_for("order.framework_order_info", order_id=order.id))
+
+
+def contract_status_change(order, action, emails, msg):
     action_msg = ''
     if action == 0:
         order.contract_status = CONTRACT_STATUS_APPLYCONTRACT
@@ -240,7 +257,6 @@ def order_contract(order_id):
                          "msg": msg,
                          "order": order}
         contract_apply_signal.send(apply_context)
-    return redirect(url_for("order.order_info", order_id=order.id))
 
 
 @order_bp.route('/orders', methods=['GET'])
@@ -329,23 +345,33 @@ def framework_order_info(order_id):
     if not order:
         abort(404)
     framework_form = get_framework_form(order)
+
     if request.method == 'POST':
-        if not order.can_admin(g.user):
-            flash(u'您没有编辑权限! 请联系该框架的创建者或者销售同事!', 'danger')
-        else:
-            framework_form = FrameworkOrderForm(request.form)
-            if framework_form.validate():
-                order.group = Group.get(framework_form.group.data)
-                order.description = framework_form.description.data
-                order.money = framework_form.money.data
-                order.client_start = framework_form.client_start.data
-                order.client_end = framework_form.client_end.data
-                order.reminde_date = framework_form.reminde_date.data
-                order.direct_sales = User.gets(framework_form.direct_sales.data)
-                order.agent_sales = User.gets(framework_form.agent_sales.data)
-                order.contract_type = framework_form.contract_type.data
+        info_type = int(request.values.get('info_type', '0'))
+        if info_type == 0:
+            if not order.can_admin(g.user):
+                flash(u'您没有编辑权限! 请联系该框架的创建者或者销售同事!', 'danger')
+            else:
+                framework_form = FrameworkOrderForm(request.form)
+                if framework_form.validate():
+                    order.group = Group.get(framework_form.group.data)
+                    order.description = framework_form.description.data
+                    order.money = framework_form.money.data
+                    order.client_start = framework_form.client_start.data
+                    order.client_end = framework_form.client_end.data
+                    order.reminde_date = framework_form.reminde_date.data
+                    order.direct_sales = User.gets(framework_form.direct_sales.data)
+                    order.agent_sales = User.gets(framework_form.agent_sales.data)
+                    order.contract_type = framework_form.contract_type.data
+                    order.save()
+                    flash(u'[框架订单]%s 保存成功!' % order.name, 'success')
+        elif info_type == 2:
+            if not g.user.is_contract():
+                flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
+            else:
+                order.contract = request.values.get("base_contract", "")
                 order.save()
-                flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
+                flash(u'合同号保存成功!', 'success')
     context = {'framework_form': framework_form,
                'order': order}
     return tpl('framework_detail_info.html', **context)

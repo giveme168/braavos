@@ -145,6 +145,9 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def info_path(self):
         return url_for("order.framework_order_info", order_id=self.id)
 
+    def contract_path(self):
+        return url_for("order.framework_order_contract", order_id=self.id)
+
     def attach_status_confirm_path(self, attachment):
         return url_for('order.framework_attach_status',
                        order_id=self.id,

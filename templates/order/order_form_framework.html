@@ -1,6 +1,7 @@
 {% from 'form.html' import form_field %}
 {% macro order_framework_form(form) -%}
 <form class="form form-horizontal" method="POST">
+    <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
     {{ form_field(form.group) }}
     {{ form_field(form.description) }}
