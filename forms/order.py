@@ -1,6 +1,6 @@
 #-*- coding: UTF-8 -*-
-from wtforms import TextField, validators, SelectField, SelectMultipleField, IntegerField, TextAreaField
-from wtforms.fields.html5 import DateField
+from wtforms import (TextField, validators, SelectField, SelectMultipleField,
+                     IntegerField, TextAreaField, DateField)
 from libs.wtf import Form
 from models.client import Client, Group, Agent
 from models.medium import Medium

@@ -7,13 +7,38 @@
     {{ form_field(form.client) }}
     {{ form_field(form.campaign) }}
     {{ form_field(form.money) }}
-    {{ form_field(form.client_start) }}
-    {{ form_field(form.client_end) }}
-    {{ form_field(form.reminde_date) }}
+    <div class="form-group">
+      <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
+      <div class="col-sm-4">
+        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
+      <div class="col-sm-4">
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="reminde_date" class="col-sm-2 control-label">回款日期 : </label>
+      <div class="col-sm-4">
+        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+      </div>
+    </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
     {{ form_field(form.contract_type) }}
     {{ form_field(form.resource_type) }}
     <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
 </form>
+<script>
+$(document).ready(function(){
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+      });
+});
+</script>
 {%- endmacro %}
