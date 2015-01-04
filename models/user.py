@@ -112,6 +112,9 @@ class User(db.Model, BaseModelMixin):
     def is_contract(self):
         return self.team.is_admin() or self.team.type == TEAM_TYPE_CONTRACT
 
+    def is_sale(self):
+        return self.team.is_admin() or self.team.type in [TEAM_TYPE_AGENT_SELLER, TEAM_TYPE_DIRECT_SELLER]
+
     def path(self):
         return url_for('user.user_detail', user_id=self.id)
 

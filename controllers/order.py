@@ -275,8 +275,8 @@ def display_orders(orders, title):
     sortby = request.args.get('sortby', '')
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
-    medium_id = int(request.args.get('selected_medium', 0))
-    group_id = int(request.args.get('selected_group', 0))
+    medium_id = int(request.args.get('selected_medium', '0'))
+    group_id = int(request.args.get('selected_group', '0'))
     reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
     page = max(1, page)

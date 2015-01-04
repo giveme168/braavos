@@ -1,34 +1,75 @@
 {% extends "/order_base.html" %}
 {% block title %}订单列表{% endblock %}
 
-{% macro other_user(orders) -%}
+{% macro other(orders) -%}
 <table class="table table-bordered table-striped">
     <tr>
-        <th>订单名</th>
-        <th>客户</th>
+        <th>客户名称</th>
+        <th>Campaign</th>
+        <th>直客销售</th>
+        <th>渠道销售</th>
         <th><a href="javascript:sort('start_date');">开始时间</a></th>
         <th><a href="javascript:sort('end_date');">结束时间</a></th>
         <th>创建者</th>
         <th>创建时间</th>
         <th>投放媒体</th>
-        <th>合同设置</th>
     </tr>
     {% for o in orders %}
     <tr>
+        <td style="width:160px;">{{o.client.name}}</td>
         <td style="width:160px;">{{o.campaign}}</td>
-        <td>{{o.client.name}}</td>
+        <td>{{o.direct_sales_names}}</td>
+        <td>{{o.agent_sales_names}}</td>
         <td>{{o.start_date_cn}}</td>
         <td>{{o.end_date_cn}}</td>
-        <td>{{o.creator.display_name}}</td>
+        <td>{{o.creator.name}}</td>
         <td>{{o.create_time.strftime('%Y-%m-%d')}}</td>
         <td>
             {% for mo in o.medium_orders %}    
             {{mo.medium.name}} 
-            <a href="{{url_for("order.order_detail", order_id=mo.id, step=0)}}">排期管理</a>
-            <a href="{{url_for("order.order_items", order_id=mo.id)}}">订单项</a>
             <br><br>
             {% endfor %}
         </td>
+    </tr>
+    {% endfor %}
+</table>
+{%- endmacro %}
+
+{% macro admin(orders) -%}
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>客户全称</th>
+        <th>Campaign</th>
+        <th>执行开始</th>
+        <th>执行结束</th>
+        <th>直客销售</th>
+        <th>渠道销售</th>
+        <th>媒体/开始/结束/执行</th>
+        <th>排期</th>
+        <th>合同号状态</th>
+        <th>操作</th>
+    </tr>
+    {% for o in orders %}
+    <tr>
+        <td style="width:100px;">{{o.client.name}}</td>
+        <td style="width:100px;">{{o.campaign}}</td>
+        <td>{{o.start_date_cn}}</td>
+        <td>{{o.end_date_cn}}</td>
+        <td>{{o.direct_sales_names}}</td>
+        <td>{{o.agent_sales_names}}</td>
+        <td style="width:240px;">
+            {% for mo in o.medium_orders %}    
+            {{mo.medium.name}} / {{mo.start_date_cn}} / {{mo.end_date_cn}} / 
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            <a href="{{mo.path()}}">排期设置</a>
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>{{o.contract_status_cn}}</td>
         <td>
             <a href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
         </td>
@@ -52,7 +93,7 @@
     </tr>
     {% for o in orders %}
     <tr>
-        <td>{{o.agent.name}}</td>
+        <td style="width:160px;">{{o.agent.name}}</td>
         <td style="width:160px;">{{o.campaign}}</td>
         <td>{{o.money}}</td>
         <td>{{o.direct_sales_names}}</td>
@@ -67,6 +108,88 @@
         <td>{{o.contract_status_cn}}</td>
         <td>
             <a href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{%- endmacro %}
+
+{% macro sales(orders) -%}
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>客户名称</th>
+        <th>Campaign</th>
+        <th>合同金额</th>
+        <th>执行开始</th>
+        <th>媒体订单 / 金额</th>
+        <th>开始日期</th>
+        <th>排期</th>
+        <th>合同号状态</th>
+        <th>操作</th>
+    </tr>
+    {% for o in orders %}
+    <tr>
+        <td style="width:160px;">{{o.client.name}}</td>
+        <td style="width:160px;">{{o.campaign}}</td>
+        <td>{{o.money}}</td>
+        <td>{{o.start_date_cn}}</td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.medium.name}} / {{mo.medium_money}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.start_date_cn}} 
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            <a href="{{mo.path()}}">排期管理</a>
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>{{o.contract_status_cn}}</td>
+        <td>
+            <a href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{%- endmacro %}
+
+{% macro leader(orders) -%}
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>甲方全称</th>
+        <th>客户名称</th>
+        <th>Campaign</th>
+        <th>合同金额</th>
+        <th>直客销售</th>
+        <th>渠道销售</th>
+        <th>媒体订单 / 金额</th>
+        <th>合同号状态</th>
+        <th>操作</th>
+    </tr>
+    {% for o in orders %}
+    <tr>
+        <td style="width:120px;">{{o.agent.name}}</td>
+        <td style="width:120px;">{{o.client.name}}</td>
+        <td style="width:120px;">{{o.campaign}}</td>
+        <td>{{o.money}}</td>
+        <td>{{o.direct_sales_names}}</td>
+        <td>{{o.agent_sales_names}}</td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.medium.name}} / {{mo.medium_money}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>{{o.contract_status_cn}}</td>
+        <td style="width:60px;">
+            <a href="{{url_for("order.order_info", order_id=o.id)}}">审批</a>
         </td>
     </tr>
     {% endfor %}
@@ -98,10 +221,16 @@
         </select>
         <input type="button" name="search" value="搜索" class="btn btn-sm btn-default" onclick="javascript:search();">
     </div>
-    {% if g.user.is_contract() %}
+    {% if g.user.is_admin() %}
+        {{ admin(orders) }}
+    {% elif g.user.is_contract() %}
         {{ contract(orders) }}
+    {% elif g.user.is_sale() %}
+        {{ sales(orders) }}
+    {% elif g.user.is_leader() %}
+        {{ leader(orders) }}
     {% else %}
-        {{ other_user(orders) }}
+        {{ other(orders) }}
     {% endif %}
     <nav>
       <ul class="pagination">
@@ -135,7 +264,10 @@ function sort(value){
         sortby = value
         orderby = 'desc'
     }
-    window.location.href = window.location.pathname+'?sortby='+sortby+'&orderby='+orderby+'&searchinfo='+encodeURIComponent($('#search_info').val())+'&selected_medium='+($('#search_select').val());
+    window.location.href = window.location.pathname+'?sortby='+sortby+'&orderby='+orderby+
+    '&searchinfo='+encodeURIComponent($('#search_info').val())+
+    '&selected_medium='+encodeURIComponent($('#search_medium').val())+
+    '&selected_group='+encodeURIComponent($('#search_group').val());
 }
 
 function search(){
