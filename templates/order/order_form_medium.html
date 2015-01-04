@@ -8,8 +8,18 @@
     {{form.csrf_token}}
     {{ form_field(form.medium) }}
     {{ form_field(form.medium_money) }}
-    {{ form_field(form.medium_start) }}
-    {{ form_field(form.medium_end) }}
+    <div class="form-group">
+      <label for="medium_start" class="col-sm-2 control-label">执行开始 : </label>
+      <div class="col-sm-4">
+        <input type="text" id="medium_start" name="medium_start" value="{{form.medium_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="medium_end" class="col-sm-2 control-label">执行结束 : </label>
+      <div class="col-sm-4">
+        <input type="text" id="medium_end" name="medium_end" value="{{form.medium_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+      </div>
+    </div>
     {{ form_field(form.operaters) }}
     {{ form_field(form.designers) }}
     {{ form_field(form.planers) }}
