@@ -2,6 +2,7 @@
 {% from 'order_form_framework.html' import order_framework_form %}
 {% from 'order_form_contract.html' import order_contract_form %}
 {% from 'order_form_attachment.html' import framework_order_attachment %}
+{% from 'comments.html' import comments_box %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
@@ -35,5 +36,6 @@
             </div>
         </div>
     </div>
+    <div>{{ comments_box(order) }}</div>
 </div>
 {% endblock %}

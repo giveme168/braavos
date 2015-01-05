@@ -130,16 +130,23 @@ class User(db.Model, BaseModelMixin):
     def admins(cls):
         return cls.gets_by_team_type(TEAM_TYPE_ADMIN)
 
+team_admins = db.Table('team_admin_users',
+                       db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+                       db.Column('team_id', db.Integer, db.ForeignKey('team.id'))
+                       )
+
 
 class Team(db.Model, BaseModelMixin):
     __tablename__ = 'team'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     type = db.Column(db.Integer)
+    admins = db.relationship('User', secondary=team_admins)
 
-    def __init__(self, name, type=TEAM_TYPE_MEDIUM):
+    def __init__(self, name, type=TEAM_TYPE_MEDIUM, admins=None):
         self.name = name
         self.type = type
+        self.admins = admins or []
 
     def __repr__(self):
         return '<Team %s, type=%s>' % (self.name, self.type_cn)
