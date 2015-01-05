@@ -74,7 +74,7 @@ class MediumOrderForm(Form):
 
 class FrameworkOrderForm(Form):
     group = SelectField(u'甲方集团', coerce=int)
-    description = TextAreaField(u'备注')
+    description = TextAreaField(u'备注', description=u"请填写返点政策/配送政策等信息")
     money = IntegerField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
     client_end = DateField(u'执行结束')

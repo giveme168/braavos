@@ -147,7 +147,7 @@ def order_info(order_id):
                 contract_apply_signal.send(apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
 
-    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts()]
+    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'client_form': client_form,
                'new_medium_form': MediumOrderForm(),
                'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
@@ -404,7 +404,7 @@ def framework_order_info(order_id):
                 contract_apply_signal.send(apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
 
-    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts()]
+    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'framework_form': framework_form,
                'order': order,
                'reminder_emails': reminder_emails}
