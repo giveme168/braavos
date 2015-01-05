@@ -3,6 +3,7 @@
 {% from 'order_form_medium.html' import order_medium_form %}
 {% from 'order_form_contract.html' import order_contract_form %}
 {% from 'order_form_attachment.html' import client_order_attachment, medium_order_attachment %}
+{% from 'comments.html' import comments_box %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
@@ -58,6 +59,7 @@
             </div>
         </div>
     </div>
+    <div>{{ comments_box(order) }}</div>
 </div>
 <script>
   $(function(){
