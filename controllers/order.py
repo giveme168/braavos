@@ -23,7 +23,7 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_PRINTED)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
-from models.user import User, TEAM_TYPE_LEADER, TEAM_TYPE_CONTRACT
+from models.user import User
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
 from models.material import Material
@@ -131,11 +131,28 @@ def order_info(order_id):
                 for mo in order.medium_orders:
                     mo.medium_contract = request.values.get("medium_contract_%s" % mo.id, "")
                     mo.save()
-                flash(u'合同号保存成功!', 'success')
+                flash(u'[%s]合同号保存成功!' % order.name, 'success')
+
+                action_msg = u"合同号更新"
+                msg = u"新合同号如下:\n\n%s: %s\n" % (order.name, order.contract)
+                for mo in order.medium_orders:
+                    msg = msg + u"%s: %s\n" % (mo.name, mo.medium_contract or "")
+                to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+                to_emails = [x.email for x in set(to_users)]
+                apply_context = {"sender": g.user,
+                                 "to": to_emails,
+                                 "action_msg": action_msg,
+                                 "msg": msg,
+                                 "order": order}
+                contract_apply_signal.send(apply_context)
+                flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+
+    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts()]
     context = {'client_form': client_form,
                'new_medium_form': MediumOrderForm(),
                'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
-               'order': order}
+               'order': order,
+               'reminder_emails': reminder_emails}
     return tpl('order_detail_info.html', **context)
 
 
@@ -185,7 +202,7 @@ def order_detail(order_id, step):
     order = Order.get(order_id)
     if not order:
         abort(404)
-    leaders = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_LEADER)]
+    leaders = [(m.id, m.name) for m in User.leaders()]
     context = {'leaders': leaders,
                'order': order,
                'step': step,
@@ -210,7 +227,7 @@ def client_order_contract(order_id):
     if not order:
         abort(404)
     action = int(request.values.get('action'))
-    emails = request.values.get('email').split(",")
+    emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     contract_status_change(order, action, emails, msg)
     return redirect(url_for("order.order_info", order_id=order.id))
@@ -222,7 +239,7 @@ def framework_order_contract(order_id):
     if not order:
         abort(404)
     action = int(request.values.get('action'))
-    emails = request.values.get('email').split(",")
+    emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     contract_status_change(order, action, emails, msg)
     return redirect(url_for("order.framework_order_info", order_id=order.id))
@@ -246,10 +263,11 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_PRINTED
         action_msg = u"合同打印完毕"
     order.save()
+    flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     if emails:
         to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
         if action == 2:
-            to_users = to_users + list(User.gets_by_team_type(TEAM_TYPE_CONTRACT))
+            to_users = to_users + User.contracts()
         to_emails = list(set(emails + [x.email for x in to_users]))
         apply_context = {"sender": g.user,
                          "to": to_emails,
@@ -257,6 +275,7 @@ def contract_status_change(order, action, emails, msg):
                          "msg": msg,
                          "order": order}
         contract_apply_signal.send(apply_context)
+        flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
 
 
 @order_bp.route('/orders', methods=['GET'])
@@ -371,9 +390,24 @@ def framework_order_info(order_id):
             else:
                 order.contract = request.values.get("base_contract", "")
                 order.save()
-                flash(u'合同号保存成功!', 'success')
+                flash(u'[%s]合同号保存成功!' % order.name, 'success')
+
+                action_msg = u"合同号更新"
+                msg = u"新合同号如下:\n\n%s: %s\n" % (order.name, order.contract)
+                to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+                to_emails = [x.email for x in set(to_users)]
+                apply_context = {"sender": g.user,
+                                 "to": to_emails,
+                                 "action_msg": action_msg,
+                                 "msg": msg,
+                                 "order": order}
+                contract_apply_signal.send(apply_context)
+                flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+
+    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts()]
     context = {'framework_form': framework_form,
-               'order': order}
+               'order': order,
+               'reminder_emails': reminder_emails}
     return tpl('framework_detail_info.html', **context)
 
 
