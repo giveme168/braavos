@@ -126,6 +126,10 @@ class User(db.Model, BaseModelMixin):
     def contracts(cls):
         return cls.gets_by_team_type(TEAM_TYPE_CONTRACT)
 
+    @classmethod
+    def admins(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_ADMIN)
+
 
 class Team(db.Model, BaseModelMixin):
     __tablename__ = 'team'
