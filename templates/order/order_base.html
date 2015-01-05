@@ -6,30 +6,33 @@
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的订单
     </a>
-    <!--
+    {% if g.user.is_leader() %}
     <a class="list-group-item" href="{{url_for('order.orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 全部订单
     </a>
-    -->
+    {% endif %}
+    <a class="list-group-item" href="{{url_for('order.new_order')}}">
+        <span class="glyphicon glyphicon-plus"></span> 新建订单
+    </a>
+
+    {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() %}
     <a class="list-group-item" href="{{url_for('order.framework_orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 全部框架
     </a>
-    {% if g.user.is_admin() %}
-    <!--
+    <a class="list-group-item" href="{{url_for('order.new_framework_order')}}">
+        <span class="glyphicon glyphicon-plus"></span> 新建框架订单
+    </a>
+    {% endif %}
+
+    {% if g.user.is_super_admin() %}
     <a class="list-group-item" href="{{url_for('order.items')}}">
       <span class="glyphicon glyphicon-th-list"></span> 订单项
     </a>
     <a class="list-group-item" href="{{url_for('order.materials')}}">
       <span class="glyphicon glyphicon-th-list"></span> 广告素材
     </a>
-    -->
     {% endif %}
-    <a class="list-group-item" href="{{url_for('order.new_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 新建订单
-    </a>
-    <a class="list-group-item" href="{{url_for('order.new_framework_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 新建框架订单
-    </a>
+
   </div>
 </div>
 {% endblock %}

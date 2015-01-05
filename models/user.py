@@ -88,10 +88,6 @@ class User(db.Model, BaseModelMixin):
         return cls.query.filter_by(email=email).first()
 
     @classmethod
-    def gets_by_team_type(cls, team_type):
-        return [x for x in cls.all() if x.team.type == team_type]
-
-    @classmethod
     def name_exist(cls, name):
         is_exist = User.query.filter_by(name=name).count() > 0
         return is_exist
@@ -117,6 +113,18 @@ class User(db.Model, BaseModelMixin):
 
     def path(self):
         return url_for('user.user_detail', user_id=self.id)
+
+    @classmethod
+    def gets_by_team_type(cls, team_type):
+        return [x for x in cls.all() if x.team.type == team_type]
+
+    @classmethod
+    def leaders(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_LEADER)
+
+    @classmethod
+    def contracts(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_CONTRACT)
 
 
 class Team(db.Model, BaseModelMixin):

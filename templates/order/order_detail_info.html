@@ -48,12 +48,12 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 合同状态 </a>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 合同流程 </a>
                 </h4>
             </div>
             <div id="collapse3" class="panel-collapse collapse in">
                 <div class="panel-body">
-                    {{order_contract_form(order)}}
+                    {{order_contract_form(order, reminder_emails)}}
                 </div>
             </div>
         </div>
