@@ -17,7 +17,7 @@ class NewClientForm(Form):
 
 
 class NewAgentForm(Form):
-    name = TextField(u'甲方全称',
+    name = TextField(u'代理公司',
                      [validators.Required(u"请输入名字.")],
                      description=u"新建之前请确认是否已存在，不要重复创建")
     group = SelectField(u'所属集团', coerce=int)
