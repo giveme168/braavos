@@ -26,7 +26,7 @@
     <div class="panel-group" id="accordion">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"> 媒体订单 </a> </h4>
+                <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"> 新媒体订单 </a> </h4>
             </div>
             <div id="collapse2" class="panel-collapse collapse in">
                 <div class="panel-body">
@@ -37,7 +37,7 @@
                     </div>
                     {% endfor %}
                     <div class="well" id="new-medium" style="display:none;">
-                      <h4>新建配体订单</h4>
+                      <h4>新建媒体订单</h4>
                       {{ order_medium_form(new_medium_form, order=order) }}
                     </div>
                     <button onclick="showNewMedium(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 媒体订单</button>

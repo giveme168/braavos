@@ -38,15 +38,15 @@ def new_group():
         db_group_name = Group.name_exist(form.name.data)
         if not db_group_name:
             group = Group.add(form.name.data)
-            flash(u'新建甲方集团(%s)成功!' % group.name, 'success')
+            flash(u'新建代理集团(%s)成功!' % group.name, 'success')
         else:
-            flash(u'新建甲方集团(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
-            return tpl('group.html', form=form, group=None, title=u"新建甲方集团")
+            flash(u'新建代理集团(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
+            return tpl('group.html', form=form, group=None, title=u"新建代理集团")
         return redirect(url_for("client.groups"))
     return tpl('group.html',
                form=form,
                group=None,
-               title=u"新建甲方集团")
+               title=u"新建代理集团")
 
 
 @client_bp.route('/new_agent', methods=['GET', 'POST'])
@@ -56,14 +56,14 @@ def new_agent():
         db_agent_name = Agent.name_exist(form.name.data)
         if not db_agent_name:
             agent = Agent.add(form.name.data, Group.get(form.group.data))
-            flash(u'新建代理(%s)成功!' % agent.name, 'success')
+            flash(u'新建代理公司(%s)成功!' % agent.name, 'success')
         else:
-            flash(u'新建代理(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
-            return tpl('agent.html', form=form, title=u"新建甲方")
+            flash(u'新建代理公司(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
+            return tpl('agent.html', form=form, title=u"新建代理公司")
         return redirect(url_for("client.agents"))
     return tpl('agent.html',
                form=form,
-               title=u"新建甲方")
+               title=u"新建代理公司")
 
 
 @client_bp.route('/new_medium', methods=['GET', 'POST'])

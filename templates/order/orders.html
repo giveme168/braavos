@@ -219,8 +219,18 @@
                 {% endif %}
             {% endfor %}
         </select>
+        <select class="col-md-2" id="search_status" name="status" placeholder="合同状态">
+            {% for v, m in statuses %}
+                {% if v == status_id|int %}
+                <option selected="" value="{{v}}">{{m}}</option>
+                {% else %}
+                <option value="{{v}}">{{m}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
         <input type="button" name="search" value="搜索" class="btn btn-sm btn-default" onclick="javascript:search();">
     </div>
+    <br>
     {% if g.user.is_admin() %}
         {{ admin(orders) }}
     {% elif g.user.is_contract() %}
@@ -252,8 +262,8 @@
 </div>
 <script>
 function sort(value){
-    var orderby = '{{orderby}}'
-    var sortby = '{{sortby}}'
+    var orderby = '{{orderby}}',
+        sortby = '{{sortby}}';
     if (value == sortby) {
         if (orderby == 'desc'){
             orderby = 'asc'
@@ -267,14 +277,16 @@ function sort(value){
     window.location.href = window.location.pathname+'?sortby='+sortby+'&orderby='+orderby+
     '&searchinfo='+encodeURIComponent($('#search_info').val())+
     '&selected_medium='+encodeURIComponent($('#search_medium').val())+
-    '&selected_group='+encodeURIComponent($('#search_group').val());
+    '&selected_group='+encodeURIComponent($('#search_group').val())+
+    '&selected_status='+encodeURIComponent($('#search_status').val());
 }
 
 function search(){
     window.location.href = window.location.pathname +
       '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
       '&selected_medium=' + ($('#search_medium').val()) +
-      '&selected_group=' + ($('#search_group').val());
+      '&selected_group=' + ($('#search_group').val()) +
+      '&selected_status=' + ($('#search_status').val());
 }
 
 function enter_search(){

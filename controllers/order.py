@@ -20,7 +20,7 @@ from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
 from models.order import Order
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
-                                 CONTRACT_STATUS_PRINTED)
+                                 CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_CN)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.user import User
@@ -61,7 +61,11 @@ def new_order():
                                 creator=g.user,
                                 create_time=datetime.now())
         flash(u'新建客户订单成功, 请补充媒体订单和上传合同!', 'success')
-        return redirect(url_for("order.order_info", order_id=order.id, step=0))
+        return redirect(url_for("order.order_info", order_id=order.id))
+    else:
+        form.client_start.data = datetime.now().date()
+        form.client_end.data = datetime.now().date()
+        form.reminde_date.data = datetime.now().date()
     return tpl('new_order.html', form=form)
 
 
@@ -147,9 +151,12 @@ def order_info(order_id):
                 contract_apply_signal.send(apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
 
+    new_medium_form = MediumOrderForm()
+    new_medium_form.medium_start.data = order.client_start
+    new_medium_form.medium_end.data = order.client_end
     reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'client_form': client_form,
-               'new_medium_form': MediumOrderForm(),
+               'new_medium_form': new_medium_form,
                'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
                'order': order,
                'reminder_emails': reminder_emails}
@@ -296,6 +303,7 @@ def display_orders(orders, title):
     search_info = request.args.get('searchinfo', '')
     medium_id = int(request.args.get('selected_medium', '0'))
     group_id = int(request.args.get('selected_group', '0'))
+    status_id = int(request.args.get('selected_status', '-1'))
     reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
     page = max(1, page)
@@ -305,6 +313,8 @@ def display_orders(orders, title):
         orders = [o for o in orders if medium_id in o.medium_ids]
     if group_id:
         orders = [o for o in orders if o.agent and o.agent.group and group_id == o.agent.group.id]
+    if status_id >= 0:
+        orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [o for o in orders if search_info in o.name]
     if sortby and orders_len and hasattr(orders[0], sortby):
@@ -313,6 +323,8 @@ def display_orders(orders, title):
     select_mediums.insert(0, (0, u'全部媒体'))
     select_groups = [(g.id, g.name) for g in Group.all()]
     select_groups.insert(0, (0, u'全部甲方集团'))
+    select_statuses = CONTRACT_STATUS_CN.items()
+    select_statuses.insert(0, (-1, u'全部合同状态'))
     if 0 <= start < orders_len:
         orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
     else:
@@ -320,6 +332,7 @@ def display_orders(orders, title):
     return tpl('orders.html', orders=orders,
                mediums=select_mediums, medium_id=medium_id,
                groups=select_groups, group_id=group_id,
+               statuses=select_statuses, status_id=status_id,
                sortby=sortby, orderby=orderby,
                search_info=search_info, page=page)
 
@@ -341,6 +354,10 @@ def new_framework_order():
                                    create_time=datetime.now())
         flash(u'新建框架订单成功, 请上传合同!', 'success')
         return redirect(url_for("order.framework_order_info", order_id=order.id))
+    else:
+        form.client_start.data = datetime.now().date()
+        form.client_end.data = datetime.now().date()
+        form.reminde_date.data = datetime.now().date()
     return tpl('new_framework_order.html', form=form)
 
 
