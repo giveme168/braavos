@@ -152,8 +152,8 @@ def order_info(order_id):
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
 
     new_medium_form = MediumOrderForm()
-    new_medium_form.medium_start.data = datetime.now().date()
-    new_medium_form.medium_end.data = datetime.now().date()
+    new_medium_form.medium_start.data = order.client_start
+    new_medium_form.medium_end.data = order.client_end
     reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
