@@ -61,7 +61,11 @@ def new_order():
                                 creator=g.user,
                                 create_time=datetime.now())
         flash(u'新建客户订单成功, 请补充媒体订单和上传合同!', 'success')
-        return redirect(url_for("order.order_info", order_id=order.id, step=0))
+        return redirect(url_for("order.order_info", order_id=order.id))
+    else:
+        form.client_start.data = datetime.now().date()
+        form.client_end.data = datetime.now().date()
+        form.reminde_date.data = datetime.now().date()
     return tpl('new_order.html', form=form)
 
 
@@ -147,9 +151,12 @@ def order_info(order_id):
                 contract_apply_signal.send(apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
 
+    new_medium_form = MediumOrderForm()
+    new_medium_form.medium_start.data = datetime.now().date()
+    new_medium_form.medium_end.data = datetime.now().date()
     reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'client_form': client_form,
-               'new_medium_form': MediumOrderForm(),
+               'new_medium_form': new_medium_form,
                'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
                'order': order,
                'reminder_emails': reminder_emails}
@@ -347,6 +354,10 @@ def new_framework_order():
                                    create_time=datetime.now())
         flash(u'新建框架订单成功, 请上传合同!', 'success')
         return redirect(url_for("order.framework_order_info", order_id=order.id))
+    else:
+        form.client_start.data = datetime.now().date()
+        form.client_end.data = datetime.now().date()
+        form.reminde_date.data = datetime.now().date()
     return tpl('new_framework_order.html', form=form)
 
 
