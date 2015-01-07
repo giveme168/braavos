@@ -4,7 +4,7 @@ from wtforms import (TextField, validators, SelectField, SelectMultipleField,
 from libs.wtf import Form
 from models.client import Client, Group, Agent
 from models.medium import Medium
-from models.order import DISCOUNT_SALE, DISCOUNT_SELECT
+from models.order import DISCOUNT_SALE
 from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN
 from models.user import User
 from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
@@ -22,7 +22,7 @@ class ClientOrderForm(Form):
     reminde_date = DateField(u'最迟回款日期')
     direct_sales = SelectMultipleField(u'直客销售', coerce=int)
     agent_sales = SelectMultipleField(u'渠道销售', coerce=int)
-    resource_type = SelectField(u'售卖类型类型', coerce=int)
+    resource_type = SelectField(u'售卖类型', coerce=int)
     contract_type = SelectField(u'合同模板类型', coerce=int)
 
     def __init__(self, *args, **kwargs):
@@ -61,15 +61,6 @@ class MediumOrderForm(Form):
         self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
         self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
         self.discount.choices = DISCOUNT_SALE.items()
-
-    def validate(self):
-        if Form.validate(self):
-            if self.discount.data != DISCOUNT_SELECT:
-                return True
-            else:
-                self.discount.errors.append(u"请选择折扣")
-                return False
-        return False
 
 
 class FrameworkOrderForm(Form):

@@ -18,6 +18,7 @@
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_client_form(client_form) }}
+                    <br><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
                     {{ client_order_attachment(order) }}
                 </div>
             </div>
@@ -33,6 +34,7 @@
                     {% for mf in medium_forms %}
                     <div class="well">
                     {{ order_medium_form(mf[0], mf[1]) }}
+                    <br><div style="color:#999;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
                     {{ medium_order_attachment(mf[1]) }}
                     </div>
                     {% endfor %}

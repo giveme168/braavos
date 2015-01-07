@@ -23,6 +23,7 @@ class LoginForm(Form):
 
 class PwdChangeForm(Form):
     old_password = PasswordField(u'原密码', [validators.Required(u"请输入原密码.")])
+    password = PasswordField(u'密码', [validators.Required(u"请输入您的密码.")])
     confirm = PasswordField(u'再次输入新密码', [validators.Required(u"请再次输入您的密码.")])
 
     def validate(self, user):
