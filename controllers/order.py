@@ -178,7 +178,8 @@ def order_new_medium(order_id):
                        operaters=User.gets(form.operaters.data),
                        designers=User.gets(form.designers.data),
                        planers=User.gets(form.planers.data),
-                       discount=form.discount.data)
+                       discount=form.discount.data,
+                       creator=g.user)
         co.medium_orders = co.medium_orders + [mo]
         co.save()
         flash(u'[媒体订单]新建成功!', 'success')
