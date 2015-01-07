@@ -123,7 +123,9 @@
         <th>执行开始</th>
         <th>媒体订单 / 金额</th>
         <th>开始日期</th>
+        <!--
         <th>排期</th>
+        -->
         <th>合同号状态</th>
         <th>操作</th>
     </tr>
@@ -145,12 +147,14 @@
             <br><br>
             {% endfor %}
         </td>
+        <!--
         <td>
             {% for mo in o.medium_orders %}    
             <a href="{{mo.path()}}">排期管理</a>
             <br><br>
             {% endfor %}
         </td>
+        -->
         <td>{{o.contract_status_cn}}</td>
         <td>
             <a href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
