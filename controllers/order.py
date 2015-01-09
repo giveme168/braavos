@@ -7,7 +7,8 @@ from datetime import datetime, timedelta
 from flask import Blueprint, request, redirect, abort, url_for, g, Response
 from flask import render_template as tpl, json, jsonify, flash
 
-from forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm
+from forms.order import (ClientOrderForm, MediumOrderForm,
+                         FrameworkOrderForm, DoubanOrderForm)
 from forms.item import ItemForm
 
 from models.client import Client, Group, Agent
@@ -23,6 +24,7 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_CN)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
+from models.douban_order import DoubanOrder
 from models.user import User
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
@@ -43,6 +45,9 @@ def index():
     return redirect(url_for('order.my_orders'))
 
 
+######################
+#### client order
+######################
 @order_bp.route('/new_order', methods=['GET', 'POST'])
 def new_order():
     form = ClientOrderForm(request.form)
@@ -241,18 +246,6 @@ def client_order_contract(order_id):
     return redirect(url_for("order.order_info", order_id=order.id))
 
 
-@order_bp.route('/framework_order/<order_id>/contract', methods=['POST'])
-def framework_order_contract(order_id):
-    order = FrameworkOrder.get(order_id)
-    if not order:
-        abort(404)
-    action = int(request.values.get('action'))
-    emails = request.values.getlist('email')
-    msg = request.values.get('msg', '')
-    contract_status_change(order, action, emails, msg)
-    return redirect(url_for("order.framework_order_info", order_id=order.id))
-
-
 def contract_status_change(order, action, emails, msg):
     action_msg = ''
     if action == 0:
@@ -272,18 +265,20 @@ def contract_status_change(order, action, emails, msg):
         action_msg = u"合同打印完毕"
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
-    if emails:
-        to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
-        if action == 2:
-            to_users = to_users + User.contracts()
-        to_emails = list(set(emails + [x.email for x in to_users]))
-        apply_context = {"sender": g.user,
-                         "to": to_emails,
-                         "action_msg": action_msg,
-                         "msg": msg,
-                         "order": order}
-        contract_apply_signal.send(apply_context)
-        flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+    #  发送邮件
+    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+    if action == 2:
+        to_users = to_users + User.contracts()
+        if isinstance(order, DoubanOrder):
+            to_users = to_users + User.douban_contracts()
+    to_emails = list(set(emails + [x.email for x in to_users]))
+    apply_context = {"sender": g.user,
+                     "to": to_emails,
+                     "action_msg": action_msg,
+                     "msg": msg,
+                     "order": order}
+    contract_apply_signal.send(apply_context)
+    flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
 
 
 @order_bp.route('/orders', methods=['GET'])
@@ -338,6 +333,9 @@ def display_orders(orders, title):
                search_info=search_info, page=page)
 
 
+######################
+#### framework order
+######################
 @order_bp.route('/new_framework_order', methods=['GET', 'POST'])
 def new_framework_order():
     form = FrameworkOrderForm(request.form)
@@ -447,6 +445,163 @@ def framework_display_orders(orders, title):
     return tpl('frameworks.html', orders=orders, page=page)
 
 
+@order_bp.route('/framework_order/<order_id>/contract', methods=['POST'])
+def framework_order_contract(order_id):
+    order = FrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    action = int(request.values.get('action'))
+    emails = request.values.getlist('email')
+    msg = request.values.get('msg', '')
+    contract_status_change(order, action, emails, msg)
+    return redirect(url_for("order.framework_order_info", order_id=order.id))
+
+
+######################
+####  douban order
+######################
+@order_bp.route('/new_douban_order', methods=['GET', 'POST'])
+def new_douban_order():
+    form = DoubanOrderForm(request.form)
+    if request.method == 'POST' and form.validate():
+        order = DoubanOrder.add(client=Client.get(form.client.data),
+                                agent=Agent.get(form.agent.data),
+                                campaign=form.campaign.data,
+                                money=form.money.data,
+                                client_start=form.client_start.data,
+                                client_end=form.client_end.data,
+                                reminde_date=form.reminde_date.data,
+                                direct_sales=User.gets(form.direct_sales.data),
+                                agent_sales=User.gets(form.agent_sales.data),
+                                operaters=User.gets(form.operaters.data),
+                                designers=User.gets(form.designers.data),
+                                planers=User.gets(form.planers.data),
+                                contract_type=form.contract_type.data,
+                                creator=g.user,
+                                create_time=datetime.now())
+        flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
+        return redirect(url_for("order.douban_order_info", order_id=order.id))
+    else:
+        form.client_start.data = datetime.now().date()
+        form.client_end.data = datetime.now().date()
+        form.reminde_date.data = datetime.now().date()
+    return tpl('new_douban_order.html', form=form)
+
+
+def get_douban_form(order):
+    form = DoubanOrderForm()
+    form.client.data = order.client.id
+    form.agent.data = order.agent.id
+    form.campaign.data = order.campaign
+    form.money.data = order.money
+    form.client_start.data = order.client_start
+    form.client_end.data = order.client_end
+    form.reminde_date.data = order.reminde_date
+    form.direct_sales.data = [u.id for u in order.direct_sales]
+    form.agent_sales.data = [u.id for u in order.agent_sales]
+    form.operaters.data = [u.id for u in order.operaters]
+    form.designers.data = [u.id for u in order.designers]
+    form.planers.data = [u.id for u in order.planers]
+    form.contract_type.data = order.contract_type
+    return form
+
+
+@order_bp.route('/douban_order/<order_id>/info', methods=['GET', 'POST'])
+def douban_order_info(order_id):
+    order = DoubanOrder.get(order_id)
+    if not order:
+        abort(404)
+    form = get_douban_form(order)
+
+    if request.method == 'POST':
+        info_type = int(request.values.get('info_type', '0'))
+        if info_type == 0:
+            if not order.can_admin(g.user):
+                flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
+            else:
+                form = FrameworkOrderForm(request.form)
+                if form.validate():
+                    order.client = Client.get(form.client.data)
+                    order.agent = Agent.get(form.agent.data)
+                    order.campaign = form.campaign.data
+                    order.money = form.money.data
+                    order.client_start = form.client_start.data
+                    order.client_end = form.client_end.data
+                    order.reminde_date = form.reminde_date.data
+                    order.direct_sales = User.gets(form.direct_sales.data)
+                    order.agent_sales = User.gets(form.agent_sales.data)
+                    order.operaters = User.gets(form.operaters.data),
+                    order.designers = User.gets(form.designers.data),
+                    order.planers = User.gets(form.planers.data),
+                    order.contract_type = form.contract_type.data
+                    order.save()
+                    flash(u'[豆瓣订单]%s 保存成功!' % order.name, 'success')
+        elif info_type == 2:
+            if not g.user.is_contract():
+                flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
+            else:
+                order.contract = request.values.get("base_contract", "")
+                order.save()
+                flash(u'[%s]合同号保存成功!' % order.name, 'success')
+
+                action_msg = u"合同号更新"
+                msg = u"新合同号如下:\n\n%s: %s\n" % (order.name, order.contract)
+                to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+                to_emails = [x.email for x in set(to_users)]
+                apply_context = {"sender": g.user,
+                                 "to": to_emails,
+                                 "action_msg": action_msg,
+                                 "msg": msg,
+                                 "order": order}
+                contract_apply_signal.send(apply_context)
+                flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+
+    reminder_emails = [(u.name, u.email) for u in User.douban_contracts() + User.leaders() + User.contracts() + User.admins()]
+    context = {'douban_form': form,
+               'order': order,
+               'reminder_emails': reminder_emails}
+    return tpl('douban_detail_info.html', **context)
+
+
+@order_bp.route('/my_douban_orders', methods=['GET'])
+def my_douban_orders():
+    orders = DoubanOrder.get_order_by_user(g.user)
+    return douban_display_orders(orders, u'我的豆瓣订单列表')
+
+
+@order_bp.route('/douban_orders', methods=['GET'])
+def douban_orders():
+    orders = list(DoubanOrder.all())
+    return douban_display_orders(orders, u'直签豆瓣订单列表')
+
+
+def douban_display_orders(orders, title):
+    page = int(request.args.get('p', 1))
+    page = max(1, page)
+    start = (page - 1) * ORDER_PAGE_NUM
+    orders_len = len(orders)
+    if 0 <= start < orders_len:
+        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
+    else:
+        orders = []
+    return tpl('douban_orders.html', orders=orders, page=page)
+
+
+@order_bp.route('/douban_order/<order_id>/contract', methods=['POST'])
+def douban_order_contract(order_id):
+    order = DoubanOrder.get(order_id)
+    if not order:
+        abort(404)
+    action = int(request.values.get('action'))
+    emails = request.values.getlist('email')
+    msg = request.values.get('msg', '')
+    contract_status_change(order, action, emails, msg)
+    return redirect(url_for("order.douban_order_info", order_id=order.id))
+
+
+######################
+#### items
+######################
 @order_bp.route('/items', methods=['GET'])
 def items():
     items = AdItem.all()
@@ -732,6 +887,9 @@ def get_download_response(xls, filename):
     return response
 
 
+###################
+##### attachment
+###################
 @order_bp.route('/client_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
 def client_attach_status(order_id, attachment_id, status):
     order = ClientOrder.get(order_id)
@@ -751,6 +909,13 @@ def framework_attach_status(order_id, attachment_id, status):
     order = FrameworkOrder.get(order_id)
     attachment_status_change(order, attachment_id, status)
     return redirect(url_for("order.framework_order_info", order_id=order.id))
+
+
+@order_bp.route('/douban_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def douban_attach_status(order_id, attachment_id, status):
+    order = DoubanOrder.get(order_id)
+    attachment_status_change(order, attachment_id, status)
+    return redirect(url_for("order.douban_order_info", order_id=order.id))
 
 
 def attachment_status_change(order, attachment_id, status):

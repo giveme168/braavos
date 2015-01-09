@@ -66,6 +66,8 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator = db.relationship('User', backref=db.backref('created_framework_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
 
+    contract_generate = True
+
     def __init__(self, group, description=None,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None,

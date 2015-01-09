@@ -13,6 +13,7 @@ USER_STATUS_CN = {
     USER_STATUS_ON: u"有效"
 }
 
+TEAM_TYPE_DOUBAN_CONTRACT = 11       # 豆瓣-合同管理员
 TEAM_TYPE_CONTRACT = 10       # 內部-合同管理员
 TEAM_TYPE_LEADER = 9       # 媒体
 TEAM_TYPE_MEDIUM = 8       # 媒体
@@ -26,6 +27,7 @@ TEAM_TYPE_ADMIN = 1        # 广告管理员
 TEAM_TYPE_SUPER_ADMIN = 0  # 超级管理员
 
 TEAM_TYPE_CN = {
+    TEAM_TYPE_DOUBAN_CONTRACT: u"豆瓣-合同管理员",
     TEAM_TYPE_MEDIUM: u"媒体",
     TEAM_TYPE_DESIGNER: u"内部-设计",
     TEAM_TYPE_PLANNER: u"内部-策划",
@@ -125,6 +127,10 @@ class User(db.Model, BaseModelMixin):
     @classmethod
     def contracts(cls):
         return cls.gets_by_team_type(TEAM_TYPE_CONTRACT)
+
+    @classmethod
+    def douban_contracts(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_DOUBAN_CONTRACT)
 
     @classmethod
     def admins(cls):

@@ -89,6 +89,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator = db.relationship('User', backref=db.backref('created_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
 
+    contract_generate = True
+
     def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
                  medium_contract="", medium_money=0, discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
                  operaters=None, designers=None, planers=None,
