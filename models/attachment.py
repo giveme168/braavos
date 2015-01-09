@@ -62,11 +62,13 @@ class Attachment(db.Model, BaseModelMixin):
         from .order import Order
         from .client_order import ClientOrder
         from .framework_order import FrameworkOrder
+        from .douban_order import DoubanOrder
 
         TARGET_DICT = {
             'Order': Order,
             'ClientOrder': ClientOrder,
             'FrameworkOrder': FrameworkOrder,
+            'DoubanOrder': DoubanOrder,
         }
 
         return TARGET_DICT[self.target_type].get(self.target_id)

@@ -24,6 +24,7 @@ from models.medium import Medium, AdSize, AdUnit, AdPosition
 from models.order import Order
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
+from models.douban_order import DoubanOrder
 from models.delivery import Delivery
 # target_metadata = mymodel.Base.metadata
 from flask import current_app

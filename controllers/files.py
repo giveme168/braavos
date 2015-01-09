@@ -5,6 +5,7 @@ from flask import jsonify, send_from_directory, url_for, redirect, flash
 from models.order import Order
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
+from models.douban_order import DoubanOrder
 from models.user import User, TEAM_TYPE_CONTRACT
 from libs.files import files_set, attachment_set
 from libs.signals import contract_apply_signal
@@ -121,6 +122,34 @@ def framework_schedule_upload():
     return redirect(url_for('order.framework_order_info', order_id=fo.id))
 
 
+@files_bp.route('/douban/contract/upload', methods=['POST'])
+def douban_contract_upload():
+    order_id = request.values.get('order')
+    fo = DoubanOrder.get(order_id)
+    if fo and 'file' in request.files:
+        filename = attachment_set.save(request.files['file'])
+        attachment = fo.add_contract_attachment(g.user, filename)
+        flash(u'合同文件上传成功!', 'success')
+        #contract_email(fo, attachment)
+    else:
+        flash(u'订单不存在，或文件上传出错!', 'danger')
+    return redirect(url_for('order.douban_order_info', order_id=fo.id))
+
+
+@files_bp.route('/douban/schedule/upload', methods=['POST'])
+def douban_schedule_upload():
+    order_id = request.values.get('order')
+    fo = DoubanOrder.get(order_id)
+    if fo and 'file' in request.files:
+        filename = attachment_set.save(request.files['file'])
+        attachment = fo.add_schedule_attachment(g.user, filename)
+        flash(u'排期文件上传成功!', 'success')
+        #contract_email(fo, attachment)
+    else:
+        flash(u'订单不存在，或文件上传出错!', 'danger')
+    return redirect(url_for('order.douban_order_info', order_id=fo.id))
+
+
 @files_bp.route('/client_order/<order_id>/all_files', methods=['get'])
 def client_order_files(order_id):
     co = ClientOrder.get(order_id)
@@ -136,6 +165,12 @@ def medium_order_files(order_id):
 @files_bp.route('/framework_order/<order_id>/all_files', methods=['get'])
 def framework_order_files(order_id):
     fo = FrameworkOrder.get(order_id)
+    return tpl("order_files.html", order=fo)
+
+
+@files_bp.route('/douban_order/<order_id>/all_files', methods=['get'])
+def douban_order_files(order_id):
+    fo = DoubanOrder.get(order_id)
     return tpl("order_files.html", order=fo)
 
 
