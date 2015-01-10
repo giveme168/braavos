@@ -269,8 +269,8 @@ def contract_status_change(order, action, emails, msg):
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     if action == 2:
         to_users = to_users + User.contracts()
-        if isinstance(order, DoubanOrder):
-            to_users = to_users + User.douban_contracts()
+        #if isinstance(order, DoubanOrder):
+        #    to_users = to_users + User.douban_contracts()
     to_emails = list(set(emails + [x.email for x in to_users]))
     apply_context = {"sender": g.user,
                      "to": to_emails,
@@ -556,7 +556,7 @@ def douban_order_info(order_id):
                 contract_apply_signal.send(apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
 
-    reminder_emails = [(u.name, u.email) for u in User.douban_contracts() + User.leaders() + User.contracts() + User.admins()]
+    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'douban_form': form,
                'order': order,
                'reminder_emails': reminder_emails}

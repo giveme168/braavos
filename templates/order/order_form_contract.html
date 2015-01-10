@@ -1,5 +1,5 @@
 {% from 'form.html' import form_field %}
-{% macro order_contract_form(order, reminder_emails) -%}
+{% macro order_contract_form(order, reminder_emails, douban_contract=False) -%}
 <form class="form form-horizontal" method="POST">
   {% if g.user.is_contract() %}
   <input class="hide" name="info_type" value="2"/>
@@ -28,6 +28,9 @@
   </div>
   {% endfor %}
   <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+    {% if douban_contract %}
+    <a class="btn btn-info btn-sm col-md-offset-2" href="{{order.douban_contract_apply_path()}}">向申请豆瓣合同号</a>
+    {% endif %}
   {% else %}
   <div class="form-group">
     <label for="name" class="col-sm-2 control-label">合同号申请状态 : </label>

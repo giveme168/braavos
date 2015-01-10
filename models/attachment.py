@@ -1,5 +1,7 @@
 # -*- coding: UTF-8 -*-
+import os
 import datetime
+from flask import current_app as app
 
 from . import db, BaseModelMixin
 from libs.files import get_attachment_path
@@ -50,6 +52,10 @@ class Attachment(db.Model, BaseModelMixin):
         return get_attachment_path(self.filename)
 
     @property
+    def real_path(self):
+        return os.path.join(app.upload_set_config.get('attachment').destination, self.filename)
+
+    @property
     def status_cn(self):
         return ATTACHMENT_STATUS.get(self.attachment_status, u"新上传")
 
@@ -63,12 +69,14 @@ class Attachment(db.Model, BaseModelMixin):
         from .client_order import ClientOrder
         from .framework_order import FrameworkOrder
         from .douban_order import DoubanOrder
+        from .associated_douban_order import AssociatedDoubanOrder
 
         TARGET_DICT = {
             'Order': Order,
             'ClientOrder': ClientOrder,
             'FrameworkOrder': FrameworkOrder,
             'DoubanOrder': DoubanOrder,
+            'AssociatedDoubanOrder': AssociatedDoubanOrder,
         }
 
         return TARGET_DICT[self.target_type].get(self.target_id)

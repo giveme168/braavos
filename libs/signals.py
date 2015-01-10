@@ -1,7 +1,9 @@
 #-*- coding: UTF-8 -*-
 from flask import url_for, g
-from libs.mail import send_simple_mail, mail
+from libs.mail import send_simple_mail, send_attach_mail, mail
 from blinker import Namespace
+
+from models.user import User
 
 braavos_signals = Namespace()
 password_changed_signal = braavos_signals.signal('password-changed')
@@ -9,6 +11,7 @@ add_comment_signal = braavos_signals.signal('add-comment')
 order_apply_signal = braavos_signals.signal('order_apply')
 reply_apply_signal = braavos_signals.signal('reply_apply')
 contract_apply_signal = braavos_signals.signal('contract_apply')
+douban_contract_apply_signal = braavos_signals.signal('douban_contract_apply')
 
 
 @password_changed_signal.connect
@@ -87,3 +90,32 @@ def contract_apply(apply_context):
 \n
 by %s\n
 """ % (order.name, apply_context['action_msg'], url, apply_context['msg'], g.user.name)))
+
+
+@douban_contract_apply_signal.connect
+def douban_contract_apply(apply_context):
+    order = apply_context['order']
+    url = mail.app.config['DOMAIN'] + order.info_path()
+    douban_users = User.douban_contracts()
+    body = u"""
+Dear %s:\n
+\n
+订单合同号申请，订单信息如下:\n
+客户名称: %s \n
+代理名称(甲方): %s \n
+Campaign名: %s \n
+致趣订单管理系统链接地址： %s\n
+\n
+请尽快给定合同号, 谢谢~
+\n
+by %s\n
+""" % (','.join([x.name for x in douban_users]), order.client.name, order.agent.name, order.campaign, url, g.user.name)
+    file_paths = []
+    if order.get_last_contract():
+        file_paths.append(order.get_last_contract().real_path)
+    if order.get_last_schedule():
+        file_paths.append(order.get_last_schedule().real_path)
+    send_attach_mail(u'【豆瓣合同号申请】%s' % order.name,
+                     recipients=apply_context['to'],
+                     body=body,
+                     file_paths=file_paths)
