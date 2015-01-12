@@ -7,12 +7,17 @@
             <th>所有合同文件名</th>
             <th>上传日期</th>
             <th>状态</th>
+            <th>操作</th>
         </tr>
         {% for attachment in order.get_contract_attachments()  %}
         <tr>
-            <td><a href="{{attachment.path}}">{{attachment.filename}}</a></td>
+            <td><a href="{{attachment.preview_path}}">{{attachment.filename}}</a></td>
             <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
             <td>{{attachment.status_cn}}</td>
+            <td>
+                <a href="{{attachment.preview_path}}">预览</a>
+                <a href="{{attachment.path}}">下载</a>
+            </td>
         </tr>
         {% endfor %}
     </table>
@@ -24,9 +29,13 @@
         </tr>
         {% for attachment in order.get_schedule_attachments()  %}
         <tr>
-            <td><a href="{{attachment.path}}">{{attachment.filename}}</a></td>
+            <td><a href="{{attachment.preview_path}}">{{attachment.filename}}</a></td>
             <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
             <td>{{attachment.status_cn}}</td>
+            <td>
+                <a href="{{attachment.preview_path}}">预览</a>
+                <a href="{{attachment.path}}">下载</a>
+            </td>
         </tr>
         {% endfor %}
     </table>

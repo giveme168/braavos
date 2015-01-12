@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import os
 import datetime
+import urllib
 from flask import current_app as app
 
 from . import db, BaseModelMixin
@@ -54,6 +55,10 @@ class Attachment(db.Model, BaseModelMixin):
     @property
     def real_path(self):
         return os.path.join(app.upload_set_config.get('attachment').destination, self.filename)
+
+    @property
+    def preview_path(self):
+        return u"http://officeweb365.com/o/?i=475&furl=%s" % urllib.quote(self.real_path.encode('utf8'))
 
     @property
     def status_cn(self):
