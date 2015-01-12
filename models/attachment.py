@@ -56,6 +56,7 @@ class Attachment(db.Model, BaseModelMixin):
     def real_path(self):
         return os.path.join(app.upload_set_config.get('attachment').destination, self.filename)
 
+    @property
     def full_path(self):
         return get_attachment_path(self.filename, True)
 

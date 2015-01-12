@@ -11,7 +11,7 @@
         </tr>
         {% for attachment in order.get_contract_attachments()  %}
         <tr>
-            <td><a href="{{attachment.preview_path}}">{{attachment.filename}}</a></td>
+            <td>{{attachment.filename}}</td>
             <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
             <td>{{attachment.status_cn}}</td>
             <td>
@@ -29,7 +29,7 @@
         </tr>
         {% for attachment in order.get_schedule_attachments()  %}
         <tr>
-            <td><a href="{{attachment.preview_path}}">{{attachment.filename}}</a></td>
+            <td>{{attachment.filename}}</td>
             <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
             <td>{{attachment.status_cn}}</td>
             <td>
