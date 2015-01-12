@@ -1,8 +1,9 @@
 {% extends "/order_base.html" %}
 {% from 'order_form_client.html' import order_client_form %}
 {% from 'order_form_medium.html' import order_medium_form %}
+{% from 'order_form_associated_douban.html' import order_associated_douban_form %}
 {% from 'order_form_contract.html' import order_contract_form %}
-{% from 'order_form_attachment.html' import client_order_attachment, medium_order_attachment %}
+{% from 'order_form_attachment.html' import client_order_attachment, medium_order_attachment, associated_douban_attachment %}
 {% from 'comments.html' import comments_box %}
 
 {% block main_box%}
@@ -18,8 +19,8 @@
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_client_form(client_form) }}
-                    <br><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
                     {{ client_order_attachment(order) }}
+                    <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
                 </div>
             </div>
         </div>
@@ -34,8 +35,8 @@
                     {% for mf in medium_forms %}
                     <div class="well">
                     {{ order_medium_form(mf[0], mf[1]) }}
-                    <br><div style="color:#999;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
                     {{ medium_order_attachment(mf[1]) }}
+                    <hr><div style="color:#999;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
                     </div>
                     {% endfor %}
                     <div class="well" id="new-medium" style="display:none;">
@@ -43,6 +44,29 @@
                       {{ order_medium_form(new_medium_form, order=order) }}
                     </div>
                     <button onclick="showNewMedium(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 媒体订单</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapse4"> 豆瓣订单 </a> </h4>
+            </div>
+            <div id="collapse4" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {% for mf in associated_douban_forms %}
+                    <div class="well">
+                    {{ order_associated_douban_form(mf[0], mf[1]) }}
+                    {{ associated_douban_attachment(mf[1]) }}
+                    <hr><div style="color:#999;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
+                    </div>
+                    {% endfor %}
+                    <div class="well" id="new-associated-douban" style="display:none;">
+                      <h4>新建豆瓣关联订单</h4>
+                      {{ order_associated_douban_form(new_associated_douban_form) }}
+                    </div>
+                    <button onclick="showNewDouban(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 豆瓣关联订单</button>
                 </div>
             </div>
         </div>
@@ -68,6 +92,10 @@
     showNewMedium = function(ele){
       $(ele).hide();
       $("#new-medium").show();
+    };
+    showNewDouban = function(ele){
+      $(ele).hide();
+      $("#new-associated-douban").show();
     };
   });
 </script>

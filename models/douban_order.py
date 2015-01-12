@@ -121,6 +121,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return u"%s-%s" % (self.client.name, self.campaign)
 
     @property
+    def jiafang_name(self):
+        return self.agent.name
+
+    @property
     def direct_sales_names(self):
         return ",".join([u.name for u in self.direct_sales])
 

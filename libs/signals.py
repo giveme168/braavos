@@ -101,15 +101,15 @@ def douban_contract_apply(apply_context):
 Dear %s:\n
 \n
 订单合同号申请，订单信息如下:\n
-客户名称: %s \n
-代理名称(甲方): %s \n
+甲方名称: %s \n
 Campaign名: %s \n
+合同金额: %s \n
 致趣订单管理系统链接地址： %s\n
 \n
 请尽快给定合同号, 谢谢~
 \n
 by %s\n
-""" % (','.join([x.name for x in douban_users]), order.client.name, order.agent.name, order.campaign, url, g.user.name)
+""" % (','.join([x.name for x in douban_users]), order.jiafang_name, order.campaign, order.money, url, g.user.name)
     file_paths = []
     if order.get_last_contract():
         file_paths.append(order.get_last_contract().real_path)
