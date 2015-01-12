@@ -26,8 +26,7 @@ def request_user():
     if current_user and current_user.is_authenticated():
         g.user = current_user
     elif url_for('user.login') != request.path and \
-            not request.path.startswith(u'/static/') and \
-            not request.path.startswith(u'/files/'):
+            not request.path.startswith(u'/static/'):
         return login_manager.unauthorized()
 
 
