@@ -311,8 +311,6 @@ def contract_status_change(order, action, emails, msg):
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     if action == 2:
         to_users = to_users + User.contracts()
-        #if isinstance(order, DoubanOrder):
-        #    to_users = to_users + User.douban_contracts()
     to_emails = list(set(emails + [x.email for x in to_users]))
     apply_context = {"sender": g.user,
                      "to": to_emails,

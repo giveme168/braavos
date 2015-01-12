@@ -136,6 +136,15 @@ class User(db.Model, BaseModelMixin):
     def admins(cls):
         return cls.gets_by_team_type(TEAM_TYPE_ADMIN)
 
+    @classmethod
+    def contracts_by_order(cls, order):
+        return order.direct_sales + order.agent_sales + User.contracts()
+
+    @classmethod
+    def douban_contracts_by_order(cls, order):
+        return User.douban_contracts() + order.direct_sales + order.agent_sales + User.contracts()
+
+
 team_admins = db.Table('team_admin_users',
                        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
                        db.Column('team_id', db.Integer, db.ForeignKey('team.id'))

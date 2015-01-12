@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 from flask import Blueprint, request, current_app as app, abort, g, render_template as tpl
-from flask import jsonify, send_from_directory, url_for, redirect, flash
+from flask import jsonify, send_from_directory, redirect, flash
 
 from models.order import Order
 from models.client_order import ClientOrder
@@ -14,13 +14,16 @@ from libs.signals import contract_apply_signal
 
 files_bp = Blueprint('files', __name__, template_folder='../templates/files')
 
+FILE_TYPE_CONTRACT = 0
+FILE_TYPE_SCHEDULE = 1
+
 
 @files_bp.route('/files/<filename>', methods=['GET'])
 def files(filename):
     config = app.upload_set_config.get('files')
     if config is None:
         abort(404)
-    return send_from_directory(config.destination, filename)
+    return send_from_directory(config.destination, filename.encode('utf-8'))
 
 
 @files_bp.route('/attachment/<filename>', methods=['GET'])
@@ -28,7 +31,7 @@ def attachment(filename):
     config = app.upload_set_config.get('attachment')
     if config is None:
         abort(404)
-    return send_from_directory(config.destination, filename)
+    return send_from_directory(config.destination, filename.encode('utf-8'))
 
 
 @files_bp.route('/upload', methods=['POST'])
@@ -39,144 +42,89 @@ def upload():
     return jsonify({'status': 1, 'msg': 'file not exits or type not allowed'})
 
 
+def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
+    if order and 'file' in request.files:
+        filename = attachment_set.save(request.files['file'])
+        if file_type == FILE_TYPE_CONTRACT:
+            attachment = order.add_contract_attachment(g.user, filename)
+            flash(u'合同文件上传成功!', 'success')
+        elif file_type == FILE_TYPE_SCHEDULE:
+            attachment = order.add_schedule_attachment(g.user, filename)
+            flash(u'排期文件上传成功!', 'success')
+        contract_email(order, attachment)
+    else:
+        flash(u'订单不存在，或文件上传出错!', 'danger')
+    return redirect(order.info_path())
+
+
 @files_bp.route('/client/contract/upload', methods=['POST'])
 def client_contract_upload():
     order_id = request.values.get('order')
-    co = ClientOrder.get(order_id)
-    if co and 'file' in request.files:
-        filename = attachment_set.save(request.files['file'])
-        attachment = co.add_contract_attachment(g.user, filename)
-        flash(u'合同文件上传成功!', 'success')
-        contract_email(co, attachment)
-    else:
-        flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(url_for('order.order_info', order_id=co.id))
+    order = ClientOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
 
 
 @files_bp.route('/client/schedule/upload', methods=['POST'])
 def client_schedule_upload():
     order_id = request.values.get('order')
-    co = ClientOrder.get(order_id)
-    if co and 'file' in request.files:
-        filename = attachment_set.save(request.files['file'])
-        attachment = co.add_schedule_attachment(g.user, filename)
-        flash(u'排期文件上传成功!', 'success')
-        contract_email(co, attachment)
-    else:
-        flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(url_for('order.order_info', order_id=co.id))
+    order = ClientOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
 
 
 @files_bp.route('/medium/contract/upload', methods=['POST'])
 def medium_contract_upload():
     order_id = request.values.get('order')
     order = Order.get(order_id)
-    if order and 'file' in request.files:
-        filename = attachment_set.save(request.files['file'])
-        attachment = order.add_contract_attachment(g.user, filename)
-        flash(u'合同文件上传成功!', 'success')
-        contract_email(order, attachment)
-    else:
-        flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(url_for('order.order_info', order_id=order.client_order.id))
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
 
 
 @files_bp.route('/medium/schedule/upload', methods=['POST'])
 def medium_schedule_upload():
     order_id = request.values.get('order')
     order = Order.get(order_id)
-    if order and 'file' in request.files:
-        filename = attachment_set.save(request.files['file'])
-        attachment = order.add_schedule_attachment(g.user, filename)
-        flash(u'排期文件上传成功!', 'success')
-        contract_email(order, attachment)
-    else:
-        flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(url_for('order.order_info', order_id=order.client_order.id))
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
 
 
 @files_bp.route('/framework/contract/upload', methods=['POST'])
 def framework_contract_upload():
     order_id = request.values.get('order')
-    fo = FrameworkOrder.get(order_id)
-    if fo and 'file' in request.files:
-        filename = attachment_set.save(request.files['file'])
-        attachment = fo.add_contract_attachment(g.user, filename)
-        flash(u'合同文件上传成功!', 'success')
-        contract_email(fo, attachment)
-    else:
-        flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(url_for('order.framework_order_info', order_id=fo.id))
+    order = FrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
 
 
 @files_bp.route('/framework/schedule/upload', methods=['POST'])
 def framework_schedule_upload():
     order_id = request.values.get('order')
-    fo = FrameworkOrder.get(order_id)
-    if fo and 'file' in request.files:
-        filename = attachment_set.save(request.files['file'])
-        attachment = fo.add_schedule_attachment(g.user, filename)
-        flash(u'排期文件上传成功!', 'success')
-        contract_email(fo, attachment)
-    else:
-        flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(url_for('order.framework_order_info', order_id=fo.id))
+    order = FrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
 
 
 @files_bp.route('/douban/contract/upload', methods=['POST'])
 def douban_contract_upload():
     order_id = request.values.get('order')
-    fo = DoubanOrder.get(order_id)
-    if fo and 'file' in request.files:
-        filename = attachment_set.save(request.files['file'])
-        attachment = fo.add_contract_attachment(g.user, filename)
-        flash(u'合同文件上传成功!', 'success')
-        contract_email(fo, attachment)
-    else:
-        flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(url_for('order.douban_order_info', order_id=fo.id))
+    order = DoubanOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
 
 
 @files_bp.route('/douban/schedule/upload', methods=['POST'])
 def douban_schedule_upload():
     order_id = request.values.get('order')
-    fo = DoubanOrder.get(order_id)
-    if fo and 'file' in request.files:
-        filename = attachment_set.save(request.files['file'])
-        attachment = fo.add_schedule_attachment(g.user, filename)
-        flash(u'排期文件上传成功!', 'success')
-        contract_email(fo, attachment)
-    else:
-        flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(url_for('order.douban_order_info', order_id=fo.id))
+    order = DoubanOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
 
 
 @files_bp.route('/associated_douban/contract/upload', methods=['POST'])
 def associated_douban_contract_upload():
     order_id = request.values.get('order')
     order = AssociatedDoubanOrder.get(order_id)
-    if order and 'file' in request.files:
-        filename = attachment_set.save(request.files['file'])
-        attachment = order.add_contract_attachment(g.user, filename)
-        flash(u'合同文件上传成功!', 'success')
-        contract_email(order.medium_order.client_order, attachment)
-    else:
-        flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(order.info_path())
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
 
 
 @files_bp.route('/associated_douban/schedule/upload', methods=['POST'])
 def associated_douban_schedule_upload():
     order_id = request.values.get('order')
     order = AssociatedDoubanOrder.get(order_id)
-    if order and 'file' in request.files:
-        filename = attachment_set.save(request.files['file'])
-        attachment = order.add_schedule_attachment(g.user, filename)
-        flash(u'排期文件上传成功!', 'success')
-        contract_email(order.medium_order.client_order, attachment)
-    else:
-        flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(order.info_path())
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
 
 
 @files_bp.route('/client_order/<order_id>/all_files', methods=['get'])
