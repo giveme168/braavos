@@ -1,0 +1,13 @@
+{% from 'form.html' import form_field %}
+{% macro order_associated_douban_form(form, order=None) -%}
+{% if order %}
+<form class="form form-horizontal" method="POST" action="{{order.edit_path()}}">
+{% else %}
+<form class="form form-horizontal" method="POST" action="{{url_for('order.new_associated_douban_order')}}">
+{% endif %}
+    {{form.csrf_token}}
+    {{ form_field(form.medium_order) }}
+    {{ form_field(form.campaign) }}
+    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+</form>
+{%- endmacro %}

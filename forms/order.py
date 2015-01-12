@@ -63,6 +63,11 @@ class MediumOrderForm(Form):
         self.discount.choices = DISCOUNT_SALE.items()
 
 
+class AssociatedDoubanOrderForm(Form):
+    medium_order = SelectField(u'关联媒体订单', coerce=int)
+    campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
+
+
 class FrameworkOrderForm(Form):
     group = SelectField(u'代理集团', coerce=int)
     description = TextAreaField(u'备注', description=u"请填写返点政策/配送政策等信息")

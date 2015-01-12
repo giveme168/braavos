@@ -6,6 +6,7 @@ from models.order import Order
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
+from models.associated_douban_order import AssociatedDoubanOrder
 from models.user import User, TEAM_TYPE_CONTRACT
 from libs.files import files_set, attachment_set
 from libs.signals import contract_apply_signal
@@ -130,7 +131,7 @@ def douban_contract_upload():
         filename = attachment_set.save(request.files['file'])
         attachment = fo.add_contract_attachment(g.user, filename)
         flash(u'合同文件上传成功!', 'success')
-        #contract_email(fo, attachment)
+        contract_email(fo, attachment)
     else:
         flash(u'订单不存在，或文件上传出错!', 'danger')
     return redirect(url_for('order.douban_order_info', order_id=fo.id))
@@ -144,10 +145,38 @@ def douban_schedule_upload():
         filename = attachment_set.save(request.files['file'])
         attachment = fo.add_schedule_attachment(g.user, filename)
         flash(u'排期文件上传成功!', 'success')
-        #contract_email(fo, attachment)
+        contract_email(fo, attachment)
     else:
         flash(u'订单不存在，或文件上传出错!', 'danger')
     return redirect(url_for('order.douban_order_info', order_id=fo.id))
+
+
+@files_bp.route('/associated_douban/contract/upload', methods=['POST'])
+def associated_douban_contract_upload():
+    order_id = request.values.get('order')
+    order = AssociatedDoubanOrder.get(order_id)
+    if order and 'file' in request.files:
+        filename = attachment_set.save(request.files['file'])
+        attachment = order.add_contract_attachment(g.user, filename)
+        flash(u'合同文件上传成功!', 'success')
+        contract_email(order.medium_order.client_order, attachment)
+    else:
+        flash(u'订单不存在，或文件上传出错!', 'danger')
+    return redirect(order.info_path())
+
+
+@files_bp.route('/associated_douban/schedule/upload', methods=['POST'])
+def associated_douban_schedule_upload():
+    order_id = request.values.get('order')
+    order = AssociatedDoubanOrder.get(order_id)
+    if order and 'file' in request.files:
+        filename = attachment_set.save(request.files['file'])
+        attachment = order.add_schedule_attachment(g.user, filename)
+        flash(u'排期文件上传成功!', 'success')
+        contract_email(order.medium_order.client_order, attachment)
+    else:
+        flash(u'订单不存在，或文件上传出错!', 'danger')
+    return redirect(order.info_path())
 
 
 @files_bp.route('/client_order/<order_id>/all_files', methods=['get'])
@@ -174,6 +203,12 @@ def douban_order_files(order_id):
     return tpl("order_files.html", order=fo)
 
 
+@files_bp.route('/associated_douban_order/<order_id>/all_files', methods=['get'])
+def associated_douban_order_files(order_id):
+    fo = AssociatedDoubanOrder.get(order_id)
+    return tpl("order_files.html", order=fo)
+
+
 def contract_email(order, attachment):
     contract_emails = [m.email for m in User.gets_by_team_type(TEAM_TYPE_CONTRACT)]
     action_msg = u"新上传%s文件:%s" % (attachment.type_cn, attachment.filename)
@@ -184,3 +219,4 @@ def contract_email(order, attachment):
                      "msg": msg,
                      "order": order}
     contract_apply_signal.send(apply_context)
+    flash(u'已发送提醒邮件给 %s' % ', '.join(contract_emails), "info")

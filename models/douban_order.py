@@ -121,6 +121,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return u"%s-%s" % (self.client.name, self.campaign)
 
     @property
+    def jiafang_name(self):
+        return self.agent.name
+
+    @property
     def direct_sales_names(self):
         return ",".join([u.name for u in self.direct_sales])
 
@@ -186,3 +190,6 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                        order_id=self.id,
                        attachment_id=attachment.id,
                        status=ATTACHMENT_STATUS_REJECT)
+
+    def douban_contract_apply_path(self):
+        return url_for("contract.douban_apply", order_id=self.id)

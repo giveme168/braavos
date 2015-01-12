@@ -76,3 +76,9 @@ $(function(){
     {{ base_order_attachment(order, url_for('files.douban_contract_upload'), url_for('files.douban_schedule_upload')) }}
     {{ base_attachment_script() }}
 {%- endmacro %}
+
+{% macro associated_douban_attachment(order) -%}
+    {{ base_order_attachment(order, url_for('files.associated_douban_contract_upload'), url_for('files.associated_douban_schedule_upload')) }}
+{%- endmacro %}
+
+

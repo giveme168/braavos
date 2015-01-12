@@ -8,7 +8,8 @@ from flask import Blueprint, request, redirect, abort, url_for, g, Response
 from flask import render_template as tpl, json, jsonify, flash
 
 from forms.order import (ClientOrderForm, MediumOrderForm,
-                         FrameworkOrderForm, DoubanOrderForm)
+                         FrameworkOrderForm, DoubanOrderForm,
+                         AssociatedDoubanOrderForm)
 from forms.item import ItemForm
 
 from models.client import Client, Group, Agent
@@ -25,6 +26,7 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
+from models.associated_douban_order import AssociatedDoubanOrder
 from models.user import User
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
@@ -104,6 +106,14 @@ def get_medium_form(order):
     return medium_form
 
 
+def get_associated_douban_form(order, client_order):
+    form = AssociatedDoubanOrderForm()
+    form.medium_order.choices = [(mo.id, mo.name) for mo in client_order.medium_orders]
+    form.medium_order.data = order.medium_order.id
+    form.campaign.data = order.campaign
+    return form
+
+
 @order_bp.route('/order/<order_id>/info', methods=['GET', 'POST'])
 def order_info(order_id):
     order = ClientOrder.get(order_id)
@@ -140,12 +150,17 @@ def order_info(order_id):
                 for mo in order.medium_orders:
                     mo.medium_contract = request.values.get("medium_contract_%s" % mo.id, "")
                     mo.save()
+                for o in order.associated_douban_orders:
+                    o.contract = request.values.get("douban_contract_%s" % o.id, "")
+                    o.save()
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
-                msg = u"新合同号如下:\n\n%s: %s\n" % (order.name, order.contract)
+                msg = u"新合同号如下:\n\n%s-致趣: %s\n" % (order.agent.name, order.contract)
                 for mo in order.medium_orders:
-                    msg = msg + u"%s: %s\n" % (mo.name, mo.medium_contract or "")
+                    msg = msg + u"致趣-%s: %s\n" % (mo.medium.name, mo.medium_contract or "")
+                for o in order.associated_douban_orders:
+                    msg = msg + u"%s-豆瓣: %s\n" % (o.medium_order.medium.name, o.contract or "")
                 to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
                 apply_context = {"sender": g.user,
@@ -159,10 +174,14 @@ def order_info(order_id):
     new_medium_form = MediumOrderForm()
     new_medium_form.medium_start.data = order.client_start
     new_medium_form.medium_end.data = order.client_end
+    new_associated_douban_form = AssociatedDoubanOrderForm()
+    new_associated_douban_form.medium_order.choices = [(mo.id, mo.name) for mo in order.medium_orders]
     reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
                'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
+               'new_associated_douban_form': new_associated_douban_form,
+               'associated_douban_forms': [(get_associated_douban_form(o, order), o) for o in order.associated_douban_orders],
                'order': order,
                'reminder_emails': reminder_emails}
     return tpl('order_detail_info.html', **context)
@@ -188,7 +207,7 @@ def order_new_medium(order_id):
         co.medium_orders = co.medium_orders + [mo]
         co.save()
         flash(u'[媒体订单]新建成功!', 'success')
-        return redirect(url_for("order.order_info", order_id=co.id))
+        return redirect(mo.info_path())
     return tpl('order_new_medium.html', form=form)
 
 
@@ -207,7 +226,30 @@ def medium_order(mo_id):
     mo.discount = form.discount.data
     mo.save()
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
-    return redirect(url_for("order.order_info", order_id=mo.client_order.id))
+    return redirect(mo.info_path())
+
+
+@order_bp.route('/order/new_associated_douban_order', methods=['POST'])
+def new_associated_douban_order():
+    form = AssociatedDoubanOrderForm(request.form)
+    ao = AssociatedDoubanOrder.add(medium_order=Order.get(form.medium_order.data),
+                                   campaign=form.campaign.data,
+                                   creator=g.user)
+    flash(u'[关联豆瓣订单]新建成功!', 'success')
+    return redirect(ao.info_path())
+
+
+@order_bp.route('/order/associated_douban_order/<order_id>/', methods=['POST'])
+def associated_douban_order(order_id):
+    ao = AssociatedDoubanOrder.get(order_id)
+    if not ao:
+        abort(404)
+    form = AssociatedDoubanOrderForm(request.form)
+    ao.medium_order = Order.get(form.medium_order.data)
+    ao.campaign = form.campaign.data
+    ao.save()
+    flash(u'[关联豆瓣订单]%s 保存成功!' % ao.name, 'success')
+    return redirect(ao.info_path())
 
 
 @order_bp.route('/order/<order_id>/<step>/', methods=['GET'])
@@ -269,8 +311,8 @@ def contract_status_change(order, action, emails, msg):
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     if action == 2:
         to_users = to_users + User.contracts()
-        if isinstance(order, DoubanOrder):
-            to_users = to_users + User.douban_contracts()
+        #if isinstance(order, DoubanOrder):
+        #    to_users = to_users + User.douban_contracts()
     to_emails = list(set(emails + [x.email for x in to_users]))
     apply_context = {"sender": g.user,
                      "to": to_emails,
@@ -409,7 +451,7 @@ def framework_order_info(order_id):
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
-                msg = u"新合同号如下:\n\n%s: %s\n" % (order.name, order.contract)
+                msg = u"新合同号如下:\n\n%s-致趣: %s\n" % (order.group.name, order.contract)
                 to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
                 apply_context = {"sender": g.user,
@@ -545,7 +587,7 @@ def douban_order_info(order_id):
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
-                msg = u"新合同号如下:\n\n%s: %s\n" % (order.name, order.contract)
+                msg = u"新合同号如下:\n\n%s-豆瓣: %s\n" % (order.agent.name, order.contract)
                 to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
                 apply_context = {"sender": g.user,
@@ -556,7 +598,7 @@ def douban_order_info(order_id):
                 contract_apply_signal.send(apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
 
-    reminder_emails = [(u.name, u.email) for u in User.douban_contracts() + User.leaders() + User.contracts() + User.admins()]
+    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'douban_form': form,
                'order': order,
                'reminder_emails': reminder_emails}
@@ -833,11 +875,7 @@ def items_status_update(order_id, step):
                 flash(u"请选择Leader")
                 return redirect(url_for('order.order_detail', order_id=order.id, step=step))
             else:
-                apply = ChangeStateApply(
-                    step,
-                    action,
-                    [User.get(m).email for m in leaders],
-                    order)
+                apply = ChangeStateApply(step, action, [User.get(m).email for m in leaders], order)
                 order_apply_signal.send(apply)
                 flash(u"请在2个自然日内与审核Leaer联系")
         if action in ITEM_STATUS_LEADER_ACTIONS:
@@ -894,28 +932,35 @@ def get_download_response(xls, filename):
 def client_attach_status(order_id, attachment_id, status):
     order = ClientOrder.get(order_id)
     attachment_status_change(order, attachment_id, status)
-    return redirect(url_for("order.order_info", order_id=order.id))
+    return redirect(order.info_path())
 
 
 @order_bp.route('/medium_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
 def medium_attach_status(order_id, attachment_id, status):
     order = Order.get(order_id)
     attachment_status_change(order.client_order, attachment_id, status)
-    return redirect(url_for("order.order_info", order_id=order.client_order.id))
+    return redirect(order.info_path())
 
 
 @order_bp.route('/framework_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
 def framework_attach_status(order_id, attachment_id, status):
     order = FrameworkOrder.get(order_id)
     attachment_status_change(order, attachment_id, status)
-    return redirect(url_for("order.framework_order_info", order_id=order.id))
+    return redirect(order.info_path())
 
 
 @order_bp.route('/douban_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
 def douban_attach_status(order_id, attachment_id, status):
     order = DoubanOrder.get(order_id)
     attachment_status_change(order, attachment_id, status)
-    return redirect(url_for("order.douban_order_info", order_id=order.id))
+    return redirect(order.info_path())
+
+
+@order_bp.route('/associated_douban_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def associated_douban_attach_status(order_id, attachment_id, status):
+    order = AssociatedDoubanOrder.get(order_id)
+    attachment_status_change(order.medium_order.client_order, attachment_id, status)
+    return redirect(order.info_path())
 
 
 def attachment_status_change(order, attachment_id, status):

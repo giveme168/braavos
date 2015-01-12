@@ -131,6 +131,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [x.medium.id for x in self.medium_orders]
 
     @property
+    def associated_douban_orders(self):
+        return [ao for mo in self.medium_orders for ao in mo.associated_douban_orders]
+
+    @property
     def resource_type_cn(self):
         return RESOURCE_TYPE_CN.get(self.resource_type)
 
