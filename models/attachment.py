@@ -56,9 +56,12 @@ class Attachment(db.Model, BaseModelMixin):
     def real_path(self):
         return os.path.join(app.upload_set_config.get('attachment').destination, self.filename)
 
+    def full_path(self):
+        return get_attachment_path(self.filename, True)
+
     @property
     def preview_path(self):
-        return u"http://officeweb365.com/o/?i=475&furl=%s" % urllib.quote(self.real_path.encode('utf8'))
+        return u"http://officeweb365.com/o/?i=475&furl=%s" % urllib.quote(self.full_path.encode('utf8'))
 
     @property
     def status_cn(self):
