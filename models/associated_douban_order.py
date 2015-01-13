@@ -15,6 +15,7 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
     medium_order = db.relationship('Order', backref=db.backref('associated_douban_orders', lazy='dynamic'))
     campaign = db.Column(db.String(100))  # 活动名称
     contract = db.Column(db.String(100))  # 豆瓣合同号
+    money = db.Column(db.Integer)  # 客户合同金额
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User')
@@ -22,10 +23,11 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
 
     contract_generate = False
 
-    def __init__(self, medium_order, contract=None, campaign=None, creator=None, create_time=None):
+    def __init__(self, medium_order, contract=None, campaign=None, money=0, creator=None, create_time=None):
         self.medium_order = medium_order
         self.contract = contract or ""
         self.campaign = campaign or ""
+        self.money = money
 
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
@@ -45,10 +47,6 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
     @property
     def jiafang_name(self):
         return self.medium_order.medium.name
-
-    @property
-    def money(self):
-        return self.medium_order.medium_money
 
     def path(self):
         return url_for('order.order_info', order_id=self.id)

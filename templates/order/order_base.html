@@ -8,24 +8,29 @@
     <a class="list-group-item" href="{{url_for('order.orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 全部新媒体订单
     </a>
+    <a class="list-group-item" href="{{url_for('order.new_order')}}">
+        <span class="glyphicon glyphicon-plus"></span> 新建新媒体订单
+    </a>
     <a class="list-group-item" href="{{url_for('order.douban_orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 直签豆瓣订单
+    </a>
+    <a class="list-group-item" href="{{url_for('order.new_douban_order')}}">
+        <span class="glyphicon glyphicon-plus"></span> 新建直签豆瓣订单
     </a>
     {% else %}
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的新媒体订单
     </a>
-    <a class="list-group-item" href="{{url_for('order.my_douban_orders')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 我的豆瓣订单
-    </a>
-    {% endif %}
-
     <a class="list-group-item" href="{{url_for('order.new_order')}}">
         <span class="glyphicon glyphicon-plus"></span> 新建新媒体订单
+    </a>
+    <a class="list-group-item" href="{{url_for('order.my_douban_orders')}}">
+      <span class="glyphicon glyphicon-th-list"></span> 我的豆瓣订单
     </a>
     <a class="list-group-item" href="{{url_for('order.new_douban_order')}}">
         <span class="glyphicon glyphicon-plus"></span> 新建直签豆瓣订单
     </a>
+    {% endif %}
 
     <!-- 只有leader 销售 合同管理员才能看框架 -->
     {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() %}
