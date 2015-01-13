@@ -65,6 +65,7 @@ def new_order():
                                 agent_sales=User.gets(form.agent_sales.data),
                                 contract_type=form.contract_type.data,
                                 resource_type=form.resource_type.data,
+                                sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now())
         flash(u'新建客户订单成功, 请补充媒体订单和上传合同!', 'success')
@@ -89,6 +90,7 @@ def get_client_form(order):
     client_form.agent_sales.data = [u.id for u in order.agent_sales]
     client_form.contract_type.data = order.contract_type
     client_form.resource_type.data = order.resource_type
+    client_form.sale_type.data = order.sale_type
     return client_form
 
 
@@ -140,6 +142,7 @@ def order_info(order_id):
                     order.agent_sales = User.gets(client_form.agent_sales.data)
                     order.contract_type = client_form.contract_type.data
                     order.resource_type = client_form.resource_type.data
+                    order.sale_type = client_form.sale_type.data
                     order.save()
                     flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
         elif info_type == 2:
@@ -521,6 +524,8 @@ def new_douban_order():
                                 designers=User.gets(form.designers.data),
                                 planers=User.gets(form.planers.data),
                                 contract_type=form.contract_type.data,
+                                resource_type=form.resource_type.data,
+                                sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now())
         flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
@@ -547,6 +552,8 @@ def get_douban_form(order):
     form.designers.data = [u.id for u in order.designers]
     form.planers.data = [u.id for u in order.planers]
     form.contract_type.data = order.contract_type
+    form.resource_type.data = order.resource_type
+    form.sale_type.data = order.sale_type
     return form
 
 
@@ -578,6 +585,8 @@ def douban_order_info(order_id):
                     order.designers = User.gets(form.designers.data),
                     order.planers = User.gets(form.planers.data),
                     order.contract_type = form.contract_type.data
+                    order.resource_type = form.resource_type.data
+                    order.sale_type = form.sale_type.data
                     order.save()
                     flash(u'[豆瓣订单]%s 保存成功!' % order.name, 'success')
         elif info_type == 2:

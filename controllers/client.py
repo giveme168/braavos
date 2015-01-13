@@ -71,15 +71,11 @@ def new_medium():
     form = NewMediumForm(request.form)
     if request.method == 'POST' and form.validate():
         db_medium_name = Medium.name_exist(form.name.data)
-        db_medium_abbreviation = Medium.abbreviation_exist(form.abbreviation.data)
-        if not db_medium_name and not db_medium_abbreviation:
+        if not db_medium_name:
             medium = Medium.add(form.name.data, Team.get(form.owner.data), form.abbreviation.data)
             flash(u'新建媒体(%s)成功!' % medium.name, 'success')
-        elif db_medium_name:
-            flash(u'新建媒体(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
-            return tpl('medium.html', form=form, title=u"新建媒体")
         else:
-            flash(u'新建媒体(%s)失败, 缩写已经被占用!' % form.name.data, 'danger')
+            flash(u'新建媒体(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
             return tpl('medium.html', form=form, title=u"新建媒体")
         return redirect(url_for("client.medium_detail", medium_id=medium.id))
     return tpl('medium.html', form=form, title=u"新建媒体")
