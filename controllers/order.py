@@ -176,6 +176,7 @@ def order_info(order_id):
     new_medium_form.medium_end.data = order.client_end
     new_associated_douban_form = AssociatedDoubanOrderForm()
     new_associated_douban_form.medium_order.choices = [(mo.id, mo.name) for mo in order.medium_orders]
+    new_associated_douban_form.campaign.data = order.campaign
     reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,

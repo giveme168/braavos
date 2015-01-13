@@ -21,7 +21,7 @@
         <td>{{o.creator.display_name}}</td>
         <td>{{o.create_time.strftime('%Y-%m-%d')}}</td>
         <td>
-            <a href="{{url_for("order.framework_order_info", order_id=o.id)}}">合同设置</a>
+            <a href="{{o.info_path()}}">合同设置</a>
         </td>
     </tr>
     {% endfor %}
