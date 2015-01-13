@@ -111,6 +111,7 @@ def get_associated_douban_form(order, client_order):
     form.medium_order.choices = [(mo.id, mo.name) for mo in client_order.medium_orders]
     form.medium_order.data = order.medium_order.id
     form.campaign.data = order.campaign
+    form.money.data = order.money
     return form
 
 
@@ -235,6 +236,7 @@ def new_associated_douban_order():
     form = AssociatedDoubanOrderForm(request.form)
     ao = AssociatedDoubanOrder.add(medium_order=Order.get(form.medium_order.data),
                                    campaign=form.campaign.data,
+                                   money=form.money.data,
                                    creator=g.user)
     flash(u'[关联豆瓣订单]新建成功!', 'success')
     return redirect(ao.info_path())
@@ -248,6 +250,7 @@ def associated_douban_order(order_id):
     form = AssociatedDoubanOrderForm(request.form)
     ao.medium_order = Order.get(form.medium_order.data)
     ao.campaign = form.campaign.data
+    ao.money = form.money.data
     ao.save()
     flash(u'[关联豆瓣订单]%s 保存成功!' % ao.name, 'success')
     return redirect(ao.info_path())

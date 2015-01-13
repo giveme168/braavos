@@ -66,6 +66,7 @@ class MediumOrderForm(Form):
 class AssociatedDoubanOrderForm(Form):
     medium_order = SelectField(u'关联媒体订单', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
+    money = IntegerField(u'合同金额(元)', default=0)
 
 
 class FrameworkOrderForm(Form):
