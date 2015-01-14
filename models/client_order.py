@@ -124,9 +124,6 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.create_time = create_time or datetime.datetime.now()
         self.contract_status = contract_status
 
-    def __repr__(self):
-        return '<ClientOrder %s>' % (self.id)
-
     @property
     def name(self):
         return u"%s-%s" % (self.client.name, self.campaign)

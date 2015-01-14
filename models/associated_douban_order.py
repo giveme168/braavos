@@ -5,6 +5,7 @@ from flask import url_for
 from . import db, BaseModelMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
+from consts import DATE_FORMAT
 
 
 class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
@@ -37,6 +38,10 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
         return u"%s-%s" % (self.medium_order.name, self.campaign)
 
     @property
+    def client(self):
+        return self.medium_order.client_order.client
+
+    @property
     def direct_sales(self):
         return self.medium_order.client_order.direct_sales
 
@@ -45,8 +50,32 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
         return self.medium_order.client_order.agent_sales
 
     @property
+    def direct_sales_names(self):
+        return ",".join([u.name for u in self.direct_sales])
+
+    @property
+    def agent_sales_names(self):
+        return ",".join([u.name for u in self.agent_sales])
+
+    @property
     def jiafang_name(self):
         return self.medium_order.medium.name
+
+    @property
+    def start_date(self):
+        return self.medium_order.medium_start
+
+    @property
+    def end_date(self):
+        return self.medium_order.medium_end
+
+    @property
+    def start_date_cn(self):
+        return self.start_date.strftime(DATE_FORMAT)
+
+    @property
+    def end_date_cn(self):
+        return self.end_date.strftime(DATE_FORMAT)
 
     def path(self):
         return url_for('order.order_info', order_id=self.id)
