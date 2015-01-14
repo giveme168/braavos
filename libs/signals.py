@@ -83,13 +83,15 @@ def contract_apply(apply_context):
     send_simple_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
                      recipients=apply_context['to'],
                      body=(u"""
-订单:%s 【%s】\n
-链接地址： %s\n
-留言如下: \n
-%s\n
+%s
+
+订单: %s
+链接地址: %s
+留言如下:
+%s
 \n
-by %s\n
-""" % (order.name, apply_context['action_msg'], url, apply_context['msg'], g.user.name)))
+by %s
+""" % (apply_context['action_msg'], order.name, url, apply_context['msg'], g.user.name)))
 
 
 @douban_contract_apply_signal.connect
@@ -98,18 +100,28 @@ def douban_contract_apply(apply_context):
     url = mail.app.config['DOMAIN'] + order.info_path()
     douban_users = User.douban_contracts()
     body = u"""
-Dear %s:\n
-\n
-订单合同号申请，订单信息如下:\n
-甲方名称: %s \n
-Campaign名: %s \n
-合同金额: %s \n
-致趣订单管理系统链接地址： %s\n
-\n
-请尽快给定合同号, 谢谢~
-\n
+Dear %s:
+
+请帮忙递交法务审核合同 + 分配合同号, 谢谢~
+
+项目: %s
+客户: %s
+代理: %s
+直客销售: %s
+渠道销售: %s
+时间: %s : %s
+金额: %s
+
+附注:
+    致趣订单管理系统链接地址: %s
+
 by %s\n
-""" % (','.join([x.name for x in douban_users]), order.jiafang_name, order.campaign, order.money, url, g.user.name)
+""" % (','.join([x.name for x in douban_users]), order.campaign,
+       order.client.name, order.jiafang_name,
+       order.direct_sales_names, order.agent_sales_names,
+       order.start_date_cn, order.end_date_cn,
+       order.money, url, g.user.name)
+
     file_paths = []
     if order.get_last_contract():
         file_paths.append(order.get_last_contract().real_path)

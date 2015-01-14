@@ -160,7 +160,10 @@ def associated_douban_order_files(order_id):
 def contract_email(order, attachment):
     contract_emails = [m.email for m in User.gets_by_team_type(TEAM_TYPE_CONTRACT)]
     action_msg = u"新上传%s文件:%s" % (attachment.type_cn, attachment.filename)
-    msg = u"文件名:%s\n状态:%s\n上传者:%s\n" % (attachment.filename, attachment.status_cn, g.user.name)
+    msg = u"""
+    文件名:%s
+    状态:%s
+    上传者:%s""" % (attachment.filename, attachment.status_cn, g.user.name)
     apply_context = {"sender": g.user,
                      "to": contract_emails,
                      "action_msg": action_msg,
