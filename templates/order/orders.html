@@ -44,7 +44,9 @@
         <th>执行结束</th>
         <th>直客销售</th>
         <th>渠道销售</th>
-        <th>媒体/开始/结束/执行</th>
+        <th>媒体</th>
+        <th>开始</th>
+        <th>结束</th>
         <th>排期</th>
         <th>合同号状态</th>
         <th>操作</th>
@@ -57,9 +59,21 @@
         <td>{{o.end_date_cn}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
-        <td style="width:240px;">
+        <td>
             {% for mo in o.medium_orders %}    
-            {{mo.medium.name}} / {{mo.start_date_cn}} / {{mo.end_date_cn}} / 
+            {{mo.medium.name}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.start_date_cn}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.end_date_cn}} 
             <br><br>
             {% endfor %}
         </td>
@@ -87,7 +101,8 @@
         <th>直客销售</th>
         <th>渠道销售</th>
         <th>售卖类型</th>
-        <th>媒体订单/金额</th>
+        <th>媒体订单</th>
+        <th>金额</th>
         <th>合同号状态</th>
         <th>操作</th>
     </tr>
@@ -101,7 +116,13 @@
         <td>{{o.resource_type_cn}}</td>
         <td>
             {% for mo in o.medium_orders %}    
-            {{mo.medium.name}} / {{mo.medium_money}} 
+            {{mo.medium.name}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.medium_money}} 
             <br><br>
             {% endfor %}
         </td>
@@ -121,7 +142,8 @@
         <th>Campaign</th>
         <th>合同金额</th>
         <th>执行开始</th>
-        <th>媒体订单 / 金额</th>
+        <th>媒体订单</th>
+        <th>金额</th>
         <th>开始日期</th>
         <!--
         <th>排期</th>
@@ -137,7 +159,13 @@
         <td>{{o.start_date_cn}}</td>
         <td>
             {% for mo in o.medium_orders %}    
-            {{mo.medium.name}} / {{mo.medium_money}}
+            {{mo.medium.name}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.medium_money}}
             <br><br>
             {% endfor %}
         </td>
@@ -173,7 +201,8 @@
         <th>合同金额</th>
         <th>直客销售</th>
         <th>渠道销售</th>
-        <th>媒体订单 / 金额</th>
+        <th>媒体订单</th>
+        <th>金额</th>
         <th>合同号状态</th>
         <th>操作</th>
     </tr>
@@ -187,7 +216,13 @@
         <td>{{o.agent_sales_names}}</td>
         <td>
             {% for mo in o.medium_orders %}    
-            {{mo.medium.name}} / {{mo.medium_money}}
+            {{mo.medium.name}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.medium_money}}
             <br><br>
             {% endfor %}
         </td>
