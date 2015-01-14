@@ -48,7 +48,8 @@ class ClientOrderForm(Form):
 
 class MediumOrderForm(Form):
     medium = SelectField(u'投放媒体', coerce=int, description=u"提交后不可修改")
-    medium_money = IntegerField(u'合同金额(元)', default=0)
+    sale_money = IntegerField(u'售卖金额(元)', default=0)
+    medium_money = IntegerField(u'下单金额(元)', default=0)
     medium_start = DateField(u'执行开始')
     medium_end = DateField(u'执行结束')
     operaters = SelectMultipleField(u'执行人员', coerce=int)
