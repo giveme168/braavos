@@ -331,12 +331,16 @@ def contract_status_change(order, action, emails, msg):
     elif action == 4:
         order.contract_status = CONTRACT_STATUS_PRINTED
         action_msg = u"合同打印完毕"
+    elif action == 5:
+        action_msg = u"消息提醒"
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     #  发送邮件
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     if action == 2:
         to_users = to_users + User.contracts()
+    elif action == 5:
+        to_users = [g.user]
     to_emails = list(set(emails + [x.email for x in to_users]))
     apply_context = {"sender": g.user,
                      "to": to_emails,
@@ -355,10 +359,10 @@ def orders():
 
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
-    status_id = int(request.args.get('selected_status', '-1'))
-    if status_id == -1:
+    if not request.args.get('selected_status'):
         if g.user.is_admin():
             orders = list(ClientOrder.all())
+            status_id = -1
         elif g.user.is_leader():
             orders = [o for o in ClientOrder.all() if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
@@ -370,8 +374,13 @@ def my_orders():
             status_id = CONTRACT_STATUS_NEW
         else:
             orders = ClientOrder.get_order_by_user(g.user)
+            status_id = -1
     else:
-        orders = ClientOrder.get_order_by_user(g.user)
+        status_id = int(request.args.get('selected_status'))
+        if g.user.is_leader() or g.user.is_contract() or g.user.is_media():
+            orders = list(ClientOrder.all())
+        else:
+            orders = ClientOrder.get_order_by_user(g.user)
     return display_orders(orders, u'我的订单列表', status_id)
 
 
