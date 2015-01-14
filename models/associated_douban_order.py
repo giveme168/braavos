@@ -34,7 +34,7 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
 
     @property
     def name(self):
-        return u"%s-豆瓣" % (self.medium_order.name)
+        return u"%s-%s" % (self.medium_order.name, self.campaign)
 
     @property
     def direct_sales(self):

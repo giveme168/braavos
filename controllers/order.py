@@ -22,7 +22,7 @@ from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
 from models.order import Order
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
-                                 CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_CN)
+                                 CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_NEW, CONTRACT_STATUS_CN)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
@@ -69,7 +69,6 @@ def new_order():
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now())
-        flash(u'新建客户订单成功, 请补充媒体订单和上传合同!', 'success')
         medium_ids = request.values.getlist('medium')
         medium_moneys = request.values.getlist('medium-money')
         if medium_ids and medium_moneys and len(medium_ids) == len(medium_moneys):
@@ -83,6 +82,7 @@ def new_order():
                                creator=g.user)
                 order.medium_orders = order.medium_orders + [mo]
             order.save()
+        flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
         return redirect(url_for("order.order_info", order_id=order.id))
     else:
         form.client_start.data = datetime.now().date()
@@ -350,22 +350,37 @@ def contract_status_change(order, action, emails, msg):
 @order_bp.route('/orders', methods=['GET'])
 def orders():
     orders = list(ClientOrder.all())
-    return display_orders(orders, u'客户订单列表')
+    return display_orders(orders, u'订单列表')
 
 
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
-    orders = ClientOrder.get_order_by_user(g.user)
-    return display_orders(orders, u'我的客户订单列表')
+    status_id = int(request.args.get('selected_status', '-1'))
+    if status_id == -1:
+        if g.user.is_admin():
+            orders = list(ClientOrder.all())
+        elif g.user.is_leader():
+            orders = [o for o in ClientOrder.all() if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
+            status_id = CONTRACT_STATUS_APPLYCONTRACT
+        elif g.user.is_contract():
+            orders = [o for o in ClientOrder.all() if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+            status_id = CONTRACT_STATUS_APPLYPASS
+        elif g.user.is_media():
+            orders = [o for o in ClientOrder.all() if o.contract_status == CONTRACT_STATUS_NEW]
+            status_id = CONTRACT_STATUS_NEW
+        else:
+            orders = ClientOrder.get_order_by_user(g.user)
+    else:
+        orders = ClientOrder.get_order_by_user(g.user)
+    return display_orders(orders, u'我的订单列表', status_id)
 
 
-def display_orders(orders, title):
+def display_orders(orders, title, status_id=-1):
     sortby = request.args.get('sortby', '')
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     medium_id = int(request.args.get('selected_medium', '0'))
     group_id = int(request.args.get('selected_group', '0'))
-    status_id = int(request.args.get('selected_status', '-1'))
     reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
     page = max(1, page)
