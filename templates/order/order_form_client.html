@@ -43,16 +43,18 @@
 {% if mediums %}
 <script type="txt/template" id="medium-tpl">
   <div class="form-group">
+    <label class="medium-control">媒体 : </label>
     <select name="medium" type="text" class="form-control medium-control">
       {% for m in mediums %}
         <option value="{{m[0]}}">{{m[1]}}</option>
       {% endfor %}
     </select>
+    <label class="medium-control">售卖金额(元) : </label>
     <input name="medium-money" type="text" class="form-control medium-control" placeholder="售卖金额(元)" value="0"/>
   </div>
 </script>
 <style>
-  .medium-control{margin-left: 30px; width: 20%; display: inline-block;}
+  .medium-control{margin-right: 10px; text-align: right; width:20%; display: inline-block;}
 </style>
 {% endif %}
 <script>
