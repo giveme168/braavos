@@ -384,7 +384,7 @@ def display_orders(orders, title):
     select_mediums = [(m.id, m.name) for m in Medium.all()]
     select_mediums.insert(0, (0, u'全部媒体'))
     select_groups = [(g.id, g.name) for g in Group.all()]
-    select_groups.insert(0, (0, u'全部甲方集团'))
+    select_groups.insert(0, (0, u'全部集团'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
     if 0 <= start < orders_len:

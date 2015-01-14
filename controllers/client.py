@@ -56,14 +56,14 @@ def new_agent():
         db_agent_name = Agent.name_exist(form.name.data)
         if not db_agent_name:
             agent = Agent.add(form.name.data, Group.get(form.group.data))
-            flash(u'新建代理公司(%s)成功!' % agent.name, 'success')
+            flash(u'新建代理/直客(%s)成功!' % agent.name, 'success')
         else:
-            flash(u'新建代理公司(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
+            flash(u'新建代理/直客(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
             return tpl('agent.html', form=form, title=u"新建代理公司")
         return redirect(url_for("client.agents"))
     return tpl('agent.html',
                form=form,
-               title=u"新建代理公司")
+               title=u"新建代理/直客")
 
 
 @client_bp.route('/new_medium', methods=['GET', 'POST'])
@@ -95,7 +95,7 @@ def client_detail(client_id):
     else:
         form.name.data = client.name
         form.industry.data = client.industry
-    return tpl('client.html', form=form, title=client.name)
+    return tpl('client.html', form=form, title=u"客户-" + client.name)
 
 
 @client_bp.route('/agent/<agent_id>', methods=['GET', 'POST'])
@@ -114,7 +114,7 @@ def agent_detail(agent_id):
         form.group.data = agent.group.id if agent.group else None
     return tpl('agent.html',
                form=form,
-               title=agent.name)
+               title=u"代理/直客-" + agent.name)
 
 
 @client_bp.route('/group/<group_id>', methods=['GET', 'POST'])
@@ -132,7 +132,7 @@ def group_detail(group_id):
     return tpl('group.html',
                form=form,
                group=group,
-               title=group.name)
+               title=u"代理集团-" + group.name)
 
 
 @client_bp.route('/medium/<medium_id>', methods=['GET', 'POST'])
@@ -151,7 +151,7 @@ def medium_detail(medium_id):
         form.name.data = medium.name
         form.owner.data = medium.owner_id
         form.abbreviation.data = medium.abbreviation
-    return tpl('medium.html', form=form, title=medium.name)
+    return tpl('medium.html', form=form, title=u"媒体-" + medium.name)
 
 
 @client_bp.route('/mediums', methods=['GET'])

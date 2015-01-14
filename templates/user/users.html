@@ -1,16 +1,16 @@
 {% extends "/user_base.html" %}
-{% block title %}Users{% endblock %}
+{% block title %}用户列表{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3>User列表</h3>
+    <h3>用户列表</h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>#id</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Team</th>
-            <th>Status</th>
+            <th>名字</th>
+            <th>邮箱</th>
+            <th>团队</th>
+            <th>状态</th>
         </tr>
         {% for u in users %}
         <tr>
