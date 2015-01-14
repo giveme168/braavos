@@ -13,6 +13,7 @@ USER_STATUS_CN = {
     USER_STATUS_ON: u"有效"
 }
 
+TEAM_TYPE_MEDIA = 12       # 内部-媒介
 TEAM_TYPE_DOUBAN_CONTRACT = 11       # 豆瓣-合同管理员
 TEAM_TYPE_CONTRACT = 10       # 內部-合同管理员
 TEAM_TYPE_LEADER = 9       # 媒体
@@ -27,15 +28,16 @@ TEAM_TYPE_ADMIN = 1        # 广告管理员
 TEAM_TYPE_SUPER_ADMIN = 0  # 超级管理员
 
 TEAM_TYPE_CN = {
-    TEAM_TYPE_DOUBAN_CONTRACT: u"豆瓣-合同管理员",
     TEAM_TYPE_MEDIUM: u"媒体",
+    TEAM_TYPE_DOUBAN_CONTRACT: u"豆瓣-合同",
+    TEAM_TYPE_INAD: u"内部-其他",
     TEAM_TYPE_DESIGNER: u"内部-设计",
     TEAM_TYPE_PLANNER: u"内部-策划",
     TEAM_TYPE_OPERATER: u"内部-执行",
     TEAM_TYPE_AGENT_SELLER: u"内部-渠道销售",
     TEAM_TYPE_DIRECT_SELLER: u"内部-直客销售",
-    TEAM_TYPE_CONTRACT: u"内部-合同管理员",
-    TEAM_TYPE_INAD: u"内部-其他",
+    TEAM_TYPE_CONTRACT: u"内部-合同",
+    TEAM_TYPE_MEDIA: u"内部-媒介",
     TEAM_TYPE_LEADER: u"内部-Leader",
     TEAM_TYPE_ADMIN: u" 广告管理员",
     TEAM_TYPE_SUPER_ADMIN: u"系统管理员"

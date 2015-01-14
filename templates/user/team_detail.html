@@ -1,19 +1,19 @@
 {% extends "/user_base.html" %}
 {% from 'form.html' import form_tpl %}
-{% block title %}NewTeam{% endblock %}
+{% block title %}新建团队{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3>{{team.name}} - Team</h3>
+    <h3>团队 - {{team.name}}</h3>
     {{ form_tpl(form) }}
-    <h3>User列表</h3>
+    <h3>用户列表</h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>#id</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Team</th>
-            <th>Status</th>
+            <th>名字</th>
+            <th>邮箱</th>
+            <th>团队</th>
+            <th>状态</th>
         </tr>
         {% for u in team.users %}
         <tr>
