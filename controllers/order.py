@@ -53,6 +53,7 @@ def index():
 @order_bp.route('/new_order', methods=['GET', 'POST'])
 def new_order():
     form = ClientOrderForm(request.form)
+    mediums = [(m.id, m.name) for m in Medium.all()]
     if request.method == 'POST' and form.validate():
         order = ClientOrder.add(agent=Agent.get(form.agent.data),
                                 client=Client.get(form.client.data),
@@ -69,12 +70,25 @@ def new_order():
                                 creator=g.user,
                                 create_time=datetime.now())
         flash(u'新建客户订单成功, 请补充媒体订单和上传合同!', 'success')
+        medium_ids = request.values.getlist('medium')
+        medium_moneys = request.values.getlist('medium-money')
+        if medium_ids and medium_moneys and len(medium_ids) == len(medium_moneys):
+            for x in range(len(medium_ids)):
+                medium = Medium.get(medium_ids[x])
+                mo = Order.add(campaign=order.campaign,
+                               medium=medium,
+                               sale_money=medium_moneys[x],
+                               medium_start=order.client_start,
+                               medium_end=order.client_end,
+                               creator=g.user)
+                order.medium_orders = order.medium_orders + [mo]
+            order.save()
         return redirect(url_for("order.order_info", order_id=order.id))
     else:
         form.client_start.data = datetime.now().date()
         form.client_end.data = datetime.now().date()
         form.reminde_date.data = datetime.now().date()
-    return tpl('new_order.html', form=form)
+    return tpl('new_order.html', form=form, mediums=mediums)
 
 
 def get_client_form(order):
@@ -106,6 +120,7 @@ def get_medium_form(order):
     medium_form.designers.data = [u.id for u in order.designers]
     medium_form.planers.data = [u.id for u in order.planers]
     medium_form.discount.data = order.discount
+    medium_form.discount.hidden = True
     return medium_form
 
 
@@ -179,6 +194,7 @@ def order_info(order_id):
     new_medium_form = MediumOrderForm()
     new_medium_form.medium_start.data = order.client_start
     new_medium_form.medium_end.data = order.client_end
+    new_medium_form.discount.hidden = True
     new_associated_douban_form = AssociatedDoubanOrderForm()
     new_associated_douban_form.medium_order.choices = [(mo.id, mo.name) for mo in order.medium_orders]
     new_associated_douban_form.campaign.data = order.campaign
