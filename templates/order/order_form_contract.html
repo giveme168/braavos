@@ -107,6 +107,7 @@
             {% if order.contract_status == 4 and g.user.is_contract() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="4">打印完毕</button>
             {% endif %}
+            <button class="btn btn-sm btn-info contract-submit" type="submit" name="action" value="5">提醒</button>
         </div>
     </div>
   </form>
@@ -116,10 +117,10 @@
    var actionVal = $(this).val();
    var email = $("#contract-email").val();
    var msg = $("#msg").val();
-   if(actionVal == '0' || actionVal == '1'){
+   if(actionVal == '0' || actionVal == '1' || actionVal == '5'){
      if(email == "" || msg == ""){
          e.preventDefault();
-         alert("请填写通知邮箱或者申请理由！");
+         alert("请填写通知邮箱或者留言！");
      }
    }else if(actionVal == '3'){
      if(msg == ""){
