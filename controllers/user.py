@@ -70,7 +70,10 @@ def new_team():
     if request.method == 'POST' and form.validate():
         db_team_name = Team.name_exist(form.name.data)
         if not db_team_name:
-            team = Team.add(form.name.data, form.type.data, User.gets(form.admins.data))
+            team = Team.add(name=form.name.data,
+                            type=form.type.data,
+                            location=form.location.data,
+                            admins=User.gets(form.admins.data))
             flash(u'新建团队(%s)成功!' % team.name, 'success')
         else:
             flash(u'新建团队(%s)失败，团队名称已经存在!' % form.name.data, 'danger')
@@ -92,12 +95,14 @@ def team_detail(team_id):
         if form.validate():
             team.name = form.name.data
             team.type = form.type.data
+            team.location = form.location.data
             team.admins = User.gets(form.admins.data)
             team.save()
             flash(u'保存成功!', 'success')
     else:
         form.name.data = team.name
         form.type.data = team.type
+        form.location.data = team.location
         form.admins.data = [u.id for u in team.admins]
     return tpl('team_detail.html', team=team, form=form)
 

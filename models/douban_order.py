@@ -16,6 +16,24 @@ CONTRACT_TYPE_CN = {
     CONTRACT_TYPE_SPECIAL: u"非标"
 }
 
+SALE_TYPE_AGENT = 0
+SALE_TYPE_DIRECT = 1
+SALE_TYPE_CN = {
+    SALE_TYPE_AGENT: u"代理",
+    SALE_TYPE_DIRECT: u"直签",
+}
+
+RESOURCE_TYPE_AD = 0
+RESOURCE_TYPE_CAMPAIGN = 1
+RESOURCE_TYPE_FRAME = 2
+RESOURCE_TYPE_OTHER = 4
+RESOURCE_TYPE_CN = {
+    RESOURCE_TYPE_AD: u"硬广",
+    RESOURCE_TYPE_CAMPAIGN: u"互动",
+    #RESOURCE_TYPE_FRAME: u"框架",
+    RESOURCE_TYPE_OTHER: u"其他"
+}
+
 CONTRACT_STATUS_NEW = 0
 CONTRACT_STATUS_APPLYCONTRACT = 1
 CONTRACT_STATUS_APPLYPASS = 2
@@ -81,6 +99,9 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     contract_status = db.Column(db.Integer)  # 合同审批状态
 
+    resource_type = db.Column(db.Integer)  # 资源形式
+    sale_type = db.Column(db.Integer)  # 资源形式
+
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_douban_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
@@ -92,6 +113,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                  client_start=None, client_end=None, reminde_date=None,
                  direct_sales=None, agent_sales=None,
                  operaters=None, designers=None, planers=None,
+                 resource_type=RESOURCE_TYPE_AD, sale_type=SALE_TYPE_AGENT,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
         self.agent = agent
         self.client = client
@@ -111,6 +133,9 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.operaters = operaters or []
         self.designers = designers or []
         self.planers = planers or []
+
+        self.resource_type = resource_type
+        self.sale_type = sale_type
 
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
@@ -169,6 +194,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def contract_status_cn(self):
         return CONTRACT_STATUS_CN[self.contract_status]
+
+    @property
+    def sale_type_cn(self):
+        return SALE_TYPE_CN.get(self.sale_type)
 
     def attachment_path(self):
         return url_for('files.douban_order_files', order_id=self.id)

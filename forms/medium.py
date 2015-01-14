@@ -10,8 +10,8 @@ from models.medium import (AdSize, AdPosition, AdUnit, Medium,
 
 class NewMediumForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
-    abbreviation = TextField(u'缩写', [validators.Required(u"请输入缩写.")])
-    owner = SelectField(u'媒体团队', coerce=int)
+    abbreviation = TextField(u'公司全称', [validators.Required(u"请输入媒体全称.")])
+    owner = SelectField(u'管理团队', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(NewMediumForm, self).__init__(*args, **kwargs)

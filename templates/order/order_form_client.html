@@ -1,5 +1,5 @@
 {% from 'form.html' import form_field %}
-{% macro order_client_form(form) -%}
+{% macro order_client_form(form, mediums=None) -%}
 <form class="form form-horizontal" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
@@ -29,8 +29,32 @@
     {{ form_field(form.agent_sales) }}
     {{ form_field(form.contract_type) }}
     {{ form_field(form.resource_type) }}
+    {{ form_field(form.sale_type) }}
+    {% if mediums %}
+    <hr/>
+    <div id="mediums">
+    </div>
+    <button class="btn btn-sm btn-default add-new-medium"><span class="glyphicon glyphicon-plus"></span>  投放媒体 </button>
+    {% endif %}
+    <hr/>
     <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
 </form>
+
+{% if mediums %}
+<script type="txt/template" id="medium-tpl">
+  <div class="form-group">
+    <select name="medium" type="text" class="form-control medium-control">
+      {% for m in mediums %}
+        <option value="{{m[0]}}">{{m[1]}}</option>
+      {% endfor %}
+    </select>
+    <input name="medium-money" type="text" class="form-control medium-control" placeholder="售卖金额(元)" value="0"/>
+  </div>
+</script>
+<style>
+  .medium-control{margin-left: 30px; width: 20%; display: inline-block;}
+</style>
+{% endif %}
 <script>
 $(document).ready(function(){
     $('.datetimepicker').datetimepicker({
@@ -39,6 +63,11 @@ $(document).ready(function(){
         language: 'zh-CN',
         minView: 2
       });
+    $(".add-new-medium").click(function(e){
+      e.preventDefault();
+      var medium_tpl = $("#medium-tpl").html();
+      $(this).parents("form").find("#mediums").append(medium_tpl);
+    });
 });
 </script>
 {%- endmacro %}

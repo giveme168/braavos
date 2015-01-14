@@ -5,7 +5,7 @@ from libs.wtf import Form
 from models.client import Client, Group, Agent
 from models.medium import Medium
 from models.order import DISCOUNT_SALE
-from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN
+from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN, SALE_TYPE_CN
 from models.user import User
 from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
                          TEAM_TYPE_OPERATER, TEAM_TYPE_AGENT_SELLER,
@@ -24,6 +24,7 @@ class ClientOrderForm(Form):
     agent_sales = SelectMultipleField(u'渠道销售', coerce=int)
     resource_type = SelectField(u'售卖类型', coerce=int)
     contract_type = SelectField(u'合同模板类型', coerce=int)
+    sale_type = SelectField(u'直签/代理', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(ClientOrderForm, self).__init__(*args, **kwargs)
@@ -33,6 +34,7 @@ class ClientOrderForm(Form):
         self.agent_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_AGENT_SELLER)]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
         self.resource_type.choices = RESOURCE_TYPE_CN.items()
+        self.sale_type.choices = SALE_TYPE_CN.items()
 
     def validate(self):
         if Form.validate(self):
@@ -46,7 +48,8 @@ class ClientOrderForm(Form):
 
 class MediumOrderForm(Form):
     medium = SelectField(u'投放媒体', coerce=int, description=u"提交后不可修改")
-    medium_money = IntegerField(u'合同金额(元)', default=0)
+    sale_money = IntegerField(u'售卖金额(元)', default=0)
+    medium_money = IntegerField(u'下单金额(元)', default=0)
     medium_start = DateField(u'执行开始')
     medium_end = DateField(u'执行结束')
     operaters = SelectMultipleField(u'执行人员', coerce=int)
@@ -111,6 +114,8 @@ class DoubanOrderForm(Form):
     designers = SelectMultipleField(u'设计人员', coerce=int)
     planers = SelectMultipleField(u'策划人员', coerce=int)
     contract_type = SelectField(u'合同模板类型', coerce=int)
+    resource_type = SelectField(u'售卖类型', coerce=int)
+    sale_type = SelectField(u'直签/代理', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(DoubanOrderForm, self).__init__(*args, **kwargs)
@@ -122,6 +127,8 @@ class DoubanOrderForm(Form):
         self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
         self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
+        self.resource_type.choices = RESOURCE_TYPE_CN.items()
+        self.sale_type.choices = SALE_TYPE_CN.items()
 
     def validate(self):
         if Form.validate(self):

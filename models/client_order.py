@@ -17,6 +17,13 @@ CONTRACT_TYPE_CN = {
     CONTRACT_TYPE_SPECIAL: u"非标"
 }
 
+SALE_TYPE_AGENT = 0
+SALE_TYPE_DIRECT = 1
+SALE_TYPE_CN = {
+    SALE_TYPE_AGENT: u"代理",
+    SALE_TYPE_DIRECT: u"直签",
+}
+
 RESOURCE_TYPE_AD = 0
 RESOURCE_TYPE_CAMPAIGN = 1
 RESOURCE_TYPE_FRAME = 2
@@ -75,6 +82,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     client_end = db.Column(db.Date)
     reminde_date = db.Column(db.Date)  # 最迟回款日期
     resource_type = db.Column(db.Integer)  # 资源形式
+    sale_type = db.Column(db.Integer)  # 资源形式
 
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
@@ -90,7 +98,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_generate = True
 
     def __init__(self, agent, client, campaign, medium_orders=None,
-                 contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
+                 contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  direct_sales=None, agent_sales=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
@@ -102,6 +110,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.contract = contract
         self.money = money
         self.contract_type = contract_type
+        self.sale_type = sale_type
 
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
@@ -137,6 +146,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def resource_type_cn(self):
         return RESOURCE_TYPE_CN.get(self.resource_type)
+
+    @property
+    def sale_type_cn(self):
+        return SALE_TYPE_CN.get(self.sale_type)
 
     @property
     def direct_sales_names(self):

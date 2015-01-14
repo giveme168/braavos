@@ -88,11 +88,6 @@ class Medium(db.Model, BaseModelMixin):
         is_exist = Medium.query.filter_by(name=name).count() > 0
         return is_exist
 
-    @classmethod
-    def abbreviation_exist(cls, abbreviation):
-        is_exist = Medium.query.filter_by(abbreviation=abbreviation).count() > 0
-        return is_exist
-
     @property
     def current_framework(self):
         return framework_generator(self.id)

@@ -2,7 +2,9 @@
 from wtforms import TextField, validators, PasswordField, SelectField, SelectMultipleField
 
 from libs.wtf import Form
-from models.user import User, Team, TEAM_TYPE_CN, USER_STATUS_CN, TEAM_TYPE_MEDIUM
+from models.user import (User, Team,
+                         TEAM_TYPE_CN, TEAM_LOCATION_CN, USER_STATUS_CN,
+                         TEAM_TYPE_MEDIUM, TEAM_LOCATION_DEFAULT)
 
 
 class LoginForm(Form):
@@ -38,12 +40,13 @@ class PwdChangeForm(Form):
 class NewTeamForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
     type = SelectField(u'类型', coerce=int, default=TEAM_TYPE_MEDIUM)
+    location = SelectField(u'区域', coerce=int, default=TEAM_LOCATION_DEFAULT)
     admins = SelectMultipleField(u'团队管理员', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(NewTeamForm, self).__init__(*args, **kwargs)
         self.type.choices = TEAM_TYPE_CN.items()
-        #self.admins.choices = [(m.id, m.name) for m in User.admins()]
+        self.location.choices = TEAM_LOCATION_CN.items()
         self.admins.choices = [(m.id, m.name) for m in User.all()]
 
 

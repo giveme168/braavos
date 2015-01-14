@@ -53,6 +53,7 @@ def index():
 @order_bp.route('/new_order', methods=['GET', 'POST'])
 def new_order():
     form = ClientOrderForm(request.form)
+    mediums = [(m.id, m.name) for m in Medium.all()]
     if request.method == 'POST' and form.validate():
         order = ClientOrder.add(agent=Agent.get(form.agent.data),
                                 client=Client.get(form.client.data),
@@ -65,15 +66,29 @@ def new_order():
                                 agent_sales=User.gets(form.agent_sales.data),
                                 contract_type=form.contract_type.data,
                                 resource_type=form.resource_type.data,
+                                sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now())
         flash(u'新建客户订单成功, 请补充媒体订单和上传合同!', 'success')
+        medium_ids = request.values.getlist('medium')
+        medium_moneys = request.values.getlist('medium-money')
+        if medium_ids and medium_moneys and len(medium_ids) == len(medium_moneys):
+            for x in range(len(medium_ids)):
+                medium = Medium.get(medium_ids[x])
+                mo = Order.add(campaign=order.campaign,
+                               medium=medium,
+                               sale_money=medium_moneys[x],
+                               medium_start=order.client_start,
+                               medium_end=order.client_end,
+                               creator=g.user)
+                order.medium_orders = order.medium_orders + [mo]
+            order.save()
         return redirect(url_for("order.order_info", order_id=order.id))
     else:
         form.client_start.data = datetime.now().date()
         form.client_end.data = datetime.now().date()
         form.reminde_date.data = datetime.now().date()
-    return tpl('new_order.html', form=form)
+    return tpl('new_order.html', form=form, mediums=mediums)
 
 
 def get_client_form(order):
@@ -89,6 +104,7 @@ def get_client_form(order):
     client_form.agent_sales.data = [u.id for u in order.agent_sales]
     client_form.contract_type.data = order.contract_type
     client_form.resource_type.data = order.resource_type
+    client_form.sale_type.data = order.sale_type
     return client_form
 
 
@@ -97,12 +113,14 @@ def get_medium_form(order):
     medium_form.medium.choices = [(order.medium.id, order.medium.name)]
     medium_form.medium.data = order.medium.id
     medium_form.medium_money.data = order.medium_money
+    medium_form.sale_money.data = order.sale_money
     medium_form.medium_start.data = order.medium_start
     medium_form.medium_end.data = order.medium_end
     medium_form.operaters.data = [u.id for u in order.operaters]
     medium_form.designers.data = [u.id for u in order.designers]
     medium_form.planers.data = [u.id for u in order.planers]
     medium_form.discount.data = order.discount
+    medium_form.discount.hidden = True
     return medium_form
 
 
@@ -140,6 +158,7 @@ def order_info(order_id):
                     order.agent_sales = User.gets(client_form.agent_sales.data)
                     order.contract_type = client_form.contract_type.data
                     order.resource_type = client_form.resource_type.data
+                    order.sale_type = client_form.sale_type.data
                     order.save()
                     flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
         elif info_type == 2:
@@ -175,6 +194,7 @@ def order_info(order_id):
     new_medium_form = MediumOrderForm()
     new_medium_form.medium_start.data = order.client_start
     new_medium_form.medium_end.data = order.client_end
+    new_medium_form.discount.hidden = True
     new_associated_douban_form = AssociatedDoubanOrderForm()
     new_associated_douban_form.medium_order.choices = [(mo.id, mo.name) for mo in order.medium_orders]
     new_associated_douban_form.campaign.data = order.campaign
@@ -199,6 +219,7 @@ def order_new_medium(order_id):
         mo = Order.add(campaign=co.campaign,
                        medium=Medium.get(form.medium.data),
                        medium_money=form.medium_money.data,
+                       sale_money=form.sale_money.data,
                        medium_start=form.medium_start.data,
                        medium_end=form.medium_end.data,
                        operaters=User.gets(form.operaters.data),
@@ -220,6 +241,7 @@ def medium_order(mo_id):
         abort(404)
     form = MediumOrderForm(request.form)
     mo.medium_money = form.medium_money.data
+    mo.sale_money = form.sale_money.data
     mo.medium_start = form.medium_start.data
     mo.medium_end = form.medium_end.data
     mo.operaters = User.gets(form.operaters.data)
@@ -521,6 +543,8 @@ def new_douban_order():
                                 designers=User.gets(form.designers.data),
                                 planers=User.gets(form.planers.data),
                                 contract_type=form.contract_type.data,
+                                resource_type=form.resource_type.data,
+                                sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now())
         flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
@@ -547,6 +571,8 @@ def get_douban_form(order):
     form.designers.data = [u.id for u in order.designers]
     form.planers.data = [u.id for u in order.planers]
     form.contract_type.data = order.contract_type
+    form.resource_type.data = order.resource_type
+    form.sale_type.data = order.sale_type
     return form
 
 
@@ -578,6 +604,8 @@ def douban_order_info(order_id):
                     order.designers = User.gets(form.designers.data),
                     order.planers = User.gets(form.planers.data),
                     order.contract_type = form.contract_type.data
+                    order.resource_type = form.resource_type.data
+                    order.sale_type = form.sale_type.data
                     order.save()
                     flash(u'[豆瓣订单]%s 保存成功!' % order.name, 'success')
         elif info_type == 2:

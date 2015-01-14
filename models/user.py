@@ -41,6 +41,19 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_SUPER_ADMIN: u"系统管理员"
 }
 
+TEAM_LOCATION_DEFAULT = 0
+TEAM_LOCATION_HUABEI = 1
+TEAM_LOCATION_HUADONG = 2
+TEAM_LOCATION_HUANAN = 3
+TEAM_LOCATION_ALL = 4
+TEAM_LOCATION_CN = {
+    TEAM_LOCATION_DEFAULT: u"其他",
+    TEAM_LOCATION_HUABEI: u"华北",
+    TEAM_LOCATION_HUADONG: u"华东",
+    TEAM_LOCATION_HUANAN: u"华南",
+    TEAM_LOCATION_ALL: u"全国",
+}
+
 
 class User(db.Model, BaseModelMixin):
     __tablename__ = 'user'
@@ -156,11 +169,13 @@ class Team(db.Model, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     type = db.Column(db.Integer)
+    location = db.Column(db.Integer)
     admins = db.relationship('User', secondary=team_admins)
 
-    def __init__(self, name, type=TEAM_TYPE_MEDIUM, admins=None):
+    def __init__(self, name, type=TEAM_TYPE_MEDIUM, location=TEAM_LOCATION_DEFAULT, admins=None):
         self.name = name
         self.type = type
+        self.location = location
         self.admins = admins or []
 
     def __repr__(self):
@@ -174,6 +189,10 @@ class Team(db.Model, BaseModelMixin):
     @property
     def type_cn(self):
         return TEAM_TYPE_CN[self.type]
+
+    @property
+    def location_cn(self):
+        return TEAM_LOCATION_CN[self.location] if self.location else ""
 
     def is_super_admin(self):
         return self.type == TEAM_TYPE_SUPER_ADMIN

@@ -76,7 +76,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     order_type = db.Column(db.Integer)  # 订单类型: CPM
 
     medium_contract = db.Column(db.String(100))  # 媒体合同号
-    medium_money = db.Column(db.Integer)  # 媒体合同金额
+    medium_money = db.Column(db.Integer)  # 下单金额
+    sale_money = db.Column(db.Integer)  # 售卖金额
     discount = db.Column(db.Integer)  # 折扣类型
     medium_start = db.Column(db.Date)
     medium_end = db.Column(db.Date)
@@ -92,7 +93,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_generate = True
 
     def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
-                 medium_contract="", medium_money=0, discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
+                 medium_contract="", medium_money=0, sale_money=0,
+                 discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
                  operaters=None, designers=None, planers=None,
                  creator=None, create_time=None):
         self.campaign = campaign
@@ -101,6 +103,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.medium_contract = medium_contract
         self.medium_money = medium_money
+        self.sale_money = sale_money
         self.discount = discount
         self.medium_start = medium_start or datetime.date.today()
         self.medium_end = medium_end or datetime.date.today()
