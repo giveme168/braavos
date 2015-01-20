@@ -70,6 +70,11 @@ $(document).ready(function(){
       var medium_tpl = $("#medium-tpl").html();
       $(this).parents("form").find("#mediums").append(medium_tpl);
     });
+    $("#client_end").change(function(e){
+      var endDate = new Date($('#client_end').val());
+      endDate.setDate(endDate.getDate() + 90); 
+      $('#reminde_date').val(endDate.getFullYear()+"-"+(endDate.getMonth()+1)+"-"+endDate.getDate())
+    });
 });
 </script>
 {%- endmacro %}
