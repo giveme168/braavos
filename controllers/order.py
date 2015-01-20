@@ -69,6 +69,12 @@ def new_order():
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now())
+        order.add_comment(g.user,
+                          u"新建了客户订单:%s - %s - %s" % (
+                              order.agent.name,
+                              order.client.name,
+                              order.campaign
+                          ))
         medium_ids = request.values.getlist('medium')
         medium_moneys = request.values.getlist('medium-money')
         if medium_ids and medium_moneys and len(medium_ids) == len(medium_moneys):
@@ -81,6 +87,7 @@ def new_order():
                                medium_end=order.client_end,
                                creator=g.user)
                 order.medium_orders = order.medium_orders + [mo]
+                order.add_comment(g.user, u"新建了媒体订单: %s %s元" % (medium.name, mo.sale_money))
             order.save()
         flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
         return redirect(url_for("order.order_info", order_id=order.id))
@@ -160,6 +167,7 @@ def order_info(order_id):
                     order.resource_type = client_form.resource_type.data
                     order.sale_type = client_form.sale_type.data
                     order.save()
+                    order.add_comment(g.user, u"更新了客户订单")
                     flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
         elif info_type == 2:
             if not g.user.is_contract():
@@ -176,11 +184,11 @@ def order_info(order_id):
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
-                msg = u"新合同号如下:\n\n%s-致趣: %s\n" % (order.agent.name, order.contract)
+                msg = u"新合同号如下:\n\n%s-致趣: %s\n\n" % (order.agent.name, order.contract)
                 for mo in order.medium_orders:
-                    msg = msg + u"致趣-%s: %s\n" % (mo.medium.name, mo.medium_contract or "")
+                    msg = msg + u"致趣-%s: %s\n\n" % (mo.medium.name, mo.medium_contract or "")
                 for o in order.associated_douban_orders:
-                    msg = msg + u"%s-豆瓣: %s\n" % (o.medium_order.medium.name, o.contract or "")
+                    msg = msg + u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name, o.contract or "")
                 to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
                 apply_context = {"sender": g.user,
@@ -190,6 +198,8 @@ def order_info(order_id):
                                  "order": order}
                 contract_apply_signal.send(apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+
+                order.add_comment(g.user, u"更新合同号, %s" % msg)
 
     new_medium_form = MediumOrderForm()
     new_medium_form.medium_start.data = order.client_start
@@ -229,6 +239,7 @@ def order_new_medium(order_id):
                        creator=g.user)
         co.medium_orders = co.medium_orders + [mo]
         co.save()
+        co.add_comment(g.user, u"新建了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money))
         flash(u'[媒体订单]新建成功!', 'success')
         return redirect(mo.info_path())
     return tpl('order_new_medium.html', form=form)
@@ -249,6 +260,7 @@ def medium_order(mo_id):
     mo.planers = User.gets(form.planers.data)
     mo.discount = form.discount.data
     mo.save()
+    mo.client_order.add_comment(g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money))
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
     return redirect(mo.info_path())
 
@@ -260,6 +272,10 @@ def new_associated_douban_order():
                                    campaign=form.campaign.data,
                                    money=form.money.data,
                                    creator=g.user)
+    ao.medium_order.client_order.add_comment(g.user,
+                                             u"新建了关联豆瓣订单: %s - %s - %s" % (
+                                                 ao.medium_order.medium.name,
+                                                 ao.campaign, ao.money))
     flash(u'[关联豆瓣订单]新建成功!', 'success')
     return redirect(ao.info_path())
 
@@ -274,6 +290,10 @@ def associated_douban_order(order_id):
     ao.campaign = form.campaign.data
     ao.money = form.money.data
     ao.save()
+    ao.medium_order.client_order.add_comment(g.user,
+                                             u"更新了关联豆瓣订单: %s - %s - %s" % (
+                                                 ao.medium_order.medium.name,
+                                                 ao.campaign, ao.money))
     flash(u'[关联豆瓣订单]%s 保存成功!' % ao.name, 'success')
     return redirect(ao.info_path())
 
@@ -349,6 +369,7 @@ def contract_status_change(order, action, emails, msg):
                      "order": order}
     contract_apply_signal.send(apply_context)
     flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+    order.add_comment(g.user, u"%s \n\n %s" % (action_msg, msg))
 
 
 @order_bp.route('/orders', methods=['GET'])
@@ -441,6 +462,7 @@ def new_framework_order():
                                    contract_type=form.contract_type.data,
                                    creator=g.user,
                                    create_time=datetime.now())
+        order.add_comment(g.user, u"新建了该框架订单")
         flash(u'新建框架订单成功, 请上传合同!', 'success')
         return redirect(url_for("order.framework_order_info", order_id=order.id))
     else:
@@ -489,6 +511,7 @@ def framework_order_info(order_id):
                     order.agent_sales = User.gets(framework_form.agent_sales.data)
                     order.contract_type = framework_form.contract_type.data
                     order.save()
+                    order.add_comment(g.user, u"更新了该框架订单")
                     flash(u'[框架订单]%s 保存成功!' % order.name, 'success')
         elif info_type == 2:
             if not g.user.is_contract():
@@ -499,7 +522,7 @@ def framework_order_info(order_id):
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
-                msg = u"新合同号如下:\n\n%s-致趣: %s\n" % (order.group.name, order.contract)
+                msg = u"新合同号如下:\n\n%s-致趣: %s\n\n" % (order.group.name, order.contract)
                 to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
                 apply_context = {"sender": g.user,
@@ -509,6 +532,7 @@ def framework_order_info(order_id):
                                  "order": order}
                 contract_apply_signal.send(apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+                order.add_comment(g.user, u"更新合同号, %s" % msg)
 
     reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'framework_form': framework_form,
@@ -571,6 +595,7 @@ def new_douban_order():
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now())
+        order.add_comment(g.user, u"新建了该直签豆瓣订单")
         flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
         return redirect(url_for("order.douban_order_info", order_id=order.id))
     else:
@@ -613,7 +638,7 @@ def douban_order_info(order_id):
             if not order.can_admin(g.user):
                 flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
             else:
-                form = FrameworkOrderForm(request.form)
+                form = DoubanOrderForm(request.form)
                 if form.validate():
                     order.client = Client.get(form.client.data)
                     order.agent = Agent.get(form.agent.data)
@@ -624,13 +649,14 @@ def douban_order_info(order_id):
                     order.reminde_date = form.reminde_date.data
                     order.direct_sales = User.gets(form.direct_sales.data)
                     order.agent_sales = User.gets(form.agent_sales.data)
-                    order.operaters = User.gets(form.operaters.data),
-                    order.designers = User.gets(form.designers.data),
-                    order.planers = User.gets(form.planers.data),
+                    order.operaters = User.gets(form.operaters.data)
+                    order.designers = User.gets(form.designers.data)
+                    order.planers = User.gets(form.planers.data)
                     order.contract_type = form.contract_type.data
                     order.resource_type = form.resource_type.data
                     order.sale_type = form.sale_type.data
                     order.save()
+                    order.add_comment(g.user, u"更新了该订单信息")
                     flash(u'[豆瓣订单]%s 保存成功!' % order.name, 'success')
         elif info_type == 2:
             if not g.user.is_contract():
@@ -641,7 +667,7 @@ def douban_order_info(order_id):
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
-                msg = u"新合同号如下:\n\n%s-豆瓣: %s\n" % (order.agent.name, order.contract)
+                msg = u"新合同号如下:\n\n%s-豆瓣: %s\n\n" % (order.agent.name, order.contract)
                 to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
                 apply_context = {"sender": g.user,
@@ -651,6 +677,7 @@ def douban_order_info(order_id):
                                  "order": order}
                 contract_apply_signal.send(apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+                order.add_comment(g.user, u"更新了合同号, %s" % msg)
 
     reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
     context = {'douban_form': form,
