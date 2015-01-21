@@ -410,7 +410,7 @@ def display_orders(orders, title, status_id=-1):
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     medium_id = int(request.args.get('selected_medium', '0'))
-    group_id = int(request.args.get('selected_group', '0'))
+    agent_id = int(request.args.get('selected_agent', '0'))
     reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
     page = max(1, page)
@@ -418,8 +418,8 @@ def display_orders(orders, title, status_id=-1):
     orders_len = len(orders)
     if medium_id:
         orders = [o for o in orders if medium_id in o.medium_ids]
-    if group_id:
-        orders = [o for o in orders if o.agent and o.agent.group and group_id == o.agent.group.id]
+    if agent_id:
+        orders = [o for o in orders if o.agent and agent_id == o.agent.id]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
@@ -428,8 +428,8 @@ def display_orders(orders, title, status_id=-1):
         orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
     select_mediums = [(m.id, m.name) for m in Medium.all()]
     select_mediums.insert(0, (0, u'全部媒体'))
-    select_groups = [(g.id, g.name) for g in Group.all()]
-    select_groups.insert(0, (0, u'全部集团'))
+    select_agents = [(a.id, a.name) for a in Agent.all()]
+    select_agents.insert(0, (0, u'全部代理/直客'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
     if 0 <= start < orders_len:
@@ -438,7 +438,7 @@ def display_orders(orders, title, status_id=-1):
         orders = []
     return tpl('orders.html', orders=orders,
                mediums=select_mediums, medium_id=medium_id,
-               groups=select_groups, group_id=group_id,
+               agents=select_agents, agent_id=agent_id,
                statuses=select_statuses, status_id=status_id,
                sortby=sortby, orderby=orderby,
                search_info=search_info, page=page)

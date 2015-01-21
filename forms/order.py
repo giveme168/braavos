@@ -13,7 +13,7 @@ from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
 
 
 class ClientOrderForm(Form):
-    agent = SelectField(u'代理全称(甲方)', coerce=int)
+    agent = SelectField(u'代理/直客(甲方全称)', coerce=int)
     client = SelectField(u'客户名称', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
     money = IntegerField(u'合同金额(元)', default=0)
@@ -101,7 +101,7 @@ class FrameworkOrderForm(Form):
 
 
 class DoubanOrderForm(Form):
-    agent = SelectField(u'代理全称(甲方)', coerce=int)
+    agent = SelectField(u'代理/直客(甲方全称)', coerce=int)
     client = SelectField(u'客户名称', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
     money = IntegerField(u'合同金额(元)', default=0)
