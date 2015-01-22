@@ -8,7 +8,7 @@ def test_order(session):
     order2 = Order.get(order.id)
     assert order2 is not None
 
-    user2 = add_user('testuser2', 'pwd', '2')
+    user2 = add_user('testuser2', 'pwd')
 
     order.designers = [user2]
     order3 = Order.get(order.id)

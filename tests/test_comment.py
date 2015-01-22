@@ -3,7 +3,7 @@ from helper import add_user, add_order
 
 def test_order(session):
     order = add_order()
-    user2 = add_user('testuser2', 'pwd', '2')
+    user2 = add_user('testuser2', '2')
 
     msg = "test comment \n text \n"
     order.add_comment(user2, msg)
