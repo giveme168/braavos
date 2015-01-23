@@ -423,7 +423,7 @@ def display_orders(orders, title, status_id=-1):
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
-        orders = [o for o in orders if search_info in o.name]
+        orders = [o for o in orders if search_info in o.search_info]
     if sortby and orders_len and hasattr(orders[0], sortby):
         orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
     select_mediums = [(m.id, m.name) for m in Medium.all()]

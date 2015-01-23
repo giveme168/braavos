@@ -13,6 +13,7 @@ USER_STATUS_CN = {
     USER_STATUS_ON: u"有效"
 }
 
+TEAM_TYPE_FINANCE = 13       # 内部-财务
 TEAM_TYPE_MEDIA = 12       # 内部-媒介
 TEAM_TYPE_DOUBAN_CONTRACT = 11       # 豆瓣-合同管理员
 TEAM_TYPE_CONTRACT = 10       # 內部-合同管理员
@@ -38,6 +39,7 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_DIRECT_SELLER: u"内部-直客销售",
     TEAM_TYPE_CONTRACT: u"内部-合同",
     TEAM_TYPE_MEDIA: u"内部-媒介",
+    TEAM_TYPE_FINANCE: u"内部-财务",
     TEAM_TYPE_LEADER: u"内部-Leader",
     TEAM_TYPE_ADMIN: u" 广告管理员",
     TEAM_TYPE_SUPER_ADMIN: u"系统管理员"
@@ -80,6 +82,10 @@ class User(db.Model, BaseModelMixin):
     @property
     def display_name(self):
         return "%s@%s" % (self.name, self.team.name)
+
+    @property
+    def location(self):
+        return self.team.location
 
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
@@ -197,7 +203,7 @@ class Team(db.Model, BaseModelMixin):
 
     @property
     def location_cn(self):
-        return TEAM_LOCATION_CN[self.location] if self.location else ""
+        return TEAM_LOCATION_CN[self.location] if self.location else u"其他"
 
     def is_super_admin(self):
         return self.type == TEAM_TYPE_SUPER_ADMIN

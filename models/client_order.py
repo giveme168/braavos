@@ -7,6 +7,7 @@ from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import ITEM_STATUS_LEADER_ACTIONS
+from .user import TEAM_LOCATION_CN
 from consts import DATE_FORMAT
 
 
@@ -137,6 +138,14 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [x.medium.id for x in self.medium_orders]
 
     @property
+    def locations(self):
+        return list(set([u.location for u in self.direct_sales + self.agent_sales]))
+
+    @property
+    def locations_cn(self):
+        return ",".join([TEAM_LOCATION_CN[l] for l in self.locations])
+
+    @property
     def associated_douban_orders(self):
         return [ao for mo in self.medium_orders for ao in mo.associated_douban_orders]
 
@@ -180,6 +189,13 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def path(self):
         return url_for('order.order_info', order_id=self.id)
+
+    @property
+    def search_info(self):
+        return (self.client.name + self.agent.name +
+                self.campaign + self.contract +
+                "".join([mo.medium.name + mo.medium_contract for mo in self.medium_orders]) +
+                "".join([ado.contract for ado in self.associated_douban_orders]))
 
     @property
     def start_date(self):

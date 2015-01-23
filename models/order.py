@@ -120,7 +120,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def name(self):
-        return u"%s" % (self.medium.name)
+        return self.medium.name
 
     @property
     def client_order(self):

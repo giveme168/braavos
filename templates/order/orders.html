@@ -8,6 +8,7 @@
         <th>Campaign</th>
         <th>直客销售</th>
         <th>渠道销售</th>
+        <th>区域</th>
         <th><a href="javascript:sort('start_date');">开始时间</a></th>
         <th><a href="javascript:sort('end_date');">结束时间</a></th>
         <th>创建者</th>
@@ -20,6 +21,7 @@
         <td style="width:160px;">{{o.campaign}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
+        <td>{{o.locations_cn}}</td>
         <td>{{o.start_date_cn}}</td>
         <td>{{o.end_date_cn}}</td>
         <td>{{o.creator.name}}</td>
@@ -44,6 +46,7 @@
         <th>执行结束</th>
         <th>直客销售</th>
         <th>渠道销售</th>
+        <th>区域</th>
         <th>媒体</th>
         <th>开始</th>
         <th>结束</th>
@@ -59,6 +62,7 @@
         <td>{{o.end_date_cn}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
+        <td>{{o.locations_cn}}</td>
         <td>
             {% for mo in o.medium_orders %}    
             {{mo.medium.name}}
@@ -100,6 +104,7 @@
         <th>合同金额</th>
         <th>直客销售</th>
         <th>渠道销售</th>
+        <th>区域</th>
         <th>售卖类型</th>
         <th>媒体订单</th>
         <th>金额</th>
@@ -113,6 +118,7 @@
         <td>{{o.money}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
+        <td>{{o.locations_cn}}</td>
         <td>{{o.resource_type_cn}}</td>
         <td>
             {% for mo in o.medium_orders %}    
@@ -201,6 +207,7 @@
         <th>合同金额</th>
         <th>直客销售</th>
         <th>渠道销售</th>
+        <th>区域</th>
         <th>媒体订单</th>
         <th>金额</th>
         <th>合同号状态</th>
@@ -214,6 +221,7 @@
         <td>{{o.money}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
+        <td>{{o.locations_cn}}</td>
         <td>
             {% for mo in o.medium_orders %}    
             {{mo.medium.name}}
@@ -239,7 +247,7 @@
 <div class="bra-main bra-box">
     <h3> {{title}}</h3>
     <div class="search">
-        <input class="col-md-2" type="text" id="search_info" value="{{search_info}}" placeholder="客户/Campaign" onkeypress="javascript:enter_search();">&nbsp;
+        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/订单号/Campaign" onkeypress="javascript:enter_search();">&nbsp;
         <select class="col-md-2" id="search_agent" name="agent" placeholder="代理/直客">
             {% for v, m in agents %}
                 {% if v == agent_id|int %}
@@ -271,7 +279,7 @@
     </div>
     <br>
     {% if g.user.is_admin() %}
-        {{ contract(orders) }}
+        {{ admin(orders) }}
     {% elif g.user.is_contract() %}
         {{ contract(orders) }}
     {% elif g.user.is_sale() %}
