@@ -248,18 +248,9 @@
     <h3> {{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/订单号/Campaign" onkeypress="javascript:enter_search();">&nbsp;
-        <select class="col-md-2" id="search_agent" name="agent" placeholder="代理/直客">
-            {% for v, m in agents %}
-                {% if v == agent_id|int %}
-                <option selected="" value="{{v}}">{{m}}</option>
-                {% else %}
-                <option value="{{v}}">{{m}}</option>
-                {% endif %}
-            {% endfor %}
-        </select>
-        <select class="col-md-2" id="search_medium" name="medium" placeholder="媒体">
-            {% for v, m in mediums %}
-                {% if v == medium_id|int %}
+        <select class="col-md-2" id="search_location" name="location" placeholder="区域">
+            {% for v, m in locations %}
+                {% if v == location_id|int %}
                 <option selected="" value="{{v}}">{{m}}</option>
                 {% else %}
                 <option value="{{v}}">{{m}}</option>
@@ -323,16 +314,14 @@ function sort(value){
     }
     window.location.href = window.location.pathname+'?sortby='+sortby+'&orderby='+orderby+
     '&searchinfo='+encodeURIComponent($('#search_info').val())+
-    '&selected_medium='+encodeURIComponent($('#search_medium').val())+
-    '&selected_agent='+encodeURIComponent($('#search_agent').val())+
+    '&selected_location='+encodeURIComponent($('#search_location').val())+
     '&selected_status='+encodeURIComponent($('#search_status').val());
 }
 
 function search(){
     window.location.href = window.location.pathname +
       '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
-      '&selected_medium=' + ($('#search_medium').val()) +
-      '&selected_agent=' + ($('#search_agent').val()) +
+      '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val());
 }
 

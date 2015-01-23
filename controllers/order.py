@@ -27,7 +27,7 @@ from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
-from models.user import User
+from models.user import User, TEAM_LOCATION_CN
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
 from models.material import Material
@@ -409,27 +409,22 @@ def display_orders(orders, title, status_id=-1):
     sortby = request.args.get('sortby', '')
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
-    medium_id = int(request.args.get('selected_medium', '0'))
-    agent_id = int(request.args.get('selected_agent', '0'))
+    location_id = int(request.args.get('selected_location', '-1'))
     reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
     page = max(1, page)
     start = (page - 1) * ORDER_PAGE_NUM
     orders_len = len(orders)
-    if medium_id:
-        orders = [o for o in orders if medium_id in o.medium_ids]
-    if agent_id:
-        orders = [o for o in orders if o.agent and agent_id == o.agent.id]
+    if location_id >= 0:
+        orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [o for o in orders if search_info in o.search_info]
     if sortby and orders_len and hasattr(orders[0], sortby):
         orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
-    select_mediums = [(m.id, m.name) for m in Medium.all()]
-    select_mediums.insert(0, (0, u'全部媒体'))
-    select_agents = [(a.id, a.name) for a in Agent.all()]
-    select_agents.insert(0, (0, u'全部代理/直客'))
+    select_locations = TEAM_LOCATION_CN.items()
+    select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
     if 0 <= start < orders_len:
@@ -437,8 +432,7 @@ def display_orders(orders, title, status_id=-1):
     else:
         orders = []
     return tpl('orders.html', orders=orders,
-               mediums=select_mediums, medium_id=medium_id,
-               agents=select_agents, agent_id=agent_id,
+               locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
                sortby=sortby, orderby=orderby,
                search_info=search_info, page=page)
