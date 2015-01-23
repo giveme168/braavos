@@ -89,7 +89,7 @@
         </td>
         <td>{{o.contract_status_cn}}</td>
         <td>
-            <a href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
+            <a href="{{url_for("order.order_info", order_id=o.id)}}">订单管理</a>
         </td>
     </tr>
     {% endfor %}
@@ -191,7 +191,7 @@
         -->
         <td>{{o.contract_status_cn}}</td>
         <td>
-            <a href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
+            <a href="{{url_for("order.order_info", order_id=o.id)}}">订单管理</a>
         </td>
     </tr>
     {% endfor %}
