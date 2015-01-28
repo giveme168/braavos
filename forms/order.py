@@ -8,8 +8,7 @@ from models.order import DISCOUNT_SALE
 from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN, SALE_TYPE_CN
 from models.user import User
 from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
-                         TEAM_TYPE_OPERATER, TEAM_TYPE_AGENT_SELLER,
-                         TEAM_TYPE_DIRECT_SELLER)
+                         TEAM_TYPE_OPERATER)
 
 
 class ClientOrderForm(Form):
@@ -30,8 +29,8 @@ class ClientOrderForm(Form):
         super(ClientOrderForm, self).__init__(*args, **kwargs)
         self.agent.choices = [(m.id, m.name) for m in Agent.all()]
         self.client.choices = [(c.id, c.name) for c in Client.all()]
-        self.direct_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER)]
-        self.agent_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_AGENT_SELLER)]
+        self.direct_sales.choices = [(m.id, m.name) for m in User.sales()]
+        self.agent_sales.choices = [(m.id, m.name) for m in User.sales()]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
         self.resource_type.choices = RESOURCE_TYPE_CN.items()
         self.sale_type.choices = SALE_TYPE_CN.items()
@@ -60,8 +59,8 @@ class MediumOrderForm(Form):
     def __init__(self, *args, **kwargs):
         super(MediumOrderForm, self).__init__(*args, **kwargs)
         self.medium.choices = [(m.id, m.name) for m in Medium.all()]
-        self.operaters.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_OPERATER)]
-        self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
+        self.operaters.choices = [(m.id, m.name) for m in User.sales()]
+        self.designers.choices = [(m.id, m.name) for m in User.sales()]
         self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
         self.discount.choices = DISCOUNT_SALE.items()
 
@@ -86,8 +85,8 @@ class FrameworkOrderForm(Form):
     def __init__(self, *args, **kwargs):
         super(FrameworkOrderForm, self).__init__(*args, **kwargs)
         self.group.choices = [(g.id, g.name) for g in Group.all()]
-        self.direct_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER)]
-        self.agent_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_AGENT_SELLER)]
+        self.direct_sales.choices = [(m.id, m.name) for m in User.sales()]
+        self.agent_sales.choices = [(m.id, m.name) for m in User.sales()]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
 
     def validate(self):
@@ -121,8 +120,8 @@ class DoubanOrderForm(Form):
         super(DoubanOrderForm, self).__init__(*args, **kwargs)
         self.agent.choices = [(m.id, m.name) for m in Agent.all()]
         self.client.choices = [(c.id, c.name) for c in Client.all()]
-        self.direct_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER)]
-        self.agent_sales.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_AGENT_SELLER)]
+        self.direct_sales.choices = [(m.id, m.name) for m in User.sales()]
+        self.agent_sales.choices = [(m.id, m.name) for m in User.sales()]
         self.operaters.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_OPERATER)]
         self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
         self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]

@@ -35,8 +35,7 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_DESIGNER: u"内部-设计",
     TEAM_TYPE_PLANNER: u"内部-策划",
     TEAM_TYPE_OPERATER: u"内部-执行",
-    TEAM_TYPE_AGENT_SELLER: u"内部-渠道销售",
-    TEAM_TYPE_DIRECT_SELLER: u"内部-直客销售",
+    TEAM_TYPE_DIRECT_SELLER: u"内部-销售",
     TEAM_TYPE_CONTRACT: u"内部-合同",
     TEAM_TYPE_MEDIA: u"内部-媒介",
     TEAM_TYPE_FINANCE: u"内部-财务",
@@ -135,7 +134,7 @@ class User(db.Model, BaseModelMixin):
         return self.team.is_admin() or self.team.type == TEAM_TYPE_MEDIA
 
     def is_sale(self):
-        return self.team.is_admin() or self.team.type in [TEAM_TYPE_AGENT_SELLER, TEAM_TYPE_DIRECT_SELLER]
+        return self.team.is_admin() or self.team.type == TEAM_TYPE_DIRECT_SELLER
 
     def path(self):
         return url_for('user.user_detail', user_id=self.id)
@@ -147,6 +146,10 @@ class User(db.Model, BaseModelMixin):
     @classmethod
     def leaders(cls):
         return cls.gets_by_team_type(TEAM_TYPE_LEADER)
+
+    @classmethod
+    def sales(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER)
 
     @classmethod
     def contracts(cls):
