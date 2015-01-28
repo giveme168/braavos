@@ -59,8 +59,8 @@ class MediumOrderForm(Form):
     def __init__(self, *args, **kwargs):
         super(MediumOrderForm, self).__init__(*args, **kwargs)
         self.medium.choices = [(m.id, m.name) for m in Medium.all()]
-        self.operaters.choices = [(m.id, m.name) for m in User.sales()]
-        self.designers.choices = [(m.id, m.name) for m in User.sales()]
+        self.operaters.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_OPERATER)]
+        self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
         self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
         self.discount.choices = DISCOUNT_SALE.items()
 
