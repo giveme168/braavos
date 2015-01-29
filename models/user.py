@@ -130,6 +130,9 @@ class User(db.Model, BaseModelMixin):
     def is_contract(self):
         return self.team.is_admin() or self.team.type == TEAM_TYPE_CONTRACT
 
+    def is_operater(self):
+        return self.team.is_admin() or self.team.type == TEAM_TYPE_OPERATER
+
     def is_media(self):
         return self.team.is_admin() or self.team.type == TEAM_TYPE_MEDIA
 

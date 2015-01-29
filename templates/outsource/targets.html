@@ -1,0 +1,28 @@
+{% extends "/outsource_base.html" %}
+{% block title %}收款方{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3> 收款方</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>名字</th>
+            <th>类型</th>
+            <th>开户行</th>
+            <th>卡号</th>
+            <th>支付宝</th>
+            <th>联系方式</th>
+        </tr>
+        {% for t in targets %}
+        <tr>
+            <td><a href="{{url_for("outsource.target_detail", target_id=t.id)}}">{{t.name}}</a></td>
+            <td>{{t.type_cn}}</td>
+            <td>{{t.bank}}</td>
+            <td>{{t.card}}</td>
+            <td>{{t.alipay}}</td>
+            <td>{{t.contract}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
