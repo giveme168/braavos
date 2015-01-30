@@ -14,22 +14,19 @@ contract_apply_signal = braavos_signals.signal('contract_apply')
 douban_contract_apply_signal = braavos_signals.signal('douban_contract_apply')
 
 
-@password_changed_signal.connect
-def password_changed(user):
+def password_changed(sender, user):
     send_simple_mail(u'InAd帐号密码重设通知',
                      recipients=[user.email],
                      body=u'您的InAd帐号密码已经被重新设置, 如果不是您的操作, 请联系广告平台管理员')
 
 
-@add_comment_signal.connect
-def add_comment(comment):
+def add_comment(sender, comment):
     send_simple_mail(u'InAd留言提醒[%s]' % comment.target.name,
                      recipients=[u.email for u in comment.target.get_mention_users(except_user=comment.creator)],
                      body=(u'%s的新留言:\n\n %s' % (comment.creator.name, comment.msg)))
 
 
-@order_apply_signal.connect
-def order_apply(change_state_apply):
+def order_apply(sender, change_state_apply):
     url = mail.app.config['DOMAIN'] + url_for(
         'order.order_detail', order_id=change_state_apply.order.id, step=change_state_apply.next_step)
     send_simple_mail(u'【%s审批申请】%s-%s' % (change_state_apply.type_cn, change_state_apply.order.name, g.user.name),
@@ -53,8 +50,7 @@ def order_apply(change_state_apply):
                          % (change_state_apply.order.name, url, g.user.name)))
 
 
-@reply_apply_signal.connect
-def reply_apply(change_state_apply):
+def reply_apply(sender, change_state_apply):
     url = mail.app.config['DOMAIN'] + url_for(
         'order.order_detail', order_id=change_state_apply.order.id, step=change_state_apply.next_step)
     if change_state_apply.agree:
@@ -76,14 +72,12 @@ def reply_apply(change_state_apply):
                              % (change_state_apply.order.name, url)))
 
 
-@contract_apply_signal.connect
-def contract_apply(apply_context):
+def contract_apply(sender, apply_context):
     order = apply_context['order']
     url = mail.app.config['DOMAIN'] + order.info_path()
     send_simple_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
                      recipients=apply_context['to'],
-                     body=(u"""
-%s
+                     body=(u"""%s
 
 订单: %s
 链接地址: %s
@@ -94,8 +88,7 @@ by %s
 """ % (apply_context['action_msg'], order.name, url, apply_context['msg'], g.user.name)))
 
 
-@douban_contract_apply_signal.connect
-def douban_contract_apply(apply_context):
+def douban_contract_apply(sender, apply_context):
     order = apply_context['order']
     url = mail.app.config['DOMAIN'] + order.info_path()
     douban_users = User.douban_contracts()
@@ -131,3 +124,13 @@ by %s\n
                      recipients=apply_context['to'],
                      body=body,
                      file_paths=file_paths)
+
+
+def init_signal(app):
+    """注册信号的接收器"""
+    password_changed_signal.connect_via(app)(password_changed)
+    add_comment_signal.connect_via(app)(add_comment)
+    order_apply_signal.connect_via(app)(order_apply)
+    reply_apply_signal.connect_via(app)(reply_apply_signal)
+    contract_apply_signal.connect_via(app)(contract_apply)
+    douban_contract_apply_signal.connect_via(app)(douban_contract_apply)

@@ -1,7 +1,6 @@
 import datetime
 from flask import current_app as app
 
-from libs.signals import add_comment_signal
 from models.comment import Comment
 
 
@@ -9,8 +8,6 @@ class CommentMixin():
 
     def add_comment(self, user, msg):
         c = Comment.add(self.target_type, self.target_id, msg, user, datetime.datetime.now())
-        if app.config['MAIL_DEBUG'] is not True:
-            add_comment_signal.send(c)
 
     def get_comments(self):
         return Comment.query.filter_by(target_type=self.target_type,

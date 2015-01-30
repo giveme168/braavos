@@ -169,5 +169,5 @@ def contract_email(order, attachment):
                      "action_msg": action_msg,
                      "msg": msg,
                      "order": order}
-    contract_apply_signal.send(apply_context)
+    contract_apply_signal.send(app._get_current_object(), apply_context=apply_context)
     flash(u'已发送提醒邮件给 %s' % ', '.join(contract_emails), "info")

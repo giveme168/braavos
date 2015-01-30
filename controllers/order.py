@@ -5,7 +5,7 @@ from werkzeug.datastructures import Headers
 from datetime import datetime, timedelta
 
 from flask import Blueprint, request, redirect, abort, url_for, g, Response
-from flask import render_template as tpl, json, jsonify, flash
+from flask import render_template as tpl, json, jsonify, flash, current_app
 
 from forms.order import (ClientOrderForm, MediumOrderForm,
                          FrameworkOrderForm, DoubanOrderForm,
@@ -196,7 +196,7 @@ def order_info(order_id):
                                  "action_msg": action_msg,
                                  "msg": msg,
                                  "order": order}
-                contract_apply_signal.send(apply_context)
+                contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
 
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
@@ -367,7 +367,7 @@ def contract_status_change(order, action, emails, msg):
                      "action_msg": action_msg,
                      "msg": msg,
                      "order": order}
-    contract_apply_signal.send(apply_context)
+    contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
     flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
     order.add_comment(g.user, u"%s \n\n %s" % (action_msg, msg))
 
@@ -524,7 +524,7 @@ def framework_order_info(order_id):
                                  "action_msg": action_msg,
                                  "msg": msg,
                                  "order": order}
-                contract_apply_signal.send(apply_context)
+                contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
 
@@ -669,7 +669,7 @@ def douban_order_info(order_id):
                                  "action_msg": action_msg,
                                  "msg": msg,
                                  "order": order}
-                contract_apply_signal.send(apply_context)
+                contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
                 order.add_comment(g.user, u"更新了合同号, %s" % msg)
 
@@ -951,7 +951,7 @@ def items_status_update(order_id, step):
                 return redirect(url_for('order.order_detail', order_id=order.id, step=step))
             else:
                 apply = ChangeStateApply(step, action, [User.get(m).email for m in leaders], order)
-                order_apply_signal.send(apply)
+                order_apply_signal.send(current_app._get_current_object(), change_state_apply=apply)
                 flash(u"请在2个自然日内与审核Leaer联系")
         if action in ITEM_STATUS_LEADER_ACTIONS:
             apply = ChangeStateApply(
@@ -959,7 +959,7 @@ def items_status_update(order_id, step):
                 action,
                 [order.creator.email],
                 order)
-            reply_apply_signal.send(apply)
+            reply_apply_signal.send(current_app._get_current_object(), change_state_apply=apply)
         items = AdItem.gets(item_ids)
         AdItem.update_items_with_action(items, action, g.user)
         msg = '\n\n'.join(['%s : %s' % (item.name, ITEM_STATUS_ACTION_CN[action]) for item in items])
@@ -1055,4 +1055,4 @@ def attachment_status_email(order, attachment):
                      "action_msg": action_msg,
                      "msg": msg,
                      "order": order}
-    contract_apply_signal.send(apply_context)
+    contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)

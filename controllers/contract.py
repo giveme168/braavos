@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 from flask import Blueprint, redirect, abort
-from flask import g, flash
+from flask import g, flash, current_app
 
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
@@ -17,7 +17,7 @@ def contract_apply(order):
     to_users = User.douban_contracts_by_order(order) + [order.creator, g.user]
     to_emails = [x.email for x in set(to_users)]
     douban_contract_apply_context = {"to": to_emails, "order": order}
-    douban_contract_apply_signal.send(douban_contract_apply_context)
+    douban_contract_apply_signal.send(current_app._get_current_object(), apply_context=douban_contract_apply_context)
     flash(u'[%s] 已向豆瓣发送合同号申请邮件 ' % (order.name), 'success')
     flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
     return redirect(order.info_path())

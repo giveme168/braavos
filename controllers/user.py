@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint, request, redirect, url_for, abort, g
-from flask import render_template as tpl, flash
+from flask import render_template as tpl, flash, current_app
 from flask.ext.login import login_user, logout_user, current_user
 
 from . import admin_required
@@ -43,7 +43,7 @@ def pwd_change():
         user = current_user
         if form.validate(user):
             user.set_password(form.password.data)
-            password_changed_signal.send(user)
+            password_changed_signal.send(current_app._get_current_object(), user=user)
             logout_user()
             return redirect('/')
     return tpl('pwd_change.html', form=form)
