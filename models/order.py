@@ -12,7 +12,7 @@ from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
                    ITEM_STATUS_LEADER_ACTIONS, OCCUPY_RESOURCE_STATUS,
                    ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY,
                    ITEM_STATUS_ORDER)
-from .client_order import table_medium_orders
+from .client_order import table_medium_orders, ClientOrder
 from models.excel import (
     ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
     EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
@@ -127,7 +127,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def client_order(self):
-        return self.client_orders[0]
+        return ClientOrder.get(self.client_orders[0].id)
 
     @property
     def order_type_cn(self):
