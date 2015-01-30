@@ -12,6 +12,7 @@ from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
                    ITEM_STATUS_LEADER_ACTIONS, OCCUPY_RESOURCE_STATUS,
                    ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY,
                    ITEM_STATUS_ORDER)
+from .client_order import table_medium_orders
 from models.excel import (
     ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
     EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
@@ -75,6 +76,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     medium = db.relationship('Medium', backref=db.backref('orders', lazy='dynamic'))
     order_type = db.Column(db.Integer)  # 订单类型: CPM
 
+    client_orders = db.relationship('ClientOrder', secondary=table_medium_orders)
+
     medium_contract = db.Column(db.String(100))  # 媒体合同号
     medium_money = db.Column(db.Integer)  # 下单金额
     sale_money = db.Column(db.Integer)  # 售卖金额
@@ -124,7 +127,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def client_order(self):
-        return self.client_orders.first()
+        return self.client_orders[0]
 
     @property
     def order_type_cn(self):

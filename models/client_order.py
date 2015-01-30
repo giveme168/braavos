@@ -88,8 +88,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
 
-    medium_orders = db.relationship('Order', secondary=table_medium_orders,
-                                    backref=db.backref('client_orders', lazy='dynamic'))
+    medium_orders = db.relationship('Order', secondary=table_medium_orders)
     contract_status = db.Column(db.Integer)  # 合同审批状态
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
