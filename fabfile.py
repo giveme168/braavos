@@ -24,12 +24,12 @@ def checkout_latest():
 
 def install_requirements():
     """Install the required packages using pip"""
-    run('cd %(path)s/releases/%(release)s; pyenv shell inadenv; pip install -r requirements.txt' % env)
+    run('cd %(path)s/releases/%(release)s; pyenv shell braavos; pip install -r requirements.txt' % env)
 
 
 def migrate():
     """Run our migrations"""
-    run('cd %(path)s/releases/%(release)s; pyenv shell inadenv; python manage.py db upgrade' % env)
+    run('cd %(path)s/releases/%(release)s; pyenv shell braavos; python manage.py db upgrade' % env)
 
 
 def symlink_current_release():
