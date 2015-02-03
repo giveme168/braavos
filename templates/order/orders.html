@@ -107,7 +107,8 @@
         <th>区域</th>
         <th>售卖类型</th>
         <th>媒体订单</th>
-        <th>金额</th>
+        <th>下单金额</th>
+        <th>预估ECPM</th>
         <th>合同号状态</th>
         <th>操作</th>
     </tr>
@@ -132,6 +133,13 @@
             <br><br>
             {% endfor %}
         </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{"%.1f" % (mo.medium_money / mo.sale_CPM) if mo.sale_CPM else "无预估"}}
+            <br><br>
+            {% endfor %}
+        </td>
+
         <td>{{o.contract_status_cn}}</td>
         <td>
             <a href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
@@ -144,25 +152,25 @@
 {% macro sales(orders) -%}
 <table class="table table-bordered table-striped">
     <tr>
+        <th>代理/直客</th>
         <th>客户</th>
         <th>Campaign</th>
         <th>合同金额</th>
-        <th>执行开始</th>
+        <th>回款日期</th>
         <th>媒体订单</th>
-        <th>金额</th>
+        <th>下单金额</th>
+        <th>预估ECPM</th>
         <th>开始日期</th>
-        <!--
-        <th>排期</th>
-        -->
         <th>合同号状态</th>
         <th>操作</th>
     </tr>
     {% for o in orders %}
     <tr>
-        <td style="width:160px;">{{o.client.name}}</td>
+        <td style="width:120px;">{{o.agent.name}}</td>
+        <td style="width:120px;">{{o.client.name}}</td>
         <td style="width:160px;">{{o.campaign}}</td>
         <td>{{o.money}}</td>
-        <td>{{o.start_date_cn}}</td>
+        <td style="width:100px;">{{o.reminde_date_cn}}</td>
         <td>
             {% for mo in o.medium_orders %}    
             {{mo.medium.name}}
@@ -177,18 +185,16 @@
         </td>
         <td>
             {% for mo in o.medium_orders %}    
+            {{"%.1f" % (mo.medium_money / mo.sale_CPM) if mo.sale_CPM else "无预估"}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td style="width:100px;">
+            {% for mo in o.medium_orders %}    
             {{mo.start_date_cn}} 
             <br><br>
             {% endfor %}
         </td>
-        <!--
-        <td>
-            {% for mo in o.medium_orders %}    
-            <a href="{{mo.path()}}">排期管理</a>
-            <br><br>
-            {% endfor %}
-        </td>
-        -->
         <td>{{o.contract_status_cn}}</td>
         <td>
             <a href="{{url_for("order.order_info", order_id=o.id)}}">订单管理</a>
@@ -209,7 +215,8 @@
         <th>渠道销售</th>
         <th>区域</th>
         <th>媒体订单</th>
-        <th>金额</th>
+        <th>下单金额</th>
+        <th>预估ECPM</th>
         <th>合同号状态</th>
         <th>操作</th>
     </tr>
@@ -231,6 +238,12 @@
         <td>
             {% for mo in o.medium_orders %}    
             {{mo.medium_money}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{"%.1f" % (mo.medium_money / mo.sale_CPM) if mo.sale_CPM else "无预估"}}
             <br><br>
             {% endfor %}
         </td>

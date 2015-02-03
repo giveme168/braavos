@@ -121,6 +121,8 @@ def get_medium_form(order):
     medium_form.medium.data = order.medium.id
     medium_form.medium_money.data = order.medium_money
     medium_form.sale_money.data = order.sale_money
+    medium_form.medium_CPM.data = order.medium_CPM
+    medium_form.sale_CPM.data = order.sale_CPM
     medium_form.medium_start.data = order.medium_start
     medium_form.medium_end.data = order.medium_end
     medium_form.operaters.data = [u.id for u in order.operaters]
@@ -230,6 +232,8 @@ def order_new_medium(order_id):
                        medium=Medium.get(form.medium.data),
                        medium_money=form.medium_money.data,
                        sale_money=form.sale_money.data,
+                       medium_CPM=form.medium_CPM.data,
+                       sale_CPM=form.sale_CPM.data,
                        medium_start=form.medium_start.data,
                        medium_end=form.medium_end.data,
                        operaters=User.gets(form.operaters.data),
@@ -253,6 +257,8 @@ def medium_order(mo_id):
     form = MediumOrderForm(request.form)
     mo.medium_money = form.medium_money.data
     mo.sale_money = form.sale_money.data
+    mo.medium_CPM = form.medium_CPM.data
+    mo.sale_CPM = form.sale_CPM.data
     mo.medium_start = form.medium_start.data
     mo.medium_end = form.medium_end.data
     mo.operaters = User.gets(form.operaters.data)

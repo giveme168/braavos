@@ -9,8 +9,8 @@ class OutSourceTargetForm(Form):
     name = TextField(u'名称', [validators.Required(u"请输入名字.")])
     type = SelectField(u'类型', coerce=int, default=1)
     bank = TextField(u'开户行')
-    card = TextField(u'卡号')
-    alipay = TextField(u'支付宝')
+    card = TextField(u'银行卡号')
+    alipay = TextField(u'支付宝', description=u"支付宝和银行支付两者选一就可以")
     contract = TextAreaField(u'联系方式')
     remark = TextAreaField(u'备注')
 

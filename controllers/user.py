@@ -14,7 +14,7 @@ user_bp = Blueprint('user', __name__, template_folder='../templates/user')
 
 @user_bp.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('user.teams'))
+    return redirect(url_for('user.users'))
 
 
 @user_bp.route('/login', methods=['GET', 'POST'])
