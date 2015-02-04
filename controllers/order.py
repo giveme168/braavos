@@ -222,7 +222,7 @@ def order_info(order_id):
     new_associated_douban_form = AssociatedDoubanOrderForm()
     new_associated_douban_form.medium_order.choices = [(mo.id, mo.name) for mo in order.medium_orders]
     new_associated_douban_form.campaign.data = order.campaign
-    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
+    reminder_emails = [(u.name, u.email) for u in User.super_leaders() + User.leaders() + User.contracts() + User.admins()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
                'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
@@ -379,6 +379,9 @@ def contract_status_change(order, action, emails, msg):
         to_users = to_users + User.contracts()
     elif action == 5:
         to_users = [g.user]
+    if action in [0, 2, 3]:
+        to_users = to_users + User.super_leaders()
+
     to_emails = list(set(emails + [x.email for x in to_users]))
     apply_context = {"sender": g.user,
                      "to": to_emails,
@@ -546,7 +549,7 @@ def framework_order_info(order_id):
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
 
-    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
+    reminder_emails = [(u.name, u.email) for u in User.super_leaders() + User.leaders() + User.contracts() + User.admins()]
     context = {'framework_form': framework_form,
                'order': order,
                'reminder_emails': reminder_emails}
@@ -709,7 +712,7 @@ def douban_order_info(order_id):
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
                 order.add_comment(g.user, u"更新了合同号, %s" % msg)
 
-    reminder_emails = [(u.name, u.email) for u in User.leaders() + User.contracts() + User.admins()]
+    reminder_emails = [(u.name, u.email) for u in User.super_leaders() + User.leaders() + User.contracts() + User.admins()]
     context = {'douban_form': form,
                'order': order,
                'reminder_emails': reminder_emails}

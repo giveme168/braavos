@@ -13,6 +13,7 @@ USER_STATUS_CN = {
     USER_STATUS_ON: u"有效"
 }
 
+TEAM_TYPE_SUPER_LEADER = 14       # Super-Leader
 TEAM_TYPE_FINANCE = 13       # 内部-财务
 TEAM_TYPE_MEDIA = 12       # 内部-媒介
 TEAM_TYPE_DOUBAN_CONTRACT = 11       # 豆瓣-合同管理员
@@ -40,6 +41,7 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_MEDIA: u"内部-媒介",
     TEAM_TYPE_FINANCE: u"内部-财务",
     TEAM_TYPE_LEADER: u"内部-Leader",
+    TEAM_TYPE_SUPER_LEADER: u"Super-Leader",
     TEAM_TYPE_ADMIN: u" 广告管理员",
     TEAM_TYPE_SUPER_ADMIN: u"系统管理员"
 }
@@ -124,8 +126,11 @@ class User(db.Model, BaseModelMixin):
     def is_admin(self):
         return self.team.is_admin()
 
+    def is_super_leader(self):
+        return self.team.is_admin() or self.team.type == TEAM_TYPE_SUPER_LEADER
+
     def is_leader(self):
-        return self.team.is_admin() or self.team.type == TEAM_TYPE_LEADER
+        return self.team.is_super_admin() or self.team.type == TEAM_TYPE_LEADER
 
     def is_contract(self):
         return self.team.is_admin() or self.team.type == TEAM_TYPE_CONTRACT
@@ -145,6 +150,10 @@ class User(db.Model, BaseModelMixin):
     @classmethod
     def gets_by_team_type(cls, team_type):
         return [x for x in cls.all() if x.team.type == team_type]
+
+    @classmethod
+    def super_leaders(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_SUPER_LEADER)
 
     @classmethod
     def leaders(cls):
