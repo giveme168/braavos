@@ -594,6 +594,8 @@ def new_douban_order():
                                 agent=Agent.get(form.agent.data),
                                 campaign=form.campaign.data,
                                 money=form.money.data,
+                                medium_CPM=form.medium_CPM.data,
+                                sale_CPM=form.sale_CPM.data,
                                 client_start=form.client_start.data,
                                 client_end=form.client_end.data,
                                 reminde_date=form.reminde_date.data,
@@ -635,6 +637,8 @@ def get_douban_form(order):
     form.agent.data = order.agent.id
     form.campaign.data = order.campaign
     form.money.data = order.money
+    form.medium_CPM.data = order.medium_CPM
+    form.sale_CPM.data = order.sale_CPM
     form.client_start.data = order.client_start
     form.client_end.data = order.client_end
     form.reminde_date.data = order.reminde_date
@@ -668,6 +672,8 @@ def douban_order_info(order_id):
                     order.agent = Agent.get(form.agent.data)
                     order.campaign = form.campaign.data
                     order.money = form.money.data
+                    order.sale_CPM = form.sale_CPM.data
+                    order.medium_CPM = form.medium_CPM.data
                     order.client_start = form.client_start.data
                     order.client_end = form.client_end.data
                     order.reminde_date = form.reminde_date.data

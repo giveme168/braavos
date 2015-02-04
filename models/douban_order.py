@@ -85,6 +85,8 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     contract = db.Column(db.String(100))  # 豆瓣合同号
     money = db.Column(db.Integer)  # 客户合同金额
+    medium_CPM = db.Column(db.Integer)  # 实际CPM
+    sale_CPM = db.Column(db.Integer)  # 下单CPM
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
@@ -110,6 +112,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def __init__(self, agent, client, campaign,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
+                 medium_CPM=0, sale_CPM=0,
                  client_start=None, client_end=None, reminde_date=None,
                  direct_sales=None, agent_sales=None,
                  operaters=None, designers=None, planers=None,
@@ -122,6 +125,8 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.contract = contract
         self.money = money
         self.contract_type = contract_type
+        self.medium_CPM = medium_CPM
+        self.sale_CPM = sale_CPM
 
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
@@ -148,6 +153,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def jiafang_name(self):
         return self.agent.name
+
+    @property
+    def sale_ECPM(self):
+        return (self.money / self.sale_CPM) if self.sale_CPM else 0
 
     @property
     def direct_sales_names(self):

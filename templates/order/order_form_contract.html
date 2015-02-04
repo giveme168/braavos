@@ -71,6 +71,38 @@
   {% endfor %}
   {% endif %}
 </form>
+{% if order.medium_orders %}
+<hr>
+<form class="form form-horizontal">
+  {% for mo in order.medium_orders %}
+  <div class="form-group">
+    <label class="col-sm-4 control-label">[致趣-{{mo.medium.name}}] 预估ECPM (元): </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{"%.1f" % mo.sale_ECPM}}</label>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% for o in order.associated_douban_orders %}
+  <div class="form-group">
+    <label class="col-sm-4 control-label">[{{o.name}}-豆瓣] 预估ECPM (元): </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{"%.1f" % o.sale_ECPM}}</label>
+    </div>
+  </div>
+  {% endfor %}
+</form>
+{% elif order.sale_ECPM %}
+<hr>
+<form class="form form-horizontal">
+  <div class="form-group">
+    <label class="col-sm-4 control-label">豆瓣订单预估ECPM (元): </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{"%.1f" % order.sale_ECPM}}</label>
+    </div>
+  </div>
+</form>
+{% endif %}
 <hr>
 <div class="col-md-8">
   <form class="form form-horizontal" id="contract-form" method="POST" action="{{order.contract_path()}}">

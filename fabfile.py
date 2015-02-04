@@ -1,9 +1,24 @@
 from fabric.api import run, local, task, env, settings
+import fabric_gunicorn as gunicorn
 
 env.name = "braavos"
 env.user = "inad"
 env.path = "/home/inad/apps/braavos"
 env.hosts = ['z.inad.com']
+
+env.remote_workdir = "/home/inad/apps/braavos/releases/current"
+env.gunicorn_pidpath = "/home/inad/apps/braavos/releases/current/gunicorn.pid"
+env.virtualenv_dir = "/home/inad/.pyenv/versions/braavos"
+env.gunicorn_wsgi_app = 'app:app --log-file=-'
+env.gunicorn_bind = '0.0.0.0:8001'
+
+
+@task
+def test():
+    gunicorn.set_env_defaults()
+    print env.remote_workdir
+    print env.gunicorn_pidpath
+    print env.gunicorn_bind
 
 
 def prepare_deploy():
@@ -63,7 +78,7 @@ def deploy():
     install_requirements()
     migrate()
     symlink_current_release()
-    restart_server()
+    # restart_server()
 
 
 @task

@@ -38,8 +38,16 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
         return u"%s-%s" % (self.medium_order.name, self.campaign)
 
     @property
+    def contract_status(self):
+        return self.medium_order.contract_status
+
+    @property
     def client(self):
         return self.medium_order.client_order.client
+
+    @property
+    def sale_ECPM(self):
+        return (self.money / self.medium_order.sale_CPM) if self.medium_order.sale_CPM else 0
 
     @property
     def direct_sales(self):

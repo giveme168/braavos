@@ -127,12 +127,20 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return '<Order %s>' % (self.id)
 
     @property
+    def sale_ECPM(self):
+        return (self.medium_money / self.sale_CPM) if self.sale_CPM else 0
+
+    @property
     def name(self):
         return self.medium.name
 
     @property
     def client_order(self):
         return ClientOrder.get(self.client_orders[0].id)
+
+    @property
+    def contract_status(self):
+        return self.client_order.contract_status
 
     @property
     def order_type_cn(self):

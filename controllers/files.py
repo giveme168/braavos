@@ -3,7 +3,7 @@ from flask import Blueprint, request, current_app as app, abort, g, render_templ
 from flask import jsonify, send_from_directory, redirect, flash
 
 from models.order import Order
-from models.client_order import ClientOrder
+from models.client_order import ClientOrder, CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYREJECT
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
@@ -51,7 +51,8 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
         elif file_type == FILE_TYPE_SCHEDULE:
             attachment = order.add_schedule_attachment(g.user, filename)
             flash(u'排期文件上传成功!', 'success')
-        contract_email(order, attachment)
+        if order.contract_status not in [CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYREJECT]:
+            contract_email(order, attachment)
     else:
         flash(u'订单不存在，或文件上传出错!', 'danger')
     return redirect(order.info_path())

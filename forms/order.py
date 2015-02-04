@@ -106,6 +106,8 @@ class DoubanOrderForm(Form):
     client = SelectField(u'客户名称', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
     money = IntegerField(u'合同金额(元)', default=0)
+    sale_CPM = IntegerField(u'预估量(CPM)', default=0)
+    medium_CPM = IntegerField(u'实际量(CPM)', default=0)
     client_start = DateField(u'执行开始')
     client_end = DateField(u'执行结束')
     reminde_date = DateField(u'最迟回款日期')
