@@ -395,34 +395,45 @@ def contract_status_change(order, action, emails, msg):
 
 @order_bp.route('/orders', methods=['GET'])
 def orders():
-    orders = list(ClientOrder.all())
-    return display_orders(orders, u'订单列表')
+    if g.user.is_super_leader():
+        orders = list(ClientOrder.all())
+    else:
+        orders = [o for o in ClientOrder.all() if g.user.location in o.locations]
+    if request.args.get('selected_status'):
+        status_id = int(request.args.get('selected_status'))
+    else:
+        status_id = -1
+    return display_orders(orders, u'订单列表', status_id)
 
 
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
+        orders = list(ClientOrder.all())
+    elif g.user.is_leader():
+        orders = [o for o in ClientOrder.all() if g.user.location in o.locations]
+    else:
+        orders = ClientOrder.get_order_by_user(g.user)
+
     if not request.args.get('selected_status'):
         if g.user.is_admin():
-            orders = list(ClientOrder.all())
             status_id = -1
+        elif g.user.is_super_leader():
+            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
+            status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_leader():
-            orders = [o for o in ClientOrder.all() if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
+            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
-            orders = [o for o in ClientOrder.all() if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
             status_id = CONTRACT_STATUS_APPLYPASS
         elif g.user.is_media():
-            orders = [o for o in ClientOrder.all() if o.contract_status == CONTRACT_STATUS_NEW]
+            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_NEW]
             status_id = CONTRACT_STATUS_NEW
         else:
-            orders = ClientOrder.get_order_by_user(g.user)
             status_id = -1
     else:
         status_id = int(request.args.get('selected_status'))
-        if g.user.is_leader() or g.user.is_contract() or g.user.is_media():
-            orders = list(ClientOrder.all())
-        else:
-            orders = ClientOrder.get_order_by_user(g.user)
     return display_orders(orders, u'我的订单列表', status_id)
 
 
@@ -721,26 +732,82 @@ def douban_order_info(order_id):
 
 @order_bp.route('/my_douban_orders', methods=['GET'])
 def my_douban_orders():
-    orders = DoubanOrder.get_order_by_user(g.user)
-    return douban_display_orders(orders, u'我的豆瓣订单列表')
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
+        orders = list(DoubanOrder.all())
+    elif g.user.is_leader():
+        orders = [o for o in DoubanOrder.all() if g.user.location in o.locations]
+    else:
+        orders = DoubanOrder.get_order_by_user(g.user)
+
+    if not request.args.get('selected_status'):
+        if g.user.is_admin():
+            status_id = -1
+        elif g.user.is_super_leader():
+            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
+            status_id = CONTRACT_STATUS_APPLYCONTRACT
+        elif g.user.is_leader():
+            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
+            status_id = CONTRACT_STATUS_APPLYCONTRACT
+        elif g.user.is_contract():
+            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+            status_id = CONTRACT_STATUS_APPLYPASS
+        elif g.user.is_media():
+            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_NEW]
+            status_id = CONTRACT_STATUS_NEW
+        else:
+            status_id = -1
+    else:
+        status_id = int(request.args.get('selected_status'))
+    return douban_display_orders(orders, u'我的豆瓣订单列表', status_id)
 
 
 @order_bp.route('/douban_orders', methods=['GET'])
 def douban_orders():
-    orders = list(DoubanOrder.all())
-    return douban_display_orders(orders, u'直签豆瓣订单列表')
+    if g.user.is_super_leader():
+        orders = list(DoubanOrder.all())
+    else:
+        orders = [o for o in DoubanOrder.all() if g.user.location in o.locations]
+    if request.args.get('selected_status'):
+        status_id = int(request.args.get('selected_status'))
+    else:
+        status_id = -1
+    return douban_display_orders(orders, u'直签豆瓣订单列表', status_id)
 
 
-def douban_display_orders(orders, title):
+def douban_display_orders(orders, title, status_id=-1):
+    sortby = request.args.get('sortby', '')
+    orderby = request.args.get('orderby', '')
+    search_info = request.args.get('searchinfo', '')
+    location_id = int(request.args.get('selected_location', '-1'))
+    reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
     page = max(1, page)
     start = (page - 1) * ORDER_PAGE_NUM
     orders_len = len(orders)
+
+    if location_id >= 0:
+        orders = [o for o in orders if location_id in o.locations]
+    if status_id >= 0:
+        orders = [o for o in orders if o.contract_status == status_id]
+    if search_info != '':
+        orders = [o for o in orders if search_info in o.search_info]
+    if sortby and orders_len and hasattr(orders[0], sortby):
+        orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+
+    select_locations = TEAM_LOCATION_CN.items()
+    select_locations.insert(0, (-1, u'全部区域'))
+    select_statuses = CONTRACT_STATUS_CN.items()
+    select_statuses.insert(0, (-1, u'全部合同状态'))
     if 0 <= start < orders_len:
         orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
     else:
         orders = []
-    return tpl('douban_orders.html', orders=orders, page=page)
+
+    return tpl('douban_orders.html', orders=orders,
+               locations=select_locations, location_id=location_id,
+               statuses=select_statuses, status_id=status_id,
+               sortby=sortby, orderby=orderby,
+               search_info=search_info, page=page)
 
 
 @order_bp.route('/douban_order/<order_id>/contract', methods=['POST'])

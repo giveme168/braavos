@@ -139,6 +139,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ClientOrder.get(self.client_orders[0].id)
 
     @property
+    def operater_names(self):
+        return ",".join([u.name for u in self.operaters])
+
+    @property
     def contract_status(self):
         return self.client_order.contract_status
 

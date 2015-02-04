@@ -3,6 +3,7 @@ import datetime
 from flask import url_for
 
 from . import db, BaseModelMixin
+from .user import TEAM_LOCATION_CN
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
@@ -159,6 +160,14 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return (self.money / self.sale_CPM) if self.sale_CPM else 0
 
     @property
+    def locations(self):
+        return list(set([u.location for u in self.direct_sales + self.agent_sales]))
+
+    @property
+    def locations_cn(self):
+        return ",".join([TEAM_LOCATION_CN[l] for l in self.locations])
+
+    @property
     def direct_sales_names(self):
         return ",".join([u.name for u in self.direct_sales])
 
@@ -207,6 +216,11 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def sale_type_cn(self):
         return SALE_TYPE_CN.get(self.sale_type)
+
+    @property
+    def search_info(self):
+        return (self.client.name + self.agent.name +
+                self.campaign + self.contract)
 
     def attachment_path(self):
         return url_for('files.douban_order_files', order_id=self.id)

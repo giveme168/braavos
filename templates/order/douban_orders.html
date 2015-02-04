@@ -1,11 +1,13 @@
 {% extends "/order_base.html" %}
-{% block title %}框架列表{% endblock %}
+{% block title %}直签豆瓣订单列表{% endblock %}
 
 {% macro other_user(orders) -%}
 <table class="table table-bordered table-striped">
     <tr>
         <th>客户</th>
         <th>代理</th>
+        <th>Campaign</th>
+        <th>区域</th>
         <th><a href="javascript:sort('start_date');">开始时间</a></th>
         <th><a href="javascript:sort('end_date');">结束时间</a></th>
         <th>创建者</th>
@@ -16,6 +18,8 @@
     <tr>
         <td>{{o.client.name}}</td>
         <td>{{o.agent.name}}</td>
+        <td>{{o.campaign}}</td>
+        <td>{{o.locations_cn}}</td>
         <td>{{o.start_date_cn}}</td>
         <td>{{o.end_date_cn}}</td>
         <td>{{o.creator.display_name}}</td>
@@ -35,6 +39,7 @@
         <th>合同金额</th>
         <th>直客销售</th>
         <th>渠道销售</th>
+        <th>区域</th>
         <th>合同号状态</th>
         <th>操作</th>
     </tr>
@@ -44,6 +49,7 @@
         <td>{{o.money}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
+        <td>{{o.locations_cn}}</td>
         <td>{{o.contract_status_cn}}</td>
         <td>
             <a href="{{url_for("order.douban_order_info", order_id=o.id)}}">合同设置</a>
@@ -56,19 +62,23 @@
 {% macro admin(orders) -%}
 <table class="table table-bordered table-striped">
     <tr>
+        <th>客户</th>
         <th>代理公司</th>
         <th>合同金额</th>
         <th>直客销售</th>
         <th>渠道销售</th>
+        <th>区域</th>
         <th>合同号状态</th>
         <th>操作</th>
     </tr>
     {% for o in orders %}
     <tr>
+        <td>{{o.client.name}}</td>
         <td>{{o.agent.name}}</td>
         <td>{{o.money}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
+        <td>{{o.locations_cn}}</td>
         <td>{{o.contract_status_cn}}</td>
         <td>
             <a href="{{url_for("order.douban_order_info", order_id=o.id)}}">合同设置</a>
@@ -85,6 +95,29 @@
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3> {{title}}</h3>
+    <div class="search">
+        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/合同号/Campaign" onkeypress="javascript:enter_search();">&nbsp;
+        <select class="col-md-2" id="search_location" name="location" placeholder="区域">
+            {% for v, m in locations %}
+                {% if v == location_id|int %}
+                <option selected="" value="{{v}}">{{m}}</option>
+                {% else %}
+                <option value="{{v}}">{{m}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <select class="col-md-2" id="search_status" name="status" placeholder="合同状态">
+            {% for v, m in statuses %}
+                {% if v == status_id|int %}
+                <option selected="" value="{{v}}">{{m}}</option>
+                {% else %}
+                <option value="{{v}}">{{m}}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <input type="button" name="search" value="搜索" class="btn btn-sm btn-default" onclick="javascript:search();">
+    </div>
+    <br>
     {% if g.user.is_admin() %}
         {{ admin(orders) }}
     {% elif g.user.is_contract() %}
@@ -110,4 +143,38 @@
       </ul>
     </nav>
 </div>
+<script>
+function sort(value){
+    var orderby = '{{orderby}}',
+        sortby = '{{sortby}}';
+    if (value == sortby) {
+        if (orderby == 'desc'){
+            orderby = 'asc'
+        } else {
+            orderby = 'desc'
+        }
+    } else {
+        sortby = value
+        orderby = 'desc'
+    }
+    window.location.href = window.location.pathname+'?sortby='+sortby+'&orderby='+orderby+
+    '&searchinfo='+encodeURIComponent($('#search_info').val())+
+    '&selected_location='+encodeURIComponent($('#search_location').val())+
+    '&selected_status='+encodeURIComponent($('#search_status').val());
+}
+
+function search(){
+    window.location.href = window.location.pathname +
+      '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+      '&selected_location=' + ($('#search_location').val()) +
+      '&selected_status=' + ($('#search_status').val());
+}
+
+function enter_search(){
+    //按下‘Enter’键
+    if(event.keyCode == 13){
+        search();
+    }
+}
+</script>
 {% endblock %}
