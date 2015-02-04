@@ -98,6 +98,18 @@ def new_order():
     return tpl('new_order.html', form=form, mediums=mediums)
 
 
+@order_bp.route('/order/<order_id>/delete', methods=['GET'])
+def order_delete(order_id):
+    order = ClientOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"客户订单: %s-%s 已删除" % (order.client.name, order.campaign), 'danger')
+    order.delete()
+    return redirect(url_for("order.my_orders"))
+
+
 def get_client_form(order):
     client_form = ClientOrderForm()
     client_form.agent.data = order.agent.id
@@ -603,6 +615,18 @@ def new_douban_order():
         form.client_end.data = datetime.now().date()
         form.reminde_date.data = datetime.now().date()
     return tpl('new_douban_order.html', form=form)
+
+
+@order_bp.route('/douban_order/<order_id>/delete', methods=['GET'])
+def douban_order_delete(order_id):
+    order = DoubanOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"豆瓣订单: %s-%s 已删除" % (order.client.name, order.campaign), 'danger')
+    order.delete()
+    return redirect(url_for("order.my_douban_orders"))
 
 
 def get_douban_form(order):

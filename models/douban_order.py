@@ -222,3 +222,9 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def douban_contract_apply_path(self):
         return url_for("contract.douban_apply", order_id=self.id)
+
+    def delete(self):
+        self.delete_comments()
+        self.delete_attachments()
+        db.session.delete(self)
+        db.session.commit()

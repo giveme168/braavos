@@ -90,6 +90,9 @@
         <td>{{o.contract_status_cn}}</td>
         <td>
             <a href="{{url_for("order.order_info", order_id=o.id)}}">订单管理</a>
+            {% if g.user.is_super_admin() %}
+            <a href="{{url_for("order.order_delete", order_id=o.id)}}" style="color:red;">删除</a>
+            {% endif %}
         </td>
     </tr>
     {% endfor %}

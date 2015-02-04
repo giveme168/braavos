@@ -53,10 +53,41 @@
 </table>
 {%- endmacro %}
 
+{% macro admin(orders) -%}
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>代理公司</th>
+        <th>合同金额</th>
+        <th>直客销售</th>
+        <th>渠道销售</th>
+        <th>合同号状态</th>
+        <th>操作</th>
+    </tr>
+    {% for o in orders %}
+    <tr>
+        <td>{{o.agent.name}}</td>
+        <td>{{o.money}}</td>
+        <td>{{o.direct_sales_names}}</td>
+        <td>{{o.agent_sales_names}}</td>
+        <td>{{o.contract_status_cn}}</td>
+        <td>
+            <a href="{{url_for("order.douban_order_info", order_id=o.id)}}">合同设置</a>
+            {% if g.user.is_super_admin() %}
+            <a href="{{url_for("order.douban_order_delete", order_id=o.id)}}" style="color:red;">删除</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{%- endmacro %}
+
+
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3> {{title}}</h3>
-    {% if g.user.is_contract() %}
+    {% if g.user.is_admin() %}
+        {{ admin(orders) }}
+    {% elif g.user.is_contract() %}
         {{ contract(orders) }}
     {% else %}
         {{ other_user(orders) }}

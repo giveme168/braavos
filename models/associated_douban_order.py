@@ -106,3 +106,8 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
 
     def douban_contract_apply_path(self):
         return url_for("contract.associated_douban_apply", order_id=self.id)
+
+    def delete(self):
+        self.delete_attachments()
+        db.session.delete(self)
+        db.session.commit()

@@ -249,6 +249,14 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def get_default_contract(self):
         return contract_generator(self.agent.current_framework, self.id)
 
+    def delete(self):
+        self.delete_comments()
+        self.delete_attachments()
+        for mo in self.medium_orders:
+            mo.delete()
+        db.session.delete(self)
+        db.session.commit()
+
 
 def contract_generator(framework, num):
     code = "%s-%03x" % (framework, num % 1000)

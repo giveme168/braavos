@@ -271,6 +271,14 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         special_sale_items = [i for i in self.items if i.position == position and i.special_sale]
         return len(special_sale_items)
 
+    def delete(self):
+        self.delete_comments()
+        self.delete_attachments()
+        for ao in self.associated_douban_orders:
+            ao.delete()
+        db.session.delete(self)
+        db.session.commit()
+
     @property
     def excel_table(self):
         items_info = self.items_info_all()
