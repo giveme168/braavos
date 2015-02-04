@@ -3,10 +3,10 @@
 {% macro base_order_attachment(order, contract_path, schedule_path) -%}
 <hr>
 <form method="POST" action="{{contract_path}}" enctype="multipart/form-data">
-  <button class="file-widget-wrapper btn btn-sm btn-primary">
-    <input class="hide" type="text" name="order" value="{{order.id}}">
+  <input class="hide" type="text" name="order" value="{{order.id}}">
+  <input class="file-widget-input hide" type="file" name="file">
+  <button class="file-widget-btn btn btn-sm btn-primary">
     <span>上传合同</span>
-    <input class="file-widget-button" type="file" name="file">
   </button>
   {% set contract = order.get_last_contract() %}
   {% if contract %}
@@ -22,10 +22,10 @@
   {% endif %}
 </form>
 <form method="POST" action="{{schedule_path}}" enctype="multipart/form-data">
-  <button class="file-widget-wrapper btn btn-sm btn-info">
-    <input class="hide" type="text" name="order" value="{{order.id}}">
+  <input class="hide" type="text" name="order" value="{{order.id}}">
+  <input class="file-widget-input hide" type="file" name="file">
+  <button class="file-widget-btn btn btn-sm btn-info">
     <span>上传排期</span>
-    <input class="file-widget-button" type="file" name="file">
   </button>
   {% set schedule = order.get_last_schedule() %}
   {% if schedule %}
@@ -44,9 +44,16 @@
 {%- endmacro %}
 
 {% macro base_attachment_script() -%}
+<style>
+  .file-widget-btn{margin: 10px;}
+</style>
 <script>
 $(function(){
-  $('.file-widget-button').change(function(){
+  $('.file-widget-btn').click(function(e){
+    e.preventDefault();
+    $(this).parents("form").find('.file-widget-input').click();
+  });
+  $('.file-widget-input').change(function(e){
     console.log($(this).val());
     var filename = $(this).val(),
       fileExt = filename.substring(filename.lastIndexOf('.')+1, filename.length);

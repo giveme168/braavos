@@ -68,6 +68,9 @@ class Attachment(db.Model, BaseModelMixin):
     def status_cn(self):
         return ATTACHMENT_STATUS.get(self.attachment_status, u"新上传")
 
+    def is_passed(self):
+        return self.attachment_status == ATTACHMENT_STATUS_PASSED
+
     @property
     def type_cn(self):
         return ATTACHMENT_TYPE[self.attachment_type]
