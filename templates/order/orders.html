@@ -314,7 +314,7 @@
     </div>
     <br>
     {% if g.user.is_admin() %}
-        {{ other(orders) }}
+        {{ admin(orders) }}
     {% elif g.user.is_contract() %}
         {{ contract(orders) }}
     {% elif g.user.is_sale() %}
