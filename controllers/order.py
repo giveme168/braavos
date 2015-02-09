@@ -11,6 +11,7 @@ from forms.order import (ClientOrderForm, MediumOrderForm,
                          FrameworkOrderForm, DoubanOrderForm,
                          AssociatedDoubanOrderForm)
 from forms.item import ItemForm
+from forms.outsource import OutsourceForm
 
 from models.client import Client, Group, Agent
 from models.medium import Medium, AdPosition
@@ -27,6 +28,7 @@ from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
+from models.outsource import OutSource, OutSourceTarget
 from models.user import User, TEAM_LOCATION_CN
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
@@ -90,7 +92,7 @@ def new_order():
                 order.add_comment(g.user, u"新建了媒体订单: %s %s元" % (medium.name, mo.sale_money))
             order.save()
         flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
-        return redirect(url_for("order.order_info", order_id=order.id))
+        return redirect(order.info_path())
     else:
         form.client_start.data = datetime.now().date()
         form.client_end.data = datetime.now().date()
@@ -154,8 +156,8 @@ def get_associated_douban_form(order, client_order):
     return form
 
 
-@order_bp.route('/order/<order_id>/info', methods=['GET', 'POST'])
-def order_info(order_id):
+@order_bp.route('/order/<order_id>/info/<tab_id>', methods=['GET', 'POST'])
+def order_info(order_id, tab_id=1):
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
@@ -219,17 +221,24 @@ def order_info(order_id):
     new_medium_form.medium_start.data = order.client_start
     new_medium_form.medium_end.data = order.client_end
     new_medium_form.discount.hidden = True
+
     new_associated_douban_form = AssociatedDoubanOrderForm()
     new_associated_douban_form.medium_order.choices = [(mo.id, mo.name) for mo in order.medium_orders]
     new_associated_douban_form.campaign.data = order.campaign
+
+    new_outsource_form = OutsourceForm()
+    new_outsource_form.medium_order.choices = [(mo.id, mo.medium.name) for mo in order.medium_orders]
+
     reminder_emails = [(u.name, u.email) for u in User.super_leaders() + User.leaders() + User.contracts() + User.admins()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
                'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
                'new_associated_douban_form': new_associated_douban_form,
                'associated_douban_forms': [(get_associated_douban_form(o, order), o) for o in order.associated_douban_orders],
+               'new_outsource_form': new_outsource_form,
                'order': order,
-               'reminder_emails': reminder_emails}
+               'reminder_emails': reminder_emails,
+               'tab_id': int(tab_id)}
     return tpl('order_detail_info.html', **context)
 
 
@@ -316,28 +325,37 @@ def associated_douban_order(order_id):
     return redirect(ao.info_path())
 
 
-@order_bp.route('/order/<order_id>/<step>/', methods=['GET'])
-def order_detail(order_id, step):
-    order = Order.get(order_id)
-    if not order:
-        abort(404)
-    leaders = [(m.id, m.name) for m in User.leaders()]
-    context = {'leaders': leaders,
-               'order': order,
-               'step': step,
-               'SALE_TYPE_CN': SALE_TYPE_CN
-               }
-    return tpl('order_detail_schedule.html', **context)
+######################
+#### outsource
+######################
+@order_bp.route('/new_outsource', methods=['POST'])
+def new_outsource():
+    form = OutsourceForm(request.form)
+    outsource = OutSource.add(target=OutSourceTarget.get(form.target.data),
+                              medium_order=Order.get(form.medium_order.data),
+                              num=form.num.data,
+                              type=form.type.data,
+                              subtype=form.subtype.data,
+                              remark=form.remark.data)
+    flash(u'新建外包成功!', 'success')
+    return redirect(outsource.info_path())
 
 
-@order_bp.route('/order/<order_id>/items', methods=['GET'])
-def order_items(order_id):
-    order = Order.get(order_id)
-    if not order:
+@order_bp.route('/outsource/<outsource_id>', methods=['POST'])
+def outsource(outsource_id):
+    outsource = OutSource.get(outsource_id)
+    if not outsource:
         abort(404)
-    context = {'order': order,
-               'SALE_TYPE_CN': SALE_TYPE_CN}
-    return tpl('order_detail_ordered.html', **context)
+    form = OutsourceForm(request.form)
+    outsource.target = OutSourceTarget.get(form.target.data)
+    outsource.medium_order = Order.get(form.medium_order.data)
+    outsource.num = form.num.data
+    outsource.type = form.type.data
+    outsource.subtype = form.subtype.data
+    outsource.remark = form.remark.data
+    outsource.save()
+    flash(u'保存成功!', 'success')
+    return redirect(outsource.info_path())
 
 
 @order_bp.route('/client_order/<order_id>/contract', methods=['POST'])
@@ -349,7 +367,7 @@ def client_order_contract(order_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     contract_status_change(order, action, emails, msg)
-    return redirect(url_for("order.order_info", order_id=order.id))
+    return redirect(order.info_path())
 
 
 def contract_status_change(order, action, emails, msg):
@@ -825,6 +843,30 @@ def douban_order_contract(order_id):
 ######################
 #### items
 ######################
+@order_bp.route('/order/<order_id>/<step>/', methods=['GET'])
+def order_detail(order_id, step):
+    order = Order.get(order_id)
+    if not order:
+        abort(404)
+    leaders = [(m.id, m.name) for m in User.leaders()]
+    context = {'leaders': leaders,
+               'order': order,
+               'step': step,
+               'SALE_TYPE_CN': SALE_TYPE_CN
+               }
+    return tpl('order_detail_schedule.html', **context)
+
+
+@order_bp.route('/order/<order_id>/items', methods=['GET'])
+def order_items(order_id):
+    order = Order.get(order_id)
+    if not order:
+        abort(404)
+    context = {'order': order,
+               'SALE_TYPE_CN': SALE_TYPE_CN}
+    return tpl('order_detail_ordered.html', **context)
+
+
 @order_bp.route('/items', methods=['GET'])
 def items():
     items = AdItem.all()

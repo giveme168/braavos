@@ -86,13 +86,13 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
         return self.end_date.strftime(DATE_FORMAT)
 
     def path(self):
-        return url_for('order.order_info', order_id=self.id)
+        return self.info_path()
 
     def attachment_path(self):
         return url_for('files.associated_douban_order_files', order_id=self.id)
 
     def info_path(self):
-        return url_for("order.order_info", order_id=self.medium_order.client_order.id)
+        return self.medium_order.client_order.info_path()
 
     def edit_path(self):
         return url_for("order.associated_douban_order", order_id=self.id)

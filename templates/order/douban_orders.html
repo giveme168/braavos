@@ -36,6 +36,7 @@
 <table class="table table-bordered table-striped">
     <tr>
         <th>代理公司</th>
+        <th>Campaign</th>
         <th>合同金额</th>
         <th>直客销售</th>
         <th>渠道销售</th>
@@ -46,6 +47,7 @@
     {% for o in orders %}
     <tr>
         <td>{{o.agent.name}}</td>
+        <td>{{o.campaign}}</td>
         <td>{{o.money}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
@@ -64,6 +66,7 @@
     <tr>
         <th>客户</th>
         <th>代理公司</th>
+        <th>Campaign</th>
         <th>合同金额</th>
         <th>直客销售</th>
         <th>渠道销售</th>
@@ -75,6 +78,7 @@
     <tr>
         <td>{{o.client.name}}</td>
         <td>{{o.agent.name}}</td>
+        <td>{{o.campaign}}</td>
         <td>{{o.money}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
@@ -90,7 +94,6 @@
     {% endfor %}
 </table>
 {%- endmacro %}
-
 
 {% block main_box %}
 <div class="bra-main bra-box">

@@ -37,7 +37,7 @@
             {% endfor %}
         </td>
         <td>
-            <a href="{{url_for("order.order_info", order_id=o.id)}}">订单管理</a>
+            <a href="{{o.info_path()}}">订单管理</a>
         </td>
  
     </tr>
@@ -109,7 +109,7 @@
         </td>
         <td>{{o.contract_status_cn}}</td>
         <td>
-            <a href="{{url_for("order.order_info", order_id=o.id)}}">订单管理</a>
+            <a href="{{o.info_path()}}">订单管理</a>
             {% if g.user.is_super_admin() %}
             <a href="{{url_for("order.order_delete", order_id=o.id)}}" style="color:red;">删除</a>
             {% endif %}
@@ -169,7 +169,7 @@
 
         <td>{{o.contract_status_cn}}</td>
         <td>
-            <a href="{{url_for("order.order_info", order_id=o.id)}}">合同设置</a>
+            <a href="{{o.info_path()}}">合同设置</a>
         </td>
     </tr>
     {% endfor %}
@@ -224,7 +224,7 @@
         </td>
         <td>{{o.contract_status_cn}}</td>
         <td>
-            <a href="{{url_for("order.order_info", order_id=o.id)}}">订单管理</a>
+            <a href="{{o.info_path()}}">订单管理</a>
         </td>
     </tr>
     {% endfor %}
@@ -280,7 +280,7 @@
         </td>
         <td>{{o.contract_status_cn}}</td>
         <td style="width:60px;">
-            <a href="{{url_for("order.order_info", order_id=o.id)}}">审批</a>
+            <a href="{{o.info_path()}}">审批</a>
         </td>
     </tr>
     {% endfor %}

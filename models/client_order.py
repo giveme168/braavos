@@ -137,6 +137,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [x.medium.id for x in self.medium_orders]
 
     @property
+    def outsources(self):
+        return [o for mo in self.medium_orders for o in mo.outsources]
+
+    @property
     def locations(self):
         return list(set([u.location for u in self.direct_sales + self.agent_sales]))
 
@@ -187,7 +191,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [o for o in cls.all() if o.have_owner(user)]
 
     def path(self):
-        return url_for('order.order_info', order_id=self.id)
+        return self.info_path()
 
     @property
     def search_info(self):
@@ -224,7 +228,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return url_for('files.client_order_files', order_id=self.id)
 
     def info_path(self):
-        return url_for("order.order_info", order_id=self.id)
+        return url_for("order.order_info", order_id=self.id, tab_id=1)
 
     def contract_path(self):
         return url_for("order.client_order_contract", order_id=self.id)

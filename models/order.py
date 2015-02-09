@@ -216,7 +216,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return url_for('files.medium_order_files', order_id=self.id)
 
     def info_path(self):
-        return url_for("order.order_info", order_id=self.client_order.id)
+        return self.client_order.info_path()
 
     def attach_status_confirm_path(self, attachment):
         return url_for('order.medium_attach_status',

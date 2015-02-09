@@ -119,7 +119,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [o for o in cls.all() if o.have_owner(user)]
 
     def path(self):
-        return url_for('order.order_info', order_id=self.id)
+        return self.info_path()
 
     @property
     def start_date(self):

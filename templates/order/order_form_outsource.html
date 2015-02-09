@@ -1,0 +1,17 @@
+{% from 'form.html' import form_field %}
+{% macro order_outsource_form(form, outsource=None) -%}
+{% if outsource %}
+<form class="form form-horizontal" method="POST" action="{{outsource.edit_path()}}">
+{% else %}
+<form class="form form-horizontal" method="POST" action="{{url_for('order.new_outsource')}}">
+{% endif %}
+    {{form.csrf_token}}
+    {{ form_field(form.medium_order) }}
+    {{ form_field(form.target) }}
+    {{ form_field(form.type) }}
+    {{ form_field(form.subtype) }}
+    {{ form_field(form.num) }}
+    {{ form_field(form.remark) }}
+    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+</form>
+{%- endmacro %}

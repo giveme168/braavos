@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from flask import url_for
 from . import db, BaseModelMixin
 
 
@@ -37,27 +38,96 @@ class OutSourceTarget(db.Model, BaseModelMixin):
     def type_cn(self):
         return TARGET_TYPE_CN[self.type]
 
-"""
+
+OUTSOURCE_TYPE_GIFT = 1
+OUTSOURCE_TYPE_FLASH = 2
+OUTSOURCE_TYPE_KOL = 3
+OUTSOURCE_TYPE_BETTER = 4
+OUTSOURCE_TYPE_OTHER = 5
+OUTSOURCE_TYPE_CN = {
+    OUTSOURCE_TYPE_GIFT: u"奖品",
+    OUTSOURCE_TYPE_FLASH: u"Flash",
+    OUTSOURCE_TYPE_KOL: u"劳务(KOL、线下活动等)",
+    OUTSOURCE_TYPE_BETTER: u"效果优化",
+    OUTSOURCE_TYPE_OTHER: u"其他(视频等)"
+}
+
+OUTSOURCE_SUBTYPE_NOFLASH = 1
+OUTSOURCE_SUBTYPE_BOCAI = 2
+OUTSOURCE_SUBTYPE_TUWEN = 3
+OUTSOURCE_SUBTYPE_FENSI = 4
+OUTSOURCE_SUBTYPE_FM = 5
+OUTSOURCE_SUBTYPE_FORM = 6
+OUTSOURCE_SUBTYPE_TEST = 7
+OUTSOURCE_SUBTYPE_TUYA = 8
+OUTSOURCE_SUBTYPE_MAP = 9
+OUTSOURCE_SUBTYPE_GAME = 10
+OUTSOURCE_SUBTYPE_GUESS = 11
+OUTSOURCE_SUBTYPE_FACE = 12
+OUTSOURCE_SUBTYPE_OTHER = 13
+OUTSOURCE_SUBTYPE_CN = {
+    OUTSOURCE_SUBTYPE_NOFLASH: u"非FLASH",
+    OUTSOURCE_SUBTYPE_BOCAI: u"抽奖博彩",
+    OUTSOURCE_SUBTYPE_TUWEN: u"图文拼贴组合（单格图文UGC，多格漫画）",
+    OUTSOURCE_SUBTYPE_FENSI: u"粉丝日记创作分享",
+    OUTSOURCE_SUBTYPE_FM: u"豆瓣电台互动",
+    OUTSOURCE_SUBTYPE_FORM: u"问卷测试",
+    OUTSOURCE_SUBTYPE_TEST: u"豆瓣用户数据测试",
+    OUTSOURCE_SUBTYPE_TUYA: u"涂鸦",
+    OUTSOURCE_SUBTYPE_MAP: u"地图互动",
+    OUTSOURCE_SUBTYPE_GAME: u"纯游戏",
+    OUTSOURCE_SUBTYPE_GUESS: u"猜图",
+    OUTSOURCE_SUBTYPE_FACE: u"面部识别及信息合成",
+    OUTSOURCE_SUBTYPE_OTHER: u"其他",
+}
+
+
 class OutSource(db.Model, BaseModelMixin):
     __tablename__ = 'out_source'
 
     id = db.Column(db.Integer, primary_key=True)
     target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
-    target = db.relationship('Team', backref=db.backref('outsources', lazy='dynamic'))
+    target = db.relationship('OutSourceTarget', backref=db.backref('outsources', lazy='dynamic'))
     medium_order_id = db.Column(db.Integer, db.ForeignKey('bra_order.id'))
     medium_order = db.relationship('Order', backref=db.backref('outsources', lazy='dynamic'))
     num = db.Column(db.Integer)
-    invoice = db.Column(db.Boolean)
-    paid = db.Column(db.Boolean)
     type = db.Column(db.Integer)
+    subtype = db.Column(db.Integer)
+    invoice = db.Column(db.Boolean)  # 发票
+    paid = db.Column(db.Boolean)  # 付款
     remark = db.Column(db.String(1000))
+    status = db.Column(db.Integer)
 
-    def __init__(self, target, medium_order, num, invoice, paid, type, remark):
+    def __init__(self, target, medium_order, num, type, subtype, invoice=False, paid=False, remark=None, status=0):
         self.target = target
         self.medium_order = medium_order
         self.num = num
+        self.type = type
+        self.subtype = subtype
         self.invoice = invoice
         self.paid = paid
-        self.type = type
-        self.remark = remark
-"""
+        self.remark = remark or ""
+        self.status = status
+
+    @property
+    def name(self):
+        return "%s-%s" % (self.medium_order.medium.name, self.target.name)
+
+    def edit_path(self):
+        return url_for('order.outsource', outsource_id=self.id)
+
+    def info_path(self):
+        return url_for("order.order_info", order_id=self.medium_order.client_order.id, tab_id=2)
+
+    @property
+    def form(self):
+        from forms.outsource import OutsourceForm
+        form = OutsourceForm()
+        form.medium_order.choices = [(mo.id, mo.medium.name) for mo in self.medium_order.client_order.medium_orders]
+        form.medium_order.data = self.medium_order.id
+        form.target.data = self.target.id
+        form.num.data = self.num
+        form.type.data = self.type
+        form.subtype.data = self.subtype
+        form.remark.data = self.remark
+        return form

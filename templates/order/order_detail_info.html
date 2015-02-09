@@ -1,6 +1,7 @@
 {% extends "/order_base.html" %}
 {% from 'order_form_client.html' import order_client_form %}
 {% from 'order_form_medium.html' import order_medium_form %}
+{% from 'order_form_outsource.html' import order_outsource_form %}
 {% from 'order_form_associated_douban.html' import order_associated_douban_form %}
 {% from 'order_form_contract.html' import order_contract_form %}
 {% from 'order_form_attachment.html' import client_order_attachment, medium_order_attachment, associated_douban_attachment %}
@@ -99,7 +100,57 @@
 {%- endmacro %}
 
 {% macro operate_box(order) -%}
-        <p>还没有开发好呢</p>
+<table class="table table-bordered">
+    <tr>
+        <th>客户订单总金额</th>
+        <th>外包应付总金额</th>
+        <th>外包占比</th>
+    </tr>
+    <tr>
+        <td>10000</td>
+        <td>1000</td>
+        <td>10%</td>
+    </tr>
+</table>
+<div class="panel-group" id="accordion-outsource">
+    {% for o in order.outsources %}
+    <div class="panel panel-default" id="accordion-outsource">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource - {{o.id}}"> {{o.name}} </a>
+            </h4>
+        </div>
+        <div id="collapse-outsource-{{o.id}}" class="panel-collapse collapse in">
+            <div class="panel-body">
+                {{ order_outsource_form(o.form, o) }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="panel panel-default" id="new-outsource" style="display:none;">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-new"> 新建媒体外包信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-outsource-new" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <div class="well">
+                {{ order_outsource_form(new_outsource_form) }}
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+<button onclick="showOutSource(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 外包信息</button>
+<script>
+  $(function(){
+    showOutSource = function(ele){
+      $(ele).hide();
+      $("#new-outsource").show();
+    };
+  });
+</script>
 {%- endmacro %}
 
 {% block main_box%}
@@ -107,14 +158,14 @@
   <h4> {{ order.name }} </h4>
   <div>
     <ul class="nav nav-tabs">
-      <li class="active"><a href="#tab-1" data-toggle="tab">合同流程</a></li>
-      <li><a href="#tab-2" data-toggle="tab">执行成本</a></li>
+      <li class="{{'active' if tab_id == 1 else ''}}"><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
+      <li class="{{'active' if tab_id == 2 else ''}}"><a href='{{url_for("order.order_info", order_id=order.id, tab_id=2)}}'>执行成本</a></li>
     </ul>
     <div class="tab-content">
-      <div class="tab-pane active" id="tab-1">
+      <div class="tab-pane {{'active' if tab_id == 1 else ''}}" id="tab-1">
         {{ contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, associated_douban_forms, reminder_emails) }}
       </div>
-      <div class="tab-pane" id="tab-2">
+      <div class="tab-pane {{'active' if tab_id == 2 else ''}}" id="tab-2">
         {{ operate_box(order) }}
       </div>
     </div>

@@ -27,7 +27,7 @@ from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.delivery import Delivery
-from models.outsource import OutSourceTarget
+from models.outsource import OutSourceTarget, OutSource
 # target_metadata = mymodel.Base.metadata
 from flask import current_app
 config.set_main_option('sqlalchemy.url', current_app.config.get('SQLALCHEMY_DATABASE_URI'))

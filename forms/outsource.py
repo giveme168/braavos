@@ -1,8 +1,8 @@
 #-*- coding: UTF-8 -*-
-from wtforms import TextField, TextAreaField, SelectField, validators
+from wtforms import TextField, IntegerField, TextAreaField, SelectField, validators
 
 from libs.wtf import Form
-from models.outsource import TARGET_TYPE_CN
+from models.outsource import OutSourceTarget, TARGET_TYPE_CN, OUTSOURCE_TYPE_CN, OUTSOURCE_SUBTYPE_CN
 
 
 class OutSourceTargetForm(Form):
@@ -32,3 +32,18 @@ class OutSourceTargetForm(Form):
                 else:
                     return True
         return False
+
+
+class OutsourceForm(Form):
+    medium_order = SelectField(u'投放媒体', coerce=int)
+    target = SelectField(u'收款方', coerce=int)
+    num = IntegerField(u'金额', default=0)
+    type = SelectField(u'外包类别', coerce=int)
+    subtype = SelectField(u'Flash功能分类', coerce=int, default=1)
+    remark = TextAreaField(u'备注')
+
+    def __init__(self, *args, **kwargs):
+        super(OutsourceForm, self).__init__(*args, **kwargs)
+        self.target.choices = [(ost.id, ost.name) for ost in OutSourceTarget.all()]
+        self.type.choices = OUTSOURCE_TYPE_CN.items()
+        self.subtype.choices = OUTSOURCE_SUBTYPE_CN.items()
