@@ -107,9 +107,9 @@
         <th>外包占比</th>
     </tr>
     <tr>
-        <td>10000</td>
-        <td>1000</td>
-        <td>10%</td>
+        <td>{{order.money}} 元</td>
+        <td>{{order.outsources_sum}} 元</td>
+        <td>{{order.outsources_percent}} %</td>
     </tr>
 </table>
 <div class="panel-group" id="accordion-outsource">
@@ -142,7 +142,9 @@
         </div>
     </div>
 </div>
+{% if order.medium_orders %}
 <button onclick="showOutSource(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 外包信息</button>
+{% endif %}
 <script>
   $(function(){
     showOutSource = function(ele){

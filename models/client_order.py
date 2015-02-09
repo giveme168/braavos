@@ -141,6 +141,14 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [o for mo in self.medium_orders for o in mo.outsources]
 
     @property
+    def outsources_sum(self):
+        return sum([o.num for o in self.outsources]) if self.outsources else 0
+
+    @property
+    def outsources_percent(self):
+        return "%.1f" % (self.outsources_sum / self.money * 100) if self.money else "0"
+
+    @property
     def locations(self):
         return list(set([u.location for u in self.direct_sales + self.agent_sales]))
 
