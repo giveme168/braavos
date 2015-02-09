@@ -35,7 +35,7 @@ class OutSourceTargetForm(Form):
 
 
 class OutsourceForm(Form):
-    medium_order = SelectField(u'投放媒体', coerce=int)
+    medium_order = SelectField(u'投放媒体', coerce=int, description=u"保存后不可修改")
     target = SelectField(u'收款方', coerce=int)
     num = IntegerField(u'金额', default=0)
     type = SelectField(u'外包类别', coerce=int)

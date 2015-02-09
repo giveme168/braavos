@@ -6,9 +6,11 @@ from . import db, BaseModelMixin
 TARGET_TYPE_FLASH = 1
 TARGET_TYPE_KOL = 2
 TARGET_TYPE_OTHER = 3
+TARGET_TYPE_BETTER = 4
 TARGET_TYPE_CN = {
     TARGET_TYPE_FLASH: u"Flash外包商",
     TARGET_TYPE_KOL: u"KOL",
+    TARGET_TYPE_BETTER: u"效果优化",
     TARGET_TYPE_OTHER: u"其他"
 }
 
@@ -111,13 +113,17 @@ class OutSource(db.Model, BaseModelMixin):
 
     @property
     def name(self):
-        return "%s-%s" % (self.medium_order.medium.name, self.target.name)
+        return "%s-%s" % (self.medium_order.medium.name, self.type_cn)
 
     def edit_path(self):
         return url_for('order.outsource', outsource_id=self.id)
 
     def info_path(self):
         return url_for("order.order_info", order_id=self.medium_order.client_order.id, tab_id=2)
+
+    @property
+    def type_cn(self):
+        return OUTSOURCE_TYPE_CN[self.type]
 
     @property
     def form(self):

@@ -1,3 +1,23 @@
+{% macro comment_box(c) -%}
+<div class="comment col-md-12">
+  <div class="comment-avatar col-md-1">
+    <img src="{{c.creator.avatar}}"/>
+  </div>
+  <div class="col-md-11">
+    <div class="comment-head">
+      <strong>
+        {{c.creator.name}}
+      </strong>
+      <span class="comment-time">
+        {{c.create_time.strftime("%Y-%m-%d %H:%M:%S")}}
+      </span>
+    </div>
+    <div class="comment-content">
+      <p> {{c.msg | urlize(40, true) | nl2br }} </p>
+    </div>
+  </div>
+</div>
+{%- endmacro %}
 {% macro comments_box(owner) -%}
 <div class="comments_box col-md-12">
   <form role="form" class="form comment-form col-md-12">
@@ -17,37 +37,37 @@
       </div>
     </div>
   </form>
+  {% set cs = owner.get_comments() %}
+  {% if cs|length > 5 %}
   <div class="comments col-md-12">
-    {% for c in owner.get_comments() %}
-    <div class="comment col-md-12">
-      <div class="comment-avatar col-md-1">
-        <img src="{{c.creator.avatar}}"/>
-      </div>
-      <div class="col-md-11">
-        <div class="comment-head">
-          <strong>
-            {{c.creator.name}}
-          </strong>
-          <span class="comment-time">
-            {{c.create_time.strftime("%Y-%m-%d %H:%M:%S")}}
-          </span>
-        </div>
-        <div class="comment-content">
-          <p> {{c.msg | urlize(40, true) | nl2br }} </p>
-        </div>
-      </div>
-    </div>
+    {% for c in cs[:5] %}
+      {{ comment_box(c) }}
     {% endfor %}
   </div>
+  <div class="comments col-md-12 comments-next">
+    {% for c in cs[5:] %}
+      {{ comment_box(c) }}
+    {% endfor %}
+  </div>
+  <div class="comments-all col-md-12">- 全部留言 -</div>
+  {% else %}
+  <div class="comments col-md-12">
+    {% for c in cs %}
+      {{ comment_box(c) }}
+    {% endfor %}
+  </div>
+  {% endif %}
 </div>
 <style>
 .comment {padding: 10px; font-size: 12px; line-height: 120%; text-align: left; border-bottom: 1px solid #e2e2e2;}
 .comment-time {font-size: 11px; color: #ccc; margin-left: 10px;}
 .comment-content {padding: 10px;}
 .comment-form {margin-top: 10px;}
+.comments-all{text-align: center; margin: 10px; color: #ccc;}
 </style>
 <script>
 $(document).ready(function(){
+    $(".comments-next").toggle();
     $("#comment-add").click(function(){
         var sent_data = $(this).parents('.comment-form').serialize();
         $.post('{{url_for("comment.add")}}',
@@ -57,6 +77,9 @@ $(document).ready(function(){
           },
           'json');
         return false;
+    });
+    $(".comments-all").click(function(){
+      $(".comments-next").toggle();
     });
 });
 </script>
