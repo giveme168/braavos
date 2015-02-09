@@ -45,9 +45,84 @@
 </table>
 {%- endmacro %}
 
+{% macro operater(orders) -%}
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>代理/直客</th>
+        <th>客户</th>
+        <th>Campaign</th>
+        <th>合同金额</th>
+        <th>直客销售</th>
+        <th>渠道销售</th>
+        <th>媒体</th>
+        <th>金额</th>
+        <th>开始</th>
+        <th>结束</th>
+        <th>执行</th>
+        <th>排期</th>
+        <th>合同号状态</th>
+        <th>操作</th>
+    </tr>
+    {% for o in orders %}
+    <tr>
+        <td style="width:160px;">{{o.agent.name}}</td>
+        <td style="width:100px;">{{o.client.name}}</td>
+        <td style="width:100px;">{{o.campaign}}</td>
+        <td>{{o.money}}</td>
+        <td>{{o.direct_sales_names}}</td>
+        <td>{{o.agent_sales_names}}</td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.medium.name}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.medium_money}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.start_date_cn}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.end_date_cn}} 
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.operater_names}} 
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            <a href="{{mo.path()}}">排期设置</a>
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>{{o.contract_status_cn}}</td>
+        <td>
+            <a href="{{o.info_path()}}">订单管理</a>
+            {% if g.user.is_super_admin() %}
+            <a href="{{url_for("order.order_delete", order_id=o.id)}}" style="color:red;">删除</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{%- endmacro %}
+
 {% macro admin(orders) -%}
 <table class="table table-bordered table-striped">
     <tr>
+        <th>代理/直客</th>
         <th>客户</th>
         <th>Campaign</th>
         <th>合同金额</th>
@@ -65,6 +140,7 @@
     </tr>
     {% for o in orders %}
     <tr>
+        <td style="width:160px;">{{o.agent.name}}</td>
         <td style="width:100px;">{{o.client.name}}</td>
         <td style="width:100px;">{{o.campaign}}</td>
         <td>{{o.money}}</td>
@@ -315,6 +391,8 @@
     <br>
     {% if g.user.is_admin() %}
         {{ admin(orders) }}
+    {% elif g.user.is_operater() %}
+        {{ operater(orders) }}
     {% elif g.user.is_contract() %}
         {{ contract(orders) }}
     {% elif g.user.is_sale() %}

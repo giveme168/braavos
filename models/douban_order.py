@@ -175,6 +175,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def agent_sales_names(self):
         return ",".join([u.name for u in self.agent_sales])
 
+    @property
+    def operater_names(self):
+        return ",".join([u.name for u in self.operaters])
+
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + [self.creator]
@@ -208,6 +212,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def end_date_cn(self):
         return self.end_date.strftime(DATE_FORMAT)
+
+    @property
+    def reminde_date_cn(self):
+        return self.reminde_date.strftime(DATE_FORMAT)
 
     @property
     def contract_status_cn(self):
