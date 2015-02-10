@@ -36,3 +36,6 @@ class AttachmentMixin():
 
     def get_last_schedule(self):
         return self.get_schedule_attachments().first()
+
+    def is_attachment_ready(self):
+        return self.get_last_contract() and self.get_last_schedule()

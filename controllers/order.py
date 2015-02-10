@@ -24,7 +24,7 @@ from models.order import Order
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_NEW,
-                                 CONTRACT_STATUS_MEDIAPASS, CONTRACT_STATUS_CN)
+                                 CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
@@ -373,37 +373,37 @@ def client_order_contract(order_id):
 
 def contract_status_change(order, action, emails, msg):
     action_msg = ''
-    if action == 0:
+    if action == 1:
+        order.contract_status = CONTRACT_STATUS_MEDIA
+        action_msg = u"申请利润分配"
+    elif action == 2:
         order.contract_status = CONTRACT_STATUS_APPLYCONTRACT
-        action_msg = u"申请合同号审批"
-    elif action == 1:
+        action_msg = u"申请审批"
+    elif action == 3:
+        order.contract_status = CONTRACT_STATUS_APPLYPASS
+        action_msg = u"审批通过"
+    elif action == 4:
+        order.contract_status = CONTRACT_STATUS_APPLYREJECT
+        action_msg = u"审批未被通过"
+    elif action == 5:
         order.contract_status = CONTRACT_STATUS_APPLYPRINT
         action_msg = u"申请打印合同"
-    elif action == 2:
-        order.contract_status = CONTRACT_STATUS_APPLYPASS
-        action_msg = u"合同号申请被通过"
-    elif action == 3:
-        order.contract_status = CONTRACT_STATUS_APPLYREJECT
-        action_msg = u"合同号申请未被通过"
-    elif action == 4:
+    elif action == 6:
         order.contract_status = CONTRACT_STATUS_PRINTED
         action_msg = u"合同打印完毕"
-    elif action == 5:
+    elif action == 7:
         action_msg = u"消息提醒"
-    elif action == 6:
-        action_msg = u"媒介调整完毕"
-        order.contract_status = CONTRACT_STATUS_MEDIAPASS
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     #  发送邮件
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
-    if action == 2:
-        to_users = to_users + User.medias()
-    if action == 6:
+    if action in [3, 5]:
         to_users = to_users + User.contracts()
-    elif action == 5:
+    if action == 1:
+        to_users = to_users + User.medias()
+    elif action == 7:
         to_users = [g.user]
-    if action in [0, 2, 3]:
+    if action in [1, 2, 3]:
         to_users = to_users + User.super_leaders()
 
     to_emails = list(set(emails + [x.email for x in to_users]))
@@ -446,8 +446,8 @@ def my_orders():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
-            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIAPASS, CONTRACT_STATUS_APPLYPRINT]]
-            status_id = CONTRACT_STATUS_MEDIAPASS
+            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYPRINT]]
+            status_id = CONTRACT_STATUS_MEDIA
         elif g.user.is_media():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_NEW]
             status_id = CONTRACT_STATUS_NEW
@@ -770,8 +770,8 @@ def my_douban_orders():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
-            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIAPASS, CONTRACT_STATUS_APPLYPRINT]]
-            status_id = CONTRACT_STATUS_MEDIAPASS
+            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYPRINT]]
+            status_id = CONTRACT_STATUS_MEDIA
         elif g.user.is_media():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_NEW]
             status_id = CONTRACT_STATUS_NEW
