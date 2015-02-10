@@ -135,6 +135,7 @@ def get_medium_form(order):
     medium_form.medium.choices = [(order.medium.id, order.medium.name)]
     medium_form.medium.data = order.medium.id
     medium_form.medium_money.data = order.medium_money
+    medium_form.medium_money2.data = order.medium_money2
     medium_form.sale_money.data = order.sale_money
     medium_form.medium_CPM.data = order.medium_CPM
     medium_form.sale_CPM.data = order.sale_CPM
@@ -230,7 +231,7 @@ def order_info(order_id, tab_id=1):
     new_outsource_form = OutsourceForm()
     new_outsource_form.medium_order.choices = [(mo.id, mo.medium.name) for mo in order.medium_orders]
 
-    reminder_emails = [(u.name, u.email) for u in User.super_leaders() + User.leaders() + order.direct_sales + order.agent_sales + User.contracts() + User.admins()]
+    reminder_emails = [(u.name, u.email) for u in User.all()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
                'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
@@ -253,6 +254,7 @@ def order_new_medium(order_id):
         mo = Order.add(campaign=co.campaign,
                        medium=Medium.get(form.medium.data),
                        medium_money=form.medium_money.data,
+                       medium_money2=form.medium_money2.data,
                        sale_money=form.sale_money.data,
                        medium_CPM=form.medium_CPM.data,
                        sale_CPM=form.sale_CPM.data,
@@ -278,6 +280,7 @@ def medium_order(mo_id):
         abort(404)
     form = MediumOrderForm(request.form)
     mo.medium_money = form.medium_money.data
+    mo.medium_money2 = form.medium_money2.data
     mo.sale_money = form.sale_money.data
     mo.medium_CPM = form.medium_CPM.data
     mo.sale_CPM = form.sale_CPM.data
@@ -581,7 +584,7 @@ def framework_order_info(order_id):
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
 
-    reminder_emails = [(u.name, u.email) for u in User.super_leaders() + User.leaders() + order.direct_sales + order.agent_sales + User.contracts() + User.admins()]
+    reminder_emails = [(u.name, u.email) for u in User.all()]
     context = {'framework_form': framework_form,
                'order': order,
                'reminder_emails': reminder_emails}
@@ -744,7 +747,7 @@ def douban_order_info(order_id):
                 flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
                 order.add_comment(g.user, u"更新了合同号, %s" % msg)
 
-    reminder_emails = [(u.name, u.email) for u in User.super_leaders() + User.leaders() + order.direct_sales + order.agent_sales + User.contracts() + User.admins()]
+    reminder_emails = [(u.name, u.email) for u in User.all()]
     context = {'douban_form': form,
                'order': order,
                'reminder_emails': reminder_emails}
