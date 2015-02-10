@@ -446,8 +446,8 @@ def my_orders():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
-            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
-            status_id = CONTRACT_STATUS_APPLYPASS
+            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIAPASS, CONTRACT_STATUS_APPLYPRINT]]
+            status_id = CONTRACT_STATUS_MEDIAPASS
         elif g.user.is_media():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_NEW]
             status_id = CONTRACT_STATUS_NEW
@@ -770,8 +770,8 @@ def my_douban_orders():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
-            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
-            status_id = CONTRACT_STATUS_APPLYPASS
+            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIAPASS, CONTRACT_STATUS_APPLYPRINT]]
+            status_id = CONTRACT_STATUS_MEDIAPASS
         elif g.user.is_media():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_NEW]
             status_id = CONTRACT_STATUS_NEW
