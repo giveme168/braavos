@@ -63,23 +63,18 @@
             padding: 15px;
             box-shadow: 0 0 6px 4px rgba(0, 0, 0, .04);
             background-color: white;
-            *display: inline-block;
+            display: inline-block;
+            vertical-align: top;
         }
         .bra-left{
             margin-left: 15px;
             margin-right: 15px;
-            *position: relative;
-            *display: inline-block;
-            *float: left;
-            position:absolute;
-            top: 65px;
-            left: 0;
+            width: 210px;
         }
         .bra-main{
-            margin-left: 250px;
+            width: 990px;
             margin-right: 0px;
             position: relative;
-            *display: inline-block;
         }
         .bra-left .list-group {
             display:table-cell;
@@ -105,9 +100,11 @@
           $("#list-show").toggle();
           $("#list-hide").toggle();
           if($("#list-hide").is(":visible")){
-            $(".bra-main").css("margin-left", "250px");
+            $(".bra-left").css("width", "210px");
+            $(".bra-main").css("width", "990px");
           }else{
-            $(".bra-main").css("margin-left", "80px");
+            $(".bra-left").css("width", "50px");
+            $(".bra-main").css("width", "1150px");
           }
         });
       });
