@@ -168,6 +168,10 @@ class User(db.Model, BaseModelMixin):
         return cls.gets_by_team_type(TEAM_TYPE_CONTRACT)
 
     @classmethod
+    def medias(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_MEDIA)
+
+    @classmethod
     def douban_contracts(cls):
         return cls.gets_by_team_type(TEAM_TYPE_DOUBAN_CONTRACT)
 

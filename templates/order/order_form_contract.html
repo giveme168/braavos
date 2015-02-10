@@ -129,12 +129,15 @@
             {% if order.contract_status in [0, 3] and order.can_admin(g.user) %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="0">申请合同号</button>
             {% endif %}
-            {% if order.contract_status == 2 and order.can_admin(g.user) %}
-            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请打印</button>
-            {% endif %}
             {% if order.contract_status == 1 and g.user.is_leader() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请通过</button>
             <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="3">申请拒绝</button>
+            {% endif %}
+            {% if order.contract_status == 2 and g.user.is_media() %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="6">媒介通过</button>
+            {% endif %}
+            {% if order.contract_status == 6 and order.can_admin(g.user) %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请打印</button>
             {% endif %}
             {% if order.contract_status == 4 and g.user.is_contract() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="4">打印完毕</button>

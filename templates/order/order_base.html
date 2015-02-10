@@ -4,7 +4,7 @@
 <div class="bra-left bra-box">
   <div class="list-group">
     <!-- 只有leader和合同管理员才能看所有订单 -->
-    {% if g.user.is_leader() or g.user.is_contract() %}
+    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() %}
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的新媒体订单
     </a>
@@ -18,7 +18,7 @@
       <span class="glyphicon glyphicon-th-list"></span> 我的直签豆瓣订单
     </a>
     <a class="list-group-item" href="{{url_for('order.douban_orders')}}">
-        <span class="glyphicon glyphicon-th-list"></span> 直签豆瓣订单
+        <span class="glyphicon glyphicon-th-list"></span> 全部直签豆瓣订单
     </a>
     <a class="list-group-item" href="{{url_for('order.new_douban_order')}}">
         <span class="glyphicon glyphicon-plus"></span> 新建直签豆瓣订单
@@ -39,7 +39,7 @@
     {% endif %}
 
     <!-- 只有leader 销售 合同管理员才能看框架 -->
-    {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() %}
+    {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() %}
     <a class="list-group-item" href="{{url_for('order.framework_orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 全部框架
     </a>

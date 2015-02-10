@@ -206,24 +206,24 @@
         <th>渠道销售</th>
         <th>区域</th>
         <th>售卖类型</th>
-        <th>直签/代理</th>
+        <th>合同号</th>
         <th>媒体订单</th>
         <th>下单金额</th>
+        <th>合同号</th>
         <th>预估ECPM</th>
-        <th>合同号状态</th>
         <th>操作</th>
     </tr>
     {% for o in orders %}
     <tr>
-        <td style="width:160px;">{{o.agent.name}}</td>
-        <td style="width:160px;">{{o.client.name}}</td>
+        <td>{{o.agent.name}}</td>
+        <td>{{o.client.name}}</td>
         <td style="width:160px;">{{o.campaign}}</td>
         <td>{{o.money}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
         <td>{{o.locations_cn}}</td>
         <td>{{o.resource_type_cn}}</td>
-        <td>{{o.sale_type_cn}}</td>
+        <td>{{o.contract or "无合同号"}}</td>
         <td>
             {% for mo in o.medium_orders %}    
             {{mo.medium.name}}
@@ -238,15 +238,17 @@
         </td>
         <td>
             {% for mo in o.medium_orders %}    
+            {{mo.medium_contract or "无合同号"}} 
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
             {{"%.1f" % (mo.medium_money / mo.sale_CPM) if mo.sale_CPM else "无预估"}}
             <br><br>
             {% endfor %}
         </td>
-
-        <td>{{o.contract_status_cn}}</td>
-        <td>
-            <a href="{{o.info_path()}}">合同设置</a>
-        </td>
+        <td><a href="{{o.info_path()}}">合同设置</a></td>
     </tr>
     {% endfor %}
 </table>
@@ -390,7 +392,7 @@
     </div>
     <br>
     {% if g.user.is_admin() %}
-        {{ admin(orders) }}
+        {{ contract(orders) }}
     {% elif g.user.is_operater() %}
         {{ operater(orders) }}
     {% elif g.user.is_contract() %}

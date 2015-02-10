@@ -23,7 +23,8 @@ from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
 from models.order import Order
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
-                                 CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_NEW, CONTRACT_STATUS_CN)
+                                 CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_NEW,
+                                 CONTRACT_STATUS_MEDIAPASS, CONTRACT_STATUS_CN)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
@@ -389,11 +390,16 @@ def contract_status_change(order, action, emails, msg):
         action_msg = u"合同打印完毕"
     elif action == 5:
         action_msg = u"消息提醒"
+    elif action == 6:
+        action_msg = u"媒介调整完毕"
+        order.contract_status = CONTRACT_STATUS_MEDIAPASS
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     #  发送邮件
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     if action == 2:
+        to_users = to_users + User.medias()
+    if action == 6:
         to_users = to_users + User.contracts()
     elif action == 5:
         to_users = [g.user]
@@ -413,10 +419,7 @@ def contract_status_change(order, action, emails, msg):
 
 @order_bp.route('/orders', methods=['GET'])
 def orders():
-    if g.user.is_super_leader():
-        orders = list(ClientOrder.all())
-    else:
-        orders = [o for o in ClientOrder.all() if g.user.location in o.locations]
+    orders = list(ClientOrder.all())
     if request.args.get('selected_status'):
         status_id = int(request.args.get('selected_status'))
     else:
@@ -781,15 +784,12 @@ def my_douban_orders():
 
 @order_bp.route('/douban_orders', methods=['GET'])
 def douban_orders():
-    if g.user.is_super_leader():
-        orders = list(DoubanOrder.all())
-    else:
-        orders = [o for o in DoubanOrder.all() if g.user.location in o.locations]
+    orders = list(DoubanOrder.all())
     if request.args.get('selected_status'):
         status_id = int(request.args.get('selected_status'))
     else:
         status_id = -1
-    return douban_display_orders(orders, u'直签豆瓣订单列表', status_id)
+    return douban_display_orders(orders, u'全部直签豆瓣订单列表', status_id)
 
 
 def douban_display_orders(orders, title, status_id=-1):
