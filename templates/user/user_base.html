@@ -1,8 +1,6 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
-<div class="bra-left bra-box">
-  <div class="list-group">
     <a class="list-group-item" href="{{url_for('user.users')}}">
         <span class="glyphicon glyphicon-user"></span> 用户
     </a>
@@ -15,6 +13,4 @@
     <a class="list-group-item" href="{{url_for('user.new_team')}}">
         <span class="glyphicon glyphicon-plus"></span> 新团队
     </a>
-  </div>
-</div>
 {% endblock %}

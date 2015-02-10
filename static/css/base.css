@@ -43,27 +43,38 @@ body{
     font-size: 15px;
     line-height: 23px;
 }
-
+.content-box{
+}
 .bra-box{
     padding: 15px;
     box-shadow: 0 0 6px 4px rgba(0, 0, 0, .04);
     background-color: white;
-    display: inline-block;
-    vertical-align: top;
 }
 .bra-left{
-    width: 210px;
-    margin-left: 30px;
-    margin-right: 30px;
+    margin-left: 15px;
+    margin-right: 15px;
+    position: relative;
+    float: left;
 }
 .bra-main{
-    width: 990px;
+    margin-left: 250px;
+    margin-right: 0px;
+    position: relative;
 }
-
+.bra-left .list-group {
+    display:table-cell;
+    width: 160px;
+}
 .bra-left .list-group-item {
     border: none; 
 }
-
+.bra-left .list-btn{
+    vertical-align: middle;
+    display:table-cell;
+}
+.bra-left .list-btn:hover, .bra-left .list-btn:focus{
+    background-color: #f5f5f5;
+}
 .tab-pane {
     padding-top: 20px;
 }

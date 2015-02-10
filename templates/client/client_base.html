@@ -1,8 +1,6 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
-<div class="bra-left bra-box">
-  <div class="list-group">
     <a class="list-group-item" href="{{url_for('client.agents')}}">
         <span class="glyphicon glyphicon-stats"></span> 代理/直客
     </a>
@@ -29,6 +27,4 @@
         <span class="glyphicon glyphicon-plus"></span> 新建媒体
     </a>
     {% endif %}
-  </div>
-</div>
 {% endblock %}

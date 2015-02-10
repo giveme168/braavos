@@ -1,8 +1,6 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
-<div class="bra-left bra-box">
-  <div class="list-group">
     <!-- 只有leader和合同管理员才能看所有订单 -->
     {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() %}
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">
@@ -57,6 +55,4 @@
     </a>
     {% endif %}
 
-  </div>
-</div>
 {% endblock %}

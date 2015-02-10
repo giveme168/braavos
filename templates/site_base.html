@@ -46,7 +46,33 @@
         {% endfor %}
       {% endif %}
     {% endwith %}
-    {% block left_box %}{% endblock %}
+    <div class="content-box">
+      <div class="bra-left bra-box">
+        <div class="list-group">
+          {% block left_box %}{% endblock %}
+        </div>
+        <a class="list-btn">
+            <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
+            <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+        </a>
+      </div>
+      <script>
+      $(function(){
+        $("#list-show").hide();
+        $(".list-btn").click(function(e){
+          $(".list-btn").css('height', $(".list-btn").height()+'px')
+          $(".list-group").toggle();
+          $("#list-show").toggle();
+          $("#list-hide").toggle();
+          if($("#list-hide").is(":visible")){
+            $(".bra-main").css("margin-left", "250px");
+          }else{
+            $(".bra-main").css("margin-left", "80px");
+          }
+        });
+      });
+      </script>
     {% block main_box %}{% endblock %}
+    </div>
 {% endblock %}
 
