@@ -143,6 +143,10 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return self.end_date.strftime(DATE_FORMAT)
 
     @property
+    def reminde_date_cn(self):
+        return self.reminde_date.strftime(DATE_FORMAT)
+
+    @property
     def contract_status_cn(self):
         return CONTRACT_STATUS_CN[self.contract_status]
 

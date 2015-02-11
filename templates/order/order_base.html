@@ -38,6 +38,9 @@
 
     <!-- 只有leader 销售 合同管理员才能看框架 -->
     {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() %}
+    <a class="list-group-item" href="{{url_for('order.my_framework_orders')}}">
+        <span class="glyphicon glyphicon-th-list"></span> 我的框架
+    </a>
     <a class="list-group-item" href="{{url_for('order.framework_orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 全部框架
     </a>

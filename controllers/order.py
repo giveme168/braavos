@@ -521,6 +521,18 @@ def new_framework_order():
     return tpl('new_framework_order.html', form=form)
 
 
+@order_bp.route('/framework_order/<order_id>/delete', methods=['GET'])
+def framework_delete(order_id):
+    order = FrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"框架订单: %s 已删除" % (order.group.name), 'danger')
+    order.delete()
+    return redirect(url_for("order.my_framework_orders"))
+
+
 def get_framework_form(order):
     framework_form = FrameworkOrderForm()
     framework_form.group.data = order.group.id
@@ -588,6 +600,26 @@ def framework_order_info(order_id):
                'order': order,
                'reminder_emails': reminder_emails}
     return tpl('framework_detail_info.html', **context)
+
+
+@order_bp.route('/my_framework_orders', methods=['GET'])
+def my_framework_orders():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
+        orders = list(FrameworkOrder.all())
+        if g.user.is_admin():
+            pass
+        elif g.user.is_super_leader():
+            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
+        elif g.user.is_contract():
+            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+        elif g.user.is_media():
+            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
+    elif g.user.is_leader():
+        orders = [o for o in FrameworkOrder.all() if g.user.location in o.locations]
+        orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
+    else:
+        orders = FrameworkOrder.get_order_by_user(g.user)
+    return framework_display_orders(orders, u'我的框架订单列表')
 
 
 @order_bp.route('/framework_orders', methods=['GET'])

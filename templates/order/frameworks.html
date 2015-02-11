@@ -1,38 +1,17 @@
 {% extends "/order_base.html" %}
 {% block title %}框架列表{% endblock %}
 
-{% macro other_user(orders) -%}
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>代理集团</th>
-        <th><a href="javascript:sort('start_date');">开始时间</a></th>
-        <th><a href="javascript:sort('end_date');">结束时间</a></th>
-        <th>创建者</th>
-        <th>创建时间</th>
-        <th>合同设置</th>
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td>{{o.group.name}}</td>
-        <td>{{o.start_date_cn}}</td>
-        <td>{{o.end_date_cn}}</td>
-        <td>{{o.creator.display_name}}</td>
-        <td>{{o.create_time.strftime('%Y-%m-%d')}}</td>
-        <td>
-            <a href="{{url_for("order.framework_order_info", order_id=o.id)}}">合同设置</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-{%- endmacro %}
-
-{% macro contract(orders) -%}
+{% macro all_items(orders) -%}
 <table class="table table-bordered table-striped">
     <tr>
         <th>代理集团</th>
         <th>合同金额</th>
+        <th>合同号</th>
         <th>直客销售</th>
         <th>渠道销售</th>
+        <th>开始</th>
+        <th>结束</th>
+        <th>回款日期</th>
         <th>合同号状态</th>
         <th>操作</th>
     </tr>
@@ -40,11 +19,18 @@
     <tr>
         <td>{{o.group.name}}</td>
         <td>{{o.money}}</td>
+        <td>{{o.contract or "无合同号"}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
+        <td>{{o.start_date_cn}}</td>
+        <td>{{o.end_date_cn}}</td>
+        <td>{{o.reminde_date_cn}}</td>
         <td>{{o.contract_status_cn}}</td>
         <td>
             <a href="{{url_for("order.framework_order_info", order_id=o.id)}}">合同设置</a>
+            {% if g.user.is_super_admin() %}
+            <a href="{{url_for("order.framework_delete", order_id=o.id)}}" style="color:red;">删除</a>
+            {% endif %}
         </td>
     </tr>
     {% endfor %}
@@ -54,11 +40,7 @@
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3> {{title}}</h3>
-    {% if g.user.is_contract() %}
-        {{ contract(orders) }}
-    {% else %}
-        {{ other_user(orders) }}
-    {% endif %}
+    {{ all_items(orders) }}
     <nav>
       <ul class="pagination">
         {% if page-1 > 0 %}

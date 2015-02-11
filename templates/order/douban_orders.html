@@ -1,93 +1,41 @@
 {% extends "/order_base.html" %}
 {% block title %}直签豆瓣订单列表{% endblock %}
 
-{% macro other(orders) -%}
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>客户</th>
-        <th>Campaign</th>
-        <th>开始时间</th>
-        <th>结束时间</th>
-        <th>直客销售</th>
-        <th>渠道销售</th>
-        <th>区域</th>
-        <th>执行</th>
-        <th>操作</th>
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td style="width:160px;">{{o.client.name}}</td>
-        <td style="width:160px;">{{o.campaign}}</td>
-        <td>{{o.start_date_cn}}</td>
-        <td>{{o.end_date_cn}}</td>
-        <td>{{o.direct_sales_names}}</td>
-        <td>{{o.agent_sales_names}}</td>
-        <td>{{o.locations_cn}}</td>
-        <td>{{o.operater_names}}</td>
-        <td><a href="{{o.info_path()}}">订单管理</a></td>
-    </tr>
-    {% endfor %}
-</table>
-{%- endmacro %}
-
-{% macro operater(orders) -%}
+{% macro all_items(orders) -%}
 <table class="table table-bordered table-striped">
     <tr>
         <th>代理/直客</th>
         <th>客户</th>
         <th>Campaign</th>
         <th>合同金额</th>
-        <th>直客销售</th>
-        <th>渠道销售</th>
-        <th>开始</th>
-        <th>结束</th>
-        <th>合同号状态</th>
-        <th>操作</th>
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td style="width:160px;">{{o.agent.name}}</td>
-        <td style="width:100px;">{{o.client.name}}</td>
-        <td style="width:100px;">{{o.campaign}}</td>
-        <td>{{o.money}}</td>
-        <td>{{o.direct_sales_names}}</td>
-        <td>{{o.agent_sales_names}}</td>
-        <td>{{o.start_date_cn}}</td>
-        <td>{{o.end_date_cn}}</td>
-        <td>{{o.contract_status_cn}}</td>
-        <td><a href="{{o.info_path()}}">订单管理</a></td>
-    </tr>
-    {% endfor %}
-</table>
-{%- endmacro %}
-
-{% macro admin(orders) -%}
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>代理/直客</th>
-        <th>客户</th>
-        <th>Campaign</th>
-        <th>合同金额</th>
-        <th>开始</th>
-        <th>结束</th>
+        <th>合同号</th>
+        <th>回款日期</th>
         <th>直客销售</th>
         <th>渠道销售</th>
         <th>区域</th>
+        <th>直签/代理</th>
+        <th>预估ECPM</th>
+        <th>开始</th>
+        <th>结束</th>
         <th>执行</th>
         <th>合同号状态</th>
         <th>操作</th>
     </tr>
     {% for o in orders %}
     <tr>
-        <td style="width:160px;">{{o.agent.name}}</td>
-        <td style="width:100px;">{{o.client.name}}</td>
-        <td style="width:100px;">{{o.campaign}}</td>
+        <td>{{o.agent.name}}</td>
+        <td>{{o.client.name}}</td>
+        <td>{{o.campaign}}</td>
         <td>{{o.money}}</td>
-        <td>{{o.start_date_cn}}</td>
-        <td>{{o.end_date_cn}}</td>
+        <td>{{o.contract or "无合同号"}}</td>
+        <td>{{o.reminde_date_cn}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
         <td>{{o.locations_cn}}</td>
+        <td>{{o.sale_type_cn}}</td>
+        <td>{{"%.1f" % (o.money / o.sale_CPM) if o.sale_CPM else "无预估"}}</td>
+        <td>{{o.start_date_cn}}</td>
+        <td>{{o.end_date_cn}}</td>
         <td>{{o.operater_names}}</td>
         <td>{{o.contract_status_cn}}</td>
         <td>
@@ -101,120 +49,22 @@
 </table>
 {%- endmacro %}
 
-{% macro contract(orders) -%}
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>代理/直客</th>
-        <th>客户</th>
-        <th>Campaign</th>
-        <th>合同金额</th>
-        <th>直客销售</th>
-        <th>渠道销售</th>
-        <th>区域</th>
-        <th>售卖类型</th>
-        <th>预估ECPM</th>
-        <th>合同号</th>
-        <th>合同号状态</th>
-        <th>操作</th>
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td style="width:160px;">{{o.agent.name}}</td>
-        <td style="width:160px;">{{o.client.name}}</td>
-        <td style="width:160px;">{{o.campaign}}</td>
-        <td>{{o.money}}</td>
-        <td>{{o.direct_sales_names}}</td>
-        <td>{{o.agent_sales_names}}</td>
-        <td>{{o.locations_cn}}</td>
-        <td>{{o.resource_type_cn}}</td>
-        <td>{{"%.1f" % (o.money / o.sale_CPM) if o.sale_CPM else "无预估"}}</td>
-        <td>{{o.contract or "无合同号"}}</td>
-        <td>{{o.contract_status_cn}}</td>
-        <td><a href="{{o.info_path()}}">合同设置</a></td>
-    </tr>
-    {% endfor %}
-</table>
-{%- endmacro %}
-
-{% macro sales(orders) -%}
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>代理/直客</th>
-        <th>客户</th>
-        <th>Campaign</th>
-        <th>合同金额</th>
-        <th>开始日期</th>
-        <th>回款日期</th>
-        <th>预估ECPM</th>
-        <th>合同号状态</th>
-        <th>操作</th>
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td style="width:120px;">{{o.agent.name}}</td>
-        <td style="width:120px;">{{o.client.name}}</td>
-        <td style="width:160px;">{{o.campaign}}</td>
-        <td>{{o.money}}</td>
-        <td style="width:100px;">{{o.start_date_cn}}</td>
-        <td style="width:100px;">{{o.reminde_date_cn}}</td>
-        <td>{{"%.1f" % (o.money / o.sale_CPM) if o.sale_CPM else "无预估"}} </td>
-        <td>{{o.contract_status_cn}}</td>
-        <td><a href="{{o.info_path()}}">订单管理</a> </td>
-    </tr>
-    {% endfor %}
-</table>
-{%- endmacro %}
-
-{% macro leader(orders) -%}
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>代理/直客</th>
-        <th>客户</th>
-        <th>Campaign</th>
-        <th>合同金额</th>
-        <th>回款日期</th>
-        <th>直客销售</th>
-        <th>渠道销售</th>
-        <th>区域</th>
-        <th>直签/代理</th>
-        <th>预估ECPM</th>
-        <th>合同号状态</th>
-        <th>操作</th>
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td style="width:120px;">{{o.agent.name}}</td>
-        <td style="width:120px;">{{o.client.name}}</td>
-        <td style="width:120px;">{{o.campaign}}</td>
-        <td>{{o.money}}</td>
-        <td>{{o.reminde_date_cn}}</td>
-        <td>{{o.direct_sales_names}}</td>
-        <td>{{o.agent_sales_names}}</td>
-        <td>{{o.locations_cn}}</td>
-        <td>{{o.sale_type_cn}}</td>
-        <td>{{"%.1f" % (o.money / o.sale_CPM) if o.sale_CPM else "无预估"}}</td>
-        <td>{{o.contract_status_cn}}</td>
-        <td style="width:60px;"><a href="{{o.info_path()}}">审批</a></td>
-    </tr>
-    {% endfor %}
-</table>
-{%- endmacro %}
-
-
 {% block main_box %}
-<div class="bra-main bra-box">
+<div class="bra-main bra-box" style="width:1700px;">
     <h3> {{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/合同号/Campaign" onkeypress="javascript:enter_search();">&nbsp;
-        <select class="col-md-2" id="search_location" name="location" placeholder="区域">
-            {% for v, m in locations %}
-                {% if v == location_id|int %}
-                <option selected="" value="{{v}}">{{m}}</option>
-                {% else %}
-                <option value="{{v}}">{{m}}</option>
-                {% endif %}
-            {% endfor %}
-        </select>
+        <div class="col-md-1" id="search-area">
+            <select class="col-md-12" id="search_location" name="location" placeholder="区域">
+                {% for v, m in locations %}
+                    {% if v == location_id|int %}
+                    <option selected="" value="{{v}}">{{m}}</option>
+                    {% else %}
+                    <option value="{{v}}">{{m}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
         <select class="col-md-2" id="search_status" name="status" placeholder="合同状态">
             {% for v, m in statuses %}
                 {% if v == status_id|int %}
@@ -227,21 +77,7 @@
         <input type="button" name="search" value="搜索" class="btn btn-sm btn-default" onclick="javascript:search();">
     </div>
     <br>
-    {% if g.user.is_admin() %}
-        {{ admin(orders) }}
-    {% elif g.user.is_operater() %}
-        {{ operater(orders) }}
-    {% elif g.user.is_contract() %}
-        {{ contract(orders) }}
-    {% elif g.user.is_sale() %}
-        {{ sales(orders) }}
-    {% elif g.user.is_media() %}
-        {{ contract(orders) }}
-    {% elif g.user.is_leader() %}
-        {{ leader(orders) }}
-    {% else %}
-        {{ other(orders) }}
-    {% endif %}
+    {{ all_items(orders) }}
     <nav>
       <ul class="pagination">
         {% if page-1 > 0 %}
@@ -293,5 +129,8 @@ function enter_search(){
         search();
     }
 }
+$(function(){
+    $("#search-area").hide()
+});
 </script>
 {% endblock %}
