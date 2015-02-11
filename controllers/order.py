@@ -23,8 +23,7 @@ from models.item import (AdItem, AdSchedule, SALE_TYPE_CN, ITEM_STATUS_NEW,
 from models.order import Order
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
-                                 CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_NEW,
-                                 CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN)
+                                 CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
@@ -407,7 +406,7 @@ def contract_status_change(order, action, emails, msg):
     elif action == 7:
         to_users = [g.user]
     if action in [1, 2, 3]:
-        to_users = to_users + User.super_leaders()
+        to_users = to_users + order.leaders
 
     to_emails = list(set(emails + [x.email for x in to_users]))
     apply_context = {"sender": g.user,
@@ -449,11 +448,11 @@ def my_orders():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
-            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYPRINT]]
-            status_id = CONTRACT_STATUS_MEDIA
+            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+            status_id = CONTRACT_STATUS_APPLYPASS
         elif g.user.is_media():
-            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_NEW]
-            status_id = CONTRACT_STATUS_NEW
+            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
+            status_id = CONTRACT_STATUS_MEDIA
         else:
             status_id = -1
     else:
@@ -773,11 +772,11 @@ def my_douban_orders():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
-            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYPRINT]]
-            status_id = CONTRACT_STATUS_MEDIA
+            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+            status_id = CONTRACT_STATUS_APPLYPASS
         elif g.user.is_media():
-            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_NEW]
-            status_id = CONTRACT_STATUS_NEW
+            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
+            status_id = CONTRACT_STATUS_MEDIA
         else:
             status_id = -1
     else:

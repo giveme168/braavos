@@ -88,6 +88,10 @@ class User(db.Model, BaseModelMixin):
     def location(self):
         return self.team.location
 
+    @property
+    def user_leaders(self):
+        return self.team.admins or []
+
     def set_password(self, password):
         self.pwdhash = generate_password_hash(password)
         self.save()
@@ -185,7 +189,9 @@ class User(db.Model, BaseModelMixin):
 
     @classmethod
     def douban_contracts_by_order(cls, order):
-        return User.douban_contracts() + order.direct_sales + order.agent_sales + User.contracts()
+        return (User.douban_contracts() + User.contracts()
+                + order.direct_sales + order.agent_sales
+                + order.leaders)
 
 
 team_admins = db.Table('team_admin_users',

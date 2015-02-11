@@ -3,6 +3,7 @@ import datetime
 from flask import url_for
 
 from . import db, BaseModelMixin
+from .user import User
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
@@ -102,6 +103,10 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def agent_sales_names(self):
         return ",".join([u.name for u in self.agent_sales])
+
+    @property
+    def leaders(self):
+        return list(set([l for u in self.direct_sales + self.agent_sales for l in u.user_leaders] + User.super_leaders()))
 
     def can_admin(self, user):
         """是否可以修改该订单"""

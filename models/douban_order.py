@@ -3,7 +3,7 @@ import datetime
 from flask import url_for
 
 from . import db, BaseModelMixin
-from .user import TEAM_LOCATION_CN
+from .user import User, TEAM_LOCATION_CN
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
@@ -178,6 +178,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def operater_names(self):
         return ",".join([u.name for u in self.operaters])
+
+    @property
+    def leaders(self):
+        return list(set([l for u in self.direct_sales + self.agent_sales for l in u.user_leaders] + User.super_leaders()))
 
     def can_admin(self, user):
         """是否可以修改该订单"""

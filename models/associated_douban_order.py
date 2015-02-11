@@ -58,6 +58,10 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
         return self.medium_order.client_order.agent_sales
 
     @property
+    def leaders(self):
+        return self.medium_order.client_order.leaders
+
+    @property
     def direct_sales_names(self):
         return ",".join([u.name for u in self.direct_sales])
 

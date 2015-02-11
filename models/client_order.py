@@ -7,7 +7,7 @@ from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import ITEM_STATUS_LEADER_ACTIONS
-from .user import TEAM_LOCATION_CN
+from .user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
 
 
@@ -177,6 +177,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def agent_sales_names(self):
         return ",".join([u.name for u in self.agent_sales])
+
+    @property
+    def leaders(self):
+        return list(set([l for u in self.direct_sales + self.agent_sales for l in u.user_leaders] + User.super_leaders()))
 
     def can_admin(self, user):
         """是否可以修改该订单"""
