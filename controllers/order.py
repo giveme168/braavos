@@ -375,21 +375,27 @@ def client_order_contract(order_id):
 
 def contract_status_change(order, action, emails, msg):
     action_msg = ''
+    #  发送邮件
+    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     if action == 1:
         order.contract_status = CONTRACT_STATUS_MEDIA
         action_msg = u"申请利润分配"
+        to_users = to_users + order.leaders + User.medias()
     elif action == 2:
         order.contract_status = CONTRACT_STATUS_APPLYCONTRACT
         action_msg = u"申请审批"
+        to_users = to_users + order.leaders
     elif action == 3:
         order.contract_status = CONTRACT_STATUS_APPLYPASS
         action_msg = u"审批通过"
+        to_users = to_users + order.leaders + User.contracts()
     elif action == 4:
         order.contract_status = CONTRACT_STATUS_APPLYREJECT
         action_msg = u"审批未被通过"
     elif action == 5:
         order.contract_status = CONTRACT_STATUS_APPLYPRINT
         action_msg = u"申请打印合同"
+        to_users = to_users + User.contracts()
     elif action == 6:
         order.contract_status = CONTRACT_STATUS_PRINTED
         action_msg = u"合同打印完毕"
@@ -397,16 +403,6 @@ def contract_status_change(order, action, emails, msg):
         action_msg = u"消息提醒"
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
-    #  发送邮件
-    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
-    if action in [3, 5]:
-        to_users = to_users + User.contracts()
-    if action == 1:
-        to_users = to_users + User.medias()
-    elif action == 7:
-        to_users = [g.user]
-    if action in [1, 2, 3]:
-        to_users = to_users + order.leaders
 
     to_emails = list(set(emails + [x.email for x in to_users]))
     apply_context = {"sender": g.user,
