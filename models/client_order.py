@@ -98,6 +98,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)
 
     contract_generate = True
+    media_apply = True
 
     def __init__(self, agent, client, campaign, medium_orders=None,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,

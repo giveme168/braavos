@@ -68,6 +68,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)
 
     contract_generate = True
+    media_apply = False
 
     def __init__(self, group, description=None,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,

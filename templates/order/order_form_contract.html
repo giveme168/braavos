@@ -126,11 +126,17 @@
     <div class="form-group">
         <label class="col-sm-2 control-label">操作 : </label>
         <div class="col-sm-10">
-            {% if order.contract_status == 0 and order.can_admin(g.user) %}
-            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请利润分配</button>
-            {% endif %}
-            {% if order.contract_status in [6, 3] and g.user.is_media() %}
-            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请审批</button>
+            {% if order.media_apply %}
+              {% if order.contract_status == 0 and order.can_admin(g.user) %}
+              <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请利润分配</button>
+              {% endif %}
+              {% if order.contract_status in [6, 3] and g.user.is_media() %}
+              <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请审批</button>
+              {% endif %} 
+            {% else %}
+              {% if order.contract_status in [0, 3] and order.can_admin(g.user) %}
+              <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请审批</button>
+              {% endif %}
             {% endif %}
             {% if order.contract_status == 1 and g.user.is_leader() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="3">通过申请</button>
@@ -152,15 +158,15 @@
    var actionVal = $(this).val();
    var email = $("#contract-email").val();
    var msg = $("#msg").val();
-   if(actionVal == '2' || actionVal == '7'){
+   if(actionVal == '7'){
      if(email == "" || msg == ""){
          e.preventDefault();
          alert("请填写通知邮箱和留言！");
      }
-   }else if(actionVal == '4'){
+   }else if(actionVal == '2' || actionVal == '4'){
      if(msg == ""){
          e.preventDefault();
-         alert("请填写拒绝理由！");
+         alert("请填写理由！");
       }
    }
  });

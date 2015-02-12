@@ -110,6 +110,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)
 
     contract_generate = False
+    media_apply = False
 
     def __init__(self, agent, client, campaign,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
