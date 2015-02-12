@@ -153,7 +153,7 @@ class User(db.Model, BaseModelMixin):
 
     @classmethod
     def gets_by_team_type(cls, team_type):
-        return [x for x in cls.all() if x.team.type == team_type]
+        return [x for x in cls.all_active() if x.team.type == team_type]
 
     @classmethod
     def super_leaders(cls):
@@ -185,13 +185,17 @@ class User(db.Model, BaseModelMixin):
 
     @classmethod
     def contracts_by_order(cls, order):
-        return order.direct_sales + order.agent_sales + User.contracts()
+        return order.direct_sales + order.agent_sales + cls.contracts()
 
     @classmethod
     def douban_contracts_by_order(cls, order):
-        return (User.douban_contracts() + User.contracts()
+        return (cls.douban_contracts() + cls.contracts()
                 + order.direct_sales + order.agent_sales
-                + order.leaders)
+                + order.leaders + cls.medias())
+
+    @classmethod
+    def all_active(cls):
+        return [u for u in cls.query.order_by(cls.id.desc()) if u.is_active()]
 
 
 team_admins = db.Table('team_admin_users',

@@ -23,7 +23,7 @@ class ClientOrderForm(Form):
     agent_sales = SelectMultipleField(u'渠道销售', coerce=int)
     resource_type = SelectField(u'售卖类型', coerce=int)
     contract_type = SelectField(u'合同模板类型', coerce=int)
-    sale_type = SelectField(u'直签/代理', coerce=int)
+    sale_type = SelectField(u'代理/直客', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(ClientOrderForm, self).__init__(*args, **kwargs)
@@ -119,7 +119,7 @@ class DoubanOrderForm(Form):
     planers = SelectMultipleField(u'策划人员', coerce=int)
     contract_type = SelectField(u'合同模板类型', coerce=int)
     resource_type = SelectField(u'售卖类型', coerce=int)
-    sale_type = SelectField(u'直签/代理', coerce=int)
+    sale_type = SelectField(u'代理/直客', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(DoubanOrderForm, self).__init__(*args, **kwargs)

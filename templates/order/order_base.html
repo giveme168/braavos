@@ -41,7 +41,7 @@
     <a class="list-group-item" href="{{url_for('order.my_framework_orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 我的框架
     </a>
-    {% if g.user.is_leader() or g.user.is_contract() or g.user.is_media() %}
+    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() %}
     <a class="list-group-item" href="{{url_for('order.framework_orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 全部框架
     </a>

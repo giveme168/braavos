@@ -130,7 +130,11 @@ function enter_search(){
     }
 }
 $(function(){
+    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() %}
+    {% else %}
     $("#search-area").hide()
+    {% endif %}
 });
+
 </script>
 {% endblock %}
