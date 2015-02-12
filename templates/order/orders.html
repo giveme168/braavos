@@ -61,7 +61,7 @@
         </td>
         <td>
             {% for mo in o.medium_orders %}    
-            {{"%.1f" % (mo.medium_money / mo.sale_CPM) if mo.sale_CPM else "无预估"}}
+            {{"%.1f" % (mo.medium_money / mo.sale_CPM) if (mo.medium_money and mo.sale_CPM) else "无预估"}}
             <br><br>
             {% endfor %}
         </td>
