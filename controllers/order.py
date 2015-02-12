@@ -85,6 +85,8 @@ def new_order():
                 mo = Order.add(campaign=order.campaign,
                                medium=medium,
                                sale_money=medium_moneys[x],
+                               medium_money=0,
+                               medium_money2=0,
                                medium_start=order.client_start,
                                medium_end=order.client_end,
                                creator=g.user)
