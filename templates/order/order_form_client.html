@@ -51,6 +51,7 @@
     </select>
     <label class="medium-control">售卖金额(元) : </label>
     <input name="medium-money" type="text" class="form-control medium-control" placeholder="售卖金额(元)" value="0"/>
+    <button class="btn btn-sm btn-default medium-remove"> 取消 </button>
   </div>
 </script>
 <style>
@@ -69,6 +70,10 @@ $(document).ready(function(){
       e.preventDefault();
       var medium_tpl = $("#medium-tpl").html();
       $(this).parents("form").find("#mediums").append(medium_tpl);
+      $(".medium-remove").click(function(e){
+        e.preventDefault();
+        $(this).parents(".form-group").remove();
+      });
     });
     $("#client_end").change(function(e){
       var endDate = new Date($('#client_end').val());
