@@ -26,10 +26,12 @@ def contract_apply(order):
 @contract_bp.route('/douban/<order_id>', methods=['GET'])
 def douban_apply(order_id):
     order = DoubanOrder.get(order_id)
+    order.add_comment(g.user, u"向豆瓣发送合同号申请邮件")
     return contract_apply(order)
 
 
 @contract_bp.route('/associated_douban/<order_id>', methods=['GET'])
 def associated_douban_apply(order_id):
     order = AssociatedDoubanOrder.get(order_id)
+    order.medium_order.client_order.add_comment(g.user, u"向豆瓣发送合同号申请邮件 %s" % order.name)
     return contract_apply(order)

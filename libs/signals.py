@@ -85,7 +85,7 @@ def contract_apply(sender, apply_context):
 订单信息:
 %s
 留言如下:
-%s
+    %s
 \n
 by %s
 """ % (apply_context['action_msg'], order.name, url, order.email_info, apply_context['msg'], g.user.name)))

@@ -150,15 +150,6 @@ def get_medium_form(order):
     return medium_form
 
 
-def get_associated_douban_form(order, client_order):
-    form = AssociatedDoubanOrderForm()
-    form.medium_order.choices = [(mo.id, mo.name) for mo in client_order.medium_orders]
-    form.medium_order.data = order.medium_order.id
-    form.campaign.data = order.campaign
-    form.money.data = order.money
-    return form
-
-
 @order_bp.route('/order/<order_id>/info/<tab_id>', methods=['GET', 'POST'])
 def order_info(order_id, tab_id=1):
     order = ClientOrder.get(order_id)
@@ -226,7 +217,7 @@ def order_info(order_id, tab_id=1):
     new_medium_form.discount.hidden = True
 
     new_associated_douban_form = AssociatedDoubanOrderForm()
-    new_associated_douban_form.medium_order.choices = [(mo.id, mo.name) for mo in order.medium_orders]
+    new_associated_douban_form.medium_order.choices = [(mo.id, "%s-%s" % (mo.name, mo.start_date_cn)) for mo in order.medium_orders]
     new_associated_douban_form.campaign.data = order.campaign
 
     new_outsource_form = OutsourceForm()
@@ -237,7 +228,6 @@ def order_info(order_id, tab_id=1):
                'new_medium_form': new_medium_form,
                'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
                'new_associated_douban_form': new_associated_douban_form,
-               'associated_douban_forms': [(get_associated_douban_form(o, order), o) for o in order.associated_douban_orders],
                'new_outsource_form': new_outsource_form,
                'order': order,
                'reminder_emails': reminder_emails,

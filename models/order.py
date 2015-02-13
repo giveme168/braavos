@@ -130,7 +130,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def sale_ECPM(self):
-        return (self.medium_money / self.sale_CPM) if float(self.sale_CPM) else 0
+        return (self.medium_money2 / float(self.sale_CPM)) if self.sale_CPM else 0
 
     @property
     def money_rate(self):
@@ -163,13 +163,11 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         投放媒体: %s
         售卖金额: %s (元)
         媒体金额: %s (元)
-        下单金额: %s (元)
-        利润率: %.1f%% (售卖金额-下单金额)/售卖金额
         预估CPM: %s
-        预估ECPM: %.1f 下单金额/预估CPM
+        预估ECPM: %.1f 媒体金额/预估CPM
         执行: %s
-""" % (self.medium.name, self.sale_money or 0, self.medium_money2 or 0, self.medium_money or 0,
-       self.money_rate * 100, self.sale_CPM or 0, self.sale_ECPM, self.operater_names)
+""" % (self.medium.name, self.sale_money or 0, self.medium_money2 or 0,
+       self.sale_CPM or 0, self.sale_ECPM, self.operater_names)
 
     def can_admin(self, user):
         """是否可以修改该订单"""

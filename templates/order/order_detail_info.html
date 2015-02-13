@@ -7,7 +7,7 @@
 {% from 'order_form_attachment.html' import client_order_attachment, medium_order_attachment, associated_douban_attachment %}
 {% from 'comments.html' import comments_box %}
 
-{% macro contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, associated_douban_forms, reminder_emails) -%}
+{% macro contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, reminder_emails) -%}
     <div class="panel-group" id="accordion">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -54,11 +54,11 @@
             </div>
             <div id="collapse4" class="panel-collapse collapse in">
                 <div class="panel-body">
-                    {% for mf in associated_douban_forms %}
+                    {% for ado in order.associated_douban_orders %}
                     <div class="well">
-                    {{ order_associated_douban_form(mf[0], mf[1]) }}
-                    {{ associated_douban_attachment(mf[1]) }}
-                    <hr><div style="color:#999;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
+                    {{ order_associated_douban_form(ado.form, ado) }}
+                    {{ associated_douban_attachment(ado) }}
+                    <hr><div style="color:#999;">创建者: {{ado.creator.name}} 创建时间: {{ado.create_time.date()}}</div>
                     </div>
                     {% endfor %}
                     <div class="well" id="new-associated-douban" style="display:none;">
@@ -165,7 +165,7 @@
     </ul>
     <div class="tab-content">
       <div class="tab-pane {{'active' if tab_id == 1 else ''}}" id="tab-1">
-        {{ contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, associated_douban_forms, reminder_emails) }}
+        {{ contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, reminder_emails) }}
       </div>
       <div class="tab-pane {{'active' if tab_id == 2 else ''}}" id="tab-2">
         {{ operate_box(order) }}

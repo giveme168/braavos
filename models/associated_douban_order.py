@@ -5,6 +5,7 @@ from flask import url_for
 from . import db, BaseModelMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
+from forms.order import AssociatedDoubanOrderForm
 from consts import DATE_FORMAT
 
 
@@ -126,6 +127,15 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
 
     def douban_contract_apply_path(self):
         return url_for("contract.associated_douban_apply", order_id=self.id)
+
+    @property
+    def form(self):
+        form = AssociatedDoubanOrderForm()
+        form.medium_order.choices = [(mo.id, "%s (%s)" % (mo.name, mo.start_date_cn)) for mo in self.medium_order.client_order.medium_orders]
+        form.medium_order.data = self.medium_order.id
+        form.campaign.data = self.campaign
+        form.money.data = self.money
+        return form
 
     def delete(self):
         self.delete_attachments()
