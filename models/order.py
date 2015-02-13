@@ -130,7 +130,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def sale_ECPM(self):
-        return (self.medium_money2 / float(self.sale_CPM)) if self.sale_CPM else 0
+        return (self.medium_money2 / float(self.sale_CPM)) if (self.medium_money2 and self.sale_CPM) else 0
 
     @property
     def money_rate(self):

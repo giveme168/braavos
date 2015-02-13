@@ -54,7 +54,7 @@
     <h3> {{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/合同号/Campaign" onkeypress="javascript:enter_search();">&nbsp;
-        <div class="col-md-1" id="search-area">
+        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
             <select class="col-md-12" id="search_location" name="location" placeholder="区域">
                 {% for v, m in locations %}
                     {% if v == location_id|int %}
@@ -65,15 +65,17 @@
                 {% endfor %}
             </select>
         </div>
-        <select class="col-md-2" id="search_status" name="status" placeholder="合同状态">
-            {% for v, m in statuses %}
-                {% if v == status_id|int %}
-                <option selected="" value="{{v}}">{{m}}</option>
-                {% else %}
-                <option value="{{v}}">{{m}}</option>
-                {% endif %}
-            {% endfor %}
-        </select>
+        <div class="col-md-1" style="padding:0;margin-right:5px;">
+            <select class="col-md-12" id="search_status" name="status" placeholder="合同状态">
+                {% for v, m in statuses %}
+                    {% if v == status_id|int %}
+                    <option selected="" value="{{v}}">{{m}}</option>
+                    {% else %}
+                    <option value="{{v}}">{{m}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
         <input type="button" name="search" value="搜索" class="btn btn-sm btn-default" onclick="javascript:search();">
     </div>
     <br>
