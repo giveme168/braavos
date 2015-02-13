@@ -109,6 +109,18 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def leaders(self):
         return list(set([l for u in self.direct_sales + self.agent_sales for l in u.user_leaders] + User.super_leaders()))
 
+    @property
+    def email_info(self):
+        return u"""
+        类型:框架订单
+        代理集团: %s
+        金额: %s
+        直客销售: %s
+        渠道销售: %s
+        备注: %s
+""" % (self.group.name, self.money,
+       self.direct_sales_names, self.agent_sales_names, self.description)
+
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + [self.creator]

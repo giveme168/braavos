@@ -89,6 +89,14 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
     def end_date_cn(self):
         return self.end_date.strftime(DATE_FORMAT)
 
+    @property
+    def email_info(self):
+        return u"""
+        关联媒体: %s
+        Campaign: %s (元)
+        金额: %s (元)
+""" % (self.medium_order.medium.name, self.campaign, self.money or 0)
+
     def path(self):
         return self.info_path()
 

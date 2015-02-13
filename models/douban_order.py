@@ -231,6 +231,21 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return SALE_TYPE_CN.get(self.sale_type)
 
     @property
+    def email_info(self):
+        return u"""
+        类型: 直签豆瓣订单
+        客户: %s
+        代理/直客: %s
+        Campaign: %s
+        金额: %s
+        预估CPM: %s
+        直客销售: %s
+        渠道销售: %s
+        执行: %s
+""" % (self.client.name, self.agent.name, self.campaign, self.money, self.sale_CPM or 0,
+       self.direct_sales_names, self.agent_sales_names, self.operater_names)
+
+    @property
     def search_info(self):
         return (self.client.name + self.agent.name +
                 self.campaign + self.contract)

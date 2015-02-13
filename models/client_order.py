@@ -216,6 +216,28 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                 "".join([ado.contract for ado in self.associated_douban_orders]))
 
     @property
+    def email_info(self):
+        return u"""
+    类型:新媒体订单
+    客户订单:
+
+        客户: %s
+        代理/直客: %s
+        Campaign: %s
+        金额: %s
+        直客销售: %s
+        渠道销售: %s
+
+    媒体订单:
+%s
+    豆瓣订单:
+%s
+""" % (self.client.name, self.agent.name, self.campaign, self.money,
+       self.direct_sales_names, self.agent_sales_names,
+       "\n".join([o.email_info for o in self.medium_orders]),
+       "\n".join([o.email_info for o in self.associated_douban_orders]))
+
+    @property
     def start_date(self):
         return self.client_start
 

@@ -130,7 +130,12 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def sale_ECPM(self):
-        return (self.medium_money / self.sale_CPM) if self.sale_CPM else 0
+        return (self.medium_money / self.sale_CPM) if float(self.sale_CPM) else 0
+
+    @property
+    def money_rate(self):
+        """利润率"""
+        return (self.sale_money - self.medium_money) / float(self.sale_money) if (self.sale_money and self.medium_money) else 0
 
     @property
     def name(self):
@@ -152,44 +157,19 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def order_type_cn(self):
         return ORDER_TYPE_CN[self.order_type]
 
-    @classmethod
-    def all_per_order(cls):
-        """ 所有预下单的订单 """
-        return [o for o in cls.all() if len(o.pre_items)]
-
     @property
-    def pre_items(self):
-        """预下单的订单项"""
-        sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
-        return filter(
-            lambda x: x.item_status in [ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY],
-            sorted_items)
-
-    def items_by_status(self, status):
-        """某个状态的订单项"""
-        sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
-        return filter(lambda x: x.item_status == status, sorted_items)
-
-    def items_status_num(self, num):
-        return len(self.items_by_status(num))
-
-    def items_info_by_status(self, status):
-        """某个状态的订单项的格式化信息"""
-        items = self.items_by_status(status)
-        ret = items_info_by_items(items)
-        ret['status_cn'] = ITEM_STATUS_CN[status]
-        return ret
-
-    def items_info_all(self):
-        """全部订单项的格式化信息"""
-        ret = items_info_by_items(self.items)
-        ret['status_cn'] = u"全部"
-        return ret
-
-    def items_info(self):
-        items_info = [self.items_info_by_status(x) for x in ITEM_STATUS_CN]
-        items_info.append(self.items_info_all())
-        return items_info
+    def email_info(self):
+        return u"""
+        投放媒体: %s
+        售卖金额: %s (元)
+        媒体金额: %s (元)
+        下单金额: %s (元)
+        利润率: %.1f%% (售卖金额-下单金额)/售卖金额
+        预估CPM: %s
+        预估ECPM: %.1f 下单金额/预估CPM
+        执行: %s
+""" % (self.medium.name, self.sale_money or 0, self.medium_money2 or 0, self.medium_money or 0,
+       self.money_rate * 100, self.sale_CPM or 0, self.sale_ECPM, self.operater_names)
 
     def can_admin(self, user):
         """是否可以修改该订单"""
@@ -255,6 +235,46 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def end_date_cn(self):
         return self.end_date.strftime(DATE_FORMAT)
+
+    """订单项相关"""
+    @classmethod
+    def all_per_order(cls):
+        """ 所有预下单的订单 """
+        return [o for o in cls.all() if len(o.pre_items)]
+
+    @property
+    def pre_items(self):
+        """预下单的订单项"""
+        sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
+        return filter(
+            lambda x: x.item_status in [ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY],
+            sorted_items)
+
+    def items_by_status(self, status):
+        """某个状态的订单项"""
+        sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
+        return filter(lambda x: x.item_status == status, sorted_items)
+
+    def items_status_num(self, num):
+        return len(self.items_by_status(num))
+
+    def items_info_by_status(self, status):
+        """某个状态的订单项的格式化信息"""
+        items = self.items_by_status(status)
+        ret = items_info_by_items(items)
+        ret['status_cn'] = ITEM_STATUS_CN[status]
+        return ret
+
+    def items_info_all(self):
+        """全部订单项的格式化信息"""
+        ret = items_info_by_items(self.items)
+        ret['status_cn'] = u"全部"
+        return ret
+
+    def items_info(self):
+        items_info = [self.items_info_by_status(x) for x in ITEM_STATUS_CN]
+        items_info.append(self.items_info_all())
+        return items_info
 
     def occupy_num_by_date_position(self, date, position):
         return sum(

@@ -73,6 +73,7 @@ def reply_apply(sender, change_state_apply):
 
 
 def contract_apply(sender, apply_context):
+    """合同流程 发送邮件"""
     order = apply_context['order']
     url = mail.app.config['DOMAIN'] + order.info_path()
     send_simple_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
@@ -81,14 +82,17 @@ def contract_apply(sender, apply_context):
 
 订单: %s
 链接地址: %s
+订单信息:
+%s
 留言如下:
 %s
 \n
 by %s
-""" % (apply_context['action_msg'], order.name, url, apply_context['msg'], g.user.name)))
+""" % (apply_context['action_msg'], order.name, url, order.email_info, apply_context['msg'], g.user.name)))
 
 
 def douban_contract_apply(sender, apply_context):
+    """豆瓣合同号申请"""
     order = apply_context['order']
     url = mail.app.config['DOMAIN'] + order.info_path()
     douban_users = User.douban_contracts()
