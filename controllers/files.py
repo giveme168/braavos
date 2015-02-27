@@ -7,7 +7,7 @@ from models.client_order import ClientOrder, CONTRACT_STATUS_NEW, CONTRACT_STATU
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
-from models.user import User, TEAM_TYPE_CONTRACT
+from models.user import User
 from libs.files import files_set, attachment_set
 from libs.signals import contract_apply_signal
 
@@ -159,7 +159,7 @@ def associated_douban_order_files(order_id):
 
 
 def contract_email(order, attachment):
-    contract_emails = [m.email for m in User.gets_by_team_type(TEAM_TYPE_CONTRACT)]
+    contract_emails = [m.email for m in set(User.contracts() + order.direct_sales + order.agent_sales + [order.creator, g.user])]
     action_msg = u"新上传%s文件:%s" % (attachment.type_cn, attachment.filename)
     msg = u"""
     文件名:%s
