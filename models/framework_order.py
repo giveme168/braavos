@@ -107,7 +107,8 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def leaders(self):
-        return list(set([l for u in self.direct_sales + self.agent_sales for l in u.user_leaders] + User.super_leaders()))
+        return list(set([l for u in self.direct_sales + self.agent_sales
+                         for l in u.user_leaders] + User.super_leaders()))
 
     @property
     def email_info(self):
@@ -118,8 +119,8 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         直客销售: %s
         渠道销售: %s
         备注: %s
-""" % (self.group.name, self.money,
-       self.direct_sales_names, self.agent_sales_names, self.description)
+        """ % (self.group.name, self.money, self.direct_sales_names,
+               self.agent_sales_names, self.description)
 
     def can_admin(self, user):
         """是否可以修改该订单"""

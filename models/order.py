@@ -31,7 +31,7 @@ DISCOUNT_60 = 60
 DISCOUNT_50 = 50
 DISCOUNT_GIFT = 0
 DISCOUNT_ADD = 100
-#DISCOUNT_SELECT = 0
+# DISCOUNT_SELECT = 0
 
 DISCOUNT_CN = {
     DISCOUNT_50: u'5折',
@@ -42,7 +42,7 @@ DISCOUNT_CN = {
 }
 
 DISCOUNT_SALE = {
-    #DISCOUNT_SELECT: u'请选择',
+    # DISCOUNT_SELECT: u'请选择',
     DISCOUNT_50: u'5折',
     DISCOUNT_60: u'6折',
     DISCOUNT_70: u'7折',
@@ -135,7 +135,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def money_rate(self):
         """利润率"""
-        return (self.sale_money - self.medium_money) / float(self.sale_money) if (self.sale_money and self.medium_money) else 0
+        if (self.sale_money and self.medium_money):
+            return (self.sale_money - self.medium_money) / float(self.sale_money)
+        else:
+            return 0
 
     @property
     def name(self):
@@ -166,8 +169,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         预估CPM: %s
         预估ECPM: %.1f 媒体金额/预估CPM
         执行: %s
-""" % (self.medium.name, self.sale_money or 0, self.medium_money2 or 0,
-       self.sale_CPM or 0, self.sale_ECPM, self.operater_names)
+        """ % (self.medium.name, self.sale_money or 0, self.medium_money2 or 0,
+               self.sale_CPM or 0, self.sale_ECPM, self.operater_names)
 
     def can_admin(self, user):
         """是否可以修改该订单"""

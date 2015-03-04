@@ -50,7 +50,7 @@ def index():
 
 
 ######################
-#### client order
+# client order
 ######################
 @order_bp.route('/new_order', methods=['GET', 'POST'])
 def new_order():
@@ -217,7 +217,8 @@ def order_info(order_id, tab_id=1):
     new_medium_form.discount.hidden = True
 
     new_associated_douban_form = AssociatedDoubanOrderForm()
-    new_associated_douban_form.medium_order.choices = [(mo.id, "%s-%s" % (mo.name, mo.start_date_cn)) for mo in order.medium_orders]
+    new_associated_douban_form.medium_order.choices = [(mo.id, "%s-%s" % (mo.name, mo.start_date_cn))
+                                                       for mo in order.medium_orders]
     new_associated_douban_form.campaign.data = order.campaign
 
     new_outsource_form = OutsourceForm()
@@ -321,7 +322,7 @@ def associated_douban_order(order_id):
 
 
 ######################
-#### outsource
+# outsource
 ######################
 @order_bp.route('/new_outsource', methods=['POST'])
 def new_outsource():
@@ -433,7 +434,8 @@ def my_orders():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_leader():
-            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
+            orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
+                                            g.user.location in o.locations)]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
             orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
@@ -482,7 +484,7 @@ def display_orders(orders, title, status_id=-1):
 
 
 ######################
-#### framework order
+# framework order
 ######################
 @order_bp.route('/new_framework_order', methods=['GET', 'POST'])
 def new_framework_order():
@@ -604,7 +606,8 @@ def my_framework_orders():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
     elif g.user.is_leader():
         orders = [o for o in FrameworkOrder.all() if g.user.location in o.locations]
-        orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
+        orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
+                                        g.user.location in o.locations)]
     else:
         orders = FrameworkOrder.get_order_by_user(g.user)
     return framework_display_orders(orders, u'我的框架订单列表')
@@ -641,7 +644,7 @@ def framework_order_contract(order_id):
 
 
 ######################
-####  douban order
+#  douban order
 ######################
 @order_bp.route('/new_douban_order', methods=['GET', 'POST'])
 def new_douban_order():
@@ -789,7 +792,8 @@ def my_douban_orders():
             orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_leader():
-            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and g.user.location in o.locations]
+            orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
+                                            g.user.location in o.locations)]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
             orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
@@ -863,7 +867,7 @@ def douban_order_contract(order_id):
 
 
 ######################
-#### items
+# items
 ######################
 @order_bp.route('/order/<order_id>/<step>/', methods=['GET'])
 def order_detail(order_id, step):
@@ -1171,7 +1175,7 @@ def get_download_response(xls, filename):
 
 
 ###################
-##### attachment
+# attachment
 ###################
 @order_bp.route('/client_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
 def client_attach_status(order_id, attachment_id, status):

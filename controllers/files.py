@@ -159,7 +159,10 @@ def associated_douban_order_files(order_id):
 
 
 def contract_email(order, attachment):
-    contract_emails = [m.email for m in set(User.contracts() + order.direct_sales + order.agent_sales + [order.creator, g.user])]
+    contract_emails = [m.email for m in set(User.contracts() +
+                                            order.direct_sales +
+                                            order.agent_sales +
+                                            [order.creator, g.user])]
     action_msg = u"新上传%s文件:%s" % (attachment.type_cn, attachment.filename)
     msg = u"""
     文件名:%s

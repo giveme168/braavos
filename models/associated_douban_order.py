@@ -131,7 +131,8 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
     @property
     def form(self):
         form = AssociatedDoubanOrderForm()
-        form.medium_order.choices = [(mo.id, "%s (%s)" % (mo.name, mo.start_date_cn)) for mo in self.medium_order.client_order.medium_orders]
+        form.medium_order.choices = [(mo.id, "%s (%s)" % (mo.name, mo.start_date_cn))
+                                     for mo in self.medium_order.client_order.medium_orders]
         form.medium_order.data = self.medium_order.id
         form.campaign.data = self.campaign
         form.money.data = self.money

@@ -31,7 +31,7 @@ RESOURCE_TYPE_OTHER = 4
 RESOURCE_TYPE_CN = {
     RESOURCE_TYPE_AD: u"硬广",
     RESOURCE_TYPE_CAMPAIGN: u"互动",
-    #RESOURCE_TYPE_FRAME: u"框架",
+    # RESOURCE_TYPE_FRAME: u"框架",
     RESOURCE_TYPE_OTHER: u"其他"
 }
 
@@ -182,7 +182,8 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def leaders(self):
-        return list(set([l for u in self.direct_sales + self.agent_sales for l in u.user_leaders] + User.super_leaders()))
+        return list(set([l for u in self.direct_sales + self.agent_sales
+                         for l in u.user_leaders] + User.super_leaders()))
 
     def can_admin(self, user):
         """是否可以修改该订单"""
@@ -242,8 +243,9 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         直客销售: %s
         渠道销售: %s
         执行: %s
-""" % (self.client.name, self.agent.name, self.campaign, self.money, self.sale_CPM or 0,
-       self.direct_sales_names, self.agent_sales_names, self.operater_names)
+        """ % (self.client.name, self.agent.name, self.campaign, self.money,
+               self.sale_CPM or 0, self.direct_sales_names,
+               self.agent_sales_names, self.operater_names)
 
     @property
     def search_info(self):
