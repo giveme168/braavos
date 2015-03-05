@@ -76,7 +76,8 @@
                 {% endfor %}
             </select>
         </div>
-        <input type="button" name="search" value="搜索" class="btn btn-sm btn-default" onclick="javascript:search();">
+        <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
+        <input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">
     </div>
     <br>
     {{ all_items(orders) }}
@@ -124,6 +125,15 @@ function search(){
       '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val());
 }
+
+function download(){
+    window.location.href = window.location.pathname +
+      '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+      '&selected_location=' + ($('#search_location').val()) +
+      '&selected_status=' + ($('#search_status').val()) +
+      '&action=download';
+}
+
 
 function enter_search(){
     //按下‘Enter’键

@@ -34,6 +34,9 @@ from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
 from models.material import Material
 from models.attachment import Attachment
+from models.download import (download_excel_table_by_clientorders,
+                             download_excel_table_by_doubanorders,
+                             download_excel_table_by_frameworkorders)
 
 from libs.signals import order_apply_signal, reply_apply_signal, contract_apply_signal
 
@@ -476,11 +479,17 @@ def display_orders(orders, title, status_id=-1):
         orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
     else:
         orders = []
-    return tpl('orders.html', orders=orders,
-               locations=select_locations, location_id=location_id,
-               statuses=select_statuses, status_id=status_id,
-               sortby=sortby, orderby=orderby,
-               search_info=search_info, page=page)
+    if 'download' == request.args.get('action', ''):
+        filename = ("%s-%s.xls" % (u"新媒体订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+        xls = Excel().write_excle(download_excel_table_by_clientorders(orders))
+        response = get_download_response(xls, filename)
+        return response
+    else:
+        return tpl('orders.html', orders=orders,
+                   locations=select_locations, location_id=location_id,
+                   statuses=select_statuses, status_id=status_id,
+                   sortby=sortby, orderby=orderby,
+                   search_info=search_info, page=page)
 
 
 ######################
@@ -628,7 +637,13 @@ def framework_display_orders(orders, title):
         orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
     else:
         orders = []
-    return tpl('frameworks.html', orders=orders, page=page)
+    if 'download' == request.args.get('action', ''):
+        filename = ("%s-%s.xls" % (u"框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+        xls = Excel().write_excle(download_excel_table_by_frameworkorders(orders))
+        response = get_download_response(xls, filename)
+        return response
+    else:
+        return tpl('frameworks.html', orders=orders, page=page)
 
 
 @order_bp.route('/framework_order/<order_id>/contract', methods=['POST'])
@@ -846,12 +861,17 @@ def douban_display_orders(orders, title, status_id=-1):
         orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
     else:
         orders = []
-
-    return tpl('douban_orders.html', orders=orders,
-               locations=select_locations, location_id=location_id,
-               statuses=select_statuses, status_id=status_id,
-               sortby=sortby, orderby=orderby,
-               search_info=search_info, page=page)
+    if 'download' == request.args.get('action', ''):
+        filename = ("%s-%s.xls" % (u"直签豆瓣订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+        xls = Excel().write_excle(download_excel_table_by_doubanorders(orders))
+        response = get_download_response(xls, filename)
+        return response
+    else:
+        return tpl('douban_orders.html', orders=orders,
+                   locations=select_locations, location_id=location_id,
+                   statuses=select_statuses, status_id=status_id,
+                   sortby=sortby, orderby=orderby,
+                   search_info=search_info, page=page)
 
 
 @order_bp.route('/douban_order/<order_id>/contract', methods=['POST'])

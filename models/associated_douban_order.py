@@ -48,7 +48,7 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
 
     @property
     def sale_ECPM(self):
-        return (self.money / self.medium_order.sale_CPM) if self.medium_order.sale_CPM else 0
+        return (float(self.money) / self.medium_order.sale_CPM) if self.medium_order.sale_CPM else 0
 
     @property
     def direct_sales(self):

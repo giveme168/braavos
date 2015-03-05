@@ -60,18 +60,6 @@ def restart_server():
 
 
 @task
-def rollback():
-    """
-    Limited rollback capability. Simple loads the previously current
-    version of the code. Rolling back again will swap between the two.
-    """
-    run('cd %(path)s; mv releases/current releases/_previous;' % env)
-    run('cd %(path)s; mv releases/previous releases/current;' % env)
-    run('cd %(path)s; mv releases/_previous releases/previous;' % env)
-    restart_server()
-
-
-@task
 def deploy():
     prepare_deploy()
     checkout_latest()
@@ -79,6 +67,8 @@ def deploy():
     migrate()
     symlink_current_release()
     # restart_server()
+    # 由于supervisor管理进程后台发送带附件邮件不成功，服务器暂时使用gunicorn
+    # 需要到服务器上手动重启
 
 
 @task
