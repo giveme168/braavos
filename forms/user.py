@@ -55,7 +55,7 @@ class NewUserForm(Form):
     email = TextField(u'邮箱', [validators.Required(u"请输入邮箱."),
                                   validators.Email(u"请输入正确的邮箱地址.")])
     status = SelectField(u'状态', coerce=int, default=1)
-    team = SelectField(u'Team', coerce=int)
+    team = SelectField(u'团队', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(NewUserForm, self).__init__(*args, **kwargs)
