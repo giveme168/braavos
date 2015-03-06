@@ -70,7 +70,7 @@ class PositionForm(Form):
     estimate_num = IntegerField(u'预估量(自动计算)', default=0)
     max_order_num = IntegerField(u'最大预订(CPM有效)', default=0)
     launch_strategy = SelectField(u'投放策略', coerce=int, default=1)
-    price = IntegerField(u'单价', default=0)
+    price = IntegerField(u'单价(元)', default=0)
 
     def __init__(self, *args, **kwargs):
         super(PositionForm, self).__init__(*args, **kwargs)
