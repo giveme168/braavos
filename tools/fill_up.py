@@ -53,5 +53,3 @@ position2.save()
 client = Client.add("测试客户", 0)
 
 agent = Agent.add("测试代理")
-
-order = Order.add(agent, client, "测试活动", medium, creator=user)
