@@ -11,7 +11,9 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
             <li><a href="{{url_for('order.index')}}">订单</a></li>
+            {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() %}
             <li><a href="{{url_for('data_query_order.index')}}">数据查询</a></li>
+            {% endif %}
             <li><a href="{{url_for('client.index')}}">客户代理媒体</a></li>
             {% if g.user.is_operater() %}
             <li><a href="{{url_for('outsource.index')}}">外包收款方</a></li>
