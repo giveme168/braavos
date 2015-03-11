@@ -12,6 +12,7 @@ order_apply_signal = braavos_signals.signal('order_apply')
 reply_apply_signal = braavos_signals.signal('reply_apply')
 contract_apply_signal = braavos_signals.signal('contract_apply')
 douban_contract_apply_signal = braavos_signals.signal('douban_contract_apply')
+outsource_contract_apply_signal = braavos_signals.signal('outsource_contract_apply')
 
 
 def password_changed(sender, user):
@@ -90,6 +91,23 @@ def contract_apply(sender, apply_context):
 by %s
 """ % (apply_context['action_msg'], order.name, url, order.email_info, apply_context['msg'], g.user.name)))
 
+def outsource_contract_apply(sender, apply_context):
+    """外包服务流程 发送邮件"""
+    outsource = apply_context['outsource']
+    url = mail.app.config['DOMAIN'] + outsource.medium_order.info_path()
+    send_simple_mail(u'【外包流程】%s-%s' % (outsource.name, apply_context['action_msg']),
+                     recipients=apply_context['to'],
+                     body=(u"""%s
+
+订单: %s
+链接地址: %s
+订单信息:
+%s
+留言如下:
+    %s
+\n
+by %s
+""" % (apply_context['action_msg'], outsource.name, url, order.email_info, apply_context['msg'], g.user.name)))
 
 def douban_contract_apply(sender, apply_context):
     """豆瓣合同号申请"""

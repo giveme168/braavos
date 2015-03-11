@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 from flask import url_for
 from . import db, BaseModelMixin
+from models.mixin.comment import CommentMixin
 
 
 TARGET_TYPE_FLASH = 1
@@ -84,7 +85,7 @@ OUTSOURCE_SUBTYPE_CN = {
 }
 
 
-class OutSource(db.Model, BaseModelMixin):
+class OutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'out_source'
 
     id = db.Column(db.Integer, primary_key=True)

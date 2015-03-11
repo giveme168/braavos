@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
-from models.excel import (ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
-                          EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
+from models.excel import (ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_STR,
                           EXCEL_DATA_TYPE_NUM, COLOUR_RED, COLOUR_LIGHT_GRAY)
 
 

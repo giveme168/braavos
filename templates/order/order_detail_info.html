@@ -123,10 +123,49 @@
         <div id="collapse-outsource-{{o.id}}" class="panel-collapse collapse in">
             <div class="panel-body">
                 {{ order_outsource_form(o.form, o) }}
+                <hr>
+                    <!--外包审核信息-->
+                    <div class="col-md-8">
+                      <form class="form form-horizontal" id="contract-form" method="POST" action="{{url_for('order.outsource_status',outsource_id=o.id)}}">
+                        <div class="form-group">
+                            <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
+                            <div class="col-sm-10">
+                                <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+                                  {% for u in reminder_emails %}
+                                  <option value="{{u[1]}}">{{u[0]}}</option>
+                                  {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="msg" class="col-sm-2 control-label">留言 : </label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control bra-form-control" id="msg"
+                                name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">操作 : </label>
+                            <div class="col-sm-10">
+                                {% if o.status == 0 %}
+                                  <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请审批</button>
+                                {% endif %}
+                                {% if o.status == 1 %}
+                                  <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="10">通过申请</button>
+                                {% endif %}
+                                <button class="btn btn-sm btn-info contract-submit" type="submit" name="action" value="7">提醒</button>
+                            </div>
+                        </div>
+                      </form>
+                    </div>
+                    <div>{{ comments_box(o) }}</div>
+                    <!--外包审核信息结束-->
             </div>
         </div>
+
     </div>
     {% endfor %}
+
     <div class="panel panel-default" id="new-outsource" style="display:none;">
         <div class="panel-heading">
             <h4 class="panel-title">
