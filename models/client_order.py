@@ -304,6 +304,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             print k
         return []
 
+
 def contract_generator(framework, num):
     code = "%s-%03x" % (framework, num % 1000)
     code = code.upper()
