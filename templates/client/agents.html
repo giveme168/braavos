@@ -8,11 +8,13 @@
         <tr>
             <th>#id</th>
             <th>名称</th>
+            <th>所属集团</th>
         </tr>
         {% for a in agents %}
         <tr>
             <td>{{a.id}}</td>
             <td><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
+            <td><a href="{{url_for("client.group_detail", group_id=a.group.id)}}">{{a.group.name}}</a></td>
         </tr>
         {% endfor %}
     </table>
