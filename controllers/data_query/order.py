@@ -19,7 +19,6 @@ def index():
     query_type = int(request.args.get('query_type', 1))
     query_month = request.args.get('query_month', '')
     page = int(request.args.get('page', 1))
-    page = int(request.args.get('page', 1))
     if query_month:
         query_month = datetime.datetime.strptime(query_month, '%Y-%m')
     else:
