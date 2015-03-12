@@ -1,0 +1,101 @@
+{% extends "/data_query/data_query_base.html" %}
+{% block title %}月度订单金额{% endblock %}
+
+{% macro all_items(orders) -%}
+<table class="table table-bordered table-striped">
+    <tr>
+        {% if query_type == 1%}
+            <th>代理/直客</th>
+            <th>客户</th>
+            <th>Campaign</th>
+        {% else %}
+            <th>客户</th>
+            <th>Campaign</th>
+        {% endif %}
+        <th>总金额（元）</th>
+        <th>开始</th>
+        <th>结束</th>
+        {% for th in th_obj %}
+            <th>{{th.month}}</th>
+        {% endfor %}
+    </tr>
+    {% for o in orders %}
+    <tr>
+        {% if query_type ==1 %}
+            <td>{{o.agent_name}}</td>
+            <td>{{o.client_name}}</td>
+            <td>{{o.campaign}}</td>
+        {% else %}
+            <td>{{o.medium_name}}</td>
+            <td>{{o.campaign}}</td>
+        {% endif %}
+        <td>{{o.money}}</td>
+        <td>{{o.start}}</td>
+        <td>{{o.end}}</td>
+        {% for k in o.order_pre_money %}
+            <td>{{k.money}}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{%- endmacro %}
+{% block main_box %}
+<div class="bra-main bra-box" style="width:82%;">
+    <h3>月度订单金额</h3>
+    <div class="search">
+        <form action="" >
+        <div class="col-md-1" style="padding:0;margin:0 5px;width:120px;" id="search-area">
+            <select class="col-md-12" id="query_type" name="query_type" placeholder="查询类型" style="width:120px;">
+                {% if query_type == 1 %}
+                <option selected="selected" value="1">全部客户订单</option>
+                {% else %}
+                <option value="1">全部客户订单</option>
+                {% endif %}
+
+                {% if query_type == 2 %}
+                <option selected="selected" value="2">全部媒体订单</option>
+                {% else %}
+                <option value="2">全部媒体订单</option>
+                {% endif %}
+            </select>
+        </div>
+        <input type="text" id="query_month" name="query_month" class="" data-date-format="yyyy-mm" style="border: 1px solid #ccc;
+  border-radius: 4px;height:30px;width:120px;" placeholder="选择时间" value="{{query_month}}">
+        <input type="submit" value="搜索" class="btn btn-sm btn-info" >
+        <a href='?query_type={{query_type}}&query_month={{query_month}}&extype=excel' class="btn btn-sm btn-default">下载</a>
+        </form>
+    </div>
+    <br>
+    {{ all_items(orders) }}
+    <!--
+    <nav>
+      <ul class="pagination">
+        {% if page-1 > 0 %}
+        <li><a href="?page={{page-1}}">&laquo;</a></li>
+        {% endif %}
+        {% if page-2 > 0 %}
+        <li class=""><a href="?page={{page-2}}">{{page-2}}</a></li>
+        {% endif %}
+        {% if page-1 > 0 %}
+        <li class=""><a href="?page={{page-1}}">{{page-1}}</a></li>
+        {% endif %}
+        <li class="active disable"><a href="#">{{page}}</a></li>
+        <li class=""><a href="?page={{page+1}}">{{page+1}}</a></li>
+        <li class=""><a href="?page={{page+2}}">{{page+2}}</a></li>
+        <li><a href="?page={{page+1}}">&raquo;</a></li>
+      </ul>
+    </nav>
+    -->
+</div>
+<script>
+    $(function(){
+        $('#query_month').datetimepicker({
+            autoclose: true,
+            language: 'zh-CN',
+            minView: 3,
+            startView:3
+          });
+
+    })
+</script>
+{% endblock %}
