@@ -54,6 +54,8 @@ CONTRACT_STATUS_CN = {
 }
 
 
+ECPM_CONTRACT_STATUS_LIST = [2, 4, 5]
+
 direct_sales = db.Table('client_order_direct_sales',
                         db.Column('sale_id', db.Integer, db.ForeignKey('user.id')),
                         db.Column('client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))

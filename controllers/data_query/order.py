@@ -7,7 +7,7 @@ from flask import Blueprint, request, Response
 from flask import render_template as tpl
 
 from models.order import Order
-from models.client_order import ClientOrder
+from models.client_order import ClientOrder, ECPM_CONTRACT_STATUS_LIST
 from controllers.data_query.helpers.order_helpers import get_monthes_pre_days, write_excel
 
 ORDER_PAGE_NUM = 50
@@ -24,16 +24,19 @@ def index():
         query_month = datetime.datetime.strptime(query_month, '%Y-%m')
     else:
         query_month = datetime.datetime.strptime(datetime.datetime.now().strftime('%Y-%m'), '%Y-%m')
+    # 全部客户订单
     if query_type == 1:
         query_orders = [o for o in ClientOrder.all() if o.client_start.strftime('%Y-%m') <=
                         query_month.strftime('%Y-%m') and o.client_end.strftime('%Y-%m') >=
-                        query_month.strftime('%Y-%m')]
+                        query_month.strftime('%Y-%m') and o.contract_status in ECPM_CONTRACT_STATUS_LIST]
         orders = [{'agent_name': o.agent.name, 'client_name': o.client.name, 'campaign': o.campaign,
                    'start': o.client_start, 'end': o.client_end, 'money': o.money} for o in query_orders]
+    # 全部媒体订单
     else:
         query_orders = [o for o in Order.all() if o.medium_start.strftime('%Y-%m') <=
                         query_month.strftime('%Y-%m') and o.medium_end.strftime('%Y-%m') >=
-                        query_month.strftime('%Y-%m')]
+                        query_month.strftime('%Y-%m') and o.client_orders[0].contract_status in
+                        ECPM_CONTRACT_STATUS_LIST]
         orders = [{'medium_name': o.medium.name, 'campaign': o.campaign, 'start': o.medium_start,
                    'end': o.medium_end, 'money': o.medium_money} for o in query_orders]
     th_count = 0

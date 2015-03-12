@@ -1,5 +1,5 @@
 {% extends "/data_query/data_query_base.html" %}
-{% block title %}数据查询{% endblock %}
+{% block title %}月度订单金额{% endblock %}
 
 {% macro all_items(orders) -%}
 <table class="table table-bordered table-striped">
@@ -12,7 +12,7 @@
             <th>客户</th>
             <th>Campaign</th>
         {% endif %}
-        <th>总金额</th>
+        <th>总金额（元）</th>
         <th>开始</th>
         <th>结束</th>
         {% for th in th_obj %}
@@ -41,7 +41,7 @@
 {%- endmacro %}
 {% block main_box %}
 <div class="bra-main bra-box" style="width:82%;">
-    <h3>ecpm成本</h3>
+    <h3>月度订单金额</h3>
     <div class="search">
         <form action="" >
         <div class="col-md-1" style="padding:0;margin:0 5px;width:120px;" id="search-area">
