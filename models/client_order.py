@@ -298,6 +298,11 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         db.session.delete(self)
         db.session.commit()
 
+    @property
+    def get_client_order_by_month(self):
+        for k in self.client_start:
+            print k
+        return []
 
 def contract_generator(framework, num):
     code = "%s-%03x" % (framework, num % 1000)
