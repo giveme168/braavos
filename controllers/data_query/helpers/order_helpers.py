@@ -51,20 +51,20 @@ def get_month_last_date(date_time):
 def write_excel(orders, type, th_obj):
     xls = xlwt.Workbook(encoding='utf-8')
     sheet = xls.add_sheet("Sheet")
-    if type == 1:
+    if type == 1:  # 客户订单
         keys = [u'代理/直客', u'客户', 'Campaign', u'总金额', u'开始', u'结束']
-    if type == 2:
+    elif type == 2:  # 媒体订单
         keys = [u'投放媒体', 'Campaign', u'总金额', u'开始', u'结束']
-    if type == 3:
+    elif type == 3:  # 关联豆瓣订单
         keys = [u'甲方', u'客户', 'Campaign', u'总金额', u'开始', u'结束']
-    else:
+    else:  # 直签豆瓣订单
         keys = [u'代理/直客', u'客户', 'Campaign', u'总金额', u'开始', u'结束']
     keys += [k['month'] for k in th_obj]
     for k in range(len(keys)):
         sheet.write(0, k, keys[k])
     for k in range(len(orders)):
         order_pre_money = orders[k]['order_pre_money']
-        if type == 1:
+        if type == 1:  # 客户订单
             sheet.write(k + 1, 0, orders[k]['agent_name'])
             sheet.write(k + 1, 1, orders[k]['client_name'])
             sheet.write(k + 1, 2, orders[k]['campaign'])
@@ -73,7 +73,7 @@ def write_excel(orders, type, th_obj):
             sheet.write(k + 1, 5, str(orders[k]['end']))
             for m in range(len(order_pre_money)):
                 sheet.write(k + 1, 5 + m + 1, order_pre_money[m]['money'])
-        elif type == 2:
+        elif type == 2:  # 媒体订单
             sheet.write(k + 1, 0, orders[k]['medium_name'])
             sheet.write(k + 1, 1, orders[k]['campaign'])
             sheet.write(k + 1, 2, orders[k]['money'])
@@ -81,7 +81,7 @@ def write_excel(orders, type, th_obj):
             sheet.write(k + 1, 4, str(orders[k]['end']))
             for m in range(len(order_pre_money)):
                 sheet.write(k + 1, 4 + m + 1, order_pre_money[m]['money'])
-        elif type == 3:
+        elif type == 3:  # 关联豆瓣订单
             sheet.write(k + 1, 0, orders[k]['jiafang_name'])
             sheet.write(k + 1, 1, orders[k]['client_name'])
             sheet.write(k + 1, 2, orders[k]['campaign'])
@@ -90,7 +90,7 @@ def write_excel(orders, type, th_obj):
             sheet.write(k + 1, 5, str(orders[k]['end']))
             for m in range(len(order_pre_money)):
                 sheet.write(k + 1, 5 + m + 1, order_pre_money[m]['money'])
-        else:
+        else:  # 直签豆瓣订单
             sheet.write(k + 1, 0, orders[k]['agent_name'])
             sheet.write(k + 1, 1, orders[k]['client_name'])
             sheet.write(k + 1, 2, orders[k]['campaign'])
