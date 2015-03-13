@@ -8,7 +8,15 @@
             <th>代理/直客</th>
             <th>客户</th>
             <th>Campaign</th>
+        {% elif query_type == 2 %}
+            <th>投放媒体</th>
+            <th>Campaign</th>
+        {% elif query_type == 3 %}
+            <th>客户</th>
+            <th>甲方</th>
+            <th>Campaign</th>
         {% else %}
+            <th>代理/直客</th>
             <th>客户</th>
             <th>Campaign</th>
         {% endif %}
@@ -21,12 +29,20 @@
     </tr>
     {% for o in orders %}
     <tr>
-        {% if query_type ==1 %}
+        {% if query_type == 1 %}
             <td>{{o.agent_name}}</td>
             <td>{{o.client_name}}</td>
             <td>{{o.campaign}}</td>
-        {% else %}
+        {% elif query_type == 2 %}
             <td>{{o.medium_name}}</td>
+            <td>{{o.campaign}}</td>
+        {% elif query_type == 3 %}
+            <td>{{o.client_name}}</td>
+            <td>{{o.jiafang_name}}</td>
+            <td>{{o.campaign}}</td>
+        {% else %}
+            <td>{{o.agent_name}}</td>
+            <td>{{o.client_name}}</td>
             <td>{{o.campaign}}</td>
         {% endif %}
         <td>{{o.money}}</td>
@@ -39,29 +55,40 @@
     {% endfor %}
 </table>
 {%- endmacro %}
+
 {% block main_box %}
-<div class="bra-main bra-box" style="width:82%;">
+<div class="bra-main bra-box" style="width:2000px;">
     <h3>月度订单金额</h3>
     <div class="search">
         <form action="" >
-        <div class="col-md-1" style="padding:0;margin:0 5px;width:120px;" id="search-area">
-            <select class="col-md-12" id="query_type" name="query_type" placeholder="查询类型" style="width:120px;">
+        <div class="col-md-2" style="padding:0; margin:0 5px;" id="search-area">
+            <select class="col-md-12" id="query_type" name="query_type" placeholder="查询类型">
                 {% if query_type == 1 %}
                 <option selected="selected" value="1">全部客户订单</option>
+                <option value="2">全部媒体订单</option>
+                <option value="3">全部关联豆瓣订单</option>
+                <option value="4">全部直签豆瓣订单</option>
+                {% elif query_type == 2 %}
+                <option value="1">全部客户订单</option>
+                <option selected="selected" value="2">全部媒体订单</option>
+                <option value="3">全部关联豆瓣订单</option>
+                <option value="4">全部直签豆瓣订单</option>
+                {% elif query_type == 3 %}
+                <option value="1">全部客户订单</option>
+                <option value="2">全部媒体订单</option>
+                <option selected="selected" value="3">全部关联豆瓣订单</option>
+                <option value="4">全部直签豆瓣订单</option>
                 {% else %}
                 <option value="1">全部客户订单</option>
-                {% endif %}
-
-                {% if query_type == 2 %}
-                <option selected="selected" value="2">全部媒体订单</option>
-                {% else %}
                 <option value="2">全部媒体订单</option>
+                <option value="3">全部关联豆瓣订单</option>
+                <option selected="selected" value="4">全部直签豆瓣订单</option>
                 {% endif %}
             </select>
         </div>
         <input type="text" id="query_month" name="query_month" class="" data-date-format="yyyy-mm" style="border: 1px solid #ccc;
   border-radius: 4px;height:30px;width:120px;" placeholder="选择时间" value="{{query_month}}">
-        <input type="submit" value="搜索" class="btn btn-sm btn-info" >
+        <input type="submit" value="查询" class="btn btn-sm btn-info" >
         <a href='?query_type={{query_type}}&query_month={{query_month}}&extype=excel' class="btn btn-sm btn-default">下载</a>
         </form>
     </div>
@@ -87,6 +114,9 @@
     </nav>
     -->
 </div>
+<style>
+  #query_month{padding-left: 10px;}
+</style>
 <script>
     $(function(){
         $('#query_month').datetimepicker({
@@ -95,6 +125,9 @@
             minView: 3,
             startView:3
           });
+        $("#query_type, #query_month").change(function(){
+          $(this).parents('form').submit();
+        });
 
     })
 </script>
