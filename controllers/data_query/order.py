@@ -13,7 +13,8 @@ from models.douban_order import DoubanOrder
 from controllers.data_query.helpers.order_helpers import get_monthes_pre_days, write_excel
 
 ORDER_PAGE_NUM = 50
-data_query_order_bp = Blueprint('data_query_order', __name__, template_folder='../../templates/data_query/order')
+data_query_order_bp = Blueprint(
+    'data_query_order', __name__, template_folder='../../templates/data_query/order')
 
 
 @data_query_order_bp.route('/', methods=['GET'])
@@ -24,7 +25,8 @@ def index():
     if query_month:
         query_month = datetime.datetime.strptime(query_month, '%Y-%m')
     else:
-        query_month = datetime.datetime.strptime(datetime.datetime.now().strftime('%Y-%m'), '%Y-%m')
+        query_month = datetime.datetime.strptime(
+            datetime.datetime.now().strftime('%Y-%m'), '%Y-%m')
     # 全部客户订单
     if query_type == 1:
         query_orders = [o for o in ClientOrder.all() if o.client_start.strftime('%Y-%m') <=
@@ -44,8 +46,8 @@ def index():
         query_orders = [o for o in AssociatedDoubanOrder.all() if o.start_date.strftime('%Y-%m') <=
                         query_month.strftime('%Y-%m') and o.end_date.strftime('%Y-%m') >=
                         query_month.strftime('%Y-%m') and o.contract_status in ECPM_CONTRACT_STATUS_LIST]
-        orders = [{'jiafang_name': o.jiafang_name, 'client_name': o.client.name, 'campaign': o.campaign, 'start': o.start_date,
-                   'end': o.end_date, 'money': o.money} for o in query_orders]
+        orders = [{'jiafang_name': o.jiafang_name, 'client_name': o.client.name, 'campaign': o.campaign,
+                   'start': o.start_date, 'end': o.end_date, 'money': o.money} for o in query_orders]
     # 全部直签豆瓣订单
     else:
         query_orders = [o for o in DoubanOrder.all() if o.client_start.strftime('%Y-%m') <=
@@ -56,14 +58,19 @@ def index():
     th_count = 0
     th_obj = []
     for order in orders:
-        pre_money = float(order['money']) / ((order['end'] - order['start']).days + 1)
+        if order['money']:
+            pre_money = float(order['money']) / \
+                ((order['end'] - order['start']).days + 1)
+        else:
+            pre_money = 0
         monthes_pre_days = get_monthes_pre_days(query_month, datetime.datetime.fromordinal(order['start'].toordinal()),
                                                 datetime.datetime.fromordinal(order['end'].toordinal()))
         order['order_pre_money'] = [{'month': k['month'].strftime('%Y-%m'),
                                      'money': '%.2f' % (pre_money * k['days'])}
                                     for k in monthes_pre_days]
         if len(monthes_pre_days) > th_count:
-            th_obj = [{'month': k['month'].strftime('%Y-%m')}for k in monthes_pre_days]
+            th_obj = [
+                {'month': k['month'].strftime('%Y-%m')}for k in monthes_pre_days]
             th_count = len(monthes_pre_days)
     if 'excel' == request.args.get('extype', ''):
         if query_type == 1:
