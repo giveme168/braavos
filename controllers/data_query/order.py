@@ -29,29 +29,25 @@ def index():
             datetime.datetime.now().strftime('%Y-%m'), '%Y-%m')
     # 全部客户订单
     if query_type == 1:
-        query_orders = [o for o in ClientOrder.all() if o.client_start.strftime('%Y-%m') <=
-                        query_month.strftime('%Y-%m') and o.client_end.strftime('%Y-%m') >=
+        query_orders = [o for o in ClientOrder.all() if o.client_end.strftime('%Y-%m') >=
                         query_month.strftime('%Y-%m') and o.contract_status in ECPM_CONTRACT_STATUS_LIST]
         orders = [{'agent_name': o.agent.name, 'client_name': o.client.name, 'campaign': o.campaign,
                    'start': o.client_start, 'end': o.client_end, 'money': o.money} for o in query_orders]
     # 全部媒体订单
     elif query_type == 2:
-        query_orders = [o for o in Order.all() if o.medium_start.strftime('%Y-%m') <=
-                        query_month.strftime('%Y-%m') and o.medium_end.strftime('%Y-%m') >=
+        query_orders = [o for o in Order.all() if o.medium_end.strftime('%Y-%m') >=
                         query_month.strftime('%Y-%m') and o.contract_status in ECPM_CONTRACT_STATUS_LIST]
         orders = [{'medium_name': o.medium.name, 'campaign': o.campaign, 'start': o.medium_start,
                    'end': o.medium_end, 'money': o.medium_money} for o in query_orders]
     # 全部关联豆瓣订单
     elif query_type == 3:
-        query_orders = [o for o in AssociatedDoubanOrder.all() if o.start_date.strftime('%Y-%m') <=
-                        query_month.strftime('%Y-%m') and o.end_date.strftime('%Y-%m') >=
+        query_orders = [o for o in AssociatedDoubanOrder.all() if o.end_date.strftime('%Y-%m') >=
                         query_month.strftime('%Y-%m') and o.contract_status in ECPM_CONTRACT_STATUS_LIST]
         orders = [{'jiafang_name': o.jiafang_name, 'client_name': o.client.name, 'campaign': o.campaign,
                    'start': o.start_date, 'end': o.end_date, 'money': o.money} for o in query_orders]
     # 全部直签豆瓣订单
     else:
-        query_orders = [o for o in DoubanOrder.all() if o.client_start.strftime('%Y-%m') <=
-                        query_month.strftime('%Y-%m') and o.client_end.strftime('%Y-%m') >=
+        query_orders = [o for o in DoubanOrder.all() if o.client_end.strftime('%Y-%m') >=
                         query_month.strftime('%Y-%m') and o.contract_status in ECPM_CONTRACT_STATUS_LIST]
         orders = [{'agent_name': o.agent.name, 'client_name': o.client.name, 'campaign': o.campaign,
                    'start': o.client_start, 'end': o.client_end, 'money': o.money} for o in query_orders]
