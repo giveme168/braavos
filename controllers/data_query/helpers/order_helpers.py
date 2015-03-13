@@ -53,8 +53,12 @@ def write_excel(orders, type, th_obj):
     sheet = xls.add_sheet("Sheet")
     if type == 1:
         keys = [u'代理/直客', u'客户', 'Campaign', u'总金额', u'开始', u'结束']
+    if type == 2:
+        keys = [u'投放媒体', 'Campaign', u'总金额', u'开始', u'结束']
+    if type == 3:
+        keys = [u'甲方', u'客户', 'Campaign', u'总金额', u'开始', u'结束']
     else:
-        keys = [u'客户', 'Campaign', u'总金额', u'开始', u'结束']
+        keys = [u'代理/直客', u'客户', 'Campaign', u'总金额', u'开始', u'结束']
     keys += [k['month'] for k in th_obj]
     for k in range(len(keys)):
         sheet.write(0, k, keys[k])
@@ -69,7 +73,7 @@ def write_excel(orders, type, th_obj):
             sheet.write(k + 1, 5, str(orders[k]['end']))
             for m in range(len(order_pre_money)):
                 sheet.write(k + 1, 5 + m + 1, order_pre_money[m]['money'])
-        else:
+        elif type == 2:
             sheet.write(k + 1, 0, orders[k]['medium_name'])
             sheet.write(k + 1, 1, orders[k]['campaign'])
             sheet.write(k + 1, 2, orders[k]['money'])
@@ -77,4 +81,22 @@ def write_excel(orders, type, th_obj):
             sheet.write(k + 1, 4, str(orders[k]['end']))
             for m in range(len(order_pre_money)):
                 sheet.write(k + 1, 4 + m + 1, order_pre_money[m]['money'])
+        elif type == 3:
+            sheet.write(k + 1, 0, orders[k]['jiafang_name'])
+            sheet.write(k + 1, 1, orders[k]['client_name'])
+            sheet.write(k + 1, 2, orders[k]['campaign'])
+            sheet.write(k + 1, 3, orders[k]['money'])
+            sheet.write(k + 1, 4, str(orders[k]['start']))
+            sheet.write(k + 1, 5, str(orders[k]['end']))
+            for m in range(len(order_pre_money)):
+                sheet.write(k + 1, 5 + m + 1, order_pre_money[m]['money'])
+        else:
+            sheet.write(k + 1, 0, orders[k]['agent_name'])
+            sheet.write(k + 1, 1, orders[k]['client_name'])
+            sheet.write(k + 1, 2, orders[k]['campaign'])
+            sheet.write(k + 1, 3, orders[k]['money'])
+            sheet.write(k + 1, 4, str(orders[k]['start']))
+            sheet.write(k + 1, 5, str(orders[k]['end']))
+            for m in range(len(order_pre_money)):
+                sheet.write(k + 1, 5 + m + 1, order_pre_money[m]['money'])
     return xls
