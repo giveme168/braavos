@@ -172,6 +172,20 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         """ % (self.medium.name, self.sale_money or 0, self.medium_money2 or 0,
                self.sale_CPM or 0, self.sale_ECPM, self.operater_names)
 
+    @property
+    def direct_sales(self):
+        direct_sales = []
+        for k in self.client_orders:
+            direct_sales += k.direct_sales
+        return direct_sales
+
+    @property
+    def agent_sales(self):
+        agent_sales = []
+        for k in self.client_orders:
+            agent_sales += k.agent_sales
+        return agent_sales
+
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.operaters + [self.creator]
