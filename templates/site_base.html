@@ -15,6 +15,9 @@
               <ul class="dropdown-menu" role="menu">
                 <li><a href="{{url_for('order.index')}}">订单与框架</a></li>
                 <li><a href="{{url_for('client.index')}}">客户代理媒体</a></li>
+                {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() %}
+                <li><a href="{{url_for('data_query_order.index')}}">月度订单金额统计</a></li>
+                {% endif %}
               </ul>
             </li>
             <li class="dropdown">
@@ -26,12 +29,11 @@
             </li>
             {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() %}
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">数据统计<span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">库存与资源<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="{{url_for('data_query_order.index')}}">月度订单金额统计</a></li>
                 {% if g.user.is_admin() %}
-                  <li><a href="{{url_for('medium.index')}}">广告资源</a></li>
                   <li><a href="{{url_for('storage.index')}}">库存</a></li>
+                  <li><a href="{{url_for('medium.index')}}">广告资源</a></li>
                 {% endif %}
               </ul>
             </li>
