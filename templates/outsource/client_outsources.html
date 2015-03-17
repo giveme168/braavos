@@ -1,0 +1,62 @@
+{% extends "/outsource_base.html" %}
+{% from 'outsource_form.html' import outsource_form %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+<h3>{{order.name}}</h3>
+<table class="table table-bordered">
+    <tr>
+        <th>客户订单总金额</th>
+        <th>外包应付总金额</th>
+        <th>外包占比</th>
+    </tr>
+    <tr>
+        <td>{{order.money}} 元</td>
+        <td>{{order.outsources_sum}} 元</td>
+        <td>{{order.outsources_percent}} %</td>
+    </tr>
+</table>
+<div class="panel-group" id="accordion-outsource">
+    {% for o in order.outsources %}
+    <div class="panel panel-default" id="accordion-outsource">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-{{o.id}}"> {{o.name}} </a>
+            </h4>
+        </div>
+        <div id="collapse-outsource-{{o.id}}" class="panel-collapse collapse in">
+            <div class="panel-body">
+                {{ outsource_form(o.form, o) }}
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+    <div class="panel panel-default" id="new-outsource" style="display:none;">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-new"> 新建媒体外包信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-outsource-new" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <div class="well">
+                {{ outsource_form(new_outsource_form) }}
+              </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if order.medium_orders %}
+<button onclick="showOutSource(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 外包信息</button>
+{% endif %}
+<script>
+  $(function(){
+    showOutSource = function(ele){
+      $(ele).hide();
+      $("#new-outsource").show();
+    };
+  });
+</script>
+</div>
+{% endblock %}

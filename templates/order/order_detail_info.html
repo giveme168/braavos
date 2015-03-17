@@ -1,7 +1,6 @@
 {% extends "/order_base.html" %}
 {% from 'order_form_client.html' import order_client_form %}
 {% from 'order_form_medium.html' import order_medium_form %}
-{% from 'order_form_outsource.html' import order_outsource_form %}
 {% from 'order_form_associated_douban.html' import order_associated_douban_form %}
 {% from 'order_form_contract.html' import order_contract_form %}
 {% from 'order_form_attachment.html' import client_order_attachment, medium_order_attachment, associated_douban_attachment %}
@@ -99,99 +98,8 @@
 </script>
 {%- endmacro %}
 
-{% macro operate_box(order) -%}
-<table class="table table-bordered">
-    <tr>
-        <th>客户订单总金额</th>
-        <th>外包应付总金额</th>
-        <th>外包占比</th>
-    </tr>
-    <tr>
-        <td>{{order.money}} 元</td>
-        <td>{{order.outsources_sum}} 元</td>
-        <td>{{order.outsources_percent}} %</td>
-    </tr>
-</table>
-<div class="panel-group" id="accordion-outsource">
-    {% for o in order.outsources %}
-    <div class="panel panel-default" id="accordion-outsource">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-{{o.id}}"> {{o.name}} </a>
-            </h4>
-        </div>
-        <div id="collapse-outsource-{{o.id}}" class="panel-collapse collapse in">
-            <div class="panel-body">
-                {{ order_outsource_form(o.form, o) }}
-                <hr>
-                    <!--外包审核信息-->
-                    <div class="col-md-8">
-                      <form class="form form-horizontal" id="contract-form" method="POST" action="{{url_for('order.outsource_status',outsource_id=o.id)}}">
-                        <div class="form-group">
-                            <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
-                            <div class="col-sm-10">
-                                <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
-                                  {% for u in reminder_emails %}
-                                  <option value="{{u[1]}}">{{u[0]}}</option>
-                                  {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="msg" class="col-sm-2 control-label">留言 : </label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control bra-form-control" id="msg"
-                                name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">操作 : </label>
-                            <div class="col-sm-10">
-                                {% if o.status == 0 %}
-                                  <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请审批</button>
-                                {% endif %}
-                                {% if o.status == 1 %}
-                                  <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="10">通过申请</button>
-                                {% endif %}
-                                <button class="btn btn-sm btn-info contract-submit" type="submit" name="action" value="7">提醒</button>
-                            </div>
-                        </div>
-                      </form>
-                    </div>
-                    <div>{{ comments_box(o) }}</div>
-                    <!--外包审核信息结束-->
-            </div>
-        </div>
-
-    </div>
-    {% endfor %}
-
-    <div class="panel panel-default" id="new-outsource" style="display:none;">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-new"> 新建媒体外包信息 </a>
-            </h4>
-        </div>
-        <div id="collapse-outsource-new" class="panel-collapse collapse in">
-            <div class="panel-body">
-              <div class="well">
-                {{ order_outsource_form(new_outsource_form) }}
-              </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% if order.medium_orders %}
-<button onclick="showOutSource(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 外包信息</button>
-{% endif %}
-<script>
-  $(function(){
-    showOutSource = function(ele){
-      $(ele).hide();
-      $("#new-outsource").show();
-    };
-  });
-</script>
+{% macro invoice_box(order) -%}
+<h3>开发中</h3>
 {%- endmacro %}
 
 {% block main_box%}
@@ -200,14 +108,14 @@
   <div>
     <ul class="nav nav-tabs">
       <li class="{{'active' if tab_id == 1 else ''}}"><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
-      <li class="{{'active' if tab_id == 2 else ''}}"><a href='{{url_for("order.order_info", order_id=order.id, tab_id=2)}}'>执行成本(开发中)</a></li>
+      <li class="{{'active' if tab_id == 2 else ''}}"><a href='{{url_for("order.order_info", order_id=order.id, tab_id=2)}}'>发票回款(开发中)</a></li>
     </ul>
     <div class="tab-content">
       <div class="tab-pane {{'active' if tab_id == 1 else ''}}" id="tab-1">
         {{ contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, reminder_emails) }}
       </div>
       <div class="tab-pane {{'active' if tab_id == 2 else ''}}" id="tab-2">
-        {{ operate_box(order) }}
+        {{ invoice_box(order) }}
       </div>
     </div>
   </div>

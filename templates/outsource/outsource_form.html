@@ -1,5 +1,5 @@
 {% from 'form.html' import form_field %}
-{% macro order_outsource_form(form, outsource=None) -%}
+{% macro outsource_form(form, outsource=None) -%}
 {% if outsource %}
 <form class="form form-horizontal" method="POST" action="{{outsource.edit_path()}}">
 {% else %}
