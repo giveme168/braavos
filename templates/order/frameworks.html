@@ -39,10 +39,9 @@
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3> {{title}}</h3>
-    <div class="search">
+    <h3> {{title}}
         <input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">
-    </div>
+    </h3>
     {{ all_items(orders) }}
     <nav>
       <ul class="pagination">

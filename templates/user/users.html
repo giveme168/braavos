@@ -3,7 +3,9 @@
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3>用户列表</h3>
+    <h3>用户列表
+        <a class="btn btn-sm btn-default" href="{{url_for('user.new_user')}}">新建</a>
+    </h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>#id</th>
