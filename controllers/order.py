@@ -32,7 +32,6 @@ from models.outsource import OutSource, OutSourceTarget
 from models.user import User, TEAM_LOCATION_CN
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
-from models.material import Material
 from models.attachment import Attachment
 from models.download import (download_excel_table_by_clientorders,
                              download_excel_table_by_doubanorders,
