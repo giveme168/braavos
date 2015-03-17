@@ -451,7 +451,7 @@ def orders():
         status_id = int(request.args.get('selected_status'))
     else:
         status_id = -1
-    return display_orders(orders, u'订单列表', status_id)
+    return display_orders(orders, u'新媒体订单列表', status_id)
 
 
 @order_bp.route('/my_orders', methods=['GET'])
@@ -483,7 +483,7 @@ def my_orders():
             status_id = -1
     else:
         status_id = int(request.args.get('selected_status'))
-    return display_orders(orders, u'我的订单列表', status_id)
+    return display_orders(orders, u'我的新媒体订单', status_id)
 
 
 def display_orders(orders, title, status_id=-1):
@@ -518,7 +518,7 @@ def display_orders(orders, title, status_id=-1):
         response = get_download_response(xls, filename)
         return response
     else:
-        return tpl('orders.html', orders=orders,
+        return tpl('orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
                    sortby=sortby, orderby=orderby,
@@ -652,7 +652,7 @@ def my_framework_orders():
                                         g.user.location in o.locations)]
     else:
         orders = FrameworkOrder.get_order_by_user(g.user)
-    return framework_display_orders(orders, u'我的框架订单列表')
+    return framework_display_orders(orders, u'我的框架订单')
 
 
 @order_bp.route('/framework_orders', methods=['GET'])
@@ -676,7 +676,7 @@ def framework_display_orders(orders, title):
         response = get_download_response(xls, filename)
         return response
     else:
-        return tpl('frameworks.html', orders=orders, page=page)
+        return tpl('frameworks.html', title=title, orders=orders, page=page)
 
 
 @order_bp.route('/framework_order/<order_id>/contract', methods=['POST'])
@@ -853,7 +853,7 @@ def my_douban_orders():
             status_id = -1
     else:
         status_id = int(request.args.get('selected_status'))
-    return douban_display_orders(orders, u'我的豆瓣订单列表', status_id)
+    return douban_display_orders(orders, u'我的直签豆瓣订单', status_id)
 
 
 @order_bp.route('/douban_orders', methods=['GET'])
@@ -863,7 +863,7 @@ def douban_orders():
         status_id = int(request.args.get('selected_status'))
     else:
         status_id = -1
-    return douban_display_orders(orders, u'全部直签豆瓣订单列表', status_id)
+    return douban_display_orders(orders, u'全部直签豆瓣订单', status_id)
 
 
 def douban_display_orders(orders, title, status_id=-1):
@@ -900,7 +900,7 @@ def douban_display_orders(orders, title, status_id=-1):
         response = get_download_response(xls, filename)
         return response
     else:
-        return tpl('douban_orders.html', orders=orders,
+        return tpl('douban_orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
                    sortby=sortby, orderby=orderby,
@@ -944,18 +944,6 @@ def order_items(order_id):
     context = {'order': order,
                'SALE_TYPE_CN': SALE_TYPE_CN}
     return tpl('order_detail_ordered.html', **context)
-
-
-@order_bp.route('/items', methods=['GET'])
-def items():
-    items = AdItem.all()
-    return tpl('items.html', items=items)
-
-
-@order_bp.route('/materials', methods=['GET'])
-def materials():
-    materials = Material.all()
-    return tpl('materials.html', materials=materials)
 
 
 @order_bp.route('/order/<order_id>/new_item/<type>')

@@ -50,14 +50,4 @@
         <span class="glyphicon glyphicon-plus"></span> 新建框架
     </a>
     {% endif %}
-
-    {% if g.user.is_super_admin() %}
-    <a class="list-group-item" href="{{url_for('order.items')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 订单项
-    </a>
-    <a class="list-group-item" href="{{url_for('order.materials')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 广告素材
-    </a>
-    {% endif %}
-
 {% endblock %}
