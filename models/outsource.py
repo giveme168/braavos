@@ -127,13 +127,16 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def name(self):
-        return "%s-%s-%s" % (self.medium_order.medium.name, self.target.name, self.type_cn)
+        return "%s-%s-%s" % (self.medium_order.medium.name,
+                             self.target.name,
+                             self.type_cn)
 
     def edit_path(self):
         return url_for('outsource.outsource', outsource_id=self.id)
 
     def info_path(self):
-        return url_for("outsource.client_outsources", order_id=self.medium_order.client_order.id)
+        return url_for("outsource.client_outsources",
+                       order_id=self.medium_order.client_order.id)
 
     @property
     def type_cn(self):
@@ -147,7 +150,8 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     def form(self):
         from forms.outsource import OutsourceForm
         form = OutsourceForm()
-        form.medium_order.choices = [(mo.id, mo.medium.name) for mo in self.medium_order.client_order.medium_orders]
+        form.medium_order.choices = [(mo.id, mo.medium.name)
+                                     for mo in self.medium_order.client_order.medium_orders]
         form.medium_order.data = self.medium_order.id
         form.target.data = self.target.id
         form.num.data = self.num
@@ -164,4 +168,5 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
         外包金额: %s
         外包类别: %s
         子分类: %s
-        备注: %s""" % (self.medium_order.medium.name, self.target.name, self.num, self.type_cn, self.subtype_cn, self.remark)
+        备注: %s""" % (self.medium_order.medium.name, self.target.name,
+                         self.num, self.type_cn, self.subtype_cn, self.remark)
