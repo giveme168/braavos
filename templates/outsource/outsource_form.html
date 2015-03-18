@@ -3,7 +3,7 @@
 {% if outsource %}
 <form class="form form-horizontal" method="POST" action="{{outsource.edit_path()}}">
 {% else %}
-<form class="form form-horizontal" method="POST" action="{{url_for('order.new_outsource')}}">
+<form class="form form-horizontal" method="POST" action="{{url_for('outsource.new_outsource')}}">
 {% endif %}
     {{form.csrf_token}}
     {{ form_field(form.medium_order) }}
