@@ -48,10 +48,22 @@ class Agent(db.Model, BaseModelMixin):
     name = db.Column(db.String(100))
     group_id = db.Column(db.Integer, db.ForeignKey('bra_group.id'))
     group = db.relationship('Group', backref=db.backref('agents', lazy='dynamic'))
+    tax_num = db.Column(db.String(100))  # 税号
+    address = db.Column(db.String(100))  # 地址
+    phone_num = db.Column(db.String(100))  # 电话
+    bank = db.Column(db.String(100))  # 银行
+    bank_num = db.Column(db.String(100))  # 银行号
 
-    def __init__(self, name, group=None):
+    def __init__(self, name, group=None,
+                 tax_num="", address="", phone_num="",
+                 bank="", bank_num=""):
         self.name = name
         self.group = group
+        self.tax_num = tax_num
+        self.address = address
+        self.phone_num = phone_num
+        self.bank = bank
+        self.bank_num = bank_num
 
     @classmethod
     def name_exist(cls, name):
