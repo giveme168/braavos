@@ -1,7 +1,7 @@
 {% extends "/outsource_base.html" %}
 {% from 'outsource_form.html' import outsource_form %}
 
-{% macro status_box(order, outsource_status) -%}
+{% macro status_box(order, outsource_status, outsource) -%}
    {% if outsource_status in [0, 1, 2] %}
    <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
    {% endif %}
@@ -27,14 +27,15 @@
      <div class="form-group">
         <label class="col-sm-2 control-label">操作 : </label>
         <div class="col-sm-10">
-          {% if outsource_status == 0 %}
+          {% if outsource_status == 0 and outsource.can_admin(g.user) %}
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="0">申请审批</button>
-          {% elif outsource_status == 1 %}
+          {% elif outsource_status == 1 and g.user.is_leader() %}
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="1">通过</button>
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="2">不通过</button>
-          {% elif outsource_status == 2 %}
+          {% elif outsource_status == 2 and outsource.can_admin(g.user) %}
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="3">申请打款</button>
           {% endif %} 
+          <button class="btn btn-sm btn-default outsource-btn" name="action" type="submit" value="4">提醒</button>
         </div>
      </div>
    </form>
@@ -72,11 +73,11 @@
                   <input type="checkbox" name="outsource-id" class="outsource-id" value="{{o.id}}"/>
                   {{o.name}}
                 </h4>
-                <div class="well">
-                  {{ outsource_form(o.form, o) }}
-                </div>
+                {{ outsource_form(o.form, o) }}
             {% endfor %}
-            {{ status_box(order, outsource_status) }}
+            {% if g.user.is_leader() or outsources[0].can_admin(g.user) %}
+            {{ status_box(order, outsource_status,  outsources[0]) }}
+            {% endif %}
             </div>
         </div>
     </div>
