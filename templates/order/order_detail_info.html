@@ -98,24 +98,17 @@
 </script>
 {%- endmacro %}
 
-{% macro invoice_box(order) -%}
-<h3>开发中</h3>
-{%- endmacro %}
-
 {% block main_box%}
 <div class="bra-main bra-box">
   <h4> {{ order.name }} </h4>
   <div>
     <ul class="nav nav-tabs">
-      <li class="{{'active' if tab_id == 1 else ''}}"><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
-      <li class="{{'active' if tab_id == 2 else ''}}"><a href='{{url_for("order.order_info", order_id=order.id, tab_id=2)}}'>发票回款(开发中)</a></li>
+      <li class="active"><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
+      <li class=""><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>发票回款(开发中)</a></li>
     </ul>
     <div class="tab-content">
-      <div class="tab-pane {{'active' if tab_id == 1 else ''}}" id="tab-1">
+      <div class="tab-pane active" id="tab-1">
         {{ contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, reminder_emails) }}
-      </div>
-      <div class="tab-pane {{'active' if tab_id == 2 else ''}}" id="tab-2">
-        {{ invoice_box(order) }}
       </div>
     </div>
   </div>

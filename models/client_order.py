@@ -9,6 +9,7 @@ from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import ITEM_STATUS_LEADER_ACTIONS
 from .user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
+from invoice import Invoice
 
 
 CONTRACT_TYPE_NORMAL = 0
@@ -159,6 +160,15 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def outsources_percent(self):
         return "%.1f" % (self.outsources_sum * 100 / float(self.money)) if self.money else "0"
+
+    @property
+    def invoice_sum(self):
+        return sum([k.money for k in Invoice.query.filter_by(client_order_id=self.id)
+                   if k.invoice_status in [0, 2]])
+
+    @property
+    def invoice_percent(self):
+        return "%.1f" % (self.invoice_sum * 100 / float(self.money)) if self.money else "0"
 
     @property
     def locations(self):

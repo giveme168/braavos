@@ -1,0 +1,21 @@
+{% from '/form.html' import form_field %}
+{% macro invoice_form(order, form, invoice=None) -%}
+{% if invoice %}
+<form class="form form-horizontal" method="POST" action="{{outsource.edit_path()}}">
+{% else %}
+<form class="form form-horizontal" method="POST" action="{{url_for('saler_invoice.new_invoice', order_id=order.id)}}">
+{% endif %}
+    {{form.csrf_token}}
+    {{ form_field(form.client_order)}}
+    {{ form_field(form.company) }}
+    {{ form_field(form.tax_id) }}
+    {{ form_field(form.address) }}
+    {{ form_field(form.phone) }}
+    {{ form_field(form.bank_id) }}
+    {{ form_field(form.bank) }}
+    {{ form_field(form.detail) }}
+    {{ form_field(form.money) }}
+    {{ form_field(form.invoice_type) }}
+    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+</form>
+{%- endmacro %}
