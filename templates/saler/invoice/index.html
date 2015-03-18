@@ -1,0 +1,61 @@
+{% extends "/order_base.html" %}
+{% from '/saler/invoice/invoice_form.html' import invoice_form %}
+{% from 'comments.html' import comments_box %}
+
+{% macro contract_box(order) -%}
+<div class="bra-main bra-box" style="width:100%;">
+    <h3>客户订单发票情况</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>总金额</th>
+            <th>已申请发票总金额</th>
+            <th>申请占比</th>
+        </tr>
+        <tr>
+            <td>{{order.money}} 元</td>
+            <td>{{order.invoice_sum}} 元</td>
+            <td>{{order.invoice_percent}} %</td>
+        </tr>
+    </table>
+    <div class="panel panel-default" id="new-outsource" style="display:none;">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-new"> 申请发票信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-outsource-new" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <div class="well">
+                {{ invoice_form(order,new_invoice_form) }}
+              </div>
+            </div>
+        </div>
+    </div>
+    <button onclick="showOutSource(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 申请发票</button>
+</div>
+<script>
+  $(function(){
+    showOutSource = function(ele){
+      $(ele).hide();
+      $("#new-outsource").show();
+    };
+  });
+</script>
+{%- endmacro %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+  <h4> {{ order.name }} </h4>
+  <div>
+    <ul class="nav nav-tabs">
+      <li class=""><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
+      <li class="active"><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>发票回款(开发中)</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab-2">
+        {{ contract_box(order) }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

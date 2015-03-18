@@ -11,6 +11,7 @@ from urls.storage import storage_register_blueprint
 from urls.contract import contract_register_blueprint
 from urls.outsource import outsource_register_blueprint
 from urls.operater import operater_register_blueprint
+from urls.saler import saler_register_blueprint
 
 def register_blueprint(app):
     user_register_blueprint(app)
@@ -26,3 +27,4 @@ def register_blueprint(app):
     contract_register_blueprint(app)
     outsource_register_blueprint(app)
     operater_register_blueprint(app)
+    saler_register_blueprint(app)
