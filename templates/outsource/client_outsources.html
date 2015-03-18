@@ -1,6 +1,45 @@
 {% extends "/outsource_base.html" %}
 {% from 'outsource_form.html' import outsource_form %}
 
+{% macro status_box(order, outsource_status) -%}
+   {% if outsource_status in [0, 1, 2] %}
+   <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
+   {% endif %}
+
+   <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.outsource_status', order_id=order.id)}}">
+     <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
+        <div class="col-sm-10">
+            <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+              {% for u in reminder_emails %}
+              <option value="{{u[1]}}">{{u[0]}}</option>
+              {% endfor %}
+            </select>
+        </div>
+     </div>
+     <div class="form-group">
+        <label for="msg" class="col-sm-2 control-label">留言 : </label>
+        <div class="col-sm-10">
+            <textarea class="form-control bra-form-control" id="msg"
+            name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+        </div>
+     </div>
+     <div class="form-group">
+        <label class="col-sm-2 control-label">操作 : </label>
+        <div class="col-sm-10">
+          {% if outsource_status == 0 %}
+          <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="0">申请审批</button>
+          {% elif outsource_status == 1 %}
+          <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="1">通过</button>
+          <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="2">不通过</button>
+          {% elif outsource_status == 2 %}
+          <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="3">申请打款</button>
+          {% endif %} 
+        </div>
+     </div>
+   </form>
+{%- endmacro %}
+
 {% block main_box%}
 <div class="bra-main bra-box">
 <h3>{{order.name}}</h3>
@@ -17,20 +56,31 @@
     </tr>
 </table>
 <div class="panel-group" id="accordion-outsource">
-    {% for o in order.outsources %}
+    {% for outsource_status in range(0, 5) %}
+    {% set outsources = order.get_outsources_by_status(outsource_status) %}
+    {% if outsources %}
     <div class="panel panel-default" id="accordion-outsource">
         <div class="panel-heading">
             <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-{{o.id}}"> {{o.name}} </a>
+                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-{{outsource_status}}">{{order.get_outsource_status_cn(outsource_status)}}</a>
             </h4>
         </div>
-        <div id="collapse-outsource-{{o.id}}" class="panel-collapse collapse in">
+        <div id="collapse-outsource-{{outsource_status}}" class="panel-collapse collapse in">
             <div class="panel-body">
-                {{ outsource_form(o.form, o) }}
+            {% for o in outsources %}
+                <h4>
+                  <input type="checkbox" name="outsource-id" class="outsource-id" value="{{o.id}}"/>
+                  {{o.name}}
+                </h4>
+                <div class="well">
+                  {{ outsource_form(o.form, o) }}
+                </div>
+            {% endfor %}
+            {{ status_box(order, outsource_status) }}
             </div>
         </div>
-
     </div>
+    {% endif %}
     {% endfor %}
     <div class="panel panel-default" id="new-outsource" style="display:none;">
         <div class="panel-heading">
@@ -47,15 +97,50 @@
         </div>
     </div>
 </div>
+
 {% if order.medium_orders %}
 <button onclick="showOutSource(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 外包信息</button>
 {% endif %}
+
 <script>
+  check_all = function(e){
+    $(e).parent().find(".outsource-id").prop("checked", $(e).prop("checked"));
+    $(e).parent().find(".outsource-id").trigger("change");
+  }
   $(function(){
-    showOutSource = function(ele){
-      $(ele).hide();
+    showOutSource = function(e){
+      $(e).hide();
       $("#new-outsource").show();
     };
+    $(".outsource-id").change(function(e){
+      if($(this).prop("checked")){
+        if($("#form-outsources-"+$(this).val()).length < 1){
+          $(this).parents(".panel-collapse").find(".outsource-status-form")
+          .append('<input class="hide outsources" name="outsources" id="form-outsources-'+$(this).val()+'" value="'+$(this).val()+'"/>');
+        }
+      }else{
+        $(this).parents(".panel-collapse").find(".outsource-all").prop("checked", false);
+        if($("#form-outsources-"+$(this).val()).length > 0){
+          $("#form-outsources-"+$(this).val()).remove();
+        }
+      }
+    });
+    $(".outsource-btn").click(function(e){
+      var actionVal = $(this).val();
+      var email = $(this).parents('form').find("#contract-email").val();
+      var outsources = $(this).parents('form').find(".outsources");
+      var msg = $(this).parents('form').find("#msg").val();
+      if(outsources.length < 1){
+        alert("请勾选外包项!");
+        e.preventDefault();
+      }
+      if(actionVal == '2'){
+        if(msg == ""){
+            e.preventDefault();
+            alert("请填写理由！");
+         }
+      }
+    });
   });
 </script>
 </div>

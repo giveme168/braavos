@@ -84,6 +84,19 @@ OUTSOURCE_SUBTYPE_CN = {
     OUTSOURCE_SUBTYPE_OTHER: u"其他",
 }
 
+OUTSOURCE_STATUS_NEW = 0
+OUTSOURCE_STATUS_APPLY_LEADER = 1
+OUTSOURCE_STATUS_PASS = 2
+OUTSOURCE_STATUS_APPLY_MONEY = 3
+OUTSOURCE_STATUS_PAIED = 4
+OUTSOURCE_STATUS_CN = {
+    OUTSOURCE_STATUS_NEW: u"待申请",
+    OUTSOURCE_STATUS_APPLY_LEADER: u"申请审批中...",
+    OUTSOURCE_STATUS_PASS: u"审批通过",
+    OUTSOURCE_STATUS_APPLY_MONEY: u"请款中...",
+    OUTSOURCE_STATUS_PAIED: u"已打款"
+}
+
 
 class OutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'out_source'
@@ -127,6 +140,10 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
         return OUTSOURCE_TYPE_CN[self.type]
 
     @property
+    def subtype_cn(self):
+        return OUTSOURCE_SUBTYPE_CN[self.subtype]
+
+    @property
     def form(self):
         from forms.outsource import OutsourceForm
         form = OutsourceForm()
@@ -138,3 +155,13 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
         form.subtype.data = self.subtype
         form.remark.data = self.remark
         return form
+
+    @property
+    def outsource_info(self):
+        return u"""
+        投放媒体: %s
+        外包方: %s
+        外包金额: %s
+        外包类别: %s
+        子分类: %s
+        备注: %s""" % (self.medium_order.medium.name, self.target.name, self.num, self.type_cn, self.subtype_cn, self.remark)
