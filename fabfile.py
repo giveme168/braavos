@@ -56,8 +56,9 @@ def symlink_current_release():
 
 @task
 def restart_server():
-    run('pkill gunicorn')
-    run('cd %(path)s/releases/%(release)s; pyenv shell braavos; gunicorn --daemon -bind:0.0.0.0:8001 app:app' % env)
+    # run('pkill gunicorn')
+    # run('cd %(path)s/releases/current; pyenv shell braavos; gunicorn --daemon --bind 0.0.0.0:8001 app:app;' % env)
+    run('cd /home/inad/apps/braavos; bash gunicorn_restart_server')
 
 @task
 def deploy():

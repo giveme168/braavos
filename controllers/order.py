@@ -460,6 +460,7 @@ def new_framework_order():
     form = FrameworkOrderForm(request.form)
     if request.method == 'POST' and form.validate():
         order = FrameworkOrder.add(group=Group.get(form.group.data),
+                                   agents=Agent.gets(form.agents.data),
                                    description=form.description.data,
                                    money=form.money.data,
                                    client_start=form.client_start.data,
@@ -495,6 +496,7 @@ def framework_delete(order_id):
 def get_framework_form(order):
     framework_form = FrameworkOrderForm()
     framework_form.group.data = order.group.id
+    framework_form.agents.data = [a.id for a in order.agents]
     framework_form.description.data = order.description
     framework_form.money.data = order.money
     framework_form.client_start.data = order.client_start
@@ -522,6 +524,7 @@ def framework_order_info(order_id):
                 framework_form = FrameworkOrderForm(request.form)
                 if framework_form.validate():
                     order.group = Group.get(framework_form.group.data)
+                    order.agents = Agent.gets(framework_form.agents.data)
                     order.description = framework_form.description.data
                     order.money = framework_form.money.data
                     order.client_start = framework_form.client_start.data
