@@ -11,7 +11,6 @@ from forms.order import (ClientOrderForm, MediumOrderForm,
                          FrameworkOrderForm, DoubanOrderForm,
                          AssociatedDoubanOrderForm)
 from forms.item import ItemForm
-from forms.outsource import OutsourceForm
 
 from models.client import Client, Group, Agent
 from models.medium import Medium, AdPosition
@@ -28,7 +27,6 @@ from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
-from models.outsource import OutSource, OutSourceTarget
 from models.user import User, TEAM_LOCATION_CN
 from models.consts import DATE_FORMAT, TIME_FORMAT
 from models.excel import Excel
@@ -37,7 +35,7 @@ from models.download import (download_excel_table_by_clientorders,
                              download_excel_table_by_doubanorders,
                              download_excel_table_by_frameworkorders)
 
-from libs.signals import order_apply_signal, reply_apply_signal, contract_apply_signal, outsource_contract_apply_signal
+from libs.signals import order_apply_signal, reply_apply_signal, contract_apply_signal
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
@@ -223,15 +221,11 @@ def order_info(order_id, tab_id=1):
                                                        for mo in order.medium_orders]
     new_associated_douban_form.campaign.data = order.campaign
 
-    new_outsource_form = OutsourceForm()
-    new_outsource_form.medium_order.choices = [(mo.id, mo.medium.name) for mo in order.medium_orders]
-
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
                'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
                'new_associated_douban_form': new_associated_douban_form,
-               'new_outsource_form': new_outsource_form,
                'order': order,
                'reminder_emails': reminder_emails,
                'tab_id': int(tab_id)}
@@ -321,72 +315,6 @@ def associated_douban_order(order_id):
                                                  ao.campaign, ao.money))
     flash(u'[关联豆瓣订单]%s 保存成功!' % ao.name, 'success')
     return redirect(ao.info_path())
-
-
-######################
-# outsource
-######################
-@order_bp.route('/new_outsource', methods=['POST'])
-def new_outsource():
-    form = OutsourceForm(request.form)
-    outsource = OutSource.add(target=OutSourceTarget.get(form.target.data),
-                              medium_order=Order.get(form.medium_order.data),
-                              num=form.num.data,
-                              type=form.type.data,
-                              subtype=form.subtype.data,
-                              remark=form.remark.data)
-    flash(u'新建外包成功!', 'success')
-    return redirect(outsource.info_path())
-
-
-@order_bp.route('/outsource/<outsource_id>/status', methods=['POST'])
-def outsource_status(outsource_id):
-    outsource = OutSource.get(outsource_id)
-    if not outsource:
-        abort(404)
-    action = int(request.values.get('action', 0))
-    emails = request.values.getlist('email', [])
-    msg = request.values.get('msg', '')
-    orders = outsource.medium_order.client_orders
-    to_users = [g.user]
-    for order in orders:
-        to_users += order.direct_sales + order.agent_sales + [order.creator] + order.leaders
-    if action == 1:
-        outsource.status = 1
-        action_msg = u'申请审批'
-    elif action == 10:
-        outsource.status = 10
-        action_msg = u'申请通过'
-        to_users += User.contracts()
-    outsource.save()
-    flash(u'[%s] %s ' % (outsource.name, action_msg), 'success')
-    to_emails = list(set(emails + [x.email for x in to_users]))
-    apply_context = {"sender": g.user,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "outsource": outsource}
-    outsource_contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s] 已发送邮件给 %s ' % (outsource.name, ', '.join(to_emails)), 'info')
-    outsource.add_comment(g.user, u"%s \n\n %s" % (action_msg, msg))
-    return redirect(outsource.info_path())
-
-
-@order_bp.route('/outsource/<outsource_id>', methods=['POST'])
-def outsource(outsource_id):
-    outsource = OutSource.get(outsource_id)
-    if not outsource:
-        abort(404)
-    form = OutsourceForm(request.form)
-    outsource.target = OutSourceTarget.get(form.target.data)
-    outsource.medium_order = Order.get(form.medium_order.data)
-    outsource.num = form.num.data
-    outsource.type = form.type.data
-    outsource.subtype = form.subtype.data
-    outsource.remark = form.remark.data
-    outsource.save()
-    flash(u'保存成功!', 'success')
-    return redirect(outsource.info_path())
 
 
 @order_bp.route('/client_order/<order_id>/contract', methods=['POST'])
