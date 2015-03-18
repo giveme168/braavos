@@ -6,8 +6,10 @@ from models.outsource import OutSourceTarget, OutSource
 from models.client_order import ClientOrder
 from models.order import Order
 from models.user import User
+from models.outsource import (OUTSOURCE_STATUS_NEW, OUTSOURCE_STATUS_APPLY_LEADER,
+                              OUTSOURCE_STATUS_PASS, OUTSOURCE_STATUS_APPLY_MONEY)
 from forms.outsource import OutSourceTargetForm, OutsourceForm
-from libs.signals import outsource_contract_apply_signal
+from libs.signals import outsource_apply_signal
 
 outsource_bp = Blueprint('outsource', __name__, template_folder='../templates/outsource')
 
@@ -84,7 +86,9 @@ def client_outsources(order_id):
         abort(404)
     new_outsource_form = OutsourceForm()
     new_outsource_form.medium_order.choices = [(mo.id, mo.medium.name) for mo in order.medium_orders]
+    reminder_emails = [(u.name, u.email) for u in User.all_active()]
     context = {'new_outsource_form': new_outsource_form,
+               'reminder_emails': reminder_emails,
                'order': order}
     return tpl('client_outsources.html', **context)
 
@@ -119,34 +123,43 @@ def outsource(outsource_id):
     return redirect(outsource.info_path())
 
 
-@outsource_bp.route('/outsource/<outsource_id>/status', methods=['POST'])
-def outsource_status(outsource_id):
-    outsource = OutSource.get(outsource_id)
-    if not outsource:
+@outsource_bp.route('/client_order/<order_id>/outsource_status', methods=['POST'])
+def outsource_status(order_id):
+    order = ClientOrder.get(order_id)
+    if not order:
         abort(404)
+    outsource_ids = request.values.getlist('outsources')
+    outsources = OutSource.gets(outsource_ids)
+    if not outsources:
+        abort(403)
     action = int(request.values.get('action', 0))
-    emails = request.values.getlist('email', [])
+    emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
-    orders = outsource.medium_order.client_orders
-    to_users = [g.user]
-    for order in orders:
-        to_users += order.direct_sales + order.agent_sales + [order.creator] + order.leaders
-    if action == 1:
-        outsource.status = 1
+
+    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user] + order.leaders
+    if action == 0:
+        next_status = OUTSOURCE_STATUS_APPLY_LEADER
         action_msg = u'申请审批'
-    elif action == 10:
-        outsource.status = 10
-        action_msg = u'申请通过'
-        to_users += User.contracts()
-    outsource.save()
-    flash(u'[%s] %s ' % (outsource.name, action_msg), 'success')
+    elif action == 1:
+        next_status = OUTSOURCE_STATUS_PASS
+        action_msg = u'审批通过'
+    elif action == 2:
+        next_status = OUTSOURCE_STATUS_NEW
+        action_msg = u'拒绝通过'
+    elif action == 3:
+        next_status = OUTSOURCE_STATUS_APPLY_MONEY
+        action_msg = u'申请打款'
+    for outsource in outsources:
+        outsource.status = next_status
+        outsource.save()
+    flash(u'[%s 外包流程] %s ' % (order.name, action_msg), 'success')
     to_emails = list(set(emails + [x.email for x in to_users]))
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,
                      "msg": msg,
-                     "outsource": outsource}
-    outsource_contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s] 已发送邮件给 %s ' % (outsource.name, ', '.join(to_emails)), 'info')
-    outsource.add_comment(g.user, u"%s \n\n %s" % (action_msg, msg))
-    return redirect(outsource.info_path())
+                     "order": order,
+                     "outsources": outsources}
+    outsource_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
+    flash(u'[%s 外包流程] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+    return redirect(url_for("outsource.client_outsources", order_id=order.id))

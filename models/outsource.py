@@ -84,6 +84,19 @@ OUTSOURCE_SUBTYPE_CN = {
     OUTSOURCE_SUBTYPE_OTHER: u"其他",
 }
 
+OUTSOURCE_STATUS_NEW = 0
+OUTSOURCE_STATUS_APPLY_LEADER = 1
+OUTSOURCE_STATUS_PASS = 2
+OUTSOURCE_STATUS_APPLY_MONEY = 3
+OUTSOURCE_STATUS_PAIED = 4
+OUTSOURCE_STATUS_CN = {
+    OUTSOURCE_STATUS_NEW: u"待申请",
+    OUTSOURCE_STATUS_APPLY_LEADER: u"申请审批中...",
+    OUTSOURCE_STATUS_PASS: u"审批通过",
+    OUTSOURCE_STATUS_APPLY_MONEY: u"请款中...",
+    OUTSOURCE_STATUS_PAIED: u"已打款"
+}
+
 
 class OutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'out_source'
@@ -114,23 +127,31 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def name(self):
-        return "%s-%s-%s" % (self.medium_order.medium.name, self.target.name, self.type_cn)
+        return "%s-%s-%s" % (self.medium_order.medium.name,
+                             self.target.name,
+                             self.type_cn)
 
     def edit_path(self):
         return url_for('outsource.outsource', outsource_id=self.id)
 
     def info_path(self):
-        return url_for("outsource.client_outsources", order_id=self.medium_order.client_order.id)
+        return url_for("outsource.client_outsources",
+                       order_id=self.medium_order.client_order.id)
 
     @property
     def type_cn(self):
         return OUTSOURCE_TYPE_CN[self.type]
 
     @property
+    def subtype_cn(self):
+        return OUTSOURCE_SUBTYPE_CN[self.subtype]
+
+    @property
     def form(self):
         from forms.outsource import OutsourceForm
         form = OutsourceForm()
-        form.medium_order.choices = [(mo.id, mo.medium.name) for mo in self.medium_order.client_order.medium_orders]
+        form.medium_order.choices = [(mo.id, mo.medium.name)
+                                     for mo in self.medium_order.client_order.medium_orders]
         form.medium_order.data = self.medium_order.id
         form.target.data = self.target.id
         form.num.data = self.num
@@ -138,3 +159,14 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
         form.subtype.data = self.subtype
         form.remark.data = self.remark
         return form
+
+    @property
+    def outsource_info(self):
+        return u"""
+        投放媒体: %s
+        外包方: %s
+        外包金额: %s
+        外包类别: %s
+        子分类: %s
+        备注: %s""" % (self.medium_order.medium.name, self.target.name,
+                         self.num, self.type_cn, self.subtype_cn, self.remark)
