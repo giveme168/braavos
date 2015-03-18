@@ -76,6 +76,7 @@ class AssociatedDoubanOrderForm(Form):
 
 class FrameworkOrderForm(Form):
     group = SelectField(u'代理集团', coerce=int)
+    agents = SelectMultipleField(u'代理/直客', coerce=int)
     description = TextAreaField(u'备注', description=u"请填写返点政策/配送政策等信息")
     money = IntegerField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
@@ -87,6 +88,7 @@ class FrameworkOrderForm(Form):
 
     def __init__(self, *args, **kwargs):
         super(FrameworkOrderForm, self).__init__(*args, **kwargs)
+        self.agents.choices = [(a.id, a.name) for a in Agent.all()]
         self.group.choices = [(g.id, g.name) for g in Group.all()]
         self.direct_sales.choices = [(m.id, m.name) for m in User.sales()]
         self.agent_sales.choices = [(m.id, m.name) for m in User.sales()]

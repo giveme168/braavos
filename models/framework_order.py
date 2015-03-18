@@ -34,13 +34,23 @@ CONTRACT_STATUS_CN = {
 
 
 direct_sales = db.Table('framework_order_direct_sales',
-                        db.Column('sale_id', db.Integer, db.ForeignKey('user.id')),
-                        db.Column('client_order_id', db.Integer, db.ForeignKey('bra_framework_order.id'))
+                        db.Column(
+                            'sale_id', db.Integer, db.ForeignKey('user.id')),
+                        db.Column(
+                            'client_order_id', db.Integer, db.ForeignKey('bra_framework_order.id'))
                         )
 agent_sales = db.Table('framework_order_agent_sales',
-                       db.Column('agent_sale_id', db.Integer, db.ForeignKey('user.id')),
-                       db.Column('client_order_id', db.Integer, db.ForeignKey('bra_framework_order.id'))
+                       db.Column(
+                           'agent_sale_id', db.Integer, db.ForeignKey('user.id')),
+                       db.Column(
+                           'client_order_id', db.Integer, db.ForeignKey('bra_framework_order.id'))
                        )
+
+agents = db.Table('framework_order_agents',
+                  db.Column('agent_id', db.Integer, db.ForeignKey('agent.id')),
+                  db.Column(
+                      'framework_order_id', db.Integer, db.ForeignKey('bra_framework_order.id')),
+                  )
 
 
 class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
@@ -48,7 +58,9 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     group_id = db.Column(db.Integer, db.ForeignKey('bra_group.id'))  # 甲方集团
-    group = db.relationship('Group', backref=db.backref('framework_orders', lazy='dynamic'))
+    group = db.relationship(
+        'Group', backref=db.backref('framework_orders', lazy='dynamic'))
+    agents = db.relationship('Agent', secondary=agents)
     description = db.Column(db.String(500))  # 描述
 
     contract = db.Column(db.String(100))  # 客户合同号
@@ -64,18 +76,20 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_status = db.Column(db.Integer)  # 合同审批状态
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator = db.relationship('User', backref=db.backref('created_framework_orders', lazy='dynamic'))
+    creator = db.relationship(
+        'User', backref=db.backref('created_framework_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
 
     contract_generate = True
     media_apply = False
 
-    def __init__(self, group, description=None,
+    def __init__(self, group, agents=None, description=None,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None,
                  direct_sales=None, agent_sales=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
         self.group = group
+        self.agents = agents or []
         self.description = description or ""
 
         self.contract = contract
@@ -195,6 +209,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
 
 def contract_generator(group, num):
-    code = "ZQF%s%03x-%03x" % (datetime.datetime.now().strftime('%Y%m'), group.id % 1000, num % 1000)
+    code = "ZQF%s%03x-%03x" % (datetime.datetime.now().strftime('%Y%m'),
+                               group.id % 1000, num % 1000)
     code = code.upper()
     return code
