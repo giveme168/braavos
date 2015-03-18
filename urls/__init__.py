@@ -10,7 +10,6 @@ from urls.api import api_register_blueprint
 from urls.storage import storage_register_blueprint
 from urls.contract import contract_register_blueprint
 from urls.outsource import outsource_register_blueprint
-from urls.operater import operater_register_blueprint
 from urls.saler import saler_register_blueprint
 
 def register_blueprint(app):
@@ -20,11 +19,10 @@ def register_blueprint(app):
     medium_register_blueprint(app)
     order_register_blueprint(app)
     comments_register_blueprint(app)
-    materia_register_blueprint(app) 
-    files_register_blueprint(app)  
-    api_register_blueprint(app) 
+    materia_register_blueprint(app)
+    files_register_blueprint(app)
+    api_register_blueprint(app)
     storage_register_blueprint(app)
     contract_register_blueprint(app)
     outsource_register_blueprint(app)
-    operater_register_blueprint(app)
     saler_register_blueprint(app)

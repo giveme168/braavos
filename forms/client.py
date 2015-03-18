@@ -21,6 +21,11 @@ class NewAgentForm(Form):
                      [validators.Required(u"请输入名字.")],
                      description=u"务必填写公司全称, 不要重复创建")
     group = SelectField(u'所属集团', coerce=int)
+    tax_num = TextField(u'公司税号')
+    address = TextField(u'公司地址')
+    phone_num = TextField(u'公司电话')
+    bank = TextField(u'公司开户银行')
+    bank_num = TextField(u'公司银行账号')
 
     def __init__(self, *args, **kwargs):
         super(NewAgentForm, self).__init__(*args, **kwargs)

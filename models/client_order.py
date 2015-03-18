@@ -146,6 +146,13 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def outsources(self):
         return [o for mo in self.medium_orders for o in mo.outsources]
 
+    def get_outsources_by_status(self, outsource_status):
+        return [o for o in self.outsources if o.status == outsource_status]
+
+    def get_outsource_status_cn(self, status):
+        from models.outsource import OUTSOURCE_STATUS_CN
+        return OUTSOURCE_STATUS_CN[status]
+
     @property
     def outsources_sum(self):
         return sum([o.num for o in self.outsources]) if self.outsources else 0
@@ -250,6 +257,13 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
          "\n".join([o.email_info for o in self.associated_douban_orders]))
 
     @property
+    def outsource_info(self):
+        return u"""
+        客户订单总额:   %s 元
+        外包应付总金额: %s 元
+        外包占比:   %s %%""" % (self.money, self.outsources_sum, self.outsources_percent)
+
+    @property
     def start_date(self):
         return self.client_start
 
@@ -281,6 +295,9 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def contract_path(self):
         return url_for("order.client_order_contract", order_id=self.id)
+
+    def outsource_path(self):
+        return url_for("outsource.client_outsources", order_id=self.id)
 
     def attach_status_confirm_path(self, attachment):
         return url_for('order.client_attach_status',
