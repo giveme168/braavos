@@ -114,13 +114,13 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def name(self):
-        return "%s-%s" % (self.medium_order.medium.name, self.type_cn)
+        return "%s-%s-%s" % (self.medium_order.medium.name, self.target.name, self.type_cn)
 
     def edit_path(self):
-        return url_for('order.outsource', outsource_id=self.id)
+        return url_for('outsource.outsource', outsource_id=self.id)
 
     def info_path(self):
-        return url_for("order.order_info", order_id=self.medium_order.client_order.id, tab_id=2)
+        return url_for("outsource.client_outsources", order_id=self.medium_order.client_order.id)
 
     @property
     def type_cn(self):
