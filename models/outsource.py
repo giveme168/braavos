@@ -131,12 +131,16 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
                              self.target.name,
                              self.type_cn)
 
+    @property
+    def client_order(self):
+        return self.medium_order.client_order
+
     def edit_path(self):
         return url_for('outsource.outsource', outsource_id=self.id)
 
     def info_path(self):
         return url_for("outsource.client_outsources",
-                       order_id=self.medium_order.client_order.id)
+                       order_id=self.client_order.id)
 
     @property
     def type_cn(self):
@@ -146,12 +150,17 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     def subtype_cn(self):
         return OUTSOURCE_SUBTYPE_CN[self.subtype]
 
+    def can_admin(self, user):
+        """是否可以修改该订单"""
+        admin_users = self.medium_order.operaters
+        return user.is_admin() or user in admin_users
+
     @property
     def form(self):
         from forms.outsource import OutsourceForm
         form = OutsourceForm()
         form.medium_order.choices = [(mo.id, mo.medium.name)
-                                     for mo in self.medium_order.client_order.medium_orders]
+                                     for mo in self.client_order.medium_orders]
         form.medium_order.data = self.medium_order.id
         form.target.data = self.target.id
         form.num.data = self.num

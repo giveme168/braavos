@@ -149,9 +149,12 @@ def outsource_status(order_id):
     elif action == 3:
         next_status = OUTSOURCE_STATUS_APPLY_MONEY
         action_msg = u'申请打款'
-    for outsource in outsources:
-        outsource.status = next_status
-        outsource.save()
+    else:
+        action_msg = u'消息提醒'
+    if action < 4:
+        for outsource in outsources:
+            outsource.status = next_status
+            outsource.save()
     flash(u'[%s 外包流程] %s ' % (order.name, action_msg), 'success')
     to_emails = list(set(emails + [x.email for x in to_users]))
     apply_context = {"sender": g.user,
