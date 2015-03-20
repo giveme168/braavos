@@ -74,32 +74,25 @@ def new_invoice(order_id):
     form = InvoiceForm(request.form)
     form.client_order.choices = [(order.id, order.client.name)]
     if request.method == 'POST' and form.validate():
-        if not form.tax_id.data:
-            flash(u"新建发票失败，公司名称不能为空", 'danger')
-        elif not form.detail.data:
-            flash(u"新建发票失败，发票内容不能为空", 'danger')
-        elif not form.money.data:
-            flash(u"新建发票失败，发票金额不能为空", 'danger')
-        else:
-            if int(form.money.data) > (int(order.money) - int(order.invoice_apply_sum) - int(order.invoice_pass_sum)):
-                flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
-                return redirect(url_for("saler_invoice.index", order_id=order_id))
-            invoice = Invoice.add(client_order=order,
-                                  company=form.company.data,
-                                  tax_id=form.tax_id.data,
-                                  address=form.address.data,
-                                  phone=form.phone.data,
-                                  bank_id=form.bank_id.data,
-                                  bank=form.bank.data,
-                                  detail=form.detail.data,
-                                  money=form.money.data,
-                                  invoice_type=form.invoice_type.data,
-                                  invoice_status=INVOICE_STATUS_NORMAL,
-                                  creator=g.user)
-            invoice.save()
-            flash(u'新建发票(%s)成功!' % form.company.data, 'success')
-            order.add_comment(g.user, u"添加发票申请信息：%s" % (
-                u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))))
+        if int(form.money.data) > (int(order.money) - int(order.invoice_apply_sum) - int(order.invoice_pass_sum)):
+            flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
+            return redirect(url_for("saler_invoice.index", order_id=order_id))
+        invoice = Invoice.add(client_order=order,
+                              company=form.company.data,
+                              tax_id=form.tax_id.data,
+                              address=form.address.data,
+                              phone=form.phone.data,
+                              bank_id=form.bank_id.data,
+                              bank=form.bank.data,
+                              detail=form.detail.data,
+                              money=form.money.data,
+                              invoice_type=form.invoice_type.data,
+                              invoice_status=INVOICE_STATUS_NORMAL,
+                              creator=g.user)
+        invoice.save()
+        flash(u'新建发票(%s)成功!' % form.company.data, 'success')
+        order.add_comment(g.user, u"添加发票申请信息：%s" % (
+            u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))))
     else:
         for k in form.errors:
             flash(u"新建发票失败，%s" % (form.errors[k][0]), 'danger')
