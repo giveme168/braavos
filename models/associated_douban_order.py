@@ -98,6 +98,10 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
         金额: %s (元)
 """ % (self.medium_order.medium.name, self.campaign, self.money or 0)
 
+    def can_admin(self, user):
+        """是否可以修改该订单"""
+        return self.client_order.can_admin(user)
+
     def path(self):
         return self.info_path()
 
