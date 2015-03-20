@@ -1,6 +1,6 @@
 {% from 'form.html' import form_field %}
-{% macro order_douban_form(form, douban_order) -%}
-{% if not douban_order.can_admin(g.user) %}
+{% macro order_douban_form(form, douban_order=None) -%}
+{% if douban_order and not douban_order.can_admin(g.user) %}
 <div class="col-md-12">
     <div class="col-md-6" style="margin-left: 20px;">
         <table class="table table-bordered">
