@@ -92,7 +92,7 @@ def new_invoice(order_id):
         invoice.save()
         flash(u'新建发票(%s)成功!' % form.company.data, 'success')
         order.add_comment(g.user, u"添加发票申请信息：%s" % (
-            u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))))
+            u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=1)
     else:
         for k in form.errors:
             flash(u"新建发票失败，%s" % (form.errors[k][0]), 'danger')
@@ -129,7 +129,7 @@ def update_invoice(invoice_id):
             invoice.save()
             flash(u'修改发票(%s)成功!' % form.company.data, 'success')
             invoice.client_order.add_comment(g.user, u"修改发票信息,%s" % (
-                u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))))
+                u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=1)
     else:
         for k in form.errors:
             flash(u"修改发票失败，%s" % (form.errors[k][0]), 'danger')
@@ -173,7 +173,7 @@ def apply_invoice(invoice_id):
             flash(u'[%s 发票开具申请，发票金额%s]  %s ' %
                   (invoice.company, invoice.money, action_msg), 'success')
             invoice.client_order.add_comment(g.user, u"%s,%s" % (
-                action_msg, u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))))
+                action_msg, u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=1)
     else:
         action_msg = u'消息提醒'
 

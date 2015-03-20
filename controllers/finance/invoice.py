@@ -69,7 +69,7 @@ def pass_invoice(invoice_id):
             flash(u'[%s 发票已开，发票金额%s]  %s ' %
                   (invoice.company, invoice.money, action_msg), 'success')
             invoice.client_order.add_comment(g.user, u"%s,%s" % (
-                action_msg, u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))))
+                action_msg, u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=1)
     else:
         action_msg = u'消息提醒'
 
