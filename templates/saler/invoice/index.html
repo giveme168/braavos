@@ -8,37 +8,105 @@
     <table class="table table-bordered table-striped">
         <tr>
             <th>总金额</th>
+            <th>已开发票总金额</th>
             <th>已申请发票总金额</th>
-            <th>申请占比</th>
+            <th>未开发票总金额</th>
         </tr>
         <tr>
             <td>{{order.money}} 元</td>
-            <td>{{order.invoice_sum}} 元</td>
-            <td>{{order.invoice_percent}} %</td>
+            <td>{{order.invoice_pass_sum}} 元</td>
+            <td>{{order.invoice_apply_sum}} 元</td>
+            <td>{{order.money - order.invoice_pass_sum}} 元</td>
         </tr>
     </table>
-    <div class="panel panel-default" id="new-outsource" style="display:none;">
+    {% for k in range(5) %}
+      {% if k == 0 %}
+          {% set invoices = invoices_data.PASS %}
+      {% elif k == 1 %}
+          {% set invoices = invoices_data.NORMAL %}
+      {% elif k == 2 %}
+          {% set invoices = invoices_data.APPLY %}
+      {% elif k == 3 %}
+          {% set invoices = invoices_data.APPLYPASS %}
+      {% else %}
+          {% set invoices = invoices_data.FAIL %}
+      {% endif %}
+    {% if invoices|length > 0 %}
+    <div class="panel panel-default" id="non-invoice">
         <div class="panel-heading">
             <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-new"> 申请发票信息 </a>
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-{{k}}"> {{ INVOICE_STATUS_CN[k] }}</a>
             </h4>
         </div>
-        <div id="collapse-outsource-new" class="panel-collapse collapse in">
+        <div id="collapse-invoice-{{k}}" class="panel-collapse collapse in">
+            <div class="panel-body">
+              {% for i in invoices %}
+                {{ invoice_form(order, i.form, INVOICE_TYPE_CN, i.invoice) }}
+              {% endfor %}
+              {% if k != 0 %}
+                {{ status_box(invoices[0]['invoice']) }}
+              {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+    <div class="panel panel-default" id="new-invoice" style="display:none;">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 申请发票信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-new" class="panel-collapse collapse in">
             <div class="panel-body">
               <div class="well">
-                {{ invoice_form(order,new_invoice_form) }}
+                {{ invoice_form(order, new_invoice_form, INVOICE_TYPE_CN) }}
               </div>
             </div>
         </div>
     </div>
-    <button onclick="showOutSource(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 申请发票</button>
+    <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 申请发票</button>
 </div>
 <script>
-  $(function(){
-    showOutSource = function(ele){
+  showInvoice = function(ele){
       $(ele).hide();
-      $("#new-outsource").show();
+      $("#new-invoice").show();
     };
+  function check_all(e){
+    $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));
+    $(e).parent().find(".invoice-id").trigger("change");
+  }
+  $(function(){
+    $(".invoice-id").change(function(e){
+      if($(this).prop("checked")){
+        if($("#form-invoice-"+$(this).val()).length < 1){
+          $(this).parents(".panel-collapse").find(".invoice-status-form")
+          .append('<input class="hide invoices" name="invoices" id="form-invoice-'+$(this).val()+'" value="'+$(this).val()+'"/>');
+        }
+      }else{
+        $(this).parents(".panel-collapse").find(".invoice-all").prop("checked", false);
+
+        if($("#form-invoice-"+$(this).val()).length > 0){
+          $("#form-invoice-"+$(this).val()).remove();
+        }
+      }
+    });
+    $(".invoice-btn").click(function(e){
+      var actionVal = $(this).val();
+      var email = $(this).parents('form').find("#contract-email").val();
+      var invoices = $(this).parents('form').find(".invoices");
+      var msg = $(this).parents('form').find("#msg").val();
+      if(invoices.length < 1){
+        alert("请勾选要申请的发票!");
+        e.preventDefault();
+      }
+      if(actionVal == '2'){
+        if(msg == ""){
+            alert("请填写理由！");
+            e.preventDefault();
+         }
+      }
+    });
   });
 </script>
 {%- endmacro %}
@@ -49,7 +117,7 @@
   <div>
     <ul class="nav nav-tabs">
       <li class=""><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
-      <li class="active"><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>发票回款(开发中)</a></li>
+      <li class="active"><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>发票回款</a></li>
     </ul>
     <div class="tab-content">
       <div class="tab-pane active" id="tab-2">
@@ -59,3 +127,39 @@
   </div>
 </div>
 {% endblock %}
+{% macro status_box(invoice) -%}
+   {% if invoice.invoice_status in [0, 1, 2, 3, 4] %}
+   <input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
+   {% endif %}
+   <form class="form form-horizontal invoice-status-form" id="status-form" method="POST" action="{{url_for('saler_invoice.apply_invoice', invoice_id=invoice.id)}}">
+     <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
+        <div class="col-sm-10">
+            <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+              {% for u in reminder_emails %}
+              <option value="{{u[1]}}">{{u[0]}}</option>
+              {% endfor %}
+            </select>
+        </div>
+     </div>
+     <div class="form-group">
+        <label for="msg" class="col-sm-2 control-label">留言 : </label>
+        <div class="col-sm-10">
+            <textarea class="form-control bra-form-control" id="msg"
+            name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+        </div>
+     </div>
+     <div class="form-group">
+        <label class="col-sm-2 control-label">操作 : </label>
+        <div class="col-sm-10">
+          {% if invoice.invoice_status in [1, 4] %}
+          <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">发票开具申请</button>
+          {% elif invoice.invoice_status == 2 and g.user.is_leader() %}
+          <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="3">批准开发票</button>
+          <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="4">审批未通过</button>
+          {% endif %}
+          <button class="btn btn-sm btn-default invoice-btn" name="action" type="submit" value="10">提醒</button>
+        </div>
+     </div>
+   </form>
+{%- endmacro %}

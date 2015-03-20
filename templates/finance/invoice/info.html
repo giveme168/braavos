@@ -1,0 +1,184 @@
+{% extends "/order_base.html" %}
+{% from '/saler/invoice/invoice_form.html' import invoice_form %}
+{% from 'comments.html' import comments_box %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>客户订单发票情况</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>合同总金额</th>
+            <th>已开发票金额</th>
+            <th>未开发票金额</th>
+            <th>正在申请发票金额</th>
+        </tr>
+        <tr>
+            <td>{{ order.money }} 元</td>
+            <td>{{ order.invoice_pass_sum }} 元</td>
+            <td>{{ order.money - order.invoice_pass_sum }} 元</td>
+            <td>{{ order.invoice_apply_sum }} 元</td>
+        </tr>
+    </table>
+    {% if invoices_data.PASS|length > 0 %}
+    <div class="panel panel-default" id="non-invoice">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 申请通过的发票信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-0" class="panel-collapse collapse in">
+            <div class="panel-body">
+                {% for k in invoices_data.PASS %}
+                <div class="col-md-12">
+                    <div class="col-md-6" style="margin-left: 20px;">
+                        <table class="table table-bordered">
+                          <tr>
+                            <th>时间</th>
+                            <td>{{k.invoice.create_time}}</td>
+                          </tr>
+                          <tr>
+                            <th>公司名称</th>
+                            <td>{{k.invoice.company}}</td>
+                          </tr>
+                          <tr>
+                            <th>税号</th>
+                            <td>{{k.invoice.tax_id}}</td>
+                          </tr>
+                          <tr>
+                            <th>公司地址</th>
+                            <td>{{k.invoice.address}}</td>
+                          </tr>
+                          <tr>
+                            <th>联系电话</th>
+                            <td>{{k.invoice.phone}}</td>
+                          </tr>
+                          <tr>
+                            <th>银行账号</th>
+                            <td>{{k.invoice.bank_id}}</td>
+                          </tr>
+                          <tr>
+                            <th>开户行</th>
+                            <td>{{k.invoice.bank}}</td>
+                          </tr>
+                          <tr>
+                            <th>发票内容</th>
+                            <td>{{k.invoice.detail}}</td>
+                          </tr>
+                          <tr>
+                            <th>发票金额</th>
+                            <td>{{k.invoice.money}}元</td>
+                          </tr>
+                          <tr>
+                            <th>发票类型</th>
+                            <td>{{INVOICE_TYPE_CN[k.invoice.invoice_type]}}</td>
+                          </tr>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% set invoices = invoices_data.APPLYPASS %}
+    {% if invoices|length > 0 %}
+    <div class="panel panel-default" id="non-invoice">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-3">待开发票</a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-3" class="panel-collapse collapse in">
+            <div class="panel-body">
+                {% for i in invoices %}
+                <h4>
+                    <input type="checkbox" name="invoice-id" class="invoice-id" value="{{i.invoice.id}}"/>
+                    {{ i.invoice.company }}-{{ i.invoice.money }}元
+                </h4>
+                <div class="well">
+                    {{ invoice_form(order,i.form,i.invoice) }}
+                </div>
+                {% endfor %}
+                {{ status_box(invoices[0]['invoice']) }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<script>
+  $(function(){
+    showInvoice = function(ele){
+      $(ele).hide();
+      $("#new-invoice").show();
+    };
+  });
+  function check_all(e){
+    $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));
+    $(e).parent().find(".invoice-id").trigger("change");
+  }
+  $(function(){
+    $(".invoice-id").change(function(e){
+      if($(this).prop("checked")){
+        if($("#form-invoice-"+$(this).val()).length < 1){
+          $(this).parents(".panel-collapse").find(".invoice-status-form")
+          .append('<input class="hide invoices" name="invoices" id="form-invoice-'+$(this).val()+'" value="'+$(this).val()+'"/>');
+        }
+      }else{
+        $(this).parents(".panel-collapse").find(".invoice-all").prop("checked", false);
+        if($("#form-invoice-"+$(this).val()).length > 0){
+          $("#form-invoice-"+$(this).val()).remove();
+        }
+      }
+    });
+    $(".invoice-btn").click(function(e){
+      var actionVal = $(this).val();
+      var email = $(this).parents('form').find("#contract-email").val();
+      var invoices = $(this).parents('form').find(".invoices");
+      var msg = $(this).parents('form').find("#msg").val();
+      if(invoices.length < 1){
+        alert("请勾选要申请的发票!");
+        e.preventDefault();
+      }
+      if(actionVal == '2'){
+        if(msg == ""){
+            alert("请填写理由！");
+            e.preventDefault();
+         }
+      }
+    });
+  });
+</script>
+{% endblock %}
+
+{% macro status_box(invoice) -%}
+{% if invoice.invoice_status in [0, 3] %}
+    <input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
+{% endif %}
+    <form class="form form-horizontal invoice-status-form" id="status-form" method="POST" action="{{url_for('finance_invoice.pass_invoice', invoice_id=invoice.id)}}">
+        <div class="form-group">
+            <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
+            <div class="col-sm-10">
+                <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+                    {% for u in reminder_emails %}
+                    <option value="{{u[1]}}">{{u[0]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="msg" class="col-sm-2 control-label">留言 : </label>
+            <div class="col-sm-10">
+                <textarea class="form-control bra-form-control" id="msg"name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">操作 : </label>
+            <div class="col-sm-10">
+                <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="0">发票已开</button>
+                <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="4">审批未通过</button>
+                <button class="btn btn-sm btn-default invoice-btn" name="action" type="submit" value="10">提醒</button>
+            </div>
+        </div>
+   </form>
+
+{%- endmacro %}

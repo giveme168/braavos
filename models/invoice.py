@@ -10,16 +10,18 @@ INVOICE_TYPE_CN = {
     INVOICE_TYPE_NORMAL: u"一般纳税人增值税专用发票",
 }
 
-INVOICE_STATUS_PASS = 0         # 发票申请成功
-INVOICE_STATUS_NORMAL = 1       # 发票填写完成
-INVOICE_STATUS_APPLY = 2        # 发票申请中
-INVOICE_STATUS_FAIL = 3         # 发表申请失败
+INVOICE_STATUS_PASS = 0          # 发票已开
+INVOICE_STATUS_NORMAL = 1        # 待申请发票
+INVOICE_STATUS_APPLY = 2         # 发票开具申请
+INVOICE_STATUS_APPLYPASS = 3     # 批准开发票
+INVOICE_STATUS_FAIL = 4          # 审批未通过
 
 INVOICE_STATUS_CN = {
-    INVOICE_STATUS_PASS: u'发票申请成功',
-    INVOICE_STATUS_NORMAL: u'发票填写完成',
-    INVOICE_STATUS_APPLY: u'发票申请中',
-    INVOICE_STATUS_FAIL: u'发表申请失败',
+    INVOICE_STATUS_PASS: u'发票已开',
+    INVOICE_STATUS_NORMAL: u'待申请发票',
+    INVOICE_STATUS_APPLY: u'发票开具申请',
+    INVOICE_STATUS_APPLYPASS: u'批准开发票',
+    INVOICE_STATUS_FAIL: u'审批未通过',
 }
 
 
@@ -59,6 +61,7 @@ class Invoice(db.Model, BaseModelMixin):
         self.detail = detail
         self.money = money
         self.invoice_type = invoice_type
+        self.invoice_status = invoice_status
         self.creator = creator
         self.create_time = create_time or datetime.date.today()
 

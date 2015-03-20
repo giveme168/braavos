@@ -162,13 +162,18 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return "%.1f" % (self.outsources_sum * 100 / float(self.money)) if self.money else "0"
 
     @property
-    def invoice_sum(self):
+    def invoice_apply_sum(self):
         return sum([k.money for k in Invoice.query.filter_by(client_order_id=self.id)
-                   if k.invoice_status in [0, 2]])
+                   if k.invoice_status == 3])
+
+    @property
+    def invoice_pass_sum(self):
+        return sum([k.money for k in Invoice.query.filter_by(client_order_id=self.id)
+                   if k.invoice_status == 0])
 
     @property
     def invoice_percent(self):
-        return "%.1f" % (self.invoice_sum * 100 / float(self.money)) if self.money else "0"
+        return "%.1f" % (self.invoice_pass_sum * 100 / float(self.money)) if self.money else "0"
 
     @property
     def locations(self):
@@ -298,6 +303,12 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def outsource_path(self):
         return url_for("outsource.client_outsources", order_id=self.id)
+
+    def saler_invoice_path(self):
+        return url_for("saler_invoice.index", order_id=self.id)
+
+    def finance_invoice_path(self):
+        return url_for("finance_invoice.info", order_id=self.id)
 
     def attach_status_confirm_path(self, attachment):
         return url_for('order.client_attach_status',
