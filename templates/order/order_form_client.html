@@ -1,5 +1,76 @@
 {% from 'form.html' import form_field %}
-{% macro order_client_form(form, mediums=None) -%}
+
+{% macro order_client_form(form, client_order) -%}
+  {% if client_order.can_admin(g.user) %}
+    {{ order_client_edited_form(form, mediums=None) }}
+  {% else %}
+    {{ order_client_table(client_order) }}
+  {% endif %}
+{%- endmacro %}
+
+{% macro order_client_table(client_order) -%}
+<div class="col-md-12">
+    <div class="col-md-6" style="margin-left: 20px;">
+        <table class="table table-bordered">
+          <tr>
+            <th>代理/直客(甲方全称) </th>
+            <td>{{client_order.agent.name}}</td>
+          </tr>
+          <tr>
+            <th>客户名称</th>
+            <td>{{client_order.client.name}}</td>
+          </tr>
+          <tr>
+            <th>Campaign名称</th>
+            <td>{{client_order.campaign}}</td>
+          </tr>
+          <tr>
+            <th>合同金额</th>
+            <td>{{client_order.money}} (元)</td>
+          </tr>
+          <tr>
+            <th>执行开始</th>
+            <td>{{client_order.start_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>执行结束</th>
+            <td>{{client_order.end_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>回款日期</th>
+            <td>{{client_order.reminde_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>直客销售</th>
+            <td>{{client_order.direct_sales_names}}</td>
+          </tr>
+          <tr>
+            <th>渠道销售</th>
+            <td>{{client_order.agent_sales_names}}</td>
+          </tr>
+          <tr>
+            <th>合同模板类型</th>
+            <td>{{client_order.contract_type_cn}}</td>
+          </tr>
+          <tr>
+            <th>售卖类型</th>
+            <td>{{client_order.resource_type_cn}}</td>
+          </tr>
+          <tr>
+            <th>代理/直客</th>
+            <td>{{client_order.sale_type_cn}}</td>
+          </tr>
+        </table>
+    </div>
+</div>
+
+{%- endmacro %}
+
+{% macro new_order_client_form(form, mediums) -%}
+    {{ order_client_edited_form(form, mediums) }}
+{%- endmacro %}
+
+{% macro order_client_edited_form(form, mediums=None) -%}
 <form class="form form-horizontal" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}

@@ -100,7 +100,7 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        return self.client_order.can_admin(user)
+        return self.medium_order.client_order.can_admin(user)
 
     def path(self):
         return self.info_path()

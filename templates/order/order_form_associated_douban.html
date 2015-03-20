@@ -1,14 +1,45 @@
 {% from 'form.html' import form_field %}
-{% macro order_associated_douban_form(form, order=None) -%}
-{% if order %}
-<form class="form form-horizontal" method="POST" action="{{order.edit_path()}}">
-{% else %}
+
+{% macro order_associated_douban_form(form, associated_order=None, order=None) -%}
+{% if not associated_order %}
 <form class="form form-horizontal" method="POST" action="{{url_for('order.new_associated_douban_order')}}">
-{% endif %}
-    {{form.csrf_token}}
+    {{ form.csrf_token }}
     {{ form_field(form.medium_order) }}
     {{ form_field(form.campaign) }}
     {{ form_field(form.money) }}
     <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
 </form>
+{% else %}
+  {% if associated_order.can_admin(g.user) %}
+  <form class="form form-horizontal" method="POST" action="{{order.edit_path()}}">
+      {{form.csrf_token}}
+      {{ form_field(form.medium_order) }}
+      {{ form_field(form.campaign) }}
+      {{ form_field(form.money) }}
+      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+  </form>
+  {% else %}
+  <div class="col-md-12">
+    <div class="col-md-6" style="margin-left: 20px;">
+        <table class="table table-bordered">
+          <tr>
+            <th>关联媒体 </th>
+            <td>{{associated_order.medium_order.name}}</td>
+          </tr>
+          <tr>
+          <th>Campaign </th>
+            <td>{{associated_order.campaign}}</td>
+          </tr>
+          <tr>
+          <th>合同金额 </th>
+            <td>{{associated_order.money}}</td>
+          </tr>
+          <th>合同号 </th>
+            <td>{{associated_order.contract or "未分配"}}</td>
+          </tr>
+        </table>
+    </div>
+  </div> 
+  {% endif %}
+{% endif %}
 {%- endmacro %}
