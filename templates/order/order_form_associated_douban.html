@@ -11,7 +11,7 @@
 </form>
 {% else %}
   {% if associated_order.can_admin(g.user) %}
-  <form class="form form-horizontal" method="POST" action="{{order.edit_path()}}">
+  <form class="form form-horizontal" method="POST" action="{{associated_order.edit_path()}}">
       {{form.csrf_token}}
       {{ form_field(form.medium_order) }}
       {{ form_field(form.campaign) }}
