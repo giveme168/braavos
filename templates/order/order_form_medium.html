@@ -1,5 +1,64 @@
 {% from 'form.html' import form_field %}
-{% macro order_medium_form(form, medium_order=None, order=None) -%}
+
+{% macro order_medium_form(form, medium_order) -%}
+  {% if medium_order.can_admin(g.user) %}
+    {{ order_medium_edited_form(form, medium_order) }}
+  {% else %}
+    {{ order_medium_table(medium_order) }}
+  {% endif %}
+{%- endmacro %}
+
+{% macro order_medium_table(order) -%}
+<div class="col-md-12">
+    <div class="col-md-6" style="margin-left: 20px;">
+        <table class="table table-bordered">
+          <tr>
+            <th>投放媒体 </th>
+            <td>{{order.medium.name}}</td>
+          </tr>
+          <tr>
+            <th>售卖金额</th>
+            <td>{{order.sale_money}} (元) 无利润未分成</td>
+          </tr>
+          <tr>
+            <th>媒体金额</th>
+            <td>{{order.medium_money2}} (元) 已利润未分成</td>
+         </tr>
+         <tr>
+            <th>付款金额</th>
+            <td>{{order.medium_money}} (元) 已利润已分成, 实际给媒体打款金额</td>
+          </tr>
+          <tr>
+            <th>预估量 </th>
+            <td>{{order.medium.sale_CPM or 0}} CPM</td>
+          </tr>
+           <tr>
+            <th>实际量 </th>
+            <td>{{order.medium.medium_CPM or 0}} CPM</td>
+          </tr>
+           <tr>
+            <th>执行人员 </th>
+            <td>{{order.operater_names}}</td>
+          </tr>
+           <tr>
+            <th>设计人员 </th>
+            <td>{{order.designers_names}}</td>
+          </tr>
+           <tr>
+            <th>策划人员 </th>
+            <td>{{order.planers_names}}</td>
+          </tr>
+        </table>
+    </div>
+</div>
+
+{%- endmacro %}
+
+{% macro new_order_medium_form(form, client_order) -%}
+    {{ order_medium_edited_form(form, medium_order=None, order=client_order) }}
+{%- endmacro %}
+
+{% macro order_medium_edited_form(form, medium_order=None, order=None) -%}
 {% if medium_order %}
 <form class="form form-horizontal" method="POST" action="{{medium_order.edit_path()}}">
 {% else %}

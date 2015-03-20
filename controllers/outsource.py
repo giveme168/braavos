@@ -103,6 +103,9 @@ def new_outsource():
                               subtype=form.subtype.data,
                               remark=form.remark.data)
     flash(u'新建外包成功!', 'success')
+    outsource.client_order.add_comment(g.user,
+                                       u"""新建外包:\n\r %s""" % outsource.name,
+                                       msg_channel=2)
     return redirect(outsource.info_path())
 
 
@@ -120,6 +123,9 @@ def outsource(outsource_id):
     outsource.remark = form.remark.data
     outsource.save()
     flash(u'保存成功!', 'success')
+    outsource.client_order.add_comment(g.user,
+                                       u"更新了外包:\n\r%s" % outsource.name,
+                                       msg_channel=2)
     return redirect(outsource.info_path())
 
 
@@ -156,6 +162,9 @@ def outsource_status(order_id):
             outsource.status = next_status
             outsource.save()
     flash(u'[%s 外包流程] %s ' % (order.name, action_msg), 'success')
+    order.add_comment(g.user,
+                      u"%s:\n\r%s\n\r%s" % (action_msg, "\n\r".join([o.name for o in outsources]), msg),
+                      msg_channel=2)
     to_emails = list(set(emails + [x.email for x in to_users]))
     apply_context = {"sender": g.user,
                      "to": to_emails,

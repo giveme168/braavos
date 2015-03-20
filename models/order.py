@@ -153,6 +153,14 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.operaters])
 
     @property
+    def designers_names(self):
+        return ",".join([u.name for u in self.designers])
+
+    @property
+    def planers_names(self):
+        return ",".join([u.name for u in self.planers])
+
+    @property
     def contract_status(self):
         return self.client_order.contract_status
 
@@ -189,7 +197,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.operaters + [self.creator]
-        return user.is_admin() or self.client_order.can_admin(user) or user in admin_users
+        return user.is_media() or self.client_order.can_admin(user) or user in admin_users
 
     def can_action(self, user, action):
         """是否拥有leader操作"""

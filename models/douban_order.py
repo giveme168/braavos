@@ -169,6 +169,18 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([TEAM_LOCATION_CN[l] for l in self.locations])
 
     @property
+    def contract_type_cn(self):
+        return CONTRACT_TYPE_CN[self.contract_type]
+
+    @property
+    def resource_type_cn(self):
+        return RESOURCE_TYPE_CN.get(self.resource_type)
+
+    @property
+    def sale_type_cn(self):
+        return SALE_TYPE_CN.get(self.sale_type)
+
+    @property
     def direct_sales_names(self):
         return ",".join([u.name for u in self.direct_sales])
 
@@ -179,6 +191,14 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def operater_names(self):
         return ",".join([u.name for u in self.operaters])
+
+    @property
+    def designers_names(self):
+        return ",".join([u.name for u in self.designers])
+
+    @property
+    def planers_names(self):
+        return ",".join([u.name for u in self.planers])
 
     @property
     def leaders(self):
@@ -226,10 +246,6 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def contract_status_cn(self):
         return CONTRACT_STATUS_CN[self.contract_status]
-
-    @property
-    def sale_type_cn(self):
-        return SALE_TYPE_CN.get(self.sale_type)
 
     @property
     def email_info(self):

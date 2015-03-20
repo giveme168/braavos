@@ -368,7 +368,7 @@ def contract_status_change(order, action, emails, msg):
                      "order": order}
     contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
     flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
-    order.add_comment(g.user, u"%s \n\n %s" % (action_msg, msg))
+    order.add_comment(g.user, u"%s \n\r\n\r %s" % (action_msg, msg))
 
 
 @order_bp.route('/orders', methods=['GET'])

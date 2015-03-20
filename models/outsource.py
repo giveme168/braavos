@@ -127,9 +127,10 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def name(self):
-        return "%s-%s-%s" % (self.medium_order.medium.name,
-                             self.target.name,
-                             self.type_cn)
+        return "%s-%s-%s-%s" % (self.medium_order.medium.name,
+                                self.target.name,
+                                self.type_cn,
+                                self.num)
 
     @property
     def client_order(self):
