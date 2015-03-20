@@ -9,18 +9,20 @@ class Comment(db.Model, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     target_type = db.Column(db.String(50))
     target_id = db.Column(db.Integer)
+    msg_channel = db.Column(db.Integer, default=0)
     msg = db.Column(db.String(1000))
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('comments', lazy='dynamic'))
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
 
     def __init__(self, target_type, target_id, msg, creator,
-                 create_time=None):
+                 create_time=None, msg_channel=0):
         self.target_type = target_type
         self.target_id = target_id
         self.msg = msg
         self.creator = creator
         self.create_time = create_time
+        self.msg_channel = msg_channel
 
     def __repr__(self):
         return '<Comment %s, target:%s-%s>' % (self.id, self.target_type, self.target_id)

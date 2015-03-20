@@ -18,7 +18,8 @@
   </div>
 </div>
 {%- endmacro %}
-{% macro comments_box(owner) -%}
+
+{% macro comments_box(owner, msg_channel=0) -%}
 <div class="comments_box col-md-12">
   <form role="form" class="form comment-form col-md-12">
     <div class="comment col-md-12">
@@ -28,6 +29,7 @@
       <div class="col-md-11">
         <input class="hide target_type" name="target_type" value="{{owner.target_type}}"/>
         <input class="hide target_id" name="target_id" value="{{owner.target_id}}"/>
+        <input class="hide msg_channel" name="msg_channel" value="{{msg_channel}}"/>
         <div class="form-group">
           <textarea name="msg" class="form-control msg" rows="3" placeholder="写下你的留言, 最多300字"></textarea>
         </div>
@@ -37,7 +39,7 @@
       </div>
     </div>
   </form>
-  {% set cs = owner.get_comments() %}
+  {% set cs = owner.get_comments(msg_channel) %}
   {% if cs|length > 5 %}
   <div class="comments col-md-12">
     {% for c in cs[:5] %}
