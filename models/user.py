@@ -148,6 +148,9 @@ class User(db.Model, BaseModelMixin):
     def is_sale(self):
         return self.team.is_admin() or self.team.type == TEAM_TYPE_DIRECT_SELLER
 
+    def is_finance(self):
+        return self.team.is_admin() or self.team.type == TEAM_TYPE_FINANCE
+
     def path(self):
         return url_for('user.user_detail', user_id=self.id)
 
@@ -162,6 +165,10 @@ class User(db.Model, BaseModelMixin):
     @classmethod
     def leaders(cls):
         return cls.gets_by_team_type(TEAM_TYPE_LEADER)
+
+    @classmethod
+    def finances(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_FINANCE)
 
     @classmethod
     def sales(cls):

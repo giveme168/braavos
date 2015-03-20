@@ -28,6 +28,16 @@
                 <li><a href="{{url_for('outsource.targets')}}">外包收款方</a></li>
               </ul>
             </li>
+            {% if g.user.is_finance() %}
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">财务管理<span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                <li><a href="{{url_for('finance_invoice.index')}}">发票管理</a></li>
+                <!--<li><a href="#">打款管理</a></li>
+                <li><a href="#">回款管理</a></li>-->
+              </ul>
+            </li>
+            {% endif %}
             {% if g.user.is_admin() %}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">库存与资源<span class="caret"></span></a>
