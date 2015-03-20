@@ -34,7 +34,7 @@ def index(order_id):
         'APPLYPASS': [{'invoice': x, 'form': get_invoice_from(x)} for x in
                       invoices if x.invoice_status == INVOICE_STATUS_APPLYPASS],
         'FAIL': [{'invoice': x, 'form': get_invoice_from(x)} for x in
-                 invoices if x.invoice_status == INVOICE_STATUS_FAIL],
+                 invoices if x.invoice_status == 4],
     }
     reminder_emails = [(u.name, u.email) for u in User.finances()]
     new_invoice_form = InvoiceForm()

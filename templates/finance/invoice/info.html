@@ -29,52 +29,7 @@
         <div id="collapse-invoice-0" class="panel-collapse collapse in">
             <div class="panel-body">
                 {% for k in invoices_data.PASS %}
-                <div class="col-md-12">
-                    <div class="col-md-6" style="margin-left: 20px;">
-                        <table class="table table-bordered">
-                          <tr>
-                            <th>时间</th>
-                            <td>{{k.invoice.create_time}}</td>
-                          </tr>
-                          <tr>
-                            <th>公司名称</th>
-                            <td>{{k.invoice.company}}</td>
-                          </tr>
-                          <tr>
-                            <th>税号</th>
-                            <td>{{k.invoice.tax_id}}</td>
-                          </tr>
-                          <tr>
-                            <th>公司地址</th>
-                            <td>{{k.invoice.address}}</td>
-                          </tr>
-                          <tr>
-                            <th>联系电话</th>
-                            <td>{{k.invoice.phone}}</td>
-                          </tr>
-                          <tr>
-                            <th>银行账号</th>
-                            <td>{{k.invoice.bank_id}}</td>
-                          </tr>
-                          <tr>
-                            <th>开户行</th>
-                            <td>{{k.invoice.bank}}</td>
-                          </tr>
-                          <tr>
-                            <th>发票内容</th>
-                            <td>{{k.invoice.detail}}</td>
-                          </tr>
-                          <tr>
-                            <th>发票金额</th>
-                            <td>{{k.invoice.money}}元</td>
-                          </tr>
-                          <tr>
-                            <th>发票类型</th>
-                            <td>{{INVOICE_TYPE_CN[k.invoice.invoice_type]}}</td>
-                          </tr>
-                        </table>
-                    </div>
-                </div>
+                  {{ invoice_table(k.invoice) }}
                 {% endfor %}
             </div>
         </div>
@@ -95,9 +50,7 @@
                     <input type="checkbox" name="invoice-id" class="invoice-id" value="{{i.invoice.id}}"/>
                     {{ i.invoice.company }}-{{ i.invoice.money }}元
                 </h4>
-                <div class="well">
-                    {{ invoice_form(order,i.form,i.invoice) }}
-                </div>
+                {{ invoice_table(i.invoice) }}
                 {% endfor %}
                 {{ status_box(invoices[0]['invoice']) }}
             </div>
@@ -150,6 +103,54 @@
 </script>
 {% endblock %}
 
+{% macro invoice_table(invoice)%}
+<div class="col-md-12">
+    <div class="col-md-6" style="margin-left: 20px;">
+        <table class="table table-bordered">
+          <tr>
+            <th>时间</th>
+            <td>{{invoice.create_time}}</td>
+          </tr>
+          <tr>
+            <th>公司名称</th>
+            <td>{{invoice.company}}</td>
+          </tr>
+          <tr>
+            <th>税号</th>
+            <td>{{invoice.tax_id}}</td>
+          </tr>
+          <tr>
+            <th>公司地址</th>
+            <td>{{invoice.address}}</td>
+          </tr>
+          <tr>
+            <th>联系电话</th>
+            <td>{{invoice.phone}}</td>
+          </tr>
+          <tr>
+            <th>银行账号</th>
+            <td>{{invoice.bank_id}}</td>
+          </tr>
+          <tr>
+            <th>开户行</th>
+            <td>{{invoice.bank}}</td>
+          </tr>
+          <tr>
+            <th>发票内容</th>
+            <td>{{invoice.detail}}</td>
+          </tr>
+          <tr>
+            <th>发票金额</th>
+            <td>{{invoice.money}}元</td>
+          </tr>
+          <tr>
+            <th>发票类型</th>
+            <td>{{INVOICE_TYPE_CN[invoice.invoice_type]}}</td>
+          </tr>
+        </table>
+    </div>
+</div>
+{% endmacro %}
 {% macro status_box(invoice) -%}
 {% if invoice.invoice_status in [0, 3] %}
     <input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
@@ -175,10 +176,8 @@
             <label class="col-sm-2 control-label">操作 : </label>
             <div class="col-sm-10">
                 <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="0">发票已开</button>
-                <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="4">审批未通过</button>
                 <button class="btn btn-sm btn-default invoice-btn" name="action" type="submit" value="10">提醒</button>
             </div>
         </div>
    </form>
-
 {%- endmacro %}

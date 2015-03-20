@@ -230,6 +230,9 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         """一个用户可以查看的所有订单"""
         return [o for o in cls.all() if o.have_owner(user)]
 
+    def get_invoice_by_status(self, type):
+        return [invoice for invoice in self.invoices if invoice.invoice_status == type]
+
     def path(self):
         return self.info_path()
 

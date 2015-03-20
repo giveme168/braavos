@@ -21,8 +21,7 @@ finance_invoice_bp = Blueprint(
 def index():
     orders = ClientOrder.all()
     for order in orders:
-        order.apply_invoice_count = Invoice.query.filter_by(
-            client_order=order, invoice_status=INVOICE_STATUS_APPLYPASS).count()
+        order.apply_invoice_count = len(order.get_invoice_by_status(INVOICE_STATUS_APPLYPASS))
     return tpl('/finance/invoice/index.html', orders=orders)
 
 

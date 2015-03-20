@@ -31,7 +31,7 @@ class Invoice(db.Model, BaseModelMixin):
     client_order_id = db.Column(
         db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
     client_order = db.relationship(
-        'ClientOrder', backref=db.backref('invoice', lazy='dynamic'))
+        'ClientOrder', backref=db.backref('invoices', lazy='dynamic'))
     company = db.Column(db.String(100))  # 公司名称
     tax_id = db.Column(db.String(100))  # 税号
     address = db.Column(db.String(120))  # 公司地址
