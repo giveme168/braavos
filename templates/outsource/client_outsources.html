@@ -1,5 +1,6 @@
 {% extends "/outsource_base.html" %}
 {% from 'outsource_form.html' import outsource_form %}
+{% from 'comments.html' import comments_box %}
 
 {% macro status_box(order, outsource_status, outsource) -%}
    {% if outsource_status in [0, 1, 2] %}
@@ -102,6 +103,8 @@
 {% if order.medium_orders %}
 <button onclick="showOutSource(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 外包信息</button>
 {% endif %}
+
+<div>{{ comments_box(order, msg_channel=2) }}</div>
 
 <script>
   check_all = function(e){

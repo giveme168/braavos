@@ -12,6 +12,7 @@ def add():
     target_type = request.values.get('target_type')
     target_id = request.values.get('target_id')
     msg = request.values.get('msg')
-    comment = Comment.add(target_type, target_id, msg, g.user)
+    msg_channel = request.values.get('msg_channel')
+    comment = Comment.add(target_type, target_id, msg, g.user, msg_channel=msg_channel)
     add_comment_signal.send(current_app._get_current_object(), comment=comment)
     return jsonify({'msg': "msg add success"})
