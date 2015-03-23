@@ -180,3 +180,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
         子分类: %s
         备注: %s""" % (self.medium_order.medium.name, self.target.name,
                          self.num, self.type_cn, self.subtype_cn, self.remark)
+
+    @classmethod
+    def get_apply_money_outsources(cls):
+        return cls.query.filter_by(status=OUTSOURCE_STATUS_APPLY_MONEY)

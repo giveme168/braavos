@@ -36,7 +36,7 @@ def index(order_id):
         'FAIL': [{'invoice': x, 'form': get_invoice_from(x)} for x in
                  invoices if x.invoice_status == INVOICE_STATUS_FAIL],
     }
-    reminder_emails = [(u.name, u.email) for u in User.finances()]
+    reminder_emails = [(u.name, u.email) for u in User.all_active()]
     new_invoice_form = InvoiceForm()
     new_invoice_form.client_order.choices = [(order.id, order.client.name)]
     new_invoice_form.company.data = order.agent.name
