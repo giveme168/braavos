@@ -1,7 +1,7 @@
 {% from 'form.html' import form_field %}
 {% macro outsource_form(form, outsource=None) -%}
 {% if outsource %}
-{% if outsource.can_admin(g.user) and outsource.status != 4 %}
+{% if outsource.can_admin(g.user) and outsource.status in [0, 1] %}
 <div class="well">
 <form class="form form-horizontal" method="POST" action="{{outsource.edit_path()}}">
     {{form.csrf_token}}
