@@ -19,8 +19,8 @@ INVOICE_STATUS_FAIL = 4          # 审批未通过
 INVOICE_STATUS_CN = {
     INVOICE_STATUS_PASS: u'发票已开',
     INVOICE_STATUS_NORMAL: u'待申请发票',
-    INVOICE_STATUS_APPLY: u'发票开具申请',
-    INVOICE_STATUS_APPLYPASS: u'批准开发票',
+    INVOICE_STATUS_APPLY: u'发票开具申请中',
+    INVOICE_STATUS_APPLYPASS: u'已批准开发票',
     INVOICE_STATUS_FAIL: u'审批未通过',
 }
 
