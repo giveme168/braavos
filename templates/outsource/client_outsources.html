@@ -70,14 +70,18 @@
         <div id="collapse-outsource-{{outsource_status}}" class="panel-collapse collapse in">
             <div class="panel-body">
             {% for o in outsources %}
+                {% if o.status != 4 %}
                 <h4>
                   <input type="checkbox" name="outsource-id" class="outsource-id" value="{{o.id}}"/>
                   {{o.name}}
                 </h4>
+                {% endif %}
                 {{ outsource_form(o.form, o) }}
             {% endfor %}
             {% if g.user.is_leader() or outsources[0].can_admin(g.user) %}
-            {{ status_box(order, outsource_status,  outsources[0]) }}
+                {% if outsource_status != 4 %}
+                  {{ status_box(order, outsource_status,  outsources[0]) }}
+                {% endif %}
             {% endif %}
             </div>
         </div>

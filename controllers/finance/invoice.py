@@ -19,9 +19,11 @@ finance_invoice_bp = Blueprint(
 
 @finance_invoice_bp.route('/', methods=['GET'])
 def index():
-    orders = ClientOrder.all()
+    orders = [
+        invoice.client_order for invoice in Invoice.get_applypass_invoices()]
     for order in orders:
-        order.apply_invoice_count = len(order.get_invoice_by_status(INVOICE_STATUS_APPLYPASS))
+        order.apply_invoice_count = len(
+            order.get_invoice_by_status(INVOICE_STATUS_APPLYPASS))
     return tpl('/finance/invoice/index.html', orders=orders)
 
 
@@ -36,7 +38,7 @@ def info(order_id):
         'APPLYPASS': [{'invoice': x, 'form': get_invoice_from(x)} for x in
                       Invoice.query.filter_by(client_order=order) if x.invoice_status == INVOICE_STATUS_APPLYPASS],
     }
-    reminder_emails = [(u.name, u.email) for u in User.finances()]
+    reminder_emails = [(u.name, u.email) for u in User.all_active()]
     return tpl('/finance/invoice/info.html', order=order,
                invoices_data=invoices_data, INVOICE_STATUS_CN=INVOICE_STATUS_CN,
                reminder_emails=reminder_emails, INVOICE_TYPE_CN=INVOICE_TYPE_CN)
