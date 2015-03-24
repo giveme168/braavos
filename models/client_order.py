@@ -155,7 +155,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def outsources_sum(self):
-        return sum([o.num for o in self.outsources]) if self.outsources else 0
+        return sum([o.pay_num for o in self.outsources]) if self.outsources else 0
 
     @property
     def outsources_percent(self):
@@ -310,6 +310,9 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def outsource_path(self):
         return url_for("outsource.client_outsources", order_id=self.id)
+
+    def finance_outsource_path(self):
+        return url_for("finance_pay.info", order_id=self.id)
 
     def saler_invoice_path(self):
         return url_for("saler_invoice.index", order_id=self.id)

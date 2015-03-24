@@ -2,7 +2,7 @@
 from wtforms import TextField, IntegerField, TextAreaField, SelectField, validators
 
 from libs.wtf import Form
-from models.outsource import OutSourceTarget, TARGET_TYPE_CN, OUTSOURCE_TYPE_CN, OUTSOURCE_SUBTYPE_CN
+from models.outsource import OutSourceTarget, TARGET_TYPE_CN, OUTSOURCE_TYPE_CN, OUTSOURCE_SUBTYPE_CN, OUTSOURCE_INVOICE_CN
 
 
 class OutSourceTargetForm(Form):
@@ -38,7 +38,9 @@ class OutsourceForm(Form):
     medium_order = SelectField(u'投放媒体', coerce=int, description=u"保存后不可修改")
     target = SelectField(u'收款方', coerce=int)
     num = IntegerField(u'金额', default=0)
+    pay_num = IntegerField(u'打款金额',default=0)
     type = SelectField(u'外包类别', coerce=int)
+    invoice = SelectField(u'是否有发票',default=False)
     subtype = SelectField(u'Flash功能分类', coerce=int, default=1)
     remark = TextAreaField(u'备注')
 
@@ -47,3 +49,4 @@ class OutsourceForm(Form):
         self.target.choices = [(ost.id, ost.name) for ost in OutSourceTarget.all()]
         self.type.choices = OUTSOURCE_TYPE_CN.items()
         self.subtype.choices = OUTSOURCE_SUBTYPE_CN.items()
+        self.invoice.choices = OUTSOURCE_INVOICE_CN.items()

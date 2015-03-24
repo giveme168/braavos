@@ -5,7 +5,7 @@ from flask import request, redirect, Blueprint, url_for, flash, g, abort, curren
 from flask import render_template as tpl
 
 from models.client_order import ClientOrder
-from models.outsource import OutSource, OUTSOURCE_STATUS_APPLY_MONEY, OUTSOURCE_STATUS_PAIED
+from models.outsource import OutSource, OUTSOURCE_STATUS_APPLY_MONEY, OUTSOURCE_STATUS_PAIED, INVOICE_RATE
 from models.user import User
 from libs.signals import outsource_apply_signal
 
@@ -42,8 +42,27 @@ def info(order_id):
                outsources_data=outsources_data, reminder_emails=reminder_emails)
 
 
+@finance_pay_bp.route('/<outsource_id>/pay_num', methods=['POST'])
+def outsource_pay_num(outsource_id):
+    outsource = OutSource.get(outsource_id)
+    if not outsource:
+        abort(404)
+    if outsource.invoice:
+        pay_num = outsource.num
+    else:
+        pay_num = outsource.num * float(1 - INVOICE_RATE)
+    pay_num = request.values.get('pay_num', pay_num)
+    outsource.pay_num = pay_num
+    outsource.save()
+    flash(u'保存成功!', 'success')
+    outsource.client_order.add_comment(g.user,
+                                       u"更新了外包:\n\r%s" % outsource.name,
+                                       msg_channel=2)
+    return redirect(url_for("finance_pay.info", order_id=outsource.client_order.id))
+
+
 @finance_pay_bp.route('/<outsource_id>/pass', methods=['POST'])
-def pass_outsource(outsource_id):
+def outsource_pass(outsource_id):
     outsource = OutSource.get(outsource_id)
     if not outsource:
         abort(404)

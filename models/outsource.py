@@ -97,6 +97,14 @@ OUTSOURCE_STATUS_CN = {
     OUTSOURCE_STATUS_PAIED: u"已打款"
 }
 
+INVOICE_RATE = 0.08    # 发票税点
+OUTSOURCE_INVOICE_FALSE = 'False'
+OUTSOURCE_INVOICE_TRUE = 'True'
+OUTSOURCE_INVOICE_CN = {
+    OUTSOURCE_INVOICE_FALSE: u'没有发票',
+    OUTSOURCE_INVOICE_TRUE: u'发票已开',
+}
+
 
 class OutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'out_source'
@@ -111,13 +119,16 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     subtype = db.Column(db.Integer)
     invoice = db.Column(db.Boolean)  # 发票
     paid = db.Column(db.Boolean)  # 付款
+    pay_num = db.Column(db.Float)
     remark = db.Column(db.String(1000))
     status = db.Column(db.Integer)
 
-    def __init__(self, target, medium_order, num, type, subtype, invoice=False, paid=False, remark=None, status=0):
+    def __init__(self, target, medium_order, num, type, subtype, pay_num=0,
+                 invoice=False, paid=False, remark=None, status=0):
         self.target = target
         self.medium_order = medium_order
         self.num = num
+        self.pay_num = pay_num
         self.type = type
         self.subtype = subtype
         self.invoice = invoice
@@ -151,23 +162,45 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     def subtype_cn(self):
         return OUTSOURCE_SUBTYPE_CN[self.subtype]
 
+    @property
+    def invoice_cn(self):
+        return OUTSOURCE_INVOICE_CN[str(self.invoice)]
+
+    @property
+    def invoice_num(self):
+        return self.pay_num
+
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.medium_order.operaters
         return user.is_admin() or user in admin_users
 
-    @property
-    def form(self):
+    @classmethod
+    def form(self, outsource=None):
         from forms.outsource import OutsourceForm
         form = OutsourceForm()
-        form.medium_order.choices = [(mo.id, mo.medium.name)
-                                     for mo in self.client_order.medium_orders]
-        form.medium_order.data = self.medium_order.id
-        form.target.data = self.target.id
-        form.num.data = self.num
-        form.type.data = self.type
-        form.subtype.data = self.subtype
-        form.remark.data = self.remark
+        if outsource:
+            form.medium_order.choices = [(mo.id, mo.medium.name)
+                                         for mo in outsource.client_order.medium_orders]
+            form.medium_order.data = outsource.medium_order.id
+            form.target.data = outsource.target.id
+            form.num.data = outsource.num
+            form.type.data = outsource.type
+            form.subtype.data = outsource.subtype
+            form.remark.data = outsource.remark
+            form.invoice.data = str(outsource.invoice)
+            form.pay_num.data = outsource.pay_num
+        else:
+            form.medium_order.choices = [(mo.id, mo.medium.name)
+                                         for mo in self.client_order.medium_orders]
+            form.medium_order.data = self.medium_order.id
+            form.target.data = self.target.id
+            form.num.data = self.num
+            form.pay_num.data = self.pay_num
+            form.type.data = self.type
+            form.subtype.data = self.subtype
+            form.remark.data = self.remark
+            form.invoice.data = str(self.invoice)
         return form
 
     @property
