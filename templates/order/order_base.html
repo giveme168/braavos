@@ -3,6 +3,7 @@
 {% block left_box%}
     <!-- 只有leader和合同管理员才能看所有订单 -->
     {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() %}
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 新媒体</li>
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的新媒体订单
     </a>
@@ -12,6 +13,7 @@
     <a class="list-group-item" href="{{url_for('order.new_order')}}">
         <span class="glyphicon glyphicon-plus"></span> 新建新媒体订单
     </a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 直签豆瓣</li>
     <a class="list-group-item" href="{{url_for('order.my_douban_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的直签豆瓣订单
     </a>
@@ -22,12 +24,14 @@
         <span class="glyphicon glyphicon-plus"></span> 新建直签豆瓣订单
     </a>
     {% else %}
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 新媒体</li>
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的新媒体订单
     </a>
     <a class="list-group-item" href="{{url_for('order.new_order')}}">
         <span class="glyphicon glyphicon-plus"></span> 新建新媒体订单
     </a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 直签豆瓣</li>
     <a class="list-group-item" href="{{url_for('order.my_douban_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的直签豆瓣订单
     </a>
@@ -38,6 +42,7 @@
 
     <!-- 只有leader 销售 合同管理员才能看框架 -->
     {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() %}
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 框架</li>
     <a class="list-group-item" href="{{url_for('order.my_framework_orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 我的框架
     </a>

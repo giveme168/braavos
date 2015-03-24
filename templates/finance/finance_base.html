@@ -2,16 +2,16 @@
 
 {% block left_box%}
 <style>
-.nav {
+.list-group-item {
     margin-left:15px;
 }
 </style>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>发票管理</li>
-    <a class="list-group-item nav" href="{{url_for('finance_invoice.index')}}">正在申请的发票</a>
-    <a class="list-group-item nav" href="{{url_for('finance_invoice.index_pass')}}">已开发票信息</a>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>打款管理</li>
-    <a class="list-group-item nav" href="{{url_for('finance_pay.index')}}">正在申请的打款</a>
-    <a class="list-group-item nav" href="{{url_for('finance_pay.index_pass')}}">已打款信息</a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 发票管理</li>
+    <a class="list-group-item" href="{{url_for('finance_invoice.index')}}">正在申请的发票</a>
+    <a class="list-group-item" href="{{url_for('finance_invoice.index_pass')}}">已开发票信息</a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 打款管理</li>
+    <a class="list-group-item" href="{{url_for('finance_pay.index')}}">正在申请的打款</a>
+    <a class="list-group-item" href="{{url_for('finance_pay.index_pass')}}">已打款信息</a>
     <!--
     <a class="list-group-item" href="#">
         <span class="glyphicon glyphicon-stats"></span> 回款管理

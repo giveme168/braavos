@@ -11,9 +11,6 @@
             <th>外包应付总金额</th>
             <th>外包占比</th>
             <th>投放媒体</th>
-            <th>待申请</th>
-            <th>申请中</th>
-            <th>已通过</th>
             <th>请款中</th>
             <th>已打款</th>
             <th>查看</th>
@@ -25,9 +22,6 @@
             <td>{{order.outsources_sum}} 元</td>
             <td>{{order.outsources_percent}} %</td>
             <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
-            <td>{{order.get_outsources_by_status(0) | length}}</td>
-            <td>{{order.get_outsources_by_status(1) | length}}</td>
-            <td>{{order.get_outsources_by_status(2) | length}}</td>
             <td>{{order.get_outsources_by_status(3) | length}}</td>
             <td>{{order.get_outsources_by_status(4) | length}}</td>
             <td><a href="{{url_for('finance_pay.info', order_id=order.id)}}">查看</a></td>
