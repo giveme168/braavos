@@ -32,8 +32,12 @@
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">财务管理<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a href="{{url_for('finance_invoice.index')}}">发票管理</a></li>
-                <li><a href="{{url_for('finance_pay.index')}}">打款管理</a></li>
+                <li role="presentation" class="dropdown-header">发票管理</li>
+                <li><a href="{{url_for('finance_invoice.index')}}">正在申请的发票</a></li>
+                <li><a href="{{url_for('finance_invoice.index_pass')}}">已开发票信息</a></li>
+                <li role="presentation" class="dropdown-header">打款管理</li>
+                <li><a href="{{url_for('finance_pay.index')}}">正在申请的打款</a></li>
+                <li><a href="{{url_for('finance_pay.index_pass')}}">已打款信息</a></li>
                 <!---<li><a href="#">回款管理</a></li>-->
               </ul>
             </li>

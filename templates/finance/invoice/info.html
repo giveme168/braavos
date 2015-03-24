@@ -10,12 +10,14 @@
             <th>已开发票金额</th>
             <th>未开发票金额</th>
             <th>正在申请发票金额</th>
+            <th>申请通过个数</th>
         </tr>
         <tr>
             <td>{{ order.money }} 元</td>
             <td>{{ order.invoice_pass_sum }} 元</td>
             <td>{{ order.money - order.invoice_pass_sum }} 元</td>
             <td>{{ order.invoice_apply_sum }} 元</td>
+            <td>{{ order.get_invoice_by_status(0)|length }}</td>
         </tr>
     </table>
     {% if invoices_data.PASS|length > 0 %}
