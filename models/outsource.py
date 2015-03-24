@@ -175,32 +175,20 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
         admin_users = self.medium_order.operaters
         return user.is_admin() or user in admin_users
 
-    @classmethod
-    def form(self, outsource=None):
+    @property
+    def form(self):
         from forms.outsource import OutsourceForm
         form = OutsourceForm()
-        if outsource:
-            form.medium_order.choices = [(mo.id, mo.medium.name)
-                                         for mo in outsource.client_order.medium_orders]
-            form.medium_order.data = outsource.medium_order.id
-            form.target.data = outsource.target.id
-            form.num.data = outsource.num
-            form.type.data = outsource.type
-            form.subtype.data = outsource.subtype
-            form.remark.data = outsource.remark
-            form.invoice.data = str(outsource.invoice)
-            form.pay_num.data = outsource.pay_num
-        else:
-            form.medium_order.choices = [(mo.id, mo.medium.name)
-                                         for mo in self.client_order.medium_orders]
-            form.medium_order.data = self.medium_order.id
-            form.target.data = self.target.id
-            form.num.data = self.num
-            form.pay_num.data = self.pay_num
-            form.type.data = self.type
-            form.subtype.data = self.subtype
-            form.remark.data = self.remark
-            form.invoice.data = str(self.invoice)
+        form.medium_order.choices = [(mo.id, mo.medium.name)
+                                     for mo in self.client_order.medium_orders]
+        form.medium_order.data = self.medium_order.id
+        form.target.data = self.target.id
+        form.num.data = self.num
+        form.pay_num.data = self.pay_num
+        form.type.data = self.type
+        form.subtype.data = self.subtype
+        form.remark.data = self.remark
+        form.invoice.data = str(self.invoice)
         return form
 
     @property

@@ -76,7 +76,7 @@
                   {{o.name}}
                 </h4>
                 {% endif %}
-                {{ outsource_form(o.form(o), o) }}
+                {{ outsource_form(o.form, o) }}
             {% endfor %}
             {% if g.user.is_leader() or outsources[0].can_admin(g.user) %}
                 {% if outsource_status != 4 %}
