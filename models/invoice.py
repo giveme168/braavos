@@ -81,5 +81,5 @@ class Invoice(db.Model, BaseModelMixin):
         return INVOICE_STATUS_CN[self.invoice_status]
 
     @classmethod
-    def get_applypass_invoices(cls):
-        return cls.query.filter_by(invoice_status=INVOICE_STATUS_APPLYPASS)
+    def get_invoices_status(cls, status):
+        return cls.query.filter_by(invoice_status=status)

@@ -21,6 +21,13 @@ def index():
     return tpl('/finance/pay/index.html', orders=orders)
 
 
+@finance_pay_bp.route('/pass', methods=['GET'])
+def index_pass():
+    orders = [k for k in list(ClientOrder.all()) if k.get_outsources_by_status(
+        OUTSOURCE_STATUS_PAIED)]
+    return tpl('/finance/pay/index_pass.html', orders=orders)
+
+
 @finance_pay_bp.route('/<order_id>/info', methods=['GET'])
 def info(order_id):
     order = ClientOrder.get(order_id)

@@ -19,12 +19,16 @@ finance_invoice_bp = Blueprint(
 
 @finance_invoice_bp.route('/', methods=['GET'])
 def index():
-    orders = [
-        invoice.client_order for invoice in Invoice.get_applypass_invoices()]
-    for order in orders:
-        order.apply_invoice_count = len(
-            order.get_invoice_by_status(INVOICE_STATUS_APPLYPASS))
+    orders = set([
+        invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
     return tpl('/finance/invoice/index.html', orders=orders)
+
+
+@finance_invoice_bp.route('/pass', methods=['GET'])
+def index_pass():
+    orders = set([
+        invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_PASS)])
+    return tpl('/finance/invoice/index_pass.html', orders=orders)
 
 
 @finance_invoice_bp.route('/<order_id>/info', methods=['GET'])
