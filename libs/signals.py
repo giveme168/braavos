@@ -116,7 +116,10 @@ def outsource_apply(sender, apply_context):
     order = apply_context['order']
     outsources = apply_context['outsources']
     outsources_info = "\n".join([o.outsource_info for o in outsources])
-    url = mail.app.config['DOMAIN'] + order.outsource_path()
+    if outsources[0].status == 3:
+        url = mail.app.config['DOMAIN'] + order.finance_outsource_path()
+    else:
+        url = mail.app.config['DOMAIN'] + order.outsource_path()
     send_simple_mail(u'【外包报备流程】%s-%s' % (order.name, apply_context['action_msg']),
                      recipients=apply_context['to'],
                      body=(u"""%s
