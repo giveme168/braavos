@@ -13,12 +13,13 @@ USER_STATUS_CN = {
     USER_STATUS_ON: u"有效"
 }
 
+TEAM_TYPE_OPERATER_LEADER = 15       # 执行-Leader
 TEAM_TYPE_SUPER_LEADER = 14       # Super-Leader
 TEAM_TYPE_FINANCE = 13       # 内部-财务
 TEAM_TYPE_MEDIA = 12       # 内部-媒介
 TEAM_TYPE_DOUBAN_CONTRACT = 11       # 豆瓣-合同管理员
 TEAM_TYPE_CONTRACT = 10       # 內部-合同管理员
-TEAM_TYPE_LEADER = 9       # 媒体
+TEAM_TYPE_LEADER = 9       # 内部-销售Leader
 TEAM_TYPE_MEDIUM = 8       # 媒体
 TEAM_TYPE_DESIGNER = 7       # 內部-设计
 TEAM_TYPE_PLANNER = 6       # 內部-策划
@@ -40,8 +41,9 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_CONTRACT: u"内部-合同",
     TEAM_TYPE_MEDIA: u"内部-媒介",
     TEAM_TYPE_FINANCE: u"内部-财务",
-    TEAM_TYPE_LEADER: u"内部-Leader",
-    TEAM_TYPE_SUPER_LEADER: u"Super-Leader",
+    TEAM_TYPE_LEADER: u"内部-销售Leader",
+    TEAM_TYPE_OPERATER_LEADER: u"内部-执行Leader",
+    TEAM_TYPE_SUPER_LEADER: u"内部-SuperLeader",
     TEAM_TYPE_ADMIN: u" 广告管理员",
     TEAM_TYPE_SUPER_ADMIN: u"系统管理员"
 }
@@ -131,25 +133,28 @@ class User(db.Model, BaseModelMixin):
         return self.team.is_admin()
 
     def is_super_leader(self):
-        return self.team.is_admin() or self.team.type == TEAM_TYPE_SUPER_LEADER
+        return self.is_admin() or self.team.type == TEAM_TYPE_SUPER_LEADER
 
     def is_leader(self):
-        return self.team.is_super_admin() or self.team.type == TEAM_TYPE_LEADER
+        return self.is_admin() or self.team.type == TEAM_TYPE_LEADER
+
+    def is_operater_leader(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_OPERATER_LEADER
 
     def is_contract(self):
-        return self.team.is_admin() or self.team.type == TEAM_TYPE_CONTRACT
+        return self.is_admin() or self.team.type == TEAM_TYPE_CONTRACT
 
     def is_operater(self):
-        return self.team.is_admin() or self.team.type == TEAM_TYPE_OPERATER
+        return self.is_admin() or self.team.type == TEAM_TYPE_OPERATER
 
     def is_media(self):
-        return self.team.is_admin() or self.team.type == TEAM_TYPE_MEDIA
+        return self.is_admin() or self.team.type == TEAM_TYPE_MEDIA
 
     def is_sale(self):
-        return self.team.is_admin() or self.team.type == TEAM_TYPE_DIRECT_SELLER
+        return self.is_admin() or self.team.type == TEAM_TYPE_DIRECT_SELLER
 
     def is_finance(self):
-        return self.team.is_admin() or self.team.type == TEAM_TYPE_FINANCE
+        return self.is_admin() or self.team.type == TEAM_TYPE_FINANCE
 
     def path(self):
         return url_for('user.user_detail', user_id=self.id)
@@ -165,6 +170,10 @@ class User(db.Model, BaseModelMixin):
     @classmethod
     def leaders(cls):
         return cls.gets_by_team_type(TEAM_TYPE_LEADER)
+
+    @classmethod
+    def operater_leaders(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
 
     @classmethod
     def finances(cls):

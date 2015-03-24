@@ -70,7 +70,10 @@ def target_detail(target_id):
 
 @outsource_bp.route('/client_orders', methods=['GET'])
 def client_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
+    if any([g.user.is_super_leader(),
+            g.user.is_operater_leader(),
+            g.user.is_contract(),
+            g.user.is_media()]):
         orders = list(ClientOrder.all())
     elif g.user.is_leader():
         orders = [o for o in ClientOrder.all() if g.user.location in o.locations]
