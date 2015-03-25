@@ -35,7 +35,7 @@
         <td>{{o.client.name}}</td>
         <td><a href="{{o.info_path()}}">{{o.campaign}}</a></td>
         <td>{{o.money}}</td>
-        <td>{{o.contract or "无合同号"}}</td>
+        <td><a href="{{o.info_path()}}">{{o.contract or "无合同号"}}</a></td>
         <td>{{o.reminde_date_cn}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
@@ -54,10 +54,12 @@
             {% endfor %}
         </td>
         <td>
+            <a href="{{o.info_path()}}">
             {% for mo in o.medium_orders %}    
             {{mo.medium_contract or "无合同号"}}
             <br><br>
             {% endfor %}
+            </a>
         </td>
         <td>
             {% for mo in o.medium_orders %}    
