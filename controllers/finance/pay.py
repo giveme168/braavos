@@ -75,8 +75,7 @@ def outsource_pass(outsource_id):
     action = int(request.values.get('action', 0))
 
     to_users = outsource.client_order.direct_sales + outsource.client_order.agent_sales + \
-        [outsource.client_order.creator, g.user] + \
-        outsource.client_order.leaders
+        [outsource.client_order.creator, g.user] + User.operater_leaders()
     to_emails = list(set(emails + [x.email for x in to_users]))
 
     if action != 10:
@@ -86,7 +85,7 @@ def outsource_pass(outsource_id):
             outsource.status = outsource_status
             outsource.create_time = datetime.date.today()
             outsource.save()
-            flash(u'外包款已打，名称%s ' % (outsource.name), 'success')
+            flash(u'外包款已打，名称:%s ' % (outsource.name), 'success')
             outsource.client_order.add_comment(
                 g.user, u'外包款已打，名称%s ' % (outsource.name), msg_channel=2)
     else:
@@ -100,5 +99,4 @@ def outsource_pass(outsource_id):
                      "outsources": outsources}
     outsource_apply_signal.send(
         current_app._get_current_object(), apply_context=apply_context)
-    flash(u'外包款已打，名称%s ' % (outsource.name), 'info')
     return redirect(url_for("finance_pay.info", order_id=outsource.client_order.id))

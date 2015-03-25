@@ -81,7 +81,13 @@ def client_orders():
             o for o in ClientOrder.all() if g.user.location in o.locations]
     else:
         orders = ClientOrder.get_order_by_user(g.user)
-    return tpl('client_orders.html', orders=orders)
+    return tpl('client_orders.html', title=u"我的外包", orders=orders)
+
+
+@outsource_bp.route('/apply_client_orders', methods=['GET'])
+def apply_client_orders():
+    orders = [o for o in ClientOrder.all() if o.get_outsources_by_status(1)]
+    return tpl('client_orders.html', title=u"申请中的外包", orders=orders)
 
 
 @outsource_bp.route('/client_order/<order_id>/outsources', methods=['GET', 'POST'])
@@ -161,7 +167,7 @@ def outsource_status(order_id):
     msg = request.values.get('msg', '')
 
     to_users = order.direct_sales + order.agent_sales + \
-        [order.creator, g.user] + order.leaders
+        [order.creator, g.user] + User.operater_leaders()
     if action == 0:
         next_status = OUTSOURCE_STATUS_APPLY_LEADER
         action_msg = u'申请审批'
@@ -174,6 +180,7 @@ def outsource_status(order_id):
     elif action == 3:
         next_status = OUTSOURCE_STATUS_APPLY_MONEY
         action_msg = u'申请打款'
+        to_users += User.finances()
     else:
         action_msg = u'消息提醒'
     if action < 4:
