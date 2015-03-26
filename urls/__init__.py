@@ -3,6 +3,7 @@ from urls.user import user_register_blueprint
 from urls.client import client_register_blueprint
 from urls.medium import medium_register_blueprint
 from urls.order import order_register_blueprint
+from urls.schedule import schedule_register_blueprint
 from urls.comments import comments_register_blueprint
 from urls.material import materia_register_blueprint
 from urls.files import files_register_blueprint
@@ -28,3 +29,4 @@ def register_blueprint(app):
     outsource_register_blueprint(app)
     saler_register_blueprint(app)
     finance_register_blueprint(app)
+    schedule_register_blueprint(app)

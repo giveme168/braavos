@@ -212,7 +212,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return user.is_admin() or user in owner or self.client_order.have_owner(user)
 
     def path(self):
-        return url_for('order.order_detail', order_id=self.id, step=0)
+        return url_for('schedule.order_detail', order_id=self.id, step=0)
 
     def edit_path(self):
         return url_for('order.medium_order', mo_id=self.id)

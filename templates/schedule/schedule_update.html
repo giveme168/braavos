@@ -8,7 +8,7 @@
   </tr>
   {% for x in item.schedules|sort(attribute='date') %}
     <tr>
-      <form action='{{url_for("order.schedule_update", schedule_id=x.id)}}' method="POST">
+      <form action='{{url_for("schedule.schedule_update", schedule_id=x.id)}}' method="POST">
         <td>
           <input type="text" name="date" value="{{x.date.strftime("%Y-%m-%d")}}" class="datepicker form-control" data-date-format="yyyy-mm-dd">
         </td>
@@ -23,7 +23,7 @@
         </td>
         <td>
           <input type="submit" value="保存" class="btn btn-sm btn-primary"/>
-          <a href='{{url_for("order.schedule_delete", schedule_id=x.id)}}' class="btn btn-sm btn-danger">删除</a>
+          <a href='{{url_for("schedule.schedule_delete", schedule_id=x.id)}}' class="btn btn-sm btn-danger">删除</a>
         </td>
       </form>
     </tr>

@@ -29,7 +29,7 @@ def add_comment(sender, comment):
 
 def order_apply(sender, change_state_apply):
     url = mail.app.config['DOMAIN'] + url_for(
-        'order.order_detail', order_id=change_state_apply.order.id, step=change_state_apply.next_step)
+        'schedule.order_detail', order_id=change_state_apply.order.id, step=change_state_apply.next_step)
     send_simple_mail(u'【%s审批申请】%s-%s' % (change_state_apply.type_cn, change_state_apply.order.name, g.user.name),
                      recipients=[g.user.email],
                      body=(
