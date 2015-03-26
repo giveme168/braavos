@@ -69,7 +69,7 @@ class Invoice(db.Model, BaseModelMixin):
         self.invoice_status = invoice_status
         self.creator = creator
         self.create_time = create_time or datetime.date.today()
-        self.back_time = create_time or datetime.date.today()
+        self.back_time = back_time or datetime.date.today()
         self.invoice_num = invoice_num
 
     def __repr__(self):

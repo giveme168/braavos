@@ -83,7 +83,6 @@ def new_invoice(order_id):
         if int(form.money.data) > (int(order.money) - int(order.invoice_apply_sum) - int(order.invoice_pass_sum)):
             flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
             return redirect(url_for("saler_invoice.index", order_id=order_id))
-        back_time = request.values.get('back_time', datetime.date.today())
         invoice = Invoice.add(client_order=order,
                               company=form.company.data,
                               tax_id=form.tax_id.data,
@@ -97,7 +96,7 @@ def new_invoice(order_id):
                               invoice_status=INVOICE_STATUS_NORMAL,
                               creator=g.user,
                               invoice_num=" ",
-                              back_time=back_time)
+                              back_time=form.back_time.data)
         invoice.save()
         flash(u'新建发票(%s)成功!' % form.company.data, 'success')
         order.add_comment(g.user, u"添加发票申请信息：%s" % (
