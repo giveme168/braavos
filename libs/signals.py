@@ -90,7 +90,8 @@ def contract_apply_douban(sender, apply_context):
 
     send_attach_mail(u'【豆瓣合同打印申请】%s' % order.name,
                      recipients=douban_users,
-                     body=order.douban_contract_email_info,
+                     body=order.douban_contract_email_info(
+                         title=u"请帮忙打印合同, 谢谢~"),
                      file_paths=file_paths)
 
 
