@@ -15,6 +15,7 @@ douban_contract_apply_signal = braavos_signals.signal('douban_contract_apply')
 outsource_apply_signal = braavos_signals.signal('outsource_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
 
+
 def password_changed(sender, user):
     send_simple_mail(u'InAd帐号密码重设通知',
                      recipients=[user.email],
@@ -23,7 +24,8 @@ def password_changed(sender, user):
 
 def add_comment(sender, comment):
     send_simple_mail(u'InAd留言提醒[%s]' % comment.target.name,
-                     recipients=[u.email for u in comment.target.get_mention_users(except_user=comment.creator)],
+                     recipients=[
+                         u.email for u in comment.target.get_mention_users(except_user=comment.creator)],
                      body=(u'%s的新留言:\n\n %s' % (comment.creator.name, comment.msg)))
 
 
@@ -72,21 +74,30 @@ def reply_apply(sender, change_state_apply):
                              未通过理由请查看排期下方留言"""
                              % (change_state_apply.order.name, url)))
 
+
 def contract_apply_douban(sender, apply_context):
     """豆瓣直签豆瓣、关联豆瓣订单 发送豆瓣合同管理员"""
     order = apply_context['order']
-    douban_users = [k.email for k in User.douban_contracts()]+apply_context['to']
+    douban_users = [
+        k.email for k in User.douban_contracts()] + apply_context['to']
     url = mail.app.config['DOMAIN'] + order.info_path()
-    if order.__tablename__ == 'bra_douban_order':
-        file_paths = []
-        if order.get_last_contract():
-            file_paths.append(order.get_last_contract().real_path)
-        if order.get_last_schedule():
-            file_paths.append(order.get_last_schedule().real_path)
-        body = u"""
+
+    file_paths = []
+    if order.get_last_contract():
+        file_paths.append(order.get_last_contract().real_path)
+    if order.get_last_schedule():
+        file_paths.append(order.get_last_schedule().real_path)
+    if order.__tablename__ == 'bra_associated_douban_order':
+        jiafang = order.jiafang_name
+        client = order.client.name
+    else:
+        jiafang = order.client.name
+        client = order.jiafang_name
+
+    body = u"""
 Dear %s:
 
-请帮忙递打印合同, 谢谢~
+请帮忙打印合同, 谢谢~
 
 项目: %s
 客户: %s
@@ -101,40 +112,11 @@ Dear %s:
 
 by %s\n
 """ % (','.join([x.name for x in User.douban_contracts()]), order.campaign,
-       order.client.name, order.jiafang_name,
+       jiafang, client,
        order.direct_sales_names, order.agent_sales_names,
        order.start_date_cn, order.end_date_cn,
        order.money, url, g.user.name)
-    if order.__tablename__ == 'bra_client_order':
-        file_paths = []
-        for x in order.associated_douban_orders:
-            if x.get_last_contract():
-                file_paths.append(x.get_last_contract().real_path)
-            if x.get_last_schedule():
-                file_paths.append(x.get_last_schedule().real_path)
-        body = u"""
-Dear %s:
 
-请帮忙递打印合同, 谢谢~
-
-项目: %s
-客户: %s
-代理: %s
-直客销售: %s
-渠道销售: %s
-时间: %s : %s
-金额: %s
-
-附注:
-    致趣订单管理系统链接地址: %s
-
-by %s\n
-"""%(','.join([x.name for x in User.douban_contracts()]), ','.join([x.campaign for x in order.associated_douban_orders]),
-       ','.join([x.jiafang_name for x in order.associated_douban_orders]), order.client.name,
-       order.direct_sales_names, order.agent_sales_names,
-       order.start_date_cn, order.end_date_cn,
-       sum([x.money for x in order.associated_douban_orders]), url, g.user.name)
-    
     send_attach_mail(u'【豆瓣合同打印申请】%s' % order.name,
                      recipients=douban_users,
                      body=body,
@@ -147,6 +129,7 @@ def contract_apply(sender, apply_context):
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4:
         contract_apply_douban(sender, apply_context)
     if order.__tablename__ == 'bra_client_order' and order.associated_douban_orders and order.contract_status == 4:
+        apply_context['order'] = order.associated_douban_orders[0]
         contract_apply_douban(sender, apply_context)
     url = mail.app.config['DOMAIN'] + order.info_path()
     send_simple_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
@@ -164,10 +147,11 @@ by %s
 """ % (apply_context['action_msg'], order.name, url, order.email_info, apply_context['msg'], g.user.name)))
 
 
-def invoice_apply(sender,apply_context):
+def invoice_apply(sender, apply_context):
     order = apply_context['order']
     invoices = apply_context['invoices']
-    invoice_info = "\n".join([u'发票信息: '+o.detail+u'; 发票金额'+str(o.money) for o in invoices])
+    invoice_info = "\n".join(
+        [u'发票信息: ' + o.detail + u'; 发票金额' + str(o.money) for o in invoices])
     if apply_context['send_type'] == "saler":
         url = mail.app.config['DOMAIN'] + order.saler_invoice_path()
     else:
@@ -181,7 +165,8 @@ def invoice_apply(sender,apply_context):
     %s
 \n
 by %s
-"""%(apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
+""" % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
+
 
 def outsource_apply(sender, apply_context):
     """外包服务流程 发送邮件"""
