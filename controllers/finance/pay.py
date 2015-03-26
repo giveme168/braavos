@@ -8,6 +8,8 @@ from models.client_order import ClientOrder
 from models.outsource import OutSource, OUTSOURCE_STATUS_APPLY_MONEY, OUTSOURCE_STATUS_PAIED, INVOICE_RATE
 from models.user import User
 from libs.signals import outsource_apply_signal
+from controllers.finance.helpers.pay_helpers import write_excel
+from controllers.tools import get_download_response
 
 
 finance_pay_bp = Blueprint(
@@ -25,6 +27,12 @@ def index():
 def index_pass():
     orders = [k for k in list(ClientOrder.all()) if k.get_outsources_by_status(
         OUTSOURCE_STATUS_PAIED)]
+    type = request.args.get('type', '')
+    if type == 'excel':
+        xls = write_excel(list(orders))
+        response = get_download_response(
+            xls, ("%s-%s.xls" % (u"申请过的打款信息", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
+        return response
     return tpl('/finance/pay/index_pass.html', orders=orders)
 
 

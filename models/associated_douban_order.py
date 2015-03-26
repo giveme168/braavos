@@ -1,20 +1,24 @@
 # -*- coding: UTF-8 -*-
 import datetime
-from flask import url_for
+from flask import url_for, g
 
 from . import db, BaseModelMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from forms.order import AssociatedDoubanOrderForm
 from consts import DATE_FORMAT
+from models.user import User
+from libs.mail import mail
 
 
 class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
     __tablename__ = 'bra_associated_douban_order'
 
     id = db.Column(db.Integer, primary_key=True)
-    medium_order_id = db.Column(db.Integer, db.ForeignKey('bra_order.id'))  # 关联媒体订单
-    medium_order = db.relationship('Order', backref=db.backref('associated_douban_orders', lazy='dynamic'))
+    medium_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_order.id'))  # 关联媒体订单
+    medium_order = db.relationship(
+        'Order', backref=db.backref('associated_douban_orders', lazy='dynamic'))
     campaign = db.Column(db.String(100))  # 活动名称
     contract = db.Column(db.String(100))  # 豆瓣合同号
     money = db.Column(db.Integer)  # 客户合同金额
@@ -146,3 +150,29 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
         self.delete_attachments()
         db.session.delete(self)
         db.session.commit()
+
+    @property
+    def douban_contract_email_info(self):
+        body = u"""
+Dear %s:
+
+请帮忙打印合同, 谢谢~
+
+项目: %s
+客户: %s
+代理: %s
+直客销售: %s
+渠道销售: %s
+时间: %s : %s
+金额: %s
+
+附注:
+    致趣订单管理系统链接地址: %s
+
+by %s\n
+""" % (','.join([x.name for x in User.douban_contracts()]), self.campaign,
+            self.client.name, self.jiafang_name,
+            self.direct_sales_names, self.agent_sales_names,
+            self.start_date_cn, self.end_date_cn,
+            self.money, mail.app.config['DOMAIN'] + self.info_path(), g.user.name)
+        return body

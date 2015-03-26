@@ -7,7 +7,7 @@
             <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
             {{ invoice.company }}-{{ invoice.money }}元
         </h4>
-        <form class="form form-horizontal" method="POST" action="{{url_for('saler_invoice.update_invoice', invoice_id=invoice.id)}}">
+        <form class="form form-horizontal" method="POST" action="{{url_for('saler_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
         {{ form_field(form.client_order)}}
         {{ form_field(form.company) }}
@@ -19,6 +19,12 @@
         {{ form_field(form.detail) }}
         {{ form_field(form.money) }}
         {{ form_field(form.invoice_type) }}
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">回款时间 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="back_time" name="back_time" value="{{form.back_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+          </div>
+        </div>
         <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
         </form>
     </div>
@@ -27,7 +33,7 @@
     <div class="col-md-6" style="margin-left: 20px;">
         <table class="table table-bordered">
           <tr>
-            <th>时间</th>
+            <th>开票时间</th>
             <td>{{invoice.create_time}}</td>
           </tr>
           <tr>
@@ -66,13 +72,21 @@
             <th>发票类型</th>
             <td>{{INVOICE_TYPE_CN[invoice.invoice_type]}}</td>
           </tr>
+          <tr>
+            <th>发票号</th>
+            <td>{{invoice.invoice_num}}</td>
+          </tr>
+          <tr>
+            <th>回款时间</th>
+            <td>{{invoice.back_time_cn}}</td>
+          </tr>
         </table>
     </div>
 </div>
 {% endif %}
 {% else %}
     <div class="well">
-        <form class="form form-horizontal" method="POST" action="{{url_for('saler_invoice.new_invoice', order_id=order.id)}}">
+        <form class="form form-horizontal" method="POST" action="{{url_for('saler_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
         {{ form_field(form.client_order)}}
         {{ form_field(form.company) }}
@@ -84,8 +98,40 @@
         {{ form_field(form.detail) }}
         {{ form_field(form.money) }}
         {{ form_field(form.invoice_type) }}
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">回款时间 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="back_time" name="back_time" value="{{form.back_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+          </div>
+        </div>
         <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
         </form>
     </div>
+    <script>
+    function checkform(obj){
+      if (obj.back_time.value == ""){
+        alert('请选择回款时间')
+        return false
+      }
+      var now_date = new Date()
+      now_date.setMonth(now_date.getMonth() + 1)
+      var back_time = new Date(obj.back_time.value)
+      if (back_time > now_date){
+        alert('申请发票的回款时间超过了一个月')
+        return false
+      }else{
+        return true
+      }
+    }
+
+    $(document).ready(function(){
+        $('.datetimepicker').datetimepicker({
+            autoclose: true,
+            todayHighlight: true,
+            language: 'zh-CN',
+            minView: 2
+          });
+    })
+</script>
 {% endif %}
 {%- endmacro %}

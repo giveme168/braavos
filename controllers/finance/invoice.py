@@ -4,13 +4,15 @@ import datetime
 from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
 from flask import render_template as tpl
 
+from models.user import User
 from models.client_order import ClientOrder
 from models.invoice import (Invoice, INVOICE_STATUS_CN,
                             INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
                             INVOICE_STATUS_APPLYPASS)
-from models.user import User
 from libs.signals import invoice_apply_signal
 from forms.invoice import InvoiceForm
+from controllers.finance.helpers.invoice_helpers import write_excel
+from controllers.tools import get_download_response
 
 
 finance_invoice_bp = Blueprint(
@@ -28,6 +30,12 @@ def index():
 def index_pass():
     orders = set([
         invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_PASS)])
+    type = request.args.get('type', '')
+    if type == 'excel':
+        xls = write_excel(list(orders))
+        response = get_download_response(
+            xls, ("%s-%s.xls" % (u"申请过的发票信息", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
+        return response
     return tpl('/finance/invoice/index_pass.html', orders=orders)
 
 
@@ -46,6 +54,20 @@ def info(order_id):
     return tpl('/finance/invoice/info.html', order=order,
                invoices_data=invoices_data, INVOICE_STATUS_CN=INVOICE_STATUS_CN,
                reminder_emails=reminder_emails, INVOICE_TYPE_CN=INVOICE_TYPE_CN)
+
+
+@finance_invoice_bp.route('/<invoice_id>/invoice_num', methods=['POST'])
+def invoice_num(invoice_id):
+    invoice = Invoice.get(invoice_id)
+    if not invoice:
+        abort(404)
+    invoice_num = request.values.get('invoice_num', '')
+    invoice.invoice_num = invoice_num
+    invoice.save()
+    flash(u'保存成功!', 'success')
+    invoice.client_order.add_comment(
+        g.user, u"%s" % (u'更新了发票号: %s;' % (invoice.invoice_num)), msg_channel=1)
+    return redirect(url_for("finance_invoice.info", order_id=invoice.client_order.id))
 
 
 @finance_invoice_bp.route('/<invoice_id>/pass', methods=['POST'])

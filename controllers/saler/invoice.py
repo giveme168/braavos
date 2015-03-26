@@ -45,6 +45,7 @@ def index(order_id):
     new_invoice_form.address.data = order.agent.address
     new_invoice_form.phone.data = order.agent.phone_num
     new_invoice_form.tax_id.data = order.agent.tax_num
+    new_invoice_form.back_time.data = datetime.date.today()
     return tpl('/saler/invoice/index.html', order=order,
                invoices_data=invoices_data, new_invoice_form=new_invoice_form,
                INVOICE_STATUS_CN=INVOICE_STATUS_CN, reminder_emails=reminder_emails,
@@ -63,6 +64,11 @@ def get_invoice_from(invoice):
     invoice_form.tax_id.data = invoice.tax_id
     invoice_form.money.data = invoice.money
     invoice_form.detail.data = invoice.detail
+    invoice_form.invoice_type.data = invoice.invoice_type
+    if invoice.back_time:
+        invoice_form.back_time.data = invoice.back_time.strftime('%Y-%m-%d')
+    else:
+        invoice_form.back_time.data = ''
     return invoice_form
 
 
@@ -88,7 +94,9 @@ def new_invoice(order_id):
                               money=form.money.data,
                               invoice_type=form.invoice_type.data,
                               invoice_status=INVOICE_STATUS_NORMAL,
-                              creator=g.user)
+                              creator=g.user,
+                              invoice_num=" ",
+                              back_time=form.back_time.data)
         invoice.save()
         flash(u'新建发票(%s)成功!' % form.company.data, 'success')
         order.add_comment(g.user, u"添加发票申请信息：%s" % (
@@ -108,6 +116,7 @@ def update_invoice(invoice_id):
     form.client_order.choices = [
         (invoice.client_order.id, invoice.client_order.client.name)]
     if request.method == 'POST' and form.validate():
+        back_time = request.values.get('back_time', datetime.date.today())
         if not form.tax_id.data:
             flash(u"修改发票失败，公司名称不能为空", 'danger')
         elif not form.detail.data:
@@ -126,6 +135,7 @@ def update_invoice(invoice_id):
             invoice.invoice_type = form.invoice_type.data,
             invoice.creator = g.user
             invoice.create_time = datetime.date.today()
+            invoice.back_time = back_time
             invoice.save()
             flash(u'修改发票(%s)成功!' % form.company.data, 'success')
             invoice.client_order.add_comment(g.user, u"修改发票信息,%s" % (

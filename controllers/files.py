@@ -7,9 +7,9 @@ from models.client_order import ClientOrder, CONTRACT_STATUS_NEW, CONTRACT_STATU
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
-from models.user import User
+# from models.user import User
 from libs.files import files_set, attachment_set
-from libs.signals import contract_apply_signal
+# from libs.signals import contract_apply_signal
 
 
 files_bp = Blueprint('files', __name__, template_folder='../templates/files')
@@ -159,6 +159,7 @@ def associated_douban_order_files(order_id):
 
 
 def contract_email(order, attachment):
+    '''
     contract_emails = [m.email for m in set(User.contracts() +
                                             order.direct_sales +
                                             order.agent_sales +
@@ -175,3 +176,4 @@ def contract_email(order, attachment):
                      "order": order}
     contract_apply_signal.send(app._get_current_object(), apply_context=apply_context)
     flash(u'已发送提醒邮件给 %s' % ', '.join(contract_emails), "info")
+    '''
