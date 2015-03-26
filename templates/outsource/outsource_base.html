@@ -2,8 +2,13 @@
 
 {% block left_box%}
     <a class="list-group-item" href="{{url_for('outsource.client_orders')}}">
-        <span class="glyphicon glyphicon-stats"></span> 外包管理
+        <span class="glyphicon glyphicon-stats"></span> 我的外包
     </a>
+    {% if g.user.is_operater_leader() %}
+    <a class="list-group-item" href="{{url_for('outsource.apply_client_orders')}}">
+        <span class="glyphicon glyphicon-stats"></span> 申请审批的外包
+    </a>
+    {% endif %}
     <a class="list-group-item" href="{{url_for('outsource.targets')}}">
         <span class="glyphicon glyphicon-stats"></span> 收款方
     </a>

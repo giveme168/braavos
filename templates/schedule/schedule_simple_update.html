@@ -78,7 +78,7 @@ $(document).ready(function(){
       }
     });
     if(data_legal){
-       $.post('{{url_for("order.schedule_simple_update", item_id=item.id)}}',
+       $.post('{{url_for("schedule.schedule_simple_update", item_id=item.id)}}',
           {data: $.toJSON(sent_data)},
           function(data) {
             alert(data['msg']);

@@ -57,7 +57,7 @@ $(document).ready(function(){
     function load_schedule(position){
       var start = $("#start_date").val(),
       end = $("#end_date").val();
-      $.getJSON('/orders/schedule_info/?start='+start+'&end='+end+'&position='+position.val(),
+      $.getJSON('/schedule/schedule_info/?start='+start+'&end='+end+'&position='+position.val(),
           function(result){
             table_content = schedule_header(result['schedules'][0]);
             for(var x in result['schedules']){
@@ -195,11 +195,11 @@ $(document).ready(function(){
     }
     function post_schedules(sent_data){
       if(check_sent_data(sent_data)){
-        $.post('/orders/order/'+order_id+'/schedules_post/',
+        $.post('/schedule/order/'+order_id+'/schedules_post/',
           {data: $.toJSON(sent_data)},
           function(data) {
             if(data['status'] == '0'){
-            window.location.href = "/orders/order/"+order_id+"/0";
+            window.location.href = "/schedule/order/"+order_id+"/0";
             }
             else{
               alert(data['msg']);
