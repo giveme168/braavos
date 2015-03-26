@@ -5,9 +5,12 @@ from . import db, BaseModelMixin
 
 
 INVOICE_TYPE_NORMAL = 0         # 一般纳税人增值税专用发票
+INVOICE_TYPE_COMMON = 1         # 一般纳税人增值税普通发票
+
 
 INVOICE_TYPE_CN = {
     INVOICE_TYPE_NORMAL: u"一般纳税人增值税专用发票",
+    INVOICE_TYPE_COMMON: u"一般纳税人增值税普通发票",
 }
 
 INVOICE_STATUS_PASS = 0          # 发票已开
@@ -42,15 +45,17 @@ class Invoice(db.Model, BaseModelMixin):
     money = db.Column(db.Float)  # 发票金额
     invoice_type = db.Column(db.Integer)  # 发票类型
     invoice_status = db.Column(db.Integer)  # 发表状态
+    invoice_num = db.Column(db.String(200), default='')
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
         'User', backref=db.backref('created_invoice', lazy='dynamic'))
+    back_time = db.Column(db.DateTime)
     create_time = db.Column(db.DateTime)
 
     def __init__(self, client_order, company="", tax_id="",
                  address="", phone="", bank_id="", bank="",
-                 detail="", money=0.0, invoice_type=INVOICE_TYPE_NORMAL,
-                 invoice_status=INVOICE_STATUS_NORMAL, creator=None, create_time=None):
+                 detail="", invoice_num="", money=0.0, invoice_type=INVOICE_TYPE_NORMAL,
+                 invoice_status=INVOICE_STATUS_NORMAL, creator=None, create_time=None, back_time=None):
         self.client_order = client_order
         self.company = company
         self.tax_id = tax_id
@@ -64,6 +69,8 @@ class Invoice(db.Model, BaseModelMixin):
         self.invoice_status = invoice_status
         self.creator = creator
         self.create_time = create_time or datetime.date.today()
+        self.back_time = create_time or datetime.date.today()
+        self.invoice_num = invoice_num
 
     def __repr__(self):
         return '<Order %s>' % (self.id)
@@ -71,6 +78,13 @@ class Invoice(db.Model, BaseModelMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    @property
+    def back_time_cn(self):
+        if self.back_time:
+            return self.back_time.strftime("%Y-%m-%d")
+        else:
+            return ""
 
     @property
     def invoice_type_cn(self):

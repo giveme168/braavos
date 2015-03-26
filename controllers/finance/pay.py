@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 import datetime
+import StringIO
+import mimetypes
+from werkzeug.datastructures import Headers
 
-from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
+from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app, Response
 from flask import render_template as tpl
 
 from models.client_order import ClientOrder
 from models.outsource import OutSource, OUTSOURCE_STATUS_APPLY_MONEY, OUTSOURCE_STATUS_PAIED, INVOICE_RATE
 from models.user import User
 from libs.signals import outsource_apply_signal
-
+from controllers.finance.helpers.pay_helpers import write_excel
 
 finance_pay_bp = Blueprint(
     'finance_pay', __name__, template_folder='../../templates/finance')
@@ -25,6 +28,12 @@ def index():
 def index_pass():
     orders = [k for k in list(ClientOrder.all()) if k.get_outsources_by_status(
         OUTSOURCE_STATUS_PAIED)]
+    type = request.args.get('type', '')
+    if type == 'excel':
+        xls = write_excel(list(orders))
+        response = get_download_response(
+            xls, ("%s-%s.xls" % (u"申请过的打款信息", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
+        return response
     return tpl('/finance/pay/index_pass.html', orders=orders)
 
 
@@ -102,3 +111,25 @@ def outsource_pass(outsource_id):
         current_app._get_current_object(), apply_context=apply_context)
     flash(u'外包款已打，名称%s ' % (outsource.name), 'info')
     return redirect(url_for("finance_pay.info", order_id=outsource.client_order.id))
+
+
+def get_download_response(xls, filename):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    xls.save(output)
+    response.data = output.getvalue()
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response

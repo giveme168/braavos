@@ -106,6 +106,10 @@
 {% endblock %}
 
 {% macro invoice_table(invoice)%}
+{% if invoice.invoice_status == 3 %}
+<form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('finance_invoice.invoice_num', invoice_id=invoice.id)}}">
+{% endif %}
+
 <div class="col-md-12">
     <div class="col-md-6" style="margin-left: 20px;">
         <table class="table table-bordered">
@@ -149,9 +153,29 @@
             <th>发票类型</th>
             <td>{{INVOICE_TYPE_CN[invoice.invoice_type]}}</td>
           </tr>
+          {% if invoice.invoice_status == 3 %}
+          <tr>
+            <th>发票号</th>
+            <td><input class="form-control bra-form-control" type='text' name="invoice_num" value="{{invoice.invoice_num}}"></td>
+          </tr>
+          {% else %}
+          <tr>
+            <th>发票号</th>
+            <td>{{invoice.invoice_num}}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>回款时间</th>
+            <td>{{invoice.back_time_cn}}</td>
+          </tr>
         </table>
     </div>
 </div>
+{% if invoice.invoice_status == 3 %}
+<input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+</form>
+{% endif %}
+
 {% endmacro %}
 {% macro status_box(invoice) -%}
 {% if invoice.invoice_status in [0, 3] %}
