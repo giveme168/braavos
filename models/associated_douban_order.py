@@ -151,12 +151,11 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
         db.session.delete(self)
         db.session.commit()
 
-    @property
-    def douban_contract_email_info(self):
+    def douban_contract_email_info(self, title):
         body = u"""
 Dear %s:
 
-请帮忙打印合同, 谢谢~
+%s
 
 项目: %s
 客户: %s
@@ -170,7 +169,7 @@ Dear %s:
     致趣订单管理系统链接地址: %s
 
 by %s\n
-""" % (','.join([x.name for x in User.douban_contracts()]), self.campaign,
+""" % (','.join([x.name for x in User.douban_contracts()]), title, self.campaign,
             self.client.name, self.jiafang_name,
             self.direct_sales_names, self.agent_sales_names,
             self.start_date_cn, self.end_date_cn,

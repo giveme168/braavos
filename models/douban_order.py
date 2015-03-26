@@ -52,25 +52,35 @@ CONTRACT_STATUS_CN = {
 
 
 direct_sales = db.Table('douban_order_direct_sales',
-                        db.Column('direct_sale_id', db.Integer, db.ForeignKey('user.id')),
-                        db.Column('douban_order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
+                        db.Column(
+                            'direct_sale_id', db.Integer, db.ForeignKey('user.id')),
+                        db.Column(
+                            'douban_order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
                         )
 agent_sales = db.Table('douban_order_agent_sales',
-                       db.Column('agent_sale_id', db.Integer, db.ForeignKey('user.id')),
-                       db.Column('douban_order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
+                       db.Column(
+                           'agent_sale_id', db.Integer, db.ForeignKey('user.id')),
+                       db.Column(
+                           'douban_order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
                        )
 
 operater_users = db.Table('douban_order_users_operater',
-                          db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                          db.Column('order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
+                          db.Column(
+                              'user_id', db.Integer, db.ForeignKey('user.id')),
+                          db.Column(
+                              'order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
                           )
 designer_users = db.Table('douban_order_users_designerer',
-                          db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                          db.Column('order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
+                          db.Column(
+                              'user_id', db.Integer, db.ForeignKey('user.id')),
+                          db.Column(
+                              'order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
                           )
 planer_users = db.Table('douban_order_users_planer',
-                        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                        db.Column('order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
+                        db.Column(
+                            'user_id', db.Integer, db.ForeignKey('user.id')),
+                        db.Column(
+                            'order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
                         )
 
 
@@ -79,9 +89,11 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))  # 客户合同甲方
-    agent = db.relationship('Agent', backref=db.backref('douban_orders', lazy='dynamic'))
+    agent = db.relationship(
+        'Agent', backref=db.backref('douban_orders', lazy='dynamic'))
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'))  # 客户
-    client = db.relationship('Client', backref=db.backref('douban_orders', lazy='dynamic'))
+    client = db.relationship(
+        'Client', backref=db.backref('douban_orders', lazy='dynamic'))
     campaign = db.Column(db.String(100))  # 活动名称
 
     contract = db.Column(db.String(100))  # 豆瓣合同号
@@ -106,7 +118,8 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     sale_type = db.Column(db.Integer)  # 资源形式
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator = db.relationship('User', backref=db.backref('created_douban_orders', lazy='dynamic'))
+    creator = db.relationship(
+        'User', backref=db.backref('created_douban_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
 
     contract_generate = False
@@ -298,12 +311,11 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         db.session.delete(self)
         db.session.commit()
 
-    @property
-    def douban_contract_email_info(self):
+    def douban_contract_email_info(self, title):
         body = u"""
 Dear %s:
 
-请帮忙打印合同, 谢谢~
+%s
 
 项目: %s
 客户: %s
@@ -317,7 +329,7 @@ Dear %s:
     致趣订单管理系统链接地址: %s
 
 by %s\n
-""" % (','.join([x.name for x in User.douban_contracts()]), self.campaign,
+""" % (','.join([x.name for x in User.douban_contracts()]), title, self.campaign,
             self.client.name, self.jiafang_name,
             self.direct_sales_names, self.agent_sales_names,
             self.start_date_cn, self.end_date_cn,
