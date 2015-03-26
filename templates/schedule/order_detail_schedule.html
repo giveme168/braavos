@@ -23,7 +23,7 @@
                             <li class="divider"></li>
                         {% endif %}
                         {% set index = index + 1%}
-                        <li><a href="{{url_for("order.new_item", order_id=order.id, type=k )}}">{{v}}</a></li>
+                        <li><a href="{{url_for("schedule.new_item", order_id=order.id, type=k )}}">{{v}}</a></li>
                       {% endfor %}
                       </ul>
                     </div>

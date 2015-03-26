@@ -4,7 +4,7 @@
 {% block main_box%}
 <div class="bra-main bra-box">
     <h4>
-        <a class="btn btn-default btn-sm" href="{{url_for("order.order_detail", order_id=item.order.id, step=0)}}">返回</a>
+        <a class="btn btn-default btn-sm" href="{{url_for("schedule.order_detail", order_id=item.order.id, step=0)}}">返回</a>
     </h4>
     <div class="panel-group" id="accordion">
         {% if g.user.team.is_admin() %}

@@ -46,7 +46,7 @@
         {% else %}
         <td style="background: #f2dede">
         {% endif %}
-          <a href="{{url_for('order.item_schedule', item_id=i.id)}}">{{i.position.name}}</a>
+          <a href="{{url_for('schedule.item_schedule', item_id=i.id)}}">{{i.position.name}}</a>
         </td>
         {% for d in items_info['dates'] %}
         <th>{{i.schedule_by_date(d).num}}</th>
@@ -70,7 +70,7 @@
 {%- endmacro %}
 
 {% macro button_export_schedule(order) -%}
- <a class="btn-sm btn-primary button-export" href="{{ url_for('order.export_schedule', order_id=order.id) }}" name="export_schedule">导出排期</a>
+ <a class="btn-sm btn-primary button-export" href="{{ url_for('schedule.export_schedule', order_id=order.id) }}" name="export_schedule">导出排期</a>
 {%- endmacro %}
 
 {% macro leader_select(step, leaders) -%}
@@ -110,7 +110,7 @@
 </ul>
 <div class="tab-content">
   <div class="tab-pane fade in active" id="tab-0">
-    <form action="{{url_for('order.items_status_update', order_id=order.id, step=0)}}" method="POST">
+    <form action="{{url_for('schedule.items_status_update', order_id=order.id, step=0)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(0)) }}
       <div class="col_change_state_button">
         {{ leader_select(0, leaders) }}
@@ -119,7 +119,7 @@
     </form>
   </div>
   <div class="tab-pane fade" id="tab-1">
-    <form action="{{url_for('order.items_status_update', order_id=order.id, step=1)}}" method="POST">
+    <form action="{{url_for('schedule.items_status_update', order_id=order.id, step=1)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(1)) }}
       <div class="col_change_state_button">
         {{ button_by_action(order, 1) }}
@@ -128,7 +128,7 @@
     </form>
   </div>
   <div class="tab-pane fade" id="tab-2">
-    <form action="{{url_for('order.items_status_update', order_id=order.id, step=2)}}" method="POST">
+    <form action="{{url_for('schedule.items_status_update', order_id=order.id, step=2)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(2)) }}
       <div class="col_change_state_button">
         {{ leader_select(3, leaders) }}
@@ -137,7 +137,7 @@
     </form>
   </div>
   <div class="tab-pane fade" id="tab-3">
-    <form action="{{url_for('order.items_status_update', order_id=order.id, step=3)}}" method="POST">
+    <form action="{{url_for('schedule.items_status_update', order_id=order.id, step=3)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(3)) }}
       <div class="col_change_state_button">
         {{ button_by_action(order, 4) }}
@@ -146,14 +146,14 @@
     </form>
   </div>
   <div class="tab-pane fade" id="tab-4">
-    <form action="{{url_for('order.items_status_update', order_id=order.id, step=4)}}" method="POST">
+    <form action="{{url_for('schedule.items_status_update', order_id=order.id, step=4)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(4),True) }}
       <div class="col_change_state_button">
       </div>
     </form>
   </div>
 <div class="tab-pane fade" id="tab-5">
-    <form action="{{url_for('order.items_status_update', order_id=order.id, step=4)}}" method="POST">
+    <form action="{{url_for('schedule.items_status_update', order_id=order.id, step=4)}}" method="POST">
       {{ items_tab_content(order.items_info_by_status(5),True) }}
       <div class="col_change_state_button">
       </div>
