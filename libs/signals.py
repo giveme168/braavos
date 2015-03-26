@@ -87,48 +87,19 @@ def contract_apply_douban(sender, apply_context):
         file_paths.append(order.get_last_contract().real_path)
     if order.get_last_schedule():
         file_paths.append(order.get_last_schedule().real_path)
-    if order.__tablename__ == 'bra_associated_douban_order':
-        jiafang = order.jiafang_name
-        client = order.client.name
-    else:
-        jiafang = order.client.name
-        client = order.jiafang_name
-
-    body = u"""
-Dear %s:
-
-请帮忙打印合同, 谢谢~
-
-项目: %s
-客户: %s
-代理: %s
-直客销售: %s
-渠道销售: %s
-时间: %s : %s
-金额: %s
-
-附注:
-    致趣订单管理系统链接地址: %s
-
-by %s\n
-""" % (','.join([x.name for x in User.douban_contracts()]), order.campaign,
-       jiafang, client,
-       order.direct_sales_names, order.agent_sales_names,
-       order.start_date_cn, order.end_date_cn,
-       order.money, url, g.user.name)
 
     send_attach_mail(u'【豆瓣合同打印申请】%s' % order.name,
                      recipients=douban_users,
-                     body=body,
+                     body=order.douban_contract_email_info,
                      file_paths=file_paths)
 
 
-def contract_apply(sender, apply_context):
+def contract_apply(sender, apply_context, action=None):
     """合同流程 发送邮件"""
     order = apply_context['order']
-    if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4:
+    if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
         contract_apply_douban(sender, apply_context)
-    if order.__tablename__ == 'bra_client_order' and order.associated_douban_orders and order.contract_status == 4:
+    if order.__tablename__ == 'bra_client_order' and order.associated_douban_orders and order.contract_status == 4 and action == 5:
         apply_context['order'] = order.associated_douban_orders[0]
         contract_apply_douban(sender, apply_context)
     url = mail.app.config['DOMAIN'] + order.info_path()

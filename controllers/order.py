@@ -81,7 +81,8 @@ def new_order():
                                medium_end=order.client_end,
                                creator=g.user)
                 order.medium_orders = order.medium_orders + [mo]
-                order.add_comment(g.user, u"新建了媒体订单: %s %s元" % (medium.name, mo.sale_money))
+                order.add_comment(g.user, u"新建了媒体订单: %s %s元" %
+                                  (medium.name, mo.sale_money))
             order.save()
         flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
         return redirect(order.info_path())
@@ -161,7 +162,8 @@ def order_info(order_id, tab_id=1):
                     order.client_start = client_form.client_start.data
                     order.client_end = client_form.client_end.data
                     order.reminde_date = client_form.reminde_date.data
-                    order.direct_sales = User.gets(client_form.direct_sales.data)
+                    order.direct_sales = User.gets(
+                        client_form.direct_sales.data)
                     order.agent_sales = User.gets(client_form.agent_sales.data)
                     order.contract_type = client_form.contract_type.data
                     order.resource_type = client_form.resource_type.data
@@ -176,28 +178,38 @@ def order_info(order_id, tab_id=1):
                 order.contract = request.values.get("base_contract", "")
                 order.save()
                 for mo in order.medium_orders:
-                    mo.medium_contract = request.values.get("medium_contract_%s" % mo.id, "")
+                    mo.medium_contract = request.values.get(
+                        "medium_contract_%s" % mo.id, "")
                     mo.save()
                 for o in order.associated_douban_orders:
-                    o.contract = request.values.get("douban_contract_%s" % o.id, "")
+                    o.contract = request.values.get(
+                        "douban_contract_%s" % o.id, "")
                     o.save()
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
-                msg = u"新合同号如下:\n\n%s-致趣: %s\n\n" % (order.agent.name, order.contract)
+                msg = u"新合同号如下:\n\n%s-致趣: %s\n\n" % (
+                    order.agent.name, order.contract)
                 for mo in order.medium_orders:
-                    msg = msg + u"致趣-%s: %s\n\n" % (mo.medium.name, mo.medium_contract or "")
+                    msg = msg + \
+                        u"致趣-%s: %s\n\n" % (mo.medium.name,
+                                                mo.medium_contract or "")
                 for o in order.associated_douban_orders:
-                    msg = msg + u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name, o.contract or "")
-                to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+                    msg = msg + \
+                        u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name,
+                                                o.contract or "")
+                to_users = order.direct_sales + \
+                    order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
                 apply_context = {"sender": g.user,
                                  "to": to_emails,
                                  "action_msg": action_msg,
                                  "msg": msg,
                                  "order": order}
-                contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
-                flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+                contract_apply_signal.send(
+                    current_app._get_current_object(), apply_context=apply_context)
+                flash(u'[%s] 已发送邮件给 %s ' %
+                      (order.name, ', '.join(to_emails)), 'info')
 
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
 
@@ -245,7 +257,8 @@ def order_new_medium(order_id):
                        creator=g.user)
         co.medium_orders = co.medium_orders + [mo]
         co.save()
-        co.add_comment(g.user, u"新建了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money))
+        co.add_comment(g.user, u"新建了媒体订单: %s %s %s" %
+                       (mo.medium.name, mo.sale_money, mo.medium_money))
         flash(u'[媒体订单]新建成功!', 'success')
         return redirect(mo.info_path())
     return tpl('order_new_medium.html', form=form)
@@ -269,7 +282,8 @@ def medium_order(mo_id):
     mo.planers = User.gets(form.planers.data)
     mo.discount = form.discount.data
     mo.save()
-    mo.client_order.add_comment(g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money))
+    mo.client_order.add_comment(
+        g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money))
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
     return redirect(mo.info_path())
 
@@ -356,7 +370,8 @@ def contract_status_change(order, action, emails, msg):
                      "action_msg": action_msg,
                      "msg": msg,
                      "order": order}
-    contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
+    contract_apply_signal.send(
+        current_app._get_current_object(), apply_context=apply_context, action=action)
     flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
     order.add_comment(g.user, u"%s \n\r\n\r %s" % (action_msg, msg))
 
@@ -376,7 +391,8 @@ def my_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
         orders = list(ClientOrder.all())
     elif g.user.is_leader():
-        orders = [o for o in ClientOrder.all() if g.user.location in o.locations]
+        orders = [
+            o for o in ClientOrder.all() if g.user.location in o.locations]
     else:
         orders = ClientOrder.get_order_by_user(g.user)
 
@@ -384,17 +400,20 @@ def my_orders():
         if g.user.is_admin():
             status_id = -1
         elif g.user.is_super_leader():
-            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
+            orders = [o for o in orders if o.contract_status ==
+                      CONTRACT_STATUS_APPLYCONTRACT]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_leader():
             orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
                                             g.user.location in o.locations)]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
-            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+            orders = [o for o in orders if o.contract_status in [
+                CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
             status_id = CONTRACT_STATUS_APPLYPASS
         elif g.user.is_media():
-            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
+            orders = [
+                o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
             status_id = CONTRACT_STATUS_MEDIA
         else:
             status_id = -1
@@ -420,7 +439,8 @@ def display_orders(orders, title, status_id=-1):
     if search_info != '':
         orders = [o for o in orders if search_info in o.search_info]
     if sortby and orders_len and hasattr(orders[0], sortby):
-        orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+        orders = sorted(
+            orders, key=lambda x: getattr(x, sortby), reverse=reverse)
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
@@ -430,7 +450,8 @@ def display_orders(orders, title, status_id=-1):
     else:
         orders = []
     if 'download' == request.args.get('action', ''):
-        filename = ("%s-%s.xls" % (u"新媒体订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+        filename = (
+            "%s-%s.xls" % (u"新媒体订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
         xls = Excel().write_excle(download_excel_table_by_clientorders(orders))
         response = get_download_response(xls, filename)
         return response
@@ -456,7 +477,8 @@ def new_framework_order():
                                    client_start=form.client_start.data,
                                    client_end=form.client_end.data,
                                    reminde_date=form.reminde_date.data,
-                                   direct_sales=User.gets(form.direct_sales.data),
+                                   direct_sales=User.gets(
+                                       form.direct_sales.data),
                                    agent_sales=User.gets(form.agent_sales.data),
                                    contract_type=form.contract_type.data,
                                    creator=g.user,
@@ -520,8 +542,10 @@ def framework_order_info(order_id):
                     order.client_start = framework_form.client_start.data
                     order.client_end = framework_form.client_end.data
                     order.reminde_date = framework_form.reminde_date.data
-                    order.direct_sales = User.gets(framework_form.direct_sales.data)
-                    order.agent_sales = User.gets(framework_form.agent_sales.data)
+                    order.direct_sales = User.gets(
+                        framework_form.direct_sales.data)
+                    order.agent_sales = User.gets(
+                        framework_form.agent_sales.data)
                     order.contract_type = framework_form.contract_type.data
                     order.save()
                     order.add_comment(g.user, u"更新了该框架订单")
@@ -535,16 +559,20 @@ def framework_order_info(order_id):
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
-                msg = u"新合同号如下:\n\n%s-致趣: %s\n\n" % (order.group.name, order.contract)
-                to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+                msg = u"新合同号如下:\n\n%s-致趣: %s\n\n" % (
+                    order.group.name, order.contract)
+                to_users = order.direct_sales + \
+                    order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
                 apply_context = {"sender": g.user,
                                  "to": to_emails,
                                  "action_msg": action_msg,
                                  "msg": msg,
                                  "order": order}
-                contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
-                flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+                contract_apply_signal.send(
+                    current_app._get_current_object(), apply_context=apply_context)
+                flash(u'[%s] 已发送邮件给 %s ' %
+                      (order.name, ', '.join(to_emails)), 'info')
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
 
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
@@ -561,13 +589,17 @@ def my_framework_orders():
         if g.user.is_admin():
             pass
         elif g.user.is_super_leader():
-            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
+            orders = [o for o in orders if o.contract_status ==
+                      CONTRACT_STATUS_APPLYCONTRACT]
         elif g.user.is_contract():
-            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+            orders = [o for o in orders if o.contract_status in [
+                CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
         elif g.user.is_media():
-            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
+            orders = [
+                o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
     elif g.user.is_leader():
-        orders = [o for o in FrameworkOrder.all() if g.user.location in o.locations]
+        orders = [
+            o for o in FrameworkOrder.all() if g.user.location in o.locations]
         orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
                                         g.user.location in o.locations)]
     else:
@@ -591,8 +623,10 @@ def framework_display_orders(orders, title):
     else:
         orders = []
     if 'download' == request.args.get('action', ''):
-        filename = ("%s-%s.xls" % (u"框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
-        xls = Excel().write_excle(download_excel_table_by_frameworkorders(orders))
+        filename = (
+            "%s-%s.xls" % (u"框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+        xls = Excel().write_excle(
+            download_excel_table_by_frameworkorders(orders))
         response = get_download_response(xls, filename)
         return response
     else:
@@ -725,16 +759,20 @@ def douban_order_info(order_id):
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
-                msg = u"新合同号如下:\n\n%s-豆瓣: %s\n\n" % (order.agent.name, order.contract)
-                to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+                msg = u"新合同号如下:\n\n%s-豆瓣: %s\n\n" % (
+                    order.agent.name, order.contract)
+                to_users = order.direct_sales + \
+                    order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
                 apply_context = {"sender": g.user,
                                  "to": to_emails,
                                  "action_msg": action_msg,
                                  "msg": msg,
                                  "order": order}
-                contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
-                flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+                contract_apply_signal.send(
+                    current_app._get_current_object(), apply_context=apply_context)
+                flash(u'[%s] 已发送邮件给 %s ' %
+                      (order.name, ', '.join(to_emails)), 'info')
                 order.add_comment(g.user, u"更新了合同号, %s" % msg)
 
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
@@ -749,7 +787,8 @@ def my_douban_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
         orders = list(DoubanOrder.all())
     elif g.user.is_leader():
-        orders = [o for o in DoubanOrder.all() if g.user.location in o.locations]
+        orders = [
+            o for o in DoubanOrder.all() if g.user.location in o.locations]
     else:
         orders = DoubanOrder.get_order_by_user(g.user)
 
@@ -757,17 +796,20 @@ def my_douban_orders():
         if g.user.is_admin():
             status_id = -1
         elif g.user.is_super_leader():
-            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_APPLYCONTRACT]
+            orders = [o for o in orders if o.contract_status ==
+                      CONTRACT_STATUS_APPLYCONTRACT]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_leader():
             orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
                                             g.user.location in o.locations)]
             status_id = CONTRACT_STATUS_APPLYCONTRACT
         elif g.user.is_contract():
-            orders = [o for o in orders if o.contract_status in [CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+            orders = [o for o in orders if o.contract_status in [
+                CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
             status_id = CONTRACT_STATUS_APPLYPASS
         elif g.user.is_media():
-            orders = [o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
+            orders = [
+                o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
             status_id = CONTRACT_STATUS_MEDIA
         else:
             status_id = -1
@@ -804,7 +846,8 @@ def douban_display_orders(orders, title, status_id=-1):
     if search_info != '':
         orders = [o for o in orders if search_info in o.search_info]
     if sortby and orders_len and hasattr(orders[0], sortby):
-        orders = sorted(orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+        orders = sorted(
+            orders, key=lambda x: getattr(x, sortby), reverse=reverse)
 
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
@@ -815,7 +858,8 @@ def douban_display_orders(orders, title, status_id=-1):
     else:
         orders = []
     if 'download' == request.args.get('action', ''):
-        filename = ("%s-%s.xls" % (u"直签豆瓣订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+        filename = (
+            "%s-%s.xls" % (u"直签豆瓣订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
         xls = Excel().write_excle(download_excel_table_by_doubanorders(orders))
         response = get_download_response(xls, filename)
         return response
@@ -873,7 +917,8 @@ def douban_attach_status(order_id, attachment_id, status):
 @order_bp.route('/associated_douban_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
 def associated_douban_attach_status(order_id, attachment_id, status):
     order = AssociatedDoubanOrder.get(order_id)
-    attachment_status_change(order.medium_order.client_order, attachment_id, status)
+    attachment_status_change(
+        order.medium_order.client_order, attachment_id, status)
     return redirect(order.info_path())
 
 
@@ -888,10 +933,12 @@ def attachment_status_email(order, attachment):
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     to_emails = list(set([x.email for x in to_users]))
     action_msg = u"%s文件:%s-%s" % (attachment.type_cn, attachment.filename, attachment.status_cn)
-    msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (attachment.filename, attachment.status_cn)
+    msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (
+        attachment.filename, attachment.status_cn)
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,
                      "msg": msg,
                      "order": order}
-    contract_apply_signal.send(current_app._get_current_object(), apply_context=apply_context)
+    contract_apply_signal.send(
+        current_app._get_current_object(), apply_context=apply_context)

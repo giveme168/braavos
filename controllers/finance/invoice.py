@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
-import StringIO
-import mimetypes
-from werkzeug.datastructures import Headers
 
-from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app, Response
+from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
 from flask import render_template as tpl
 
 from models.user import User
@@ -15,6 +12,7 @@ from models.invoice import (Invoice, INVOICE_STATUS_CN,
 from libs.signals import invoice_apply_signal
 from forms.invoice import InvoiceForm
 from controllers.finance.helpers.invoice_helpers import write_excel
+from controllers.tools import get_download_response
 
 
 finance_invoice_bp = Blueprint(
@@ -130,25 +128,3 @@ def get_invoice_from(invoice):
     invoice_form.money.data = invoice.money
     invoice_form.detail.data = invoice.detail
     return invoice_form
-
-
-def get_download_response(xls, filename):
-    response = Response()
-    response.status_code = 200
-    output = StringIO.StringIO()
-    xls.save(output)
-    response.data = output.getvalue()
-    mimetype_tuple = mimetypes.guess_type(filename)
-    response_headers = Headers({
-        'Pragma': "public",
-        'Expires': '0',
-        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
-        'Cache-Control': 'private',
-        'Content-Type': mimetype_tuple[0],
-        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
-        'Content-Transfer-Encoding': 'binary',
-        'Content-Length': len(response.data)
-    })
-    response.headers = response_headers
-    response.set_cookie('fileDownload', 'true', path='/')
-    return response

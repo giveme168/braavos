@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
-from flask import url_for
+from flask import url_for, g
 
 from . import db, BaseModelMixin
 from .user import User, TEAM_LOCATION_CN
@@ -8,7 +8,7 @@ from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from consts import DATE_FORMAT
-
+from libs.mail import mail
 
 CONTRACT_TYPE_NORMAL = 0
 CONTRACT_TYPE_SPECIAL = 1
@@ -297,3 +297,29 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.delete_attachments()
         db.session.delete(self)
         db.session.commit()
+
+    @property
+    def douban_contract_email_info(self):
+        body = u"""
+Dear %s:
+
+请帮忙打印合同, 谢谢~
+
+项目: %s
+客户: %s
+代理: %s
+直客销售: %s
+渠道销售: %s
+时间: %s : %s
+金额: %s
+
+附注:
+    致趣订单管理系统链接地址: %s
+
+by %s\n
+""" % (','.join([x.name for x in User.douban_contracts()]), self.campaign,
+            self.client.name, self.jiafang_name,
+            self.direct_sales_names, self.agent_sales_names,
+            self.start_date_cn, self.end_date_cn,
+            self.money, mail.app.config['DOMAIN'] + self.info_path(), g.user.name)
+        return body

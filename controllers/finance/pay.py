@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
-import StringIO
-import mimetypes
-from werkzeug.datastructures import Headers
 
-from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app, Response
+from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
 from flask import render_template as tpl
 
 from models.client_order import ClientOrder
@@ -12,6 +9,8 @@ from models.outsource import OutSource, OUTSOURCE_STATUS_APPLY_MONEY, OUTSOURCE_
 from models.user import User
 from libs.signals import outsource_apply_signal
 from controllers.finance.helpers.pay_helpers import write_excel
+from controllers.tools import get_download_response
+
 
 finance_pay_bp = Blueprint(
     'finance_pay', __name__, template_folder='../../templates/finance')
@@ -109,25 +108,3 @@ def outsource_pass(outsource_id):
     outsource_apply_signal.send(
         current_app._get_current_object(), apply_context=apply_context)
     return redirect(url_for("finance_pay.info", order_id=outsource.client_order.id))
-
-
-def get_download_response(xls, filename):
-    response = Response()
-    response.status_code = 200
-    output = StringIO.StringIO()
-    xls.save(output)
-    response.data = output.getvalue()
-    mimetype_tuple = mimetypes.guess_type(filename)
-    response_headers = Headers({
-        'Pragma': "public",
-        'Expires': '0',
-        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
-        'Cache-Control': 'private',
-        'Content-Type': mimetype_tuple[0],
-        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
-        'Content-Transfer-Encoding': 'binary',
-        'Content-Length': len(response.data)
-    })
-    response.headers = response_headers
-    response.set_cookie('fileDownload', 'true', path='/')
-    return response
