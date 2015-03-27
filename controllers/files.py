@@ -55,7 +55,7 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
             contract_email(order, attachment)
     else:
         flash(u'订单不存在，或文件上传出错!', 'danger')
-    return redirect(order.info_path())
+    return redirect("%s#attachment-%s-%s" % (order.info_path(), order.kind, order.id))
 
 
 @files_bp.route('/client/contract/upload', methods=['POST'])
