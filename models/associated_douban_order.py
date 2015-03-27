@@ -28,6 +28,7 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)
 
     contract_generate = False
+    kind = "associated-douban-order"
 
     def __init__(self, medium_order, contract=None, campaign=None, money=0, creator=None, create_time=None):
         self.medium_order = medium_order

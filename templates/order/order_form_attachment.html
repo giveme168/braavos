@@ -2,6 +2,7 @@
 
 {% macro base_order_attachment(order, contract_path, schedule_path) -%}
 <hr>
+<div id="attachment-{{order.kind}}-{{order.id}}">
 <form method="POST" action="{{contract_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
@@ -41,6 +42,7 @@
   {% endif %}
 </form>
 <a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">查看历史版本</a>
+</div>
 {%- endmacro %}
 
 {% macro base_attachment_script() -%}
@@ -54,7 +56,6 @@ $(function(){
     $(this).parents("form").find('.file-widget-input').click();
   });
   $('.file-widget-input').change(function(e){
-    console.log($(this).val());
     var filename = $(this).val(),
       fileExt = filename.substring(filename.lastIndexOf('.')+1, filename.length);
     if(fileExt == 'csv' || fileExt == 'doc' || fileExt == 'docx' || fileExt == 'xls' || fileExt == 'xlsx' || fileExt == 'pdf'){

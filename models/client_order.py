@@ -102,6 +102,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     contract_generate = True
     media_apply = True
+    kind = "client-order"
 
     def __init__(self, agent, client, campaign, medium_orders=None,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
