@@ -151,7 +151,7 @@ class User(db.Model, BaseModelMixin):
         return self.is_admin() or self.team.type == TEAM_TYPE_MEDIA
 
     def is_sale(self):
-        return self.is_admin() or self.team.type == TEAM_TYPE_DIRECT_SELLER
+        return self.is_admin() or self.is_leader() or self.team.type == TEAM_TYPE_DIRECT_SELLER
 
     def is_finance(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_FINANCE
