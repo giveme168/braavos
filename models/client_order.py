@@ -9,7 +9,7 @@ from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import ITEM_STATUS_LEADER_ACTIONS
 from .user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
-from invoice import Invoice
+from invoice import Invoice, MediumInvoice
 
 
 CONTRACT_TYPE_NORMAL = 0
@@ -54,6 +54,12 @@ CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_PRINTED: u"打印完毕"
 }
 
+STATUS_DEL = 0
+STATUS_ON = 1
+STATUS_CN = {
+    STATUS_DEL: u'删除',
+    STATUS_ON: u'正常',
+}
 
 ECPM_CONTRACT_STATUS_LIST = [2, 4, 5]
 
@@ -95,7 +101,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     medium_orders = db.relationship('Order', secondary=table_medium_orders)
     contract_status = db.Column(db.Integer)  # 合同审批状态
-
+    status = db.Column(db.Integer)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_client_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
@@ -104,7 +110,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     media_apply = True
     kind = "client-order"
 
-    def __init__(self, agent, client, campaign, medium_orders=None,
+    def __init__(self, agent, client, campaign, medium_orders=None, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  direct_sales=None, agent_sales=None,
@@ -128,8 +134,14 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.agent_sales = agent_sales or []
 
         self.creator = creator
+        self.status = status
         self.create_time = create_time or datetime.datetime.now()
         self.contract_status = contract_status
+
+    @classmethod
+    def get_all(cls):
+        """查看所有没删除订单"""
+        return [o for o in cls.all() if o.status in [STATUS_ON, None]]
 
     @property
     def name(self):
@@ -138,6 +150,20 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def mediums(self):
         return [x.medium for x in self.medium_orders]
+
+    @property
+    def mediums_money2(self):
+        return sum([x.medium_money2 for x in self.medium_orders])
+
+    @property
+    def mediums_invoice_pass_sum(self):
+        return sum([k.pay_money for k in MediumInvoice.query.filter_by(client_order_id=self.id)
+                   if k.invoice_status == 0])
+
+    @property
+    def mediums_invoice_apply_sum(self):
+        return sum([k.pay_money for k in MediumInvoice.query.filter_by(client_order_id=self.id)
+                   if k.invoice_status == 2])
 
     @property
     def medium_ids(self):
@@ -233,10 +259,13 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @classmethod
     def get_order_by_user(cls, user):
         """一个用户可以查看的所有订单"""
-        return [o for o in cls.all() if o.have_owner(user)]
+        return [o for o in cls.all() if o.have_owner(user) and o.status in [STATUS_ON, None]]
 
     def get_invoice_by_status(self, type):
         return [invoice for invoice in self.invoices if invoice.invoice_status == type]
+
+    def get_medium_invoice_by_status(self, type):
+        return [invoice for invoice in self.mediuminvoices if invoice.invoice_status == type]
 
     def path(self):
         return self.info_path()

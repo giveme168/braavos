@@ -13,7 +13,8 @@ from models.medium import Medium
 from models.order import Order
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
-                                 CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN)
+                                 CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
+                                 STATUS_DEL)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
@@ -101,7 +102,8 @@ def order_delete(order_id):
     if not g.user.is_super_admin():
         abort(402)
     flash(u"客户订单: %s-%s 已删除" % (order.client.name, order.campaign), 'danger')
-    order.delete()
+    order.status = STATUS_DEL
+    order.save()
     return redirect(url_for("order.my_orders"))
 
 
@@ -378,7 +380,7 @@ def contract_status_change(order, action, emails, msg):
 
 @order_bp.route('/orders', methods=['GET'])
 def orders():
-    orders = list(ClientOrder.all())
+    orders = list(ClientOrder.get_all())
     if request.args.get('selected_status'):
         status_id = int(request.args.get('selected_status'))
     else:
@@ -389,10 +391,10 @@ def orders():
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(ClientOrder.all())
+        orders = list(ClientOrder.get_all())
     elif g.user.is_leader():
         orders = [
-            o for o in ClientOrder.all() if g.user.location in o.locations]
+            o for o in ClientOrder.get_all() if g.user.location in o.locations]
     else:
         orders = ClientOrder.get_order_by_user(g.user)
 
@@ -501,7 +503,8 @@ def framework_delete(order_id):
     if not g.user.is_super_admin():
         abort(402)
     flash(u"框架订单: %s 已删除" % (order.group.name), 'danger')
-    order.delete()
+    order.status = STATUS_DEL
+    order.save()
     return redirect(url_for("order.my_framework_orders"))
 
 
@@ -585,7 +588,7 @@ def framework_order_info(order_id):
 @order_bp.route('/my_framework_orders', methods=['GET'])
 def my_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(FrameworkOrder.all())
+        orders = list(FrameworkOrder.get_all())
         if g.user.is_admin():
             pass
         elif g.user.is_super_leader():
@@ -599,7 +602,7 @@ def my_framework_orders():
                 o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
     elif g.user.is_leader():
         orders = [
-            o for o in FrameworkOrder.all() if g.user.location in o.locations]
+            o for o in FrameworkOrder.get_all() if g.user.location in o.locations]
         orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
                                         g.user.location in o.locations)]
     else:
@@ -609,7 +612,7 @@ def my_framework_orders():
 
 @order_bp.route('/framework_orders', methods=['GET'])
 def framework_orders():
-    orders = list(FrameworkOrder.all())
+    orders = list(FrameworkOrder.get_all())
     return framework_display_orders(orders, u'框架订单列表')
 
 
@@ -689,7 +692,8 @@ def douban_order_delete(order_id):
     if not g.user.is_super_admin():
         abort(402)
     flash(u"豆瓣订单: %s-%s 已删除" % (order.client.name, order.campaign), 'danger')
-    order.delete()
+    order.status = STATUS_DEL
+    order.save()
     return redirect(url_for("order.my_douban_orders"))
 
 
@@ -785,10 +789,10 @@ def douban_order_info(order_id):
 @order_bp.route('/my_douban_orders', methods=['GET'])
 def my_douban_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(DoubanOrder.all())
+        orders = list(DoubanOrder.get_all())
     elif g.user.is_leader():
         orders = [
-            o for o in DoubanOrder.all() if g.user.location in o.locations]
+            o for o in DoubanOrder.get_all() if g.user.location in o.locations]
     else:
         orders = DoubanOrder.get_order_by_user(g.user)
 
@@ -820,7 +824,7 @@ def my_douban_orders():
 
 @order_bp.route('/douban_orders', methods=['GET'])
 def douban_orders():
-    orders = list(DoubanOrder.all())
+    orders = list(DoubanOrder.get_all())
     if request.args.get('selected_status'):
         status_id = int(request.args.get('selected_status'))
     else:

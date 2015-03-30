@@ -146,8 +146,9 @@ class MediumInvoice(db.Model, BaseModelMixin):
     bank = db.Column(db.String(100))  # 开户行
     detail = db.Column(db.String(200))  # 发票内容
     money = db.Column(db.Float)  # 发票金额
+    pay_money = db.Column(db.Float)  # 打款金额
     invoice_type = db.Column(db.Integer)  # 发票类型
-    invoice_status = db.Column(db.Integer)  # 发表状态
+    invoice_status = db.Column(db.Integer)  # 发票状态
     invoice_num = db.Column(db.String(200), default='')  # 发票号
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
@@ -162,7 +163,7 @@ class MediumInvoice(db.Model, BaseModelMixin):
 
     def __init__(self, client_order, medium, company="", tax_id="",
                  address="", phone="", bank_id="", bank="",
-                 detail="", invoice_num="", money=0.0, invoice_type=INVOICE_TYPE_NORMAL,
+                 detail="", invoice_num="", money=0.0, pay_money=0.0, invoice_type=INVOICE_TYPE_NORMAL,
                  invoice_status=MEDIUM_INVOICE_STATUS_NORMAL, creator=None, create_time=None,
                  add_time=None, pay_time=None, bool_pay=False, bool_invoice=True):
         self.client_order = client_order
@@ -175,6 +176,7 @@ class MediumInvoice(db.Model, BaseModelMixin):
         self.bank = bank
         self.detail = detail
         self.money = money
+        self.pay_money = pay_money
         self.invoice_type = invoice_type
         self.invoice_status = invoice_status
         self.creator = creator
@@ -199,3 +201,7 @@ class MediumInvoice(db.Model, BaseModelMixin):
     @property
     def pay_time_cn(self):
         return self.pay_time.strftime("%Y-%m-%d")
+
+    @classmethod
+    def get_medium_invoices_status(cls, status):
+        return cls.query.filter_by(invoice_status=status)

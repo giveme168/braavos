@@ -32,6 +32,13 @@ CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_PRINTED: u"打印完毕"
 }
 
+STATUS_DEL = 0
+STATUS_ON = 1
+STATUS_CN = {
+    STATUS_DEL: u'删除',
+    STATUS_ON: u'正常',
+}
+
 
 direct_sales = db.Table('framework_order_direct_sales',
                         db.Column(
@@ -74,6 +81,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     agent_sales = db.relationship('User', secondary=agent_sales)
 
     contract_status = db.Column(db.Integer)  # 合同审批状态
+    status = db.Column(db.Integer)
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
@@ -84,7 +92,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     media_apply = False
     kind = "framework-order"
 
-    def __init__(self, group, agents=None, description=None,
+    def __init__(self, group, agents=None, description=None, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None,
                  direct_sales=None, agent_sales=None,
@@ -107,6 +115,12 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
         self.contract_status = contract_status
+        self.status = status
+
+    @classmethod
+    def get_all(cls):
+        """查看所有没删除订单"""
+        return [o for o in cls.all() if o.status in [STATUS_ON, None]]
 
     @property
     def name(self):
@@ -150,7 +164,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @classmethod
     def get_order_by_user(cls, user):
         """一个用户可以查看的所有订单"""
-        return [o for o in cls.all() if o.have_owner(user)]
+        return [o for o in cls.all() if o.have_owner(user) and o.status in [STATUS_ON, None]]
 
     def path(self):
         return self.info_path()

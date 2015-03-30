@@ -1,5 +1,5 @@
 {% from '/form.html' import form_field %}
-{% macro invoice_form(order, form, INVOICE_TYPE_CN, invoice=None) -%}
+{% macro invoice_form(order, form, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_PAY_CN, invoice=None) -%}
 {% if invoice %}
 {% if order.can_admin(g.user) and invoice.invoice_status == 1 %}
     <div class="well">
@@ -72,6 +72,10 @@
             <td>{{invoice.money}}元</td>
           </tr>
           <tr>
+            <th>打款金额</th>
+            <td>{{invoice.pay_money}}元</td>
+          </tr>
+          <tr>
             <th>发票号</th>
             <td>{{invoice.invoice_num}}</td>
           </tr>
@@ -89,7 +93,19 @@
           </tr>
           <tr>
             <th>是否开票</th>
-            <td>{{invoice.bool_invoice}}</td>
+            {% if invoice.bool_invoice %}
+            <td>发票已开</td>
+            {% else %}
+            <td>没有发票</td>
+            {% endif %}
+          </tr>
+          <tr>
+            <th>是否打款</th>
+            {% if invoice.bool_pay %}
+            <td>已打款</td>
+            {% else %}
+            <td>未打款</td>
+            {% endif %}
           </tr>
         </table>
     </div>

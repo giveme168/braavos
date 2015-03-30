@@ -162,6 +162,26 @@ by %s
 """ % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
 
 
+def medium_invoice_apply(sender, apply_context):
+    order = apply_context['order']
+    invoices = apply_context['invoices']
+    invoice_info = "\n".join(
+        [u'发票信息: ' + o.detail + u'; 发票金额' + str(o.money) for o in invoices])
+    if apply_context['send_type'] == "saler":
+        url = mail.app.config['DOMAIN'] + order.saler_invoice_path()
+    else:
+        url = mail.app.config['DOMAIN'] + order.finance_invoice_path()
+    text = u"""%s
+订单: %s
+链接地址: %s
+发票信息:
+%s
+留言如下:
+    %s
+\n
+by %s
+""" % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
+
 def outsource_apply(sender, apply_context):
     """外包服务流程 发送邮件"""
     order = apply_context['order']

@@ -4,19 +4,17 @@
 
 {% macro contract_box(order) -%}
 <div class="bra-main bra-box" style="width:100%;">
-    <h3>客户订单发票情况</h3>
+    <h3>媒体订单发票情况</h3>
     <table class="table table-bordered table-striped">
         <tr>
-            <th>订单总金额</th>
-            <th>已开发票金额</th>
-            <th>未开发票金额</th>
-            <th>已打款金额</th>
+            <th>媒体总金额</th>
+            <th>已打款发票金额</th>
+            <th>申请中的打款金额</th>
         </tr>
         <tr>
-            <td> 元</td>
-            <td> 元</td>
-            <td> 元</td>
-            <td> 元</td>
+            <td>{{order.mediums_money2}}元</td>
+            <td>{{order.mediums_invoice_pass_sum}}元</td>
+            <td>{{order.mediums_invoice_apply_sum}}元</td>
         </tr>
     </table>
     {% for k in range(3) %}
@@ -37,7 +35,7 @@
         <div id="collapse-invoice-{{k}}" class="panel-collapse collapse in ">
             <div class="panel-body">
               {% for i in invoices %}
-                {{ invoice_form(order, i.form, INVOICE_TYPE_CN, i.invoice) }}
+                {{ invoice_form(order, i.form, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_PAY_CN, i.invoice) }}
               {% endfor %}
               {% if k != 0 %}
                 {{ status_box(invoices[0]['invoice']) }}

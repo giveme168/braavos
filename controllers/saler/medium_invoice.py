@@ -62,6 +62,7 @@ def new_invoice(order_id):
                                     bank=form.bank.data,
                                     detail=form.detail.data,
                                     money=form.money.data,
+                                    pay_money=form.money.data,
                                     invoice_type=form.invoice_type.data,
                                     invoice_status=MEDIUM_INVOICE_STATUS_NORMAL,
                                     creator=g.user,
@@ -127,6 +128,7 @@ def update_invoice(invoice_id):
             invoice.bank = form.bank.data,
             invoice.detail = form.detail.data,
             invoice.money = form.money.data,
+            invoice.pay_money = form.money.data,
             invoice.invoice_type = form.invoice_type.data,
             invoice.creator = g.user
             invoice.create_time = datetime.date.today()
