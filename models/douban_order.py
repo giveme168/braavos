@@ -124,6 +124,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     contract_generate = False
     media_apply = False
+    kind = "douban-order"
 
     def __init__(self, agent, client, campaign,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,

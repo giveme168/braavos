@@ -97,6 +97,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)
 
     contract_generate = True
+    kind = "medium-order"
 
     def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
                  medium_contract="", medium_money=0, sale_money=0, medium_money2=0,
