@@ -1,6 +1,6 @@
 #-*- coding: UTF-8 -*-
 from wtforms import (TextField, validators, SelectField, SelectMultipleField,
-                     IntegerField, TextAreaField, DateField)
+                     IntegerField, TextAreaField, DateField,FloatField)
 from libs.wtf import Form
 from models.client import Client, Group, Agent
 from models.medium import Medium
@@ -15,7 +15,7 @@ class ClientOrderForm(Form):
     agent = SelectField(u'代理/直客(甲方全称)', coerce=int)
     client = SelectField(u'客户名称', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
-    money = IntegerField(u'合同金额(元)', default=0)
+    money = FloatField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
     client_end = DateField(u'执行结束')
     reminde_date = DateField(u'最迟回款日期')
@@ -47,9 +47,9 @@ class ClientOrderForm(Form):
 
 class MediumOrderForm(Form):
     medium = SelectField(u'投放媒体', coerce=int, description=u"提交后不可修改")
-    sale_money = IntegerField(u'售卖金额(元)', default=0, description=u"无利润未分成")
-    medium_money2 = IntegerField(u'媒体金额(元)', default=0, description=u"已利润未分成")
-    medium_money = IntegerField(u'下单金额(元)', default=0, description=u"已利润已分成, 实际给媒体下单金额")
+    sale_money = FloatField(u'售卖金额(元)', default=0, description=u"无利润未分成")
+    medium_money2 = FloatField(u'媒体金额(元)', default=0, description=u"已利润未分成")
+    medium_money = FloatField(u'下单金额(元)', default=0, description=u"已利润已分成, 实际给媒体下单金额")
     sale_CPM = IntegerField(u'预估量(CPM)', default=0)
     medium_CPM = IntegerField(u'实际量(CPM)', default=0, description=u"结项后由执行填写")
     medium_start = DateField(u'执行开始')
@@ -71,14 +71,14 @@ class MediumOrderForm(Form):
 class AssociatedDoubanOrderForm(Form):
     medium_order = SelectField(u'关联媒体订单', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
-    money = IntegerField(u'合同金额(元)', default=0)
+    money = FloatField(u'合同金额(元)', default=0)
 
 
 class FrameworkOrderForm(Form):
     group = SelectField(u'代理集团', coerce=int)
     agents = SelectMultipleField(u'代理/直客', coerce=int)
     description = TextAreaField(u'备注', description=u"请填写返点政策/配送政策等信息")
-    money = IntegerField(u'合同金额(元)', default=0)
+    money = FloatField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
     client_end = DateField(u'执行结束')
     reminde_date = DateField(u'最迟回款日期')
@@ -108,7 +108,7 @@ class DoubanOrderForm(Form):
     agent = SelectField(u'代理/直客(甲方全称)', coerce=int)
     client = SelectField(u'客户名称', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
-    money = IntegerField(u'合同金额(元)', default=0)
+    money = FloatField(u'合同金额(元)', default=0)
     sale_CPM = IntegerField(u'预估量(CPM)', default=0)
     medium_CPM = IntegerField(u'实际量(CPM)', default=0, description=u"结项后由执行填写")
     client_start = DateField(u'执行开始')
