@@ -61,6 +61,13 @@ STATUS_CN = {
     STATUS_ON: u'正常',
 }
 
+BACK_MONEY_STATUS_END = 0
+BACK_MONEY_STATUS_NOW = 1
+BACK_MONEY_STATUS_CN = {
+    BACK_MONEY_STATUS_END: u'回款完成',
+    BACK_MONEY_STATUS_NOW: u'正在回款',
+}
+
 ECPM_CONTRACT_STATUS_LIST = [2, 4, 5]
 
 direct_sales = db.Table('client_order_direct_sales',
@@ -105,12 +112,13 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_client_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
-
+    back_money_status = db.Column(db.Integer)
     contract_generate = True
     media_apply = True
     kind = "client-order"
 
     def __init__(self, agent, client, campaign, medium_orders=None, status=STATUS_ON,
+                 back_money_status=BACK_MONEY_STATUS_NOW,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  direct_sales=None, agent_sales=None,
@@ -137,6 +145,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.status = status
         self.create_time = create_time or datetime.datetime.now()
         self.contract_status = contract_status
+        self.back_money_status = back_money_status
 
     @classmethod
     def get_all(cls):
