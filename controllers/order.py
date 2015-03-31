@@ -380,7 +380,7 @@ def contract_status_change(order, action, emails, msg):
 
 @order_bp.route('/orders', methods=['GET'])
 def orders():
-    orders = list(ClientOrder.get_all())
+    orders = list(ClientOrder.all())
     if request.args.get('selected_status'):
         status_id = int(request.args.get('selected_status'))
     else:
@@ -391,10 +391,10 @@ def orders():
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(ClientOrder.get_all())
+        orders = list(ClientOrder.all())
     elif g.user.is_leader():
         orders = [
-            o for o in ClientOrder.get_all() if g.user.location in o.locations]
+            o for o in ClientOrder.all() if g.user.location in o.locations]
     else:
         orders = ClientOrder.get_order_by_user(g.user)
 
@@ -588,7 +588,7 @@ def framework_order_info(order_id):
 @order_bp.route('/my_framework_orders', methods=['GET'])
 def my_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(FrameworkOrder.get_all())
+        orders = list(FrameworkOrder.all())
         if g.user.is_admin():
             pass
         elif g.user.is_super_leader():
@@ -602,7 +602,7 @@ def my_framework_orders():
                 o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
     elif g.user.is_leader():
         orders = [
-            o for o in FrameworkOrder.get_all() if g.user.location in o.locations]
+            o for o in FrameworkOrder.all() if g.user.location in o.locations]
         orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
                                         g.user.location in o.locations)]
     else:
@@ -612,7 +612,7 @@ def my_framework_orders():
 
 @order_bp.route('/framework_orders', methods=['GET'])
 def framework_orders():
-    orders = list(FrameworkOrder.get_all())
+    orders = list(FrameworkOrder.all())
     return framework_display_orders(orders, u'框架订单列表')
 
 
@@ -789,10 +789,10 @@ def douban_order_info(order_id):
 @order_bp.route('/my_douban_orders', methods=['GET'])
 def my_douban_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(DoubanOrder.get_all())
+        orders = list(DoubanOrder.all())
     elif g.user.is_leader():
         orders = [
-            o for o in DoubanOrder.get_all() if g.user.location in o.locations]
+            o for o in DoubanOrder.all() if g.user.location in o.locations]
     else:
         orders = DoubanOrder.get_order_by_user(g.user)
 
@@ -824,7 +824,7 @@ def my_douban_orders():
 
 @order_bp.route('/douban_orders', methods=['GET'])
 def douban_orders():
-    orders = list(DoubanOrder.get_all())
+    orders = list(DoubanOrder.all())
     if request.args.get('selected_status'):
         status_id = int(request.args.get('selected_status'))
     else:

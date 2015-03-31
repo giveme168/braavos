@@ -120,7 +120,11 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @classmethod
     def get_all(cls):
         """查看所有没删除订单"""
-        return [o for o in cls.all() if o.status in [STATUS_ON, None]]
+        return [o for o in cls.query.all() if o.status in [STATUS_ON, None]]
+
+    @classmethod
+    def all(cls):
+        return cls.get_all()
 
     @property
     def name(self):
