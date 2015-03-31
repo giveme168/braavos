@@ -84,10 +84,6 @@
             <td>{{INVOICE_TYPE_CN[invoice.invoice_type]}}</td>
           </tr>
           <tr>
-            <th>发票号</th>
-            <td>{{invoice.invoice_num}}</td>
-          </tr>
-          <tr>
             <th>开票时间</th>
             <td>{{invoice.add_time_cn}}</td>
           </tr>
@@ -116,7 +112,19 @@
         <form class="form form-horizontal" method="POST" action="{{url_for('saler_medium_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
         {{ form_field(form.client_order)}}
-        {{ form_field(form.medium)}}
+        <div class="form-group">
+          <label for="name" class="col-sm-2 control-label">媒体 : </label>
+          <div class="col-sm-10">
+            <select class="form-control bra-form-control" id="new_medium" name="medium" onchange="check_medium(this)">
+              {% for medium in order.mediums %}
+              <option value="{{medium.id}}">{{medium.name}}</option>
+              {% endfor %}
+            </select>
+            <span class="errors"></span>
+            <span class="tips"></span>
+          </div>
+        </div>
+        <!--{{ form_field(form.medium)}}-->
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}
@@ -144,16 +152,23 @@
         alert('请选择回款时间')
         return false
       }
-      /***
-      var now_date = new Date()
-      now_date.setMonth(now_date.getMonth() + 1)
-      var back_time = new Date(obj.back_time.value)
-      if (back_time > now_date){
-        alert('申请发票的回款时间超过了一个月')
-        return false
-      }else{
-        return true
-      }**/
+    }
+    function check_medium(e){
+      $.ajax({
+        type: 'POST',
+        url: "/saler/medium_invoice/"+e.value+"/tax_info",
+        data: {'id':e.value} ,
+        dataType: 'json',
+        success:function(data) {
+            $(e).closest("form").find('#tax_id').val(data['tax_num'])
+            $(e).closest("form").find('#address').val(data['address'])
+            $(e).closest("form").find('#bank').val(data['bank'])
+            $(e).closest("form").find('#bank_id').val(data['bank_num'])
+            $(e).closest("form").find('#phone').val(data['phone_num'])
+            $(e).closest("form").find('#company').val(data['abbreviation'])
+
+        }
+      });
     }
 
     $(document).ready(function(){
@@ -162,7 +177,8 @@
             todayHighlight: true,
             language: 'zh-CN',
             minView: 2
-          });
+        });
+        $('#new_medium').trigger("change");
     })
 </script>
 {% endif %}

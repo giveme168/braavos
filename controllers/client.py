@@ -73,8 +73,19 @@ def new_medium():
     form = NewMediumForm(request.form)
     if request.method == 'POST' and form.validate():
         db_medium_name = Medium.name_exist(form.name.data)
+        print form.tax_num.data
+        print form.address.data
         if not db_medium_name:
-            medium = Medium.add(form.name.data, Team.get(form.owner.data), form.abbreviation.data)
+            medium = Medium.add(
+                name=form.name.data,
+                owner=Team.get(form.owner.data),
+                abbreviation=form.abbreviation.data,
+                tax_num=form.tax_num.data,
+                address=form.address.data,
+                phone_num=form.phone_num.data,
+                bank=form.bank.data,
+                bank_num=form.bank_num.data)
+            medium.save()
             flash(u'新建媒体(%s)成功!' % medium.name, 'success')
         else:
             flash(u'新建媒体(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
@@ -157,12 +168,22 @@ def medium_detail(medium_id):
         medium.name = form.name.data
         medium.owner = Team.get(form.owner.data)
         medium.abbreviation = form.abbreviation.data
+        medium.tax_num = form.tax_num.data
+        medium.address = form.address.data
+        medium.phone_num = form.phone_num.data
+        medium.bank = form.bank.data
+        medium.bank_num = form.bank_num.data
         medium.save()
         flash(u'保存成功!', 'success')
     else:
         form.name.data = medium.name
         form.owner.data = medium.owner_id
         form.abbreviation.data = medium.abbreviation
+        form.tax_num.data = medium.tax_num
+        form.address.data = medium.address
+        form.phone_num.data = medium.phone_num
+        form.bank.data = medium.bank
+        form.bank_num.data = medium.bank_num
     return tpl('medium.html', form=form, title=u"媒体-" + medium.name)
 
 

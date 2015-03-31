@@ -74,11 +74,22 @@ class Medium(db.Model, BaseModelMixin):
     abbreviation = db.Column(db.String(100))
     owner_id = db.Column(db.Integer, db.ForeignKey('team.id'))
     owner = db.relationship('Team', backref=db.backref('mediums', lazy='dynamic'))
+    tax_num = db.Column(db.String(100))  # 税号
+    address = db.Column(db.String(100))  # 地址
+    phone_num = db.Column(db.String(100))  # 电话
+    bank = db.Column(db.String(100))  # 银行
+    bank_num = db.Column(db.String(100))  # 银行号
 
-    def __init__(self, name, owner, abbreviation=None):
+    def __init__(self, name, owner, abbreviation=None, tax_num="",
+                 address="", phone_num="", bank="", bank_num=""):
         self.name = name
         self.owner = owner
         self.abbreviation = abbreviation or ""
+        self.tax_num = tax_num
+        self.address = address
+        self.phone_num = phone_num
+        self.bank = bank
+        self.bank_num = bank_num
 
     def positions_info_by_date(self):
         return positions_info(self.positions)
@@ -91,6 +102,15 @@ class Medium(db.Model, BaseModelMixin):
     @property
     def current_framework(self):
         return framework_generator(self.id)
+
+    @property
+    def tax_info(self):
+        return {'tax_num': self.tax_num or '',
+                'address': self.address or '',
+                'phone_num': self.phone_num or '',
+                'bank': self.bank or '',
+                'bank_num': self.bank_num or '',
+                'abbreviation': self.abbreviation or ''}
 
 
 def framework_generator(num):
