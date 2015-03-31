@@ -61,6 +61,13 @@ STATUS_CN = {
     STATUS_ON: u'正常',
 }
 
+BACK_MONEY_STATUS_END = 0
+BACK_MONEY_STATUS_NOW = 1
+BACK_MONEY_STATUS_CN = {
+    BACK_MONEY_STATUS_END: u'回款完成',
+    BACK_MONEY_STATUS_NOW: u'正在回款',
+}
+
 ECPM_CONTRACT_STATUS_LIST = [2, 4, 5]
 
 direct_sales = db.Table('client_order_direct_sales',
@@ -105,12 +112,13 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_client_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
-
+    back_money_status = db.Column(db.Integer)
     contract_generate = True
     media_apply = True
     kind = "client-order"
 
     def __init__(self, agent, client, campaign, medium_orders=None, status=STATUS_ON,
+                 back_money_status=BACK_MONEY_STATUS_NOW,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  direct_sales=None, agent_sales=None,
@@ -137,6 +145,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.status = status
         self.create_time = create_time or datetime.datetime.now()
         self.contract_status = contract_status
+        self.back_money_status = back_money_status
 
     @classmethod
     def get_all(cls):
@@ -381,6 +390,45 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             mo.delete()
         db.session.delete(self)
         db.session.commit()
+
+    @property
+    def back_moneys(self):
+        return sum([k.money for k in self.backmoneys])
+
+    @property
+    def back_money_status_cn(self):
+        return BACK_MONEY_STATUS_CN[self.back_money_status or 1]
+
+    @property
+    def back_money_percent(self):
+        return int(float(self.back_moneys) / self.money * 100)
+
+
+class BackMoney(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_client_order_back_money'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'ClientOrder', backref=db.backref('backmoneys', lazy='dynamic'))
+    money = db.Column(db.Float())
+    back_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, client_order, money=0.0, create_time=None, back_time=None):
+        self.client_order = client_order
+        self.money = money
+        self.create_time = create_time or datetime.date.today()
+        self.back_time = back_time or datetime.date.today()
+
+    @property
+    def back_time_cn(self):
+        return self.back_time.strftime(DATE_FORMAT)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
 
 
 def contract_generator(framework, num):

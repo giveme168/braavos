@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
+from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app, jsonify
 from flask import render_template as tpl
 
 from models.client_order import ClientOrder
@@ -191,3 +191,9 @@ def apply_invoice(invoice_id):
     flash(u'[%s 打款发票开具申请] 已发送邮件给 %s ' %
           (invoice.client_order, ', '.join(to_emails)), 'info')
     return redirect(url_for("saler_medium_invoice.index", order_id=invoice.client_order.id))
+
+
+@saler_medium_invoice_bp.route('/<medium_id>/tax_info', methods=['POST'])
+def tax_info(medium_id):
+    medium = Medium.get(medium_id)
+    return jsonify(medium.tax_info)
