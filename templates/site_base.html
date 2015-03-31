@@ -49,7 +49,8 @@
                 <li><a href="{{url_for('finance_pay.index_pass')}}">已打款的外包信息</a></li>
                 <li><a href="{{url_for('finance_medium_pay.index')}}">申请中的媒体打款</a></li>
                 <li><a href="{{url_for('finance_medium_pay.index_pass')}}">已打款的媒体信息</a></li>
-                <!---<li><a href="#">回款管理</a></li>-->
+                <li role="presentation" class="dropdown-header">回款管理</li>
+                <li><a href="{{url_for('finance_client_order_back_money.index')}}">客户订单回款</a></li>
               </ul>
             </li>
             {% endif %}

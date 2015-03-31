@@ -107,7 +107,7 @@
       <li class="active"><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
       <li class=""><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>客户发票与回款</a></li>
       <li class=""><a href='{{url_for("saler_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
-      <li class=""><a href='#'>回款情况(开发中)</a></li>
+      <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=order.id)}}'>回款情况(开发中)</a></li>
     </ul>
     <div class="tab-content">
       <div class="tab-pane active" id="tab-1">

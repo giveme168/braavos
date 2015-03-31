@@ -14,9 +14,6 @@
     <a class="list-group-item" href="{{url_for('finance_pay.index_pass')}}">已打款的外包信息</a>
     <a class="list-group-item" href="{{url_for('finance_medium_pay.index')}}">申请中的媒体打款</a>
     <a class="list-group-item" href="{{url_for('finance_medium_pay.index_pass')}}">已打款的媒体信息</a>
-    <!--
-    <a class="list-group-item" href="#">
-        <span class="glyphicon glyphicon-stats"></span> 回款管理
-    </a>
-    -->
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 回款管理</li>
+    <a class="list-group-item" href="{{url_for('finance_client_order_back_money.index')}}">客户订单回款</a>
 {% endblock %}

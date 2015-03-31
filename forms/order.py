@@ -144,3 +144,11 @@ class DoubanOrderForm(Form):
                 self.direct_sales.errors.append(u"直接销售和渠道销售不能全为空")
                 return False
         return False
+
+class ClientOrderBackMoneyForm(Form):
+    client_order = SelectField(u'客户', coerce=int)
+    money = FloatField(u'合同金额(元)', default=0)
+    back_time = DateField(u'回款日期')
+
+    def __init__(self, *args, **kwargs):
+        super(DoubanOrderForm, self).__init__(*args, **kwargs)

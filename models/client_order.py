@@ -391,6 +391,45 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         db.session.delete(self)
         db.session.commit()
 
+    @property
+    def back_moneys(self):
+        return sum([k.money for k in self.backmoneys])
+
+    @property
+    def back_money_status_cn(self):
+        return BACK_MONEY_STATUS_CN[self.back_money_status or 1]
+
+    @property
+    def back_money_percent(self):
+        return int(float(self.back_moneys) / self.money * 100)
+
+
+class BackMoney(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_client_order_back_money'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'ClientOrder', backref=db.backref('backmoneys', lazy='dynamic'))
+    money = db.Column(db.Float())
+    back_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, client_order, money=0.0, create_time=None, back_time=None):
+        self.client_order = client_order
+        self.money = money
+        self.create_time = create_time or datetime.date.today()
+        self.back_time = back_time or datetime.date.today()
+
+    @property
+    def back_time_cn(self):
+        return self.back_time.strftime(DATE_FORMAT)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
 
 def contract_generator(framework, num):
     code = "%s-%03x" % (framework, num % 1000)
