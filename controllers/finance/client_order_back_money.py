@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from flask import request, Blueprint, abort
+import datetime
+
+from flask import request, Blueprint, abort, flash, g, redirect, url_for
 from flask import render_template as tpl
 
 from models.user import TEAM_LOCATION_CN
-from models.client_order import ClientOrder, CONTRACT_STATUS_CN
+from models.client_order import ClientOrder, BackMoney, CONTRACT_STATUS_CN
 
 finance_client_order_back_money_bp = Blueprint(
     'finance_client_order_back_money', __name__, template_folder='../../templates/finance')
@@ -58,4 +60,26 @@ def back_money(order_id):
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
+    if request.method == 'POST':
+        money = float(request.values.get('money', 0))
+        back_time = request.values.get(
+            'back_time', datetime.date.today().strftime('%Y-%m-%d'))
+        back_money_status = request.values.get('back_money_status', '')
+        if back_money_status != '':
+            if int(back_money_status) == 0:
+                order.back_money_status = int(back_money_status)
+                order.save()
+                flash(u'完成所有回款!', 'success')
+                order.add_comment(g.user, u"完成所有回款", msg_channel=4)
+        else:
+            bm = BackMoney.add(
+                client_order=order,
+                money=money,
+                back_time=back_time,
+                create_time=datetime.date.today().strftime('%Y-%m-%d'))
+            bm.save()
+            flash(u'保存成功!', 'success')
+            order.add_comment(
+                g.user, u"更新了回款信息，回款金额: %s; 回款时间: %s;" % (money, back_time), msg_channel=4)
+        return redirect(url_for("finance_client_order_back_money.back_money", order_id=order.id))
     return tpl('/finance/client_order_back_money/info.html', order=order)

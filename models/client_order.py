@@ -397,11 +397,21 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def back_money_status_cn(self):
-        return BACK_MONEY_STATUS_CN[self.back_money_status or 1]
+        if self.back_money_status == 0:
+            return BACK_MONEY_STATUS_CN[BACK_MONEY_STATUS_END]
+        else:
+            return BACK_MONEY_STATUS_CN[self.back_money_status or 1]
 
     @property
     def back_money_percent(self):
-        return int(float(self.back_moneys) / self.money * 100)
+        if self.back_money_status == 0:
+            return 100
+        else:
+            return int(float(self.back_moneys) / self.money * 100)
+
+    @property
+    def back_money_list(self):
+        return self.backmoneys
 
 
 class BackMoney(db.Model, BaseModelMixin):
