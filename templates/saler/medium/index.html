@@ -1,159 +1,157 @@
 {% extends "/order_base.html" %}
 {% from '/saler/medium/medium_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
-
 {% macro contract_box(order) -%}
 <div class="bra-main bra-box" style="width:100%;">
-    <h3>媒体订单发票情况</h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>媒体总金额</th>
-            <th>已打款发票金额</th>
-            <th>申请中的打款金额</th>
-        </tr>
-        <tr>
-            <td>{{order.mediums_money2}}元</td>
-            <td>{{order.mediums_invoice_pass_sum}}元</td>
-            <td>{{order.mediums_invoice_apply_sum}}元</td>
-        </tr>
-    </table>
-    {% for k in range(3) %}
-      {% if k == 0 %}
-          {% set invoices = invoices_data.pass %}
+  <h3>媒体订单发票情况</h3>
+  <table class="table table-bordered table-striped">
+    <tr>
+      <th>媒体总金额</th>
+      <th>已打款发票金额</th>
+      <th>申请中的打款金额</th>
+    </tr>
+    <tr>
+      <td>{{order.mediums_money2}}元</td>
+      <td>{{order.mediums_invoice_pass_sum}}元</td>
+      <td>{{order.mediums_invoice_apply_sum}}元</td>
+    </tr>
+  </table>
+  {% for k in range(3) %}
+    {% if k == 0 %}
+      {% set invoices = invoices_data.pass %}
       {% elif k == 1 %}
-          {% set invoices = invoices_data.normal %}
+      {% set invoices = invoices_data.normal %}
       {% elif k == 2 %}
-          {% set invoices = invoices_data.apply %}
-      {% endif %}
+      {% set invoices = invoices_data.apply %}
+    {% endif %}
     {% if invoices|length > 0 %}
-    <div class="panel panel-default" id="non-invoice">
+      <div class="panel panel-default" id="non-invoice">
         <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-{{k}}"> {{ MEDIUM_INVOICE_STATUS_CN[k] }}</a>
-            </h4>
+          <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-{{k}}"> {{ MEDIUM_INVOICE_STATUS_CN[k] }}</a>
+          </h4>
         </div>
         <div id="collapse-invoice-{{k}}" class="panel-collapse collapse in ">
-            <div class="panel-body">
-              {% for i in invoices %}
-                {{ invoice_form(order, i.form, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_PAY_CN, i.invoice) }}
-              {% endfor %}
-              {% if k != 0 %}
-                {{ status_box(invoices[0]['invoice']) }}
-              {% endif %}
-            </div>
+          <div class="panel-body">
+            {% for i in invoices %}
+              {{ invoice_form(order, i.form, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_PAY_CN, i.invoice) }}
+            {% endfor %}
+            {% if k != 0 %}
+              {{ status_box(invoices[0]['invoice']) }}
+            {% endif %}
+          </div>
         </div>
-    </div>
+      </div>
     {% endif %}
-    {% endfor %}
-    <div class="panel panel-default" id="new-invoice" style="display:none;">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写发票申请打款 </a>
-            </h4>
-        </div>
-        <div id="collapse-invoice-new" class="panel-collapse collapse in">
-            <div class="panel-body">
-              <div class="well">
-                {{ invoice_form(order, new_invoice_form, INVOICE_TYPE_CN) }}
-              </div>
-            </div>
-        </div>
+  {% endfor %}
+  <div class="panel panel-default" id="new-invoice" style="display:none;">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+      <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写发票申请打款 </a>
+      </h4>
     </div>
-    <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写发票申请打款</button>
-</div>
-<script>
-  showInvoice = function(ele){
-      $(ele).hide();
-      $("#new-invoice").show();
-    };
-  function check_all(e){
-    $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));
-    $(e).parent().find(".invoice-id").trigger("change");
-  }
-  $(function(){
-    $(".invoice-id").change(function(e){
-      if($(this).prop("checked")){
-        if($("#form-invoice-"+$(this).val()).length < 1){
-          $(this).parents(".panel-collapse").find(".invoice-status-form")
-          .append('<input class="hide invoices" name="invoices" id="form-invoice-'+$(this).val()+'" value="'+$(this).val()+'"/>');
-        }
-      }else{
-        $(this).parents(".panel-collapse").find(".invoice-all").prop("checked", false);
-
-        if($("#form-invoice-"+$(this).val()).length > 0){
-          $("#form-invoice-"+$(this).val()).remove();
-        }
-      }
-    });
-    $(".invoice-btn").click(function(e){
-      var actionVal = $(this).val();
-      var email = $(this).parents('form').find("#contract-email").val();
-      var invoices = $(this).parents('form').find(".invoices");
-      var msg = $(this).parents('form').find("#msg").val();
-      if(invoices.length < 1){
-        alert("请勾选要申请的发票!");
-        e.preventDefault();
-      }
-      if(actionVal == '2'){
-        if(msg == ""){
-            alert("请填写理由！");
-            e.preventDefault();
-         }
-      }
-    });
-  });
-</script>
-{%- endmacro %}
-
-{% block main_box%}
-<div class="bra-main bra-box">
-  <h4> {{ order.name }} </h4>
-  <div>
-    <ul class="nav nav-tabs">
-      <li class=""><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
-      <li class=""><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>客户发票与回款</a></li>
-      <li class="active"><a href='{{url_for("saler_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
-      <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=order.id)}}'>回款情况(开发中)</a></li>
-    </ul>
-    <div class="tab-content">
-      <div class="tab-pane active" id="tab-2">
-        {{ contract_box(order) }}
-        <div>{{ comments_box(order, msg_channel=3) }}</div>
+    <div id="collapse-invoice-new" class="panel-collapse collapse in">
+      <div class="panel-body">
+        <div class="well">
+          {{ invoice_form(order, new_invoice_form, INVOICE_TYPE_CN) }}
+        </div>
       </div>
     </div>
   </div>
+  <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写发票申请打款</button>
 </div>
+<script>
+showInvoice = function(ele) {
+  $(ele).hide();
+  $("#new-invoice").show();
+};
+
+function check_all(e) {
+  $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));
+  $(e).parent().find(".invoice-id").trigger("change");
+}
+$(function() {
+  $(".invoice-id").change(function(e) {
+    if ($(this).prop("checked")) {
+      if ($("#form-invoice-" + $(this).val()).length < 1) {
+        $(this).parents(".panel-collapse").find(".invoice-status-form")
+          .append('<input class="hide invoices" name="invoices" id="form-invoice-' + $(this).val() + '" value="' + $(this).val() + '"/>');
+      }
+    } else {
+      $(this).parents(".panel-collapse").find(".invoice-all").prop("checked", false);
+      if ($("#form-invoice-" + $(this).val()).length > 0) {
+        $("#form-invoice-" + $(this).val()).remove();
+      }
+    }
+  });
+  $(".invoice-btn").click(function(e) {
+    var actionVal = $(this).val();
+    var email = $(this).parents('form').find("#contract-email").val();
+    var invoices = $(this).parents('form').find(".invoices");
+    var msg = $(this).parents('form').find("#msg").val();
+    if (invoices.length < 1) {
+      alert("请勾选要申请的发票!");
+      e.preventDefault();
+    }
+    if (actionVal == '2') {
+      if (msg == "") {
+        alert("请填写理由！");
+        e.preventDefault();
+      }
+    }
+  });
+});
+</script>
+{%- endmacro %}
+{% block main_box%}
+  <div class="bra-main bra-box">
+    <h4> {{ order.name }} </h4>
+    <div>
+      <ul class="nav nav-tabs">
+        <li class=""><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
+        <li class=""><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>客户发票与回款</a></li>
+        <li class="active"><a href='{{url_for("saler_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
+        <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=order.id)}}'>回款情况</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active" id="tab-2">
+          {{ contract_box(order) }}
+          <div>{{ comments_box(order, msg_channel=3) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 {% macro status_box(invoice) -%}
-   <input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
-   <form class="form form-horizontal invoice-status-form" id="status-form" method="POST" action="{{url_for('saler_medium_invoice.apply_invoice', invoice_id=invoice.id)}}">
-     <div class="form-group">
-        <label for="email" class="col-sm-2 control-label">邮箱 : </label>
-        <div class="col-sm-10">
-            <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
-              {% for u in reminder_emails %}
-              <option value="{{u[1]}}">{{u[0]}}</option>
-              {% endfor %}
-            </select>
-        </div>
-     </div>
-     <div class="form-group">
-        <label for="msg" class="col-sm-2 control-label">留言 : </label>
-        <div class="col-sm-10">
-            <textarea class="form-control bra-form-control" id="msg"
-            name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
-        </div>
-     </div>
-     <div class="form-group">
-        <label class="col-sm-2 control-label">操作 : </label>
-        <div class="col-sm-4">
-          {% if invoice.invoice_status in [1] %}
-          <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">申请发票打款</button>
-          {% endif %}
-        </div>
-        <div class="col-sm-6">
-          <!--<button class="btn btn-sm btn-info contract-submit " name="action" type="submit" value="10">留言</button>-->
-        </div>
-     </div>
-   </form>
+<input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
+<form class="form form-horizontal invoice-status-form" id="status-form" method="POST" action="{{url_for('saler_medium_invoice.apply_invoice', invoice_id=invoice.id)}}">
+  <div class="form-group">
+    <label for="email" class="col-sm-2 control-label">邮箱 : </label>
+    <div class="col-sm-10">
+      <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+        {% for u in reminder_emails %}
+          <option value="{{u[1]}}">{{u[0]}}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="msg" class="col-sm-2 control-label">留言 : </label>
+    <div class="col-sm-10">
+      <textarea class="form-control bra-form-control" id="msg"
+      name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">操作 : </label>
+    <div class="col-sm-4">
+      {% if invoice.invoice_status in [1] %}
+        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">申请发票打款</button>
+      {% endif %}
+    </div>
+    <div class="col-sm-6">
+      <!--<button class="btn btn-sm btn-info contract-submit " name="action" type="submit" value="10">留言</button>-->
+    </div>
+  </div>
+</form>
 {%- endmacro %}

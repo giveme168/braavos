@@ -1,5 +1,5 @@
 {% extends "/finance_base.html" %}
-
+{% from 'comments.html' import comments_box %}
 
 {% block main_box%}
 <div class="bra-main bra-box">
@@ -43,7 +43,7 @@
                             <th>回款时间</th>
                             <th>金额</th>
                           </tr>
-                          {% for back in back_moneys %}
+                          {% for back in order.back_money_list %}
                           <tr>
                             <td>{{back.back_time_cn}}</td>
                             <td>{{back.money}}</td>
@@ -55,10 +55,42 @@
             </div>
         </div>
     </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 是否全部完成回款 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-new" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="well">
+                    <form class="form form-horizontal" method="POST" action="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">该合同是否已完成全部回款 : </label>
+                            <div class="col-sm-6">
+                                <select class="form-control bra-form-control" id="back_money_status" name="back_money_status">
+                                    {% if order.back_money_status == 0 %}
+                                      <option value="1">未完成</option>
+                                      <option value="0" selected="selected">已完成</option>
+                                    {% else %}
+                                      <option value="1" selected="selected">未完成</option>
+                                      <option value="0">已完成</option>
+                                    {% endif %}
+                                </select>
+                                <span class="errors"></span>
+                                <span class="tips"></span>
+                            </div>
+                            <div class="col-sm-2"><input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/></div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="panel panel-default" id="new-invoice" style="display:none;">
         <div class="panel-heading">
             <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 申请发票信息 </a>
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写回款信息 </a>
             </h4>
         </div>
         <div id="collapse-invoice-new" class="panel-collapse collapse in">
@@ -77,18 +109,6 @@
                                 <input type="text" id="back_time" name="back_time" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="client_start" class="col-sm-2 control-label">该合同是否已完成全部回款 : </label>
-                            <div class="col-sm-10">
-                                <select class="form-control bra-form-control" id="back_money_status" name="back_money_status">
-                                    <option value="1">未完成</option>
-                                    <option value="0">已完成</option>
-                                </select>
-                                <span class="errors"></span>
-                                <span class="tips"></span>
-                            </div>
-                        </div>
                         <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
                     </form>
                 </div>
@@ -96,6 +116,7 @@
         </div>
     </div>
     <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span>新建回款信息</button>
+    <div>{{ comments_box(order, msg_channel=4) }}</div>
 </div>
 <script>
     function checkform(obj){
