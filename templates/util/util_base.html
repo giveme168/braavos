@@ -1,0 +1,10 @@
+{% extends "/site_base.html" %}
+
+{% block left_box%}
+<style>
+.list-group-item {
+    margin-left:15px;
+}
+</style>
+    <a class="list-group-item" href="{{url_for('util_upload_orders.index')}}">导入合同</a>
+{% endblock %}

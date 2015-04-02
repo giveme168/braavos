@@ -166,7 +166,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def mediums_money2(self):
-        return sum([x.medium_money2 for x in self.medium_orders])
+        return sum([x.medium_money2 or 0 for x in self.medium_orders])
 
     @property
     def mediums_invoice_pass_sum(self):

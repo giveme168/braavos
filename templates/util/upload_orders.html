@@ -1,0 +1,16 @@
+{% extends "/util_base.html" %}
+{% block title %}合同导入{% endblock %}
+{% block main_box %}
+    <div class="bra-main bra-box" style="width:2000px;">
+        <h3>客户订单列表</h3>
+        <div class="search">
+            <form class="form-inline" role="form" action="" method='POST' enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="file" class="form-control" id="upload_file" name="upload_file" placeholder="选择文件">
+                </div>
+                <button type="submit" class="btn btn-default">上传</button>
+            </form>
+        </div>
+        <br>
+    </div>
+{% endblock %}
