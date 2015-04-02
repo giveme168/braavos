@@ -213,6 +213,15 @@ class User(db.Model, BaseModelMixin):
     def all_active(cls):
         return [u for u in cls.query.order_by(cls.id.desc()) if u.is_active()]
 
+    @classmethod
+    def outsource_leaders_email(cls, user, upper=False):
+        leader_emails = [k.email for k in user.team.admins]
+        # if user.team.location in [TEAM_LOCATION_HUABEI,TEAM_LOCATION_HUADONG]:
+        #     leader_emails += ['huawei@inad.com','fenghaiyan@inad.com']
+        # else:
+        #     leader_emails += ['huangliang@inad.com','fenghaiyan@inad.com']
+        return leader_emails
+
 
 team_admins = db.Table('team_admin_users',
                        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),

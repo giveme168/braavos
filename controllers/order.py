@@ -124,9 +124,12 @@ def get_client_form(order):
     return client_form
 
 
-def get_medium_form(order):
+def get_medium_form(order, user=None):
     medium_form = MediumOrderForm()
-    medium_form.medium.choices = [(order.medium.id, order.medium.name)]
+    if user and user.is_super_leader():
+        medium_form.medium.choices = [(medium.id, medium.name) for medium in Medium.all()]
+    else:
+        medium_form.medium.choices = [(order.medium.id, order.medium.name)]
     medium_form.medium.data = order.medium.id
     medium_form.medium_money.data = order.medium_money
     medium_form.medium_money2.data = order.medium_money2
@@ -228,7 +231,7 @@ def order_info(order_id, tab_id=1):
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
-               'medium_forms': [(get_medium_form(mo), mo) for mo in order.medium_orders],
+               'medium_forms': [(get_medium_form(mo, g.user), mo) for mo in order.medium_orders],
                'new_associated_douban_form': new_associated_douban_form,
                'order': order,
                'reminder_emails': reminder_emails,
@@ -272,6 +275,8 @@ def medium_order(mo_id):
     if not mo:
         abort(404)
     form = MediumOrderForm(request.form)
+    if g.user.is_super_leader():
+        mo.medium = Medium.get(form.medium.data)
     mo.medium_money = int(round(float(form.medium_money.data)))
     mo.medium_money2 = int(round(float(form.medium_money2.data)))
     mo.sale_money = int(round(float(form.sale_money.data)))
