@@ -216,10 +216,16 @@ class User(db.Model, BaseModelMixin):
     @classmethod
     def outsource_leaders_email(cls, user, upper=False):
         leader_emails = [k.email for k in user.team.admins]
-        # if user.team.location in [TEAM_LOCATION_HUABEI,TEAM_LOCATION_HUADONG]:
-        #     leader_emails += ['huawei@inad.com','fenghaiyan@inad.com']
-        # else:
-        #     leader_emails += ['huangliang@inad.com','fenghaiyan@inad.com']
+        operater_leaders = [
+            k.email for k in cls.all() if k.team.type == TEAM_TYPE_OPERATER_LEADER]
+        if user.team.location in [TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG]:
+            leader_emails += operater_leaders + \
+                [k.email for k in cls.all() if k.email.find(
+                    'huawei') >= 0 and k.team.type == TEAM_TYPE_SUPER_LEADER]
+        else:
+            leader_emails += operater_leaders + \
+                [k.email for k in cls.all() if k.email.find(
+                    'huangliang') >= 0 and k.team.type == TEAM_TYPE_SUPER_LEADER]
         return leader_emails
 
 
