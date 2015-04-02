@@ -51,7 +51,7 @@ def new_order():
         order = ClientOrder.add(agent=Agent.get(form.agent.data),
                                 client=Client.get(form.client.data),
                                 campaign=form.campaign.data,
-                                money=int(round(float(form.money.data))),
+                                money=int(round(float(form.money.data or 0))),
                                 client_start=form.client_start.data,
                                 client_end=form.client_end.data,
                                 reminde_date=form.reminde_date.data,
@@ -75,7 +75,7 @@ def new_order():
                 medium = Medium.get(medium_ids[x])
                 mo = Order.add(campaign=order.campaign,
                                medium=medium,
-                               sale_money=int(round(float(medium_moneys[x]))),
+                               sale_money=int(round(float(medium_moneys[x] or 0))),
                                medium_money=0,
                                medium_money2=0,
                                medium_start=order.client_start,
@@ -163,7 +163,7 @@ def order_info(order_id, tab_id=1):
                     order.agent = Agent.get(client_form.agent.data)
                     order.client = Client.get(client_form.client.data)
                     order.campaign = client_form.campaign.data
-                    order.money = int(round(float(client_form.money.data)))
+                    order.money = int(round(float(client_form.money.data or 0)))
                     order.client_start = client_form.client_start.data
                     order.client_end = client_form.client_end.data
                     order.reminde_date = client_form.reminde_date.data
@@ -248,9 +248,9 @@ def order_new_medium(order_id):
     if request.method == 'POST':
         mo = Order.add(campaign=co.campaign,
                        medium=Medium.get(form.medium.data),
-                       medium_money=int(round(float(form.medium_money.data))),
-                       medium_money2=int(round(float(form.medium_money2.data))),
-                       sale_money=int(round(float(form.sale_money.data))),
+                       medium_money=int(round(float(form.medium_money.data or 0))),
+                       medium_money2=int(round(float(form.medium_money2.data or 0))),
+                       sale_money=int(round(float(form.sale_money.data or 0))),
                        medium_CPM=form.medium_CPM.data,
                        sale_CPM=form.sale_CPM.data,
                        medium_start=form.medium_start.data,
@@ -277,9 +277,9 @@ def medium_order(mo_id):
     form = MediumOrderForm(request.form)
     if g.user.is_super_leader():
         mo.medium = Medium.get(form.medium.data)
-    mo.medium_money = int(round(float(form.medium_money.data)))
-    mo.medium_money2 = int(round(float(form.medium_money2.data)))
-    mo.sale_money = int(round(float(form.sale_money.data)))
+    mo.medium_money = int(round(float(form.medium_money.data or 0)))
+    mo.medium_money2 = int(round(float(form.medium_money2.data or 0)))
+    mo.sale_money = int(round(float(form.sale_money.data or 0)))
     mo.medium_CPM = form.medium_CPM.data
     mo.sale_CPM = form.sale_CPM.data
     mo.medium_start = form.medium_start.data
@@ -300,7 +300,7 @@ def new_associated_douban_order():
     form = AssociatedDoubanOrderForm(request.form)
     ao = AssociatedDoubanOrder.add(medium_order=Order.get(form.medium_order.data),
                                    campaign=form.campaign.data,
-                                   money=int(round(float(form.money.data))),
+                                   money=int(round(float(form.money.data or 0))),
                                    creator=g.user)
     ao.medium_order.client_order.add_comment(g.user,
                                              u"新建了关联豆瓣订单: %s - %s - %s" % (
@@ -480,7 +480,7 @@ def new_framework_order():
         order = FrameworkOrder.add(group=Group.get(form.group.data),
                                    agents=Agent.gets(form.agents.data),
                                    description=form.description.data,
-                                   money=int(round(float(form.money.data))),
+                                   money=int(round(float(form.money.data or 0))),
                                    client_start=form.client_start.data,
                                    client_end=form.client_end.data,
                                    reminde_date=form.reminde_date.data,
@@ -663,7 +663,7 @@ def new_douban_order():
         order = DoubanOrder.add(client=Client.get(form.client.data),
                                 agent=Agent.get(form.agent.data),
                                 campaign=form.campaign.data,
-                                money=int(round(float(form.money.data))),
+                                money=int(round(float(form.money.data or 0))),
                                 medium_CPM=form.medium_CPM.data,
                                 sale_CPM=form.sale_CPM.data,
                                 client_start=form.client_start.data,
@@ -742,7 +742,7 @@ def douban_order_info(order_id):
                     order.client = Client.get(form.client.data)
                     order.agent = Agent.get(form.agent.data)
                     order.campaign = form.campaign.data
-                    order.money = int(round(float(form.money.data)))
+                    order.money = int(round(float(form.money.data or 0)))
                     order.sale_CPM = form.sale_CPM.data
                     order.medium_CPM = form.medium_CPM.data
                     order.client_start = form.client_start.data
