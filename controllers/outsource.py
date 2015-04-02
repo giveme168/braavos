@@ -7,7 +7,8 @@ from models.client_order import ClientOrder
 from models.order import Order
 from models.user import User
 from models.outsource import (OUTSOURCE_STATUS_NEW, OUTSOURCE_STATUS_APPLY_LEADER,
-                              OUTSOURCE_STATUS_PASS, OUTSOURCE_STATUS_APPLY_MONEY, INVOICE_RATE)
+                              OUTSOURCE_STATUS_PASS, OUTSOURCE_STATUS_APPLY_MONEY,
+                              OUTSOURCE_STATUS_EXCEED, INVOICE_RATE)
 from forms.outsource import OutSourceTargetForm, OutsourceForm
 from libs.signals import outsource_apply_signal
 
@@ -168,9 +169,21 @@ def outsource_status(order_id):
 
     to_users = order.direct_sales + order.agent_sales + \
         [order.creator, g.user] + User.operater_leaders()
+    try:
+        outsource_apply_user = User.outsource_leaders_email(
+            order.agent_sales[0])
+    except:
+        outsource_apply_user = []
+    outsource_percent = (
+        sum([k.pay_num for k in outsources]) + order.outsources_sum) / order.money
+
     if action == 0:
-        next_status = OUTSOURCE_STATUS_APPLY_LEADER
-        action_msg = u'申请审批'
+        if outsource_percent >= 0.2:
+            next_status = OUTSOURCE_STATUS_EXCEED
+            action_msg = u'外包款超过20%，申请审批'
+        else:
+            next_status = OUTSOURCE_STATUS_APPLY_LEADER
+            action_msg = u'申请审批'
     elif action == 1:
         next_status = OUTSOURCE_STATUS_PASS
         action_msg = u'审批通过'
@@ -183,6 +196,7 @@ def outsource_status(order_id):
         to_users += User.finances()
     else:
         action_msg = u'消息提醒'
+    next_status = 0
     if action < 4:
         for outsource in outsources:
             outsource.status = next_status
@@ -192,7 +206,8 @@ def outsource_status(order_id):
                       u"%s:\n\r%s\n\r%s" % (
                           action_msg, "\n\r".join([o.name for o in outsources]), msg),
                       msg_channel=2)
-    to_emails = list(set(emails + [x.email for x in to_users]))
+    to_emails = list(
+        set(emails + [x.email for x in to_users] + outsource_apply_user))
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,

@@ -3,7 +3,7 @@
 {% from 'comments.html' import comments_box %}
 
 {% macro status_box(order, outsource_status, outsource) -%}
-   {% if outsource_status in [0, 1, 2] %}
+   {% if outsource_status in [0, 1, 2, 5] %}
    <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
    {% endif %}
 
@@ -35,8 +35,11 @@
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="2">不通过</button>
           {% elif outsource_status == 2 and outsource.can_admin(g.user) %}
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="3">申请打款</button>
+          {% elif outsource_status == 5 and g.user.is_super_leader() %}
+          <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="1">通过</button>
+          <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="2">不通过</button>
           {% endif %} 
-          <button class="btn btn-sm btn-default outsource-btn" name="action" type="submit" value="4">提醒</button>
+          <!--<button class="btn btn-sm btn-default outsource-btn" name="action" type="submit" value="4">提醒</button>-->
         </div>
      </div>
    </form>
@@ -58,7 +61,7 @@
     </tr>
 </table>
 <div class="panel-group" id="accordion-outsource">
-    {% for outsource_status in range(0, 5) %}
+    {% for outsource_status in range(0, 6) %}
     {% set outsources = order.get_outsources_by_status(outsource_status) %}
     {% if outsources %}
     <div class="panel panel-default" id="accordion-outsource">

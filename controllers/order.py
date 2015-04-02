@@ -318,7 +318,7 @@ def associated_douban_order(order_id):
     form = AssociatedDoubanOrderForm(request.form)
     ao.medium_order = Order.get(form.medium_order.data)
     ao.campaign = form.campaign.data
-    ao.money = int(round(float(form.money.data)))
+    ao.money = int(round(float(form.money.data or 0)))
     ao.save()
     ao.medium_order.client_order.add_comment(g.user,
                                              u"更新了关联豆瓣订单: %s - %s - %s" % (
