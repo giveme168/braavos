@@ -13,6 +13,7 @@ from urls.contract import contract_register_blueprint
 from urls.outsource import outsource_register_blueprint
 from urls.saler import saler_register_blueprint
 from urls.finance import finance_register_blueprint
+from urls.util import util_register_blueprint
 
 def register_blueprint(app):
     user_register_blueprint(app)
@@ -30,3 +31,4 @@ def register_blueprint(app):
     saler_register_blueprint(app)
     finance_register_blueprint(app)
     schedule_register_blueprint(app)
+    util_register_blueprint(app)

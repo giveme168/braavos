@@ -146,7 +146,7 @@ def get_medium_form(order):
 @order_bp.route('/order/<order_id>/info/<tab_id>', methods=['GET', 'POST'])
 def order_info(order_id, tab_id=1):
     order = ClientOrder.get(order_id)
-    if not order:
+    if not order or order.status == 0:
         abort(404)
     client_form = get_client_form(order)
     if request.method == 'POST':
