@@ -14,7 +14,7 @@ from models.order import Order
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
-                                 STATUS_DEL)
+                                 STATUS_DEL, CONTRACT_STATUS_NEW)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
@@ -295,6 +295,20 @@ def medium_order(mo_id):
     return redirect(mo.info_path())
 
 
+@order_bp.route('/order/medium_order/<medium_id>/edit_cpm', methods=['POST'])
+def order_medium_edit_cpm(medium_id):
+    mo = Order.get(medium_id)
+    if not mo:
+        abort(404)
+    cpm = int(round(float(request.values.get('cpm', 0))))
+    mo.medium_CPM = cpm
+    mo.save()
+    mo.client_order.add_comment(
+        g.user, u"更新了媒体订单: %s 的实际量%s CPM" % (mo.medium.name, mo.medium_CPM))
+    flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
+    return redirect(mo.info_path())
+
+
 @order_bp.route('/order/new_associated_douban_order', methods=['POST'])
 def new_associated_douban_order():
     form = AssociatedDoubanOrderForm(request.form)
@@ -368,6 +382,9 @@ def contract_status_change(order, action, emails, msg):
         action_msg = u"合同打印完毕"
     elif action == 7:
         action_msg = u"消息提醒"
+    elif action == 0:
+        order.contract_status = CONTRACT_STATUS_NEW
+        action_msg = u"合同被驳回，请从新提交审核"
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
 
@@ -531,7 +548,7 @@ def get_framework_form(order):
 @order_bp.route('/framework_order/<order_id>/info', methods=['GET', 'POST'])
 def framework_order_info(order_id):
     order = FrameworkOrder.get(order_id)
-    if not order:
+    if not order or order.status == 0:
         abort(404)
     framework_form = get_framework_form(order)
 
@@ -702,6 +719,20 @@ def douban_order_delete(order_id):
     return redirect(url_for("order.my_douban_orders"))
 
 
+@order_bp.route('/douban_order/<order_id>/edit_cpm', methods=['POST'])
+def douban_order_edit_cpm(order_id):
+    order = DoubanOrder.get(order_id)
+    if not order:
+        abort(404)
+    cpm = int(round(float(request.values.get('cpm', 0))))
+    order.medium_CPM = cpm
+    order.save()
+    order.add_comment(
+        g.user, u"更新了直签豆瓣订单: %s 的实际量%s CPM" % (order.name, order.medium_CPM))
+    flash(u'[直签豆瓣订单]%s 更新成功!' % order.name, 'success')
+    return redirect(url_for("order.douban_order_info", order_id=order.id))
+
+
 def get_douban_form(order):
     form = DoubanOrderForm()
     form.client.data = order.client.id
@@ -727,7 +758,7 @@ def get_douban_form(order):
 @order_bp.route('/douban_order/<order_id>/info', methods=['GET', 'POST'])
 def douban_order_info(order_id):
     order = DoubanOrder.get(order_id)
-    if not order:
+    if not order or order.status == 0:
         abort(404)
     form = get_douban_form(order)
 
