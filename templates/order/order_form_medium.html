@@ -11,6 +11,9 @@
 {% macro order_medium_table(order) -%}
 <div class="col-md-12">
     <div class="col-md-6" style="margin-left: 20px;">
+        {% if g.user.is_operater %}
+        <form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('order.order_medium_edit_cpm', medium_id=order.id)}}">
+        {% endif %}
         <table class="table table-bordered">
           <tr>
             <th>投放媒体 </th>
@@ -30,11 +33,15 @@
           </tr>
           <tr>
             <th>预估量 </th>
-            <td>{{order.medium.sale_CPM or 0}} CPM</td>
+            <td>{{order.sale_CPM or 0}} CPM</td>
           </tr>
            <tr>
             <th>实际量 </th>
-            <td>{{order.medium.medium_CPM or 0}} CPM</td>
+            {% if g.user.is_operater %}
+              <td><input type='text' value="{{order.medium_CPM or 0}}" class="form-control bra-form-control" name="cpm" style="width:100px;"/>CPM</td>
+            {% else %}
+              <td>{{order.medium.medium_CPM or 0}} CPM</td>
+            {% endif %}
           </tr>
            <tr>
             <th>执行人员 </th>
@@ -49,6 +56,10 @@
             <td>{{order.planers_names}}</td>
           </tr>
         </table>
+        {% if g.user.is_operater %}
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        </form>
+        {% endif %}
     </div>
 </div>
 

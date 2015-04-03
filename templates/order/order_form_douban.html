@@ -1,82 +1,6 @@
 {% from 'form.html' import form_field %}
 {% macro order_douban_form(form, douban_order=None) -%}
-{% if douban_order and not douban_order.can_admin(g.user) %}
-<div class="col-md-12">
-    <div class="col-md-6" style="margin-left: 20px;">
-        <table class="table table-bordered">
-          <tr>
-            <th>代理/直客(甲方全称) </th>
-            <td>{{douban_order.agent.name}}</td>
-          </tr>
-          <tr>
-            <th>客户名称</th>
-            <td>{{douban_order.client.name}}</td>
-          </tr>
-          <tr>
-            <th>Campaign名称</th>
-            <td>{{douban_order.campaign}}</td>
-          </tr>
-          <tr>
-            <th>合同金额</th>
-            <td>{{douban_order.money}} (元)</td>
-          </tr>
-          <tr>
-            <th>预估量 </th>
-            <td>{{douban_order.sale_CPM or 0}} CPM</td>
-          </tr>
-          <tr>
-            <th>实际量 </th>
-            <td>{{douban_order.medium_CPM or 0}} CPM</td>
-          </tr>
-            <th>执行开始</th>
-            <td>{{douban_order.start_date_cn}}</td>
-          </tr>
-          <tr>
-            <th>执行结束</th>
-            <td>{{douban_order.end_date_cn}}</td>
-          </tr>
-          <tr>
-            <th>回款日期</th>
-            <td>{{douban_order.reminde_date_cn}}</td>
-          </tr>
-          <tr>
-            <th>直客销售</th>
-            <td>{{douban_order.direct_sales_names}}</td>
-          </tr>
-          <tr>
-            <th>渠道销售</th>
-            <td>{{douban_order.agent_sales_names}}</td>
-          </tr>
-           <tr>
-            <th>执行人员 </th>
-            <td>{{douban_order.operater_names}}</td>
-          </tr>
-           <tr>
-            <th>设计人员 </th>
-            <td>{{douban_order.designers_names}}</td>
-          </tr>
-           <tr>
-            <th>策划人员 </th>
-            <td>{{douban_order.planers_names}}</td>
-          </tr>
-          <tr>
-            <th>合同模板类型</th>
-            <td>{{douban_order.contract_type_cn}}</td>
-          </tr>
-          <tr>
-            <th>售卖类型</th>
-            <td>{{douban_order.resource_type_cn}}</td>
-          </tr>
-          <tr>
-            <th>代理/直客</th>
-            <td>{{douban_order.sale_type_cn}}</td>
-          </tr>
-        </table>
-    </div>
-</div>
-
-
-{% else %}
+{% if douban_order and douban_order.can_admin(g.user) and douban_order.contract_status in [0, 1]%}
 <form class="form form-horizontal" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
@@ -129,5 +53,90 @@ $(document).ready(function(){
     });
 });
 </script>
+{% else %}
+<div class="col-md-12">
+    <div class="col-md-6" style="margin-left: 20px;">
+        {% if g.user.is_operater %}
+        <form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('order.douban_order_edit_cpm', order_id=douban_order.id)}}">
+        {% endif %}
+        <table class="table table-bordered">
+          <tr>
+            <th>代理/直客(甲方全称) </th>
+            <td>{{douban_order.agent.name}}</td>
+          </tr>
+          <tr>
+            <th>客户名称</th>
+            <td>{{douban_order.client.name}}</td>
+          </tr>
+          <tr>
+            <th>Campaign名称</th>
+            <td>{{douban_order.campaign}}</td>
+          </tr>
+          <tr>
+            <th>合同金额</th>
+            <td>{{douban_order.money}} (元)</td>
+          </tr>
+          <tr>
+            <th>预估量 </th>
+            <td>{{douban_order.sale_CPM or 0}} CPM</td>
+          </tr>
+          <tr>
+            <th>实际量 </th>
+            {% if g.user.is_operater %}
+              <td><input type='text' value="{{douban_order.medium_CPM or 0}}" class="form-control bra-form-control" name="cpm" style="width:100px;"/>CPM</td>
+            {% else %}
+              <td>{{douban_order.medium_CPM or 0}} CPM</td>
+            {% endif %}
+          </tr>
+            <th>执行开始</th>
+            <td>{{douban_order.start_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>执行结束</th>
+            <td>{{douban_order.end_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>回款日期</th>
+            <td>{{douban_order.reminde_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>直客销售</th>
+            <td>{{douban_order.direct_sales_names}}</td>
+          </tr>
+          <tr>
+            <th>渠道销售</th>
+            <td>{{douban_order.agent_sales_names}}</td>
+          </tr>
+           <tr>
+            <th>执行人员 </th>
+            <td>{{douban_order.operater_names}}</td>
+          </tr>
+           <tr>
+            <th>设计人员 </th>
+            <td>{{douban_order.designers_names}}</td>
+          </tr>
+           <tr>
+            <th>策划人员 </th>
+            <td>{{douban_order.planers_names}}</td>
+          </tr>
+          <tr>
+            <th>合同模板类型</th>
+            <td>{{douban_order.contract_type_cn}}</td>
+          </tr>
+          <tr>
+            <th>售卖类型</th>
+            <td>{{douban_order.resource_type_cn}}</td>
+          </tr>
+          <tr>
+            <th>代理/直客</th>
+            <td>{{douban_order.sale_type_cn}}</td>
+          </tr>
+        </table>
+        {% if g.user.is_operater %}
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        </form>
+        {% endif %}
+    </div>
+</div>
 {% endif %}
 {%- endmacro %}
