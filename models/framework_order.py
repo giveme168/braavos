@@ -3,7 +3,7 @@ import datetime
 from flask import url_for
 
 from . import db, BaseModelMixin
-from .user import User
+from .user import User, TEAM_LOCATION_CN
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
@@ -172,6 +172,14 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def path(self):
         return self.info_path()
+
+    @property
+    def locations(self):
+        return list(set([u.location for u in self.direct_sales + self.agent_sales]))
+
+    @property
+    def locations_cn(self):
+        return ",".join([TEAM_LOCATION_CN[l] for l in self.locations])
 
     @property
     def start_date(self):
