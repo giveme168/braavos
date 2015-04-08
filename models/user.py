@@ -27,8 +27,8 @@ TEAM_TYPE_OPERATER = 5     # 內部-執行
 TEAM_TYPE_AGENT_SELLER = 4       # 內部-渠道銷售
 TEAM_TYPE_DIRECT_SELLER = 3       # 內部-直客銷售
 TEAM_TYPE_INAD = 2         # 内部-其他
-TEAM_TYPE_ADMIN = 1        # 广告管理员
-TEAM_TYPE_SUPER_ADMIN = 0  # 超级管理员
+TEAM_TYPE_ADMIN = 1        # 系统管理员
+TEAM_TYPE_SUPER_ADMIN = 0  # 程序管理员
 
 TEAM_TYPE_CN = {
     TEAM_TYPE_MEDIUM: u"媒体",
@@ -45,8 +45,8 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_LEADER: u"内部-销售Leader",
     TEAM_TYPE_OPERATER_LEADER: u"内部-执行Leader",
     TEAM_TYPE_SUPER_LEADER: u"内部-SuperLeader",
-    TEAM_TYPE_ADMIN: u" 广告管理员",
-    TEAM_TYPE_SUPER_ADMIN: u"系统管理员"
+    TEAM_TYPE_ADMIN: u" 系统管理员",
+    TEAM_TYPE_SUPER_ADMIN: u"程序管理员"
 }
 
 TEAM_LOCATION_DEFAULT = 0
