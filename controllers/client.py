@@ -73,8 +73,6 @@ def new_medium():
     form = NewMediumForm(request.form)
     if request.method == 'POST' and form.validate():
         db_medium_name = Medium.name_exist(form.name.data)
-        print form.tax_num.data
-        print form.address.data
         if not db_medium_name:
             medium = Medium.add(
                 name=form.name.data,

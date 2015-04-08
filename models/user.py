@@ -38,6 +38,7 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_PLANNER: u"内部-策划",
     TEAM_TYPE_OPERATER: u"内部-执行",
     TEAM_TYPE_DIRECT_SELLER: u"内部-销售",
+    TEAM_TYPE_AGENT_SELLER: u'內部-渠道銷售',
     TEAM_TYPE_CONTRACT: u"内部-合同",
     TEAM_TYPE_MEDIA: u"内部-媒介",
     TEAM_TYPE_FINANCE: u"内部-财务",
@@ -181,7 +182,8 @@ class User(db.Model, BaseModelMixin):
 
     @classmethod
     def sales(cls):
-        return cls.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER) + cls.leaders()
+        return cls.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER) + cls.gets_by_team_type(TEAM_TYPE_AGENT_SELLER)
+        +cls.leaders()
 
     @classmethod
     def contracts(cls):
@@ -230,8 +232,10 @@ class User(db.Model, BaseModelMixin):
 
 
 team_admins = db.Table('team_admin_users',
-                       db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                       db.Column('team_id', db.Integer, db.ForeignKey('team.id'))
+                       db.Column(
+                           'user_id', db.Integer, db.ForeignKey('user.id')),
+                       db.Column(
+                           'team_id', db.Integer, db.ForeignKey('team.id'))
                        )
 
 
