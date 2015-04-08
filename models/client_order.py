@@ -407,7 +407,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         if self.back_money_status == 0:
             return 100
         else:
-            return int(float(self.back_moneys) / self.money * 100)
+            return int(float(self.back_moneys) / self.money * 100) if self.money else 0
 
     @property
     def back_money_list(self):
