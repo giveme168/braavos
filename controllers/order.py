@@ -126,7 +126,7 @@ def get_client_form(order):
 
 def get_medium_form(order, user=None):
     medium_form = MediumOrderForm()
-    if user and user.is_super_leader():
+    if user.is_super_leader() or user.is_media():
         medium_form.medium.choices = [(medium.id, medium.name) for medium in Medium.all()]
     else:
         medium_form.medium.choices = [(order.medium.id, order.medium.name)]

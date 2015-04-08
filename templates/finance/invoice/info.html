@@ -90,10 +90,17 @@
       var email = $(this).parents('form').find("#contract-email").val();
       var invoices = $(this).parents('form').find(".invoices");
       var msg = $(this).parents('form').find("#msg").val();
-      var invoice_nums = $(this).parents('form').find('#invoice_num')
+
       if(invoices.length < 1){
         alert("请勾选要申请的发票!");
         e.preventDefault();
+      }
+      for(var i=0;i<invoices.length;i++){
+        if ($('#invoice_num_'+invoices[i].value).val()==''){
+            $('#invoice_num_'+invoices[i].value).focus()
+            alert("请填写发票号")
+            e.preventDefault();
+        }
       }
       if(actionVal == '2'){
         if(msg == ""){
@@ -157,7 +164,7 @@
           {% if invoice.invoice_status == 3 %}
           <tr>
             <th>发票号</th>
-            <td><input class="form-control bra-form-control" type='text' name="invoice_num" value="{{invoice.invoice_num}}"></td>
+            <td><input class="form-control bra-form-control" type='text' id="invoice_num_{{invoice.id}}" name="invoice_num" value="{{invoice.invoice_num}}"></td>
           </tr>
           {% else %}
           <tr>
