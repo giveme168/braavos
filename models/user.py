@@ -182,8 +182,9 @@ class User(db.Model, BaseModelMixin):
 
     @classmethod
     def sales(cls):
-        return cls.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER) + cls.gets_by_team_type(TEAM_TYPE_AGENT_SELLER)
-        +cls.leaders()
+        return (cls.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER) +
+                cls.gets_by_team_type(TEAM_TYPE_AGENT_SELLER) +
+                cls.leaders())
 
     @classmethod
     def contracts(cls):
