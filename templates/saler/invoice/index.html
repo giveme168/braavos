@@ -4,7 +4,7 @@
 
 {% macro contract_box(order) -%}
 <div class="bra-main bra-box" style="width:100%;">
-    <h3>客户订单发票情况</h3>
+    <h4>发票情况</h4>
     <table class="table table-bordered table-striped">
         <tr>
             <th>总金额</th>
@@ -118,9 +118,9 @@
     <ul class="nav nav-tabs">
       <li class=""><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
       {% if order.can_admin(g.user) %}
-      <li class="active"><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>客户发票与回款</a></li>
+      <li class="active"><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>客户发票</a></li>
+      <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
       <li class=""><a href='{{url_for("saler_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
-      <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=order.id)}}'>回款情况</a></li>
       {% endif %}
     </ul>
     <div class="tab-content">
