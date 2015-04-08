@@ -90,6 +90,7 @@
       var email = $(this).parents('form').find("#contract-email").val();
       var invoices = $(this).parents('form').find(".invoices");
       var msg = $(this).parents('form').find("#msg").val();
+      var invoice_nums = $(this).parents('form').find('#invoice_num')
       if(invoices.length < 1){
         alert("请勾选要申请的发票!");
         e.preventDefault();

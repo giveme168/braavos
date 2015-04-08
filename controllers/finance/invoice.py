@@ -86,7 +86,6 @@ def pass_invoice(invoice_id):
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
     to_emails = list(set(emails + [x.email for x in to_users]))
-
     if action != 10:
         invoice_status = INVOICE_STATUS_PASS
         action_msg = u'发票已开'
