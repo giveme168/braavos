@@ -79,10 +79,6 @@ def reply_apply(sender, change_state_apply):
 def contract_apply_douban(sender, apply_context):
     """豆瓣直签豆瓣、关联豆瓣订单 发送豆瓣合同管理员"""
     order = apply_context['order']
-    douban_users = [
-        k.email for k in User.douban_contracts()] + apply_context['to']
-    url = mail.app.config['DOMAIN'] + order.info_path()
-
     file_paths = []
     if order.get_last_contract():
         file_paths.append(order.get_last_contract().real_path)
@@ -90,7 +86,7 @@ def contract_apply_douban(sender, apply_context):
         file_paths.append(order.get_last_schedule().real_path)
 
     send_attach_mail(u'【豆瓣合同打印申请】%s' % order.name,
-                     recipients=douban_users,
+                     recipients=apply_context['to'],
                      body=order.douban_contract_email_info(
                          title=u"请帮忙打印合同, 谢谢~"),
                      file_paths=file_paths)
@@ -101,13 +97,14 @@ def contract_apply(sender, apply_context, action=None):
     order = apply_context['order']
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
         contract_apply_douban(sender, apply_context)
-    if order.__tablename__ == 'bra_client_order' and order.associated_douban_orders and order.contract_status == 4 and action == 5:
+    elif order.__tablename__ == 'bra_client_order' and order.associated_douban_orders and order.contract_status == 4 and action == 5:
         apply_context['order'] = order.associated_douban_orders[0]
         contract_apply_douban(sender, apply_context)
-    url = mail.app.config['DOMAIN'] + order.info_path()
-    send_simple_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
-                     recipients=apply_context['to'],
-                     body=(u"""%s
+    else:
+        url = mail.app.config['DOMAIN'] + order.info_path()
+        send_simple_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
+                         recipients=apply_context['to'],
+                         body=(u"""%s
 
 订单: %s
 链接地址: %s
@@ -181,6 +178,7 @@ def medium_invoice_apply(sender, apply_context):
 \n
 by %s
 """ % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
+
 
 def outsource_apply(sender, apply_context):
     """外包服务流程 发送邮件"""
