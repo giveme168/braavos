@@ -25,10 +25,6 @@ def index():
         f.save(xls_orders)
         if xls_orders:
             _fix_orders(xlrd.open_workbook(xls_orders))
-            # try:
-            #    _fix_orders(xlrd.open_workbook(xls_orders))
-            # except Exception, e:
-            #    print str(e)
     return tpl('upload_orders.html')
 
 
@@ -38,7 +34,7 @@ def _fix_orders(excel_data):
     nrows = table.nrows
     # 列数
     ncols = table.ncols
-    if ncols != 15:
+    if ncols != 17:
         return
 
     for i in range(nrows):
@@ -55,16 +51,20 @@ def _fix_orders(excel_data):
                 *xlrd.xldate_as_tuple(table.col(6)[i].value, excel_data.datemode)).date()
             order_param['reminde_date'] = datetime.datetime(
                 *xlrd.xldate_as_tuple(table.col(7)[i].value, excel_data.datemode)).date()
-            order_param['agent_sale_name'] = table.col(8)[i].value
+            order_param['location'] = table.col(8)[i].value
+            order_param['agent_sale_name'] = table.col(9)[i].value
             # 合同模板类型
-            order_param['contract_type'] = table.col(9)[i].value
+            order_param['contract_type'] = table.col(10)[i].value
             # 合同资源形式
-            order_param['resource_type'] = table.col(10)[i].value
-            order_param['sale_type'] = table.col(11)[i].value
-            order_param['medium_name'] = table.col(12)[i].value
-            order_param['medium_contract'] = table.col(13)[i].value
-            order_param['medium_money'] = table.col(14)[i].value
-            _into_order(order_param)
+            order_param['resource_type'] = table.col(11)[i].value
+            order_param['sale_type'] = table.col(12)[i].value
+            order_param['medium_name'] = table.col(13)[i].value
+            order_param['medium_contract'] = table.col(14)[i].value
+            # 媒体金额
+            order_param['medium_money'] = table.col(16)[i].value
+            # 下单金额
+            order_param['medium_money2'] = table.col(15)[i].value
+            # _into_order(order_param)
     return
 
 
@@ -102,21 +102,55 @@ def _into_order(param):
                             owner=Team.query.filter_by(type=8).first()
                             )
 
-    team = Team.query.filter_by(name=u'导入渠道销售团队').first()
-    if not team:
-        team = Team.add(
-            name=u'导入渠道销售团队',
+    team_huabei = Team.query.filter_by(name=u'导入渠道销售团队华北').first()
+    if not team_huabei:
+        team_huabei = Team.add(
+            name=u'导入渠道销售团队华北',
+            type=4,
+            location=1,
+            admins=[],
+        )
+
+    team_huanan = Team.query.filter_by(name=u'导入渠道销售团队华南').first()
+    if not team_huanan:
+        team_huanan = Team.add(
+            name=u'导入渠道销售团队华南',
+            type=4,
+            location=3,
+            admins=[],
+        )
+
+    team_huadong = Team.query.filter_by(name=u'导入渠道销售团队华东').first()
+    if not team_huadong:
+        team_huadong = Team.add(
+            name=u'导入渠道销售团队华东',
+            type=4,
+            location=2,
+            admins=[],
+        )
+
+    team_qita = Team.query.filter_by(name=u'导入渠道销售团队其他').first()
+    if not team_qita:
+        team_qita = Team.add(
+            name=u'导入渠道销售团队其他',
             type=4,
             location=0,
             admins=[],
         )
-        # team.save()
 
     if not param['agent_sale_name']:
         agents = []
     else:
         agent_names = param['agent_sale_name'].split(' ')
         agents = []
+        if param['location'] == u'华北':
+            team = team_huabei
+        elif param['location'] == u'华东':
+            team = team_huadong
+        elif param['location'] == u'华南':
+            team = team_huanan
+        else:
+            team = team_qita
         for k in agent_names:
             name = k.strip()
             p_name = p.get_pinyin(name, '').lower()
@@ -143,6 +177,9 @@ def _into_order(param):
     else:
         sale_type = 1
 
+    if ClientOrder.query.filter_by(agent=agent, client=client, campaign=param['campaign'], status=1).first():
+        return
+
     order = ClientOrder.add(
         agent=agent,
         client=client,
@@ -168,8 +205,8 @@ def _into_order(param):
     mo = Order.add(campaign=order.campaign,
                    medium=medium,
                    sale_money=param['money'],
-                   medium_money=0,
-                   medium_money2=0,
+                   medium_money=param['medium_money'],
+                   medium_money2=param['medium_money2'],
                    medium_start=param['medium_start'],
                    medium_end=param['medium_end'],
                    creator=g.user)

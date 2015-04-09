@@ -75,7 +75,8 @@ def new_order():
                 medium = Medium.get(medium_ids[x])
                 mo = Order.add(campaign=order.campaign,
                                medium=medium,
-                               sale_money=int(round(float(medium_moneys[x] or 0))),
+                               sale_money=int(
+                                   round(float(medium_moneys[x] or 0))),
                                medium_money=0,
                                medium_money2=0,
                                medium_start=order.client_start,
@@ -127,7 +128,8 @@ def get_client_form(order):
 def get_medium_form(order, user=None):
     medium_form = MediumOrderForm()
     if user.is_super_leader() or user.is_media():
-        medium_form.medium.choices = [(medium.id, medium.name) for medium in Medium.all()]
+        medium_form.medium.choices = [
+            (medium.id, medium.name) for medium in Medium.all()]
     else:
         medium_form.medium.choices = [(order.medium.id, order.medium.name)]
     medium_form.medium.data = order.medium.id
@@ -248,8 +250,10 @@ def order_new_medium(order_id):
     if request.method == 'POST':
         mo = Order.add(campaign=co.campaign,
                        medium=Medium.get(form.medium.data),
-                       medium_money=int(round(float(form.medium_money.data or 0))),
-                       medium_money2=int(round(float(form.medium_money2.data or 0))),
+                       medium_money=int(
+                           round(float(form.medium_money.data or 0))),
+                       medium_money2=int(
+                           round(float(form.medium_money2.data or 0))),
                        sale_money=int(round(float(form.sale_money.data or 0))),
                        medium_CPM=form.medium_CPM.data,
                        sale_CPM=form.sale_CPM.data,
@@ -314,7 +318,8 @@ def new_associated_douban_order():
     form = AssociatedDoubanOrderForm(request.form)
     ao = AssociatedDoubanOrder.add(medium_order=Order.get(form.medium_order.data),
                                    campaign=form.campaign.data,
-                                   money=int(round(float(form.money.data or 0))),
+                                   money=int(
+                                       round(float(form.money.data or 0))),
                                    creator=g.user)
     ao.medium_order.client_order.add_comment(g.user,
                                              u"新建了关联豆瓣订单: %s - %s - %s" % (
@@ -389,6 +394,13 @@ def contract_status_change(order, action, emails, msg):
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
 
     to_emails = list(set(emails + [x.email for x in to_users]))
+    if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
+        to_emails = list(
+            set([k.email for k in User.douban_contracts()] + to_emails))
+    elif (order.__tablename__ == 'bra_client_order'
+          and order.associated_douban_orders and order.contract_status == 4 and action == 5):
+        to_emails = list(
+            set([k.email for k in User.douban_contracts()] + to_emails))
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,
@@ -497,7 +509,8 @@ def new_framework_order():
         order = FrameworkOrder.add(group=Group.get(form.group.data),
                                    agents=Agent.gets(form.agents.data),
                                    description=form.description.data,
-                                   money=int(round(float(form.money.data or 0))),
+                                   money=int(
+                                       round(float(form.money.data or 0))),
                                    client_start=form.client_start.data,
                                    client_end=form.client_end.data,
                                    reminde_date=form.reminde_date.data,
