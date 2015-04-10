@@ -378,6 +378,7 @@ def contract_status_change(order, action, emails, msg):
     elif action == 4:
         order.contract_status = CONTRACT_STATUS_APPLYREJECT
         action_msg = u"审批未被通过"
+        to_users = to_users + User.medias()
     elif action == 5:
         order.contract_status = CONTRACT_STATUS_APPLYPRINT
         action_msg = u"申请打印合同"
@@ -449,7 +450,7 @@ def my_orders():
             status_id = CONTRACT_STATUS_APPLYPASS
         elif g.user.is_media():
             orders = [
-                o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
+                o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYREJECT]]
             status_id = CONTRACT_STATUS_MEDIA
         else:
             status_id = -1
