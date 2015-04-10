@@ -279,7 +279,7 @@ def medium_order(mo_id):
     if not mo:
         abort(404)
     form = MediumOrderForm(request.form)
-    if g.user.is_super_leader():
+    if g.user.is_super_leader() or g.user.is_media():
         mo.medium = Medium.get(form.medium.data)
     mo.medium_money = int(round(float(form.medium_money.data or 0)))
     mo.medium_money2 = int(round(float(form.medium_money2.data or 0)))
