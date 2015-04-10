@@ -85,7 +85,7 @@ def contract_apply_douban(sender, apply_context):
     if order.get_last_schedule():
         file_paths.append(order.get_last_schedule().real_path)
 
-    send_attach_mail(u'【豆瓣合同打印申请】%s' % order.name,
+    send_attach_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
                      recipients=apply_context['to'],
                      body=order.douban_contract_email_info(
                          title=u"请帮忙打印合同, 谢谢~"),
