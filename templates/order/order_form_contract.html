@@ -142,11 +142,18 @@
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="3">通过申请</button>
             <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="4">拒绝申请</button>
             {% endif %}
+            {% if order.contract_status == 1 and order.can_admin(g.user) %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">再次申请审批</button>
+            {% endif %}
             {% if order.contract_status == 2 and g.user.is_leader() %}
             <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="0">驳回</button>
             {% endif %}
             {% if order.contract_status == 2 and order.can_admin(g.user) %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="0">撤回</button>
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="5">申请打印</button>
+            {% endif %}
+            {% if order.contract_status == 4 and order.can_admin(g.user) %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="5">再次申请打印</button>
             {% endif %}
             {% if order.contract_status == 4 and g.user.is_contract() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="6">打印完毕</button>
