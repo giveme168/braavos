@@ -39,7 +39,7 @@ def send_simple_mail(subject, recipients, body=''):
 
 --------
 本邮件由系统代发, 请不要直接回复
-如有任何疑问, 请咨询 promotion@inad.com
+如有任何疑问, 请咨询 z@inad.com
 """
     with mail.app.app_context():
         mail.send_message(subject, recipients=recipients, body=body)
@@ -52,7 +52,7 @@ def send_attach_mail(subject, recipients, body='', file_paths=None):
     body += u"""
 
 --------
-本邮件由系统代发, 如有任何疑问, 请咨询 promotion@inad.com
+本邮件由系统代发, 如有任何疑问, 请咨询 z@inad.com
 """
     with mail.app.app_context():
         msg = Message(subject, recipients=recipients, body=body)
