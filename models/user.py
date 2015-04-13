@@ -146,7 +146,7 @@ class User(db.Model, BaseModelMixin):
         return self.is_admin() or self.team.type == TEAM_TYPE_CONTRACT
 
     def is_operater(self):
-        return self.is_admin() or self.team.type == TEAM_TYPE_OPERATER
+        return self.is_admin() or self.team.type in [TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER]
 
     def is_media(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_MEDIA

@@ -1,7 +1,9 @@
 {% from 'form.html' import form_field %}
 
 {% macro order_client_form(form, client_order) -%}
-  {% if client_order.can_admin(g.user) and client_order.contract_status in [0, 1, 3, 6] %}
+  {% if g.user.is_super_leader() %}
+    {{ order_client_edited_form(form, mediums=None) }}
+  {% elif client_order.can_admin(g.user) and client_order.contract_status in [0, 1, 3, 6] %}
     {{ order_client_edited_form(form, mediums=None) }}
   {% else %}
     {{ order_client_table(client_order) }}

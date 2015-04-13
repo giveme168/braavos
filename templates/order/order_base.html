@@ -2,7 +2,7 @@
 
 {% block left_box%}
     <!-- 只有leader和合同管理员才能看所有订单 -->
-    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() %}
+    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_operater()%}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 新媒体</li>
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的新媒体订单
