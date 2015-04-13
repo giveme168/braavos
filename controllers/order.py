@@ -199,12 +199,10 @@ def order_info(order_id, tab_id=1):
                     order.agent.name, order.contract)
                 for mo in order.medium_orders:
                     msg = msg + \
-                        u"致趣-%s: %s\n\n" % (mo.medium.name,
-                                                mo.medium_contract or "")
+                        u"致趣-%s: %s\n\n" % (mo.medium.name, mo.medium_contract or "")
                 for o in order.associated_douban_orders:
                     msg = msg + \
-                        u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name,
-                                                o.contract or "")
+                        u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name, o.contract or "")
                 to_users = order.direct_sales + \
                     order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
@@ -304,11 +302,21 @@ def order_medium_edit_cpm(medium_id):
     mo = Order.get(medium_id)
     if not mo:
         abort(404)
-    cpm = int(round(float(request.values.get('cpm', 0))))
-    mo.medium_CPM = cpm
+    cpm = request.values.get('cpm', '')
+    medium_money = request.values.get('medium_money', '')
+    if cpm != '':
+        cpm = int(round(float(cpm)))
+        if mo.medium_CPM != cpm:
+            mo.client_order.add_comment(
+                g.user, u"更新了媒体订单: %s 的实际量%s CPM" % (mo.medium.name, cpm))
+        mo.medium_CPM = cpm
+    if medium_money != '':
+        medium_money = int(round(float(medium_money)))
+        if mo.medium_money != medium_money:
+            mo.client_order.add_comment(
+                g.user, u"更新了媒体订单: %s 的付款金额%s " % (mo.medium.name, medium_money))
+        mo.medium_money = medium_money
     mo.save()
-    mo.client_order.add_comment(
-        g.user, u"更新了媒体订单: %s 的实际量%s CPM" % (mo.medium.name, mo.medium_CPM))
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
     return redirect(mo.info_path())
 
@@ -393,7 +401,6 @@ def contract_status_change(order, action, emails, msg):
         action_msg = u"合同被驳回，请从新提交审核"
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
-
     to_emails = list(set(emails + [x.email for x in to_users]))
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
         to_emails = list(
