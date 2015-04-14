@@ -178,9 +178,9 @@ def outsource_status(order_id):
         sum([k.pay_num for k in outsources]) + order.outsources_sum) / order.money
 
     if action == 0:
-        if outsource_percent >= 0.2:
+        if outsource_percent >= 0.02:
             next_status = OUTSOURCE_STATUS_EXCEED
-            action_msg = u'外包款超过20%，申请审批'
+            action_msg = u'外包款超过2%，申请审批'
         else:
             next_status = OUTSOURCE_STATUS_APPLY_LEADER
             action_msg = u'申请审批'
@@ -196,7 +196,6 @@ def outsource_status(order_id):
         to_users += User.finances()
     else:
         action_msg = u'消息提醒'
-    next_status = 0
     if action < 4:
         for outsource in outsources:
             outsource.status = next_status

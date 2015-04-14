@@ -97,7 +97,7 @@ OUTSOURCE_STATUS_CN = {
     OUTSOURCE_STATUS_PASS: u"审批通过",
     OUTSOURCE_STATUS_APPLY_MONEY: u"请款中...",
     OUTSOURCE_STATUS_PAIED: u"已打款",
-    OUTSOURCE_STATUS_EXCEED: u'超过20%,申请审批中...'
+    OUTSOURCE_STATUS_EXCEED: u'超过2%,申请审批中...'
 }
 
 INVOICE_RATE = 0.05    # 发票税点
