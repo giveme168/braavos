@@ -172,6 +172,10 @@
             <th>备注</th>
             <td>{{outsource.remark}}</td>
           </tr>
+          <tr>
+            <th>打款时间</th>
+            <td>{{outsource.remark}}</td>
+          </tr>
       </table>
       {% if outsource.status == 4 %}
         <a class="btn btn-primary btn-sm" href="{{url_for('finance_pay.outsource_back', outsource_id=outsource.id)}}?type=douban"/>撤回</a>

@@ -17,14 +17,22 @@
         </tr>
         {% for order in orders %}
         <tr>
-            <td><a href="{{url_for('finance_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
+            {% if type == 'douban' %}
+                <td><a href="{{url_for('finance_pay.douban_info', order_id=order.id)}}">{{order.name}}</a></td>
+            {% else %}
+                <td><a href="{{url_for('finance_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
+            {% endif %}
             <td>{{order.money}} 元</td>
             <td>{{order.outsources_sum}} 元</td>
             <td>{{order.outsources_percent}} %</td>
             <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
             <td>{{order.get_outsources_by_status(3) | length}}</td>
             <td>{{order.get_outsources_by_status(4) | length}}</td>
-            <td><a href="{{url_for('finance_pay.info', order_id=order.id)}}">查看</a></td>
+             {% if type == 'douban' %}
+                <td><a href="{{url_for('finance_pay.douban_info', order_id=order.id)}}">查看</a></td>
+            {% else %}
+                <td><a href="{{url_for('finance_pay.info', order_id=order.id)}}">查看</a></td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>
