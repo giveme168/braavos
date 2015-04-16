@@ -4,6 +4,33 @@
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3>{{title}}</h3>
+    <div class="search">
+        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
+        <div class="col-md-2" style="padding:0;margin:0 5px;" id="search-area">
+            <select class="col-md-12" id="search_location" name="location" placeholder="区域">
+                {% for v, m in locations %}
+                    {% if v == location_id|int %}
+                    <option selected="" value="{{v}}">{{m}}</option>
+                    {% else %}
+                    <option value="{{v}}">{{m}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2" style="padding:0;margin-right:5px;">
+            <select class="col-md-12" id="search_status" name="status" placeholder="合同状态">
+                {% for v, m in statuses %}
+                    {% if v == status_id|int %}
+                    <option selected="" value="{{v}}">{{m}}</option>
+                    {% else %}
+                    <option value="{{v}}">{{m}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
+    </div>
+    <br>
     <table class="table table-bordered table-striped">
         <tr>
             <th>名称</th>
@@ -34,5 +61,36 @@
         </tr>
         {% endfor %}
     </table>
+    <nav>
+      <ul class="pagination">
+        {% if page-1 > 0 %}
+        <li><a href="?p={{page-1}}">&laquo;</a></li>
+        {% endif %}
+        {% if page-2 > 0 %}
+        <li class=""><a href="?p={{page-2}}">{{page-2}}</a></li>
+        {% endif %}
+        {% if page-1 > 0 %}
+        <li class=""><a href="?p={{page-1}}">{{page-1}}</a></li>
+        {% endif %}
+        <li class="active disable"><a href="#">{{page}}</a></li>
+        <li class=""><a href="?p={{page+1}}">{{page+1}}</a></li>
+        <li class=""><a href="?p={{page+2}}">{{page+2}}</a></li>
+        <li><a href="?p={{page+1}}">&raquo;</a></li>
+      </ul>
+    </nav>
 </div>
+<script>
+    function search(){
+        window.location.href = window.location.pathname +
+          '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+          '&selected_location=' + ($('#search_location').val()) +
+          '&selected_status=' + ($('#search_status').val());
+    }
+    function enter_search(){
+        //按下‘Enter’键
+        if(event.keyCode == 13){
+            search();
+        }
+    }
+</script>
 {% endblock %}
