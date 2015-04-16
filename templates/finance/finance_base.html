@@ -10,8 +10,10 @@
     <a class="list-group-item" href="{{url_for('finance_invoice.index')}}">申请中的发票</a>
     <a class="list-group-item" href="{{url_for('finance_invoice.index_pass')}}">已开发票信息</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 打款管理</li>
-    <a class="list-group-item" href="{{url_for('finance_pay.index')}}">申请中的外包打款</a>
-    <a class="list-group-item" href="{{url_for('finance_pay.index_pass')}}">已打款的外包信息</a>
+    <a class="list-group-item" href="{{url_for('finance_pay.index')}}">客户订单外包打款</a>
+    <a class="list-group-item" href="{{url_for('finance_pay.douban_index')}}">直签豆瓣订单外包打款</a>
+    <a class="list-group-item" href="{{url_for('finance_pay.index_pass')}}">已打款的客户订单外包信息</a>
+    <a class="list-group-item" href="{{url_for('finance_pay.index_pass')}}?type=douban">已打款的直签豆瓣订单外包信息</a>
     <a class="list-group-item" href="{{url_for('finance_medium_pay.index')}}">申请中的媒体打款</a>
     <a class="list-group-item" href="{{url_for('finance_medium_pay.index_pass')}}">已打款的媒体信息</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 回款管理</li>

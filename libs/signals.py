@@ -15,6 +15,7 @@ douban_contract_apply_signal = braavos_signals.signal('douban_contract_apply')
 outsource_apply_signal = braavos_signals.signal('outsource_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
+outsource_distribute_signal = braavos_signals.signal('outsource_distribute')
 
 
 def password_changed(sender, user):
@@ -180,32 +181,6 @@ by %s
 """ % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
 
 
-def outsource_apply(sender, apply_context):
-    """外包服务流程 发送邮件"""
-    order = apply_context['order']
-    outsources = apply_context['outsources']
-    outsources_info = "\n".join([o.outsource_info for o in outsources])
-    if outsources[0].status == 3:
-        url = mail.app.config['DOMAIN'] + order.finance_outsource_path()
-    else:
-        url = mail.app.config['DOMAIN'] + order.outsource_path()
-    send_simple_mail(u'【外包报备流程】%s-%s' % (order.name, apply_context['action_msg']),
-                     recipients=apply_context['to'],
-                     body=(u"""%s
-
-订单: %s
-链接地址: %s
-订单信息:
-%s
-外包信息:
-%s
-留言如下:
-    %s
-\n
-by %s
-""" % (apply_context['action_msg'], order.name, url, order.outsource_info, outsources_info, apply_context['msg'], g.user.name)))
-
-
 def douban_contract_apply(sender, apply_context):
     """豆瓣合同号申请"""
     order = apply_context['order']
@@ -244,6 +219,27 @@ by %s\n
                      file_paths=file_paths)
 
 
+def outsource_distribute(sender, apply_context):
+    order = apply_context['order']
+    title = u'【费用报备】%s-%s-订单分配提醒' % (order.contract or u'无合同号', order.jiafang_name)
+    send_simple_mail(title, recipients=apply_context[
+                     'to'], body=order.outsource_distribute_email_info(title))
+
+def outsource_apply(sender, apply_context):
+    """外包服务流程 发送邮件"""
+    order = apply_context['order']
+    outsources = apply_context['outsources']
+    outsources_info = "\n".join([o.outsource_info for o in outsources])
+    
+    if outsources[0].status == 3:
+        url = mail.app.config['DOMAIN'] + order.finance_outsource_path()
+    else:
+        url = mail.app.config['DOMAIN'] + order.outsource_path()
+    send_simple_mail(apply_context['title'], recipients=apply_context['to'],
+                     body=order.outsource_email_info(apply_context['to_users'],
+                                                     apply_context['title'], outsources_info,
+                                                     url, apply_context['msg']))
+
 def init_signal(app):
     """注册信号的接收器"""
     password_changed_signal.connect_via(app)(password_changed)
@@ -255,3 +251,4 @@ def init_signal(app):
     outsource_apply_signal.connect_via(app)(outsource_apply)
     invoice_apply_signal.connect_via(app)(invoice_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
+    outsource_distribute_signal.connect_via(app)(outsource_distribute)

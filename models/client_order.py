@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
-from flask import url_for
+from flask import url_for, g
 
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
@@ -10,6 +10,7 @@ from .item import ITEM_STATUS_LEADER_ACTIONS
 from .user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
 from invoice import Invoice, MediumInvoice
+from libs.mail import mail
 
 
 CONTRACT_TYPE_NORMAL = 0
@@ -249,6 +250,27 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.agent_sales])
 
     @property
+    def operater_names(self):
+        if self.medium_orders:
+            return ",".join([u.name for u in self.medium_orders[0].operaters])
+        else:
+            return ''
+
+    @property
+    def operater_ids(self):
+        if self.medium_orders:
+            return ",".join([str(u.id) for u in self.medium_orders[0].operaters])
+        else:
+            return ''
+
+    @property
+    def operater_users(self):
+        if self.medium_orders:
+            return [u for u in self.medium_orders[0].operaters]
+        else:
+            return []
+
+    @property
     def leaders(self):
         return list(set([l for u in self.direct_sales + self.agent_sales
                          for l in u.user_leaders] + User.super_leaders()))
@@ -267,7 +289,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales + [self.creator]
+        owner = self.direct_sales + self.agent_sales + [self.creator] + self.operater_users
         return user.is_admin() or user in owner
 
     @classmethod
@@ -413,6 +435,83 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def back_money_list(self):
         return self.backmoneys
+
+    @property
+    def jiafang_name(self):
+        return self.agent.name
+
+    def outsource_operater_info_path(self):
+        return url_for("outsource.client_orders")
+
+    def outsource_distribute_email_info(self, title):
+        body = u"""
+Dear %s:
+
+%s
+
+【客户订单项目详情】
+甲方: %s
+项目: %s
+客户: %s
+合同号: %s
+时间: %s : %s
+金额: %s
+
+【项目相关人员】
+直客销售: %s
+渠道销售: %s
+运营: %s
+
+附注:
+    致趣订单管理系统链接地址: %s
+
+by %s\n
+""" % (self.operater_names, title, self.agent.name,
+            self.campaign, self.client.name, self.contract,
+            self.start_date_cn, self.end_date_cn, self.money,
+            self.direct_sales_names, self.agent_sales_names,
+            self.operater_names,
+            mail.app.config['DOMAIN'] + self.outsource_operater_info_path(), g.user.name)
+        return body
+
+    def outsource_email_info(self, to_user, title, o_info, url, msg):
+        body = u"""
+Dear %s:
+
+%s
+
+【客户订单项目详情】
+甲方: %s
+项目: %s
+客户: %s
+合同号: %s
+时间: %s : %s
+金额: %s
+外包占比: %s %%
+
+【外包组成】
+%s
+
+【项目相关人员】
+直客销售: %s
+渠道销售: %s
+运营: %s
+
+留言:
+%s
+
+
+附注:
+    致趣订单管理系统链接地址: %s
+
+by %s\n
+""" % (to_user, title, self.jiafang_name,
+            self.campaign, self.client.name, self.contract,
+            self.start_date_cn, self.end_date_cn, self.money,
+            self.outsources_percent, o_info,
+            self.direct_sales_names, self.agent_sales_names,
+            self.operater_names, str(msg), url, g.user.name)
+        return body
 
 
 class BackMoney(db.Model, BaseModelMixin):

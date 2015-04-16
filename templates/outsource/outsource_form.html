@@ -1,11 +1,19 @@
 {% from 'form.html' import form_field %}
-{% macro outsource_form(form, outsource=None) -%}
+{% macro outsource_form(form, outsource=None, order=None) -%}
 {% if outsource %}
-{% if outsource.can_admin(g.user) and outsource.status in [0, 1] %}
+{% if outsource.can_admin(g.user) and outsource.status != 4 %}
 <div class="well">
+{% if order.__tablename__ == 'bra_douban_order' %}
+<form class="form form-horizontal" method="POST" action="{{outsource.edit_path()}}?type=douban">
+{% else %}
 <form class="form form-horizontal" method="POST" action="{{outsource.edit_path()}}">
+{% endif %}
     {{form.csrf_token}}
-    {{ form_field(form.medium_order) }}
+    {% if order.__tablename__ == 'bra_douban_order' %}
+      {{ form_field(form.douban_order) }}
+    {% else %}
+      {{ form_field(form.medium_order) }}
+    {% endif %}
     {{ form_field(form.target) }}
     {{ form_field(form.type) }}
     {{ form_field(form.invoice) }}
@@ -21,7 +29,11 @@
 <table class="table table-bordered">
   <tr>
     <th>投放媒体</th>
+    {% if order.__tablename__ == 'bra_douban_order' %}
+    <td>{{outsource.douban_order.name}}</td>
+    {% else %}
     <td>{{outsource.medium_order.medium.name}}</td>
+    {% endif %}
   </tr>
   <tr>
     <th>收款方</th>
@@ -44,6 +56,10 @@
     <td>{{outsource.num or 0}} 元</td>
   </tr>
   <tr>
+    <th>打款金额</th>
+    <td>{{outsource.pay_num or 0}} 元</td>
+  </tr>
+  <tr>
     <th>备注</th>
     <td>{{outsource.remark}}</td>
   </tr>
@@ -53,9 +69,17 @@
 {% endif %}
 {% else %}
 <div class="well">
+{% if order.__tablename__ == 'bra_douban_order' %}
+<form class="form form-horizontal" method="POST" action="{{url_for('outsource.new_douban_outsource')}}">
+{% else %}
 <form class="form form-horizontal" method="POST" action="{{url_for('outsource.new_outsource')}}">
+{% endif %}
     {{form.csrf_token}}
-    {{ form_field(form.medium_order) }}
+    {% if order.__tablename__ == 'bra_douban_order' %}
+      {{ form_field(form.douban_order) }}
+    {% else %}
+      {{ form_field(form.medium_order) }}
+    {% endif %}
     {{ form_field(form.target) }}
     {{ form_field(form.type) }}
     {{ form_field(form.invoice) }}

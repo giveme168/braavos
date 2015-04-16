@@ -3,36 +3,28 @@
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3>{{title}}<a class="btn btn-sm btn-default" href="{{url_for('finance_pay.index_pass')}}?dtype=excel&type={{type}}">下载</a></h3>
+    <h3>正在申请的直签豆瓣订单打款</h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>名称</th>
+            <th>合同号</th>
             <th>总金额</th>
             <th>外包应付总金额</th>
             <th>外包占比</th>
-            <th>投放媒体</th>
             <th>请款中</th>
             <th>已打款</th>
             <th>查看</th>
         </tr>
         {% for order in orders %}
         <tr>
-            {% if type == 'douban' %}
-                <td><a href="{{url_for('finance_pay.douban_info', order_id=order.id)}}">{{order.name}}</a></td>
-            {% else %}
-                <td><a href="{{url_for('finance_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
-            {% endif %}
+            <td><a href="{{url_for('finance_pay.douban_info', order_id=order.id)}}">{{order.name}}</a></td>
+            <td><a href="{{url_for('finance_pay.douban_info', order_id=order.id)}}">{{order.contract or '无合同号'}}</a></td>
             <td>{{order.money}} 元</td>
             <td>{{order.outsources_sum}} 元</td>
             <td>{{order.outsources_percent}} %</td>
-            <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
             <td>{{order.get_outsources_by_status(3) | length}}</td>
             <td>{{order.get_outsources_by_status(4) | length}}</td>
-             {% if type == 'douban' %}
-                <td><a href="{{url_for('finance_pay.douban_info', order_id=order.id)}}">查看</a></td>
-            {% else %}
-                <td><a href="{{url_for('finance_pay.info', order_id=order.id)}}">查看</a></td>
-            {% endif %}
+            <td><a href="{{url_for('finance_pay.douban_info', order_id=order.id)}}">查看</a></td>
         </tr>
         {% endfor %}
     </table>

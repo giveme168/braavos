@@ -3,10 +3,11 @@
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3>正在申请的打款</h3>
+    <h3>正在申请的客户订单打款</h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>名称</th>
+            <th>合同号</th>
             <th>总金额</th>
             <th>外包应付总金额</th>
             <th>外包占比</th>
@@ -18,6 +19,7 @@
         {% for order in orders %}
         <tr>
             <td><a href="{{url_for('finance_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
+            <td><a href="{{url_for('finance_pay.info', order_id=order.id)}}">{{order.contract or '无合同号'}}</a></td>
             <td>{{order.money}} 元</td>
             <td>{{order.outsources_sum}} 元</td>
             <td>{{order.outsources_percent}} %</td>
