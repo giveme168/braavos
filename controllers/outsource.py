@@ -3,10 +3,10 @@ from flask import Blueprint, request, redirect, abort, url_for
 from flask import render_template as tpl, flash, g, current_app
 
 from models.outsource import OutSourceTarget, OutSource, DoubanOutSource
-from models.client_order import ClientOrder
+from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.order import Order
 from models.douban_order import DoubanOrder
-from models.user import User, TEAM_TYPE_OPERATER
+from models.user import User, TEAM_TYPE_OPERATER, TEAM_LOCATION_CN
 from models.outsource import (OUTSOURCE_STATUS_NEW, OUTSOURCE_STATUS_APPLY_LEADER,
                               OUTSOURCE_STATUS_PASS, OUTSOURCE_STATUS_APPLY_MONEY,
                               OUTSOURCE_STATUS_EXCEED, INVOICE_RATE)
@@ -17,10 +17,11 @@ outsource_bp = Blueprint(
     'outsource', __name__, template_folder='../templates/outsource/')
 
 
+ORDER_PAGE_NUM = 50
+
+
 @outsource_bp.route('/client_orders_distribute', methods=['GET', 'POST'])
 def client_orders_distribute():
-    orders = [k for k in ClientOrder.all() if k.medium_orders]
-    operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER)
     if request.method == 'POST':
         order_id = request.values.get('order_id', '')
         operator = request.values.get('operater_ids', '')
@@ -42,13 +43,14 @@ def client_orders_distribute():
             outsource_distribute_signal.send(
                 current_app._get_current_object(), apply_context=apply_context)
         return redirect(url_for('outsource.client_orders_distribute'))
-    return tpl('client_orders_distribute.html', title=u"媒体订单分配", orders=orders, operaters=operaters)
+
+    orders = [k for k in ClientOrder.all() if k.medium_orders]
+    operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER)
+    return display_orders(orders, 'client_orders_distribute.html', title=u"客户订单分配", operaters=operaters)
 
 
 @outsource_bp.route('/douban_orders_distribute', methods=['GET', 'POST'])
 def douban_orders_distribute():
-    orders = DoubanOrder.all()
-    operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER)
     if request.method == 'POST':
         order_id = request.values.get('order_id', '')
         operator = request.values.get('operater_ids', '')
@@ -70,7 +72,48 @@ def douban_orders_distribute():
             outsource_distribute_signal.send(
                 current_app._get_current_object(), apply_context=apply_context)
         return redirect(url_for('outsource.douban_orders_distribute'))
-    return tpl('douban_orders_distribute.html', title=u"直签豆瓣订单分配", orders=orders, operaters=operaters)
+
+    orders = DoubanOrder.all()
+    operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER)
+    return display_orders(orders, 'douban_orders_distribute.html', title=u"直签豆瓣订单分配", operaters=operaters)
+
+
+def display_orders(orders, template, title, operaters):
+    if request.args.get('selected_status'):
+        status_id = int(request.args.get('selected_status'))
+    else:
+        status_id = -1
+    sortby = request.args.get('sortby', '')
+    orderby = request.args.get('orderby', '')
+    search_info = request.args.get('searchinfo', '')
+    location_id = int(request.args.get('selected_location', '-1'))
+    reverse = orderby != 'asc'
+    page = int(request.args.get('p', 1))
+    page = max(1, page)
+    start = (page - 1) * ORDER_PAGE_NUM
+    orders_len = len(orders)
+    if location_id >= 0:
+        orders = [o for o in orders if location_id in o.locations]
+    if status_id >= 0:
+        orders = [o for o in orders if o.contract_status == status_id]
+    if search_info != '':
+        orders = [o for o in orders if search_info in o.search_info]
+    if sortby and orders_len and hasattr(orders[0], sortby):
+        orders = sorted(
+            orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+    select_locations = TEAM_LOCATION_CN.items()
+    select_locations.insert(0, (-1, u'全部区域'))
+    select_statuses = CONTRACT_STATUS_CN.items()
+    select_statuses.insert(0, (-1, u'全部合同状态'))
+    if 0 <= start < orders_len:
+        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
+    else:
+        orders = []
+    return tpl(template, title=title, orders=orders,
+               locations=select_locations, location_id=location_id,
+               statuses=select_statuses, status_id=status_id,
+               sortby=sortby, orderby=orderby,
+               search_info=search_info, page=page)
 
 
 @outsource_bp.route('/', methods=['GET'])
@@ -140,7 +183,7 @@ def client_orders():
     else:
         orders = [
             k for k in ClientOrder.get_order_by_user(g.user) if k.medium_orders]
-    return tpl('client_orders.html', title=u"我的媒体外包", orders=orders)
+    return display_orders(orders, 'client_orders.html', title=u"我的媒体外包", operaters=[])
 
 
 @outsource_bp.route('/douban_orders', methods=['GET'])
@@ -155,7 +198,7 @@ def douban_orders():
             o for o in DoubanOrder.all() if g.user.location in o.locations]
     else:
         orders = DoubanOrder.get_order_by_user(g.user)
-    return tpl('o_douban_orders.html', title=u"我的直签豆瓣外包", orders=orders)
+    return display_orders(orders, 'o_douban_orders.html', title=u"我的直签豆瓣外包", operaters=[])
 
 
 @outsource_bp.route('/apply_client_orders', methods=['GET'])
