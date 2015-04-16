@@ -113,7 +113,7 @@ def display_orders(orders, template, title, operaters):
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
                sortby=sortby, orderby=orderby,
-               search_info=search_info, page=page)
+               search_info=search_info, page=page, operaters=operaters)
 
 
 @outsource_bp.route('/', methods=['GET'])
