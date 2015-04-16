@@ -3,7 +3,7 @@
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3>申请通过的打款<a class="btn btn-sm btn-default" href="{{url_for('finance_pay.index_pass')}}?type=excel">下载</a></h3>
+    <h3>{{title}}<a class="btn btn-sm btn-default" href="{{url_for('finance_pay.index_pass')}}?dtype=excel&type={{type}}">下载</a></h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>名称</th>

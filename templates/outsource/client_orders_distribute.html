@@ -1,0 +1,99 @@
+{% extends "/outsource_base.html" %}
+{% block title %}我的客户订单{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>{{title}}</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>合同名称</th>
+            <th>合同号</th>
+            <th>合同总金额</th>
+            <th>外包应付总金额</th>
+            <th>外包占比</th>
+            <th>投放媒体</th>
+            <th>待申请</th>
+            <th>申请中</th>
+            <th>已通过</th>
+            <th>请款中</th>
+            <th>已打款</th>
+            <th>项目经理</th>
+            <th width='5%'>操作</th>
+        </tr>
+        {% for order in orders %}
+        <tr>
+            <td><a href="{{url_for('outsource.client_outsources', order_id=order.id)}}">{{order.name}}</a></td>
+            <td><a href="{{url_for('outsource.client_outsources', order_id=order.id)}}">{{order.contract or '无合同号'}}</a></td>
+            <td>{{order.money}} 元</td>
+            <td>{{order.outsources_sum}} 元</td>
+            <td>{{order.outsources_percent}} %</td>
+            <td>{{order.mediums | map(attribute='name') | join(', ') or '无媒体'}}</td>
+            <td>{{order.get_outsources_by_status(0) | length}}</td>
+            <td>{{order.get_outsources_by_status(1) | length + order.get_outsources_by_status(5) | length}}</td>
+            <td>{{order.get_outsources_by_status(2) | length}}</td>
+            <td>{{order.get_outsources_by_status(3) | length}}</td>
+            <td>{{order.get_outsources_by_status(4) | length}}</td>
+            <td>{{order.operater_names}}</td>
+            <td><a href="javascript:edit_operator('{{order.medium_orders[0].id}}','{{order.operater_ids}}')">修改</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <form class="form form-horizontal" method="POST" action="" onsubmit="return checkform()">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">修改项目经理</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+            <input class="hide" name="order_id" id="order_id" value="0"/>
+            <input class="hide" name="operater_ids" id="operater_ids" value=""/>
+            <div class="form-group">
+              <label for="client_start" class="col-sm-4 control-label">选着项目经理 : </label>
+              <div class="col-sm-4">
+                <select data-placeholder="请选择..." multiple class="form-control bra-form-control" id="operater" name="operaters">
+                </select>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <input type="submit" class="btn btn-primary" value="保存"/>
+      </div>
+    </div>
+  </div>
+  </form>
+</div>
+<script>
+    $(function(){
+        rest_chose()
+        $("#operater").chosen(); 
+    })
+    function checkform(){
+        var operater_ids = $("#operater").val().join(',')
+        $('#operater_ids').val(operater_ids)
+        return true;
+    }
+    function rest_chose(){
+        $('#operater').empty()
+        {% for k in operaters %}
+        $('#operater').append("<option value='{{k.id}}'>{{k.name}}</option>")
+        {% endfor %}
+    }
+    function edit_operator(order_id, operater_ids){
+        $('#order_id').val(order_id);
+        rest_chose()
+        var operater_ids_p = operater_ids.split(',')
+        for (var i=0;i<operater_ids_p.length;i++){
+            $("#operater option[value='"+operater_ids_p[i]+"']").attr("selected","selected");  
+        }
+        $("#operater").trigger("chosen:updated");
+        $('#myModal').modal('show');
+    }
+</script>
+{% endblock %}

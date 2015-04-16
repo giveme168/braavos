@@ -114,9 +114,11 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
-    target = db.relationship('OutSourceTarget', backref=db.backref('outsources', lazy='dynamic'))
+    target = db.relationship(
+        'OutSourceTarget', backref=db.backref('outsources', lazy='dynamic'))
     medium_order_id = db.Column(db.Integer, db.ForeignKey('bra_order.id'))
-    medium_order = db.relationship('Order', backref=db.backref('outsources', lazy='dynamic'))
+    medium_order = db.relationship(
+        'Order', backref=db.backref('outsources', lazy='dynamic'))
     num = db.Column(db.Integer)
     type = db.Column(db.Integer)
     subtype = db.Column(db.Integer)
@@ -196,14 +198,113 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def outsource_info(self):
+        medium_name = self.medium_order.medium.name
         return u"""
         投放媒体: %s
         外包方: %s
         外包金额: %s
         外包类别: %s
         子分类: %s
-        备注: %s""" % (self.medium_order.medium.name, self.target.name,
-                         self.num, self.type_cn, self.subtype_cn, self.remark)
+        备注: %s""" % (medium_name, self.target.name, self.num, self.type_cn, self.subtype_cn, self.remark)
+
+    @classmethod
+    def get_apply_money_outsources(cls):
+        return cls.query.filter_by(status=OUTSOURCE_STATUS_APPLY_MONEY)
+
+
+class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
+    __tablename__ = 'douban_out_source'
+
+    id = db.Column(db.Integer, primary_key=True)
+    target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
+    target = db.relationship('OutSourceTarget', backref=db.backref(
+        'douban_outsources_target', lazy='dynamic'))
+    douban_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_douban_order.id'))
+    douban_order = db.relationship(
+        'DoubanOrder', backref=db.backref('douban_outsources', lazy='dynamic'))
+    num = db.Column(db.Integer)
+    type = db.Column(db.Integer)
+    subtype = db.Column(db.Integer)
+    invoice = db.Column(db.Boolean)  # 发票
+    paid = db.Column(db.Boolean)  # 付款
+    pay_num = db.Column(db.Float)
+    remark = db.Column(db.String(1000))
+    status = db.Column(db.Integer)
+
+    def __init__(self, target, douban_order, num, type, subtype, pay_num=0,
+                 invoice=False, paid=False, remark=None, status=0):
+        self.target = target
+        self.douban_order = douban_order
+        self.num = num
+        self.pay_num = pay_num
+        self.type = type
+        self.subtype = subtype
+        self.invoice = invoice
+        self.paid = paid
+        self.remark = remark or ""
+        self.status = status
+
+    @property
+    def name(self):
+        return "%s-%s-%s-%s" % (self.douban_order.name,
+                                self.target.name,
+                                self.type_cn,
+                                self.num)
+
+    def edit_path(self):
+        return url_for('outsource.outsource', outsource_id=self.id)
+
+    def info_path(self):
+        return url_for("outsource.douban_outsources",
+                       order_id=self.douban_order.id)
+
+    @property
+    def type_cn(self):
+        return OUTSOURCE_TYPE_CN[self.type]
+
+    @property
+    def subtype_cn(self):
+        return OUTSOURCE_SUBTYPE_CN[self.subtype]
+
+    @property
+    def invoice_cn(self):
+        return OUTSOURCE_INVOICE_CN[str(self.invoice)]
+
+    @property
+    def invoice_num(self):
+        return self.pay_num
+
+    def can_admin(self, user):
+        """是否可以修改该订单"""
+        admin_users = self.douban_order.operaters
+        return user.is_admin() or user in admin_users
+
+    @property
+    def form(self):
+        from forms.outsource import DoubanOutsourceForm
+        form = DoubanOutsourceForm()
+        form.douban_order.choices = [
+            (self.douban_order.id, self.douban_order.name)]
+        form.douban_order.data = self.douban_order.id
+        form.target.data = self.target.id
+        form.num.data = self.num
+        form.pay_num.data = self.pay_num
+        form.type.data = self.type
+        form.subtype.data = self.subtype
+        form.remark.data = self.remark
+        form.invoice.data = str(self.invoice)
+        return form
+
+    @property
+    def outsource_info(self):
+        return u"""
+        投放媒体: %s
+        外包方: %s
+        外包金额: %s
+        外包类别: %s
+        子分类: %s
+        备注: %s""" % (self.douban_order.name, self.target.name, self.num, self.type_cn, self.subtype_cn, self.remark)
 
     @classmethod
     def get_apply_money_outsources(cls):

@@ -1,15 +1,21 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
-    <a class="list-group-item" href="{{url_for('outsource.client_orders')}}">
-        <span class="glyphicon glyphicon-stats"></span> 我的外包
-    </a>
     {% if g.user.is_operater_leader() %}
-    <a class="list-group-item" href="{{url_for('outsource.apply_client_orders')}}">
-        <span class="glyphicon glyphicon-stats"></span> 申请审批的外包
+    <a class="list-group-item" href="{{url_for('outsource.client_orders_distribute')}}">
+        <span class="glyphicon glyphicon-stats"></span> 媒体订单分配
+    </a>
+    <a class="list-group-item" href="{{url_for('outsource.douban_orders_distribute')}}">
+        <span class="glyphicon glyphicon-stats"></span> 直签豆瓣订单分配
     </a>
     {% endif %}
+    <a class="list-group-item" href="{{url_for('outsource.client_orders')}}">
+        <span class="glyphicon glyphicon-stats"></span> 我的媒体外包
+    </a>
+    <a class="list-group-item" href="{{url_for('outsource.douban_orders')}}">
+        <span class="glyphicon glyphicon-stats"></span> 我的直签豆瓣外包
+    </a>
     <a class="list-group-item" href="{{url_for('outsource.targets')}}">
-        <span class="glyphicon glyphicon-stats"></span> 收款方
+        <span class="glyphicon glyphicon-stats"></span> 收款方管理
     </a>
 {% endblock %}

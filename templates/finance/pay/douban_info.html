@@ -3,7 +3,7 @@
 
 {% block main_box%}
 <div class="bra-main bra-box">
-    <h3>客户订单外包打款情况</h3>
+    <h3>直签豆瓣订单外包打款情况</h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>代理/直客</th>
@@ -11,7 +11,6 @@
             <th>总金额</th>
             <th>外包应付总金额</th>
             <th>外包占比</th>
-            <th>投放媒体</th>
             <th>待申请</th>
             <th>申请中</th>
             <th>已通过</th>
@@ -24,9 +23,8 @@
             <td>{{order.money}} 元</td>
             <td>{{order.outsources_sum}} 元</td>
             <td>{{order.outsources_percent}} %</td>
-            <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
             <td>{{order.get_outsources_by_status(0) | length}}</td>
-            <td>{{order.get_outsources_by_status(1) | length}}</td>
+            <td>{{order.get_outsources_by_status(1) | length + order.get_outsources_by_status(5) | length}}</td>
             <td>{{order.get_outsources_by_status(2) | length}}</td>
             <td>{{order.get_outsources_by_status(3) | length}}</td>
             <td>{{order.get_outsources_by_status(4) | length}}</td>
@@ -115,9 +113,8 @@
 
 {% macro outsource_table(outsource)%}
 {% if outsource.status == 3 %}
-<form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('finance_pay.outsource_pay_num', outsource_id=outsource.id)}}">
+<form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('finance_pay.outsource_pay_num', outsource_id=outsource.id)}}?type=douban">
 {% endif %}
-
 <div class="col-md-12">
     <div class="col-md-6" style="margin-left: 20px; margin-top: 50px;">
       <h4>
@@ -127,10 +124,6 @@
           {{ outsource.name }} 元
       </h4>
         <table class="table table-bordered">
-          <tr>
-            <th>投放媒体</th>
-            <td>{{outsource.medium_order.medium.name}}</td>
-          </tr>
           <tr>
             <th>收款方</th>
             <td>{{outsource.target.name}}</td>
@@ -181,7 +174,7 @@
           </tr>
       </table>
       {% if outsource.status == 4 %}
-        <a class="btn btn-primary btn-sm" href="{{url_for('finance_pay.outsource_back', outsource_id=outsource.id)}}" />撤回</a>
+        <a class="btn btn-primary btn-sm" href="{{url_for('finance_pay.outsource_back', outsource_id=outsource.id)}}?type=douban"/>撤回</a>
       {% endif %}
     </div>
 </div>
@@ -195,7 +188,7 @@
 {% if outsource.status in [3] %}
     <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
 {% endif %}
-    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('finance_pay.outsource_pass', outsource_id=outsource.id)}}">
+    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('finance_pay.outsource_pass', outsource_id=outsource.id)}}?type=douban">
         <div class="form-group">
             <label for="email" class="col-sm-2 control-label">邮箱 : </label>
             <div class="col-sm-10">

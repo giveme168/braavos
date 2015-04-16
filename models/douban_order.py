@@ -236,20 +236,14 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return list(set([l for u in self.direct_sales + self.agent_sales
                          for l in u.user_leaders] + User.super_leaders()))
 
+    @property
+    def operater_users(self):
+        return [u for u in self.operaters]
+
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + [self.creator]
         return user.is_admin() or user in admin_users
-
-    def have_owner(self, user):
-        """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales + [self.creator]
-        return user.is_admin() or user in owner
-
-    @classmethod
-    def get_order_by_user(cls, user):
-        """一个用户可以查看的所有订单"""
-        return [o for o in cls.all() if o.have_owner(user) and o.status in [STATUS_ON, None]]
 
     def path(self):
         return self.info_path()
@@ -305,6 +299,9 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def info_path(self):
         return url_for("order.douban_order_info", order_id=self.id)
 
+    def outsource_operater_info_path(self):
+        return url_for("outsource.douban_orders")
+
     def contract_path(self):
         return url_for("order.douban_order_contract", order_id=self.id)
 
@@ -322,6 +319,25 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def douban_contract_apply_path(self):
         return url_for("contract.douban_apply", order_id=self.id)
+
+    @property
+    def outsources(self):
+        return [o for o in self.douban_outsources]
+
+    def get_outsources_by_status(self, outsource_status):
+        return [o for o in self.douban_outsources if o.status == outsource_status]
+
+    def get_outsource_status_cn(self, status):
+        from models.outsource import OUTSOURCE_STATUS_CN
+        return OUTSOURCE_STATUS_CN[status]
+
+    @property
+    def outsources_sum(self):
+        return sum([o.pay_num if o.pay_num else o.num for o in self.douban_outsources]) if self.douban_outsources else 0
+
+    @property
+    def outsources_percent(self):
+        return "%.1f" % (self.outsources_sum * 100 / float(self.money)) if self.money else "0"
 
     def delete(self):
         self.delete_comments()
@@ -352,4 +368,101 @@ by %s\n
             self.direct_sales_names, self.agent_sales_names,
             self.start_date_cn, self.end_date_cn,
             self.money, mail.app.config['DOMAIN'] + self.info_path(), g.user.name)
+        return body
+
+    @property
+    def operater_ids(self):
+        return ",".join([str(u.id) for u in self.operaters])
+
+    def have_owner(self, user):
+        """是否可以查看该订单"""
+        owner = self.direct_sales + self.agent_sales + [self.creator] + [k for k in self.operaters]
+        return user.is_admin() or user in owner
+
+    @classmethod
+    def get_order_by_user(cls, user):
+        """一个用户可以查看的所有订单"""
+        return [o for o in cls.all() if o.have_owner(user) and o.status in [STATUS_ON, None]]
+
+    def outsource_path(self):
+        return url_for("outsource.douban_outsources", order_id=self.id)
+
+    @property
+    def outsource_info(self):
+        return u"""
+        客户订单总额:   %s 元
+        外包应付总金额: %s 元
+        外包占比:   %s %%""" % (self.money, self.outsources_sum, self.outsources_percent)
+
+    def finance_outsource_path(self):
+        return url_for("finance_pay.douban_info", order_id=self.id)
+
+    def outsource_distribute_email_info(self, title):
+        body = u"""
+Dear %s:
+
+%s
+
+【直签豆瓣订单项目详情】
+甲方: %s
+项目: %s
+客户: %s
+合同号: %s
+时间: %s : %s
+金额: %s
+
+【项目相关人员】
+直客销售: %s
+渠道销售: %s
+运营: %s
+
+附注:
+    致趣订单管理系统链接地址: %s
+
+by %s\n
+""" % (self.operater_names, title, self.jiafang_name,
+            self.campaign, self.client.name, self.contract,
+            self.start_date_cn, self.end_date_cn, self.money,
+            self.direct_sales_names, self.agent_sales_names,
+            self.operater_names,
+            mail.app.config['DOMAIN'] + self.outsource_operater_info_path(), g.user.name)
+        return body
+
+    def outsource_email_info(self, to_user, title, o_info, url, msg):
+        body = u"""
+Dear %s:
+
+%s
+
+【直签豆瓣订单项目详情】
+甲方: %s
+项目: %s
+客户: %s
+合同号: %s
+时间: %s : %s
+金额: %s
+外包占比: %s %%
+
+【外包组成】
+%s
+
+【项目相关人员】
+直客销售: %s
+渠道销售: %s
+运营: %s
+
+留言:
+%s
+
+
+附注:
+    致趣订单管理系统链接地址: %s
+
+by %s\n
+""" % (to_user, title, self.jiafang_name,
+            self.campaign, self.client.name, self.contract,
+            self.start_date_cn, self.end_date_cn, self.money,
+            self.outsources_percent, o_info,
+            self.direct_sales_names, self.agent_sales_names,
+            self.operater_names, msg, url, g.user.name)
         return body

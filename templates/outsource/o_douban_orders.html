@@ -11,7 +11,6 @@
             <th>总金额</th>
             <th>外包应付总金额</th>
             <th>外包占比</th>
-            <th>投放媒体</th>
             <th>待申请</th>
             <th>申请中</th>
             <th>已通过</th>
@@ -21,12 +20,11 @@
         </tr>
         {% for order in orders %}
         <tr>
-            <td><a href="{{url_for("outsource.client_outsources", order_id=order.id)}}">{{order.name}}</a></td>
-            <td><a href="{{url_for('outsource.client_outsources', order_id=order.id)}}">{{order.contract or '无合同号'}}</a></td>
+            <td><a href="{{url_for('outsource.douban_outsources', order_id=order.id)}}">{{order.name}}</a></td>
+            <td><a href="{{url_for('outsource.douban_outsources', order_id=order.id)}}">{{order.contract or '无合同号'}}</a></td>
             <td>{{order.money}} 元</td>
             <td>{{order.outsources_sum}} 元</td>
             <td>{{order.outsources_percent}} %</td>
-            <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
             <td>{{order.get_outsources_by_status(0) | length}}</td>
             <td>{{order.get_outsources_by_status(1) | length + order.get_outsources_by_status(5) | length}}</td>
             <td>{{order.get_outsources_by_status(2) | length}}</td>
