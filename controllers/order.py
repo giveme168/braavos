@@ -436,20 +436,14 @@ def contract_status_change(order, action, emails, msg):
 @order_bp.route('/orders', methods=['GET'])
 def orders():
     orders = list(ClientOrder.all())
-    if request.args.get('selected_status'):
-        status_id = int(request.args.get('selected_status'))
-    else:
-        status_id = -1
+    status_id = int(request.args.get('selected_status', -1))
     return display_orders(orders, u'新媒体订单列表', status_id)
 
 
 @order_bp.route('/delete_orders', methods=['GET'])
 def delete_orders():
     orders = list(ClientOrder.delete_all())
-    if request.args.get('selected_status'):
-        status_id = int(request.args.get('selected_status'))
-    else:
-        status_id = -1
+    status_id = int(request.args.get('selected_status', -1))
     return display_orders(orders, u'已删除订单列表', status_id)
 
 
@@ -937,20 +931,14 @@ def my_douban_orders():
 @order_bp.route('/douban_orders', methods=['GET'])
 def douban_orders():
     orders = list(DoubanOrder.all())
-    if request.args.get('selected_status'):
-        status_id = int(request.args.get('selected_status'))
-    else:
-        status_id = -1
+    status_id = int(request.args.get('selected_status', -1))
     return douban_display_orders(orders, u'全部直签豆瓣订单', status_id)
 
 
 @order_bp.route('/douban_delete_orders', methods=['GET'])
 def douban_delete_orders():
     orders = list(DoubanOrder.delete_all())
-    if request.args.get('selected_status'):
-        status_id = int(request.args.get('selected_status'))
-    else:
-        status_id = -1
+    status_id = int(request.args.get('selected_status', -1))
     return douban_display_orders(orders, u'已删除的直签豆瓣订单', status_id)
 
 
