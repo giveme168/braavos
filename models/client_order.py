@@ -158,6 +158,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def all(cls):
         return cls.get_all()
 
+    @classmethod
+    def delete_all(cls):
+        return [o for o in cls.query.all() if o.status == STATUS_DEL]
+
     @property
     def name(self):
         return u"%s-%s" % (self.client.name, self.campaign)

@@ -109,7 +109,11 @@
         <td>
             <a href="{{o.info_path()}}">订单管理</a>
             {% if g.user.is_super_admin() %}
-            <a href="{{url_for("order.order_delete", order_id=o.id)}}" style="color:red;">删除</a>
+                {% if o.status == 0 %}
+                    <a href="{{url_for('order.order_recovery', order_id=o.id)}}" style="color:red;">恢复</a>
+                {% else %}
+                    <a href="{{url_for('order.order_delete', order_id=o.id)}}" style="color:red;">删除</a>
+                {% endif %}
             {% endif %}
         </td>
     </tr>

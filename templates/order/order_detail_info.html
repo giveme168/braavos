@@ -112,7 +112,7 @@
       {% if order.can_admin(g.user) %}
       <li class=""><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>客户发票</a></li>
       <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
-      <li class=""><a href='{{url_for("saler_medium_invoice.index", order_id=order.id)}}'>媒体发票与回款</a></li>
+      <li class=""><a href='{{url_for("saler_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
       {% endif %}
     </ul>
     <div class="tab-content">
