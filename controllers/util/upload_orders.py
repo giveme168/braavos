@@ -3,10 +3,10 @@ import datetime
 
 import xlrd
 from xpinyin import Pinyin
-from flask import Blueprint, request, g
+from flask import Blueprint, request, g, abort
 from flask import render_template as tpl
 
-from models.user import User, Team, abort
+from models.user import User, Team
 from models.client_order import ClientOrder
 from models.order import Order
 from models.client import Client, Group, Agent
