@@ -29,7 +29,7 @@ def index():
         order = ClientOrder.add(agent=Agent.get(form.agent.data),
                                 client=Client.get(form.client.data),
                                 campaign=form.campaign.data,
-                                money=int(round(float(form.money.data or 0))),
+                                money=int("%.0f" % (form.money.data or 0)),
                                 client_start=form.client_start.data,
                                 client_end=form.client_end.data,
                                 reminde_date=form.reminde_date.data,
@@ -57,11 +57,9 @@ def index():
                 medium = Medium.get(medium_ids[x])
                 mo = Order.add(campaign=order.campaign,
                                medium=medium,
-                               sale_money=int(round(float(form.money.data or 0))),
-                               medium_money=int(
-                                   round(float(medium_moneys[x] or 0))),
-                               medium_money2=int(
-                                   round(float(medium_moneys2[x] or 0))),
+                               sale_money=int("%.0f" % (form.money.data or 0)),
+                               medium_money=int(medium_moneys[x] or 0),
+                               medium_money2=int(medium_moneys2[x] or 0),
                                medium_contract=medium_contracts[x],
                                medium_start=order.client_start,
                                medium_end=order.client_end,
