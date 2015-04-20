@@ -57,7 +57,7 @@ def index():
                 medium = Medium.get(medium_ids[x])
                 mo = Order.add(campaign=order.campaign,
                                medium=medium,
-                               sale_money=0,
+                               sale_money=int(round(float(form.money.data or 0))),
                                medium_money=int(
                                    round(float(medium_moneys[x] or 0))),
                                medium_money2=int(
