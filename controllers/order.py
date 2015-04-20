@@ -435,14 +435,14 @@ def contract_status_change(order, action, emails, msg):
 
 @order_bp.route('/orders', methods=['GET'])
 def orders():
-    orders = list(ClientOrder.all())
+    orders = ClientOrder.all()
     status_id = int(request.args.get('selected_status', -1))
     return display_orders(orders, u'新媒体订单列表', status_id)
 
 
 @order_bp.route('/delete_orders', methods=['GET'])
 def delete_orders():
-    orders = list(ClientOrder.delete_all())
+    orders = ClientOrder.delete_all()
     status_id = int(request.args.get('selected_status', -1))
     return display_orders(orders, u'已删除订单列表', status_id)
 
@@ -450,7 +450,7 @@ def delete_orders():
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(ClientOrder.all())
+        orders = ClientOrder.all()
     elif g.user.is_leader():
         orders = [
             o for o in ClientOrder.all() if g.user.location in o.locations]
@@ -661,7 +661,7 @@ def framework_order_info(order_id):
 @order_bp.route('/my_framework_orders', methods=['GET'])
 def my_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(FrameworkOrder.all())
+        orders = FrameworkOrder.all()
         if g.user.is_admin():
             pass
         elif g.user.is_super_leader():
@@ -685,13 +685,13 @@ def my_framework_orders():
 
 @order_bp.route('/framework_orders', methods=['GET'])
 def framework_orders():
-    orders = list(FrameworkOrder.all())
+    orders = FrameworkOrder.all()
     return framework_display_orders(orders, u'框架订单列表')
 
 
 @order_bp.route('/framework_delete_orders', methods=['GET'])
 def framework_delete_orders():
-    orders = list(FrameworkOrder.delete_all())
+    orders = FrameworkOrder.delete_all()
     return framework_display_orders(orders, u'已删除的框架订单列表')
 
 
@@ -895,7 +895,7 @@ def douban_order_info(order_id):
 @order_bp.route('/my_douban_orders', methods=['GET'])
 def my_douban_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(DoubanOrder.all())
+        orders = DoubanOrder.all()
     elif g.user.is_leader():
         orders = [
             o for o in DoubanOrder.all() if g.user.location in o.locations]
@@ -930,14 +930,14 @@ def my_douban_orders():
 
 @order_bp.route('/douban_orders', methods=['GET'])
 def douban_orders():
-    orders = list(DoubanOrder.all())
+    orders = DoubanOrder.all()
     status_id = int(request.args.get('selected_status', -1))
     return douban_display_orders(orders, u'全部直签豆瓣订单', status_id)
 
 
 @order_bp.route('/douban_delete_orders', methods=['GET'])
 def douban_delete_orders():
-    orders = list(DoubanOrder.delete_all())
+    orders = DoubanOrder.delete_all()
     status_id = int(request.args.get('selected_status', -1))
     return douban_display_orders(orders, u'已删除的直签豆瓣订单', status_id)
 

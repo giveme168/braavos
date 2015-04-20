@@ -126,7 +126,7 @@
     function rest_chose(){
         $('#operater').empty()
         {% for k in operaters %}
-        $('#operater').append("<option value='{{k.id}}'>{{k.name}}</option>")
+        $('#operater').append("<option value='{{k.id}}'>{{k.name}}-{{k.team.location_cn}}</option>")
         {% endfor %}
     }
     function edit_operator(order_id, operater_ids){

@@ -447,6 +447,9 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def outsource_operater_info_path(self):
         return url_for("outsource.client_orders")
 
+    def outsource_info_path(self):
+        return url_for("outsource.client_outsources", order_id=self.id)
+
     def outsource_distribute_email_info(self, title):
         body = u"""
 Dear %s:
@@ -475,7 +478,7 @@ by %s\n
             self.start_date_cn, self.end_date_cn, self.money,
             self.direct_sales_names, self.agent_sales_names,
             self.operater_names,
-            mail.app.config['DOMAIN'] + self.outsource_operater_info_path(), g.user.name)
+            mail.app.config['DOMAIN'] + self.outsource_info_path(), g.user.name)
         return body
 
     def outsource_email_info(self, to_user, title, o_info, url, msg):
