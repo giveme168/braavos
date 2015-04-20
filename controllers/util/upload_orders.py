@@ -6,7 +6,7 @@ from xpinyin import Pinyin
 from flask import Blueprint, request, g
 from flask import render_template as tpl
 
-from models.user import User, Team
+from models.user import User, Team, abort
 from models.client_order import ClientOrder
 from models.order import Order
 from models.client import Client, Group, Agent
@@ -19,6 +19,8 @@ p = Pinyin()
 
 @util_upload_orders_bp.route('/', methods=['GET', 'POST'])
 def index():
+    if not g.user.is_super_admin():
+        abort(402)
     if request.method == 'POST':
         f = request.files['upload_file']
         xls_orders = '/tmp/uploads/' + f.filename.encode('utf8')
