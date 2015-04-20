@@ -10,7 +10,7 @@
     <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
 </form>
 {% else %}
-  {% if associated_order.can_admin(g.user) and associated_order.contract_status in [0, 1, 2, 3, 6]%}
+  {% if associated_order.can_admin(g.user) and associated_order.contract_status in associated_order.can_edit_status() %}
   <form class="form form-horizontal" method="POST" action="{{associated_order.edit_path()}}">
       {{form.csrf_token}}
       {{ form_field(form.medium_order) }}

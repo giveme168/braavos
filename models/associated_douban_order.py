@@ -5,6 +5,8 @@ from flask import url_for, g
 from . import db, BaseModelMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
+from models.client_order import (CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYCONTRACT,
+                                 CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_MEDIA)
 from forms.order import AssociatedDoubanOrderForm
 from consts import DATE_FORMAT
 from models.user import User
@@ -106,6 +108,10 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
     def can_admin(self, user):
         """是否可以修改该订单"""
         return self.medium_order.client_order.can_admin(user)
+
+    def can_edit_status(self):
+        return [CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYCONTRACT,
+                CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_MEDIA]
 
     def path(self):
         return self.info_path()
