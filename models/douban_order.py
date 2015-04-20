@@ -179,6 +179,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def all(cls):
         return cls.get_all()
 
+    @classmethod
+    def delete_all(cls):
+        return [o for o in cls.query.all() if o.status == STATUS_DEL]
+
     @property
     def name(self):
         return u"%s-%s" % (self.client.name, self.campaign)
@@ -301,6 +305,9 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def outsource_operater_info_path(self):
         return url_for("outsource.douban_orders")
+
+    def outsource_info_path(self):
+        return url_for("outsource.douban_outsources", order_id=self.id)
 
     def contract_path(self):
         return url_for("order.douban_order_contract", order_id=self.id)
@@ -425,7 +432,7 @@ by %s\n
             self.start_date_cn, self.end_date_cn, self.money,
             self.direct_sales_names, self.agent_sales_names,
             self.operater_names,
-            mail.app.config['DOMAIN'] + self.outsource_operater_info_path(), g.user.name)
+            mail.app.config['DOMAIN'] + self.outsource_info_path(), g.user.name)
         return body
 
     def outsource_email_info(self, to_user, title, o_info, url, msg):

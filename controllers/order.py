@@ -14,7 +14,7 @@ from models.order import Order
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
-                                 STATUS_DEL, CONTRACT_STATUS_NEW)
+                                 STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
@@ -106,6 +106,19 @@ def order_delete(order_id):
     order.status = STATUS_DEL
     order.save()
     return redirect(url_for("order.my_orders"))
+
+
+@order_bp.route('/order/<order_id>/recovery', methods=['GET'])
+def order_recovery(order_id):
+    order = ClientOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"客户订单: %s-%s 已恢复" % (order.client.name, order.campaign), 'success')
+    order.status = STATUS_ON
+    order.save()
+    return redirect(url_for("order.delete_orders"))
 
 
 def get_client_form(order):
@@ -422,18 +435,22 @@ def contract_status_change(order, action, emails, msg):
 
 @order_bp.route('/orders', methods=['GET'])
 def orders():
-    orders = list(ClientOrder.all())
-    if request.args.get('selected_status'):
-        status_id = int(request.args.get('selected_status'))
-    else:
-        status_id = -1
+    orders = ClientOrder.all()
+    status_id = int(request.args.get('selected_status', -1))
     return display_orders(orders, u'新媒体订单列表', status_id)
+
+
+@order_bp.route('/delete_orders', methods=['GET'])
+def delete_orders():
+    orders = ClientOrder.delete_all()
+    status_id = int(request.args.get('selected_status', -1))
+    return display_orders(orders, u'已删除订单列表', status_id)
 
 
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(ClientOrder.all())
+        orders = ClientOrder.all()
     elif g.user.is_leader():
         orders = [
             o for o in ClientOrder.all() if g.user.location in o.locations]
@@ -551,6 +568,19 @@ def framework_delete(order_id):
     return redirect(url_for("order.my_framework_orders"))
 
 
+@order_bp.route('/framework_order/<order_id>/recovery', methods=['GET'])
+def framework_recovery(order_id):
+    order = FrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"框架订单: %s 已恢复" % (order.group.name), 'success')
+    order.status = STATUS_ON
+    order.save()
+    return redirect(url_for("order.framework_delete_orders"))
+
+
 def get_framework_form(order):
     framework_form = FrameworkOrderForm()
     framework_form.group.data = order.group.id
@@ -631,7 +661,7 @@ def framework_order_info(order_id):
 @order_bp.route('/my_framework_orders', methods=['GET'])
 def my_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(FrameworkOrder.all())
+        orders = FrameworkOrder.all()
         if g.user.is_admin():
             pass
         elif g.user.is_super_leader():
@@ -655,8 +685,14 @@ def my_framework_orders():
 
 @order_bp.route('/framework_orders', methods=['GET'])
 def framework_orders():
-    orders = list(FrameworkOrder.all())
+    orders = FrameworkOrder.all()
     return framework_display_orders(orders, u'框架订单列表')
+
+
+@order_bp.route('/framework_delete_orders', methods=['GET'])
+def framework_delete_orders():
+    orders = FrameworkOrder.delete_all()
+    return framework_display_orders(orders, u'已删除的框架订单列表')
 
 
 def framework_display_orders(orders, title):
@@ -738,6 +774,19 @@ def douban_order_delete(order_id):
     order.status = STATUS_DEL
     order.save()
     return redirect(url_for("order.my_douban_orders"))
+
+
+@order_bp.route('/douban_order/<order_id>/recovery', methods=['GET'])
+def douban_order_recovery(order_id):
+    order = DoubanOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"豆瓣订单: %s-%s 已恢复" % (order.client.name, order.campaign), 'success')
+    order.status = STATUS_ON
+    order.save()
+    return redirect(url_for("order.douban_delete_orders"))
 
 
 @order_bp.route('/douban_order/<order_id>/edit_cpm', methods=['POST'])
@@ -846,7 +895,7 @@ def douban_order_info(order_id):
 @order_bp.route('/my_douban_orders', methods=['GET'])
 def my_douban_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
-        orders = list(DoubanOrder.all())
+        orders = DoubanOrder.all()
     elif g.user.is_leader():
         orders = [
             o for o in DoubanOrder.all() if g.user.location in o.locations]
@@ -881,12 +930,16 @@ def my_douban_orders():
 
 @order_bp.route('/douban_orders', methods=['GET'])
 def douban_orders():
-    orders = list(DoubanOrder.all())
-    if request.args.get('selected_status'):
-        status_id = int(request.args.get('selected_status'))
-    else:
-        status_id = -1
+    orders = DoubanOrder.all()
+    status_id = int(request.args.get('selected_status', -1))
     return douban_display_orders(orders, u'全部直签豆瓣订单', status_id)
+
+
+@order_bp.route('/douban_delete_orders', methods=['GET'])
+def douban_delete_orders():
+    orders = DoubanOrder.delete_all()
+    status_id = int(request.args.get('selected_status', -1))
+    return douban_display_orders(orders, u'已删除的直签豆瓣订单', status_id)
 
 
 def douban_display_orders(orders, title, status_id=-1):
