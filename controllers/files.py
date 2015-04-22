@@ -44,6 +44,12 @@ def upload():
 
 def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
     if order and 'file' in request.files:
+        try:
+            request.files['file'].filename.encode('gb2312')
+        except:
+            flash(u'文件名中包含非正常字符，请使用标准字符', 'danger')
+            return redirect("%s" % (order.info_path()))
+
         filename = attachment_set.save(request.files['file'])
         if file_type == FILE_TYPE_CONTRACT:
             attachment = order.add_contract_attachment(g.user, filename)
