@@ -16,6 +16,7 @@ outsource_apply_signal = braavos_signals.signal('outsource_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
 outsource_distribute_signal = braavos_signals.signal('outsource_distribute')
+merger_outsource_apply_signal = braavos_signals.signal('merger_outsource_apply')
 
 
 def password_changed(sender, user):
@@ -231,14 +232,47 @@ def outsource_apply(sender, apply_context):
     outsources = apply_context['outsources']
     outsources_info = "\n".join([o.outsource_info for o in outsources])
     
-    if outsources[0].status == 3:
-        url = mail.app.config['DOMAIN'] + order.finance_outsource_path()
-    else:
-        url = mail.app.config['DOMAIN'] + order.outsource_path()
+    url = mail.app.config['DOMAIN'] + order.outsource_path()
     send_simple_mail(apply_context['title'], recipients=apply_context['to'],
                      body=order.outsource_email_info(apply_context['to_users'],
                                                      apply_context['title'], outsources_info,
                                                      url, apply_context['msg']))
+
+def merger_outsource_apply(sender, apply_context):
+    outsources = apply_context['outsources']
+    outsources_info = "\n".join([o.outsource_info for o in outsources])
+    pay_nums = sum([k.pay_num for k in outsources])
+    if apply_context.has_key('url'):
+        url = apply_context['url']
+    else:
+        url = mail.app.config['DOMAIN'] + outsources[0].finance_pay_path()
+    if apply_context['invoice'] == 'True':
+        invoice_type = u'有'
+    else:
+        invoice_type = u'无'
+    body = u"""
+Dear %s:
+
+%s
+
+【外包组成】
+%s
+
+申请付款总金额: %s
+是否有发票:%s
+发票信息:%s
+
+留言:
+%s
+
+
+附注:
+    致趣订单管理系统链接地址: %s
+
+by %s\n
+"""% (apply_context['to_users'], apply_context['title'], outsources_info, pay_nums, invoice_type, apply_context['remark'], apply_context['msg'], url, g.user.name)
+    send_simple_mail(apply_context['title'], recipients=apply_context['to'],
+                     body=body)
 
 def init_signal(app):
     """注册信号的接收器"""
@@ -252,3 +286,4 @@ def init_signal(app):
     invoice_apply_signal.connect_via(app)(invoice_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
     outsource_distribute_signal.connect_via(app)(outsource_distribute)
+    merger_outsource_apply_signal.connect_via(app)(merger_outsource_apply)

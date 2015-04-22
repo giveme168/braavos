@@ -16,7 +16,6 @@
     {% endif %}
     {{ form_field(form.target) }}
     {{ form_field(form.type) }}
-    {{ form_field(form.invoice) }}
     {{ form_field(form.subtype) }}
     {{ form_field(form.num) }}
     {{ form_field(form.remark) }}
@@ -42,10 +41,6 @@
   <tr>
     <th>外包类别</th>
     <td>{{outsource.type_cn}}</td>
-  </tr>
-  <tr>
-    <th>是否开发票</th>
-    <td>{{outsource.invoice_cn}}</td>
   </tr>
   <tr>
     <th>Flash功能分类</th>
@@ -82,7 +77,6 @@
     {% endif %}
     {{ form_field(form.target) }}
     {{ form_field(form.type) }}
-    {{ form_field(form.invoice) }}
     {{ form_field(form.subtype) }}
     {{ form_field(form.num) }}
     {{ form_field(form.remark) }}

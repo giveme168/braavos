@@ -1,0 +1,218 @@
+{% extends "/outsource_base.html" %}
+{% from 'form.html' import form_field %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>{{target.name}}的信息</h3>
+    <table class="table table-bordered">
+        <tr>
+            <th>类型</th>
+            <th>开户行</th>
+            <th>卡号</th>
+            <th>支付宝</th>
+            <th>联系方式</th>
+            <th>已打款个数</th>
+            <th>正在打款个数</th>
+            <th>申请打款个数</th>
+        </tr>
+        <tr>
+            <td>{{target.type_cn}}</td>
+            <td>{{target.bank}}</td>
+            <td>{{target.card}}</td>
+            <td>{{target.alipay}}</td>
+            <td>{{target.contract}}</td>
+            <td><a href="{{url_for('outsource.merget_client_target_info', target_id=target.id, status=OUTSOURCE_STATUS_PAIED)}}">{{target.client_outsources_by_status(OUTSOURCE_STATUS_PAIED) | length }}</a></td>
+            <td><a href="{{url_for('outsource.merget_client_target_info', target_id=target.id, status=OUTSOURCE_STATUS_APPLY_MONEY)}}">{{target.client_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY) | length }}</a></td>
+            <td><a href="{{url_for('outsource.merget_client_target_info', target_id=target.id, status=OUTSOURCE_STATUS_PASS)}}">{{target.client_outsources_by_status(OUTSOURCE_STATUS_PASS) | length }}</a></td>
+        </tr>
+    </table>
+    <div class="panel-group" id="accordion-outsource">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion-outsource">
+                      {% if OUTSOURCE_STATUS_PAIED == status  %}
+                      已打款
+                      {% elif OUTSOURCE_STATUS_APPLY_MONEY == status%}
+                      正在打款
+                      {% elif OUTSOURCE_STATUS_PASS == status%}
+                      申请打款
+                      {% endif %}
+                      的外包信息
+                    </a>
+                </h4>
+            </div>
+            <div class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            {% if OUTSOURCE_STATUS_PASS == status%}
+                            <th>选择</th>
+                            {% endif %}
+                            <th>媒体订单</th>
+                            <th>媒体合同号</th>
+                            <th>类型</th>
+                            <th>填报金额</th>
+                            <th>备注</th>
+                            <th>实际打款金额</th>
+                            {% if OUTSOURCE_STATUS_PASS != status%}
+                            <th>发票信息</th>
+                            {% endif %}
+                            <th>操作时间</th>
+                            {% if OUTSOURCE_STATUS_PASS == status%}
+                            <th>操作</th>
+                            {% endif %}
+                        </tr>
+                        {% for t in outsources %}
+                        <tr>
+                            {% if OUTSOURCE_STATUS_PASS == status%}
+                            <td><input type="checkbox" name="outsource-id" class="outsource-id" value="{{t.id}}"/></td>
+                            {% endif %}
+                            <td>{{t.medium_order.name}}</td>
+                            <td>{{t.medium_order.medium_contract or '无合同号'}}</td>
+                            <td>{{t.type_cn}}</td>
+                            <td id="num_{{t.id}}">{{t.num}}</td>
+                            <td>{{t.remark}}</td>
+                            <td id="pay_num_{{t.id}}">{{t.pay_num}}</td>
+                            {% if OUTSOURCE_STATUS_PASS != status%}
+                            <td>{{t.invoice_info}}</td>
+                            {% endif %}
+                            <td>{{t.create_time_cn}}</td>
+                            {% if OUTSOURCE_STATUS_PASS == status%}
+                            <th><a href="javascript:update_pay_num('{{t.id}}','{{t.pay_num}}')">修改</a></th>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% if OUTSOURCE_STATUS_PASS == status and outsources %}
+                    <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
+                    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="">
+                       <div class="form-group">
+                          <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
+                          <div class="col-sm-10">
+                              <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+                                {% for u in reminder_emails %}
+                                <option value="{{u[1]}}">{{u[0]}}</option>
+                                {% endfor %}
+                              </select>
+                          </div>
+                       </div>
+                       <div class="form-group">
+                          <label for="msg" class="col-sm-2 control-label">留言 : </label>
+                          <div class="col-sm-10">
+                              <textarea class="form-control bra-form-control" id="msg"
+                              name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+                          </div>
+                       </div>
+                       <div class="form-group">
+                          <label class="col-sm-2 control-label">操作 : </label>
+                          <div class="col-sm-10">
+                            <button class="btn btn-sm btn-primary outsource-btn" name="action" type="button" value="1">合并付款</button>
+                          </div>
+                       </div>
+
+                       <!-- Modal -->
+                      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                              <h4 class="modal-title" id="myModalLabel">添加合并付款信息</h4>
+                            </div>
+                            <div class="modal-body">
+                              <div class="row">
+                                {{ form_field(form.num) }}
+                                {{ form_field(form.pay_num) }}
+                                {{ form_field(form.invoice) }}
+                                {{ form_field(form.remark) }}
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                              <input type="submit" class="btn btn-primary" value="提交"/>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                     </form>
+                     {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="update_Modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.update_pay_num')}}">
+  <input type="hidden" id="outsource_id" name="outsource_id">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">添加合并付款信息</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="form-group">
+            <label for="reminde_date" class="col-sm-2 control-label">实际打款金额 : </label>
+            <div class="col-sm-4">
+              <input type="text" id="update_pay_num" name="update_pay_num" value="" class="orm-control bra-form-control" data-date-format="yyyy-mm-dd">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <input type="submit" class="btn btn-primary" value="提交"/>
+      </div>
+    </div>
+  </div>
+</form>
+</div>
+<script>
+  function update_pay_num(outsource_id,pay_num){
+      $('#outsource_id').val(outsource_id);
+      $('#update_pay_num').val(pay_num);
+      $('#update_Modal').modal('show');
+  }
+  check_all = function(e){
+    $(e).parent().find(".outsource-id").prop("checked", $(e).prop("checked"));
+    $(e).parent().find(".outsource-id").trigger("change");
+  }
+  $(function(){
+    $(".outsource-id").change(function(e){
+      if($(this).prop("checked")){
+        if($("#form-outsources-"+$(this).val()).length < 1){
+          $(this).parents(".panel-collapse").find(".outsource-status-form")
+          .append('<input class="hide outsources" name="outsources" id="form-outsources-'+$(this).val()+'" value="'+$(this).val()+'"/>');
+        }
+      }else{
+        $(this).parents(".panel-collapse").find(".outsource-all").prop("checked", false);
+        if($("#form-outsources-"+$(this).val()).length > 0){
+          $("#form-outsources-"+$(this).val()).remove();
+        }
+      }
+    });
+    $(".outsource-btn").click(function(e){
+      var actionVal = $(this).val();
+      var email = $(this).parents('form').find("#contract-email").val();
+      var outsources = $(this).parents('form').find(".outsources");
+      var msg = $(this).parents('form').find("#msg").val();
+      if(outsources.length < 1){
+        alert("请勾选外包项!");
+        return;
+      }
+      
+      var num = 0
+      var pay_num = 0
+      for (var i=0;i<outsources.length;i++){
+        num += parseFloat($('#num_'+String(outsources[i].value)).html())
+        pay_num += parseFloat($('#pay_num_'+String(outsources[i].value)).html())
+      }
+      $('#num').val(num)
+      $('#pay_num').val(pay_num) 
+      $('#myModal').modal('show');
+    });
+  });
+</script>
+{% endblock %}

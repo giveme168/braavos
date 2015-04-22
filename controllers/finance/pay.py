@@ -7,11 +7,13 @@ from flask import render_template as tpl
 from models.client_order import ClientOrder
 from models.douban_order import DoubanOrder
 from models.outsource import (
-    OutSource, OUTSOURCE_STATUS_APPLY_MONEY, OUTSOURCE_STATUS_PAIED, INVOICE_RATE, DoubanOutSource)
+    OutSource, OUTSOURCE_STATUS_APPLY_MONEY, OUTSOURCE_STATUS_PAIED, MergerDoubanOutSource,
+    INVOICE_RATE, DoubanOutSource, MergerOutSource, MERGER_OUTSOURCE_STATUS_PAIED, MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
 from models.user import User
-from libs.signals import outsource_apply_signal
-from controllers.finance.helpers.pay_helpers import write_excel
-from controllers.tools import get_download_response
+from libs.signals import outsource_apply_signal, merger_outsource_apply_signal
+# from controllers.finance.helpers.pay_helpers import write_excel
+# from controllers.tools import get_download_response
+from libs.mail import mail
 
 
 finance_pay_bp = Blueprint(
@@ -20,20 +22,70 @@ finance_pay_bp = Blueprint(
 
 @finance_pay_bp.route('/', methods=['GET'])
 def index():
-    orders = [k for k in list(ClientOrder.all()) if k.get_outsources_by_status(
-        OUTSOURCE_STATUS_APPLY_MONEY)]
-    return tpl('/finance/pay/index.html', orders=orders)
+    merger_outsources = MergerOutSource.get_outsources_by_status(
+        MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
+    return tpl('/finance/pay/index.html', merger_outsources=merger_outsources)
+
+
+@finance_pay_bp.route('/<merger_id>/pass', methods=['GET'])
+def merger_outsources_pass(merger_id):
+    type = request.values.get('type', '')
+    if type == 'douban':
+        merger = MergerDoubanOutSource.get(merger_id)
+    else:
+        merger = MergerOutSource.get(merger_id)
+    merger.status = MERGER_OUTSOURCE_STATUS_PAIED
+    merger.create_time = datetime.date.today()
+    for k in merger.outsources:
+        k.status = OUTSOURCE_STATUS_PAIED
+        k.create_time = datetime.date.today()
+        k.save()
+    merger.save()
+    flash(u'打款成功!', 'success')
+    title = u'【费用报备】%s' % (u'打款成功')
+    if type == 'douban':
+        url = mail.app.config['DOMAIN'] + url_for(
+            'outsource.merget_douban_target_info', target_id=merger.target.id, status=OUTSOURCE_STATUS_PAIED)
+    else:
+        url = mail.app.config['DOMAIN'] + url_for(
+            'outsource.merget_client_target_info', target_id=merger.target.id, status=OUTSOURCE_STATUS_PAIED)
+    apply_context = {"sender": g.user,
+                     "url": url,
+                     "to": [k.email for k in User.operater_leaders() + User.finances()],
+                     "action_msg": u'打款成功',
+                     "msg": '',
+                     "title": title,
+                     "to_users": ','.join([k.name for k in User.operater_leaders()]),
+                     "invoice": str(merger.invoice),
+                     "remark": merger.remark,
+                     "outsources": merger.outsources}
+    merger_outsource_apply_signal.send(
+        current_app._get_current_object(), apply_context=apply_context)
+    flash(u'已发送邮件给 %s ' % (', '.join(apply_context['to'])), 'info')
+    if type == 'douban':
+        return redirect(url_for("finance_pay.douban_index"))
+    else:
+        return redirect(url_for("finance_pay.index"))
 
 
 @finance_pay_bp.route('/douban', methods=['GET'])
 def douban_index():
-    orders = [k for k in list(DoubanOrder.all()) if k.get_outsources_by_status(
-        OUTSOURCE_STATUS_APPLY_MONEY)]
-    return tpl('/finance/pay/douban_index.html', orders=orders)
+    merger_outsources = MergerDoubanOutSource.get_outsources_by_status(
+        MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
+    return tpl('/finance/pay/douban_index.html', merger_outsources=merger_outsources)
 
 
 @finance_pay_bp.route('/pass', methods=['GET'])
 def index_pass():
+    type = request.values.get('type', '')
+    if type == 'douban':
+        merger_outsources = MergerDoubanOutSource.get_outsources_by_status(
+            MERGER_OUTSOURCE_STATUS_PAIED)
+    else:
+        merger_outsources = MergerOutSource.get_outsources_by_status(
+            MERGER_OUTSOURCE_STATUS_PAIED)
+    return tpl('/finance/pay/index_pass.html', merger_outsources=merger_outsources)
+    '''
     type = request.values.get('type', '')
     if type == 'douban':
         title = u'申请通过的直签豆瓣订单打款'
@@ -51,6 +103,7 @@ def index_pass():
             xls, ("%s-%s.xls" % (u"申请过的打款信息", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
         return response
     return tpl('/finance/pay/index_pass.html', orders=orders, title=title, type=type)
+    '''
 
 
 @finance_pay_bp.route('/<order_id>/info', methods=['GET'])

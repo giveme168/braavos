@@ -2,20 +2,30 @@
 
 {% block left_box%}
     {% if g.user.is_operater_leader() %}
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>订单分配</li>
     <a class="list-group-item" href="{{url_for('outsource.client_orders_distribute')}}">
-        <span class="glyphicon glyphicon-stats"></span> 媒体订单分配
+        <span class="glyphicon glyphicon-stats"></span> 媒体订单
     </a>
     <a class="list-group-item" href="{{url_for('outsource.douban_orders_distribute')}}">
-        <span class="glyphicon glyphicon-stats"></span> 直签豆瓣订单分配
+        <span class="glyphicon glyphicon-stats"></span> 直签豆瓣订单
+    </a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>合并付款</li>
+    <a class="list-group-item" href="{{url_for('outsource.merger_client_target')}}">
+        <span class="glyphicon glyphicon-stats"></span> 媒体订单
+    </a>
+    <a class="list-group-item" href="{{url_for('outsource.merger_douban_target')}}">
+        <span class="glyphicon glyphicon-stats"></span> 豆瓣订单
     </a>
     {% endif %}
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>外包管理</li>
     <a class="list-group-item" href="{{url_for('outsource.client_orders')}}">
-        <span class="glyphicon glyphicon-stats"></span> 我的媒体外包
+        <span class="glyphicon glyphicon-stats"></span> 我的媒体订单
     </a>
     <a class="list-group-item" href="{{url_for('outsource.douban_orders')}}">
-        <span class="glyphicon glyphicon-stats"></span> 我的直签豆瓣外包
+        <span class="glyphicon glyphicon-stats"></span> 我的直签豆瓣订单
     </a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>收款方管理</li>
     <a class="list-group-item" href="{{url_for('outsource.targets')}}">
-        <span class="glyphicon glyphicon-stats"></span> 收款方管理
+        <span class="glyphicon glyphicon-stats"></span> 收款方
     </a>
 {% endblock %}

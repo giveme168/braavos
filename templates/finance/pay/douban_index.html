@@ -3,28 +3,32 @@
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3>正在申请的直签豆瓣订单打款</h3>
+    <h3>正在申请打款的外包信息</h3>
     <table class="table table-bordered table-striped">
         <tr>
-            <th>名称</th>
-            <th>合同号</th>
-            <th>总金额</th>
-            <th>外包应付总金额</th>
-            <th>外包占比</th>
-            <th>请款中</th>
-            <th>已打款</th>
+            <th>外包商名称</th>
+            <th>类型</th>
+            <th>开户行</th>    
+            <th>卡号</th>
+            <th>支付宝</th>
+            <th>联系方式</th>
+            <th>打款金额</th>
+            <th>是否有发票</th>
+            <th>订单明细</th>
             <th>查看</th>
         </tr>
-        {% for order in orders %}
+        {% for outsource in merger_outsources %}
         <tr>
-            <td><a href="{{url_for('finance_pay.douban_info', order_id=order.id)}}">{{order.name}}</a></td>
-            <td><a href="{{url_for('finance_pay.douban_info', order_id=order.id)}}">{{order.contract or '无合同号'}}</a></td>
-            <td>{{order.money}} 元</td>
-            <td>{{order.outsources_sum}} 元</td>
-            <td>{{order.outsources_percent}} %</td>
-            <td>{{order.get_outsources_by_status(3) | length}}</td>
-            <td>{{order.get_outsources_by_status(4) | length}}</td>
-            <td><a href="{{url_for('finance_pay.douban_info', order_id=order.id)}}">查看</a></td>
+            <td><a href="#">{{outsource.target.name}}</a></td>
+            <td>{{outsource.target.type_cn}}</td>
+            <td>{{outsource.target.bank}}</td>
+            <td>{{outsource.target.card}}</td>
+            <td>{{outsource.target.alipay}}</td>
+            <td>{{outsource.target.contract}}</td>
+            <td>{{outsource.pay_num}}</td>
+            <td>{% if outsource.invoice %}有{%else%}无{%endif%}</td>
+            <td>{{outsource.media_info|safe}}</td>
+            <td><a href="{{url_for('finance_pay.merger_outsources_pass',merger_id=outsource.id)}}?type=douban">确认打款</a></td>
         </tr>
         {% endfor %}
     </table>
