@@ -4,7 +4,7 @@ import datetime
 from flask import url_for
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
-
+from models.user import User
 
 TARGET_TYPE_FLASH = 1
 TARGET_TYPE_KOL = 2
@@ -220,7 +220,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        admin_users = self.medium_order.operaters
+        admin_users = self.medium_order.operaters + User.operater_leaders()
         return user.is_admin() or user in admin_users
 
     @property
@@ -357,7 +357,7 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        admin_users = self.douban_order.operaters
+        admin_users = self.douban_order.operaters + User.operater_leaders()
         return user.is_admin() or user in admin_users
 
     @property
