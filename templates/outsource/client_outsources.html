@@ -89,7 +89,7 @@
                 {% endif %}
                 {{ outsource_form(o.form, o, order=order) }}
             {% endfor %}
-            {% if g.user.is_leader() or outsources[0].can_admin(g.user) %}
+            {% if g.user.is_leader() or outsources[0].can_admin(g.user) or g.user.is_operater_leader() %}
                 {% if outsource_status != 4 %}
                   {{ status_box(order, outsource_status,  outsources[0]) }}
                 {% endif %}
