@@ -35,14 +35,15 @@
         <tr>
             <th>合同名称</th>
             <th>合同号</th>
+            <th>所属区域</th>
             <th>合同总金额</th>
             <th>外包应付总金额</th>
             <th>外包占比</th>
-            <th>待申请</th>
-            <th>申请中</th>
-            <th>已通过</th>
-            <th>请款中</th>
-            <th>已打款</th>
+            <th>开始时间</th>
+            <th>开始时间</th>
+            <th>未报备</th>
+            <th>报备中</th>
+            <th>已报备</th>
             <th>项目经理</th>
             <th width='5%'>操作</th>
         </tr>
@@ -50,14 +51,15 @@
         <tr>
             <td><a href="{{url_for('outsource.douban_outsources', order_id=order.id)}}">{{order.name}}</a></td>
             <td><a href="{{url_for('outsource.douban_outsources', order_id=order.id)}}">{{order.contract or '无合同号'}}</a></td>
+            <td>{{order.locations_cn}}</td>
             <td>{{order.money}} 元</td>
             <td>{{order.outsources_sum}} 元</td>
             <td>{{order.outsources_percent}} %</td>
-            <td>{{order.get_outsources_by_status(0) | length}}</td>
-            <td>{{order.get_outsources_by_status(1) | length + order.get_outsources_by_status(5) | length}}</td>
-            <td>{{order.get_outsources_by_status(2) | length}}</td>
-            <td>{{order.get_outsources_by_status(3) | length}}</td>
-            <td>{{order.get_outsources_by_status(4) | length}}</td>
+            <td>{{order.start_date_cn}}</td>
+            <td>{{order.end_date_cn}}</td>
+            <td>{{order.get_outsources_by_status(0)|length}}</td>
+            <td>{{order.get_outsources_by_status(1)|length + order.get_outsources_by_status(5)|length}}</td>
+            <td>{{order.get_outsources_by_status(2)|length}}</td>
             <td>{{order.operater_names}}</td>
             <td><a href="javascript:edit_operator('{{order.id}}','{{order.operater_ids}}')">修改</a></td>
         </tr>

@@ -221,14 +221,15 @@ class User(db.Model, BaseModelMixin):
         leader_emails = [k for k in user.team.admins]
         operater_leaders = [
             k for k in cls.all() if k.team.type == TEAM_TYPE_OPERATER_LEADER]
+        leader_emails += operater_leaders
+        '''
         if user.team.location in [TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG]:
-            leader_emails += operater_leaders + \
-                [k for k in cls.all() if k.email.find(
-                    'huawei') >= 0 and k.team.type == TEAM_TYPE_SUPER_LEADER]
+            leader_emails += [k for k in cls.all() if k.email.find(
+                'huawei') >= 0 and k.team.type == TEAM_TYPE_SUPER_LEADER]
         else:
-            leader_emails += operater_leaders + \
-                [k for k in cls.all() if k.email.find(
-                    'huangliang') >= 0 and k.team.type == TEAM_TYPE_SUPER_LEADER]
+            leader_emails += [k for k in cls.all() if k.email.find(
+                'huangliang') >= 0 and k.team.type == TEAM_TYPE_SUPER_LEADER]
+        '''
         return leader_emails
 
 
