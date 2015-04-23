@@ -38,7 +38,7 @@
 
           {% if outsource_status == 0 and outsource.can_admin(g.user) %}
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="0">申请审批</button>
-          {% elif outsource_status == 1 and g.user.is_leader() %}
+          {% elif outsource_status == 1 or g.user.is_leader() or g.user.is_operater_leader() %}
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="1">通过</button>
           <button class="btn btn-sm btn-warning outsource-btn" name="action" type="submit" value="2">不通过</button>
           {% elif outsource_status == 2 and outsource.can_admin(g.user) %}
@@ -89,7 +89,7 @@
                 {% endif %}
                 {{ outsource_form(o.form, o, order=order) }}
             {% endfor %}
-            {% if g.user.is_leader() or outsources[0].can_admin(g.user) %}
+            {% if g.user.is_leader() or outsources[0].can_admin(g.user) or g.user.is_operater_leader() %}
                 {% if outsource_status != 4 %}
                   {{ status_box(order, outsource_status,  outsources[0]) }}
                 {% endif %}
