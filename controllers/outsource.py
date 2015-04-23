@@ -376,7 +376,6 @@ def outsource_status(order_id):
             order.agent_sales[0])
     except:
         outsource_apply_user = []
-
     outsource_percent = (
         sum([k.pay_num for k in outsources]) + order.outsources_sum) / order.money
 

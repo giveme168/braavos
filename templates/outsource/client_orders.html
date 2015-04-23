@@ -39,10 +39,13 @@
             <th>外包应付总金额</th>
             <th>外包占比</th>
             <th>投放媒体</th>
-            <th>待申请</th>
-            <th>申请中</th>
-            <th>已通过</th>
-            <th>请款中</th>
+            <th>所属区域</td>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>未报备</th>
+            <th>报备中</th>
+            <th>已报备</th>
+            <th>打款中</th>
             <th>已打款</th>
             <th>项目经理</th>
         </tr>
@@ -54,6 +57,9 @@
             <td>{{order.outsources_sum}} 元</td>
             <td>{{order.outsources_percent}} %</td>
             <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
+            <td>{{order.locations_cn}}</td>
+            <td>{{order.start_date_cn}}</td>
+            <td>{{order.end_date_cn}}</td>
             <td>{{order.get_outsources_by_status(0) | length}}</td>
             <td>{{order.get_outsources_by_status(1) | length + order.get_outsources_by_status(5) | length}}</td>
             <td>{{order.get_outsources_by_status(2) | length}}</td>
