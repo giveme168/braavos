@@ -121,9 +121,9 @@
                             </div>
                             <div class="modal-body">
                               <div class="row">
+                                {{ form_field(form.invoice) }}
                                 {{ form_field(form.num) }}
                                 {{ form_field(form.pay_num) }}
-                                {{ form_field(form.invoice) }}
                                 {{ form_field(form.remark) }}
                               </div>
                             </div>
@@ -193,6 +193,20 @@
         }
       }
     });
+    $("#invoice").change(function(e){
+       var outsources = $(this).parents('form').find(".outsources");
+       var pay_num = 0
+       for (var i=0;i<outsources.length;i++){
+         pay_num += parseFloat($('#pay_num_'+String(outsources[i].value)).html())
+       }
+       var invoice = $('#invoice').val()
+
+       if(invoice=='False'){
+         $('#pay_num').val(parseFloat(pay_num)*(1-parseFloat('{{INVOICE_RATE}}')))
+       }else{
+          $('#pay_num').val(pay_num)
+       }
+    })
     $(".outsource-btn").click(function(e){
       var actionVal = $(this).val();
       var email = $(this).parents('form').find("#contract-email").val();
@@ -211,6 +225,10 @@
       }
       $('#num').val(num)
       $('#pay_num').val(pay_num) 
+      if($('#invoice').val()=='False'){
+          var pay_num = $('#pay_num').val()
+          $('#pay_num').val(parseFloat(pay_num)*(1-parseFloat('{{INVOICE_RATE}}')))
+      }
       $('#myModal').modal('show');
     });
   });
