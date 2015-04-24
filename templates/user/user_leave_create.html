@@ -4,20 +4,24 @@
 
 {% block main_box %}
 <div class="bra-main bra-box">
+    {% if leave %}
+    <h3>修改请假申请表</h3>
+    {% else %}
     <h3>填写请假申请表</h3>
+    {% endif %}
     <form class="form form-horizontal" method="POST">
         {{form.csrf_token}}
         {{ form_field(form.type) }}
         <div class="form-group">
           <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
           <div class="col-sm-4">
-            <input type="text" id="start" name="start" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+            <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
           </div>
         </div>
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
           <div class="col-sm-4">
-            <input type="text" id="end" name="end" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+            <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
           </div>
         </div>
         {{ form_field(form.senders) }}
@@ -44,6 +48,10 @@ Date.prototype.Format = function (fmt) { //author: meizz
 }
 
 $(function(){
+    {% if leave %}
+        $('#start').val('{{leave.start}}')
+        $('#end').val('{{leave.end}}')
+    {% endif %}
     $('.datetimepicker').datetimepicker({
         autoclose: true,
         todayHighlight: true,

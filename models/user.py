@@ -81,10 +81,8 @@ class User(db.Model, BaseModelMixin):
         self.team = team
         self.status = status
 
-    '''
     def __repr__(self):
         return '<User %s, %s>' % (self.name, self.email)
-    '''
 
     @property
     def display_name(self):

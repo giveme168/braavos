@@ -5,7 +5,7 @@ from flask import render_template as tpl, flash, current_app
 from flask.ext.login import login_user, logout_user, current_user
 
 from . import admin_required
-from models.user import Team, User, USER_STATUS_CN, Leave
+from models.user import Team, User, USER_STATUS_CN, Leave, LEAVE_STATUS_APPLY
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm, UserLeaveForm
 from config import DEFAULT_PASSWORD
 from libs.signals import password_changed_signal
@@ -191,4 +191,43 @@ def leave_create(user_id):
                   senders=User.gets(form.senders.data),
                   creator=g.user,
                   create_time=datetime.date.today())
-    return tpl('user_leave_create.html', form=form)
+        flash(u'添加成功', 'success')
+        return redirect(url_for('user.leave', user_id=user_id))
+    return tpl('user_leave_create.html', form=form, leave=None)
+
+
+@user_bp.route('/<user_id>/leave/<lid>/delete')
+def leave_delete(user_id, lid):
+    Leave.get(lid).delete()
+    flash(u'删除成功', 'success')
+    return redirect(url_for('user.leave', user_id=user_id))
+
+
+@user_bp.route('/<user_id>/leave/<lid>/apply')
+def leave_apply(user_id, lid):
+    leave = Leave.get(lid)
+    leave.status = LEAVE_STATUS_APPLY
+    leave.save()
+    flash(u'申请成功', 'success')
+    return redirect(url_for('user.leave', user_id=user_id))
+
+
+@user_bp.route('/<user_id>/leave/<lid>/update', methods=['GET', 'POST'])
+def leave_update(user_id, lid):
+    leave = Leave.get(lid)
+    form = UserLeaveForm(request.form)
+    if request.method == 'POST':
+        leave.type = form.type.data
+        leave.start = request.values.get('start')
+        leave.end = request.values.get('end')
+        leave.reason = form.reason.data
+        leave.status = request.values.get('status')
+        leave.senders = User.gets(form.senders.data)
+        leave.create_time = datetime.date.today()
+        leave.save()
+        flash(u'修改成功', 'success')
+        return redirect(url_for('user.leave', user_id=user_id))
+    form.type.data = leave.type
+    form.reason.data = leave.reason
+    form.senders.data = [u.id for u in leave.senders]
+    return tpl('user_leave_create.html', form=form, leave=leave)
