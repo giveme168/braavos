@@ -11,6 +11,7 @@
             <th>请假类型</th>
             <th>开始时间</th>
             <th>结束时间</th>
+            <th>发送人</th>
             <th>原因</th>
             <th>状态</th>
             <th width="15%">操作</th>
@@ -20,6 +21,7 @@
             <td>{{l.type_cn}}</td>
             <td>{{l.start}}</td>
             <td>{{l.end}}</td>
+            <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
             <td>{{l.reason}}</td>
             <td>{{l.status_cn}}</td>
             <td>

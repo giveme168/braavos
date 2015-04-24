@@ -175,7 +175,7 @@ def pwd_reset(user_id):
 
 @user_bp.route('/<user_id>/leave')
 def leave(user_id):
-    leaves = Leave.all()
+    leaves = [k for k in Leave.all() if k.creator.id == int(user_id)]
     return tpl('user_leave.html', leaves=leaves)
 
 
