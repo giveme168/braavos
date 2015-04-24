@@ -1,10 +1,10 @@
 #-*- coding: UTF-8 -*-
-from wtforms import TextField, validators, PasswordField, SelectField, SelectMultipleField
+from wtforms import TextField, validators, PasswordField, SelectField, SelectMultipleField, TextAreaField
 
 from libs.wtf import Form
 from models.user import (User, Team,
                          TEAM_TYPE_CN, TEAM_LOCATION_CN, USER_STATUS_CN,
-                         TEAM_TYPE_MEDIUM, TEAM_LOCATION_DEFAULT)
+                         TEAM_TYPE_MEDIUM, TEAM_LOCATION_DEFAULT, LEAVE_TYPE_CN)
 
 
 class LoginForm(Form):
@@ -70,3 +70,14 @@ class NewUserForm(Form):
             self.email.errors.append(u' 该邮箱用户已存在')
             return False
         return True
+
+
+class UserLeaveForm(Form):
+    type = SelectField(u'类型', coerce=int, default=1)
+    reason = TextAreaField(u'原因')
+    senders = SelectMultipleField(u'发送人（直属领导）', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(UserLeaveForm, self).__init__(*args, **kwargs)
+        self.type.choices = LEAVE_TYPE_CN.items()
+        self.senders.choices = [(m.id, m.name) for m in User.all()]

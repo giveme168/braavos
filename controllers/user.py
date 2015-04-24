@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import datetime
 from flask import Blueprint, request, redirect, url_for, abort, g
 from flask import render_template as tpl, flash, current_app
 from flask.ext.login import login_user, logout_user, current_user
 
 from . import admin_required
-from models.user import Team, User, USER_STATUS_CN
-from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
+from models.user import Team, User, USER_STATUS_CN, Leave, LEAVE_STATUS_APPLY
+from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm, UserLeaveForm
 from config import DEFAULT_PASSWORD
 from libs.signals import password_changed_signal
 
@@ -25,7 +26,8 @@ def login():
         if user:
             login_user(user)
             if user.check_password(DEFAULT_PASSWORD):
-                flash(u'您还在使用默认密码, 请及时<a href="%s">修改您的密码!</a>' % url_for('user.pwd_change'), 'danger')
+                flash(u'您还在使用默认密码, 请及时<a href="%s">修改您的密码!</a>' %
+                      url_for('user.pwd_change'), 'danger')
             return redirect(request.args.get("next", "/"))
     return tpl('login.html', form=form)
 
@@ -43,7 +45,8 @@ def pwd_change():
         user = current_user
         if form.validate(user):
             user.set_password(form.password.data)
-            password_changed_signal.send(current_app._get_current_object(), user=user)
+            password_changed_signal.send(
+                current_app._get_current_object(), user=user)
             logout_user()
             return redirect('/')
     return tpl('pwd_change.html', form=form)
@@ -168,3 +171,63 @@ def pwd_reset(user_id):
     user.set_password(DEFAULT_PASSWORD)
     user.save()
     return redirect(url_for('user.users'))
+
+
+@user_bp.route('/<user_id>/leave')
+def leave(user_id):
+    leaves = Leave.all()
+    return tpl('user_leave.html', leaves=leaves)
+
+
+@user_bp.route('/<user_id>/leave/create', methods=['GET', 'POST'])
+def leave_create(user_id):
+    form = UserLeaveForm(request.form)
+    if request.method == 'POST':
+        Leave.add(type=form.type.data,
+                  start=request.values.get('start'),
+                  end=request.values.get('end'),
+                  reason=form.reason.data,
+                  status=request.values.get('status'),
+                  senders=User.gets(form.senders.data),
+                  creator=g.user,
+                  create_time=datetime.date.today())
+        flash(u'添加成功', 'success')
+        return redirect(url_for('user.leave', user_id=user_id))
+    return tpl('user_leave_create.html', form=form, leave=None)
+
+
+@user_bp.route('/<user_id>/leave/<lid>/delete')
+def leave_delete(user_id, lid):
+    Leave.get(lid).delete()
+    flash(u'删除成功', 'success')
+    return redirect(url_for('user.leave', user_id=user_id))
+
+
+@user_bp.route('/<user_id>/leave/<lid>/apply')
+def leave_apply(user_id, lid):
+    leave = Leave.get(lid)
+    leave.status = LEAVE_STATUS_APPLY
+    leave.save()
+    flash(u'申请成功', 'success')
+    return redirect(url_for('user.leave', user_id=user_id))
+
+
+@user_bp.route('/<user_id>/leave/<lid>/update', methods=['GET', 'POST'])
+def leave_update(user_id, lid):
+    leave = Leave.get(lid)
+    form = UserLeaveForm(request.form)
+    if request.method == 'POST':
+        leave.type = form.type.data
+        leave.start = request.values.get('start')
+        leave.end = request.values.get('end')
+        leave.reason = form.reason.data
+        leave.status = request.values.get('status')
+        leave.senders = User.gets(form.senders.data)
+        leave.create_time = datetime.date.today()
+        leave.save()
+        flash(u'修改成功', 'success')
+        return redirect(url_for('user.leave', user_id=user_id))
+    form.type.data = leave.type
+    form.reason.data = leave.reason
+    form.senders.data = [u.id for u in leave.senders]
+    return tpl('user_leave_create.html', form=form, leave=leave)
