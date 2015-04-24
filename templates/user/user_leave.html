@@ -1,0 +1,29 @@
+{% extends "/user_info_base.html" %}
+{% block title %}请假列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>请假列表
+        <a class="btn btn-sm btn-default" href="{{url_for('user.leave_create',user_id = g.user.id)}}">申请请假</a>
+    </h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>请假类型</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>原因</th>
+            <th>状态</th>
+        </tr>
+        {% for l in leaves %}
+        <tr>
+            <td>{{l.type_cn}}</td>
+            <td>{{l.start}}</td>
+            <td>{{l.end}}</td>
+            <td>{{l.reason}}</td>
+            <td>{{l.status_cn}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

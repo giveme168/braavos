@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+import datetime
 from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for
@@ -80,8 +81,10 @@ class User(db.Model, BaseModelMixin):
         self.team = team
         self.status = status
 
+    '''
     def __repr__(self):
         return '<User %s, %s>' % (self.name, self.email)
+    '''
 
     @property
     def display_name(self):
@@ -220,8 +223,10 @@ class User(db.Model, BaseModelMixin):
     def outsource_leaders_email(cls, user, upper=False):
         leader_emails = [k for k in user.team.admins]
         operater_leaders = [
-            k for k in cls.all() if k.team.type == TEAM_TYPE_OPERATER_LEADER]
+            k for k in cls.all() if k.team.type == TEAM_TYPE_OPERATER_LEADER and k.location == user.location]
         leader_emails += operater_leaders
+        leader_emails += [k for k in cls.all() if k.email.find('fenghaiyan') >= 0]
+
         '''
         if user.team.location in [TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG]:
             leader_emails += [k for k in cls.all() if k.email.find(
@@ -279,3 +284,79 @@ class Team(db.Model, BaseModelMixin):
 
     def is_medium(self):
         return self.type == TEAM_TYPE_MEDIUM
+
+
+send_users = db.Table('leave_send_users',
+                      db.Column(
+                          'user_id', db.Integer, db.ForeignKey('user.id')),
+                      db.Column(
+                          'leave_id', db.Integer, db.ForeignKey('user_leave.id'))
+                      )
+
+
+LEAVE_TYPE_NORMAL = 1
+LEAVE_TYPE_ANNUAL = 2
+LEAVE_TYPE_SICK = 3
+
+LEAVE_TYPE_CN = {
+    LEAVE_TYPE_NORMAL: u'事假',
+    LEAVE_TYPE_ANNUAL: u'年假',
+    LEAVE_TYPE_SICK: u'病假',
+}
+
+LEAVE_STATUS_NORMAL = 1
+LEAVE_STATUS_APPLY = 2
+LEAVE_STATUS_PASS = 3
+LEAVE_STATUS_APPLYBACK = 4
+
+LEAVE_STATUS_CN = {
+    LEAVE_STATUS_NORMAL: u'待申请',
+    LEAVE_STATUS_APPLY: u'申请中',
+    LEAVE_STATUS_PASS: u'通过',
+    LEAVE_STATUS_APPLYBACK: u'不通过',
+}
+
+
+class Leave(db.Model, BaseModelMixin):
+    __tablename__ = 'user_leave'
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.Integer)
+    start = db.Column(db.Date)
+    end = db.Column(db.Date)
+    reason = db.Column(db.String(100))
+    status = db.Column(db.Integer)
+    senders = db.relationship('User', secondary=send_users)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('creator_leave', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+
+    def __init__(self, type, start=None, end=None, reason='', senders=None, creator=None, create_time=None, status=1):
+        self.type = type
+        self.start = start or datetime.date.today()
+        self.end = end or datetime.date.today()
+        self.reason = reason
+        self.senders = senders or []
+        self.creator = creator
+        self.status = status
+        self.create_time = datetime.date.today()
+
+    @property
+    def type_cn(self):
+        return LEAVE_TYPE_CN[self.type]
+
+    @property
+    def status_cn(self):
+        return LEAVE_STATUS_CN[self.status]
+
+    @property
+    def start_cn(self):
+        return self.start.strftime('%Y-%m-%d')
+
+    @property
+    def end_cn(self):
+        return self.start.strftime('%Y-%m-%d')
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime('%Y-%m-%d')

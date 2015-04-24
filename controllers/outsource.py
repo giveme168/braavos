@@ -37,7 +37,7 @@ def client_orders_distribute():
         order.save()
         if to_emails:
             apply_context = {"sender": g.user,
-                             "to": to_emails + [g.user.email] + [k.email for k in User.operater_leaders()],
+                             "to": to_emails + [g.user.email],
                              "action_msg": '',
                              "msg": '',
                              "order": order.client_order}
@@ -66,7 +66,7 @@ def douban_orders_distribute():
         order.save()
         if to_emails:
             apply_context = {"sender": g.user,
-                             "to": to_emails + [g.user.email] + [k.email for k in User.operater_leaders()],
+                             "to": to_emails + [g.user.email],
                              "action_msg": '',
                              "msg": '',
                              "order": order}
@@ -316,8 +316,7 @@ def outsource(outsource_id):
 
     if outsource.status not in [0, 4]:
         to_users = order.direct_sales + order.agent_sales + \
-            [order.creator, g.user] + \
-            User.operater_leaders() + order.operater_users
+            [order.creator, g.user] + order.operater_users
         try:
             outsource_apply_user = User.outsource_leaders_email(
                 order.agent_sales[0])
@@ -370,7 +369,7 @@ def outsource_status(order_id):
     msg = request.values.get('msg', '')
 
     to_users = order.direct_sales + order.agent_sales + \
-        [order.creator, g.user] + User.operater_leaders() + order.operater_users
+        [order.creator, g.user] + order.operater_users
     try:
         outsource_apply_user = User.outsource_leaders_email(
             order.agent_sales[0])

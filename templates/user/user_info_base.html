@@ -1,0 +1,7 @@
+{% extends "/site_base.html" %}
+
+{% block left_box%}
+    <a class="list-group-item" href="{{url_for('user.leave',user_id = g.user.id)}}">
+        <span class="glyphicon glyphicon-user"></span> 请假申请
+    </a>
+{% endblock %}
