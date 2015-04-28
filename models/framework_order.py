@@ -91,6 +91,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_generate = True
     media_apply = False
     kind = "framework-order"
+    __mapper_args__ = {'order_by': create_time.desc()}
 
     def __init__(self, group, agents=None, description=None, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,

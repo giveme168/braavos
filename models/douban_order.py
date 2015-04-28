@@ -132,6 +132,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_generate = False
     media_apply = False
     kind = "douban-order"
+    __mapper_args__ = {'order_by': create_time.desc()}
 
     def __init__(self, agent, client, campaign, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,

@@ -328,8 +328,8 @@ class Leave(db.Model, BaseModelMixin):
     __tablename__ = 'user_leave'
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer)
-    start = db.Column(db.Date)
-    end = db.Column(db.Date)
+    start_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
     reason = db.Column(db.String(100))
     status = db.Column(db.Integer)
     senders = db.relationship('User', secondary=send_users)
@@ -357,13 +357,23 @@ class Leave(db.Model, BaseModelMixin):
         return LEAVE_STATUS_CN[self.status]
 
     @property
-    def start_cn(self):
-        return self.start.strftime('%Y-%m-%d')
+    def start_time_cn(self):
+        return self.start_time.strftime('%Y-%m-%d %H')
 
     @property
-    def end_cn(self):
-        return self.start.strftime('%Y-%m-%d')
+    def end_time_cn(self):
+        return self.end_time.strftime('%Y-%m-%d %H')
 
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
+
+    @property
+    def leave_time_cn(self):
+        offset = (self.end_time - self.start_time)
+        if offset.days > 0:
+            if offset.seconds > 0:
+                return str(offset.days) + u'天半'
+            return str(offset.days) + u'天'
+        else:
+            return u'半天'
