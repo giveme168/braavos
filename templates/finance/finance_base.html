@@ -6,6 +6,7 @@
     margin-left:15px;
 }
 </style>
+    {% if g.user.is_finance()%}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 发票管理</li>
     <a class="list-group-item" href="{{url_for('finance_invoice.index')}}">申请中的发票</a>
     <a class="list-group-item" href="{{url_for('finance_invoice.index_pass')}}">已开发票信息</a>
@@ -19,4 +20,5 @@
     <a class="list-group-item" href="{{url_for('finance_medium_pay.index_pass')}}">已打款的媒体信息</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 回款管理</li>
     <a class="list-group-item" href="{{url_for('finance_client_order_back_money.index')}}">客户订单回款</a>
+    {% endif %}
 {% endblock %}

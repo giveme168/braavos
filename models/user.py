@@ -14,6 +14,10 @@ USER_STATUS_CN = {
     USER_STATUS_ON: u"有效"
 }
 
+TEAM_TYPE_OPS_LEADER = 19  # 行政-Leader
+TEAM_TYPE_OPS = 18  # 行政
+TEAM_TYPE_HR_LEADER = 17  # 人力-Leader
+TEAM_TYPE_HR = 16  # 人力
 TEAM_TYPE_OPERATER_LEADER = 15       # 执行-Leader
 TEAM_TYPE_SUPER_LEADER = 14       # Super-Leader
 TEAM_TYPE_FINANCE = 13       # 内部-财务
@@ -47,7 +51,11 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_OPERATER_LEADER: u"内部-执行Leader",
     TEAM_TYPE_SUPER_LEADER: u"内部-SuperLeader",
     TEAM_TYPE_ADMIN: u" 系统管理员",
-    TEAM_TYPE_SUPER_ADMIN: u"程序管理员"
+    TEAM_TYPE_SUPER_ADMIN: u"程序管理员",
+    TEAM_TYPE_HR: u'内部人力',
+    TEAM_TYPE_HR_LEADER: u'内部人力-Leader',
+    TEAM_TYPE_OPS: u'内部行政',
+    TEAM_TYPE_OPS_LEADER: u'内部行政-Leader',
 }
 
 TEAM_LOCATION_DEFAULT = 0
@@ -223,7 +231,8 @@ class User(db.Model, BaseModelMixin):
         operater_leaders = [
             k for k in cls.all() if k.team.type == TEAM_TYPE_OPERATER_LEADER and k.location == user.location]
         leader_emails += operater_leaders
-        leader_emails += [k for k in cls.all() if k.email.find('fenghaiyan') >= 0]
+        leader_emails += [k for k in cls.all()
+                          if k.email.find('fenghaiyan') >= 0]
 
         '''
         if user.team.location in [TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG]:
@@ -319,8 +328,8 @@ class Leave(db.Model, BaseModelMixin):
     __tablename__ = 'user_leave'
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer)
-    start = db.Column(db.Date)
-    end = db.Column(db.Date)
+    start_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
     reason = db.Column(db.String(100))
     status = db.Column(db.Integer)
     senders = db.relationship('User', secondary=send_users)
@@ -348,13 +357,23 @@ class Leave(db.Model, BaseModelMixin):
         return LEAVE_STATUS_CN[self.status]
 
     @property
-    def start_cn(self):
-        return self.start.strftime('%Y-%m-%d')
+    def start_time_cn(self):
+        return self.start_time.strftime('%Y-%m-%d %H')
 
     @property
-    def end_cn(self):
-        return self.start.strftime('%Y-%m-%d')
+    def end_time_cn(self):
+        return self.end_time.strftime('%Y-%m-%d %H')
 
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
+
+    @property
+    def leave_time_cn(self):
+        offset = (self.end_time - self.start_time)
+        if offset.days > 0:
+            if offset.seconds > 0:
+                return str(offset.days) + u'天半'
+            return str(offset.days) + u'天'
+        else:
+            return u'半天'

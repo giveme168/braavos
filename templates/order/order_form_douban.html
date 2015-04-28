@@ -38,21 +38,6 @@
     {{ form_field(form.sale_type) }}
     <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
 </form>
-<script>
-$(document).ready(function(){
-    $('.datetimepicker').datetimepicker({
-        autoclose: true,
-        todayHighlight: true,
-        language: 'zh-CN',
-        minView: 2
-      });
-    $("#client_end").change(function(e){
-      var endDate = new Date($('#client_end').val());
-      endDate.setDate(endDate.getDate() + 90); 
-      $('#reminde_date').val(endDate.getFullYear()+"-"+(endDate.getMonth()+1)+"-"+endDate.getDate())
-    });
-});
-</script>
 {% elif g.user.is_super_leader() %}
 <form class="form form-horizontal" method="POST">
     <input class="hide" name="info_type" value="0"/>

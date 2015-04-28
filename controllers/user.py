@@ -175,7 +175,7 @@ def pwd_reset(user_id):
 
 @user_bp.route('/<user_id>/leave')
 def leave(user_id):
-    leaves = Leave.all()
+    leaves = [k for k in Leave.all() if k.creator.id == int(user_id)]
     return tpl('user_leave.html', leaves=leaves)
 
 
@@ -184,8 +184,8 @@ def leave_create(user_id):
     form = UserLeaveForm(request.form)
     if request.method == 'POST':
         Leave.add(type=form.type.data,
-                  start=request.values.get('start'),
-                  end=request.values.get('end'),
+                  start_time=datetime.datetime.strptime(request.values.get('start'), '%Y-%m-%d %H'),
+                  end_time=datetime.datetime.strptime(request.values.get('end'), '%Y-%m-%d %H'),
                   reason=form.reason.data,
                   status=request.values.get('status'),
                   senders=User.gets(form.senders.data),
@@ -218,8 +218,8 @@ def leave_update(user_id, lid):
     form = UserLeaveForm(request.form)
     if request.method == 'POST':
         leave.type = form.type.data
-        leave.start = request.values.get('start')
-        leave.end = request.values.get('end')
+        leave.start_time = datetime.datetime.strptime(request.values.get('start'), '%Y-%m-%d %H'),
+        leave.end_time = datetime.datetime.strptime(request.values.get('end'), '%Y-%m-%d %H'),
         leave.reason = form.reason.data
         leave.status = request.values.get('status')
         leave.senders = User.gets(form.senders.data)

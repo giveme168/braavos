@@ -30,6 +30,7 @@
                 {% endif %}
               </ul>
             </li>
+            {% if g.user.is_operater() or g.user.is_operater_leader() or g.user.is_super_leader() %}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">运营管理<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
@@ -37,7 +38,8 @@
                 <li><a href="{{url_for('outsource.targets')}}">外包收款方</a></li>
               </ul>
             </li>
-            {% if g.user.is_finance() or g.user.is_super_leader%}
+            {% endif %}
+            {% if g.user.is_finance() or g.user.is_super_leader() %}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">财务管理<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
