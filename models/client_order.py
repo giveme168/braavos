@@ -117,7 +117,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_generate = True
     media_apply = True
     kind = "client-order"
-    __mapper_args__ = {'order_by': create_time.desc()}
+    __mapper_args__ = {'order_by': contract.desc()}
 
     def __init__(self, agent, client, campaign, medium_orders=None, status=STATUS_ON,
                  back_money_status=BACK_MONEY_STATUS_NOW,
