@@ -11,6 +11,7 @@ from config import DEFAULT_PASSWORD
 from libs.signals import password_changed_signal
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
+page_num = 50
 
 
 @user_bp.route('/', methods=['GET'])
@@ -173,10 +174,36 @@ def pwd_reset(user_id):
     return redirect(url_for('user.users'))
 
 
+@user_bp.route('/leaves')
+def leaves():
+    user_id = request.values.get('user_id', '')
+    page = int(request.values.get('p', 1))
+    type = request.values.get('type', '')
+    start = request.values.get('start', '')
+    end = request.values.get('end', '')
+    filters = {}
+    if user_id:
+        filters['creator_id'] = user_id
+    if type:
+        filters['type'] = int(type)
+    if g.user.is_super_leader() or g.user.is_OPS_leader() or g.user.is_HR_leader():
+        leaves = Leave.query.filter_by(**filters).all()
+    elif g.user.is_team_leader():
+        leaves = [o for o in Leave.query.filter_by(**filters).all() if g.user in o.creator.team.admins]
+    else:
+        leaves = []
+    if start and end:
+        start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
+        end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
+        leaves = [k for k in leaves if k.start_time >= start_time and k.start_time < end_time]
+    return tpl('/leave/leaves.html', leaves=leaves[(page - 1) * page_num:(page - 1) * page_num + page_num],
+               page=page, user_id=user_id, type=type, start=start, end=end)
+
+
 @user_bp.route('/<user_id>/leave')
 def leave(user_id):
     leaves = [k for k in Leave.all() if k.creator.id == int(user_id)]
-    return tpl('user_leave.html', leaves=leaves)
+    return tpl('/leave/user_leave.html', leaves=leaves)
 
 
 @user_bp.route('/<user_id>/leave/create', methods=['GET', 'POST'])
@@ -193,7 +220,7 @@ def leave_create(user_id):
                   create_time=datetime.date.today())
         flash(u'添加成功', 'success')
         return redirect(url_for('user.leave', user_id=user_id))
-    return tpl('user_leave_create.html', form=form, leave=None)
+    return tpl('/leave/user_leave_create.html', form=form, leave=None)
 
 
 @user_bp.route('/<user_id>/leave/<lid>/delete')
@@ -230,4 +257,4 @@ def leave_update(user_id, lid):
     form.type.data = leave.type
     form.reason.data = leave.reason
     form.senders.data = [u.id for u in leave.senders]
-    return tpl('user_leave_create.html', form=form, leave=leave)
+    return tpl('/leave/user_leave_create.html', form=form, leave=leave)

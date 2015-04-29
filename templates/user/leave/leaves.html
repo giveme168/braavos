@@ -1,0 +1,116 @@
+{% extends "/user_info_base.html" %}
+{% block title %}请假列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>所有请假列表</h3>
+    <div class="search">
+        <form class="form-inline" method="GET">
+            <div class="form-group">
+                <label for="">类型</label>
+                <select id="type" name="type" placeholder="类型" style="width:150px;">
+                    <option value="">全部</value>
+                    <option value="1">事假</value>
+                    <option value="2">年假</value>
+                    <option value="3">病假</value>
+                    <option value="4">婚假</value>
+                    <option value="5">产假</value>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="">开始时间</label>
+                <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+            </div>
+            <div class="form-group">
+                <label for="">结束时间</label>
+                <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+            </div>
+            <button type="submit" class="btn btn-sm btn-info">查询</button>
+        </form>
+    </div>
+    <br/>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>请假类型</th>
+            <th>请假人</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>请假时长</th>
+            <th>发送人</th>
+            <th>原因</th>
+            <th>状态</th>
+            <th width="15%">操作</th>
+        </tr>
+        {% for l in leaves %}
+        <tr>
+            <td>{{l.type_cn}}</td>
+            <td><a href="?p={{page}}&user_id={{l.creator.id}}&type={{type}}&start={{start}}&end={{end}}">{{l.creator.name}}</a></td>
+            <td>{{l.start_time_cn}}</td>
+            <td>{{l.end_time_cn}}</td>
+            <td>{{l.leave_time_cn}}</td>
+            <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
+            <td>{{l.reason}}</td>
+            <td>{{l.status_cn}}</td>
+            <td></td>
+        </tr>
+        {% endfor %}
+    </table>
+    <nav>
+      <ul class="pagination">
+        {% if page-1 > 0 %}
+        <li><a href="?p={{page-1}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">&laquo;</a></li>
+        {% endif %}
+        {% if page-2 > 0 %}
+        <li class=""><a href="?p={{page-2}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">{{page-2}}</a></li>
+        {% endif %}
+        {% if page-1 > 0 %}
+        <li class=""><a href="?p={{page-1}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">{{page-1}}</a></li>
+        {% endif %}
+        <li class="active disable"><a href="#">{{page}}</a></li>
+        <li class=""><a href="?p={{page+1}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">{{page+1}}</a></li>
+        <li class=""><a href="?p={{page+2}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">{{page+2}}</a></li>
+        <li><a href="?p={{page+1}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">&raquo;</a></li>
+      </ul>
+    </nav>
+</div>
+<script>
+Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+$(function(){
+    $("#type option[value='{{type}}']").attr("selected","selected");  
+    $("#type").trigger("chosen:updated");
+
+    $('#start').val('{{start}}')
+    $('#end').val('{{end}}')
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2,
+    });
+    $("#start").change(function(e){
+        var end_date = $('#end').val()
+        if (end_date == ''){
+            var endDate = new Date($('#start').val()+':00:00');
+            endDate.setDate(endDate.getDate() + 1); 
+            $('#end').val(endDate.Format("yyyy-MM-dd"))
+            $('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd"));
+        }
+    });
+})
+</script>
+{% endblock %}

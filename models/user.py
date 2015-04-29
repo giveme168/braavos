@@ -13,7 +13,6 @@ USER_STATUS_CN = {
     USER_STATUS_OFF: u"停用",
     USER_STATUS_ON: u"有效"
 }
-
 TEAM_TYPE_OPS_LEADER = 19  # 行政-Leader
 TEAM_TYPE_OPS = 18  # 行政
 TEAM_TYPE_HR_LEADER = 17  # 人力-Leader
@@ -151,6 +150,12 @@ class User(db.Model, BaseModelMixin):
     def is_operater_leader(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_OPERATER_LEADER
 
+    def is_OPS_leader(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_OPS_LEADER
+
+    def is_HR_leader(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_HR_LEADER
+
     def is_contract(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_CONTRACT
 
@@ -168,6 +173,12 @@ class User(db.Model, BaseModelMixin):
 
     def path(self):
         return url_for('user.user_detail', user_id=self.id)
+
+    def is_team_leader(self):
+        admins = []
+        for k in Team.all():
+            admins += k.admins
+        return self in admins
 
     @classmethod
     def gets_by_team_type(cls, team_type):
@@ -304,11 +315,15 @@ send_users = db.Table('leave_send_users',
 LEAVE_TYPE_NORMAL = 1
 LEAVE_TYPE_ANNUAL = 2
 LEAVE_TYPE_SICK = 3
+LEAVE_TYPE_MARRIAGE = 4
+LEAVE_TYPE_MATERNITY = 5
 
 LEAVE_TYPE_CN = {
     LEAVE_TYPE_NORMAL: u'事假',
     LEAVE_TYPE_ANNUAL: u'年假',
     LEAVE_TYPE_SICK: u'病假',
+    LEAVE_TYPE_MARRIAGE: u'婚假',
+    LEAVE_TYPE_MATERNITY: u'产假',
 }
 
 LEAVE_STATUS_NORMAL = 1
@@ -338,10 +353,11 @@ class Leave(db.Model, BaseModelMixin):
         'User', backref=db.backref('creator_leave', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
 
-    def __init__(self, type, start=None, end=None, reason='', senders=None, creator=None, create_time=None, status=1):
+    def __init__(self, type, start_time=None, end_time=None, reason='',
+                 senders=None, creator=None, create_time=None, status=1):
         self.type = type
-        self.start = start or datetime.date.today()
-        self.end = end or datetime.date.today()
+        self.start_time = start_time or datetime.date.today()
+        self.end_time = end_time or datetime.date.today()
         self.reason = reason
         self.senders = senders or []
         self.creator = creator
