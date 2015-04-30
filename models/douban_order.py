@@ -341,7 +341,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def outsources_sum(self):
-        return sum([o.pay_num if o.pay_num else o.num for o in self.douban_outsources]) if self.douban_outsources else 0
+        return sum([o.pay_num for o in self.douban_outsources if o.status != 0]) if self.douban_outsources else 0
 
     @property
     def outsources_percent(self):

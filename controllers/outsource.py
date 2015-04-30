@@ -376,7 +376,7 @@ def outsource_status(order_id):
     except:
         outsource_apply_user = []
     outsource_percent = (
-        sum([k.pay_num for k in outsources]) + order.outsources_sum) / order.money
+        sum([k.pay_num for k in outsources]) + order.outsources_sum) / float(order.money)
 
     if action == 0:
         if outsource_percent >= 0.02:
