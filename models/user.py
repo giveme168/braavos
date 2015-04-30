@@ -387,9 +387,18 @@ class Leave(db.Model, BaseModelMixin):
     @property
     def leave_time_cn(self):
         offset = (self.end_time - self.start_time)
+        hours = offset.seconds/60/60
         if offset.days > 0:
-            if offset.seconds > 0:
+            if hours > 0 and hours < 9:
                 return str(offset.days) + u'天半'
-            return str(offset.days) + u'天'
+            elif hours == 9:
+                return str(offset.days+1) + u'天'
+            else:
+                return str(offset.days) + u'天'
         else:
-            return u'半天'
+            if hours > 0 and hours < 9:
+                return str(offset.days) + u'天半'
+            elif hours == 9:
+                return u'1天'
+            else:
+                return u'0天'
