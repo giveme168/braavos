@@ -166,7 +166,7 @@ def apply_invoice(invoice_id):
     send_type = "saler"
     if action == 2:
         invoice_status = MEDIUM_INVOICE_STATUS_APPLY
-        action_msg = u'发票开具申请'
+        action_msg = u'打款发票开具申请'
     if action != 10:
         for invoice in invoices:
             invoice.invoice_status = invoice_status
@@ -180,6 +180,7 @@ def apply_invoice(invoice_id):
         action_msg = u'消息提醒'
 
     apply_context = {"sender": g.user,
+                     "title": action_msg,
                      "to": to_emails,
                      "action_msg": action_msg,
                      "msg": msg,
