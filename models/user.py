@@ -389,14 +389,14 @@ class Leave(db.Model, BaseModelMixin):
         offset = (self.end_time - self.start_time)
         hours = offset.seconds / 60 / 60
         if offset.days > 0:
-            if hours > 0 and hours < 9:
+            if 9 > hours > 0:
                 return str(offset.days) + u'天半'
             elif hours == 9:
                 return str(offset.days + 1) + u'天'
             else:
                 return str(offset.days) + u'天'
         else:
-            if hours > 0 and hours < 9:
+            if 9 > hours > 0:
                 return str(offset.days) + u'天半'
             elif hours == 9:
                 return u'1天'

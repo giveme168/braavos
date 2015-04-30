@@ -138,6 +138,7 @@ def medium_invoice_apply(sender, apply_context):
 \n
 by %s
 """ % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
+    send_simple_mail(apply_context['title'], recipients=apply_context['to'], body=text)
 
 
 def invoice_apply(sender, apply_context):
@@ -159,8 +160,10 @@ def invoice_apply(sender, apply_context):
 \n
 by %s
 """ % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
+    send_simple_mail(apply_context['title'], recipients=apply_context['to'], body=text)
 
 
+'''
 def medium_invoice_apply(sender, apply_context):
     order = apply_context['order']
     invoices = apply_context['invoices']
@@ -180,6 +183,8 @@ def medium_invoice_apply(sender, apply_context):
 \n
 by %s
 """ % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
+    send_simple_mail(apply_context['title'], recipients=apply_context['to'], body=text)
+'''
 
 
 def douban_contract_apply(sender, apply_context):
