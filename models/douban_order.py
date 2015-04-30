@@ -438,7 +438,6 @@ by %s\n
 
     def outsource_email_info(self, to_user, title, o_info, url, msg):
         body = u"""
-Dear %s:
 
 %s
 
@@ -467,7 +466,7 @@ Dear %s:
     致趣订单管理系统链接地址: %s
 
 by %s\n
-""" % (to_user, title, self.jiafang_name,
+""" % (title, self.jiafang_name,
             self.campaign, self.client.name, self.contract,
             self.start_date_cn, self.end_date_cn, self.money,
             self.outsources_percent, o_info,
