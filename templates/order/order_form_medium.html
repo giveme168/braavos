@@ -3,7 +3,7 @@
 {% macro order_medium_form(form, medium_order) -%}
   {% if g.user.is_super_leader() %}
     {{ order_medium_edited_form(form, medium_order) }}
-  {% elif medium_order.can_admin(g.user) and medium_order.contract_status in [0, 1, 3, 6]%}
+  {% elif medium_order.can_admin(g.user) and medium_order.contract_status in [0, 3, 6]%}
     {{ order_medium_edited_form(form, medium_order) }}
   {% else %}
     {{ order_medium_table(medium_order) }}
