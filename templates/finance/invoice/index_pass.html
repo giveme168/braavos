@@ -7,6 +7,7 @@
     <table class="table table-bordered table-striped">
         <tr>
             <th>名称</th>
+            <th>合同号</th>
             <th>合同总金额</th>
             <th>已开发票金额</th>
             <th>未开发票金额</th>
@@ -16,6 +17,7 @@
         {% for order in orders %}
         <tr>
             <td><a href="{{url_for('finance_invoice.info', order_id=order.id)}}">{{order.name}}</a></td>
+            <td>{{ order.contract }}</td>
             <td>{{ order.money }} 元</td>
             <td>{{ order.invoice_pass_sum }} 元</td>
             <td>{{ order.money - order.invoice_pass_sum }} 元</td>
