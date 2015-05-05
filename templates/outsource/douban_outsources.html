@@ -61,11 +61,29 @@
         <th>客户订单总金额</th>
         <th>外包应付总金额</th>
         <th>外包占比</th>
+        <th>资料</th>
+        <th>资料上传</th>
     </tr>
     <tr>
         <td>{{order.money}} 元</td>
         <td>{{order.outsources_sum}} 元</td>
         <td>{{order.outsources_percent}} %</td>
+        <td>
+          {% for contract in order.get_outsource_attachments() %}
+          <a href="{{contract.path}}">
+            {{contract.filename}}
+          </a><br/>
+          {% endfor %}
+        </td>
+        <td>
+          <form method="POST" action="{{url_for('files.outsource_douban_order_upload')}}" enctype="multipart/form-data">
+            <input class="hide" type="text" name="order" value="{{order.id}}">
+            <input class="file-widget-input hide" type="file" name="file">
+            <button class="file-widget-btn btn btn-sm btn-primary">
+              <span>上传外包资料</span>
+            </button>
+          </form>
+        </td>
     </tr>
 </table>
 <div class="panel-group" id="accordion-outsource">
@@ -156,6 +174,19 @@
             e.preventDefault();
             alert("请填写理由！");
          }
+      }
+    });
+    $('.file-widget-btn').click(function(e){
+      e.preventDefault();
+      $(this).parents("form").find('.file-widget-input').click();
+    });
+    $('.file-widget-input').change(function(e){
+      var filename = $(this).val(),
+        fileExt = filename.substring(filename.lastIndexOf('.')+1, filename.length);
+      if(fileExt == 'csv' || fileExt == 'doc' || fileExt == 'docx' || fileExt == 'xls' || fileExt == 'xlsx' || fileExt == 'pdf'){
+        $(this).parents("form").submit();
+      }else{
+        alert("只能上传doc, docx, xls, xlsx, csv, pdf文件");
       }
     });
   });
