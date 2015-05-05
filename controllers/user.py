@@ -5,7 +5,7 @@ from flask import render_template as tpl, flash, current_app
 from flask.ext.login import login_user, logout_user, current_user
 
 from . import admin_required
-from models.user import Team, User, USER_STATUS_CN, Leave, LEAVE_STATUS_APPLY
+from models.user import Team, User, USER_STATUS_CN, Leave, LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm, UserLeaveForm
 from config import DEFAULT_PASSWORD
 from libs.signals import password_changed_signal
@@ -120,7 +120,8 @@ def new_user():
             db_user_name = User.name_exist(form.name.data)
             if not db_user_name:
                 user = User.add(form.name.data, form.email.data, DEFAULT_PASSWORD,
-                                Team.get(form.team.data), form.status.data)
+                                Team.get(form.team.data), form.status.data,
+                                team_leaders=User.gets(form.team_leaders.data))
                 flash(u'新建用户(%s)成功!' % user.name, 'success')
             else:
                 flash(u'新建用户(%s)失败，用户名已经存在!' % form.name.data, 'danger')
@@ -142,6 +143,7 @@ def user_detail(user_id):
                 user.email = form.email.data
                 user.team = Team.get(form.team.data)
                 user.status = form.status.data
+                user.team_leaders = User.gets(form.team_leaders.data)
             user.save()
             flash(u'保存成功!', 'success')
     else:
@@ -149,12 +151,14 @@ def user_detail(user_id):
         form.email.data = user.email
         form.team.data = user.team_id
         form.status.data = user.status
+        form.team_leaders.data = [u.id for u in user.team_leaders]
     if not g.user.team.is_admin():
         form.email.readonly = True
         form.team.readonly = True
         form.status.readonly = True
         form.status.choices = [(user.status, USER_STATUS_CN[user.status])]
         form.team.choices = [(user.team_id, user.team.name)]
+        form.team_leaders.choices = [u.id for u in user.team_leaders]
     return tpl('user_detail.html', user=user, form=form, DEFAULT_PASSWORD=DEFAULT_PASSWORD)
 
 
@@ -186,16 +190,19 @@ def leaves():
         filters['creator_id'] = user_id
     if type:
         filters['type'] = int(type)
+
     if g.user.is_super_leader() or g.user.is_OPS_leader() or g.user.is_HR_leader():
-        leaves = Leave.query.filter_by(**filters).all()
-    elif g.user.is_team_leader():
-        leaves = [o for o in Leave.query.filter_by(**filters).all() if g.user in o.creator.team.admins]
+        leaves = [k for k in Leave.query.filter_by(
+            **filters).all() if k.status in [LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS]]
     else:
-        leaves = []
+        leaves = [o for o in Leave.query.filter_by(
+            **filters).all() if g.user in o.creator.team_leaders and
+            o.status in [LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS]]
     if start and end:
         start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
         end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
-        leaves = [k for k in leaves if k.start_time >= start_time and k.start_time < end_time]
+        leaves = [k for k in leaves if k.start_time >=
+                  start_time and k.start_time < end_time]
     return tpl('/leave/leaves.html', leaves=leaves[(page - 1) * page_num:(page - 1) * page_num + page_num],
                page=page, user_id=user_id, type=type, start=start, end=end)
 
@@ -211,8 +218,10 @@ def leave_create(user_id):
     form = UserLeaveForm(request.form)
     if request.method == 'POST':
         Leave.add(type=form.type.data,
-                  start_time=datetime.datetime.strptime(request.values.get('start'), '%Y-%m-%d %H'),
-                  end_time=datetime.datetime.strptime(request.values.get('end'), '%Y-%m-%d %H'),
+                  start_time=datetime.datetime.strptime(
+                      request.values.get('start'), '%Y-%m-%d %H'),
+                  end_time=datetime.datetime.strptime(
+                      request.values.get('end'), '%Y-%m-%d %H'),
                   reason=form.reason.data,
                   status=request.values.get('status'),
                   senders=User.gets(form.senders.data),
@@ -230,10 +239,11 @@ def leave_delete(user_id, lid):
     return redirect(url_for('user.leave', user_id=user_id))
 
 
-@user_bp.route('/<user_id>/leave/<lid>/apply')
-def leave_apply(user_id, lid):
+@user_bp.route('/<user_id>/leave/<lid>/status')
+def leave_status(user_id, lid):
+    status = int(request.values.get('status', 1))
     leave = Leave.get(lid)
-    leave.status = LEAVE_STATUS_APPLY
+    leave.status = status
     leave.save()
     flash(u'申请成功', 'success')
     return redirect(url_for('user.leave', user_id=user_id))
@@ -245,8 +255,10 @@ def leave_update(user_id, lid):
     form = UserLeaveForm(request.form)
     if request.method == 'POST':
         leave.type = form.type.data
-        leave.start_time = datetime.datetime.strptime(request.values.get('start'), '%Y-%m-%d %H'),
-        leave.end_time = datetime.datetime.strptime(request.values.get('end'), '%Y-%m-%d %H'),
+        leave.start_time = datetime.datetime.strptime(
+            request.values.get('start'), '%Y-%m-%d %H'),
+        leave.end_time = datetime.datetime.strptime(
+            request.values.get('end'), '%Y-%m-%d %H'),
         leave.reason = form.reason.data
         leave.status = request.values.get('status')
         leave.senders = User.gets(form.senders.data)

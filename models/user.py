@@ -71,6 +71,14 @@ TEAM_LOCATION_CN = {
 }
 
 
+team_leaders = db.Table('team_leaders',
+                        db.Column(
+                            'user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+                        db.Column(
+                            'leader_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
+                        )
+
+
 class User(db.Model, BaseModelMixin):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
@@ -80,16 +88,22 @@ class User(db.Model, BaseModelMixin):
     status = db.Column(db.Integer)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
     team = db.relationship('Team', backref=db.backref('users', lazy='dynamic'))
+    team_leaders = db.relationship('User', secondary=team_leaders, primaryjoin=id == team_leaders.c.user_id,
+                                   secondaryjoin=id == team_leaders.c.leader_id,
+                                   backref="user_ids")
 
-    def __init__(self, name, email, password, team, status=USER_STATUS_ON):
+    def __init__(self, name, email, password, team, status=USER_STATUS_ON, team_leaders=[]):
         self.name = name
         self.email = email.lower()
         self.set_password(password)
         self.team = team
         self.status = status
+        self.team_leaders = team_leaders
 
+    '''
     def __repr__(self):
         return '<User %s, %s>' % (self.name, self.email)
+    '''
 
     @property
     def display_name(self):
