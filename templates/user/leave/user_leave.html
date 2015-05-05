@@ -13,6 +13,7 @@
             <th>结束时间</th>
             <th>请假时长</th>
             <th>发送人</th>
+            <th>审批人</th>
             <th>原因</th>
             <th>状态</th>
             <th width="15%">操作</th>
@@ -24,17 +25,21 @@
             <td>{{l.end_time_cn}}</td>
             <td>{{l.leave_time_cn}}</td>
             <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
+            <td>{% for k in l.creator.team_leaders %}{{k.name}}</br>{% endfor %}</td>
             <td>{{l.reason}}</td>
             <td>{{l.status_cn}}</td>
             <td>
                 {% if l.status == 1 %}
-                    <a href="{{url_for('user.leave_update', user_id=g.user.id, lid=l.id)}}">修改</a>
-                    <a href="{{url_for('user.leave_apply', user_id=g.user.id, lid=l.id)}}">发送申请</a>
+                    <a href="{{url_for('user.leave_update', user_id=g.user.id, lid=l.id)}}">修改</a>&nbsp;&nbsp;
+                    <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=2">发送申请</a>
                 {% elif l.status == 2 %}
-                    <a href="{{url_for('user.leave_apply', user_id=g.user.id, lid=l.id)}}">再次发送申请</a>
-                {% endif%}
+                    <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=2">再次发送申请</a>
+                {% elif l.status == 4 %}
+                    <a href="{{url_for('user.leave_update', user_id=g.user.id, lid=l.id)}}">修改</a>&nbsp;&nbsp;
+                    <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=2">再次发送申请</a>
+                {% endif %}
                 {% if g.user.is_super_admin() %}
-                    <a href="javascript:check_del('{{url_for('user.leave_delete', user_id=g.user.id, lid=l.id)}}')">删除</a>
+                    &nbsp;&nbsp;<a href="javascript:check_del('{{url_for('user.leave_delete', user_id=g.user.id, lid=l.id)}}')">删除</a>
                 {% endif %}
             </td>
         </tr>

@@ -2,11 +2,9 @@
 
 {% block left_box%}
     <a class="list-group-item" href="{{url_for('user.leave',user_id = g.user.id)}}">
-        <span class="glyphicon glyphicon-user"></span> 请假申请
+        <span class="glyphicon glyphicon-user"></span> 我的请假申请
     </a>
-    {% if g.user.is_team_leader() or g.user.is_admin() or g.user.is_super_leader() %}
     <a class="list-group-item" href="{{url_for('user.leaves')}}">
         <span class="glyphicon glyphicon-user"></span> 所有请假列表
     </a>
-    {% endif %}
 {% endblock %}

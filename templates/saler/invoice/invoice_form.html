@@ -8,7 +8,7 @@
             {{ invoice.company }}-{{ invoice.money }}元
         </h4>
         <form class="form form-horizontal" method="POST" action="{{url_for('saler_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
-        {{form.csrf_token}}
+        {{ form.csrf_token }}
         {{ form_field(form.client_order)}}
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
@@ -30,6 +30,10 @@
     </div>
 {% else %}
 <div class="col-md-12">
+    <h4>
+        <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
+            {{ invoice.company }}-{{ invoice.money }}元
+    </h4>
     <div class="col-md-6" style="margin-left: 20px;">
         <table class="table table-bordered">
           <tr>

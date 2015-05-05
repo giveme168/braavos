@@ -6,7 +6,7 @@ from functools import wraps
 def admin_required(func):
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if g.user and g.user.team.is_admin():
+        if g.user and (g.user.team.is_admin() or g.user.is_HR_leader()):
             return func(*args, **kwargs)
         return abort(401)
     return decorated_view

@@ -56,11 +56,13 @@ class NewUserForm(Form):
                                   validators.Email(u"请输入正确的邮箱地址.")])
     status = SelectField(u'状态', coerce=int, default=1)
     team = SelectField(u'团队', coerce=int)
+    team_leaders = SelectMultipleField(u'直属领导', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(NewUserForm, self).__init__(*args, **kwargs)
         self.status.choices = USER_STATUS_CN.items()
         self.team.choices = [(t.id, t.name) for t in Team.all()]
+        self.team_leaders.choices = [(m.id, m.name) for m in User.all()]
 
     def validate(self, vali_email=True):
         if not Form.validate(self):
