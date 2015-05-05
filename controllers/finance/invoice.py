@@ -101,6 +101,7 @@ def pass_invoice(invoice_id):
         action_msg = u'消息提醒'
 
     apply_context = {"sender": g.user,
+                     "title": action_msg,
                      "to": to_emails,
                      "action_msg": action_msg,
                      "msg": msg,
