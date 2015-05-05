@@ -1,6 +1,6 @@
 import datetime
 
-from models.attachment import Attachment, ATTACHMENT_TYPE_CONTRACT, ATTACHMENT_TYPE_SCHEDULE
+from models.attachment import Attachment, ATTACHMENT_TYPE_CONTRACT, ATTACHMENT_TYPE_SCHEDULE, ATTACHMENT_TYPE_OUTSOURCE
 
 
 class AttachmentMixin():
@@ -33,10 +33,21 @@ class AttachmentMixin():
                        ATTACHMENT_TYPE_SCHEDULE, user, datetime.datetime.now())
         return self.get_last_schedule()
 
+    def add_outsource_attachment(self, user, filename):
+        Attachment.add(self.target_type, self.target_id, filename,
+                       ATTACHMENT_TYPE_OUTSOURCE, user, datetime.datetime.now())
+        return self.get_last_schedule()
+
     def get_schedule_attachments(self):
         return Attachment.query.filter_by(target_type=self.target_type,
                                           target_id=self.target_id,
                                           attachment_type=ATTACHMENT_TYPE_SCHEDULE
+                                          ).order_by(Attachment.create_time.desc())
+
+    def get_outsource_attachments(self):
+        return Attachment.query.filter_by(target_type=self.target_type,
+                                          target_id=self.target_id,
+                                          attachment_type=ATTACHMENT_TYPE_OUTSOURCE
                                           ).order_by(Attachment.create_time.desc())
 
     def get_last_schedule(self):

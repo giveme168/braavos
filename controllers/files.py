@@ -16,6 +16,7 @@ files_bp = Blueprint('files', __name__, template_folder='../templates/files')
 
 FILE_TYPE_CONTRACT = 0
 FILE_TYPE_SCHEDULE = 1
+FILE_TYPE_OUTSOURCE = 3
 
 
 @files_bp.route('/files/<filename>', methods=['GET'])
@@ -57,6 +58,10 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
         elif file_type == FILE_TYPE_SCHEDULE:
             attachment = order.add_schedule_attachment(g.user, filename)
             flash(u'排期文件上传成功!', 'success')
+        elif file_type == FILE_TYPE_OUTSOURCE:
+            flash(u'资料上传成功', 'success')
+            order.add_outsource_attachment(g.user, filename)
+            return redirect(order.outsource_path())
         if order.contract_status not in [CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYREJECT]:
             contract_email(order, attachment)
     else:
@@ -132,6 +137,20 @@ def associated_douban_schedule_upload():
     order_id = request.values.get('order')
     order = AssociatedDoubanOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_SCHEDULE)
+
+
+@files_bp.route('/outsource/client_order/upload', methods=['POST'])
+def outsource_client_order_upload():
+    order_id = request.values.get('order')
+    order = ClientOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_OUTSOURCE)
+
+
+@files_bp.route('/outsource/douban_order/upload', methods=['POST'])
+def outsource_douban_order_upload():
+    order_id = request.values.get('order')
+    order = DoubanOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_OUTSOURCE)
 
 
 @files_bp.route('/client_order/<order_id>/all_files', methods=['get'])

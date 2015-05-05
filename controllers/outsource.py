@@ -7,7 +7,7 @@ from models.outsource import OutSourceTarget, OutSource, DoubanOutSource, Merger
 from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.order import Order
 from models.douban_order import DoubanOrder
-from models.user import User, TEAM_TYPE_OPERATER, TEAM_LOCATION_CN
+from models.user import User, TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER, TEAM_LOCATION_CN
 from models.outsource import (OUTSOURCE_STATUS_NEW, OUTSOURCE_STATUS_APPLY_LEADER,
                               OUTSOURCE_STATUS_PASS, OUTSOURCE_STATUS_APPLY_MONEY,
                               OUTSOURCE_STATUS_EXCEED, INVOICE_RATE, OUTSOURCE_STATUS_PAIED)
@@ -46,7 +46,8 @@ def client_orders_distribute():
         return redirect(url_for('outsource.client_orders_distribute'))
 
     orders = [k for k in ClientOrder.all() if k.medium_orders]
-    operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER)
+    operaters = User.gets_by_team_type(
+        TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
     return display_orders(orders, 'client_orders_distribute.html', title=u"客户订单分配", operaters=operaters)
 
 
@@ -75,7 +76,8 @@ def douban_orders_distribute():
         return redirect(url_for('outsource.douban_orders_distribute'))
 
     orders = DoubanOrder.all()
-    operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER)
+    operaters = User.gets_by_team_type(
+        TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
     return display_orders(orders, 'douban_orders_distribute.html', title=u"直签豆瓣订单分配", operaters=operaters)
 
 
