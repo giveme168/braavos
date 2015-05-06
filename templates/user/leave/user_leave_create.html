@@ -9,7 +9,7 @@
     {% else %}
     <h3>填写请假申请表</h3>
     {% endif %}
-    <form class="form form-horizontal" method="POST">
+    <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
         {{form.csrf_token}}
         {{ form_field(form.type) }}
         <div class="form-group">
@@ -45,6 +45,26 @@ Date.prototype.Format = function (fmt) { //author: meizz
     for (var k in o)
     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
+}
+
+function checkform(obj){
+    var start = obj.start.value
+    var end = obj.end.value
+    var reason = obj.reason.value
+    if (start == ''){
+        alert('请选择请假开始时间')
+        obj.start.focus()
+        return false;
+    }else if(end == ''){
+        alert('请选择请假结束时间')
+        obj.end.focus()
+        return false;
+    }else if(reason == ''){
+        alert('请选说明请假理由')
+        obj.reason.focus()
+        return false;
+    }
+    return true;
 }
 
 $(function(){

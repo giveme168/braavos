@@ -17,6 +17,7 @@ invoice_apply_signal = braavos_signals.signal('invoice_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
 outsource_distribute_signal = braavos_signals.signal('outsource_distribute')
 merger_outsource_apply_signal = braavos_signals.signal('merger_outsource_apply')
+apply_leave_signal = braavos_signals.signal('apply_leave')
 
 
 def password_changed(sender, user):
@@ -279,6 +280,40 @@ by %s\n
     send_simple_mail(apply_context['title'], recipients=apply_context['to'],
                      body=body)
 
+
+def apply_leave(sender, leave):
+    status = leave.status
+    print status
+    if status == 2:
+        to_name = ','.join([k.name for k in leave.creator.team_leaders])
+        url = mail.app.config['DOMAIN'] + url_for('user.leaves')
+    elif status in [3, 4]:
+        to_name = leave.creator.name
+        url = mail.app.config['DOMAIN'] + url_for('user.leave', user_id=leave.creator.id)
+    to_users = leave.senders + leave.creator.team_leaders + [leave.creator]+ [g.user]
+    to_emails = list(set([k.email for k in to_users]))
+
+    body = u"""
+Dear %s:
+
+申请状态: %s
+
+请假人: %s
+请假日期: %s点 - %s点，共%s
+请假类型: %s
+请假原因: %s
+
+请批准，谢谢
+
+
+附注: 
+    致趣订单管理系统链接地址: %s
+
+"""% (to_name, leave.status_cn, leave.creator.name, leave.start_time_cn, leave.end_time_cn, leave.leave_time_cn, leave.type_cn, leave.reason, url)
+    
+    send_simple_mail(u'【请假申请】- %s'% (leave.creator.name), recipients=to_emails, body=body)
+
+
 def init_signal(app):
     """注册信号的接收器"""
     password_changed_signal.connect_via(app)(password_changed)
@@ -292,3 +327,4 @@ def init_signal(app):
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
     outsource_distribute_signal.connect_via(app)(outsource_distribute)
     merger_outsource_apply_signal.connect_via(app)(merger_outsource_apply)
+    apply_leave_signal.connect_via(app)(apply_leave)

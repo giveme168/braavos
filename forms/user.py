@@ -77,7 +77,7 @@ class NewUserForm(Form):
 class UserLeaveForm(Form):
     type = SelectField(u'类型', coerce=int, default=1)
     reason = TextAreaField(u'原因')
-    senders = SelectMultipleField(u'发送人（直属领导）', coerce=int)
+    senders = SelectMultipleField(u'抄送人', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(UserLeaveForm, self).__init__(*args, **kwargs)

@@ -276,6 +276,27 @@ def new_douban_outsource():
     return redirect(outsource.info_path())
 
 
+@outsource_bp.route('/outsource/<outsource_id>/delete', methods=['GET'])
+def outsource_delete(outsource_id):
+    type = request.values.get('type', '')
+    if type == 'douban':
+        outsource = DoubanOutSource.get(outsource_id)
+    else:
+        outsource = OutSource.get(outsource_id)
+
+    if type == "douban":
+        outsource.douban_order.add_comment(g.user,
+                                           u"更新了外包:\n\r%s" % outsource.name,
+                                           msg_channel=2)
+    else:
+        outsource.client_order.add_comment(g.user,
+                                           u"更新了外包:\n\r%s" % outsource.name,
+                                           msg_channel=2)
+    url = outsource.info_path()
+    outsource.delete()
+    return redirect(url)
+
+
 @outsource_bp.route('/outsource/<outsource_id>', methods=['POST'])
 def outsource(outsource_id):
     type = request.values.get('type', '')

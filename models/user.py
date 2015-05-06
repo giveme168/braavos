@@ -348,7 +348,7 @@ LEAVE_STATUS_APPLYBACK = 4
 LEAVE_STATUS_CN = {
     LEAVE_STATUS_NORMAL: u'待申请',
     LEAVE_STATUS_APPLY: u'申请中',
-    LEAVE_STATUS_PASS: u'通过',
+    LEAVE_STATUS_PASS: u'通过申请',
     LEAVE_STATUS_APPLYBACK: u'不通过',
 }
 
@@ -397,6 +397,13 @@ class Leave(db.Model, BaseModelMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
+
+    def is_long_leave(self):
+        offset = (self.end_time - self.start_time)
+        if offset.days >= 5:
+            return True
+        else:
+            return False
 
     @property
     def leave_time_cn(self):
