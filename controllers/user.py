@@ -5,10 +5,10 @@ from flask import render_template as tpl, flash, current_app
 from flask.ext.login import login_user, logout_user, current_user
 
 from . import admin_required
-from models.user import Team, User, USER_STATUS_CN, Leave, LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS
+from models.user import Team, User, USER_STATUS_CN, Leave, LEAVE_STATUS_NORMAL, LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm, UserLeaveForm
 from config import DEFAULT_PASSWORD
-from libs.signals import password_changed_signal
+from libs.signals import password_changed_signal, apply_leave_signal
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
 page_num = 50
@@ -217,17 +217,21 @@ def leave(user_id):
 def leave_create(user_id):
     form = UserLeaveForm(request.form)
     if request.method == 'POST':
+        status = request.values.get('status')
         Leave.add(type=form.type.data,
                   start_time=datetime.datetime.strptime(
                       request.values.get('start'), '%Y-%m-%d %H'),
                   end_time=datetime.datetime.strptime(
                       request.values.get('end'), '%Y-%m-%d %H'),
                   reason=form.reason.data,
-                  status=request.values.get('status'),
+                  status=status,
                   senders=User.gets(form.senders.data),
                   creator=g.user,
                   create_time=datetime.date.today())
-        flash(u'添加成功', 'success')
+        if int(status) == LEAVE_STATUS_NORMAL:
+            flash(u'添加成功', 'success')
+        else:
+            flash(u'已发送申请', 'success')
         return redirect(url_for('user.leave', user_id=user_id))
     return tpl('/leave/user_leave_create.html', form=form, leave=None)
 
@@ -245,8 +249,12 @@ def leave_status(user_id, lid):
     leave = Leave.get(lid)
     leave.status = status
     leave.save()
-    flash(u'申请成功', 'success')
-    return redirect(url_for('user.leave', user_id=user_id))
+    flash(leave.status_cn, 'success')
+    apply_leave_signal.send(current_app._get_current_object(), leave=leave)
+    if status == LEAVE_STATUS_APPLY:
+        return redirect(url_for('user.leave', user_id=user_id))
+    else:
+        return redirect(url_for('user.leaves'))
 
 
 @user_bp.route('/<user_id>/leave/<lid>/update', methods=['GET', 'POST'])
@@ -254,17 +262,21 @@ def leave_update(user_id, lid):
     leave = Leave.get(lid)
     form = UserLeaveForm(request.form)
     if request.method == 'POST':
+        status = request.values.get('status')
         leave.type = form.type.data
         leave.start_time = datetime.datetime.strptime(
             request.values.get('start'), '%Y-%m-%d %H'),
         leave.end_time = datetime.datetime.strptime(
             request.values.get('end'), '%Y-%m-%d %H'),
         leave.reason = form.reason.data
-        leave.status = request.values.get('status')
+        leave.status = status
         leave.senders = User.gets(form.senders.data)
         leave.create_time = datetime.date.today()
         leave.save()
-        flash(u'修改成功', 'success')
+        if int(status) == LEAVE_STATUS_APPLY:
+            flash(u'已发送申请', 'success')
+        else:
+            flash(u'修改成功', 'success')
         return redirect(url_for('user.leave', user_id=user_id))
     form.type.data = leave.type
     form.reason.data = leave.reason

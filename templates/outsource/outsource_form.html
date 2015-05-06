@@ -5,8 +5,14 @@
 <div class="well">
 {% if order.__tablename__ == 'bra_douban_order' %}
 <form class="form form-horizontal" method="POST" action="{{outsource.edit_path()}}?type=douban">
+  {% if g.user.is_super_admin() %}
+  <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}?type=douban" style="color:red;">删除外包</a>
+  {% endif %}
 {% else %}
 <form class="form form-horizontal" method="POST" action="{{outsource.edit_path()}}">
+  {% if g.user.is_super_admin() %}
+  <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}" style="color:red;">删除外包</a>
+  {% endif %}
 {% endif %}
     {{form.csrf_token}}
     {% if order.__tablename__ == 'bra_douban_order' %}
@@ -25,6 +31,15 @@
 {% else %}
 <div class="col-md-12">
 <div class="col-md-6" style="margin-left: 20px;">
+{% if order.__tablename__ == 'bra_douban_order' %}
+  {% if g.user.is_super_admin() %}
+  <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}?type=douban" style="color:red;">删除外包</a>
+  {% endif %}
+{% else %}
+  {% if g.user.is_super_admin() %}
+  <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}" style="color:red;">删除外包</a>
+  {% endif %}
+{% endif %}
 <table class="table table-bordered">
   <tr>
     <th>投放媒体</th>
