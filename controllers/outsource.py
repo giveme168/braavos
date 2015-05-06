@@ -286,11 +286,11 @@ def outsource_delete(outsource_id):
 
     if type == "douban":
         outsource.douban_order.add_comment(g.user,
-                                           u"更新了外包:\n\r%s" % outsource.name,
+                                           u"删除了外包:\n\r%s" % outsource.name,
                                            msg_channel=2)
     else:
         outsource.client_order.add_comment(g.user,
-                                           u"更新了外包:\n\r%s" % outsource.name,
+                                           u"删除了外包:\n\r%s" % outsource.name,
                                            msg_channel=2)
     url = outsource.info_path()
     outsource.delete()
