@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 import datetime
 from flask import Blueprint, request, redirect, url_for, abort, g
-from flask import render_template as tpl, flash, current_app
+from flask import render_template as tpl, flash
 from flask.ext.login import login_user, logout_user, current_user
 
 from . import admin_required
 from models.user import Team, User, USER_STATUS_CN, Leave, LEAVE_STATUS_NORMAL, LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm, UserLeaveForm
 from config import DEFAULT_PASSWORD
-from libs.signals import password_changed_signal, apply_leave_signal
+from libs.signals import  apply_leave_signal
+from libs.sendcloud import password_changed
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
 page_num = 50
@@ -46,8 +47,7 @@ def pwd_change():
         user = current_user
         if form.validate(user):
             user.set_password(form.password.data)
-            password_changed_signal.send(
-                current_app._get_current_object(), user=user)
+            password_changed(g.user, user=user)
             logout_user()
             return redirect('/')
     return tpl('pwd_change.html', form=form)
