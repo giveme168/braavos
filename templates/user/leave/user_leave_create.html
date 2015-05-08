@@ -102,7 +102,7 @@ $(function(){
     $("#start").change(function(e){
         var end_date = $('#end').val()
         if (end_date == ''){
-            var endDate = new Date($('#start').val()+'00:00:00');
+            var endDate = new Date($('#start').val());
             endDate.setDate(endDate.getDate() + 1); 
             $('#end').val(endDate.Format("yyyy-MM-dd"))
             $('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd"));
