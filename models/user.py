@@ -412,9 +412,14 @@ class Leave(db.Model, BaseModelMixin):
     @property
     def rate_day_cn(self):
         date = self.rate_day.split('-')
-        if int(date[1]) != 0:
-            return str(date[0]) + u'天半'
-        return str(date[0]) + u'天半'
+        if int(date[1]) == 0:
+            return str(date[0]) + u'天整'
+        elif int(date[1]) == 1:
+            return str(date[0]) + u'天+上半天'
+        elif int(date[1]) == 2:
+            return str(date[0]) + u'天+下半天'
+        else:
+            return ''
 
     @property
     def leave_time_cn(self):
