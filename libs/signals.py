@@ -283,15 +283,14 @@ by %s\n
 
 def apply_leave(sender, leave):
     status = leave.status
-    print status
-    if status == 2:
+    if status in [0, 2]:
         to_name = ','.join([k.name for k in leave.creator.team_leaders])
         url = mail.app.config['DOMAIN'] + url_for('user.leaves')
     elif status in [3, 4]:
         to_name = leave.creator.name
         url = mail.app.config['DOMAIN'] + url_for('user.leave', user_id=leave.creator.id)
     to_users = leave.senders + leave.creator.team_leaders + [leave.creator]+ [g.user]
-    to_emails = list(set([k.email for k in to_users]))+['admin@inad.com']
+    to_emails = list(set([k.email for k in to_users]))#+['admin@inad.com']
 
     body = u"""
 Dear %s:
@@ -309,7 +308,7 @@ Dear %s:
 附注: 
     致趣订单管理系统链接地址: %s
 
-"""% (to_name, leave.status_cn, leave.creator.name, leave.start_time_cn, leave.end_time_cn, leave.leave_time_cn, leave.type_cn, leave.reason, url)
+"""% (to_name, leave.status_cn, leave.creator.name, leave.start_time_cn, leave.end_time_cn, leave.rate_day_cn, leave.type_cn, leave.reason, url)
     
     send_simple_mail(u'【请假申请】- %s'% (leave.creator.name), recipients=to_emails, body=body)
 

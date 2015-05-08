@@ -15,14 +15,28 @@
         <div class="form-group">
           <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
           <div class="col-sm-4">
-            <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh">
+            <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
           </div>
         </div>
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
           <div class="col-sm-4">
-            <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh">
+            <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
           </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">请假时长 : </label>
+            <div class="col-sm-4">
+                <select class="form-control bra-form-control" style="width:60%;" name="day" id="day">
+                    {% for k in range(21) %}
+                    <option value='{{k}}'>{{k}}天</option>
+                    {% endfor %}
+                </select>
+                <select class="form-control bra-form-control" style="width:35%;" name="half" id="half">
+                    <option value='0'>整</option>
+                    <option value='1'>半</option>
+                </select>
+            </div>
         </div>
         {{ form_field(form.senders) }}
         {{ form_field(form.reason) }}
@@ -71,6 +85,10 @@ $(function(){
     {% if leave %}
         $('#start').val('{{leave.start_time_cn}}')
         $('#end').val('{{leave.end_time_cn}}')
+        $('#day').val('{{leave.rate_day}}'.split('-')[0])
+        $('#half').val('{{leave.rate_day}}'.split('-')[1])
+        $("#day").trigger("chosen:updated");
+        $("#half").trigger("chosen:updated");
     {% endif %}
     $('.datetimepicker').datetimepicker({
         autoclose: true,
@@ -84,10 +102,10 @@ $(function(){
     $("#start").change(function(e){
         var end_date = $('#end').val()
         if (end_date == ''){
-            var endDate = new Date($('#start').val()+':00:00');
+            var endDate = new Date($('#start').val()+'00:00:00');
             endDate.setDate(endDate.getDate() + 1); 
-            $('#end').val(endDate.Format("yyyy-MM-dd hh"))
-            $('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd hh"));
+            $('#end').val(endDate.Format("yyyy-MM-dd"))
+            $('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd"));
         }
     });
 })

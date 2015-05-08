@@ -21,18 +21,19 @@
         {% for l in leaves %}
         <tr>
             <td>{{l.type_cn}}</td>
-            <td>{{l.start_time_cn}}点</td>
-            <td>{{l.end_time_cn}}点</td>
-            <td>{{l.leave_time_cn}}</td>
+            <td>{{l.start_time_cn}}</td>
+            <td>{{l.end_time_cn}}</td>
+            <td>{{l.rate_day_cn}}</td>
             <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
             <td>{% for k in l.creator.team_leaders %}{{k.name}}</br>{% endfor %}</td>
             <td>{{l.reason}}</td>
             <td>{{l.status_cn}}</td>
             <td>
-                {% if l.status == 1 %}
+                {% if l.status in [0, 1] %}
                     <a href="{{url_for('user.leave_update', user_id=g.user.id, lid=l.id)}}">修改</a>&nbsp;&nbsp;
                     <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=2">发送申请</a>
                 {% elif l.status == 2 %}
+                    <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=0">撤回</a>
                     <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=2">再次发送申请</a>
                 {% elif l.status == 4 %}
                     <a href="{{url_for('user.leave_update', user_id=g.user.id, lid=l.id)}}">修改</a>&nbsp;&nbsp;
