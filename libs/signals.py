@@ -290,7 +290,7 @@ def apply_leave(sender, leave):
         to_name = leave.creator.name
         url = mail.app.config['DOMAIN'] + url_for('user.leave', user_id=leave.creator.id)
     to_users = leave.senders + leave.creator.team_leaders + [leave.creator]+ [g.user]
-    to_emails = list(set([k.email for k in to_users]))#+['admin@inad.com']
+    to_emails = list(set([k.email for k in to_users])) + ['admin@inad.com']
 
     body = u"""
 Dear %s:
