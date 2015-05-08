@@ -29,6 +29,7 @@ from models.associated_douban_order import AssociatedDoubanOrder
 from models.delivery import Delivery
 from models.outsource import OutSourceTarget, OutSource
 from models.invoice import Invoice
+from models.mail import Mail
 # target_metadata = mymodel.Base.metadata
 from flask import current_app
 config.set_main_option('sqlalchemy.url', current_app.config.get('SQLALCHEMY_DATABASE_URI'))
