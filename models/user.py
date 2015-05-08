@@ -340,12 +340,14 @@ LEAVE_TYPE_CN = {
     LEAVE_TYPE_MATERNITY: u'产假',
 }
 
+LEAVE_STATUS_BACK = 0
 LEAVE_STATUS_NORMAL = 1
 LEAVE_STATUS_APPLY = 2
 LEAVE_STATUS_PASS = 3
 LEAVE_STATUS_APPLYBACK = 4
 
 LEAVE_STATUS_CN = {
+    LEAVE_STATUS_BACK: u'撤销申请',
     LEAVE_STATUS_NORMAL: u'待申请',
     LEAVE_STATUS_APPLY: u'申请中',
     LEAVE_STATUS_PASS: u'通过申请',
@@ -359,6 +361,7 @@ class Leave(db.Model, BaseModelMixin):
     type = db.Column(db.Integer)
     start_time = db.Column(db.DateTime)
     end_time = db.Column(db.DateTime)
+    rate_day = db.Column(db.String(20))
     reason = db.Column(db.String(100))
     status = db.Column(db.Integer)
     senders = db.relationship('User', secondary=send_users)
@@ -367,7 +370,7 @@ class Leave(db.Model, BaseModelMixin):
         'User', backref=db.backref('creator_leave', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
 
-    def __init__(self, type, start_time=None, end_time=None, reason='',
+    def __init__(self, type, start_time=None, end_time=None, rate_day='0-1', reason='',
                  senders=None, creator=None, create_time=None, status=1):
         self.type = type
         self.start_time = start_time or datetime.date.today()
@@ -377,6 +380,7 @@ class Leave(db.Model, BaseModelMixin):
         self.creator = creator
         self.status = status
         self.create_time = datetime.date.today()
+        self.rate_day = rate_day
 
     @property
     def type_cn(self):
@@ -388,22 +392,29 @@ class Leave(db.Model, BaseModelMixin):
 
     @property
     def start_time_cn(self):
-        return self.start_time.strftime('%Y-%m-%d %H')
+        return self.start_time.strftime('%Y-%m-%d')
 
     @property
     def end_time_cn(self):
-        return self.end_time.strftime('%Y-%m-%d %H')
+        return self.end_time.strftime('%Y-%m-%d')
 
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
 
     def is_long_leave(self):
-        offset = (self.end_time - self.start_time)
-        if offset.days >= 5:
+        date = self.rate_day.split('-')
+        if int(date[0]) >= 5:
             return True
         else:
             return False
+
+    @property
+    def rate_day_cn(self):
+        date = self.rate_day.split('-')
+        if int(date[1]) != 0:
+            return str(date[0]) + u'天半'
+        return str(date[0]) + u'天半'
 
     @property
     def leave_time_cn(self):

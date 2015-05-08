@@ -220,9 +220,11 @@ def leave_create(user_id):
         status = request.values.get('status')
         Leave.add(type=form.type.data,
                   start_time=datetime.datetime.strptime(
-                      request.values.get('start'), '%Y-%m-%d %H'),
+                      request.values.get('start'), '%Y-%m-%d'),
                   end_time=datetime.datetime.strptime(
-                      request.values.get('end'), '%Y-%m-%d %H'),
+                      request.values.get('end'), '%Y-%m-%d'),
+                  rate_day=request.values.get(
+                      'day', '0') + '-' + request.values.get('half', '1'),
                   reason=form.reason.data,
                   status=status,
                   senders=User.gets(form.senders.data),
@@ -265,9 +267,11 @@ def leave_update(user_id, lid):
         status = request.values.get('status')
         leave.type = form.type.data
         leave.start_time = datetime.datetime.strptime(
-            request.values.get('start'), '%Y-%m-%d %H'),
+            request.values.get('start'), '%Y-%m-%d'),
         leave.end_time = datetime.datetime.strptime(
-            request.values.get('end'), '%Y-%m-%d %H'),
+            request.values.get('end'), '%Y-%m-%d'),
+        leave.rate_day = request.values.get(
+            'day', '0') + '-' + request.values.get('half', '1'),
         leave.reason = form.reason.data
         leave.status = status
         leave.senders = User.gets(form.senders.data)
