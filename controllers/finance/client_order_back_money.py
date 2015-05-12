@@ -21,11 +21,10 @@ def index():
         status_id = int(request.args.get('selected_status'))
     else:
         status_id = -1
-    sortby = request.args.get('sortby', '')
+
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
-    reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
     page = max(1, page)
     start = (page - 1) * ORDER_PAGE_NUM
@@ -35,10 +34,11 @@ def index():
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
-        orders = [o for o in orders if search_info in o.search_info]
-    if sortby and orders_len and hasattr(orders[0], sortby):
+        orders = [
+            o for o in orders if search_info.lower() in o.search_info.lower()]
+    if orderby and orders_len:
         orders = sorted(
-            orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+            orders, key=lambda x: getattr(x, orderby), reverse=True)
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
@@ -51,8 +51,10 @@ def index():
     return tpl('/finance/client_order_back_money/index.html', orders=orders,
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
-               sortby=sortby, orderby=orderby,
-               search_info=search_info, page=page)
+               orderby=orderby,
+               search_info=search_info, page=page,
+               params='&sortby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
+                      (orderby, search_info, location_id, status_id))
 
 
 @finance_client_order_back_money_bp.route('/order/<order_id>/back_money', methods=['GET', 'POST'])
