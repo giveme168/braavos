@@ -48,6 +48,9 @@ def new_order():
     form = ClientOrderForm(request.form)
     mediums = [(m.id, m.name) for m in Medium.all()]
     if request.method == 'POST' and form.validate():
+        if ClientOrder.query.filter_by(campaign=form.campaign.data).count() > 0:
+            flash(u'campaign名称已存在，请更换其他名称!', 'danger')
+            return redirect(url_for("order.new_order"))
         order = ClientOrder.add(agent=Agent.get(form.agent.data),
                                 client=Client.get(form.client.data),
                                 campaign=form.campaign.data,
@@ -461,13 +464,10 @@ def my_orders():
         if g.user.is_admin():
             status_id = -1
         elif g.user.is_super_leader():
-            orders = [o for o in orders if o.contract_status ==
-                      CONTRACT_STATUS_APPLYCONTRACT]
-            status_id = CONTRACT_STATUS_APPLYCONTRACT
+            status_id = -1
         elif g.user.is_leader():
-            orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
-                                            g.user.location in o.locations)]
-            status_id = CONTRACT_STATUS_APPLYCONTRACT
+            orders = [o for o in orders if g.user.location in o.locations]
+            status_id = -1
         elif g.user.is_contract():
             orders = [o for o in orders if o.contract_status in [
                 CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
@@ -484,11 +484,11 @@ def my_orders():
 
 
 def display_orders(orders, title, status_id=-1):
-    sortby = request.args.get('sortby', '')
+    # sortby = request.args.get('sortby', '')
+    # orderby = request.args.get('orderby', '')
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
-    reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
     page = max(1, page)
     start = (page - 1) * ORDER_PAGE_NUM
@@ -498,10 +498,10 @@ def display_orders(orders, title, status_id=-1):
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
-        orders = [o for o in orders if search_info in o.search_info]
-    if sortby and orders_len and hasattr(orders[0], sortby):
+        orders = [o for o in orders if search_info.lower() in o.search_info.lower()]
+    if orderby and orders_len:
         orders = sorted(
-            orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+            orders, key=lambda x: getattr(x, orderby), reverse=True)
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
@@ -520,8 +520,10 @@ def display_orders(orders, title, status_id=-1):
         return tpl('orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
-                   sortby=sortby, orderby=orderby,
-                   search_info=search_info, page=page)
+                   search_info=search_info, page=page,
+                   orderby=orderby, now_date=datetime.now().date(),
+                   params='&sortby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
+                   (orderby, search_info, location_id, status_id))
 
 
 ######################
@@ -906,13 +908,10 @@ def my_douban_orders():
         if g.user.is_admin():
             status_id = -1
         elif g.user.is_super_leader():
-            orders = [o for o in orders if o.contract_status ==
-                      CONTRACT_STATUS_APPLYCONTRACT]
-            status_id = CONTRACT_STATUS_APPLYCONTRACT
+            status_id = -1
         elif g.user.is_leader():
-            orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
-                                            g.user.location in o.locations)]
-            status_id = CONTRACT_STATUS_APPLYCONTRACT
+            orders = [o for o in orders if g.user.location in o.locations]
+            status_id = -1
         elif g.user.is_contract():
             orders = [o for o in orders if o.contract_status in [
                 CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
@@ -943,11 +942,9 @@ def douban_delete_orders():
 
 
 def douban_display_orders(orders, title, status_id=-1):
-    sortby = request.args.get('sortby', '')
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
-    reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
     page = max(1, page)
     start = (page - 1) * ORDER_PAGE_NUM
@@ -958,10 +955,10 @@ def douban_display_orders(orders, title, status_id=-1):
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
-        orders = [o for o in orders if search_info in o.search_info]
-    if sortby and orders_len and hasattr(orders[0], sortby):
+        orders = [o for o in orders if search_info.lower() in o.search_info.lower()]
+    if orderby and orders_len:
         orders = sorted(
-            orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+            orders, key=lambda x: getattr(x, orderby), reverse=True)
 
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
@@ -981,8 +978,10 @@ def douban_display_orders(orders, title, status_id=-1):
         return tpl('douban_orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
-                   sortby=sortby, orderby=orderby,
-                   search_info=search_info, page=page)
+                   orderby=orderby, now_date=datetime.now().date(),
+                   search_info=search_info, page=page,
+                   params='&sortby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
+                   (orderby, search_info, location_id, status_id))
 
 
 @order_bp.route('/douban_order/<order_id>/contract', methods=['POST'])

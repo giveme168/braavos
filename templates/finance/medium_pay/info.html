@@ -58,7 +58,7 @@
                           {% for invoice in invoices_data.pass %}
                           <tr>
                             <td>{{invoice.add_time_cn}}</td>
-                            <td>{{invoice.client_order.name}}</td>
+                            <td>{{invoice.client_order.agent.name}}-{{invoice.client_order.name}}</td>
                             <td>{{invoice.medium.name}}</td>
                             <td>{{invoice.company}}</td>
                             <td>{{invoice.tax_id}}</td>
@@ -104,7 +104,7 @@
                 {% for invoice in invoices_data.apply %}
                 <h4>
                     <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
-                    {{invoice.client_order.name}}-{{ invoice.medium.name }}-{{ invoice.money }}元
+                    {{ invoice.client_order.agent.name }}-{{invoice.client_order.name}}-{{ invoice.money }}元
                 </h4>
                 <form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('finance_medium_pay.invoice_pay_num', invoice_id=invoice.id)}}">
                 <div class="col-md-12">
