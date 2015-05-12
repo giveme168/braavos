@@ -51,7 +51,7 @@ def index():
     return tpl('/finance/client_order_back_money/index.html', orders=orders,
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
-               orderby=orderby,
+               orderby=orderby, now_date=datetime.date.today(),
                search_info=search_info, page=page,
                params='&sortby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
                       (orderby, search_info, location_id, status_id))
