@@ -220,7 +220,7 @@ by %s\n
         file_paths.append(order.get_last_contract().real_path)
     if order.get_last_schedule():
         file_paths.append(order.get_last_schedule().real_path)
-    send_attach_mail(u'【豆瓣合同号申请】%s' % order.name,
+    send_attach_mail(u'【合同流程】%s-%s' % (order.name, u'豆瓣合同号申请'),
                      recipients=apply_context['to'],
                      body=body,
                      file_paths=file_paths)

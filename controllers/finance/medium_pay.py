@@ -99,7 +99,8 @@ def invoice_pass(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
+    apply_context = {"title": "媒体订单款已打",
+                     "sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,
                      "msg": msg,
@@ -108,4 +109,5 @@ def invoice_pass(invoice_id):
                      "invoices": invoices}
     medium_invoice_apply_signal.send(
         current_app._get_current_object(), apply_context=apply_context)
+    flash(u'已发送邮件给 %s ' % (', '.join(to_emails)), 'info')
     return redirect(url_for("finance_medium_pay.info", order_id=invoice.client_order.id))
