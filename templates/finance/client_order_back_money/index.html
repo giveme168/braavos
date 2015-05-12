@@ -1,7 +1,7 @@
 {% extends "/finance_base.html" %}
 {% block title %}订单列表{% endblock %}
 {% macro all_items(orders) -%}
-<table class="table table-bordered table-striped">
+<table class="table table-bordered">
     <tr>
         <th>名称</th>
         <th>合同金额</th>
@@ -16,7 +16,11 @@
         <th>区域</th>
     </tr>
     {% for o in orders %}
+        {% if now_date > o.reminde_date and o.back_money_percent != 100 %}
+        <tr style="border:2px solid #FF8888;">
+        {% else %}
         <tr>
+        {% endif %}
             <td><a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.id)}}">{{o.name}}</a></td>
             <td>{{o.money}}元</td>
             <td>{{o.back_moneys}}元</td>
