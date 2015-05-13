@@ -14,7 +14,8 @@ from models.order import Order
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
-                                 STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW)
+                                 STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
+                                 CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS)
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
@@ -381,6 +382,9 @@ def client_order_contract(order_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     contract_status_change(order, action, emails, msg)
+    order = ClientOrder.get(order_id)
+    if order.contract_status == CONTRACT_STATUS_DELETEPASS:
+        return redirect(url_for('order.my_orders'))
     return redirect(order.info_path())
 
 
@@ -412,7 +416,18 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_PRINTED
         action_msg = u"合同打印完毕"
     elif action == 7:
-        action_msg = u"消息提醒"
+        action_msg = u"撤单申请，请部门leader确认"
+        order.contract_status = CONTRACT_STATUS_DELETEAPPLY
+        to_users = to_users + order.leaders + User.medias() + User.contracts()
+    elif action == 8:
+        action_msg = u"确认撤单，请super_leader同意"
+        order.contract_status = CONTRACT_STATUS_DELETEAGREE
+        to_users = to_users + order.leaders + User.medias() + User.contracts()
+    elif action == 9:
+        action_msg = u"同意撤单"
+        order.contract_status = CONTRACT_STATUS_DELETEPASS
+        order.status = STATUS_DEL
+        to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
         action_msg = u"合同被驳回，请从新提交审核"
@@ -721,6 +736,8 @@ def framework_order_contract(order_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     contract_status_change(order, action, emails, msg)
+    if order.contract_status == CONTRACT_STATUS_DELETEPASS:
+        return redirect(url_for('order.framework_orders'))
     return redirect(url_for("order.framework_order_info", order_id=order.id))
 
 
@@ -987,6 +1004,9 @@ def douban_order_contract(order_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     contract_status_change(order, action, emails, msg)
+    order = DoubanOrder.get(order_id)
+    if order.contract_status == CONTRACT_STATUS_DELETEPASS:
+        return redirect(url_for('order.douban_orders'))
     return redirect(url_for("order.douban_order_info", order_id=order.id))
 
 
