@@ -5,6 +5,7 @@ from flask import request, Blueprint, abort, flash, g, redirect, url_for
 from flask import render_template as tpl
 
 from models.user import TEAM_LOCATION_CN
+from libs.paginator import Paginator
 from models.client_order import ClientOrder, BackMoney, CONTRACT_STATUS_CN
 
 finance_client_order_back_money_bp = Blueprint(
@@ -26,9 +27,8 @@ def index():
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
-    page = max(1, page)
-    start = (page - 1) * ORDER_PAGE_NUM
-    orders_len = len(orders)
+    # page = max(1, page)
+    # start = (page - 1) * ORDER_PAGE_NUM
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
@@ -36,24 +36,25 @@ def index():
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_info.lower()]
-    if orderby and orders_len:
+    if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
-    if 0 <= start < orders_len:
-        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
-    else:
-        orders = []
+    paginator = Paginator(orders, ORDER_PAGE_NUM)
+    try:
+        orders = paginator.page(page)
+    except:
+        orders = paginator.page(paginator.num_pages)
 
     return tpl('/finance/client_order_back_money/index.html', orders=orders,
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
                orderby=orderby, now_date=datetime.date.today(),
                search_info=search_info, page=page,
-               params='&sortby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
                       (orderby, search_info, location_id, status_id))
 
 

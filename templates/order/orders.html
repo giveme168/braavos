@@ -166,24 +166,9 @@
         <input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">
     </div>
     <br>
-    {{ all_items(orders) }}
-    <nav>
-      <ul class="pagination">
-        {% if page-1 > 0 %}
-        <li><a href="?p={{page-1}}{{params}}">&laquo;</a></li>
-        {% endif %}
-        {% if page-2 > 0 %}
-        <li class=""><a href="?p={{page-2}}{{params}}">{{page-2}}</a></li>
-        {% endif %}
-        {% if page-1 > 0 %}
-        <li class=""><a href="?p={{page-1}}{{params}}">{{page-1}}</a></li>
-        {% endif %}
-        <li class="active disable"><a href="#">{{page}}</a></li>
-        <li class=""><a href="?p={{page+1}}{{params}}">{{page+1}}</a></li>
-        <li class=""><a href="?p={{page+2}}{{params}}">{{page+2}}</a></li>
-        <li><a href="?p={{page+1}}{{params}}">&raquo;</a></li>
-      </ul>
-    </nav>
+    {{ all_items(orders.object_list) }}
+    {% set pages = orders %}
+    {% include "pagination.html" %}
 </div>
 <script>
 function sort(value){

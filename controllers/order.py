@@ -27,6 +27,7 @@ from models.download import (download_excel_table_by_clientorders,
                              download_excel_table_by_frameworkorders)
 
 from libs.signals import contract_apply_signal
+from libs.paginator import Paginator
 from controllers.tools import get_download_response
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
@@ -484,36 +485,32 @@ def my_orders():
 
 
 def display_orders(orders, title, status_id=-1):
-    # sortby = request.args.get('sortby', '')
-    # orderby = request.args.get('orderby', '')
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
-    page = max(1, page)
-    start = (page - 1) * ORDER_PAGE_NUM
-    orders_len = len(orders)
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [o for o in orders if search_info.lower() in o.search_info.lower()]
-    if orderby and orders_len:
+    if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
-    if 0 <= start < orders_len:
-        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
-    else:
-        orders = []
+    paginator = Paginator(orders, ORDER_PAGE_NUM)
+    try:
+        orders = paginator.page(page)
+    except:
+        orders = paginator.page(paginator.num_pages)
     if 'download' == request.args.get('action', ''):
         filename = (
             "%s-%s.xls" % (u"新媒体订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
-        xls = Excel().write_excle(download_excel_table_by_clientorders(orders))
+        xls = Excel().write_excle(download_excel_table_by_clientorders(orders.object_list))
         response = get_download_response(xls, filename)
         return response
     else:
@@ -522,7 +519,7 @@ def display_orders(orders, title, status_id=-1):
                    statuses=select_statuses, status_id=status_id,
                    search_info=search_info, page=page,
                    orderby=orderby, now_date=datetime.now().date(),
-                   params='&sortby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
+                   params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
                    (orderby, search_info, location_id, status_id))
 
 
@@ -699,18 +696,16 @@ def framework_delete_orders():
 
 def framework_display_orders(orders, title):
     page = int(request.args.get('p', 1))
-    page = max(1, page)
-    start = (page - 1) * ORDER_PAGE_NUM
-    orders_len = len(orders)
-    if 0 <= start < orders_len:
-        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
-    else:
-        orders = []
+    paginator = Paginator(orders, ORDER_PAGE_NUM)
+    try:
+        orders = paginator.page(page)
+    except:
+        orders = paginator.page(paginator.num_pages)
     if 'download' == request.args.get('action', ''):
         filename = (
             "%s-%s.xls" % (u"框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
         xls = Excel().write_excle(
-            download_excel_table_by_frameworkorders(orders))
+            download_excel_table_by_frameworkorders(orders.object_list))
         response = get_download_response(xls, filename)
         return response
     else:
@@ -946,17 +941,15 @@ def douban_display_orders(orders, title, status_id=-1):
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
-    page = max(1, page)
-    start = (page - 1) * ORDER_PAGE_NUM
-    orders_len = len(orders)
-
+    # page = max(1, page)
+    # start = (page - 1) * ORDER_PAGE_NUM
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [o for o in orders if search_info.lower() in o.search_info.lower()]
-    if orderby and orders_len:
+    if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
 
@@ -964,14 +957,15 @@ def douban_display_orders(orders, title, status_id=-1):
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
-    if 0 <= start < orders_len:
-        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
-    else:
-        orders = []
+    paginator = Paginator(orders, ORDER_PAGE_NUM)
+    try:
+        orders = paginator.page(page)
+    except:
+        orders = paginator.page(paginator.num_pages)
     if 'download' == request.args.get('action', ''):
         filename = (
             "%s-%s.xls" % (u"直签豆瓣订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
-        xls = Excel().write_excle(download_excel_table_by_doubanorders(orders))
+        xls = Excel().write_excle(download_excel_table_by_doubanorders(orders.object_list))
         response = get_download_response(xls, filename)
         return response
     else:
@@ -980,7 +974,7 @@ def douban_display_orders(orders, title, status_id=-1):
                    statuses=select_statuses, status_id=status_id,
                    orderby=orderby, now_date=datetime.now().date(),
                    search_info=search_info, page=page,
-                   params='&sortby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
+                   params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
                    (orderby, search_info, location_id, status_id))
 
 
