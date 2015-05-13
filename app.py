@@ -14,6 +14,13 @@ login_manager.login_message = None
 login_manager.init_app(app)
 login_manager.login_view = "user.login"
 
+def page_recipe(pages, adjacent_pages=3):
+    paginator = pages.paginator
+    page_numbers = [n for n in range(pages.number-adjacent_pages, pages.number+adjacent_pages+1) if n > 0 and n <= paginator.num_pages]
+
+    return page_numbers
+    
+app.jinja_env.filters['page_recipe'] = page_recipe
 
 @login_manager.user_loader
 def load_user(userid):

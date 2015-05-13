@@ -28,6 +28,14 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="col-md-2" style="padding:0;margin-right:5px;">
+            <select class="col-md-12" id="orderby" name="orderby" placeholder="排序方式">
+                <option value="create_time">按添加时间排序</option>
+                <option value="client_start">按执行开始时间排序</option>
+                <option value="client_end">按执行结束时间排序</option>
+                <option value="contract">按合同号排序</option>
+            </select>
+        </div>
         <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
     </div>
     <br>
@@ -65,23 +73,8 @@
         </tr>
         {% endfor %}
     </table>
-    <nav>
-      <ul class="pagination">
-        {% if page-1 > 0 %}
-        <li><a href="?p={{page-1}}">&laquo;</a></li>
-        {% endif %}
-        {% if page-2 > 0 %}
-        <li class=""><a href="?p={{page-2}}">{{page-2}}</a></li>
-        {% endif %}
-        {% if page-1 > 0 %}
-        <li class=""><a href="?p={{page-1}}">{{page-1}}</a></li>
-        {% endif %}
-        <li class="active disable"><a href="#">{{page}}</a></li>
-        <li class=""><a href="?p={{page+1}}">{{page+1}}</a></li>
-        <li class=""><a href="?p={{page+2}}">{{page+2}}</a></li>
-        <li><a href="?p={{page+1}}">&raquo;</a></li>
-      </ul>
-    </nav>
+    {% set pages = orders %}
+    {% include "pagination.html" %}
 </div>
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -117,6 +110,8 @@
     $(function(){
         rest_chose()
         $("#operater").chosen(); 
+        $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
+        $("#orderby").trigger("chosen:updated");
     })
     function checkform(){
         var operater_ids = $("#operater").val().join(',')
@@ -143,7 +138,8 @@
         window.location.href = window.location.pathname +
           '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
           '&selected_location=' + ($('#search_location').val()) +
-          '&selected_status=' + ($('#search_status').val());
+          '&selected_status=' + ($('#search_status').val())+
+          '&orderby=' + ($('#orderby').val());
     }
     function enter_search(){
         //按下‘Enter’键

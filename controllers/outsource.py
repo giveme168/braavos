@@ -13,6 +13,7 @@ from models.outsource import (OUTSOURCE_STATUS_NEW, OUTSOURCE_STATUS_APPLY_LEADE
                               OUTSOURCE_STATUS_EXCEED, INVOICE_RATE, OUTSOURCE_STATUS_PAIED)
 from forms.outsource import OutSourceTargetForm, OutsourceForm, DoubanOutsourceForm, MergerOutSourceForm
 from libs.signals import outsource_apply_signal, outsource_distribute_signal, merger_outsource_apply_signal
+from libs.paginator import Paginator
 
 outsource_bp = Blueprint(
     'outsource', __name__, template_folder='../templates/outsource/')
@@ -86,37 +87,35 @@ def display_orders(orders, template, title, operaters):
         status_id = int(request.args.get('selected_status'))
     else:
         status_id = -1
-    sortby = request.args.get('sortby', '')
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
-    reverse = orderby != 'asc'
     page = int(request.args.get('p', 1))
-    page = max(1, page)
-    start = (page - 1) * ORDER_PAGE_NUM
-    orders_len = len(orders)
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
-        orders = [o for o in orders if search_info in o.search_info]
-    if sortby and orders_len and hasattr(orders[0], sortby):
+        orders = [o for o in orders if search_info.lower() in o.search_info.lower()]
+    if orderby and len(orders):
         orders = sorted(
-            orders, key=lambda x: getattr(x, sortby), reverse=reverse)
+            orders, key=lambda x: getattr(x, orderby), reverse=True)
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
-    if 0 <= start < orders_len:
-        orders = orders[start:min(start + ORDER_PAGE_NUM, orders_len)]
-    else:
-        orders = []
+    paginator = Paginator(orders, ORDER_PAGE_NUM)
+    try:
+        orders = paginator.page(page)
+    except:
+        orders = paginator.page(paginator.num_pages)
     return tpl(template, title=title, orders=orders,
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
-               sortby=sortby, orderby=orderby,
-               search_info=search_info, page=page, operaters=operaters)
+               orderby=orderby,
+               search_info=search_info, page=page, operaters=operaters,
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
+                      (orderby, search_info, location_id, status_id))
 
 
 @outsource_bp.route('/', methods=['GET'])
