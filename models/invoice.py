@@ -117,15 +117,17 @@ MEDIUM_INVOICE_BOOL_PAY_CN = {
 MEDIUM_INVOICE_STATUS_PASS = 0          # 已打款的发票
 MEDIUM_INVOICE_STATUS_NORMAL = 1        # 待申请的打款的发票
 MEDIUM_INVOICE_STATUS_APPLY = 2         # 申请打款中
+MEDIUM_INVOICE_STATUS_AGREE = 3         # 同意打款
 
 MEDIUM_INVOICE_STATUS_CN = {
     MEDIUM_INVOICE_STATUS_PASS: u'已打款的发票',
     MEDIUM_INVOICE_STATUS_NORMAL: u'待申请的打款的发票',
-    MEDIUM_INVOICE_STATUS_APPLY: u'申请打款中',
+    MEDIUM_INVOICE_STATUS_APPLY: u'申请审批中',
+    MEDIUM_INVOICE_STATUS_AGREE: u'同意打款'
 }
 
 
-# 客户订单-媒体发票及打款
+# 客户订单-媒体发票
 class MediumInvoice(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_invoice'
     id = db.Column(db.Integer, primary_key=True)
@@ -202,6 +204,63 @@ class MediumInvoice(db.Model, BaseModelMixin):
     def pay_time_cn(self):
         return self.pay_time.strftime("%Y-%m-%d")
 
+    @property
+    def invoice_type_cn(self):
+        return INVOICE_TYPE_CN[self.invoice_type]
+
     @classmethod
     def get_medium_invoices_status(cls, status):
         return cls.query.filter_by(invoice_status=status)
+
+    def get_invoice_pas_by_status(self, status):
+        return [k for k in MediumInvoicePay.query.filter_by(medium_invoice=self) if k.pay_status == status]
+
+    @property
+    def get_pay_money(self):
+        return sum([k.money for k in MediumInvoicePay.query.filter_by(medium_invoice=self)
+                    if k.pay_status == MEDIUM_INVOICE_STATUS_PASS])
+
+    @property
+    def get_unpay_money(self):
+        return self.money - self.get_pay_money
+
+    @property
+    def get_apply_pay_money(self):
+        return sum([k.money for k in MediumInvoicePay.query.filter_by(medium_invoice=self)
+                    if k.pay_status in [MEDIUM_INVOICE_STATUS_APPLY, MEDIUM_INVOICE_STATUS_AGREE]])
+
+    @property
+    def pay_invoice_money(self):
+        return sum([k.money for k in MediumInvoicePay.query.filter_by(medium_invoice=self)])
+
+
+# 客户订单-媒体发票
+class MediumInvoicePay(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_medium_invoice_pay'
+    id = db.Column(db.Integer, primary_key=True)
+    medium_invoice_id = db.Column(
+        db.Integer, db.ForeignKey('bra_medium_invoice.id'))  # 客户发票
+    medium_invoice = db.relationship(
+        'MediumInvoice', backref=db.backref('medium_invoice_pays', lazy='dynamic'))
+    detail = db.Column(db.String(200))  # 留言
+    pay_status = db.Column(db.Integer)  # 付款状态
+    money = db.Column(db.Float)  # 打款金额
+    pay_time = db.Column(db.DateTime)  # 打款时间
+    create_time = db.Column(db.DateTime)  # 添加时间
+
+    def __init__(self, medium_invoice, detail="", pay_status=MEDIUM_INVOICE_STATUS_NORMAL,
+                 money=0.0, pay_time=None):
+        self.medium_invoice = medium_invoice
+        self.detail = detail
+        self.pay_status = pay_status
+        self.money = money
+        self.create_time = datetime.date.today()
+        self.pay_time = pay_time or datetime.date.today()
+
+    @property
+    def pay_time_cn(self):
+        return self.pay_time.strftime("%Y-%m-%d")
+
+    @classmethod
+    def get_medium_invoices_status(cls, status):
+        return cls.query.filter_by(pay_status=status)

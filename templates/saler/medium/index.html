@@ -3,51 +3,56 @@
 {% from 'comments.html' import comments_box %}
 {% macro contract_box(order) -%}
 <div class="bra-main bra-box" style="width:100%;">
-  <h4>媒体订单发票情况</h4>
+  <h4>媒体订单发票及打款情况</h4>
   <table class="table table-bordered table-striped">
     <tr>
       <th>媒体总金额</th>
-      <th>已打款发票金额</th>
-      <th>申请中的打款金额</th>
+      <th>发票总金额</th>
+      <th>已打款金额</th>
     </tr>
     <tr>
       <td>{{order.mediums_money2}}元</td>
-      <td>{{order.mediums_invoice_pass_sum}}元</td>
+      <td>{{order.mediums_invoice_sum}}元</td>
       <td>{{order.mediums_invoice_apply_sum}}元</td>
     </tr>
   </table>
-  {% for k in range(3) %}
-    {% if k == 0 %}
-      {% set invoices = invoices_data.pass %}
-      {% elif k == 1 %}
-      {% set invoices = invoices_data.normal %}
-      {% elif k == 2 %}
-      {% set invoices = invoices_data.apply %}
-    {% endif %}
-    {% if invoices|length > 0 %}
-      <div class="panel panel-default" id="non-invoice">
-        <div class="panel-heading">
-          <h4 class="panel-title">
-          <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-{{k}}"> {{ MEDIUM_INVOICE_STATUS_CN[k] }}</a>
-          </h4>
-        </div>
-        <div id="collapse-invoice-{{k}}" class="panel-collapse collapse in ">
-          <div class="panel-body">
-            {% for i in invoices %}
-              {{ invoice_form(order, i.form, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_PAY_CN, i.invoice) }}
-            {% endfor %}
-            {% if k != 0 %}
-              {{ status_box(invoices[0]['invoice']) }}
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    {% endif %}
-  {% endfor %}
+  <h4>发票详情</h4>
+  <table class="table table-bordered table-striped">
+    <tr>
+      <th>公司名称</th>
+      <th>税号</th>
+      <th>发票金额</th>
+      <th>已打款金额</th>
+      <th>申请中打款金额</th>
+      <th>未打款金额</th>
+      <th>开票时间</th>
+      <th>发票类型</th>
+      <th>发票号</th>
+      <th>发票内容</th>
+      <th width="5%">操作</th>
+    </tr>
+    {% for invoice in invoices %}
+    <tr>
+      <td>{{invoice.company}}</td>
+      <td>{{invoice.tax_id}}</td>
+      <td>{{invoice.money}}元</td>
+      <td>{{invoice.get_pay_money}}元</td>
+      <td>{{invoice.get_apply_pay_money}}元</td>
+      <td>{{invoice.get_unpay_money}}元</td>
+      <td>{{invoice.add_time_cn}}</td>
+      <td>{{invoice.invoice_type_cn}}</td>
+      <td>{{invoice.invoice_num}}</td>
+      <td>{{invoice.detail}}</td>
+      <td>
+          <a href="{{url_for('saler_medium_invoice.invoice',invoice_id=invoice.id)}}">查看</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
   <div class="panel panel-default" id="new-invoice" style="display:none;">
     <div class="panel-heading">
       <h4 class="panel-title">
-      <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写发票申请打款 </a>
+      <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写媒体发票 </a>
       </h4>
     </div>
     <div id="collapse-invoice-new" class="panel-collapse collapse in">
@@ -58,7 +63,7 @@
       </div>
     </div>
   </div>
-  <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写发票申请打款</button>
+  <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写发票</button>
 </div>
 <script>
 showInvoice = function(ele) {
@@ -124,36 +129,3 @@ $(function() {
     </div>
   </div>
 {% endblock %}
-{% macro status_box(invoice) -%}
-<input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
-<form class="form form-horizontal invoice-status-form" id="status-form" method="POST" action="{{url_for('saler_medium_invoice.apply_invoice', invoice_id=invoice.id)}}">
-  <div class="form-group">
-    <label for="email" class="col-sm-2 control-label">邮箱 : </label>
-    <div class="col-sm-10">
-      <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
-        {% for u in reminder_emails %}
-          <option value="{{u[1]}}">{{u[0]}}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="msg" class="col-sm-2 control-label">留言 : </label>
-    <div class="col-sm-10">
-      <textarea class="form-control bra-form-control" id="msg"
-      name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="col-sm-2 control-label">操作 : </label>
-    <div class="col-sm-4">
-      {% if invoice.invoice_status in [1] %}
-        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">申请发票打款</button>
-      {% endif %}
-    </div>
-    <div class="col-sm-6">
-      <!--<button class="btn btn-sm btn-info contract-submit " name="action" type="submit" value="10">留言</button>-->
-    </div>
-  </div>
-</form>
-{%- endmacro %}

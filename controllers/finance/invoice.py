@@ -21,6 +21,8 @@ finance_invoice_bp = Blueprint(
 
 @finance_invoice_bp.route('/', methods=['GET'])
 def index():
+    if not g.user.is_finance():
+        abort(404)
     orders = set([
         invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
     return tpl('/finance/invoice/index.html', orders=orders)
@@ -28,6 +30,8 @@ def index():
 
 @finance_invoice_bp.route('/pass', methods=['GET'])
 def index_pass():
+    if not g.user.is_finance():
+        abort(404)
     orders = set([
         invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_PASS)])
     type = request.args.get('type', '')
@@ -41,6 +45,8 @@ def index_pass():
 
 @finance_invoice_bp.route('/<order_id>/info', methods=['GET'])
 def info(order_id):
+    if not g.user.is_finance():
+        abort(404)
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
@@ -58,6 +64,8 @@ def info(order_id):
 
 @finance_invoice_bp.route('/<invoice_id>/invoice_num', methods=['POST'])
 def invoice_num(invoice_id):
+    if not g.user.is_finance():
+        abort(404)
     invoice = Invoice.get(invoice_id)
     if not invoice:
         abort(404)
@@ -72,6 +80,8 @@ def invoice_num(invoice_id):
 
 @finance_invoice_bp.route('/<invoice_id>/pass', methods=['POST'])
 def pass_invoice(invoice_id):
+    if not g.user.is_finance():
+        abort(404)
     invoice = Invoice.get(invoice_id)
     if not invoice:
         abort(404)

@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-import datetime
 
 from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
 from flask import render_template as tpl
 
 from models.client_order import ClientOrder
-from models.invoice import MediumInvoice, MEDIUM_INVOICE_STATUS_PASS, MEDIUM_INVOICE_STATUS_APPLY, INVOICE_TYPE_CN
+from models.invoice import (MediumInvoice, MediumInvoicePay, MEDIUM_INVOICE_STATUS_PASS,
+                            INVOICE_TYPE_CN, MEDIUM_INVOICE_STATUS_AGREE)
 from models.user import User
 from libs.signals import medium_invoice_apply_signal
-from controllers.finance.helpers.medium_pay_helpers import medium_write_excel
-from controllers.tools import get_download_response
 
 
 finance_medium_pay_bp = Blueprint(
@@ -18,41 +16,49 @@ finance_medium_pay_bp = Blueprint(
 
 @finance_medium_pay_bp.route('/', methods=['GET'])
 def index():
+    if not g.user.is_finance():
+        abort(404)
     orders = set([
-        invoice.client_order for invoice in MediumInvoice.get_medium_invoices_status(MEDIUM_INVOICE_STATUS_APPLY)])
+        invoicepay.medium_invoice.client_order for invoicepay in
+        MediumInvoicePay.get_medium_invoices_status(MEDIUM_INVOICE_STATUS_AGREE)])
     return tpl('/finance/medium_pay/index.html', orders=orders)
 
 
 @finance_medium_pay_bp.route('/pass', methods=['GET'])
 def index_pass():
+    if not g.user.is_finance():
+        abort(404)
     orders = set([
-        invoice.client_order for invoice in MediumInvoice.get_medium_invoices_status(MEDIUM_INVOICE_STATUS_PASS)])
-    type = request.args.get('type', '')
-    if type == 'excel':
-        xls = medium_write_excel(list(orders))
-        response = get_download_response(
-            xls, ("%s-%s.xls" % (u"已打款的媒体信息", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
-        return response
-    return tpl('/finance/medium_pay/index_pass.html', orders=orders)
+        invoicepay.medium_invoice.client_order for invoicepay in
+        MediumInvoicePay.get_medium_invoices_status(MEDIUM_INVOICE_STATUS_PASS)])
+    return tpl('/finance/medium_pay/index.html', orders=orders)
 
 
 @finance_medium_pay_bp.route('/<order_id>/info', methods=['GET'])
 def info(order_id):
+    if not g.user.is_finance():
+        abort(404)
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
-    invoices_data = {
-        'pass': [x for x in order.get_medium_invoice_by_status(MEDIUM_INVOICE_STATUS_PASS)],
-        'apply': [x for x in order.get_medium_invoice_by_status(MEDIUM_INVOICE_STATUS_APPLY)],
-    }
+    invoices = MediumInvoice.query.filter_by(client_order=order)
+    return tpl('/finance/medium_pay/info.html', order=order, invoices=invoices)
+
+
+@finance_medium_pay_bp.route('/<invoice_id>/pay_info', methods=['GET'])
+def pay_info(invoice_id):
+    if not g.user.is_finance():
+        abort(404)
+    invoice = MediumInvoice.get(invoice_id)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
-    return tpl('/finance/medium_pay/info.html', order=order,
-               invoices_data=invoices_data, reminder_emails=reminder_emails,
+    return tpl('/finance/medium_pay/pay_info.html', invoice=invoice, reminder_emails=reminder_emails,
                INVOICE_TYPE_CN=INVOICE_TYPE_CN)
 
 
 @finance_medium_pay_bp.route('/<invoice_id>/pay_num', methods=['POST'])
 def invoice_pay_num(invoice_id):
+    if not g.user.is_finance():
+        abort(404)
     invoice = MediumInvoice.get(invoice_id)
     if not invoice:
         abort(404)
@@ -68,46 +74,51 @@ def invoice_pay_num(invoice_id):
 
 @finance_medium_pay_bp.route('/<invoice_id>/pass', methods=['POST'])
 def invoice_pass(invoice_id):
+    if not g.user.is_finance():
+        abort(404)
     invoice = MediumInvoice.get(invoice_id)
     if not invoice:
         abort(404)
     invoices_ids = request.values.getlist('invoices')
-    invoices = MediumInvoice.gets(invoices_ids)
-    if not invoices:
+    invoices_pay = MediumInvoicePay.gets(invoices_ids)
+    if not invoices_pay:
         abort(403)
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
 
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
-        [invoice.client_order.creator, g.user] + User.operater_leaders()
+        [invoice.client_order.creator, g.user] + \
+        User.operater_leaders() + User.medias()
     to_emails = list(set(emails + [x.email for x in to_users]))
 
     if action != 10:
         invoice_status = MEDIUM_INVOICE_STATUS_PASS
         action_msg = u'媒体订单款已打'
-        for invoice in invoices:
-            invoice.invoice_status = invoice_status
-            invoice.create_time = datetime.date.today()
-            invoice.pay_time = datetime.date.today()
-            invoice.bool_pay = True
-            invoice.save()
-            flash(u'媒体订单款已打,名称:%s ' % (
-                invoice.client_order.name + '-' + invoice.medium.name), 'success')
-            invoice.client_order.add_comment(
-                g.user, u'媒体订单款已打,名称%s ' % (invoice.client_order.name + '-' + invoice.medium.name), msg_channel=3)
+        for invoice_pay in invoices_pay:
+            invoice_pay.pay_status = invoice_status
+            invoice_pay.save()
+            flash(u'媒体订单款已打,名称:%s, 打款金额%s' % (
+                invoice_pay.medium_invoice.client_order.name +
+                '-' + invoice_pay.medium_invoice.medium.name,
+                str(invoice_pay.money)), 'success')
+            invoice_pay.medium_invoice.client_order.add_comment(
+                g.user, u'媒体订单款已打款,名称%s, 打款金额%s ' % (
+                    invoice_pay.medium_invoice.client_order.name +
+                        '-' + invoice_pay.medium_invoice.medium.name,
+                    str(invoice_pay.money)),
+                msg_channel=3)
     else:
         action_msg = u'消息提醒'
-
-    apply_context = {"title": "媒体订单款已打",
+    apply_context = {"title": "媒体订单款已打款",
                      "sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,
                      "msg": msg,
                      "send_type": "saler",
-                     "order": invoice.client_order,
-                     "invoices": invoices}
+                     "invoice": invoice,
+                     "invoice_pays": invoices_pay}
     medium_invoice_apply_signal.send(
         current_app._get_current_object(), apply_context=apply_context)
     flash(u'已发送邮件给 %s ' % (', '.join(to_emails)), 'info')
-    return redirect(url_for("finance_medium_pay.info", order_id=invoice.client_order.id))
+    return redirect(url_for("finance_medium_pay.pay_info", invoice_id=invoice_id))
