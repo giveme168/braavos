@@ -21,7 +21,7 @@ def index():
     orders = set([
         invoicepay.medium_invoice.client_order for invoicepay in
         MediumInvoicePay.get_medium_invoices_status(MEDIUM_INVOICE_STATUS_AGREE)])
-    return tpl('/finance/medium_pay/index.html', orders=orders)
+    return tpl('/finance/medium_pay/index.html', orders=orders, title=u'申请中的媒体打款')
 
 
 @finance_medium_pay_bp.route('/pass', methods=['GET'])
@@ -31,7 +31,7 @@ def index_pass():
     orders = set([
         invoicepay.medium_invoice.client_order for invoicepay in
         MediumInvoicePay.get_medium_invoices_status(MEDIUM_INVOICE_STATUS_PASS)])
-    return tpl('/finance/medium_pay/index.html', orders=orders)
+    return tpl('/finance/medium_pay/index.html', orders=orders, title=u'已打的款媒体信息')
 
 
 @finance_medium_pay_bp.route('/<order_id>/info', methods=['GET'])
