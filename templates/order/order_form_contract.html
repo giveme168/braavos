@@ -158,6 +158,25 @@
             {% if order.contract_status == 4 and g.user.is_contract() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="6">打印完毕</button>
             {% endif %}
+            {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 9]%}
+            <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">申请撤单</button>
+            {% endif %}
+            {% if order.contract_status == 7 %}
+              {%if order.can_admin(g.user) %}
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">再次申请撤单</button>
+              {% endif %}
+              {% if g.user.is_leader() %} 
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="8">确认撤单</button>
+              {% endif %}
+            {% endif %}
+            {% if order.contract_status == 8 %}
+              {% if g.user.is_leader() %} 
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="8">再次确认撤单</button>
+              {% endif %}
+              {% if g.user.is_super_leader() %}
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="9">同意撤单</button>
+              {% endif %}
+            {% endif %}
         </div>
         <!--
         <div class="col-md-4">
@@ -173,12 +192,7 @@
    var actionVal = $(this).val();
    var email = $("#contract-email").val();
    var msg = $("#msg").val();
-   if(actionVal == '7'){
-     if(email == "" || msg == ""){
-         e.preventDefault();
-         alert("请填写通知邮箱和留言！");
-     }
-   }else if(actionVal == '2' || actionVal == '4'){
+   if(actionVal == '2' || actionVal == '4' || actionVal == '7'){
      if(msg == ""){
          e.preventDefault();
          alert("请填写理由！");

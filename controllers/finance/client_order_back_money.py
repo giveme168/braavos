@@ -17,6 +17,8 @@ ORDER_PAGE_NUM = 50
 
 @finance_client_order_back_money_bp.route('/orders', methods=['GET'])
 def index():
+    if not g.user.is_finance():
+        abort(404)
     orders = list(ClientOrder.all())
     if request.args.get('selected_status'):
         status_id = int(request.args.get('selected_status'))
@@ -60,6 +62,8 @@ def index():
 
 @finance_client_order_back_money_bp.route('/order/<order_id>/back_money', methods=['GET', 'POST'])
 def back_money(order_id):
+    if not g.user.is_finance():
+        abort(404)
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)

@@ -9,7 +9,7 @@ from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import ITEM_STATUS_LEADER_ACTIONS
 from .user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
-from invoice import Invoice, MediumInvoice
+from invoice import Invoice, MediumInvoice, MediumInvoicePay
 from libs.mail import mail
 
 
@@ -45,6 +45,9 @@ CONTRACT_STATUS_APPLYREJECT = 3
 CONTRACT_STATUS_APPLYPRINT = 4
 CONTRACT_STATUS_PRINTED = 5
 CONTRACT_STATUS_MEDIA = 6
+CONTRACT_STATUS_DELETEAPPLY = 7
+CONTRACT_STATUS_DELETEAGREE = 8
+CONTRACT_STATUS_DELETEPASS = 9
 CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_NEW: u"新建",
     CONTRACT_STATUS_APPLYCONTRACT: u"申请审批中...",
@@ -52,7 +55,10 @@ CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_APPLYREJECT: u"审批未通过",
     CONTRACT_STATUS_MEDIA: u"利润分配中...",
     CONTRACT_STATUS_APPLYPRINT: u"申请打印中...",
-    CONTRACT_STATUS_PRINTED: u"打印完毕"
+    CONTRACT_STATUS_PRINTED: u"打印完毕",
+    CONTRACT_STATUS_DELETEAPPLY: u'撤单申请中...',
+    CONTRACT_STATUS_DELETEAGREE: u'确认撤单',
+    CONTRACT_STATUS_DELETEPASS: u'同意撤单'
 }
 
 STATUS_DEL = 0
@@ -175,14 +181,25 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return sum([x.medium_money2 or 0 for x in self.medium_orders])
 
     @property
-    def mediums_invoice_pass_sum(self):
-        return sum([k.pay_money for k in MediumInvoice.query.filter_by(client_order_id=self.id)
-                   if k.invoice_status == 0])
+    def mediums_invoice_sum(self):
+        return sum([k.money for k in MediumInvoice.query.filter_by(client_order_id=self.id)])
 
     @property
     def mediums_invoice_apply_sum(self):
-        return sum([k.pay_money for k in MediumInvoice.query.filter_by(client_order_id=self.id)
-                   if k.invoice_status == 2])
+        invoices = MediumInvoice.query.filter_by(client_order_id=self.id)
+        return sum([k.money for k in MediumInvoicePay.all() if k.pay_status == 3 and k.medium_invoice in invoices])
+
+    @property
+    def mediums_invoice_pass_sum(self):
+        invoices = MediumInvoice.query.filter_by(client_order_id=self.id)
+        return sum([k.money for k in MediumInvoicePay.all() if k.pay_status == 0 and k.medium_invoice in invoices])
+
+    def get_invoice_by_status(self, type):
+        return [invoice for invoice in self.invoices if invoice.invoice_status == type]
+
+    def get_medium_invoice_pay_by_status(self, type):
+        return [k for k in MediumInvoicePay.all()
+                if k.pay_status == int(type) and k.medium_invoice in self.mediuminvoices]
 
     @property
     def medium_ids(self):
@@ -304,12 +321,6 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def get_order_by_user(cls, user):
         """一个用户可以查看的所有订单"""
         return [o for o in cls.all() if o.have_owner(user) and o.status in [STATUS_ON, None]]
-
-    def get_invoice_by_status(self, type):
-        return [invoice for invoice in self.invoices if invoice.invoice_status == type]
-
-    def get_medium_invoice_by_status(self, type):
-        return [invoice for invoice in self.mediuminvoices if invoice.invoice_status == type]
 
     def path(self):
         return self.info_path()

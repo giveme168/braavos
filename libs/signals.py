@@ -121,25 +121,36 @@ by %s
 
 
 def medium_invoice_apply(sender, apply_context):
-    order = apply_context['order']
-    invoices = apply_context['invoices']
-    invoice_info = "\n".join(
-        [u'发票信息: ' + o.detail + u'; 发票金额: ' + str(o.money) + u'; 发票号: ' + o.invoice_num for o in invoices])
+    invoice = apply_context['invoice']
+    order = invoice.client_order
+    invoice_pays = apply_context['invoice_pays']
+    invoice_info = u"发票信息: " + invoice.detail + u'; 发票金额: ' + \
+        str(invoice.money) + u'; 发票号: ' + invoice.invoice_num + \
+        u'; 未打款金额: ' + str(invoice.get_unpay_money)
+    invoice_pay_info = "\n".join(
+        [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if apply_context['send_type'] == "saler":
-        url = mail.app.config['DOMAIN'] + order.saler_invoice_path()
+        url = mail.app.config[
+            'DOMAIN'] + '/saler/medium_invoice/%s/order' % (invoice.client_order_id)
     else:
-        url = mail.app.config['DOMAIN'] + order.finance_invoice_path()
+        url = mail.app.config[
+            'DOMAIN'] + '/finance/medium_pay/%s/info' % (invoice.client_order_id)
     text = u"""%s
 订单: %s
 链接地址: %s
 发票信息:
 %s
+
+打款信息:
+%s
+
 留言如下:
     %s
 \n
 by %s
-""" % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
-    send_simple_mail(apply_context['title'], recipients=apply_context['to'], body=text)
+""" % (apply_context['action_msg'], order.name, url, invoice_info, invoice_pay_info, apply_context['msg'], g.user.name)
+    send_simple_mail(
+        apply_context['title'], recipients=apply_context['to'], body=text)
 
 
 def invoice_apply(sender, apply_context):
@@ -161,7 +172,8 @@ def invoice_apply(sender, apply_context):
 \n
 by %s
 """ % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
-    send_simple_mail(apply_context['title'], recipients=apply_context['to'], body=text)
+    send_simple_mail(
+        apply_context['title'], recipients=apply_context['to'], body=text)
 
 
 '''
@@ -228,21 +240,25 @@ by %s\n
 
 def outsource_distribute(sender, apply_context):
     order = apply_context['order']
-    title = u'【费用报备】%s-%s-订单分配提醒' % (order.contract or u'无合同号', order.jiafang_name)
+    title = u'【费用报备】%s-%s-订单分配提醒' % (order.contract or u'无合同号',
+                                     order.jiafang_name)
     send_simple_mail(title, recipients=apply_context[
                      'to'], body=order.outsource_distribute_email_info(title))
+
 
 def outsource_apply(sender, apply_context):
     """外包服务流程 发送邮件"""
     order = apply_context['order']
     outsources = apply_context['outsources']
     outsources_info = "\n".join([o.outsource_info for o in outsources])
-    
+
     url = mail.app.config['DOMAIN'] + order.outsource_path()
     send_simple_mail(apply_context['title'], recipients=apply_context['to'],
                      body=order.outsource_email_info(apply_context['to_users'],
-                                                     apply_context['title'], outsources_info,
+                                                     apply_context[
+                                                         'title'], outsources_info,
                                                      url, apply_context['msg']))
+
 
 def merger_outsource_apply(sender, apply_context):
     outsources = apply_context['outsources']
@@ -276,7 +292,7 @@ Dear %s:
     致趣订单管理系统链接地址: %s
 
 by %s\n
-"""% (apply_context['to_users'], apply_context['title'], outsources_info, pay_nums, invoice_type, apply_context['remark'], apply_context['msg'], url, g.user.name)
+""" % (apply_context['to_users'], apply_context['title'], outsources_info, pay_nums, invoice_type, apply_context['remark'], apply_context['msg'], url, g.user.name)
     send_simple_mail(apply_context['title'], recipients=apply_context['to'],
                      body=body)
 
@@ -288,8 +304,10 @@ def apply_leave(sender, leave):
         url = mail.app.config['DOMAIN'] + url_for('user.leaves')
     elif status in [3, 4]:
         to_name = leave.creator.name
-        url = mail.app.config['DOMAIN'] + url_for('user.leave', user_id=leave.creator.id)
-    to_users = leave.senders + leave.creator.team_leaders + [leave.creator]+ [g.user]
+        url = mail.app.config['DOMAIN'] + \
+            url_for('user.leave', user_id=leave.creator.id)
+    to_users = leave.senders + leave.creator.team_leaders + \
+        [leave.creator] + [g.user]
     to_emails = list(set([k.email for k in to_users])) + ['admin@inad.com']
 
     body = u"""
@@ -308,9 +326,10 @@ Dear %s:
 附注: 
     致趣订单管理系统链接地址: %s
 
-"""% (to_name, leave.status_cn, leave.creator.name, leave.start_time_cn, leave.end_time_cn, leave.rate_day_cn, leave.type_cn, leave.reason, url)
-    
-    send_simple_mail(u'【请假申请】- %s'% (leave.creator.name), recipients=to_emails, body=body)
+""" % (to_name, leave.status_cn, leave.creator.name, leave.start_time_cn, leave.end_time_cn, leave.rate_day_cn, leave.type_cn, leave.reason, url)
+
+    send_simple_mail(u'【请假申请】- %s' %
+                     (leave.creator.name), recipients=to_emails, body=body)
 
 
 def init_signal(app):

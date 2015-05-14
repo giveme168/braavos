@@ -1,0 +1,288 @@
+{% extends "/order_base.html" %}
+{% from '/form.html' import form_field %}
+{% from '/saler/medium/medium_invoice_form.html' import invoice_form %}
+{% from 'comments.html' import comments_box %}
+{% macro contract_box(order) -%}
+<div class="bra-main bra-box" style="width:100%;">
+  <h4>发票详情</h4>
+  <table class="table table-bordered table-striped">
+    <tr>
+      <th>公司名称</th>
+      <th>税号</th>
+      <th>发票金额</th>
+      <th>已打款金额</th>
+      <th>申请中打款金额</th>
+      <th>未打款金额</th>
+      <th>开票时间</th>
+      <th>发票类型</th>
+      <th>发票号</th>
+      <th>发票内容</th>
+      <th width="5%">操作</th>
+    </tr>
+    <tr>
+      <td>{{invoice.company}}</td>
+      <td>{{invoice.tax_id}}</td>
+      <td>{{invoice.money}}元</td>
+      <td>{{invoice.get_pay_money}}元</td>
+      <td>{{invoice.get_apply_pay_money}}元</td>
+      <td>{{invoice.get_unpay_money}}元</td>
+      <td>{{invoice.add_time_cn}}</td>
+      <td>{{invoice.invoice_type_cn}}</td>
+      <td>{{invoice.invoice_num}}</td>
+      <td>{{invoice.detail}}</td>
+      <td>
+          <a href="javascript:update_invoice()">修改</a>
+      </td>
+    </tr>
+  </table>
+  <div class="well" id="invoice_from" style="display:none;">
+      <h4>
+          {{invoice.client_order.name}}-{{ invoice.medium.name }}-{{ invoice.money }}元
+      </h4>
+      {% if g.user.is_super_leader() or invoice.client_order.can_admin(g.user)%}
+      <form class="form form-horizontal" method="POST" action="{{url_for('saler_medium_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+      {{form.csrf_token}}
+      {{ form_field(form.client_order)}}
+      {{ form_field(form.medium)}}
+      {{ form_field(form.company) }}
+      {{ form_field(form.tax_id) }}
+      {{ form_field(form.address) }}
+      {{ form_field(form.phone) }}
+      {{ form_field(form.bank_id) }}
+      {{ form_field(form.bank) }}
+      {{ form_field(form.detail) }}
+      {{ form_field(form.money) }}
+      {{ form_field(form.invoice_num) }}
+      {{ form_field(form.invoice_type) }}
+      <div class="form-group">
+        <label for="client_start" class="col-sm-2 control-label">开票时间 : </label>
+        <div class="col-sm-4">
+          <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+        </div>
+      </div>
+      {{ form_field(form.bool_invoice) }}
+      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+      </form>
+      {% endif %}
+  </div>
+  {% for k in range(4) %}
+    {% set invoice_pays = invoice.get_invoice_pas_by_status(k) %}
+    {% if invoice_pays|length > 0 %}
+      <div class="panel panel-default" id="non-invoice">
+        <div class="panel-heading">
+          <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-{{k}}"> {{ MEDIUM_INVOICE_STATUS_CN[k] }}</a>
+          </h4>
+        </div>
+        <div id="collapse-invoice-{{k}}" class="panel-collapse collapse in ">
+          <div class="panel-body">
+            {% for i in invoice_pays %}
+               {% if i.pay_status in [0, 3] %}
+                  {% if i.pay_status != 0 %}
+                  <input type="checkbox" name="invoice-id" class="invoice-id" value="{{i.id}}"/>
+                  {% endif %}
+                  <table class="table table-bordered table-striped">
+                    <tr>
+                      <th>打款时间</th>
+                      <th>打款金额</th>
+                      <th>备注</th>
+                    </tr>
+                    <tr>
+                      <td>{{i.pay_time_cn}}</td>
+                      <td>{{i.money}}元</td>
+                      <td>{{i.detail}}</td>
+                    </tr>
+                  </table>
+               {% else %}
+               <div class="well">
+               <input type="checkbox" name="invoice-id" class="invoice-id" value="{{i.id}}"/>
+               <form class="form form-horizontal" method="POST" action="{{url_for('saler_medium_invoice.update_invoice_pay', invoice_id=invoice.id, invoice_pay_id=i.id)}}" onsubmit="return checkform(this)">
+                <div class="form-group">
+                    <label for="client_start" class="col-sm-2 control-label">打款时间 : </label>
+                    <div class="col-sm-4">
+                       <input type="text" id="pay_time" name="pay_time" value="{{i.pay_time_cn}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="client_start" class="col-sm-2 control-label">打款金额 : </label>
+                    <div class="col-sm-4">
+                       <input type="text" id="money" name="money" value="{{i.money}}" class="form-control bra-form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="client_start" class="col-sm-2 control-label">备注 : </label>
+                    <div class="col-sm-4">
+                       <textarea type="text" id="detail" name="detail" class="form-control bra-form-control">{{i.detail}}</textarea>
+                    </div>
+                </div>
+                <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+              </form>
+              </div>
+              {% endif %}
+            {% endfor %}
+            {% if k != 0 %}
+              {{ status_box(invoice_pays[0].medium_invoice, invoice_pays[0]) }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+  <div class="panel panel-default" id="new-invoice" style="display:none;">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+      <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 打款信息 </a>
+      </h4>
+    </div>
+    <div id="collapse-invoice-new" class="panel-collapse collapse in">
+      <div class="panel-body">
+        <div class="well">
+            <h4></h4>
+            <form class="form form-horizontal" method="POST" action="{{url_for('saler_medium_invoice.new_invoice_pay', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+            <div class="form-group">
+                <label for="client_start" class="col-sm-2 control-label">打款时间 : </label>
+                <div class="col-sm-4">
+                   <input type="text" id="pay_time" name="pay_time" value="2015-05-12" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="client_start" class="col-sm-2 control-label">打款金额 : </label>
+                <div class="col-sm-4">
+                   <input type="text" id="money" name="money" value="0" class="form-control bra-form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="client_start" class="col-sm-2 control-label">留言 : </label>
+                <div class="col-sm-4">
+                   <textarea type="text" id="detail" name="detail" class="form-control bra-form-control"></textarea>
+                </div>
+            </div>
+            <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 申请打款</button>
+</div>
+<script>
+$(document).ready(function(){
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+    });
+})
+showInvoice = function(ele) {
+  $(ele).hide();
+  $("#new-invoice").show();
+};
+function update_invoice(){
+   if($('#invoice_from').css('display') == 'none'){
+      $('#invoice_from').show()
+   }else{
+      $('#invoice_from').hide()
+   }
+   
+}
+function check_all(e) {
+  $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));
+  $(e).parent().find(".invoice-id").trigger("change");
+}
+$(function() {
+  $(".invoice-id").change(function(e) {
+    if ($(this).prop("checked")) {
+      if ($("#form-invoice-" + $(this).val()).length < 1) {
+        $(this).parents(".panel-collapse").find(".invoice-status-form")
+          .append('<input class="hide invoices" name="invoices" id="form-invoice-' + $(this).val() + '" value="' + $(this).val() + '"/>');
+      }
+    } else {
+      $(this).parents(".panel-collapse").find(".invoice-all").prop("checked", false);
+      if ($("#form-invoice-" + $(this).val()).length > 0) {
+        $("#form-invoice-" + $(this).val()).remove();
+      }
+    }
+  });
+  $(".invoice-btn").click(function(e) {
+    var actionVal = $(this).val();
+    var email = $(this).parents('form').find("#contract-email").val();
+    var invoices = $(this).parents('form').find(".invoices");
+    var msg = $(this).parents('form').find("#msg").val();
+    if (invoices.length < 1) {
+      alert("请勾选要申请的发票!");
+      e.preventDefault();
+    }
+    if (actionVal == '2') {
+      if (msg == "") {
+        alert("请填写理由！");
+        e.preventDefault();
+      }
+    }
+  });
+});
+</script>
+{%- endmacro %}
+{% block main_box%}
+  <div class="bra-main bra-box">
+    <h4> {{ invoice.client_order.name }} </h4>
+    <div>
+      <ul class="nav nav-tabs">
+        <li class=""><a href='{{url_for("order.order_info", order_id=invoice.client_order.id, tab_id=1)}}'>合同流程</a></li>
+        {% if invoice.client_order.can_admin(g.user) %}
+        <li class=""><a href='{{url_for("saler_invoice.index", order_id=invoice.client_order.id)}}'>客户发票</a></li>
+        <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=invoice.client_order.id)}}'>客户回款</a></li>
+        <li class="active"><a href='{{url_for("saler_medium_invoice.index", order_id=invoice.client_order.id)}}'>媒体发票与打款</a></li>
+        {% endif %}
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active" id="tab-2">
+          {{ contract_box(invoice.client_order) }}
+          <div>{{ comments_box(invoice.client_order, msg_channel=3) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% macro status_box(invoice, invoice_pay) -%}
+<input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
+<form class="form form-horizontal invoice-status-form" id="status-form" method="POST" action="{{url_for('saler_medium_invoice.apply_pay', invoice_id=invoice.id)}}">
+  <div class="form-group">
+    <label for="email" class="col-sm-2 control-label">邮箱 : </label>
+    <div class="col-sm-10">
+      <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+        {% for u in reminder_emails %}
+          <option value="{{u[1]}}">{{u[0]}}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="msg" class="col-sm-2 control-label">留言 : </label>
+    <div class="col-sm-10">
+      <textarea class="form-control bra-form-control" id="msg"
+      name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">操作 : </label>
+    <div class="col-sm-4">
+      {% if invoice_pay.pay_status == 1 and invoice.client_order.can_admin(g.user) %}
+        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">申请发票打款</button>
+      {% endif %}
+      {% if invoice_pay.pay_status == 2 and invoice.client_order.can_admin(g.user) %}
+        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">再次申请打款</button>
+      {% endif %}
+      {% if invoice_pay.pay_status == 2 and g.user.is_super_leader() %}
+        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="3">同意打款</button>
+      {% endif %}
+      {% if invoice_pay.pay_status == 3 and invoice.client_order.can_admin(g.user) %}
+        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="3">提醒财务打款</button>
+      {% endif %}
+    </div>
+    <div class="col-sm-6">
+      <!--<button class="btn btn-sm btn-info contract-submit " name="action" type="submit" value="10">留言</button>-->
+    </div>
+  </div>
+</form>
+{%- endmacro %}

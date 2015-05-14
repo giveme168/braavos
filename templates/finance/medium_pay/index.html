@@ -3,11 +3,12 @@
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3>申请中的媒体打款</h3>
+    <h3>{{title}}</h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>客户名称</th>
             <th>媒体总金额</th>
+            <th>收到发票总金额</th>
             <th>已打款发票金额</th>
             <th>申请中的打款金额</th>
             <th>投放媒体</th>
@@ -19,11 +20,12 @@
         <tr>
             <td><a href="{{url_for('finance_medium_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
             <td>{{order.mediums_money2}} 元</td>
+            <td>{{order.mediums_invoice_sum}} 元</td>
             <td>{{order.mediums_invoice_pass_sum}} 元</td>
             <td>{{order.mediums_invoice_apply_sum}} 元</td>
             <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
-            <td>{{order.get_medium_invoice_by_status(2) | length}}</td>
-            <td>{{order.get_medium_invoice_by_status(0) | length}}</td>
+            <td>{{order.get_medium_invoice_pay_by_status(3) | length}}</td>
+            <td>{{order.get_medium_invoice_pay_by_status(0) | length}}</td>
             <td><a href="{{url_for('finance_medium_pay.info', order_id=order.id)}}">查看</a></td>
         </tr>
         {% endfor %}

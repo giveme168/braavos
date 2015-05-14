@@ -22,6 +22,8 @@ finance_pay_bp = Blueprint(
 
 @finance_pay_bp.route('/', methods=['GET'])
 def index():
+    if not g.user.is_finance():
+        abort(404)
     merger_outsources = MergerOutSource.get_outsources_by_status(
         MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
     return tpl('/finance/pay/index.html', merger_outsources=merger_outsources)
@@ -29,6 +31,8 @@ def index():
 
 @finance_pay_bp.route('/<merger_id>/pass', methods=['GET'])
 def merger_outsources_pass(merger_id):
+    if not g.user.is_finance():
+        abort(404)
     type = request.values.get('type', '')
     if type == 'douban':
         merger = MergerDoubanOutSource.get(merger_id)
@@ -70,6 +74,8 @@ def merger_outsources_pass(merger_id):
 
 @finance_pay_bp.route('/douban', methods=['GET'])
 def douban_index():
+    if not g.user.is_finance():
+        abort(404)
     merger_outsources = MergerDoubanOutSource.get_outsources_by_status(
         MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
     return tpl('/finance/pay/douban_index.html', merger_outsources=merger_outsources)
@@ -77,6 +83,8 @@ def douban_index():
 
 @finance_pay_bp.route('/pass', methods=['GET'])
 def index_pass():
+    if not g.user.is_finance():
+        abort(404)
     type = request.values.get('type', '')
     if type == 'douban':
         merger_outsources = MergerDoubanOutSource.get_outsources_by_status(
@@ -108,6 +116,8 @@ def index_pass():
 
 @finance_pay_bp.route('/<order_id>/info', methods=['GET'])
 def info(order_id):
+    if not g.user.is_finance():
+        abort(404)
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
@@ -122,6 +132,8 @@ def info(order_id):
 
 @finance_pay_bp.route('/<order_id>/douban_info', methods=['GET'])
 def douban_info(order_id):
+    if not g.user.is_finance():
+        abort(404)
     order = DoubanOrder.get(order_id)
     if not order:
         abort(404)
@@ -136,6 +148,8 @@ def douban_info(order_id):
 
 @finance_pay_bp.route('/<outsource_id>/pay_num', methods=['POST'])
 def outsource_pay_num(outsource_id):
+    if not g.user.is_finance():
+        abort(404)
     type = request.values.get('type', '')
     if type == 'douban':
         outsource = DoubanOutSource.get(outsource_id)
@@ -169,6 +183,8 @@ def outsource_pay_num(outsource_id):
 
 @finance_pay_bp.route('/<outsource_id>/back', methods=['GET'])
 def outsource_back(outsource_id):
+    if not g.user.is_finance():
+        abort(404)
     type = request.values.get('type', '')
     if type == 'douban':
         outsource = DoubanOutSource.get(outsource_id)
@@ -221,6 +237,8 @@ def outsource_back(outsource_id):
 
 @finance_pay_bp.route('/<outsource_id>/pass', methods=['POST'])
 def outsource_pass(outsource_id):
+    if not g.user.is_finance():
+        abort(404)
     type = request.values.get('type', '')
     if type == 'douban':
         outsource = DoubanOutSource.get(outsource_id)
