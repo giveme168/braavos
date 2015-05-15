@@ -90,3 +90,13 @@ def back_money(order_id):
                 g.user, u"更新了回款信息，回款金额: %s; 回款时间: %s;" % (money, back_time), msg_channel=4)
         return redirect(url_for("finance_client_order_back_money.back_money", order_id=order.id))
     return tpl('/finance/client_order_back_money/info.html', order=order)
+
+
+@finance_client_order_back_money_bp.route('/order/<order_id>/back_money/<bid>/delete', methods=['GET'])
+def delete(order_id, bid):
+    order = ClientOrder.get(order_id)
+    bm = BackMoney.get(bid)
+    order.add_comment(g.user, u"删除了回款信息，回款金额: %s; 回款时间: %s;" % (bm.money, bm.back_time_cn), msg_channel=4)
+    bm.delete()
+    flash(u'删除成功!', 'success')
+    return redirect(url_for("finance_client_order_back_money.back_money", order_id=order.id))
