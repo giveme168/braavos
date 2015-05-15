@@ -42,11 +42,13 @@
                           <tr>
                             <th>回款时间</th>
                             <th>金额</th>
+                            <th>操作</th>
                           </tr>
                           {% for back in order.back_money_list %}
                           <tr>
                             <td>{{back.back_time_cn}}</td>
                             <td>{{back.money}}</td>
+                            <td><a href="{{url_for('finance_client_order_back_money.delete',order_id=order.id,bid=back.id)}}">删除</a></td>
                           </tr>
                           {% endfor %}
                         </table>
