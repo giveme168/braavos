@@ -90,6 +90,7 @@ def display_orders(orders, template, title, operaters):
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
+    status = request.args.get('status', '')
     page = int(request.args.get('p', 1))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
@@ -97,6 +98,15 @@ def display_orders(orders, template, title, operaters):
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [o for o in orders if search_info.lower() in o.search_info.lower()]
+    if status == 'apply':
+        orders = [o for o in orders if o.get_outsources_by_status(1) + o.get_outsources_by_status(5)]
+    if status == 'pass':
+        orders = [o for o in orders if o.get_outsources_by_status(2)]
+    if status == 'money':
+        orders = [o for o in orders if o.get_outsources_by_status(3)]
+    if status == 'pay':
+        orders = [o for o in orders if o.get_outsources_by_status(4)]
+
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
@@ -112,7 +122,7 @@ def display_orders(orders, template, title, operaters):
     return tpl(template, title=title, orders=orders,
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
-               orderby=orderby,
+               orderby=orderby, status=status,
                search_info=search_info, page=page, operaters=operaters,
                params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
                       (orderby, search_info, location_id, status_id))
