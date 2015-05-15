@@ -104,6 +104,8 @@
     $(function(){
         $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
         $("#orderby").trigger("chosen:updated");
+        $("#status option[value='{{status}}']").attr("selected","selected");  
+        $("#status").trigger("chosen:updated");
     })
 </script>
 {% endblock %}
