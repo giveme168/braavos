@@ -3,6 +3,7 @@
 {% macro all_items(orders) -%}
 <table class="table table-bordered">
     <tr>
+        <th>代理/直客</th>
         <th>名称</th>
         <th>合同金额</th>
         <th>已回款金额</th>
@@ -21,6 +22,7 @@
         {% else %}
         <tr>
         {% endif %}
+            <td>{{o.agent.name}}</td>
             <td><a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.id)}}">{{o.name}}</a></td>
             <td>{{o.money}}元</td>
             <td>{{o.back_moneys}}元</td>
