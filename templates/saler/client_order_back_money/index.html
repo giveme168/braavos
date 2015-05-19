@@ -68,6 +68,36 @@
               </div>
             </div>
           </div>
+          <div class="panel panel-default" id="non-invoice">
+              <div class="panel-heading">
+                  <h4 class="panel-title">
+                      <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 返点发票信息 </a>
+                  </h4>
+              </div>
+              <div id="collapse-invoice-0" class="panel-collapse collapse in">
+                  <div class="panel-body">
+                      
+                      <div class="col-md-12">
+                          <div class="col-md-21" style="">
+                              <table class="table table-bordered">
+                                <tr>
+                                  <th>开票时间</th>
+                                  <th>发票金额</th>
+                                  <th>发票号</th>
+                                </tr>
+                                {% for back in order.back_invoice_rebate_list %}
+                                <tr>
+                                  <td>{{back.back_time_cn}}</td>
+                                  <td>{{back.money}}</td>
+                                  <td>{{back.num}}</td>
+                                </tr>
+                                {% endfor %}
+                              </table>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
           <div class="panel panel-default" id="new-invoice" style="display:none;">
             <div class="panel-heading">
               <h4 class="panel-title">

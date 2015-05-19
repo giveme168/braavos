@@ -435,7 +435,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def back_moneys(self):
-        return sum([k.money for k in self.backmoneys])
+        return sum([k.money for k in self.backmoneys] + [k.money for k in self.back_invoice_rebate_list])
 
     @property
     def back_money_status_cn(self):
@@ -454,6 +454,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def back_money_list(self):
         return self.backmoneys
+
+    @property
+    def back_invoice_rebate_list(self):
+        return self.backinvoicerebates
 
     @property
     def jiafang_name(self):
@@ -549,6 +553,35 @@ class BackMoney(db.Model, BaseModelMixin):
 
     def __init__(self, client_order, money=0.0, create_time=None, back_time=None):
         self.client_order = client_order
+        self.money = money
+        self.create_time = create_time or datetime.date.today()
+        self.back_time = back_time or datetime.date.today()
+
+    @property
+    def back_time_cn(self):
+        return self.back_time.strftime(DATE_FORMAT)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
+
+class BackInvoiceRebate(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_client_order_back_invoice_rebate'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'ClientOrder', backref=db.backref('backinvoicerebates', lazy='dynamic'))
+    num = db.Column(db.String(100))  # 发票号
+    money = db.Column(db.Float())
+    back_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, client_order, num='', money=0.0, create_time=None, back_time=None):
+        self.client_order = client_order
+        self.num = num
         self.money = money
         self.create_time = create_time or datetime.date.today()
         self.back_time = back_time or datetime.date.today()
