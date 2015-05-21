@@ -563,6 +563,9 @@ by %s\n
                 {'money': '%.2f' % (pre_money * k['days']), 'month': k['month'], 'days': k['days']})
         return pre_month_money_data
 
+    def is_executive_report(self):
+        return ClientOrderExecutiveReport.query.filter_by(client_order=self).count() > 0
+
     def executive_report(self, now_year, monthes):
         count = len(self.agent_sales)
         moneys = []
@@ -573,7 +576,10 @@ by %s\n
                 pre_money = pre_report.money
             except:
                 pre_money = 0
-            moneys.append(pre_money / count or 0)
+            try:
+                moneys.append(pre_money / count)
+            except:
+                moneys.append(0)
         return moneys
 
 

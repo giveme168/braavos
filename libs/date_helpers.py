@@ -43,10 +43,9 @@ def get_after_year_month_by_Q(year, Q):
         year += 1
         Q = 'Q1'
     else:
-        Q = 'Q'+str(int(Q[1])+1)
+        Q = 'Q' + str(int(Q[1]) + 1)
     # return [str(year)+'-'+k+'-01' for k in check_Q_get_monthes(Q)]
     return year, check_Q_get_monthes(Q)
-
 
 
 ##########################
@@ -58,7 +57,7 @@ def get_last_year_month_by_Q(year, Q):
         year -= 1
         Q = 'Q4'
     else:
-        Q = 'Q'+str(int(Q[1])-1)
+        Q = 'Q' + str(int(Q[1]) - 1)
     # return [str(year)+'-'+k+'-01' for k in check_Q_get_monthes(Q)]
     return year, check_Q_get_monthes(Q)
 
@@ -73,9 +72,13 @@ def get_monthes_pre_days(start, end):
     while True:
         targetmonth = count + pre_month.month
         try:
-            p_month_date = pre_month.replace(
-                year=pre_month.year + int(targetmonth / 12), month=(targetmonth % 12))
-        except:
+            if targetmonth == 12:
+                p_month_date = pre_month.replace(
+                    year=pre_month.year, month=targetmonth)
+            else:
+                p_month_date = pre_month.replace(
+                    year=pre_month.year + int(targetmonth / 12), month=(targetmonth % 12))
+        except Exception, e:
             p_month_date = pre_month.replace(year=pre_month.year + int((targetmonth + 1) / 12),
                                              month=((targetmonth + 1) % 12), day = 1)
             p_month_date += datetime.timedelta(days=-1)
@@ -108,3 +111,6 @@ def get_month_last_date(date_time):
     else:
         month_end_dt = datetime.date(y, m + 1, 1) - datetime.timedelta(days=1)
     return datetime.datetime.strptime(month_end_dt.isoformat(), '%Y-%m-%d')
+
+#if __name__ == '__main__':
+#    print get_monthes_pre_days(datetime.datetime.strptime('2014-12-04','%Y-%m-%d'),datetime.datetime.strptime('2015-01-12','%Y-%m-%d'))
