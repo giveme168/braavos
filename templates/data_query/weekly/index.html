@@ -2,7 +2,7 @@
 {% block title %}月度订单金额{% endblock %}
 
 {% block main_box %}
-<div class="bra-main bra-box" style="width:2000px;">
+<div class="bra-main bra-box" style="width:85%;">
     <h3>媒体订单周报</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
@@ -67,8 +67,8 @@
                     <td>{{i.order.agent.name}}</td>
                     <td>{{i.order.campaign}}</td>
                     <td>{{i.order.client.industry_cn}}</td>
-                    <td>{{i.order.direct_sales_names}}</td>
-                    <td>{{i.order.agent_sales_names}}</td>
+                    <td>{% for u in i.order.direct %}{{u.name}}{% endfor %}</td>
+                    <td>{% for u in i.order.agent_sales %}{{u.name}}{% endfor %}</td>
                     <td>{{i.order.money}}</td>
                     <td>{{i.order.mediums_money2}}</td>
                     <td>0</td>
@@ -79,7 +79,7 @@
                     <td>{{k}}</td>
                     {% endfor %}
                     <td>{{i.order.resource_type_cn}}</td>
-                    <td>{{i.order.operater_names}}</td>
+                    <td>{% for o in i.order.operater_users %}{{o.name}}<br/>{% endfor %}</td>
                     <td>{{i.order.client_start}}</td>
                     <td>{{i.order.client_end}}</td>
                 </tr>
@@ -150,8 +150,8 @@
                     <td>{{i.order.agent.name}}</td>
                     <td>{{i.order.campaign}}</td>
                     <td>{{i.order.client.industry_cn}}</td>
-                    <td>{{i.order.agent_sales_names}}</td>
-                    <td>{{i.order.direct_sales_names}}</td>
+                    <td>{% for u in i.order.agent_sales %}{{u.name}}{% endfor %}</td>
+                    <td>{% for u in i.order.direct %}{{u.name}}{% endfor %}</td>
                     <td>{{i.order.money}}</td>
                     <td>{{i.order.mediums_money2}}</td>
                     <td>0</td>
@@ -162,7 +162,7 @@
                     <td>{{k}}</td>
                     {% endfor %}
                     <td>{{i.order.resource_type_cn}}</td>
-                    <td>{{i.order.operater_names}}</td>
+                    <td>{% for o in i.order.operater_users %}{{o.name}}<br/>{% endfor %}</td>
                     <td>{{i.order.client_start}}</td>
                     <td>{{i.order.client_end}}</td>
                 </tr>
