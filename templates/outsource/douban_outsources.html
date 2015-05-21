@@ -39,14 +39,14 @@
           {% if outsource_status == 0 and outsource.can_admin(g.user) %}
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="0">申请审批</button>
           {% elif outsource_status == 1 %}
-             {% if g.user.is_leader() or g.user.is_operater_leader() %}
+             {% if g.user.is_leader() %}
               <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="1">通过</button>
               <button class="btn btn-sm btn-warning outsource-btn" name="action" type="submit" value="2">不通过</button>
              {% endif %}
           {% elif outsource_status == 2 and outsource.can_admin(g.user) %}
           <!--<button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="3">申请打款</button>-->
           {% elif outsource_status == 5 %}
-             {% if g.user.is_super_leader() or g.user.is_operater_leader() %}
+             {% if g.user.is_super_leader() %}
               <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="1">通过</button>
               <button class="btn btn-sm btn-warning outsource-btn" name="action" type="submit" value="2">不通过</button>
              {% endif %}
