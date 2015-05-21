@@ -162,7 +162,6 @@ def apply_invoice(invoice_id):
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
     to_emails = list(set(emails + [x.email for x in to_users]))
-
     send_type = "saler"
     if action == 2:
         invoice_status = INVOICE_STATUS_APPLY
