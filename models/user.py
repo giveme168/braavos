@@ -266,6 +266,16 @@ class User(db.Model, BaseModelMixin):
                 'huangliang') >= 0 and k.team.type == TEAM_TYPE_SUPER_LEADER]
         return leader_emails
 
+    @classmethod
+    def get_agent_user_by_location(cls, location):
+        return [k for k in cls.all() if k.team.location == location
+                and k.team.type in [TEAM_TYPE_AGENT_SELLER, TEAM_TYPE_LEADER]]
+
+    @classmethod
+    def get_direct_user_by_location(cls, location):
+        return [k for k in cls.all() if k.team.location == location
+                and k.team.type in [TEAM_TYPE_DIRECT_SELLER, TEAM_TYPE_LEADER]]
+
 
 team_admins = db.Table('team_admin_users',
                        db.Column(

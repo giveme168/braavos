@@ -16,7 +16,7 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
                                  STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
                                  CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS)
-from models.client_order import ClientOrder
+from models.client_order import ClientOrder, ClientOrderExecutiveReport
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
@@ -110,6 +110,26 @@ def order_delete(order_id):
     flash(u"客户订单: %s-%s 已删除" % (order.client.name, order.campaign), 'danger')
     order.status = STATUS_DEL
     order.save()
+    return redirect(url_for("order.my_orders"))
+
+
+@order_bp.route('/order/<order_id>/executive_report', methods=['GET'])
+def executive_report(order_id):
+    order = ClientOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin() or not g.user.is_media() or not g.user.is_contract():
+        abort(402)
+    for k in order.pre_month_money():
+        try:
+            er = ClientOrderExecutiveReport.add(client_order=order,
+                                                money=k['money'],
+                                                month_day=k['month'],
+                                                days=k['days'],
+                                                create_time=None)
+            er.save()
+        except:
+            pass
     return redirect(url_for("order.my_orders"))
 
 
@@ -509,7 +529,8 @@ def display_orders(orders, title, status_id=-1):
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
-        orders = [o for o in orders if search_info.lower() in o.search_info.lower()]
+        orders = [
+            o for o in orders if search_info.lower() in o.search_info.lower()]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
@@ -525,7 +546,8 @@ def display_orders(orders, title, status_id=-1):
     if 'download' == request.args.get('action', ''):
         filename = (
             "%s-%s.xls" % (u"新媒体订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
-        xls = Excel().write_excle(download_excel_table_by_clientorders(orders.object_list))
+        xls = Excel().write_excle(
+            download_excel_table_by_clientorders(orders.object_list))
         response = get_download_response(xls, filename)
         return response
     else:
@@ -965,7 +987,8 @@ def douban_display_orders(orders, title, status_id=-1):
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
-        orders = [o for o in orders if search_info.lower() in o.search_info.lower()]
+        orders = [
+            o for o in orders if search_info.lower() in o.search_info.lower()]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
@@ -982,7 +1005,8 @@ def douban_display_orders(orders, title, status_id=-1):
     if 'download' == request.args.get('action', ''):
         filename = (
             "%s-%s.xls" % (u"直签豆瓣订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
-        xls = Excel().write_excle(download_excel_table_by_doubanorders(orders.object_list))
+        xls = Excel().write_excle(
+            download_excel_table_by_doubanorders(orders.object_list))
         response = get_download_response(xls, filename)
         return response
     else:
