@@ -11,6 +11,7 @@ from .user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
 from invoice import Invoice, MediumInvoice, MediumInvoicePay
 from libs.mail import mail
+from libs.date_helpers import get_monthes_pre_days
 
 
 CONTRACT_TYPE_NORMAL = 0
@@ -78,16 +79,22 @@ BACK_MONEY_STATUS_CN = {
 ECPM_CONTRACT_STATUS_LIST = [2, 4, 5]
 
 direct_sales = db.Table('client_order_direct_sales',
-                        db.Column('sale_id', db.Integer, db.ForeignKey('user.id')),
-                        db.Column('client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
+                        db.Column(
+                            'sale_id', db.Integer, db.ForeignKey('user.id')),
+                        db.Column(
+                            'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
                         )
 agent_sales = db.Table('client_order_agent_sales',
-                       db.Column('agent_sale_id', db.Integer, db.ForeignKey('user.id')),
-                       db.Column('client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
+                       db.Column(
+                           'agent_sale_id', db.Integer, db.ForeignKey('user.id')),
+                       db.Column(
+                           'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
                        )
 table_medium_orders = db.Table('client_order_medium_orders',
-                               db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id')),
-                               db.Column('client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
+                               db.Column(
+                                   'order_id', db.Integer, db.ForeignKey('bra_order.id')),
+                               db.Column(
+                                   'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
                                )
 
 
@@ -96,9 +103,11 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))  # 客户合同甲方
-    agent = db.relationship('Agent', backref=db.backref('client_orders', lazy='dynamic'))
+    agent = db.relationship(
+        'Agent', backref=db.backref('client_orders', lazy='dynamic'))
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'))  # 客户
-    client = db.relationship('Client', backref=db.backref('client_orders', lazy='dynamic'))
+    client = db.relationship(
+        'Client', backref=db.backref('client_orders', lazy='dynamic'))
     campaign = db.Column(db.String(100))  # 活动名称
 
     contract = db.Column(db.String(100))  # 客户合同号
@@ -117,7 +126,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_status = db.Column(db.Integer)  # 合同审批状态
     status = db.Column(db.Integer)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator = db.relationship('User', backref=db.backref('created_client_orders', lazy='dynamic'))
+    creator = db.relationship(
+        'User', backref=db.backref('created_client_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
     back_money_status = db.Column(db.Integer)
     contract_generate = True
@@ -227,12 +237,12 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def invoice_apply_sum(self):
         return sum([k.money for k in Invoice.query.filter_by(client_order_id=self.id)
-                   if k.invoice_status == 3])
+                    if k.invoice_status == 3])
 
     @property
     def invoice_pass_sum(self):
         return sum([k.money for k in Invoice.query.filter_by(client_order_id=self.id)
-                   if k.invoice_status == 0])
+                    if k.invoice_status == 0])
 
     @property
     def invoice_percent(self):
@@ -314,7 +324,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales + [self.creator] + self.operater_users
+        owner = self.direct_sales + self.agent_sales + \
+            [self.creator] + self.operater_users
         return user.is_admin() or user in owner
 
     @classmethod
@@ -538,6 +549,33 @@ by %s\n
             self.operater_names, str(msg), url, g.user.name)
         return body
 
+    def pre_month_money(self):
+        if self.money:
+            pre_money = float(self.money) / \
+                ((self.client_end - self.client_start).days + 1)
+        else:
+            pre_money = 0
+        pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
+                                              datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
+        pre_month_money_data = []
+        for k in pre_month_days:
+            pre_month_money_data.append(
+                {'money': '%.2f' % (pre_money * k['days']), 'month': k['month'], 'days': k['days']})
+        return pre_month_money_data
+
+    def executive_report(self, now_year, monthes):
+        count = len(self.agent_sales)
+        moneys = []
+        for j in monthes:
+            pre_report = ClientOrderExecutiveReport.query.filter_by(
+                client_order=self, month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
+            try:
+                pre_money = pre_report.money
+            except:
+                pre_money = 0
+            moneys.append(pre_money / count or 0)
+        return moneys
+
 
 class BackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_back_money'
@@ -593,6 +631,32 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime(DATE_FORMAT)
+
+
+class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_client_order_executive_report'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'ClientOrder', backref=db.backref('executive_reports', lazy='dynamic'))
+    money = db.Column(db.Float())
+    month_day = db.Column(db.DateTime)
+    days = db.Column(db.Integer)
+    create_time = db.Column(db.DateTime)
+    __table_args__ = (db.UniqueConstraint('client_order_id', 'month_day', name='_client_order_month_day'),)
+    __mapper_args__ = {'order_by': month_day.desc()}
+
+    def __init__(self, client_order, money=0, month_day=None, days=0, create_time=None):
+        self.client_order = client_order
+        self.money = money
+        self.month_day = month_day or datetime.date.today()
+        self.days = days
+        self.create_time = create_time or datetime.date.today()
+
+    @property
+    def month_cn(self):
+        return self.month_day.strftime('%Y-%m') + u'月'
 
 
 def contract_generator(framework, num):
