@@ -45,9 +45,7 @@
             {% for k in Q_monthes %}
             <th>{{k}}月执行额</th>
             {% endfor %}
-            <th>80%预估</th>
             <th>类型</th>
-            <th>AD format</th>
             <th>AE</th>
             <th>合同开始</th> 
             <th>合同结束</th> 
@@ -80,16 +78,14 @@
                     {% for k in i.moneys %}
                     <td>{{k}}</td>
                     {% endfor %}
-                    <td></td>
                     <td>{{i.order.resource_type_cn}}</td>
-                    <td></td>
                     <td>{{i.order.operater_names}}</td>
                     <td>{{i.order.client_start}}</td>
                     <td>{{i.order.client_end}}</td>
                 </tr>
             {% endfor %}
             <tr>
-                <td colspan="7">Total</td>
+                <td colspan="8">Total</td>
                 <td>{{k.total_order_money}}</td>
                 <td>{{k.total_order_mediums_money2}}</td>
                 <td>0</td>
@@ -99,13 +95,14 @@
                 <td>{{k.total_frist_month_money}}</td>
                 <td>{{k.total_second_month_money}}</td>
                 <td>{{k.total_third_month_money}}</td>
-                <td colspan="6"></td>
+                <td colspan="4"></td>
             </tr>
             <tr>
                 <td colspan="2">{{Q}}任务</td>
                 <td></td>
                 <td>预估完成率</td>
-                <td colspan="18"></td>
+                <td></td>
+                <td colspan="16"></td>
             </tr>
         {% endfor %}
     </table>
@@ -131,9 +128,7 @@
             {% for k in Q_monthes %}
             <th>{{k}}月执行额</th>
             {% endfor %}
-            <th>80%预估</th>
             <th>类型</th>
-            <th>AD format</th>
             <th>AE</th>
             <th>合同开始</th> 
             <th>合同结束</th> 
@@ -166,16 +161,14 @@
                     {% for k in i.moneys %}
                     <td>{{k}}</td>
                     {% endfor %}
-                    <td></td>
                     <td>{{i.order.resource_type_cn}}</td>
-                    <td></td>
                     <td>{{i.order.operater_names}}</td>
                     <td>{{i.order.client_start}}</td>
                     <td>{{i.order.client_end}}</td>
                 </tr>
             {% endfor %}
             <tr>
-                <td colspan="7">Total</td>
+                <td colspan="8">Total</td>
                 <td>{{k.total_order_money}}</td>
                 <td>{{k.total_order_mediums_money2}}</td>
                 <td>0</td>
@@ -185,13 +178,14 @@
                 <td>{{k.total_frist_month_money}}</td>
                 <td>{{k.total_second_month_money}}</td>
                 <td>{{k.total_third_month_money}}</td>
-                <td colspan="6"></td>
+                <td colspan="4"></td>
             </tr>
             <tr>
                 <td colspan="2">{{Q}}任务</td>
                 <td></td>
                 <td>预估完成率</td>
-                <td colspan="18"></td>
+                <td></td>
+                <td colspan="16"></td>
             </tr>
         {% endfor %}
     </table>

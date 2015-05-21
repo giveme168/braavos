@@ -164,6 +164,8 @@ def invoice_apply(sender, apply_context):
         url = mail.app.config['DOMAIN'] + order.finance_invoice_path()
     text = u"""%s
 订单: %s
+合同号: %s
+合同金额: %s
 链接地址: %s
 发票信息:
 %s
@@ -171,7 +173,7 @@ def invoice_apply(sender, apply_context):
     %s
 \n
 by %s
-""" % (apply_context['action_msg'], order.name, url, invoice_info, apply_context['msg'], g.user.name)
+""" % (apply_context['action_msg'], order.name, order.contract, order.money, url, invoice_info, apply_context['msg'], g.user.name)
     send_simple_mail(
         apply_context['title'], recipients=apply_context['to'], body=text)
 
