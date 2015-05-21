@@ -115,11 +115,14 @@ def order_delete(order_id):
 
 @order_bp.route('/order/<order_id>/executive_report', methods=['GET'])
 def executive_report(order_id):
+    rtype = request.values.get('rtype', '')
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
     if not g.user.is_super_admin() or not g.user.is_media() or not g.user.is_contract():
         abort(402)
+    if rtype:
+        ClientOrderExecutiveReport.query.filter_by(client_order=order).delete()
     for k in order.pre_month_money():
         try:
             er = ClientOrderExecutiveReport.add(client_order=order,
