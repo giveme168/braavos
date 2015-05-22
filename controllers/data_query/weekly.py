@@ -41,15 +41,15 @@ def index():
         huabei_agent_salers_orders += [
             u for u in k.agent_sales if u.team.location == TEAM_LOCATION_HUABEI]
         huabei_direct_salers_orders += [
-            u for u in k.direct_sales if u.team.location == TEAM_LOCATION_HUABEI]
+            u for u in k.direct_sales if u.team.location == TEAM_LOCATION_HUABEI and len(k.agent_sales) == 0]
         huanan_agent_salers_orders += [
             u for u in k.agent_sales if u.team.location == TEAM_LOCATION_HUANAN]
         huanan_direct_salers_orders += [
-            u for u in k.direct_sales if u.team.location == TEAM_LOCATION_HUANAN]
+            u for u in k.direct_sales if u.team.location == TEAM_LOCATION_HUANAN and len(k.agent_sales) == 0]
         huadong_agent_salers_order += [
             u for u in k.agent_sales if u.team.location == TEAM_LOCATION_HUADONG]
         huadong_direct_salers_order += [
-            u for u in k.direct_sales if u.team.location == TEAM_LOCATION_HUADONG]
+            u for u in k.direct_sales if u.team.location == TEAM_LOCATION_HUADONG and len(k.agent_sales) == 0]
     huabei_agent_salers_orders = list(set(huabei_agent_salers_orders))
     huabei_direct_salers_orders = list(set(huabei_direct_salers_orders))
     huanan_agent_salers_orders = list(set(huanan_agent_salers_orders))
@@ -60,7 +60,7 @@ def index():
               huanan_direct_salers_orders + huadong_agent_salers_order + huadong_direct_salers_order):
         k.orders = []
         for order in client_orders:
-            if order.have_owner(k):
+            if order.order_owner(k):
                 moneys = order.executive_report(now_year, Q_monthes)
                 now_Q_money = sum(moneys)
                 last_Q_money = sum(

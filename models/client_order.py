@@ -328,6 +328,11 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             [self.creator] + self.operater_users
         return user.is_admin() or user in owner
 
+    def order_owner(self, user):
+        """是否可以查看该订单"""
+        owner = self.direct_sales + self.agent_sales
+        return user.is_admin() or user in owner
+
     @classmethod
     def get_order_by_user(cls, user):
         """一个用户可以查看的所有订单"""
