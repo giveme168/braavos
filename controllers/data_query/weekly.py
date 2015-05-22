@@ -56,11 +56,10 @@ def index():
     huanan_direct_salers_orders = list(set(huanan_direct_salers_orders))
     huadong_agent_salers_order = list(set(huadong_agent_salers_order))
     huadong_direct_salers_order = list(set(huadong_direct_salers_order))
-    for k in (huabei_agent_salers_orders + huabei_direct_salers_orders + huanan_agent_salers_orders +
-              huanan_direct_salers_orders + huadong_agent_salers_order + huadong_direct_salers_order):
+    for k in huabei_agent_salers_orders + huanan_agent_salers_orders + huadong_agent_salers_order:
         k.orders = []
         for order in client_orders:
-            if order.order_owner(k):
+            if order.order_agent_owner(k):
                 moneys = order.executive_report(now_year, Q_monthes)
                 now_Q_money = sum(moneys)
                 last_Q_money = sum(
@@ -69,6 +68,21 @@ def index():
                     order.executive_report(after_year, after_month))
                 k.orders.append({'order': order, 'moneys': moneys, 'now_Q_money': now_Q_money,
                                  'after_Q_money': after_Q_money, 'last_Q_money': last_Q_money})
+
+    for k in huabei_direct_salers_orders + huanan_direct_salers_orders + huadong_direct_salers_order:
+        k.orders = []
+        for order in client_orders:
+            if order.order_direct_owner(k):
+                moneys = order.executive_report(now_year, Q_monthes)
+                now_Q_money = sum(moneys)
+                last_Q_money = sum(
+                    order.executive_report(last_year, last_month))
+                after_Q_money = sum(
+                    order.executive_report(after_year, after_month))
+                k.orders.append({'order': order, 'moneys': moneys, 'now_Q_money': now_Q_money,
+                                 'after_Q_money': after_Q_money, 'last_Q_money': last_Q_money})
+    for k in (huabei_direct_salers_orders + huanan_direct_salers_orders + huadong_direct_salers_order +
+              huabei_agent_salers_orders + huanan_agent_salers_orders + huadong_agent_salers_order):
         k.total_order_money = sum(
             [order['order'].money for order in k.orders])
         k.total_order_mediums_money2 = sum(
