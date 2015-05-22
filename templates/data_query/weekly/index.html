@@ -67,7 +67,7 @@
                     <td>{{i.order.agent.name}}</td>
                     <td>{{i.order.campaign}}</td>
                     <td>{{i.order.client.industry_cn}}</td>
-                    <td>{% for u in i.order.direct %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
+                    <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                     <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                     <td>{{i.order.money}}</td>
                     <td>{{i.order.mediums_money2}}</td>
@@ -107,7 +107,7 @@
         {% endfor %}
     </table>
     {% endif %}
-    {% if huabei_agent_salers_orders %}
+    {% if huabei_direct_salers_orders %}
     <table class="table table-bordered">
         <tr>
             <th>直客销售</th>
@@ -133,7 +133,7 @@
             <th>合同开始</th> 
             <th>合同结束</th> 
         </tr>
-        {% for k in huabei_agent_salers_orders %}
+        {% for k in huabei_direct_salers_orders %}
         <tr>
             <td rowspan="{{k.orders|length + 3}}">{{k.name}}</td>
             <td rowspan="{{k.orders|length + 1}}">确认</td>
@@ -151,7 +151,7 @@
                     <td>{{i.order.campaign}}</td>
                     <td>{{i.order.client.industry_cn}}</td>
                     <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                    <td>{% for u in i.order.direct %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
+                    <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                     <td>{{i.order.money}}</td>
                     <td>{{i.order.mediums_money2}}</td>
                     <td>0</td>
