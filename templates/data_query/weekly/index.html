@@ -2,7 +2,7 @@
 {% block title %}月度订单金额{% endblock %}
 
 {% block main_box %}
-<div class="bra-main bra-box" style="width:85%;">
+<div class="bra-main bra-box" style="width:2000px;">
     <h3>媒体订单周报</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
@@ -54,15 +54,15 @@
         <tr>
             <td rowspan="{{k.orders|length + 3}}">{{k.name}}</td>
             <td rowspan="{{k.orders|length + 1}}">确认</td>
+
         </tr>
             {% for i in k.orders %}
                 <tr>
-                    {% for mo in i.order.medium_orders %}   
                     <td> 
-                        {{mo.medium.name}}
-                        <br><br>
+                        {% for mo in i.order.medium_orders %}  
+                        {{mo.medium.name}}<br/></br/></br/>
+                        {% endfor %}
                     </td>
-                    {% endfor %}
                     <td>{{i.order.contract}}</td>
                     <td>{{i.order.agent.name}}</td>
                     <td>{{i.order.campaign}}</td>
@@ -70,7 +70,11 @@
                     <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                     <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                     <td>{{i.order.money}}</td>
-                    <td>{{i.order.mediums_money2}}</td>
+                    <td>
+                        {% for mo in i.order.medium_orders %}  
+                        {{mo.medium_money2}}<br/></br/></br/>
+                        {% endfor %}
+                    </td>
                     <td>0</td>
                     <td>{{i.now_Q_money}}</td>
                     <td>{{i.last_Q_money}}</td>
