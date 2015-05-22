@@ -72,7 +72,7 @@ def index():
     for k in huabei_direct_salers_orders + huanan_direct_salers_orders + huadong_direct_salers_order:
         k.orders = []
         for order in client_orders:
-            if order.order_direct_owner(k):
+            if order.order_direct_owner(k) and len(order.agent_sales) == 0:
                 moneys = order.executive_report(now_year, Q_monthes)
                 now_Q_money = sum(moneys)
                 last_Q_money = sum(
