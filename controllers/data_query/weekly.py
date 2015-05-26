@@ -46,7 +46,7 @@ def _get_salers_user_by_location(client_orders, location, type='agent'):
         else:
             salers += [u for u in k.direct_sales if u.team.location ==
                        location and len(k.agent_sales) == 0]
-    return salers
+    return list(set(salers))
 
 
 def _get_report_total(saler_orders, now_year, Q_monthes):
