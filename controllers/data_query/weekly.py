@@ -95,6 +95,7 @@ def index():
     now_year = request.values.get('year', '')
     now_Q = request.values.get('Q', '')
     medium_id = int(request.values.get('medium_id', 0))
+    location_id = int(request.values.get('location_id', 0))
     if not now_year and not now_Q:
         now_date = datetime.date.today()
         now_year = now_date.strftime('%Y')
@@ -120,20 +121,40 @@ def index():
     else:
         client_orders = [
             o for o in client_orders if g.user in o.direct_sales + o.agent_sales]
-
-    huabei_agent_salers = _get_salers_user_by_location(
-        client_orders, TEAM_LOCATION_HUABEI)
-    huabei_direct_salers = _get_salers_user_by_location(
-        client_orders, TEAM_LOCATION_HUABEI, 'direct')
-    huanan_agent_salers = _get_salers_user_by_location(
-        client_orders, TEAM_LOCATION_HUANAN)
-    huanan_direct_salers = _get_salers_user_by_location(
-        client_orders, TEAM_LOCATION_HUANAN, 'direct')
-    huadong_agent_salers = _get_salers_user_by_location(
-        client_orders, TEAM_LOCATION_HUADONG)
-    huadong_direct_salers = _get_salers_user_by_location(
-        client_orders, TEAM_LOCATION_HUADONG, 'direct')
-
+    huabei_agent_salers = []
+    huabei_direct_salers = []
+    huanan_agent_salers = []
+    huanan_direct_salers = []
+    huadong_agent_salers = []
+    huadong_direct_salers = []
+    if location_id == 0:
+        huabei_agent_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUABEI)
+        huabei_direct_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUABEI, 'direct')
+        huanan_agent_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUANAN)
+        huanan_direct_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUANAN, 'direct')
+        huadong_agent_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUADONG)
+        huadong_direct_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUADONG, 'direct')
+    elif location_id == 1:
+        huabei_agent_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUABEI)
+        huabei_direct_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUABEI, 'direct')
+    elif location_id == 2:
+        huadong_agent_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUADONG)
+        huadong_direct_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUADONG, 'direct')
+    elif location_id == 3:
+        huanan_agent_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUANAN)
+        huanan_direct_salers = _get_salers_user_by_location(
+            client_orders, TEAM_LOCATION_HUANAN, 'direct')
     huabei_agent_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, client_orders, now_year, now_Q, Q_monthes, 'agent')} for user in huabei_agent_salers]
     huabei_agent_salers_orders = _get_report_total(
@@ -167,4 +188,4 @@ def index():
                huadong_agent_salers_orders=huadong_agent_salers_orders,
                huadong_direct_salers_orders=huadong_direct_salers_orders,
                medium_id=medium_id, Q=now_Q, now_year=now_year,
-               Q_monthes=Q_monthes, mediums=Medium.all())
+               Q_monthes=Q_monthes, mediums=Medium.all(), location_id=location_id)
