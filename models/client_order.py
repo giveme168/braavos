@@ -582,7 +582,7 @@ by %s\n
         else:
             count = len(self.direct_sales)
         if user.team.location == 3:
-            count = len(set(self.agent_sales+self.direct_sales))
+            count = len(set(self.agent_sales + self.direct_sales))
         moneys = []
         for j in monthes:
             pre_report = ClientOrderExecutiveReport.query.filter_by(
