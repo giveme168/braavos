@@ -121,6 +121,12 @@ def index():
     else:
         client_orders = [
             o for o in client_orders if g.user in o.direct_sales + o.agent_sales]
+    huabei_agent_salers = []
+    huabei_direct_salers = []
+    huanan_agent_salers = []
+    huanan_direct_salers = []
+    huadong_agent_salers = []
+    huadong_direct_salers = []
     if location_id == 0:
         huabei_agent_salers = _get_salers_user_by_location(
             client_orders, TEAM_LOCATION_HUABEI)
@@ -139,29 +145,16 @@ def index():
             client_orders, TEAM_LOCATION_HUABEI)
         huabei_direct_salers = _get_salers_user_by_location(
             client_orders, TEAM_LOCATION_HUABEI, 'direct')
-        huanan_agent_salers = []
-        huanan_direct_salers = []
-        huadong_agent_salers = []
-        huadong_direct_salers = []
     elif location_id == 2:
-        huabei_agent_salers = []
-        huabei_direct_salers = []
-        huanan_agent_salers = []
-        huanan_direct_salers = []
         huadong_agent_salers = _get_salers_user_by_location(
             client_orders, TEAM_LOCATION_HUADONG)
         huadong_direct_salers = _get_salers_user_by_location(
             client_orders, TEAM_LOCATION_HUADONG, 'direct')
     elif location_id == 3:
-        huabei_agent_salers = []
-        huabei_direct_salers = []
         huanan_agent_salers = _get_salers_user_by_location(
             client_orders, TEAM_LOCATION_HUANAN)
         huanan_direct_salers = _get_salers_user_by_location(
             client_orders, TEAM_LOCATION_HUANAN, 'direct')
-        huadong_agent_salers = []
-        huadong_direct_salers = []
-
     huabei_agent_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, client_orders, now_year, now_Q, Q_monthes, 'agent')} for user in huabei_agent_salers]
     huabei_agent_salers_orders = _get_report_total(
