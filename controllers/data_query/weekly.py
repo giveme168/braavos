@@ -27,12 +27,12 @@ def _get_report_by_user(user, client_orders, now_year, now_Q, Q_monthes, type='a
             if not (order.order_direct_owner(user) and len(order.agent_sales) == 0):
                 order = None
         if order:
-            moneys = order.executive_report(now_year, Q_monthes, type)
+            moneys = order.executive_report(user, now_year, Q_monthes, type)
             now_Q_money = sum(moneys)
             last_Q_money = sum(
-                order.executive_report(last_year, last_month, type))
+                order.executive_report(user, last_year, last_month, type))
             after_Q_money = sum(
-                order.executive_report(after_year, after_month, type))
+                order.executive_report(user, after_year, after_month, type))
             orders.append({'order': order, 'moneys': moneys, 'now_Q_money': now_Q_money,
                            'after_Q_money': after_Q_money, 'last_Q_money': last_Q_money})
     return orders

@@ -576,11 +576,13 @@ by %s\n
     def is_executive_report(self):
         return ClientOrderExecutiveReport.query.filter_by(client_order=self).count() > 0
 
-    def executive_report(self, now_year, monthes, sale_type):
+    def executive_report(self, user, now_year, monthes, sale_type):
         if sale_type == 'agent':
             count = len(self.agent_sales)
         else:
             count = len(self.direct_sales)
+        if user.team.location == 3:
+            count = len(set(self.agent_sales+self.direct_sales))
         moneys = []
         for j in monthes:
             pre_report = ClientOrderExecutiveReport.query.filter_by(
