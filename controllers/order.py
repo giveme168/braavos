@@ -10,7 +10,7 @@ from forms.order import (ClientOrderForm, MediumOrderForm,
 
 from models.client import Client, Group, Agent
 from models.medium import Medium
-from models.order import Order
+from models.order import Order, MediumOrderExecutiveReport
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
@@ -123,6 +123,7 @@ def executive_report(order_id):
         abort(402)
     if rtype:
         ClientOrderExecutiveReport.query.filter_by(client_order=order).delete()
+        MediumOrderExecutiveReport.query.filter_by(client_order=order).delete()
     for k in order.pre_month_money():
         try:
             er = ClientOrderExecutiveReport.add(client_order=order,
@@ -133,6 +134,20 @@ def executive_report(order_id):
             er.save()
         except:
             pass
+    for k in order.medium_orders:
+        for i in k.pre_month_medium_orders_money():
+            try:
+                er = MediumOrderExecutiveReport.add(client_order=order,
+                                                    order=k,
+                                                    medium_money=i['medium_money'],
+                                                    medium_money2=i['medium_money2'],
+                                                    sale_money=i['sale_money'],
+                                                    month_day=i['month'],
+                                                    days=i['days'],
+                                                    create_time=None)
+                er.save()
+            except:
+                pass
     return redirect(url_for("order.my_orders"))
 
 

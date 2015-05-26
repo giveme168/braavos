@@ -18,6 +18,7 @@ from models.excel import (
     EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
     EXCEL_DATA_TYPE_NUM, COLOUR_RED, COLOUR_LIGHT_GRAY)
 from consts import DATE_FORMAT
+from libs.date_helpers import get_monthes_pre_days
 
 
 ORDER_TYPE_NORMAL = 0         # 标准广告
@@ -54,16 +55,22 @@ HEADER_BEFORE_DATE = [u"售卖类型", u"预订状态", u"展示位置", u"广�
 HEADER_AFTER_DATE = [u"总预订量", u"刊例单价", u"刊例总价", u"折扣", u"净价"]
 
 operater_users = db.Table('order_users_operater',
-                          db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                          db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id'))
+                          db.Column(
+                              'user_id', db.Integer, db.ForeignKey('user.id')),
+                          db.Column(
+                              'order_id', db.Integer, db.ForeignKey('bra_order.id'))
                           )
 designer_users = db.Table('order_users_designerer',
-                          db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                          db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id'))
+                          db.Column(
+                              'user_id', db.Integer, db.ForeignKey('user.id')),
+                          db.Column(
+                              'order_id', db.Integer, db.ForeignKey('bra_order.id'))
                           )
 planer_users = db.Table('order_users_planer',
-                        db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-                        db.Column('order_id', db.Integer, db.ForeignKey('bra_order.id'))
+                        db.Column(
+                            'user_id', db.Integer, db.ForeignKey('user.id')),
+                        db.Column(
+                            'order_id', db.Integer, db.ForeignKey('bra_order.id'))
                         )
 
 
@@ -73,10 +80,12 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     id = db.Column(db.Integer, primary_key=True)
     campaign = db.Column(db.String(100))  # 活动名称
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 投放媒体
-    medium = db.relationship('Medium', backref=db.backref('orders', lazy='dynamic'))
+    medium = db.relationship(
+        'Medium', backref=db.backref('orders', lazy='dynamic'))
     order_type = db.Column(db.Integer)  # 订单类型: CPM
 
-    client_orders = db.relationship('ClientOrder', secondary=table_medium_orders)
+    client_orders = db.relationship(
+        'ClientOrder', secondary=table_medium_orders)
 
     medium_contract = db.Column(db.String(100))  # 媒体合同号
     medium_money = db.Column(db.Integer)  # 下单金额
@@ -93,7 +102,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     planers = db.relationship('User', secondary=planer_users)
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator = db.relationship('User', backref=db.backref('created_orders', lazy='dynamic'))
+    creator = db.relationship(
+        'User', backref=db.backref('created_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
 
     contract_generate = True
@@ -269,14 +279,17 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def pre_items(self):
         """预下单的订单项"""
-        sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
+        sorted_items = sorted(
+            self.items, lambda x, y: x.create_time > y.create_time)
         return filter(
-            lambda x: x.item_status in [ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY],
+            lambda x: x.item_status in [
+                ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY],
             sorted_items)
 
     def items_by_status(self, status):
         """某个状态的订单项"""
-        sorted_items = sorted(self.items, lambda x, y: x.create_time > y.create_time)
+        sorted_items = sorted(
+            self.items, lambda x, y: x.create_time > y.create_time)
         return filter(lambda x: x.item_status == status, sorted_items)
 
     def items_status_num(self, num):
@@ -326,7 +339,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ITEM_STATUS_CN[status]
 
     def special_sale_in_position(self, position):
-        special_sale_items = [i for i in self.items if i.position == position and i.special_sale]
+        special_sale_items = [
+            i for i in self.items if i.position == position and i.special_sale]
         return len(special_sale_items)
 
     def delete(self):
@@ -400,22 +414,26 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                             temp_row.append(
                                 ExcelCellItem(EXCEL_DATA_TYPE_NUM, item.schedule_by_date(d).num, item_weekend_type))
                         else:
-                            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, " ", item_weekend_type))
+                            temp_row.append(
+                                ExcelCellItem(EXCEL_DATA_TYPE_NUM, " ", item_weekend_type))
                     else:
                         if item.schedule_by_date(d):
                             temp_row.append(
                                 ExcelCellItem(EXCEL_DATA_TYPE_NUM, item.schedule_by_date(d).num, item_type))
                         else:
-                            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, " ", item_type))
+                            temp_row.append(
+                                ExcelCellItem(EXCEL_DATA_TYPE_NUM, " ", item_type))
                 formula = 'SUM(%s:%s)' % (
-                    Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, data_start_col),
+                    Utils.rowcol_to_cell(
+                        data_start_row + len(excel_table) - 2, data_start_col),
                     Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, len(temp_row) - 1))
                 temp_row.append(
                     ExcelCellItem(EXCEL_DATA_TYPE_FORMULA, formula, item_type))  # 总预订量
                 temp_row.append(
                     ExcelCellItem(EXCEL_DATA_TYPE_NUM, item.position.price, item_type))  # 刊例单价
                 formula = '%s*%s' % (
-                    Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, len(temp_row) - 2),
+                    Utils.rowcol_to_cell(
+                        data_start_row + len(excel_table) - 2, len(temp_row) - 2),
                     Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, len(temp_row) - 1))
                 temp_row.append(
                     ExcelCellItem(EXCEL_DATA_TYPE_FORMULA, formula, item_type))  # 刊例总价
@@ -429,7 +447,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                     temp_row.append(
                         ExcelCellItem(EXCEL_DATA_TYPE_NUM, float(self.discount) / 100, StyleTypes.discount))
                 formula = '%s*%s' % (
-                    Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, len(temp_row) - 2),
+                    Utils.rowcol_to_cell(
+                        data_start_row + len(excel_table) - 2, len(temp_row) - 2),
                     Utils.rowcol_to_cell(data_start_row + len(excel_table) - 2, len(temp_row) - 1))
                 temp_row.append(
                     ExcelCellItem(EXCEL_DATA_TYPE_FORMULA, formula, item_type))  # 净价
@@ -465,16 +484,109 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         excel_table.append(temp_row)
         return excel_table
 
+    def pre_month_medium_orders_money(self):
+        if self.medium_money2:
+            pre_medium_money2 = float(self.medium_money2) / \
+                ((self.medium_end - self.medium_start).days + 1)
+        else:
+            pre_medium_money2 = 0
+
+        if self.medium_money:
+            pre_medium_money = float(self.medium_money) / \
+                ((self.medium_end - self.medium_start).days + 1)
+        else:
+            pre_medium_money = 0
+
+        if self.sale_money:
+            pre_sale_money = float(self.sale_money) / \
+                ((self.medium_end - self.medium_start).days + 1)
+        else:
+            pre_sale_money = 0
+
+        pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
+                                              datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
+        pre_month_money_data = []
+        for k in pre_month_days:
+            pre_month_money_data.append(
+                {'medium_money': '%.2f' % (pre_medium_money * k['days']),
+                 'medium_money2': '%.2f' % (pre_medium_money2 * k['days']),
+                 'sale_money': '%.2f' % (pre_sale_money * k['days']),
+                 'month': k['month'], 'days': k['days']})
+        return pre_month_money_data
+
+    def pre_month_medium_saler_money(self):
+        if self.sale_money:
+            pre_money = float(self.sale_money) / \
+                ((self.medium_end - self.medium_start).days + 1)
+        else:
+            pre_money = 0
+        pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
+                                              datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
+        pre_month_money_data = []
+        for k in pre_month_days:
+            pre_month_money_data.append(
+                {'money': '%.2f' % (pre_money * k['days']), 'month': k['month'], 'days': k['days']})
+        return pre_month_money_data
+
+    def get_executive_report_medium_money_by_month(self, year, month):
+        day_month = datetime.datetime.strptime(year + '-' + month, '%Y-%m')
+        executive_report = MediumOrderExecutiveReport.query.filter_by(
+            order=self, month_day=day_month).first()
+        if executive_report:
+            return {'medium_money': executive_report.medium_money, 'medium_money2': executive_report.medium_money2,
+                    'sale_money': executive_report.sale_money}
+        else:
+            return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
+
+
+class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_medium_order_executive_report'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'ClientOrder', backref=db.backref('order_executive_reports', lazy='dynamic'))
+    order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_order.id'))  # 客户合同
+    order = db.relationship(
+        'Order', backref=db.backref('medium_executive_reports', lazy='dynamic'))
+    medium_money = db.Column(db.Float())
+    medium_money2 = db.Column(db.Float())
+    sale_money = db.Column(db.Float())
+    month_day = db.Column(db.DateTime)
+    days = db.Column(db.Integer)
+    create_time = db.Column(db.DateTime)
+    __table_args__ = (db.UniqueConstraint(
+        'client_order_id', 'order_id', 'month_day', name='_medium_order_month_day'),)
+    __mapper_args__ = {'order_by': month_day.desc()}
+
+    def __init__(self, client_order, order, medium_money=0, medium_money2=0,
+                 sale_money=0, month_day=None, days=0, create_time=None):
+        self.client_order = client_order
+        self.order = order
+        self.medium_money = medium_money
+        self.medium_money2 = medium_money2
+        self.sale_money = sale_money
+        self.month_day = month_day or datetime.date.today()
+        self.days = days
+        self.create_time = create_time or datetime.date.today()
+
+    @property
+    def month_cn(self):
+        return self.month_day.strftime('%Y-%m') + u'月'
+
 
 class StyleTypes(object):
-        """The Style of the Excel's unit"""
-        base = StyleFactory().style
-        header = StyleFactory().bold().style
-        gift = StyleFactory().font_colour(COLOUR_RED).style
-        base_weekend = StyleFactory().bg_colour(COLOUR_LIGHT_GRAY).style
-        gift_weekend = StyleFactory().font_colour(COLOUR_RED).bg_colour(COLOUR_LIGHT_GRAY).style
-        discount = StyleFactory().font_num('0%').style
-        gift_discount = StyleFactory().font_colour(COLOUR_RED).font_num('0%').style
+
+    """The Style of the Excel's unit"""
+    base = StyleFactory().style
+    header = StyleFactory().bold().style
+    gift = StyleFactory().font_colour(COLOUR_RED).style
+    base_weekend = StyleFactory().bg_colour(COLOUR_LIGHT_GRAY).style
+    gift_weekend = StyleFactory().font_colour(
+        COLOUR_RED).bg_colour(COLOUR_LIGHT_GRAY).style
+    discount = StyleFactory().font_num('0%').style
+    gift_discount = StyleFactory().font_colour(COLOUR_RED).font_num('0%').style
 
 
 def items_info_by_items(items):
@@ -497,7 +609,8 @@ def items_info_by_items(items):
         ret['months'] = {}
     sale_type_items = []
     for v, sale_type_cn in SALE_TYPE_CN.items():
-        sale_type_items.append((v, SALE_TYPE_CN[v], [x for x in items if x.sale_type == v]))
+        sale_type_items.append(
+            (v, SALE_TYPE_CN[v], [x for x in items if x.sale_type == v]))
     ret['items'] = sale_type_items
     return ret
 

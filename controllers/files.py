@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from flask import Blueprint, request, current_app as app, abort, g, render_template as tpl
+from flask import Blueprint, request, current_app as app, abort, g, url_for, render_template as tpl
 from flask import jsonify, send_from_directory, redirect, flash
 
 from models.order import Order
@@ -10,6 +10,7 @@ from models.associated_douban_order import AssociatedDoubanOrder
 from models.user import User
 from libs.files import files_set, attachment_set
 from libs.signals import contract_apply_signal
+from models.attachment import Attachment
 
 
 files_bp = Blueprint('files', __name__, template_folder='../templates/files')
@@ -74,6 +75,24 @@ def client_contract_upload():
     order_id = request.values.get('order')
     order = ClientOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_CONTRACT)
+
+
+@files_bp.route('/attachment/<order_id>/<aid>/delete', methods=['GET'])
+def attachment_delete(order_id, aid):
+    attachment = Attachment.get(aid)
+    target_type = attachment.target_type
+    attachment.delete()
+    flash(u'删除成功!', 'success')
+    if target_type == 'ClientOrder':
+        return redirect(url_for("files.client_order_files", order_id=order_id))
+    elif target_type == 'Order':
+        return redirect(url_for("files.medium_order_files", order_id=order_id))
+    elif target_type == 'DoubanOrder':
+        return redirect(url_for("files.douban_order_files", order_id=order_id))
+    elif target_type == 'AssociatedDoubanOrder':
+        return redirect(url_for("files.associated_douban_order_files", order_id=order_id))
+    elif target_type == 'FrameworkOrder':
+        return redirect(url_for("files.framework_order_files", order_id=order_id))
 
 
 @files_bp.route('/client/schedule/upload', methods=['POST'])
