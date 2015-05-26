@@ -331,12 +331,12 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def order_agent_owner(self, user):
         """是否可以查看该订单"""
         owner = self.agent_sales
-        return user.is_admin() or user in owner
+        return user in owner
 
     def order_direct_owner(self, user):
         """是否可以查看该订单"""
         owner = self.direct_sales
-        return user.is_admin() or user in owner
+        return user in owner
 
     @classmethod
     def get_order_by_user(cls, user):
@@ -576,8 +576,11 @@ by %s\n
     def is_executive_report(self):
         return ClientOrderExecutiveReport.query.filter_by(client_order=self).count() > 0
 
-    def executive_report(self, now_year, monthes):
-        count = len(self.agent_sales)
+    def executive_report(self, now_year, monthes, sale_type):
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+        else:
+            count = len(self.direct_sales)
         moneys = []
         for j in monthes:
             pre_report = ClientOrderExecutiveReport.query.filter_by(
@@ -591,6 +594,19 @@ by %s\n
             except:
                 moneys.append(0)
         return moneys
+
+    def get_executive_report_medium_money_by_month(self, year, month):
+        from models.order import MediumOrderExecutiveReport
+        day_month = datetime.datetime.strptime(year + '-' + month, '%Y-%m')
+        executive_reports = MediumOrderExecutiveReport.query.filter_by(
+            client_order=self, month_day=day_month)
+        if executive_reports:
+            medium_money = sum([k.medium_money for k in executive_reports])
+            medium_money2 = sum([k.medium_money2 for k in executive_reports])
+            sale_money = sum([k.sale_money for k in executive_reports])
+            return {'medium_money': medium_money, 'medium_money2': medium_money2, 'sale_money': sale_money}
+        else:
+            return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
 
 
 class BackMoney(db.Model, BaseModelMixin):
@@ -660,7 +676,8 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
     month_day = db.Column(db.DateTime)
     days = db.Column(db.Integer)
     create_time = db.Column(db.DateTime)
-    __table_args__ = (db.UniqueConstraint('client_order_id', 'month_day', name='_client_order_month_day'),)
+    __table_args__ = (db.UniqueConstraint(
+        'client_order_id', 'month_day', name='_client_order_month_day'),)
     __mapper_args__ = {'order_by': month_day.desc()}
 
     def __init__(self, client_order, money=0, month_day=None, days=0, create_time=None):

@@ -1,8 +1,207 @@
 {% extends "/data_query/data_query_base.html" %}
 {% block title %}月度订单金额{% endblock %}
+{% macro all_items(saler_orders, type) -%}
+<table class="table table-bordered">
+    <tr>
+        {% if type == 'agent' %}
+        <th>渠道销售</th>
+        {% else %}
+        <th>直客销售</th>
+        {% endif %}
+        <th>状态</th>
+        <th>客户名称</th>
+        <th>合同号（代理下单号）</th>
+        <th>代理简称</th>
+        <th>项目名称</th>
+        <th>行业</th>
+        <th>直客销售</th>
+        <th>渠道销售</th>
+        <th>合同金额</th>
+        <th>媒体总金额</th>
+        <th>投放媒体</th>
+        <th>媒体金额</th>
+        {% for k in Q_monthes %}
+        <th>媒体{{k}}月售卖金额</th>
+        {% endfor %}
+        {% for k in Q_monthes %}
+        <th>媒体{{k}}月媒体金额</th>
+        {% endfor %}
+        {% for k in Q_monthes %}
+        <th>媒体{{k}}金额差</th>
+        {% endfor %}
+        <th>本季度确认额</th>
+        <th>本季度执行额</th>
+        <th>上季度执行额</th>
+        <th>下季度执行额</th>
+        {% for k in Q_monthes %}
+        <th>{{k}}月执行额</th>
+        {% endfor %}
+        <th>类型</th>
+        <th>AE</th>
+        <th>合同开始</th> 
+        <th>合同结束</th> 
+    </tr>
+    {% for k in saler_orders %}
+    {% if k.orders %}
+    <tr>
+        <td rowspan="{{k.orders|length + 3}}">{{k.user.name}}</td>
+        <td rowspan="{{k.orders|length + 1}}">确认</td>
 
+    </tr>
+        {% for i in k.orders %}
+            <tr>
+                <td>{{i.order.client.name}}</td>
+                <td>{{i.order.contract}}</td>
+                <td>{{i.order.agent.name}}</td>
+                <td>{{i.order.campaign}}</td>
+                <td>{{i.order.client.industry_cn}}</td>
+                <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
+                <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
+                <td>{{i.order.money}}</td>
+                <td>{{i.order.mediums_money2}}</td>
+                <td> 
+                    {% for mo in i.order.medium_orders %}  
+                    {{mo.medium.name}}<br/></br/></br/>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for mo in i.order.medium_orders %}  
+                    {{mo.medium_money2}}<br/></br/></br/>
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for mo in i.order.medium_orders %} 
+                        {% for k in Q_monthes %}
+                            {% if loop.index == 1 %}
+                                {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money}}<br/></br/></br/>
+                            {% endif %}
+                        {% endfor %} 
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for mo in i.order.medium_orders %}  
+                    {% for k in Q_monthes %}
+                        {% if loop.index == 2 %}
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money}}<br/></br/></br/>
+                        {% endif %}
+                    {% endfor %} 
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for mo in i.order.medium_orders %}  
+                    {% for k in Q_monthes %}
+                        {% if loop.index == 3 %}
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money}}<br/></br/></br/>
+                        {% endif %}
+                    {% endfor %} 
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for mo in i.order.medium_orders %} 
+                        {% for k in Q_monthes %}
+                            {% if loop.index == 1 %}
+                                {{mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                            {% endif %}
+                        {% endfor %} 
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for mo in i.order.medium_orders %}  
+                    {% for k in Q_monthes %}
+                        {% if loop.index == 2 %}
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                        {% endif %}
+                    {% endfor %} 
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for mo in i.order.medium_orders %}  
+                    {% for k in Q_monthes %}
+                        {% if loop.index == 3 %}
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                        {% endif %}
+                    {% endfor %} 
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for mo in i.order.medium_orders %} 
+                        {% for k in Q_monthes %}
+                            {% if loop.index == 1 %}
+                                {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                            {% endif %}
+                        {% endfor %} 
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for mo in i.order.medium_orders %}  
+                    {% for k in Q_monthes %}
+                        {% if loop.index == 2 %}
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                        {% endif %}
+                    {% endfor %} 
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for mo in i.order.medium_orders %}  
+                    {% for k in Q_monthes %}
+                        {% if loop.index == 3 %}
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                        {% endif %}
+                    {% endfor %} 
+                    {% endfor %}
+                </td>
+                <td></td>
+                <td>{{i.now_Q_money}}</td>
+                <td>{{i.last_Q_money}}</td>
+                <td>{{i.after_Q_money}}</td>
+                {% for k in i.moneys %}
+                <td>{{k}}</td>
+                {% endfor %}
+                <td>{{i.order.resource_type_cn}}</td>
+                <td>{% for o in i.order.operater_users %}{{o.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
+                <td>{{i.order.client_start}}</td>
+                <td>{{i.order.client_end}}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="8">Total</td>
+            <td>{{k.total_order_money}}</td>
+            <td>{{k.total_order_mediums_money2}}</td>
+            <td></td>
+            <td>{{k.total_order_mediums_money2}}</td>
+            <td>{{k.total_frist_saler_money_by_month}}</td>
+            <td>{{k.total_second_saler_money_by_month}}</td>
+            <td>{{k.total_third_saler_money_by_month}}</td>
+
+            <td>{{k.total_frist_medium_money2_by_month}}</td>
+            <td>{{k.total_second_medium_money2_by_month}}</td>
+            <td>{{k.total_third_medium_money2_by_month}}</td>
+
+            <td>{{k.total_frist_saler_money_by_month - k.total_frist_medium_money2_by_month}}</td>
+            <td>{{k.total_second_saler_money_by_month - k.total_second_medium_money2_by_month}}</td>
+            <td>{{k.total_third_saler_money_by_month - k.total_third_medium_money2_by_month}}</td>
+            <td></td>
+            <td>{{k.total_now_Q_money}}</td>
+            <td>{{k.total_last_Q_money}}</td>
+            <td>{{k.total_after_Q_money}}</td>
+            <td>{{k.total_frist_month_money}}</td>
+            <td>{{k.total_second_month_money}}</td>
+            <td>{{k.total_third_month_money}}</td>
+            <td colspan="4"></td>
+        </tr>
+        <tr>
+            <td colspan="2">{{Q}}任务</td>
+            <td></td>
+            <td colspan="2">预估完成率</td>
+            <td></td>
+            <td colspan="26"></td>
+        </tr>
+    {% endif %}
+    {% endfor %}
+</table>
+{%- endmacro %}
 {% block main_box %}
-<div class="bra-main bra-box" style="width:2000px;">
+<div class="bra-main bra-box" style="width:2200px;">
     <h3>媒体订单周报</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
@@ -19,180 +218,32 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="form-group">
+            <select class="form-control" id="medium_id" name="medium_id" placeholder="选择媒体">
+                <option value='0'>所有媒体</option>
+                {% for medium in mediums %}
+                    <option value="{{medium.id}}">{{medium.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
         <input type="submit" value="查询" class="btn btn-sm btn-info" >
         </form>
     </div>
     <br>
+    {% if huabei_agent_salers_orders or huabei_direct_salers_orders %}
     <h4>华北区</h4>
-    {% if huabei_agent_salers_orders %}
-    <table class="table table-bordered">
-        <tr>
-            <th>渠道销售</th>
-            <th>状态</th>
-            <th>投放媒体</th>
-            <th>合同号（代理下单号）</th>
-            <th>代理简称</th>
-            <th>项目名称</th>
-            <th>行业</th>
-            <th>直客销售</th>
-            <th>渠道销售</th>
-            <th>合同金额</th>
-            <th>媒体金额</th>
-            <th>本季度确认额</th>
-            <th>本季度执行额</th>
-            <th>上季度执行额</th>
-            <th>下季度执行额</th>
-            {% for k in Q_monthes %}
-            <th>{{k}}月执行额</th>
-            {% endfor %}
-            <th>类型</th>
-            <th>AE</th>
-            <th>合同开始</th> 
-            <th>合同结束</th> 
-        </tr>
-        {% for k in huabei_agent_salers_orders %}
-        <tr>
-            <td rowspan="{{k.orders|length + 3}}">{{k.name}}</td>
-            <td rowspan="{{k.orders|length + 1}}">确认</td>
-
-        </tr>
-            {% for i in k.orders %}
-                <tr>
-                    <td> 
-                        {% for mo in i.order.medium_orders %}  
-                        {{mo.medium.name}}<br/></br/></br/>
-                        {% endfor %}
-                    </td>
-                    <td>{{i.order.contract}}</td>
-                    <td>{{i.order.agent.name}}</td>
-                    <td>{{i.order.campaign}}</td>
-                    <td>{{i.order.client.industry_cn}}</td>
-                    <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                    <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                    <td>{{i.order.money}}</td>
-                    <td>
-                        {% for mo in i.order.medium_orders %}  
-                        {{mo.medium_money2}}<br/></br/></br/>
-                        {% endfor %}
-                    </td>
-                    <td>0</td>
-                    <td>{{i.now_Q_money}}</td>
-                    <td>{{i.last_Q_money}}</td>
-                    <td>{{i.after_Q_money}}</td>
-                    {% for k in i.moneys %}
-                    <td>{{k}}</td>
-                    {% endfor %}
-                    <td>{{i.order.resource_type_cn}}</td>
-                    <td>{% for o in i.order.operater_users %}{{o.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                    <td>{{i.order.client_start}}</td>
-                    <td>{{i.order.client_end}}</td>
-                </tr>
-            {% endfor %}
-            <tr>
-                <td colspan="8">Total</td>
-                <td>{{k.total_order_money}}</td>
-                <td>{{k.total_order_mediums_money2}}</td>
-                <td>0</td>
-                <td>{{k.total_now_Q_money}}</td>
-                <td>{{k.total_last_Q_money}}</td>
-                <td>{{k.total_after_Q_money}}</td>
-                <td>{{k.total_frist_month_money}}</td>
-                <td>{{k.total_second_month_money}}</td>
-                <td>{{k.total_third_month_money}}</td>
-                <td colspan="4"></td>
-            </tr>
-            <tr>
-                <td colspan="2">{{Q}}任务</td>
-                <td></td>
-                <td>预估完成率</td>
-                <td></td>
-                <td colspan="16"></td>
-            </tr>
-        {% endfor %}
-    </table>
+    {{ all_items(huabei_agent_salers_orders, 'agent') }}
+    {{ all_items(huabei_direct_salers_orders, 'direct')}}
     {% endif %}
-    {% if huabei_direct_salers_orders %}
-    <table class="table table-bordered">
-        <tr>
-            <th>直客销售</th>
-            <th>状态</th>
-            <th>投放媒体</th>
-            <th>合同号（代理下单号）</th>
-            <th>代理简称</th>
-            <th>项目名称</th>
-            <th>行业</th>
-            <th>渠道销售</th>
-            <th>直客销售</th>
-            <th>合同金额</th>
-            <th>媒体金额</th>
-            <th>本季度确认额</th>
-            <th>本季度执行额</th>
-            <th>上季度执行额</th>
-            <th>下季度执行额</th>
-            {% for k in Q_monthes %}
-            <th>{{k}}月执行额</th>
-            {% endfor %}
-            <th>类型</th>
-            <th>AE</th>
-            <th>合同开始</th> 
-            <th>合同结束</th> 
-        </tr>
-        {% for k in huabei_direct_salers_orders %}
-        <tr>
-            <td rowspan="{{k.orders|length + 3}}">{{k.name}}</td>
-            <td rowspan="{{k.orders|length + 1}}">确认</td>
-        </tr>
-            {% for i in k.orders %}
-                <tr>
-                    {% for mo in i.order.medium_orders %}   
-                    <td> 
-                        {{mo.medium.name}}
-                        <br><br>
-                    </td>
-                    {% endfor %}
-                    <td>{{i.order.contract}}</td>
-                    <td>{{i.order.agent.name}}</td>
-                    <td>{{i.order.campaign}}</td>
-                    <td>{{i.order.client.industry_cn}}</td>
-                    <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                    <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                    <td>{{i.order.money}}</td>
-                    <td>{{i.order.mediums_money2}}</td>
-                    <td>0</td>
-                    <td>{{i.now_Q_money}}</td>
-                    <td>{{i.last_Q_money}}</td>
-                    <td>{{i.after_Q_money}}</td>
-                    {% for k in i.moneys %}
-                    <td>{{k}}</td>
-                    {% endfor %}
-                    <td>{{i.order.resource_type_cn}}</td>
-                    <td>{% for o in i.order.operater_users %}{{o.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                    <td>{{i.order.client_start}}</td>
-                    <td>{{i.order.client_end}}</td>
-                </tr>
-            {% endfor %}
-            <tr>
-                <td colspan="8">Total</td>
-                <td>{{k.total_order_money}}</td>
-                <td>{{k.total_order_mediums_money2}}</td>
-                <td>0</td>
-                <td>{{k.total_now_Q_money}}</td>
-                <td>{{k.total_last_Q_money}}</td>
-                <td>{{k.total_after_Q_money}}</td>
-                <td>{{k.total_frist_month_money}}</td>
-                <td>{{k.total_second_month_money}}</td>
-                <td>{{k.total_third_month_money}}</td>
-                <td colspan="4"></td>
-            </tr>
-            <tr>
-                <td colspan="2">{{Q}}任务</td>
-                <td></td>
-                <td>预估完成率</td>
-                <td></td>
-                <td colspan="16"></td>
-            </tr>
-        {% endfor %}
-    </table>
+    {% if huadong_agent_salers_orders or huadong_direct_salers_orders %}
+    <h4>华东区</h4>
+    {{ all_items(huadong_agent_salers_orders, 'agent') }}
+    {{ all_items(huadong_direct_salers_orders, 'direct')}}
+    {% endif %}
+    {% if huanan_agent_salers_orders or huanan_direct_salers_orders %}
+    <h4>华南区</h4>
+    {{ all_items(huanan_agent_salers_orders, 'agent') }}
+    {{ all_items(huanan_direct_salers_orders, 'direct')}}
     {% endif %}
 </div>
 <script>
@@ -201,6 +252,8 @@
         $("#Q").trigger("chosen:updated");
         $("#year option[value='{{now_year}}']").attr("selected","selected");  
         $("#year").trigger("chosen:updated");
+        $("#medium_id option[value='{{medium_id}}']").attr("selected","selected");  
+        $("#medium_id").trigger("chosen:updated");
     })
 </script>
 {% endblock %}
