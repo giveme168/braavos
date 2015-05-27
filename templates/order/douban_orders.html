@@ -47,6 +47,16 @@
                     <a href="{{url_for('order.douban_order_delete', order_id=o.id)}}" style="color:red;">删除</a>
                 {% endif %}
             {% endif %}
+            {% if g.user.is_media() or g.user.is_contract() or g.user.is_super_admin() %}
+                {% if o.contract_status in [2,4,5] and o.contract %}
+                    {% if o.is_executive_report() %}
+                        <a href="{{url_for('order.executive_report', order_id=o.id)}}?rtype=reload&otype=DoubanOrder">重新生成周报报表</a>
+                    {% else %}
+                        <a href="{{url_for('order.executive_report', order_id=o.id)}}?otype=DoubanOrder">生成周报报表</a>
+                    {% endif %}
+                    
+                {% endif %}
+            {% endif %}
         </td>
     </tr>
     {% endfor %}

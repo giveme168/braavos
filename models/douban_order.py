@@ -9,6 +9,8 @@ from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from consts import DATE_FORMAT
 from libs.mail import mail
+from libs.date_helpers import get_monthes_pre_days
+
 
 CONTRACT_TYPE_NORMAL = 0
 CONTRACT_TYPE_SPECIAL = 1
@@ -479,3 +481,78 @@ by %s\n
             self.direct_sales_names, self.agent_sales_names,
             self.operater_names, msg, url, g.user.name)
         return body
+
+    def order_agent_owner(self, user):
+        """是否可以查看该订单"""
+        owner = self.agent_sales
+        return user in owner
+
+    def order_direct_owner(self, user):
+        """是否可以查看该订单"""
+        owner = self.direct_sales
+        return user in owner
+
+    def pre_month_money(self):
+        if self.money:
+            pre_money = float(self.money) / \
+                ((self.client_end - self.client_start).days + 1)
+        else:
+            pre_money = 0
+        pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
+                                              datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
+        pre_month_money_data = []
+        for k in pre_month_days:
+            pre_month_money_data.append(
+                {'money': '%.2f' % (pre_money * k['days']), 'month': k['month'], 'days': k['days']})
+        return pre_month_money_data
+
+    def is_executive_report(self):
+        return DoubanOrderExecutiveReport.query.filter_by(douban_order=self).count() > 0
+
+    def executive_report(self, user, now_year, monthes, sale_type):
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+        else:
+            count = len(self.direct_sales)
+        if user.team.location == 3:
+            count = len(set(self.agent_sales + self.direct_sales))
+        moneys = []
+        for j in monthes:
+            pre_report = DoubanOrderExecutiveReport.query.filter_by(
+                douban_order=self, month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
+            if pre_report:
+                pre_money = pre_report.money
+            else:
+                pre_money = 0
+            try:
+                moneys.append(pre_money / count)
+            except:
+                moneys.append(0)
+        return moneys
+
+
+class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_douban_order_executive_report'
+    id = db.Column(db.Integer, primary_key=True)
+    douban_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_douban_order.id'))  # 客户合同
+    douban_order = db.relationship(
+        'DoubanOrder', backref=db.backref('douban_executive_reports', lazy='dynamic'))
+    money = db.Column(db.Float())
+    month_day = db.Column(db.DateTime)
+    days = db.Column(db.Integer)
+    create_time = db.Column(db.DateTime)
+    __table_args__ = (db.UniqueConstraint(
+        'douban_order_id', 'month_day', name='_douban_order_month_day'),)
+    __mapper_args__ = {'order_by': month_day.desc()}
+
+    def __init__(self, douban_order, money=0, month_day=None, days=0, create_time=None):
+        self.douban_order = douban_order
+        self.money = money
+        self.month_day = month_day or datetime.date.today()
+        self.days = days
+        self.create_time = create_time or datetime.date.today()
+
+    @property
+    def month_cn(self):
+        return self.month_day.strftime('%Y-%m') + u'月'

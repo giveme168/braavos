@@ -18,7 +18,7 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS)
 from models.client_order import ClientOrder, ClientOrderExecutiveReport
 from models.framework_order import FrameworkOrder
-from models.douban_order import DoubanOrder
+from models.douban_order import DoubanOrder, DoubanOrderExecutiveReport
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.user import User, TEAM_LOCATION_CN
 from models.excel import Excel
@@ -113,42 +113,68 @@ def order_delete(order_id):
     return redirect(url_for("order.my_orders"))
 
 
-@order_bp.route('/order/<order_id>/executive_report', methods=['GET'])
-def executive_report(order_id):
-    rtype = request.values.get('rtype', '')
-    order = ClientOrder.get(order_id)
-    if not order:
-        abort(404)
-    if not g.user.is_super_admin() or not g.user.is_media() or not g.user.is_contract():
-        abort(402)
-    if rtype:
-        ClientOrderExecutiveReport.query.filter_by(client_order=order).delete()
-        MediumOrderExecutiveReport.query.filter_by(client_order=order).delete()
-    for k in order.pre_month_money():
-        try:
-            er = ClientOrderExecutiveReport.add(client_order=order,
-                                                money=k['money'],
-                                                month_day=k['month'],
-                                                days=k['days'],
-                                                create_time=None)
-            er.save()
-        except:
-            pass
-    for k in order.medium_orders:
-        for i in k.pre_month_medium_orders_money():
+def _insert_executive_report(order, rtype):
+    if order.__tablename__ == 'bra_douban_order':
+        if rtype:
+            DoubanOrderExecutiveReport.query.filter_by(douban_order=order).delete()
+        for k in order.pre_month_money():
             try:
-                er = MediumOrderExecutiveReport.add(client_order=order,
-                                                    order=k,
-                                                    medium_money=i['medium_money'],
-                                                    medium_money2=i['medium_money2'],
-                                                    sale_money=i['sale_money'],
-                                                    month_day=i['month'],
-                                                    days=i['days'],
+                er = DoubanOrderExecutiveReport.add(douban_order=order,
+                                                    money=k['money'],
+                                                    month_day=k['month'],
+                                                    days=k['days'],
                                                     create_time=None)
                 er.save()
             except:
                 pass
-    return redirect(url_for("order.my_orders"))
+    else:
+        if rtype:
+            ClientOrderExecutiveReport.query.filter_by(client_order=order).delete()
+            MediumOrderExecutiveReport.query.filter_by(client_order=order).delete()
+        for k in order.pre_month_money():
+            try:
+                er = ClientOrderExecutiveReport.add(client_order=order,
+                                                    money=k['money'],
+                                                    month_day=k['month'],
+                                                    days=k['days'],
+                                                    create_time=None)
+                er.save()
+            except:
+                pass
+        for k in order.medium_orders:
+            for i in k.pre_month_medium_orders_money():
+                try:
+                    er = MediumOrderExecutiveReport.add(client_order=order,
+                                                        order=k,
+                                                        medium_money=i['medium_money'],
+                                                        medium_money2=i['medium_money2'],
+                                                        sale_money=i['sale_money'],
+                                                        month_day=i['month'],
+                                                        days=i['days'],
+                                                        create_time=None)
+                    er.save()
+                except:
+                    pass
+    return True
+
+
+@order_bp.route('/order/<order_id>/executive_report', methods=['GET'])
+def executive_report(order_id):
+    rtype = request.values.get('rtype', '')
+    otype = request.values.get('otype', 'ClientOrder')
+    if otype == 'DoubanOrder':
+        order = DoubanOrder.get(order_id)
+    else:
+        order = ClientOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin() or not g.user.is_media() or not g.user.is_contract():
+        abort(402)
+    _insert_executive_report(order, rtype)
+    if order.__tablename__ == 'bra_douban_order':
+        return redirect(url_for("order.my_douban_orders"))
+    else:
+        return redirect(url_for("order.my_orders"))
 
 
 @order_bp.route('/order/<order_id>/recovery', methods=['GET'])
