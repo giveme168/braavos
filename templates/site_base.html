@@ -63,7 +63,7 @@
               <ul class="dropdown-menu" role="menu">
                 {% if g.user.is_admin() or g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() %}
                   <li><a href="{{url_for('data_query_weekly.index')}}">媒体订单周报</a></li>
-                  <li><a href="{{url_for('data_query_weekly.index')}}">直签豆瓣订单周报</a></li>
+                  <li><a href="{{url_for('data_query_weekly.douban_index')}}">直签豆瓣订单周报</a></li>
                 {% endif %}
               </ul>
             </li>
