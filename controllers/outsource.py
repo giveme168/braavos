@@ -251,8 +251,14 @@ def douban_outsources(order_id):
 @outsource_bp.route('/new_outsource', methods=['POST'])
 def new_outsource():
     form = OutsourceForm(request.form)
+    order = Order.get(form.medium_order.data)
+    try:
+        int(form.num.data)
+    except:
+        flash(u'保存失败，金额必须为数字!', 'danger')
+        return redirect(url_for("outsource.client_outsources", order_id=order.client_order.id))
     outsource = OutSource.add(target=OutSourceTarget.get(form.target.data),
-                              medium_order=Order.get(form.medium_order.data),
+                              medium_order=order,
                               num=form.num.data,
                               type=form.type.data,
                               subtype=form.subtype.data,
@@ -269,9 +275,14 @@ def new_outsource():
 @outsource_bp.route('/new_douban_outsource', methods=['POST'])
 def new_douban_outsource():
     form = DoubanOutsourceForm(request.form)
+    order = DoubanOrder.get(form.douban_order.data)
+    try:
+        int(form.num.data)
+    except:
+        flash(u'保存失败，金额必须为数字!', 'danger')
+        return redirect(url_for("outsource.douban_outsources", order_id=order.id))
     outsource = DoubanOutSource.add(target=OutSourceTarget.get(form.target.data),
-                                    douban_order=DoubanOrder.get(
-                                        form.douban_order.data),
+                                    douban_order=order,
                                     num=form.num.data,
                                     type=form.type.data,
                                     subtype=form.subtype.data,
@@ -325,6 +336,11 @@ def outsource(outsource_id):
         outsource.douban_order = DoubanOrder.get(form.douban_order.data)
     else:
         outsource.medium_order = Order.get(form.medium_order.data)
+    try:
+        int(form.num.data)
+    except:
+        flash(u'保存失败，金额必须为数字!', 'danger')
+        return redirect(outsource.info_path())
     outsource.num = form.num.data
     outsource.type = form.type.data
     outsource.subtype = form.subtype.data

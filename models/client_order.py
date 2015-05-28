@@ -228,7 +228,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def outsources_sum(self):
-        return sum([o.pay_num for o in self.outsources if o.status != 0]) if self.outsources else 0
+        return sum([o.pay_num or 0 for o in self.outsources if o.status != 0]) if self.outsources else 0
 
     @property
     def outsources_percent(self):
@@ -556,7 +556,7 @@ by %s\n
             self.start_date_cn, self.end_date_cn, self.money,
             self.outsources_percent, o_info,
             self.direct_sales_names, self.agent_sales_names,
-            self.operater_names, str(msg), url, g.user.name)
+            self.operater_names, msg, url, g.user.name)
         return body
 
     def pre_month_money(self):
