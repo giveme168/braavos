@@ -33,3 +33,4 @@ xlwt==0.7.5
 xlrd==0.9.3
 xpinyin==0.5.3
 requests
+XlsxWriter
