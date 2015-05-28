@@ -10,6 +10,8 @@ from models.douban_order import DoubanOrderExecutiveReport
 from models.medium import Medium
 from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q,
                                get_last_year_month_by_Q, get_after_year_month_by_Q)
+from controllers.tools import get_download_response
+from controllers.data_query.helpers.weekly_helpers import write_client_excel
 
 
 data_query_weekly_bp = Blueprint(
@@ -281,6 +283,17 @@ def index():
     huadong_direct_salers_orders = _get_report_total(
         huanan_direct_saler_orders, now_year, Q_monthes)
 
+    if request.values.get('action', '') == 'download':
+        xls = write_client_excel(huabei_agent_salers_orders=huabei_agent_salers_orders,
+                                 huabei_direct_salers_orders=huabei_direct_salers_orders,
+                                 huanan_agent_salers_orders=huanan_agent_salers_orders,
+                                 huanan_direct_salers_orders=huanan_direct_salers_orders,
+                                 huadong_agent_salers_orders=huadong_agent_salers_orders,
+                                 huadong_direct_salers_orders=huadong_direct_salers_orders,
+                                 now_year=now_year, Q=now_Q, Q_monthes=Q_monthes)
+        response = get_download_response(
+            xls, ("%s-%s.xls" % (u"媒体订单周报", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
+        return response
     return tpl('/data_query/weekly/index.html',
                huabei_agent_salers_orders=huabei_agent_salers_orders,
                huabei_direct_salers_orders=huabei_direct_salers_orders,

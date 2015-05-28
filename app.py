@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from flask import g, request, url_for, redirect
+from flask import g, request, url_for, redirect, render_template
 from flask.ext.login import LoginManager, current_user
 
 from factory import create_app
@@ -21,6 +21,12 @@ def page_recipe(pages, adjacent_pages=3):
     return page_numbers
     
 app.jinja_env.filters['page_recipe'] = page_recipe
+
+
+@app.route('/email')
+def get_email_sigal():
+    return render_template("/user/email_sigal.html")
+
 
 @login_manager.user_loader
 def load_user(userid):

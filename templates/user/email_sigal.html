@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}生成邮件签名{% endblock %}
+
+{% block content %}
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+<div class="form-unit" style="width:70%;">
+  <a href="/" class="brand text-center">
+    <h1>生成邮件签名</h1>
+  </a>
+  <form class="form-horizontal">
+    <div class="form-group">
+      <label for="inputEmail3" class="col-sm-2 control-label">姓名</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="name" placeholder="中文姓名">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="inputEmail3" class="col-sm-2 control-label">英文名</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="Ename" placeholder="英文名">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="inputPassword3" class="col-sm-2 control-label">邮箱</label>
+      <div class="col-sm-10">
+        <input type="email" class="form-control" id="email" placeholder="Email">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="inputEmail3" class="col-sm-2 control-label">职位</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="position" placeholder="职位">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="inputEmail3" class="col-sm-2 control-label">手机号</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="cellphone" placeholder="手机号">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="inputEmail3" class="col-sm-2 control-label">传真号码</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="ecellphone" placeholder="传真号码">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="button" class="btn btn-default" onclick="check()">生成</button>
+      </div>
+    </div>
+  </form>
+  <h2>生成后的代码</h2>
+  <pre><code id="code"></code></pre>
+</div>
+<script>
+  function check(){
+    var name = $('#name').val()
+    var Ename = $('#Ename').val()
+    var email = $('#email').val()
+    var position = $('#position').val()
+    var cellphone = $('#cellphone').val()
+    var ecellphone = $('#ecellphone').val()
+    if (name == ''){
+      alert('请输入姓名');
+      $('#name').focus()
+      return
+    }
+    else if (email == ''){
+      alert('请输入email');
+      $('#email').focus()
+      return
+    }
+    else if (position == ''){
+      alert('请输入职位');
+      $('#position').focus()
+      return
+    }
+    else if (cellphone == ''){
+      alert('请输入手机号');
+      $('#cellphone').focus()
+      return
+    }
+    var sigal = '<div> \
+    <div style="line-height: normal;"> \
+        <div style="font-size: 12px;"><b><font color="#99ccff">————————————————</font></b></div> \
+        <div> \
+            <font style="font-size: small; line-height: normal; color: rgb(34, 34, 34); font-family: arial, sans-serif;">'+name+' '+Ename+' 丨 '+position+'</font> \
+            <div style="font-size: small; line-height: normal; font-family: arial;"> \
+                <font face="arial, helvetica, sans-serif"> \
+                    <font color="#222222">INAD 丨&nbsp;</font> \
+                    <font color="#3366ff"> \
+                        <a href="http://www.inad.com/" target="_blank" style="outline: none; color: rgb(0, 96, 145);">致趣联媒</a> \
+                    </font> \
+                </font> \
+            </div> \
+            <div style="font-size: small; line-height: normal; font-family: arial;"> \
+                <font face="arial, helvetica, sans-serif"></font> \
+            </div> \
+            <div style="font-size: small; line-height: normal; color: rgb(34, 34, 34); font-family: arial, sans-serif;"> \
+                <font face="arial, helvetica, sans-serif">Mob: +86 10 '+cellphone+'<br></font>\
+            </div> \
+            '
+    var ecellphone_sigal = '<div style="font-size: small; line-height: normal; color: rgb(34, 34, 34); font-family: arial, sans-serif;"> \
+                <font face="arial, helvetica, sans-serif">Fax: &nbsp;+86 10 '+ecellphone+'</font> \
+            </div> \
+            '
+    if (ecellphone != ''){
+      sigal += ecellphone_sigal
+    }
+    sigal += '<div> \
+                <font style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: small; line-height: normal;">邮箱:&nbsp;</font> \
+                <span style="font-size: 13.63636302948px; line-height: 22.3999996185303px;">&nbsp;</span> \
+                <span style="line-height: 22.3999996185303px;">&nbsp;<u><a href="mailto:'+email+'" target="_blank" style="outline: none; color: rgb(0, 96, 145);">'+email+'</a></u></span> \
+            </div> \
+            <div style="font-size: small; line-height: normal; color: rgb(34, 34, 34); font-family: arial;"> \
+                <font face="arial, helvetica, sans-serif"> \
+                    <font face="arial, sans-serif">地址: 北京市朝阳区酒仙桥路10号恒通商务园B39楼一层103室，100015</font> \
+                </font> \
+            </div> \
+        </div> \
+    </div> \
+    <div style="line-height: normal; font-size: small; color: rgb(34, 34, 34); font-family: arial;"> \
+        <a style="border: none; vertical-align: middle;" href="http://www.inad.com/"> \
+            <img src="http://exmail.qq.com/cgi-bin/viewfile?f=13233D0948115D853D7B004FEB59A5BDF1803FC03C3A7D97969E9AF367E5857680FD574315C2A14FF9E130B43DF8C5AFE2491CD098E4032F498F9E9F1ECEDF69DBF388713268586DCCA9C00042200D80C2673D2E973BC67E&sid=2spM_3-ll2IErDdi,7"> \
+        </a> \
+    </div> \
+</div>'
+    $('#code').text(sigal)
+  }
+  
+
+</script>
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/login.css" type="text/css">
+{% endblock %}
