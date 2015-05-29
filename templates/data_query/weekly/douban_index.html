@@ -109,6 +109,7 @@
             </select>
         </div>
         <input type="submit" value="查询" class="btn btn-sm btn-info" >
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
         </form>
     </div>
     <br>
@@ -138,5 +139,11 @@
         $("#location_id option[value='{{location_id}}']").attr("selected","selected");  
         $("#location_id").trigger("chosen:updated");
     })
+    function download(){
+         window.location.href = window.location.pathname +
+          '?year=' + $('#year').val() + '&Q=' + $('#Q').val() +
+          '&medium_id=' + $('#medium_id').val() +
+          '&location_id=' + $('#location_id').val()+ '&action=download';
+    }
 </script>
 {% endblock %}
