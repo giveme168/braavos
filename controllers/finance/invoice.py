@@ -41,8 +41,6 @@ def index_pass():
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
-    # page = max(1, page)
-    # start = (page - 1) * ORDER_PAGE_NUM
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if search_info != '':

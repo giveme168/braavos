@@ -54,6 +54,8 @@
             </tr>
         {% endfor %}
     </table>
+    {% set pages = orders %}
+    {% include "pagination.html" %}
 </div>
 <script>
     function sort(value) {
