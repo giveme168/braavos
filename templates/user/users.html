@@ -13,6 +13,7 @@
             <th>邮箱</th>
             <th>团队</th>
             <th>状态</th>
+            <th>Leader</th>
         </tr>
         {% for u in users %}
         <tr>
@@ -21,6 +22,7 @@
             <td>{{u.email}}</td>
             <td><a href="{{url_for('user.team_detail', team_id=u.team.id)}}">{{u.team.name}}</a></td>
             <td>{{'有效' if u.status else '暂停'}}</td>
+            <td>{% for k in u.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
         </tr>
         {% endfor %}
     </table>
