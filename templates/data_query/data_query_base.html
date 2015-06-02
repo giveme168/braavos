@@ -1,9 +1,11 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
+    {% if g.user.is_admin() or g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or g.user.is_finance()%}
     <a class="list-group-item" href="{{url_for('data_query_order.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 月度订单金额
     </a>
+    {% endif %}
     <a class="list-group-item" href="{{url_for('data_query_weekly.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 媒体订单周报
     </a>

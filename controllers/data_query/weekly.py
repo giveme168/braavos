@@ -68,6 +68,8 @@ def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order'):
         k['total_third_month_money'] = sum(
             [order['moneys'][2] for order in k['orders']])
         if type == 'client_order':
+            k['total_order_invoice'] = sum(
+                [order['order'].invoice_pass_sum for order in k['orders']])
             k['total_order_mediums_money2'] = sum(
                 [order['order'].mediums_money2 for order in k['orders']])
             k['total_frist_medium_money2_by_month'] = 0
@@ -119,7 +121,8 @@ def douban_index():
             o for o in douban_orders if g.user.location in o.locations]
     else:
         douban_orders = [
-            o for o in douban_orders if g.user in o.direct_sales + o.agent_sales]
+            o for o in douban_orders if (g.user in o.direct_sales + o.agent_sales) or
+            (g.user in o.get_saler_leaders())]
 
     huabei_agent_salers = []
     huabei_direct_salers = []
@@ -230,7 +233,8 @@ def index():
             o for o in client_orders if g.user.location in o.locations]
     else:
         client_orders = [
-            o for o in client_orders if g.user in o.direct_sales + o.agent_sales]
+            o for o in client_orders if (g.user in o.direct_sales + o.agent_sales) or
+            (g.user in o.get_saler_leaders())]
     huabei_agent_salers = []
     huabei_direct_salers = []
     huanan_agent_salers = []

@@ -516,10 +516,13 @@ by %s\n
             count = len(self.direct_sales)
         if user.team.location == 3:
             count = len(set(self.agent_sales + self.direct_sales))
+        pre_reports = DoubanOrderExecutiveReport.query.filter_by(douban_order=self)
         moneys = []
         for j in monthes:
-            pre_report = DoubanOrderExecutiveReport.query.filter_by(
-                douban_order=self, month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
+            try:
+                pre_report = pre_reports.filter_by(month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
+            except:
+                pre_report = None
             if pre_report:
                 pre_money = pre_report.money
             else:
@@ -528,7 +531,23 @@ by %s\n
                 moneys.append(pre_money / count)
             except:
                 moneys.append(0)
+
         return moneys
+
+    def get_saler_leaders(self):
+        leaders = []
+        for user in self.agent_sales + self.direct_sales:
+            leaders += user.team_leaders
+        return leaders
+
+    def insert_reject_time(self):
+        douban_order_reject = DoubanOrderReject.query.filter_by(
+            douban_order=self, reject_time=datetime.date.today()).first()
+        if douban_order_reject:
+            douban_order_reject.reject_time = datetime.date.today()
+        else:
+            DoubanOrderReject.add(
+                douban_order=self, reject_time=datetime.date.today())
 
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
@@ -556,3 +575,24 @@ class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     @property
     def month_cn(self):
         return self.month_day.strftime('%Y-%m') + u'月'
+
+
+class DoubanOrderReject(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_douban_order_reject'
+    id = db.Column(db.Integer, primary_key=True)
+    douban_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_douban_order.id'))  # 客户合同
+    douban_order = db.relationship(
+        'DoubanOrder', backref=db.backref('douban_order_reject_id', lazy='dynamic'))
+    reject_time = db.Column(db.DateTime)
+    __table_args__ = (db.UniqueConstraint(
+        'douban_order_id', 'reject_time', name='_douban_order_reject_time'),)
+    __mapper_args__ = {'order_by': reject_time.desc()}
+
+    def __init__(self, douban_order, reject_time=None):
+        self.douban_order = douban_order
+        self.reject_time = reject_time or datetime.date.today()
+
+    @property
+    def reject_time_cn(self):
+        return self.reject_time.strftime('%Y-%m') + u'月'

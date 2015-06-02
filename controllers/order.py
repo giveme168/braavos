@@ -114,47 +114,50 @@ def order_delete(order_id):
 
 
 def _insert_executive_report(order, rtype):
+    if order.contract == '' or order.contract_status not in [2, 4, 5]:
+        return False
     if order.__tablename__ == 'bra_douban_order':
         if rtype:
-            DoubanOrderExecutiveReport.query.filter_by(douban_order=order).delete()
+            DoubanOrderExecutiveReport.query.filter_by(
+                douban_order=order).delete()
         for k in order.pre_month_money():
-            try:
+            if not DoubanOrderExecutiveReport.query.filter_by(douban_order=order, month_day=k['month']).first():
                 er = DoubanOrderExecutiveReport.add(douban_order=order,
                                                     money=k['money'],
                                                     month_day=k['month'],
                                                     days=k['days'],
                                                     create_time=None)
                 er.save()
-            except:
-                pass
-    else:
+    elif order.__tablename__ == 'bra_client_order':
         if rtype:
-            ClientOrderExecutiveReport.query.filter_by(client_order=order).delete()
-            MediumOrderExecutiveReport.query.filter_by(client_order=order).delete()
+            ClientOrderExecutiveReport.query.filter_by(
+                client_order=order).delete()
+            MediumOrderExecutiveReport.query.filter_by(
+                client_order=order).delete()
         for k in order.pre_month_money():
-            try:
+            if not ClientOrderExecutiveReport.query.filter_by(client_order=order, month_day=k['month']).first():
                 er = ClientOrderExecutiveReport.add(client_order=order,
                                                     money=k['money'],
                                                     month_day=k['month'],
                                                     days=k['days'],
                                                     create_time=None)
                 er.save()
-            except:
-                pass
         for k in order.medium_orders:
             for i in k.pre_month_medium_orders_money():
-                try:
+                if not MediumOrderExecutiveReport.query.filter_by(client_order=order,
+                                                                  order=k, month_day=i['month']).first():
                     er = MediumOrderExecutiveReport.add(client_order=order,
                                                         order=k,
-                                                        medium_money=i['medium_money'],
-                                                        medium_money2=i['medium_money2'],
-                                                        sale_money=i['sale_money'],
+                                                        medium_money=i[
+                                                            'medium_money'],
+                                                        medium_money2=i[
+                                                            'medium_money2'],
+                                                        sale_money=i[
+                                                            'sale_money'],
                                                         month_day=i['month'],
                                                         days=i['days'],
                                                         create_time=None)
                     er.save()
-                except:
-                    pass
     return True
 
 
@@ -266,6 +269,7 @@ def order_info(order_id, tab_id=1):
             else:
                 order.contract = request.values.get("base_contract", "")
                 order.save()
+                _insert_executive_report(order, '')
                 for mo in order.medium_orders:
                     mo.medium_contract = request.values.get(
                         "medium_contract_%s" % mo.id, "")
@@ -468,6 +472,7 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_APPLYPASS
         action_msg = u"审批通过"
         to_users = to_users + order.leaders + User.contracts()
+        _insert_executive_report(order, '')
     elif action == 4:
         order.contract_status = CONTRACT_STATUS_APPLYREJECT
         action_msg = u"审批未被通过"
@@ -494,6 +499,7 @@ def contract_status_change(order, action, emails, msg):
         to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
+        order.insert_reject_time()
         action_msg = u"合同被驳回，请从新提交审核"
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
@@ -946,6 +952,7 @@ def douban_order_info(order_id):
             else:
                 order.contract = request.values.get("base_contract", "")
                 order.save()
+                _insert_executive_report(order, '')
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
@@ -1128,8 +1135,7 @@ def attachment_status_email(order, attachment):
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     to_emails = list(set([x.email for x in to_users]))
     action_msg = u"%s文件:%s-%s" % (attachment.type_cn, attachment.filename, attachment.status_cn)
-    msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (
-        attachment.filename, attachment.status_cn)
+    msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (attachment.filename, attachment.status_cn)
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,
