@@ -68,6 +68,8 @@ def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order'):
         k['total_third_month_money'] = sum(
             [order['moneys'][2] for order in k['orders']])
         if type == 'client_order':
+            k['total_order_invoice'] = sum(
+                [order['order'].invoice_pass_sum for order in k['orders']])
             k['total_order_mediums_money2'] = sum(
                 [order['order'].mediums_money2 for order in k['orders']])
             k['total_frist_medium_money2_by_month'] = 0
@@ -110,7 +112,8 @@ def douban_index():
     end_Q_month = datetime.datetime(int(now_year), int(Q_monthes[-1]), 1).date()
 
     douban_orders = list(set([report.douban_order for report in DoubanOrderExecutiveReport.query.filter(
-        DoubanOrderExecutiveReport.month_day >= start_Q_month, DoubanOrderExecutiveReport.month_day <= end_Q_month)]))
+        DoubanOrderExecutiveReport.month_day >= start_Q_month, DoubanOrderExecutiveReport.month_day <= end_Q_month)
+        if report.douban_order.status == 1]))
 
     if g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or g.user.is_finance():
         douban_orders = douban_orders
@@ -119,7 +122,8 @@ def douban_index():
             o for o in douban_orders if g.user.location in o.locations]
     else:
         douban_orders = [
-            o for o in douban_orders if g.user in o.direct_sales + o.agent_sales]
+            o for o in douban_orders if (g.user in o.direct_sales + o.agent_sales) or
+            (g.user in o.get_saler_leaders())]
 
     huabei_agent_salers = []
     huabei_direct_salers = []
@@ -218,7 +222,8 @@ def index():
     end_Q_month = datetime.datetime(int(now_year), int(Q_monthes[-1]), 1).date()
 
     client_orders = list(set([report.client_order for report in ClientOrderExecutiveReport.query.filter(
-        ClientOrderExecutiveReport.month_day >= start_Q_month, ClientOrderExecutiveReport.month_day <= end_Q_month)]))
+        ClientOrderExecutiveReport.month_day >= start_Q_month, ClientOrderExecutiveReport.month_day <= end_Q_month)
+        if report.client_order.status == 1]))
     if medium_id:
         client_orders = [
             order for order in client_orders if medium_id in [k.id for k in order.mediums]]
@@ -230,7 +235,8 @@ def index():
             o for o in client_orders if g.user.location in o.locations]
     else:
         client_orders = [
-            o for o in client_orders if g.user in o.direct_sales + o.agent_sales]
+            o for o in client_orders if (g.user in o.direct_sales + o.agent_sales) or
+            (g.user in o.get_saler_leaders())]
     huabei_agent_salers = []
     huabei_direct_salers = []
     huanan_agent_salers = []

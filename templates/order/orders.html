@@ -172,6 +172,18 @@
                 <option value="contract">按合同号排序</option>
             </select>
         </div>
+        {% if g.user.is_media() %}
+        <input type="text" id="start_time" name="start_time" class="datetimepicker form-control bra-form-control" style="width:200px;" data-date-format="yyyy-mm-dd" placeholder="开始时间">
+        <input type="text" id="end_time" name="end_time" class="datetimepicker form-control bra-form-control" style="width:200px;" data-date-format="yyyy-mm-dd" placeholder="结束时间">
+        <div class="col-md-1" style="padding:0;margin-right:5px;">
+            <select class="col-md-12" id="search_medium" name="search_medium" placeholder="选择媒体">
+                <option selected="" value="0">全部媒体</option>
+                {% for k in mediums %}
+                <option value="{{k.id}}">{{k.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
         <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
         <input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">
     </div>
@@ -194,27 +206,45 @@ function sort(value){
         sortby = value
         orderby = 'desc'
     }
-    window.location.href = window.location.pathname+'?sortby='+sortby+'&orderby='+orderby+
+    var params = '?sortby='+sortby+'&orderby='+orderby+
     '&searchinfo='+encodeURIComponent($('#search_info').val())+
     '&selected_location='+encodeURIComponent($('#search_location').val())+
     '&selected_status='+encodeURIComponent($('#search_status').val());
+    {% if g.user.is_media() %}
+        params += '&start_time='+$('#start_time').val()+
+        '&end_time='+$('#end_time').val()+
+        '&search_medium='+$('#search_medium').val()
+    {% endif %}
+    window.location.href = window.location.pathname+params;
 }
 
 function search(){
-    window.location.href = window.location.pathname +
-      '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+    var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
       '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val())+
       '&orderby=' + ($('#orderby').val());
+    {% if g.user.is_media() %}
+        params += '&start_time='+$('#start_time').val()+
+        '&end_time='+$('#end_time').val()+
+        '&search_medium='+$('#search_medium').val()
+    {% endif %}
+    window.location.href = window.location.pathname + params;
+      
 }
 
 function download(){
-    window.location.href = window.location.pathname +
-      '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+    var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
       '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val()) +
       '&orderby=' + ($('#orderby').val())+
       '&action=download';
+    {% if g.user.is_media() %}
+        params += '&start_time='+$('#start_time').val()+
+        '&end_time='+$('#end_time').val()+
+        '&search_medium='+$('#search_medium').val()
+    {% endif %}
+    window.location.href = window.location.pathname + params;
+      
 }
 
 function enter_search(){
@@ -230,6 +260,22 @@ $(function(){
     {% endif %}
     $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
     $("#orderby").trigger("chosen:updated");
+    
+    {% if g.user.is_media() %}
+    $('#start_time').val('{{start_time}}');
+    $('#end_time').val('{{end_time}}');
+    $("#search_medium option[value='{{search_medium}}']").attr("selected","selected");  
+    $("#search_medium").trigger("chosen:updated");
+    {% endif %}
 });
+
+$(document).ready(function(){
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+    });
+})
 </script>
 {% endblock %}

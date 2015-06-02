@@ -583,10 +583,16 @@ by %s\n
             count = len(self.direct_sales)
         if user.team.location == 3:
             count = len(set(self.agent_sales + self.direct_sales))
+        pre_reports = ClientOrderExecutiveReport.query.filter_by(
+            client_order=self)
         moneys = []
         for j in monthes:
-            pre_report = ClientOrderExecutiveReport.query.filter_by(
-                client_order=self, month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
+            try:
+                pre_report = pre_reports.filter_by(
+                    month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
+            except:
+                pre_report = None
+
             try:
                 pre_money = pre_report.money
             except:
@@ -609,6 +615,21 @@ by %s\n
             return {'medium_money': medium_money, 'medium_money2': medium_money2, 'sale_money': sale_money}
         else:
             return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
+
+    def get_saler_leaders(self):
+        leaders = []
+        for user in self.agent_sales + self.direct_sales:
+            leaders += user.team_leaders
+        return leaders
+
+    def insert_reject_time(self):
+        client_order_reject = ClientOrderReject.query.filter_by(
+            client_order=self, reject_time=datetime.date.today()).first()
+        if client_order_reject:
+            client_order_reject.reject_time = datetime.date.today()
+        else:
+            ClientOrderReject.add(
+                client_order=self, reject_time=datetime.date.today())
 
 
 class BackMoney(db.Model, BaseModelMixin):
@@ -692,6 +713,27 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
     @property
     def month_cn(self):
         return self.month_day.strftime('%Y-%m') + u'月'
+
+
+class ClientOrderReject(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_client_order_reject'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'ClientOrder', backref=db.backref('client_order_reject_id', lazy='dynamic'))
+    reject_time = db.Column(db.DateTime)
+    __table_args__ = (db.UniqueConstraint(
+        'client_order_id', 'reject_time', name='_client_order_reject_time'),)
+    __mapper_args__ = {'order_by': reject_time.desc()}
+
+    def __init__(self, client_order, reject_time=None):
+        self.client_order = client_order
+        self.reject_time = reject_time or datetime.date.today()
+
+    @property
+    def reject_time_cn(self):
+        return self.reject_time.strftime('%Y-%m') + u'月'
 
 
 def contract_generator(framework, num):

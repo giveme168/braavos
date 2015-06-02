@@ -17,6 +17,7 @@
         <th>直客销售</th>
         <th>渠道销售</th>
         <th>合同金额</th>
+        <th>已开发票金额</th>
         <th>媒体总金额</th>
         <th>投放媒体</th>
         <th>媒体金额</th>
@@ -58,6 +59,7 @@
                 <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                 <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                 <td>{{i.order.money}}</td>
+                <td>{{i.order.invoice_pass_sum}}</td>
                 <td>{{i.order.mediums_money2}}</td>
                 <td> 
                     {% for mo in i.order.medium_orders %}  
@@ -166,6 +168,7 @@
         <tr>
             <td colspan="8">Total</td>
             <td>{{k.total_order_money}}</td>
+            <td>{{k.total_order_invoice}}</td>
             <td>{{k.total_order_mediums_money2}}</td>
             <td></td>
             <td>{{k.total_order_mediums_money2}}</td>

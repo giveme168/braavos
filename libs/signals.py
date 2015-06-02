@@ -111,13 +111,14 @@ def contract_apply(sender, apply_context, action=None):
 
 订单: %s
 链接地址: %s
+订单合同号: %s 
 订单信息:
 %s
 留言如下:
     %s
 \n
 by %s
-""" % (apply_context['action_msg'], order.name, url, order.email_info, apply_context['msg'], g.user.name)))
+""" % (apply_context['action_msg'], order.name, url, order.contract, order.email_info, apply_context['msg'], g.user.name)))
 
 
 def medium_invoice_apply(sender, apply_context):
