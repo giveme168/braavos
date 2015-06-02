@@ -78,7 +78,7 @@ class Invoice(db.Model, BaseModelMixin):
 
     @property
     def create_time_cn(self):
-        return self.create_time.strftime("%Y-%m-%d %H:%M:%S")
+        return self.create_time.strftime("%Y-%m-%d")
 
     @property
     def back_time_cn(self):

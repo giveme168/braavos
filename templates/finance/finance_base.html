@@ -9,7 +9,7 @@
     {% if g.user.is_finance()%}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 发票管理</li>
     <a class="list-group-item" href="{{url_for('finance_invoice.index')}}">申请中的发票</a>
-    <a class="list-group-item" href="{{url_for('finance_invoice.index_pass')}}">已开发票信息</a>
+    <a class="list-group-item" href="{{url_for('finance_invoice.index_pass')}}">所有客户发票信息</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 外包打款管理</li>
     <a class="list-group-item" href="{{url_for('finance_pay.index')}}">媒体订单</a>
     <a class="list-group-item" href="{{url_for('finance_pay.douban_index')}}">直签豆瓣订单</a>
