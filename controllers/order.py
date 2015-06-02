@@ -497,6 +497,8 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_DELETEPASS
         order.status = STATUS_DEL
         to_users = to_users + order.leaders + User.medias() + User.contracts()
+        if order.__tablename__ == 'bra_douban_order' and order.contract:
+            to_users += User.douban_contracts()
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
         order.insert_reject_time()

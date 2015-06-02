@@ -112,7 +112,8 @@ def douban_index():
     end_Q_month = datetime.datetime(int(now_year), int(Q_monthes[-1]), 1).date()
 
     douban_orders = list(set([report.douban_order for report in DoubanOrderExecutiveReport.query.filter(
-        DoubanOrderExecutiveReport.month_day >= start_Q_month, DoubanOrderExecutiveReport.month_day <= end_Q_month)]))
+        DoubanOrderExecutiveReport.month_day >= start_Q_month, DoubanOrderExecutiveReport.month_day <= end_Q_month)
+        if report.douban_order.status == 1]))
 
     if g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or g.user.is_finance():
         douban_orders = douban_orders
@@ -221,7 +222,8 @@ def index():
     end_Q_month = datetime.datetime(int(now_year), int(Q_monthes[-1]), 1).date()
 
     client_orders = list(set([report.client_order for report in ClientOrderExecutiveReport.query.filter(
-        ClientOrderExecutiveReport.month_day >= start_Q_month, ClientOrderExecutiveReport.month_day <= end_Q_month)]))
+        ClientOrderExecutiveReport.month_day >= start_Q_month, ClientOrderExecutiveReport.month_day <= end_Q_month)
+        if report.client_order.status == 1]))
     if medium_id:
         client_orders = [
             order for order in client_orders if medium_id in [k.id for k in order.mediums]]
