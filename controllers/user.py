@@ -9,6 +9,7 @@ from models.user import Team, User, USER_STATUS_CN, Leave, LEAVE_STATUS_NORMAL, 
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm, UserLeaveForm
 from config import DEFAULT_PASSWORD
 from libs.signals import password_changed_signal, apply_leave_signal
+from libs.paginator import Paginator
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
 page_num = 50
@@ -203,14 +204,26 @@ def leaves():
         end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
         leaves = [k for k in leaves if k.start_time >=
                   start_time and k.start_time < end_time]
-    return tpl('/leave/leaves.html', leaves=leaves[(page - 1) * page_num:(page - 1) * page_num + page_num],
-               page=page, user_id=user_id, type=type, start=start, end=end)
+
+    paginator = Paginator(leaves, 50)
+    try:
+        leaves = paginator.page(page)
+    except:
+        leaves = paginator.page(paginator.num_pages)
+    return tpl('/leave/leaves.html', leaves=leaves, user_id=user_id, type=type, start=start,
+               params="&user_id=%s&type=%s&start=%s&end=%s" % (user_id, type, start, end), end=end, page=page)
 
 
 @user_bp.route('/<user_id>/leave')
 def leave(user_id):
+    page = int(request.values.get('p', 1))
     leaves = [k for k in Leave.all() if k.creator.id == int(user_id)]
-    return tpl('/leave/user_leave.html', leaves=leaves)
+    paginator = Paginator(leaves, 1)
+    try:
+        leaves = paginator.page(page)
+    except:
+        leaves = paginator.page(paginator.num_pages)
+    return tpl('/leave/user_leave.html', leaves=leaves, page=page)
 
 
 @user_bp.route('/<user_id>/leave/create', methods=['GET', 'POST'])

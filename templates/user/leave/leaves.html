@@ -61,7 +61,7 @@
                         <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a>
                     {% endif %}
                 {% else %}
-                    {% if g.user in l.creator.team_leaders %}
+                    {% if g.user in l.creator.team_leaders or g.user.is_super_admin() %}
                         <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a>&nbsp;&nbsp;
                         <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a>
                     {% endif %}
@@ -71,23 +71,8 @@
         </tr>
         {% endfor %}
     </table>
-    <nav>
-      <ul class="pagination">
-        {% if page-1 > 0 %}
-        <li><a href="?p={{page-1}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">&laquo;</a></li>
-        {% endif %}
-        {% if page-2 > 0 %}
-        <li class=""><a href="?p={{page-2}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">{{page-2}}</a></li>
-        {% endif %}
-        {% if page-1 > 0 %}
-        <li class=""><a href="?p={{page-1}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">{{page-1}}</a></li>
-        {% endif %}
-        <li class="active disable"><a href="#">{{page}}</a></li>
-        <li class=""><a href="?p={{page+1}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">{{page+1}}</a></li>
-        <li class=""><a href="?p={{page+2}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">{{page+2}}</a></li>
-        <li><a href="?p={{page+1}}&user_id={{user_id}}&type={{type}}&start={{start}}&end={{end}}">&raquo;</a></li>
-      </ul>
-    </nav>
+    {% set pages = leaves %}
+    {% include "pagination.html" %}
 </div>
 <script>
 Date.prototype.Format = function (fmt) { //author: meizz 
