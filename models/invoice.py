@@ -39,7 +39,7 @@ class Invoice(db.Model, BaseModelMixin):
     tax_id = db.Column(db.String(100))  # 税号
     address = db.Column(db.String(120))  # 公司地址
     phone = db.Column(db.String(80))  # 联系电话
-    bank_id = db.Column(db.String(20))  # 银行账号
+    bank_id = db.Column(db.String(50))  # 银行账号
     bank = db.Column(db.String(100))  # 开户行
     detail = db.Column(db.String(200))  # 发票内容
     money = db.Column(db.Float)  # 发票金额

@@ -46,6 +46,8 @@
         </tr>
         {% endfor %}
     </table>
+    {% set pages = leaves %}
+    {% include "pagination.html" %}
 </div>
 <script>
 function check_del(url){ 
