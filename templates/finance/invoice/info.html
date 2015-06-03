@@ -31,7 +31,6 @@
         </div>
         <div id="collapse-invoice-0" class="panel-collapse collapse in">
             <div class="panel-body">
-                {{ eidt_invoice_table() }}
                 {% for k in invoices_data.PASS %}
                   {{ invoice_table(k.invoice) }}
                 {% endfor %}
@@ -186,54 +185,65 @@
         });
     })
 </script>
-{% endblock %}
-{% macro eidt_invoice_table() %}
-<form class="form form-horizontal outsource-status-form" method="POST" action="" id="edit_table_form" style="display:none;">
-<div class="col-md-12">
-    <div class="col-md-6" style="margin-left: 20px;">
-        <input type="hidden" value="" id="edit_invoice_id">
-        <table class="table table-bordered">
-          <tr>
-            <th>开票时间</th>
-            <td id="edit_create_time"></td>
-          </tr>
-          <tr>
-            <th>公司名称</th>
-            <td><input class="form-control bra-form-control" type='text' id="edit_company" name="edit_company" value=""></td>
-          </tr>
-          <tr>
-            <th>税号</th>
-            <td><input class="form-control bra-form-control" type='text' id="edit_tax_id" name="edit_tax_id" value=""></td>
-          </tr>
-          <tr>
-            <th>发票内容</th>
-            <td><input class="form-control bra-form-control" type='text' id="edit_detail" name="edit_detail" value=""></td>
-          </tr>
-          <tr>
-            <th>发票金额</th>
-            <td><input class="form-control bra-form-control" type='text' id="edit_money" name="edit_money" value=""></td>
-          </tr>
-          <tr>
-            <th>发票类型</th>
-            <td>
-              <select style="width:200px;" id="edit_invoice_type" name="invoice_type">
-                <option value="0">一般纳税人增值税专用发票</option>
-                <option value="1">一般纳税人增值税普通发票</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <th>发票号</th>
-            <td><input class="form-control bra-form-control" type='text' id="edit_invoice_num" name="edit_invoice_num" value=""></td>
-          </tr>
-        </table>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <form class="form form-horizontal outsource-status-form" method="POST" action="" id="edit_table_form">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">修改发票信息</h4>
+      </div>
+      <div class="modal-body">
+          <div class="col-md-12">
+              <div class="col-md-12">
+                  <input type="hidden" value="" id="edit_invoice_id">
+                  <table class="table table-bordered">
+                    <tr>
+                      <th>开票时间</th>
+                      <td id="edit_create_time"></td>
+                    </tr>
+                    <tr>
+                      <th>公司名称</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_company" name="edit_company" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>税号</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_tax_id" name="edit_tax_id" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>发票内容</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_detail" name="edit_detail" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>发票金额</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_money" name="edit_money" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>发票类型</th>
+                      <td>
+                        <select style="width:200px;" id="edit_invoice_type" name="invoice_type">
+                          <option value="0">一般纳税人增值税专用发票</option>
+                          <option value="1">一般纳税人增值税普通发票</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>发票号</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_invoice_num" name="edit_invoice_num" value=""></td>
+                    </tr>
+                  </table>
+              </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <input type="submit" class="btn btn-primary" value="提交"/>
+      </div>
     </div>
+  </div>
+  </form>
 </div>
-<input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
-<a class="btn btn-primary btn-sm col-md-offset-2" href="javascript:cancel_edit()">取消</a>
-</form>
-<br/><br/>
-{%- endmacro %}
+{% endblock %}
 
 {% macro invoice_table(invoice)%}
 {% if invoice.invoice_status == 3 %}
@@ -310,7 +320,6 @@
             <th><a href="javascript:edit('{{invoice.id}}','{{invoice.create_time_cn}}','{{invoice.company}}','{{invoice.tax_id}}','{{invoice.detail}}','{{invoice.money}}','{{invoice.invoice_type}}','{{invoice.invoice_num}}');">修改</a></th>
           </tr>
         </table>
-
     </div>
 </div>
 {% if invoice.invoice_status == 3 %}
@@ -318,16 +327,11 @@
 </form>
 {% endif %}
 <script>
-function cancel_edit(){
-  var id = $('#edit_invoice_id').val()
-  $('#edit_invoice_'+id).show()
-  $('#edit_table_form').hide()
-}
 function edit(id, create_time, company, tax_id, detail ,money, invoice_type, invoice_num){
   $('#edit_invoice_id').val(id)
   $('#edit_create_time').html(create_time)
-  $('#edit_invoice_'+id).hide()
-  $('#edit_table_form').show()
+  //$('#edit_invoice_'+id).hide()
+  $('#myModal').modal('show');
   $('#edit_company').val(company)
   $('#edit_tax_id').val(tax_id)
   $('#edit_detail').val(detail)
