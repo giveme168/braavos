@@ -4,12 +4,10 @@ import datetime
 from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
 from flask import render_template as tpl
 
-from models.client_order import ClientOrder
-from models.douban_order import DoubanOrder
 from models.outsource import (
     OutSource, OUTSOURCE_STATUS_APPLY_MONEY, OUTSOURCE_STATUS_PAIED, MergerDoubanOutSource,
     INVOICE_RATE, DoubanOutSource, MergerOutSource, MERGER_OUTSOURCE_STATUS_PAIED,
-    OutSourceTarget, MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
+    OutSourceTarget)
 from models.user import User
 from libs.signals import outsource_apply_signal, merger_outsource_apply_signal
 # from controllers.finance.helpers.pay_helpers import write_excel
@@ -253,8 +251,7 @@ def outsource_back(outsource_id):
             User.operater_leaders() + outsource.client_order.operater_users
 
     to_emails = list(set([x.email for x in to_users]))
-    title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号',
-                                 order.jiafang_name, u'外包款项撤回')
+    title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号', order.jiafang_name, u'外包款项撤回')
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": u'外包款项撤回',
@@ -326,8 +323,7 @@ def outsource_pass(outsource_id):
     else:
         order = outsource.medium_order.client_order
 
-    title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号',
-                                 order.jiafang_name, action_msg)
+    title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号', order.jiafang_name, action_msg)
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,
