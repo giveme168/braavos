@@ -18,7 +18,7 @@
     <a class="list-group-item" href="{{url_for('outsource.douban_orders')}}">
         <span class="glyphicon glyphicon-stats"></span> 我的直签豆瓣订单
     </a>
-    {% if g.user.is_leader() %}
+    {% if g.user.email.find('fenghaiyan')>=0 or g.user.is_super_leader() %}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>合并付款</li>
     <a class="list-group-item" href="{{url_for('outsource.merger_client_target')}}">
         <span class="glyphicon glyphicon-stats"></span> 媒体订单

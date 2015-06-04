@@ -8,7 +8,8 @@ from models.client_order import ClientOrder
 from models.douban_order import DoubanOrder
 from models.outsource import (
     OutSource, OUTSOURCE_STATUS_APPLY_MONEY, OUTSOURCE_STATUS_PAIED, MergerDoubanOutSource,
-    INVOICE_RATE, DoubanOutSource, MergerOutSource, MERGER_OUTSOURCE_STATUS_PAIED, MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
+    INVOICE_RATE, DoubanOutSource, MergerOutSource, MERGER_OUTSOURCE_STATUS_PAIED,
+    OutSourceTarget, MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
 from models.user import User
 from libs.signals import outsource_apply_signal, merger_outsource_apply_signal
 # from controllers.finance.helpers.pay_helpers import write_excel
@@ -24,9 +25,81 @@ finance_pay_bp = Blueprint(
 def index():
     if not g.user.is_finance():
         abort(404)
-    merger_outsources = MergerOutSource.get_outsources_by_status(
-        MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
-    return tpl('/finance/pay/index.html', merger_outsources=merger_outsources)
+    targets = [k for k in OutSourceTarget.all() if k.otype in [1, None]]
+    return tpl('/finance/pay/index.html', targets=targets)
+
+
+@finance_pay_bp.route('/<target_id>/info', methods=['GET'])
+def info(target_id):
+    if not g.user.is_finance():
+        abort(404)
+    target = OutSourceTarget.get(target_id)
+    apply_money_merger_outsources = target.merger_client_order_outsources_by_status(2)
+    paid_merger_outsources = target.merger_client_order_outsources_by_status(0)
+    reminder_emails = [(u.name, u.email) for u in User.all_active()]
+    return tpl('/finance/pay/info.html', target=target, reminder_emails=reminder_emails,
+               apply_money_merger_outsources=apply_money_merger_outsources,
+               paid_merger_outsources=paid_merger_outsources)
+
+
+@finance_pay_bp.route('/merget_client_target/<target_id>/paid', methods=['GET', 'POST'])
+def merget_client_target_paid(target_id):
+    if not g.user.is_finance():
+        abort(404)
+    action = int(request.values.get('action', 1))
+    outsource_ids = request.values.getlist('outsources')
+    merger_clients = MergerOutSource.gets(outsource_ids)
+    emails = request.values.getlist('email')
+    msg = request.values.get('msg', '')
+    if action == 0:
+        sub_title = u"外包已打款"
+        for k in merger_clients:
+            for o in k.outsources:
+                o.status = OUTSOURCE_STATUS_PAIED
+                o.save()
+            k.status = MERGER_OUTSOURCE_STATUS_PAIED
+            k.save()
+            title = u'【费用报备】%s' % (sub_title)
+            apply_context = {"sender": g.user,
+                             "to": emails,
+                             "msg": msg,
+                             "title": title,
+                             "action": action,
+                             "merger_outsource": k}
+            merger_outsource_apply_signal.send(
+                current_app._get_current_object(), apply_context=apply_context)
+        flash(sub_title, 'success')
+    return redirect(url_for("finance_pay.info", target_id=target_id))
+
+
+@finance_pay_bp.route('/merget_douban_target/<target_id>/paid', methods=['GET', 'POST'])
+def merget_douban_target_paid(target_id):
+    if not g.user.is_finance():
+        abort(404)
+    action = int(request.values.get('action', 1))
+    outsource_ids = request.values.getlist('outsources')
+    merger_clients = MergerDoubanOutSource.gets(outsource_ids)
+    emails = request.values.getlist('email')
+    msg = request.values.get('msg', '')
+    if action == 0:
+        sub_title = u"外包已打款"
+        for k in merger_clients:
+            for o in k.outsources:
+                o.status = OUTSOURCE_STATUS_PAIED
+                o.save()
+            k.status = MERGER_OUTSOURCE_STATUS_PAIED
+            k.save()
+            title = u'【费用报备】%s' % (sub_title)
+            apply_context = {"sender": g.user,
+                             "to": emails,
+                             "msg": msg,
+                             "title": title,
+                             "action": action,
+                             "merger_outsource": k}
+            merger_outsource_apply_signal.send(
+                current_app._get_current_object(), apply_context=apply_context)
+        flash(sub_title, 'success')
+    return redirect(url_for("finance_pay.douban_info", target_id=target_id))
 
 
 @finance_pay_bp.route('/<merger_id>/pass', methods=['GET'])
@@ -76,9 +149,8 @@ def merger_outsources_pass(merger_id):
 def douban_index():
     if not g.user.is_finance():
         abort(404)
-    merger_outsources = MergerDoubanOutSource.get_outsources_by_status(
-        MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
-    return tpl('/finance/pay/douban_index.html', merger_outsources=merger_outsources)
+    targets = [k for k in OutSourceTarget.all() if k.otype in [1, None]]
+    return tpl('/finance/pay/douban_index.html', targets=targets)
 
 
 @finance_pay_bp.route('/pass', methods=['GET'])
@@ -93,57 +165,20 @@ def index_pass():
         merger_outsources = MergerOutSource.get_outsources_by_status(
             MERGER_OUTSOURCE_STATUS_PAIED)
     return tpl('/finance/pay/index_pass.html', merger_outsources=merger_outsources)
-    '''
-    type = request.values.get('type', '')
-    if type == 'douban':
-        title = u'申请通过的直签豆瓣订单打款'
-        orders = [k for k in list(DoubanOrder.all()) if k.get_outsources_by_status(
-            OUTSOURCE_STATUS_PAIED)]
-    else:
-        title = u'申请通过的客户订单打款'
-        orders = [k for k in list(ClientOrder.all()) if k.get_outsources_by_status(
-            OUTSOURCE_STATUS_PAIED)]
-
-    dtype = request.args.get('dtype', '')
-    if dtype == 'excel':
-        xls = write_excel(list(orders), type)
-        response = get_download_response(
-            xls, ("%s-%s.xls" % (u"申请过的打款信息", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
-        return response
-    return tpl('/finance/pay/index_pass.html', orders=orders, title=title, type=type)
-    '''
 
 
-@finance_pay_bp.route('/<order_id>/info', methods=['GET'])
-def info(order_id):
+@finance_pay_bp.route('/<target_id>/douban_info', methods=['GET'])
+def douban_info(target_id):
     if not g.user.is_finance():
         abort(404)
-    order = ClientOrder.get(order_id)
-    if not order:
-        abort(404)
-    outsources_data = {
-        'PAIED': [{'outsource': x} for x in order.get_outsources_by_status(OUTSOURCE_STATUS_PAIED)],
-        'APPLY_MONEY': [{'outsource': x} for x in order.get_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY)],
-    }
+    target = OutSourceTarget.get(target_id)
+    apply_money_merger_outsources = target.merger_douban_order_outsources_by_status(
+        2)
+    paid_merger_outsources = target.merger_douban_order_outsources_by_status(0)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
-    return tpl('/finance/pay/info.html', order=order,
-               outsources_data=outsources_data, reminder_emails=reminder_emails)
-
-
-@finance_pay_bp.route('/<order_id>/douban_info', methods=['GET'])
-def douban_info(order_id):
-    if not g.user.is_finance():
-        abort(404)
-    order = DoubanOrder.get(order_id)
-    if not order:
-        abort(404)
-    outsources_data = {
-        'PAIED': [{'outsource': x} for x in order.get_outsources_by_status(OUTSOURCE_STATUS_PAIED)],
-        'APPLY_MONEY': [{'outsource': x} for x in order.get_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY)],
-    }
-    reminder_emails = [(u.name, u.email) for u in User.all_active()]
-    return tpl('/finance/pay/douban_info.html', order=order,
-               outsources_data=outsources_data, reminder_emails=reminder_emails)
+    return tpl('/finance/pay/douban_info.html', target=target, reminder_emails=reminder_emails,
+               apply_money_merger_outsources=apply_money_merger_outsources,
+               paid_merger_outsources=paid_merger_outsources)
 
 
 @finance_pay_bp.route('/<outsource_id>/pay_num', methods=['POST'])
@@ -218,7 +253,8 @@ def outsource_back(outsource_id):
             User.operater_leaders() + outsource.client_order.operater_users
 
     to_emails = list(set([x.email for x in to_users]))
-    title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号', order.jiafang_name, u'外包款项撤回')
+    title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号',
+                                 order.jiafang_name, u'外包款项撤回')
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": u'外包款项撤回',
@@ -290,7 +326,8 @@ def outsource_pass(outsource_id):
     else:
         order = outsource.medium_order.client_order
 
-    title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号', order.jiafang_name, action_msg)
+    title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号',
+                                 order.jiafang_name, action_msg)
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,

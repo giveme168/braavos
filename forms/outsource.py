@@ -1,13 +1,15 @@
 #-*- coding: UTF-8 -*-
-from wtforms import TextField, IntegerField, TextAreaField, SelectField, validators
+from wtforms import TextField, IntegerField, TextAreaField, SelectField, validators, FloatField
 
 from libs.wtf import Form
-from models.outsource import OutSourceTarget, TARGET_TYPE_CN, OUTSOURCE_TYPE_CN, OUTSOURCE_SUBTYPE_CN, OUTSOURCE_INVOICE_CN
+from models.outsource import (OutSourceTarget, TARGET_TYPE_CN, OUTSOURCE_TYPE_CN,
+    OUTSOURCE_SUBTYPE_CN, OUTSOURCE_INVOICE_CN, TARGET_OTYPE_CN)
 
 
 class OutSourceTargetForm(Form):
     name = TextField(u'名称', [validators.Required(u"请输入名字.")])
     type = SelectField(u'类型', coerce=int, default=1)
+    otype = SelectField(u'外包性质', coerce=int, default=1)
     bank = TextField(u'开户行')
     card = TextField(u'银行卡号')
     alipay = TextField(u'支付宝', description=u"支付宝和银行支付两者选一就可以")
@@ -17,6 +19,7 @@ class OutSourceTargetForm(Form):
     def __init__(self, *args, **kwargs):
         super(OutSourceTargetForm, self).__init__(*args, **kwargs)
         self.type.choices = TARGET_TYPE_CN.items()
+        self.otype.choices = TARGET_OTYPE_CN.items()
 
     def validate(self):
         if Form.validate(self):
@@ -68,7 +71,7 @@ class DoubanOutsourceForm(Form):
 
 class MergerOutSourceForm(Form):
     num = IntegerField(u'填报金额', default=0)
-    pay_num = IntegerField(u'实际打款金额', default=0)
+    pay_num = FloatField(u'实际打款金额', default=0)
     invoice = SelectField(u'是否有发票', default=False)
     remark = TextAreaField(u'发票信息')
 
