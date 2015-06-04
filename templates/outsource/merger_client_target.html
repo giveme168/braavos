@@ -25,13 +25,13 @@
             <td>{{t.card}}</td>
             <td>{{t.alipay}}</td>
             <td>{{t.contract}}</td>
-            <td><a href="{{url_for('outsource.merget_client_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PAIED)}}">{{t.client_outsources_by_status(OUTSOURCE_STATUS_PAIED) | length }}</a></td>
-            <td><a href="{{url_for('outsource.merget_client_target_info', target_id=t.id, status=OUTSOURCE_STATUS_APPLY_MONEY)}}">{{t.client_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY) | length }}</a></td>
+            <td><a href="{{url_for('outsource.merget_client_target_info', target_id=t.id)}}">{{t.client_outsources_by_status(OUTSOURCE_STATUS_PAIED) | length }}</a></td>
+            <td><a href="{{url_for('outsource.merget_client_target_info', target_id=t.id)}}">{{t.client_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY) | length }}</a></td>
             <td>
                 {% if  pass_count|length > 0 %}
-                <a style="color:red;" href="{{url_for('outsource.merget_client_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PASS)}}">{{pass_count | length }}</a>
+                <a style="color:red;" href="{{url_for('outsource.merget_client_target_info', target_id=t.id)}}">{{pass_count | length }}</a>
                 {% else %}
-                <a href="{{url_for('outsource.merget_client_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PASS)}}">{{pass_count | length }}</a>
+                <a href="{{url_for('outsource.merget_client_target_info', target_id=t.id)}}">{{pass_count | length }}</a>
                 {% endif %}
             </td>
         </tr>

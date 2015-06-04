@@ -20,6 +20,14 @@ TARGET_TYPE_CN = {
 }
 
 
+TARGET_OTYPE_BUSINESS = 1
+TARGET_OTYPE_PERSONAL = 2
+TARGET_OTYPE_CN = {
+    TARGET_OTYPE_BUSINESS: u'对公',
+    TARGET_OTYPE_PERSONAL: u'个人',
+}
+
+
 class OutSourceTarget(db.Model, BaseModelMixin):
     __tablename__ = 'out_source_target'
 
@@ -30,15 +38,17 @@ class OutSourceTarget(db.Model, BaseModelMixin):
     alipay = db.Column(db.String(100))
     contract = db.Column(db.String(1000))
     remark = db.Column(db.String(1000))
+    otype = db.Column(db.Integer, default=1)
     type = db.Column(db.Integer)
 
-    def __init__(self, name, bank, card, alipay, contract, remark, type):
+    def __init__(self, name, bank, card, alipay, contract, remark, otype, type):
         self.name = name
         self.bank = bank
         self.card = card
         self.alipay = alipay
         self.contract = contract
         self.remark = remark
+        self.otype = otype or 1
         self.type = type
 
     @property
@@ -64,6 +74,12 @@ class OutSourceTarget(db.Model, BaseModelMixin):
             return OUTSOURCE_STATUS_CN[OUTSOURCE_STATUS_PASS]
         else:
             return OUTSOURCE_STATUS_CN[OUTSOURCE_STATUS_APPLY_MONEY]
+
+    def merger_client_order_outsources_by_status(self, status):
+        return list(MergerOutSource.query.filter_by(target_id=self.id, status=status))
+
+    def merger_douban_order_outsources_by_status(self, status):
+        return list(MergerDoubanOutSource.query.filter_by(target_id=self.id, status=status))
 
 
 OUTSOURCE_TYPE_GIFT = 1

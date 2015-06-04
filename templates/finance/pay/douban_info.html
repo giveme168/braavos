@@ -2,69 +2,122 @@
 {% from 'comments.html' import comments_box %}
 
 {% block main_box%}
+{% macro merger_table(merger_outsources, status, target) -%}
+<div class="panel-group" id="accordion-outsource">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion-outsource">
+                      {% if status == 2 %}
+                      申请中打款
+                      {% elif status == 0 %}
+                      已打款
+                      {% endif %}
+                      的外包信息
+                    </a>
+                </h4>
+            </div>
+            <div class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <table class="table table-bordered">
+                        <tr>
+                            {% if status == 2 %}
+                            <th>选择</th>
+                            {% endif %}
+                            <th>申请打款总金额</th>
+                            <th>是否有发票</th>
+                            <th>发票信息</th>
+                            <th>申请时间</th>
+                            <th>订单名称</th>
+                            <th>合同号</th>
+                            <th>外包单项金额</th>
+                            <th>备注</th>
+                        </tr>
+                        {% for t in merger_outsources %}
+                        <tr>
+                            {% if status == 2 %}
+                            <td rowspan="{{t.outsources|length + 1}}"><input type="checkbox" name="outsource-id" class="outsource-id" value="{{t.id}}"/></td>
+                            {% endif %}
+                            <td rowspan="{{t.outsources|length + 1}}">{{t.pay_num}}</td>
+                            <td rowspan="{{t.outsources|length + 1}}">{% if t.invoice %}有{%else%}无{%endif%}</td>
+                            <td rowspan="{{t.outsources|length + 1}}">{{ t.remark }}</td>
+                            <td rowspan="{{t.outsources|length + 1}}">{{ t.create_time_cn }}</td>
+                        </tr>
+                          {% for o in t.outsources %}
+                          <tr>
+                              <td>{{o.douban_order.name}}</td>
+                              <td>{{o.douban_order.contract}}</td>
+                              <td>{{o.pay_num}}</td>
+                              <td>{{o.remark}}</td>
+                          </tr>
+                          {% endfor %}
+                        {% endfor %}
+                    </table>
+                    {% if status == 2 %}
+                    <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
+                    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('finance_pay.merget_douban_target_paid', target_id=target.id)}}">
+                       <div class="form-group">
+                          <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
+                          <div class="col-sm-10">
+                              <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+                                {% for u in reminder_emails %}
+                                <option value="{{u[1]}}">{{u[0]}}</option>
+                                {% endfor %}
+                              </select>
+                          </div>
+                       </div>
+                       <div class="form-group">
+                          <label for="msg" class="col-sm-2 control-label">留言 : </label>
+                          <div class="col-sm-10">
+                              <textarea class="form-control bra-form-control" id="msg"
+                              name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+                          </div>
+                       </div>
+                       <div class="form-group">
+                          <label class="col-sm-2 control-label">操作 : </label>
+                          <div class="col-sm-10">
+                            {% if g.user.is_finance() %}
+                            <button class="btn btn-sm btn-primary status-outsource-btn" name="action" type="submit" value="0">已打款</button>
+                            {% endif %}
+                          </div>
+                       </div>
+                     </form>
+                     {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{%- endmacro %}
 <div class="bra-main bra-box">
-    <h3>直签豆瓣订单外包打款情况</h3>
+    <h3>外包收款方信息</h3>
     <table class="table table-bordered table-striped">
         <tr>
-            <th>代理/直客</th>
-            <th>项目名称</th>
-            <th>总金额</th>
-            <th>外包应付总金额</th>
-            <th>外包占比</th>
-            <th>待申请</th>
-            <th>申请中</th>
-            <th>已通过</th>
-            <th>请款中</th>
-            <th>已打款</th>
+            <th>外包商名称</th>
+            <th>类型</th>
+            <th>开户行</th>    
+            <th>卡号</th>
+            <th>支付宝</th>
+            <th>联系方式</th>
         </tr>
         <tr>
-            <td>{{order.jiafang_name}}</td>
-            <td>{{order.name}}</td>
-            <td>{{order.money}} 元</td>
-            <td>{{order.outsources_sum}} 元</td>
-            <td>{{order.outsources_percent}} %</td>
-            <td>{{order.get_outsources_by_status(0) | length}}</td>
-            <td>{{order.get_outsources_by_status(1) | length + order.get_outsources_by_status(5) | length}}</td>
-            <td>{{order.get_outsources_by_status(2) | length}}</td>
-            <td>{{order.get_outsources_by_status(3) | length}}</td>
-            <td>{{order.get_outsources_by_status(4) | length}}</td>
+            <td>{{ target.name }}</td>
+            <td>{{ target.type_cn }}</td>
+            <td>{{ target.bank }}</td>
+            <td>{{ target.card }}</td>
+            <td>{{ target.alipay }}</td>
+            <td>{{ target.contract }}</td> 
         </tr>
     </table>
-    {% if outsources_data.PAIED|length > 0 %}
-    <div class="panel panel-default" id="non-outsource">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-0"> 已经打款的外包信息 </a>
-            </h4>
-        </div>
-        <div id="collapse-outsource-0" class="panel-collapse collapse in">
-            <div class="panel-body">
-                {% for k in outsources_data.PAIED %}
-                  {{ outsource_table(k.outsource) }}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+    <!--已打款的外包信息-->
+    {% if paid_merger_outsources|length > 0 %}
+      {{ merger_table(paid_merger_outsources, 0, target) }}
     {% endif %}
-    {% set outsources = outsources_data.APPLY_MONEY %}
-    {% if outsources|length > 0 %}
-    <div class="panel panel-default" id="non-outsource">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-3">待打款</a>
-            </h4>
-        </div>
-        <div id="collapse-outsource-3" class="panel-collapse collapse in">
-            <div class="panel-body">
-                {% for i in outsources %}
-                {{ outsource_table(i.outsource) }}
-                {% endfor %}
-                {{ status_box(outsources[0]['outsource']) }}
-            </div>
-        </div>
-    </div>
+    <!---->
+    <!--申请中的打款信息开始-->
+    {% if apply_money_merger_outsources|length > 0 %}
+      {{ merger_table(apply_money_merger_outsources, 2, target) }}
     {% endif %}
-    <div>{{ comments_box(order, msg_channel=2) }}</div>
+    <!--申请中的打款信息结束-->
 </div>
 <script>
   $(function(){
@@ -91,7 +144,7 @@
         }
       }
     });
-    $(".outsource-btn").click(function(e){
+    $(".status-outsource-btn").click(function(e){
       var actionVal = $(this).val();
       var email = $(this).parents('form').find("#contract-email").val();
       var outsources = $(this).parents('form').find(".outsources");
@@ -110,111 +163,3 @@
   });
 </script>
 {% endblock %}
-
-{% macro outsource_table(outsource)%}
-{% if outsource.status == 3 %}
-<form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('finance_pay.outsource_pay_num', outsource_id=outsource.id)}}?type=douban">
-{% endif %}
-<div class="col-md-12">
-    <div class="col-md-6" style="margin-left: 20px; margin-top: 50px;">
-      <h4>
-          {% if outsource.status != 4 %}
-          <input type="checkbox" name="outsource-id" class="outsource-id" value="{{outsource.id}}"/>
-          {% endif %}
-          {{ outsource.name }} 元
-      </h4>
-        <table class="table table-bordered">
-          <tr>
-            <th>收款方</th>
-            <td>{{outsource.target.name}}</td>
-          </tr>
-          <tr>
-            <th>外包类别</th>
-            <td>{{outsource.type_cn}}</td>
-          </tr>
-          <tr>
-            <th>是否开发票</th>
-            <td>{{outsource.invoice_cn}}</td>
-          </tr>
-          <tr>
-            <th>Flash功能分类</th>
-            <td>{{outsource.subtype_cn}}</td>
-          </tr>
-          <tr>
-            <th>金额</th>
-            <td>{{outsource.num or 0}} 元</td>
-          </tr>
-          <tr>
-            <th>打款金额</th>
-            {% if outsource.status == 3 %}
-            <td><input class="form-control bra-form-control" type="text" value="{{outsource.pay_num or 0}}" name="pay_num"></td>
-            {% else %}
-            <td>{{outsource.invoice_num or 0}} 元</td>
-            {% endif %}
-          </tr>
-          <tr>
-            <th>开户行</th>
-            <td>{{outsource.target.bank}}</td>
-          </tr>
-          <tr>
-            <th>卡号</th>
-            <td>{{outsource.target.card}}</td>
-          </tr>
-          <tr>
-            <th>支付宝</th>
-            <td>{{outsource.target.alipay}}</td>
-          </tr>
-          <tr>
-            <th>联系方式</th>
-            <td>{{outsource.target.contract}}</td>
-          </tr>
-          <tr>
-            <th>备注</th>
-            <td>{{outsource.remark}}</td>
-          </tr>
-          <tr>
-            <th>打款时间</th>
-            <td>{{outsource.remark}}</td>
-          </tr>
-      </table>
-      {% if outsource.status == 4 %}
-        <a class="btn btn-primary btn-sm" href="{{url_for('finance_pay.outsource_back', outsource_id=outsource.id)}}?type=douban"/>撤回</a>
-      {% endif %}
-    </div>
-</div>
-{% if outsource.status == 3 %}
-<input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
-</form>
-{% endif %}
-
-{% endmacro %}
-{% macro status_box(outsource) -%}
-{% if outsource.status in [3] %}
-    <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
-{% endif %}
-    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('finance_pay.outsource_pass', outsource_id=outsource.id)}}?type=douban">
-        <div class="form-group">
-            <label for="email" class="col-sm-2 control-label">邮箱 : </label>
-            <div class="col-sm-10">
-                <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
-                    {% for u in reminder_emails %}
-                    <option value="{{u[1]}}">{{u[0]}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label for="msg" class="col-sm-2 control-label">留言 : </label>
-            <div class="col-sm-10">
-                <textarea class="form-control bra-form-control" id="msg"name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label">操作 : </label>
-            <div class="col-sm-10">
-                <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="0">已打款</button>
-                <!--<button class="btn btn-sm btn-info contract-submit" name="action" type="submit" value="10">留言</button>-->
-            </div>
-        </div>
-   </form>
-{%- endmacro %}

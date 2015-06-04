@@ -11,7 +11,7 @@ from models.user import User, TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER, TEA
 from models.outsource import (OUTSOURCE_STATUS_NEW, OUTSOURCE_STATUS_APPLY_LEADER,
                               OUTSOURCE_STATUS_PASS, OUTSOURCE_STATUS_APPLY_MONEY,
                               OUTSOURCE_STATUS_EXCEED, INVOICE_RATE, OUTSOURCE_STATUS_PAIED,
-                              MERGER_OUTSOURCE_STATUS_APPLY)
+                              MERGER_OUTSOURCE_STATUS_APPLY, MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
 from forms.outsource import OutSourceTargetForm, OutsourceForm, DoubanOutsourceForm, MergerOutSourceForm
 from libs.signals import outsource_apply_signal, outsource_distribute_signal, merger_outsource_apply_signal
 from libs.paginator import Paginator
@@ -150,6 +150,7 @@ def new_target():
                                      alipay=form.alipay.data,
                                      contract=form.contract.data,
                                      type=form.type.data,
+                                     otype=form.otype.data,
                                      remark=form.remark.data)
         flash(u'新建外包收款方(%s)成功!' % target.name, 'success')
         return redirect(url_for("outsource.target_detail", target_id=target.id))
@@ -170,6 +171,7 @@ def target_detail(target_id):
         target.contract = form.contract.data
         target.remark = form.remark.data
         target.type = form.type.data
+        target.otype = form.otype.data
         target.save()
         flash(u'保存成功', 'success')
     else:
@@ -180,6 +182,7 @@ def target_detail(target_id):
         form.contract.data = target.contract
         form.remark.data = target.remark
         form.type.data = target.type
+        form.otype.data = target.otype or 1
     return tpl('target.html', form=form, title=u"收款方-" + target.name)
 
 
@@ -488,7 +491,7 @@ def outsource_status(order_id):
 
 @outsource_bp.route('/merger_client_target', methods=['GET'])
 def merger_client_target():
-    targets = OutSourceTarget.all()
+    targets = [k for k in OutSourceTarget.all() if k.otype in [1, None]]
     return tpl('merger_client_target.html', targets=targets,
                OUTSOURCE_STATUS_APPLY_MONEY=OUTSOURCE_STATUS_APPLY_MONEY,
                OUTSOURCE_STATUS_PAIED=OUTSOURCE_STATUS_PAIED,
@@ -497,7 +500,7 @@ def merger_client_target():
 
 @outsource_bp.route('/merger_douban_target', methods=['GET'])
 def merger_douban_target():
-    targets = OutSourceTarget.all()
+    targets = [k for k in OutSourceTarget.all() if k.otype in [1, None]]
     return tpl('merger_douban_target.html', targets=targets,
                OUTSOURCE_STATUS_APPLY_MONEY=OUTSOURCE_STATUS_APPLY_MONEY,
                OUTSOURCE_STATUS_PAIED=OUTSOURCE_STATUS_PAIED,
@@ -526,26 +529,43 @@ def update_pay_num():
 
 @outsource_bp.route('/merger_client_target/<target_id>/apply', methods=['GET', 'POST'])
 def merget_client_target_apply(target_id):
-    '''
     action = int(request.values.get('action', 1))
     outsource_ids = request.values.getlist('outsources')
     merger_clients = MergerOutSource.gets(outsource_ids)
+    emails = request.values.getlist('email')
+    msg = request.values.get('msg', '')
     if action == 1:
-        msg = u"申请审批"
+        sub_title = u"申请外包合并打款"
     elif action == -1:
         for k in merger_clients:
-            for k in k.outsources:
-                k.status = OUTSOURCE_STATUS_PASS
-                k.save()
-        msg = u"驳回外包打款"
+            for o in k.outsources:
+                o.status = OUTSOURCE_STATUS_PASS
+                o.save()
+        sub_title = u"驳回外包合并打款"
     elif action == 2:
-        msg = u'批准外包打款'
-    '''
-    return redirect(url_for("outsource.merget_client_target_info", target_id=target_id, status=2))
+        sub_title = u'批准外包合并打款'
+        for k in merger_clients:
+            k.status = MERGER_OUTSOURCE_STATUS_APPLY_MONEY
+            k.save()
+
+    for k in merger_clients:
+        title = u'【费用报备】%s' % (sub_title)
+        apply_context = {"sender": g.user,
+                         "to": emails,
+                         "msg": msg,
+                         "title": title,
+                         "action": action,
+                         "merger_outsource": k}
+        merger_outsource_apply_signal.send(
+            current_app._get_current_object(), apply_context=apply_context)
+        if action == -1:
+            k.delete()
+    flash(sub_title, 'success')
+    return redirect(url_for("outsource.merget_client_target_info", target_id=target_id))
 
 
-@outsource_bp.route('/merger_client_target/<target_id>/info/<status>', methods=['GET', 'POST'])
-def merget_client_target_info(target_id, status):
+@outsource_bp.route('/merger_client_target/<target_id>/info', methods=['GET', 'POST'])
+def merget_client_target_info(target_id):
     target = OutSourceTarget.get(target_id)
     if request.method == 'POST':
         form = MergerOutSourceForm(request.form)
@@ -557,7 +577,6 @@ def merget_client_target_info(target_id, status):
             o.status = OUTSOURCE_STATUS_APPLY_MONEY
             o.create_time = datetime.date.today()
             o.save()
-
         merger_outsource = MergerOutSource.add(target=target,
                                                outsources=outsources,
                                                invoice=form.invoice.data,
@@ -566,37 +585,73 @@ def merget_client_target_info(target_id, status):
                                                remark=form.remark.data,
                                                status=1)
         merger_outsource.save()
-        flash(u'合并付款成功', 'success')
-        title = u'【费用报备】%s' % (u'申请打款')
+        flash(u'合并付款申请成功', 'success')
+        title = u'【费用报备】%s' % (u'合并付款申请审批')
         apply_context = {"sender": g.user,
-                         "to": [k.email for k in User.finances() +
-                                User.super_leaders() + User.operater_leaders()] + emails,
-                         "action_msg": u'申请打款',
+                         "to": emails,
                          "msg": msg,
                          "title": title,
-                         "to_users": ','.join([k.name for k in User.finances()]),
-                         "invoice": form.invoice.data,
-                         "remark": form.remark.data,
-                         "outsources": outsources}
+                         "action": 1,
+                         "merger_outsource": merger_outsource}
         merger_outsource_apply_signal.send(
             current_app._get_current_object(), apply_context=apply_context)
-        flash(u'已发送邮件给 %s ' % (', '.join(apply_context['to'])), 'info')
-        return redirect(url_for("outsource.merget_client_target_info", target_id=target_id, status=status))
-    outsources = OutSource.get_outsources_by_target(target_id, status)
+        return redirect(url_for("outsource.merget_client_target_info", target_id=target_id))
+
+    apply_outsources = OutSource.get_outsources_by_target(target_id, 2)
+    apply_money_outsources = OutSource.get_outsources_by_target(target_id, 3)
+    paid_outsources = OutSource.get_outsources_by_target(target_id, 4)
     apply_merger_outsources = MergerOutSource.get_outsources_by_status(MERGER_OUTSOURCE_STATUS_APPLY)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     form = MergerOutSourceForm(request.form)
-    return tpl('merger_client_target_info.html', target=target, status=int(status),
-               outsources=outsources, reminder_emails=reminder_emails,
+    return tpl('merger_client_target_info.html', target=target,
+               apply_outsources=apply_outsources, reminder_emails=reminder_emails,
                OUTSOURCE_STATUS_APPLY_MONEY=OUTSOURCE_STATUS_APPLY_MONEY,
                OUTSOURCE_STATUS_PAIED=OUTSOURCE_STATUS_PAIED,
                OUTSOURCE_STATUS_PASS=OUTSOURCE_STATUS_PASS,
                form=form, INVOICE_RATE=INVOICE_RATE,
-               apply_merger_outsources=apply_merger_outsources)
+               apply_merger_outsources=apply_merger_outsources,
+               apply_money_outsources=apply_money_outsources,
+               paid_outsources=paid_outsources)
 
 
-@outsource_bp.route('/merger_douban_target/<target_id>/info/<status>', methods=['GET', 'POST'])
-def merget_douban_target_info(target_id, status):
+@outsource_bp.route('/merget_douban_target_apply/<target_id>/apply', methods=['GET', 'POST'])
+def merget_douban_target_apply(target_id):
+    action = int(request.values.get('action', 1))
+    outsource_ids = request.values.getlist('outsources')
+    merger_clients = MergerDoubanOutSource.gets(outsource_ids)
+    emails = request.values.getlist('email')
+    msg = request.values.get('msg', '')
+    if action == 1:
+        sub_title = u"申请外包打款审批"
+    elif action == -1:
+        for k in merger_clients:
+            for o in k.outsources:
+                o.status = OUTSOURCE_STATUS_PASS
+                o.save()
+        sub_title = u"驳回外包打款"
+    elif action == 2:
+        sub_title = u'批准外包打款'
+        for k in merger_clients:
+            k.status = MERGER_OUTSOURCE_STATUS_APPLY_MONEY
+            k.save()
+    for k in merger_clients:
+        title = u'【费用报备】%s' % (sub_title)
+        apply_context = {"sender": g.user,
+                         "to": emails,
+                         "msg": msg,
+                         "title": title,
+                         "action": action,
+                         "merger_outsource": k}
+        merger_outsource_apply_signal.send(
+            current_app._get_current_object(), apply_context=apply_context)
+        if action == -1:
+            k.delete()
+    flash(sub_title, 'success')
+    return redirect(url_for("outsource.merget_douban_target_info", target_id=target_id))
+
+
+@outsource_bp.route('/merger_douban_target/<target_id>/info', methods=['GET', 'POST'])
+def merget_douban_target_info(target_id):
     target = OutSourceTarget.get(target_id)
     if request.method == 'POST':
         form = MergerOutSourceForm(request.form)
@@ -608,7 +663,6 @@ def merget_douban_target_info(target_id, status):
             o.status = OUTSOURCE_STATUS_APPLY_MONEY
             o.create_time = datetime.date.today()
             o.save()
-
         merger_outsource = MergerDoubanOutSource.add(target=target,
                                                      outsources=outsources,
                                                      invoice=form.invoice.data,
@@ -617,28 +671,28 @@ def merget_douban_target_info(target_id, status):
                                                      remark=form.remark.data,
                                                      status=1)
         merger_outsource.save()
-        flash(u'合并付款成功', 'success')
-        title = u'【费用报备】%s' % (u'申请打款')
+        flash(u'合并付款申请成功', 'success')
+        title = u'【费用报备】%s' % (u'合并付款申请审批')
         apply_context = {"sender": g.user,
-                         "to": [k.email for k in User.finances() +
-                                User.super_leaders() + User.operater_leaders()] + emails,
-                         "action_msg": u'申请打款',
+                         "to": emails,
                          "msg": msg,
                          "title": title,
-                         "to_users": ','.join([k.name for k in User.finances()]),
-                         "invoice": form.invoice.data,
-                         "remark": form.remark.data,
-                         "outsources": outsources}
+                         "action": 1,
+                         "merger_outsource": merger_outsource}
         merger_outsource_apply_signal.send(
             current_app._get_current_object(), apply_context=apply_context)
-        flash(u'已发送邮件给 %s ' % (', '.join(apply_context['to'])), 'info')
-        return redirect(url_for("outsource.merget_douban_target_info", target_id=target_id, status=status))
-    outsources = DoubanOutSource.get_outsources_by_target(target_id, status)
+        return redirect(url_for("outsource.merget_douban_target_info", target_id=target_id))
+    apply_outsources = DoubanOutSource.get_outsources_by_target(target_id, 2)
+    apply_money_outsources = DoubanOutSource.get_outsources_by_target(target_id, 3)
+    paid_outsources = DoubanOutSource.get_outsources_by_target(target_id, 4)
+    apply_merger_outsources = MergerDoubanOutSource.get_outsources_by_status(MERGER_OUTSOURCE_STATUS_APPLY)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     form = MergerOutSourceForm(request.form)
-    return tpl('merger_douban_target_info.html', target=target, status=int(status),
-               outsources=outsources, reminder_emails=reminder_emails,
+    return tpl('merger_douban_target_info.html', target=target, reminder_emails=reminder_emails,
                OUTSOURCE_STATUS_APPLY_MONEY=OUTSOURCE_STATUS_APPLY_MONEY,
                OUTSOURCE_STATUS_PAIED=OUTSOURCE_STATUS_PAIED,
                OUTSOURCE_STATUS_PASS=OUTSOURCE_STATUS_PASS,
-               form=form, INVOICE_RATE=INVOICE_RATE)
+               form=form, INVOICE_RATE=INVOICE_RATE,
+               apply_merger_outsources=apply_merger_outsources,
+               apply_money_outsources=apply_money_outsources,
+               paid_outsources=paid_outsources, apply_outsources=apply_outsources)

@@ -1,5 +1,5 @@
 #-*- coding: UTF-8 -*-
-from flask import url_for, g
+from flask import url_for, g, flash
 from libs.mail import send_simple_mail, send_attach_mail, mail
 from blinker import Namespace
 
@@ -264,17 +264,67 @@ def outsource_apply(sender, apply_context):
 
 
 def merger_outsource_apply(sender, apply_context):
-    outsources = apply_context['outsources']
+    merger_outsource = apply_context['merger_outsource']
+    outsources = merger_outsource.outsources
     outsources_info = "\n".join([o.outsource_info for o in outsources])
-    pay_nums = sum([k.pay_num for k in outsources])
+    pay_nums = merger_outsource.pay_num
+    action = apply_context['action']
     if apply_context.has_key('url'):
         url = apply_context['url']
     else:
         url = mail.app.config['DOMAIN'] + outsources[0].finance_pay_path()
-    if apply_context['invoice'] == 'True':
+    if merger_outsource.invoice:
         invoice_type = u'有'
     else:
         invoice_type = u'无'
+    to_user = apply_context['to']
+    to_user_name = ''
+
+    if action == 1:
+        to_user_name = ','.join([k.name for k in User.all() if k.email.find('huangliang') >= 0])
+        to_user += [k.email for k in User.all() if k.email.find('huangliang')
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+['giveme168@163.com']
+        if merger_outsource.__tablename__ == 'merger_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
+        else:
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
+        flash(u'已发送邮件给 %s ' % (', '.join(to_user)), 'info')
+    elif action == -1:
+        to_user_name = ','.join([k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])
+        to_user += [k.email for k in User.all() if k.email.find('huangliang')
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+['giveme168@163.com']
+        if merger_outsource.__tablename__ == 'merger_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
+        else:
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
+        flash(u'已发送邮件给 %s ' % (', '.join(to_user)), 'info')
+    elif action == 2:
+        to_user_name = ','.join([k.name for k in User.finances()])
+        to_user += [k.email for k in User.all() if k.email.find('huangliang')
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]+['giveme168@163.com']
+        if merger_outsource.__tablename__ == 'merger_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('finance_pay.info', target_id=merger_outsource.target.id)
+        else:
+            url = mail.app.config[
+                'DOMAIN'] + url_for('finance_pay.douban_info', target_id=merger_outsource.target.id)
+        flash(u'已发送邮件给 %s ' % (', '.join(to_user)), 'info')
+    elif action == 0:
+        to_user_name = ','.join([k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])
+        to_user += [k.email for k in User.all() if k.email.find('huangliang')
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]+['giveme168@163.com']
+        if merger_outsource.__tablename__ == 'merger_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
+        else:
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
+        flash(u'已发送邮件给 %s ' % (', '.join(to_user)), 'info')
+
     body = u"""
 Dear %s:
 
@@ -295,8 +345,8 @@ Dear %s:
     致趣订单管理系统链接地址: %s
 
 by %s\n
-""" % (apply_context['to_users'], apply_context['title'], outsources_info, pay_nums, invoice_type, apply_context['remark'], apply_context['msg'], url, g.user.name)
-    send_simple_mail(apply_context['title'], recipients=apply_context['to'],
+""" % (to_user_name, apply_context['title'], outsources_info, pay_nums, invoice_type, merger_outsource.remark, apply_context['msg'], url, g.user.name)
+    send_simple_mail(apply_context['title'], recipients=list(set(to_user)),
                      body=body)
 
 

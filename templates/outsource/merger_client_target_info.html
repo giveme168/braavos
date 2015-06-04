@@ -7,7 +7,7 @@
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion-outsource">
                       {% if status == 1 %}
-                      申请中
+                      申请中打款
                       {% endif %}
                       的外包信息
                     </a>
@@ -15,13 +15,15 @@
             </div>
             <div class="panel-collapse collapse in">
                 <div class="panel-body">
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered">
                         <tr>
                             <th>选择</th>
                             <th>申请打款金额</th>
                             <th>是否有发票</th>
                             <th>发票信息</th>
                             <th>申请时间</th>
+                            <th>客户名称</t>
+                            <th>客户合同号</th>
                             <th>媒体订单</th>
                             <th>媒体合同号</th>
                             <th>外包金额</th>
@@ -37,6 +39,8 @@
                         </tr>
                           {% for o in t.outsources %}
                           <tr>
+                              <td>{{o.medium_order.client_order.name}}</td>
+                              <td>{{o.medium_order.client_order.contract}}</td>
                               <td>{{o.medium_order.name}}</td>
                               <td>{{o.medium_order.contract}}</td>
                               <td>{{o.pay_num}}</td>
@@ -68,11 +72,11 @@
                           <label class="col-sm-2 control-label">操作 : </label>
                           <div class="col-sm-10">
                             {% if g.user.is_operater_leader() %}
-                            <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="1">再次发出审批申请</button>
+                            <button class="btn btn-sm btn-primary status-outsource-btn" name="action" type="submit" value="1">再次发出审批申请</button>
                             {% endif %}
                             {% if g.user.is_super_leader() %}
-                            <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="2">通过</button>
-                            <button class="btn btn-sm btn-warning contract-submit" name="action" type="submit" value="-1">驳回</button>
+                            <button class="btn btn-sm btn-primary status-outsource-btn" name="action" type="submit" value="2">通过</button>
+                            <button class="btn btn-sm btn-warning status-outsource-btn" name="action" type="submit" value="-1">驳回</button>
                             {% endif %}
                           </div>
                        </div>
@@ -82,36 +86,8 @@
         </div>
     </div>
 {%- endmacro %}
-{% block main_box%}
-<div class="bra-main bra-box">
-    <h3>{{target.name}}的信息</h3>
-    <table class="table table-bordered">
-        <tr>
-            <th>类型</th>
-            <th>开户行</th>
-            <th>卡号</th>
-            <th>支付宝</th>
-            <th>联系方式</th>
-            <th>已打款个数</th>
-            <th>正在打款个数</th>
-            <th>待申请打款个数</th>
-        </tr>
-        <tr>
-            <td>{{target.type_cn}}</td>
-            <td>{{target.bank}}</td>
-            <td>{{target.card}}</td>
-            <td>{{target.alipay}}</td>
-            <td>{{target.contract}}</td>
-            <td><a href="{{url_for('outsource.merget_client_target_info', target_id=target.id, status=OUTSOURCE_STATUS_PAIED)}}">{{target.client_outsources_by_status(OUTSOURCE_STATUS_PAIED) | length }}</a></td>
-            <td><a href="{{url_for('outsource.merget_client_target_info', target_id=target.id, status=OUTSOURCE_STATUS_APPLY_MONEY)}}">{{target.client_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY) | length }}</a></td>
-            <td><a href="{{url_for('outsource.merget_client_target_info', target_id=target.id, status=OUTSOURCE_STATUS_PASS)}}">{{target.client_outsources_by_status(OUTSOURCE_STATUS_PASS) | length }}</a></td>
-        </tr>
-    </table>
-    <!--申请中的打款信息开始-->
-    {{ merger_table(apply_merger_outsources, 1, target) }}
-    <!--申请中的打款信息结束-->
-    <!--合并付款开始-->
-    <div class="panel-group" id="accordion-outsource">
+{% macro merger_outsources_table(outsources, status)-%}
+<div class="panel-group" id="accordion-outsource">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
@@ -121,7 +97,7 @@
                       {% elif OUTSOURCE_STATUS_APPLY_MONEY == status%}
                       正在打款
                       {% elif OUTSOURCE_STATUS_PASS == status%}
-                      申请打款
+                      待合并付款
                       {% endif %}
                       的外包信息
                     </a>
@@ -129,11 +105,13 @@
             </div>
             <div class="panel-collapse collapse in">
                 <div class="panel-body">
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered">
                         <tr>
                             {% if OUTSOURCE_STATUS_PASS == status%}
                             <th>选择</th>
                             {% endif %}
+                            <th>客户名称</t>
+                            <th>客户合同号</th>
                             <th>媒体订单</th>
                             <th>媒体合同号</th>
                             <th>类型</th>
@@ -153,6 +131,8 @@
                             {% if OUTSOURCE_STATUS_PASS == status%}
                             <td><input type="checkbox" name="outsource-id" class="outsource-id" value="{{t.id}}"/></td>
                             {% endif %}
+                            <td>{{t.medium_order.client_order.name}}</td>
+                            <td>{{t.medium_order.client_order.contract or '无合同号'}}</td>
                             <td>{{t.medium_order.name}}</td>
                             <td>{{t.medium_order.medium_contract or '无合同号'}}</td>
                             <td>{{t.type_cn}}</td>
@@ -225,7 +205,52 @@
             </div>
         </div>
     </div>
+{%- endmacro %}
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>{{target.name}}的信息</h3>
+    <table class="table table-bordered">
+        <tr>
+            <th>类型</th>
+            <th>开户行</th>
+            <th>卡号</th>
+            <th>支付宝</th>
+            <th>联系方式</th>
+            <th>已打款个数</th>
+            <th>正在打款个数</th>
+            <th>待申请打款个数</th>
+        </tr>
+        <tr>
+            <td>{{target.type_cn}}</td>
+            <td>{{target.bank}}</td>
+            <td>{{target.card}}</td>
+            <td>{{target.alipay}}</td>
+            <td>{{target.contract}}</td>
+            <td>{{target.client_outsources_by_status(OUTSOURCE_STATUS_PAIED) | length }}</td>
+            <td>{{target.client_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY) | length }}</td>
+            <td>{{target.client_outsources_by_status(OUTSOURCE_STATUS_PASS) | length }}</td>
+        </tr>
+    </table>
+    <!--正在打款信息开始-->
+    {% if paid_outsources %}
+      {{ merger_outsources_table(paid_outsources, 4) }}
+    {% endif %}
+    <!--正在打款信息结束-->
+    <!--正在打款信息开始-->
+    {% if apply_money_outsources %}
+      {{ merger_outsources_table(apply_money_outsources, 3) }}
+    {% endif %}
+    <!--正在打款信息结束-->
+    <!--合并付款开始-->
+    {% if apply_outsources %}
+      {{ merger_outsources_table(apply_outsources, 2) }}
+    {% endif %}
     <!--合并付款结束-->
+    <!--申请中的打款信息开始-->
+    {% if apply_merger_outsources.count() > 0 %}
+      {{ merger_table(apply_merger_outsources, 1, target) }}
+    {% endif %}
+    <!--申请中的打款信息结束-->
 </div>
 <!-- Modal -->
 <div class="modal fade" id="update_Modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -292,6 +317,17 @@
        }else{
           $('#pay_num').val(pay_num)
        }
+    })
+
+    $(".status-outsource-btn").click(function(e){
+      var actionVal = $(this).val();
+      var email = $(this).parents('form').find("#contract-email").val();
+      var outsources = $(this).parents('form').find(".outsources");
+      var msg = $(this).parents('form').find("#msg").val();
+      if(outsources.length < 1){
+        alert("请勾选外包项!");
+        return false;
+      }
     })
 
     $(".outsource-btn").click(function(e){
