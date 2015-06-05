@@ -24,7 +24,8 @@ def index():
     if not g.user.is_finance():
         abort(404)
     targets = [k for k in OutSourceTarget.all() if k.otype in [1, None]]
-    return tpl('/finance/pay/index.html', targets=targets)
+    personal_targets = [k for k in OutSourceTarget.all() if k.otype == 2]
+    return tpl('/finance/pay/index.html', targets=targets, personal_targets=personal_targets)
 
 
 @finance_pay_bp.route('/<target_id>/info', methods=['GET'])
@@ -148,7 +149,8 @@ def douban_index():
     if not g.user.is_finance():
         abort(404)
     targets = [k for k in OutSourceTarget.all() if k.otype in [1, None]]
-    return tpl('/finance/pay/douban_index.html', targets=targets)
+    personal_targets = [k for k in OutSourceTarget.all() if k.otype == 2]
+    return tpl('/finance/pay/douban_index.html', targets=targets, personal_targets=personal_targets)
 
 
 @finance_pay_bp.route('/pass', methods=['GET'])
