@@ -3,6 +3,8 @@ import itertools
 import datetime
 from datetime import timedelta
 
+from flask import json
+
 from . import db, BaseModelMixin
 from .consts import STATUS_CN, DATE_FORMAT
 from models.mixin.delivery import DeliveryMixin
@@ -61,8 +63,10 @@ OCCUPY_RESOURCE_PRECENT_CN = {
 }
 
 ad_position_unit_table = db.Table('ad_position_unit',
-                                  db.Column('position_id', db.Integer, db.ForeignKey('ad_position.id')),
-                                  db.Column('unit_id', db.Integer, db.ForeignKey('ad_unit.id'))
+                                  db.Column(
+                                      'position_id', db.Integer, db.ForeignKey('ad_position.id')),
+                                  db.Column(
+                                      'unit_id', db.Integer, db.ForeignKey('ad_unit.id'))
                                   )
 
 
@@ -73,7 +77,8 @@ class Medium(db.Model, BaseModelMixin):
     name = db.Column(db.String(100))
     abbreviation = db.Column(db.String(100))
     owner_id = db.Column(db.Integer, db.ForeignKey('team.id'))
-    owner = db.relationship('Team', backref=db.backref('mediums', lazy='dynamic'))
+    owner = db.relationship(
+        'Team', backref=db.backref('mediums', lazy='dynamic'))
     tax_num = db.Column(db.String(100))  # 税号
     address = db.Column(db.String(100))  # 地址
     phone_num = db.Column(db.String(100))  # 电话
@@ -119,6 +124,343 @@ def framework_generator(num):
     return code
 
 
+COOPERATION_TYPE_ONLY = 1
+COOPERATION_TYPE_NO_ONLY = 2
+COOPERATION_TYPE_CN = {
+    COOPERATION_TYPE_ONLY: u'独家',
+    COOPERATION_TYPE_NO_ONLY: u'非独家',
+}
+
+
+class MediumProductPC(db.Model, BaseModelMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
+    medium = db.relationship(
+        'Medium', backref=db.backref('medium_product_pc', lazy='dynamic'))
+    name = db.Column(db.String(100))
+    create_time = db.Column(db.DateTime)
+    update_time = db.Column(db.DateTime)
+    register_count = db.Column(db.Integer, default=0)
+    alone_count_by_day = db.Column(db.Integer, default=0)
+    active_count_by_day = db.Column(db.Integer, default=0)
+    alone_count_by_month = db.Column(db.Integer, default=0)
+    active_count_by_month = db.Column(db.Integer, default=0)
+    pv_by_day = db.Column(db.Integer, default=0)
+    pv_by_month = db.Column(db.Integer, default=0)
+    access_time = db.Column(db.Integer, default=0)           # 访问时长
+    ugc_count = db.Column(db.Integer, default=0)
+    cooperation_type = db.Column(db.Integer, default=1)      # 是否是独家
+    divide_into = db.Column(db.Float, default=0)           # 分成比例
+    policies = db.Column(db.Float, default=0)              # 折扣政策
+    delivery = db.Column(db.String(255), default="")         # 配送政策
+    special = db.Column(db.String(255), default="")          # 特殊情况说明
+    sex_distributed = db.Column(db.String(255), default="")  # 性别分布
+    age_distributed = db.Column(db.String(255), default="")  # 年龄分布
+    area_distributed = db.Column(db.String(255), default="")  # 地域分布
+    education_distributed = db.Column(db.String(255), default="")  # 学历分布
+    income_distributed = db.Column(db.String(255), default="")     # 收入分布
+    product_position = db.Column(db.String(255), default="")       # 产品定位
+    body = db.Column(db.Text(), default=json.dumps({}))
+    __table_args__ = (db.UniqueConstraint(
+        'medium_id', 'name', name='_medium_product_pc_id_name_unique'),)
+    __mapper_args__ = {'order_by': update_time.desc()}
+
+    def __init__(self, medium, name, create_time, update_time, register_count, alone_count_by_day,
+                 active_count_by_day, alone_count_by_month, active_count_by_month, pv_by_day,
+                 pv_by_month, access_time, ugc_count, cooperation_type, divide_into, policies,
+                 delivery, special, sex_distributed, age_distributed, area_distributed,
+                 education_distributed, income_distributed, product_position, body=None):
+        self.medium = medium
+        self.name = name
+        self.create_time = create_time or datetime.datetime.now()
+        self.update_time = update_time or datetime.datetime.now()
+        self.register_count = register_count
+        self.alone_count_by_day = alone_count_by_day
+        self.active_count_by_day = active_count_by_day
+        self.alone_count_by_month = alone_count_by_month
+        self.active_count_by_month = active_count_by_month
+        self.pv_by_day = pv_by_day
+        self.pv_by_month = pv_by_month
+        self.access_time = access_time
+        self.ugc_count = ugc_count
+        self.cooperation_type = cooperation_type
+        self.divide_into = divide_into
+        self.delivery = delivery
+        self.special = special
+        self.sex_distributed = sex_distributed
+        self.area_distributed = area_distributed
+        self.age_distributed = age_distributed
+        self.education_distributed = education_distributed
+        self.income_distributed = income_distributed
+        self.product_position = product_position
+        self.policies = policies
+        self.body = body or json.dumps({})
+
+
+class MediumProductApp(db.Model, BaseModelMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
+    medium = db.relationship(
+        'Medium', backref=db.backref('medium_product_app', lazy='dynamic'))
+    name = db.Column(db.String(100))
+    create_time = db.Column(db.DateTime)
+    update_time = db.Column(db.DateTime)
+    install_count = db.Column(db.Integer, default=0)          # 安装量
+    activation_count = db.Column(db.Integer, default=0)       # 激活量
+    register_count = db.Column(db.Integer, default=0)
+    active_count_by_day = db.Column(db.Integer, default=0)    # 日活用户
+    active_count_by_month = db.Column(db.Integer, default=0)  # 月活用户
+    pv_by_day = db.Column(db.Integer, default=0)
+    pv_by_month = db.Column(db.Integer, default=0)
+    open_rate_by_day = db.Column(db.Float, default=0)         # 日打开率
+    access_time = db.Column(db.Float, default=0)              # 访问时长
+    sex_distributed = db.Column(db.String(255), default="")   # 性别分布
+    age_distributed = db.Column(db.String(255), default="")   # 年龄分布
+    area_distributed = db.Column(db.String(255), default="")  # 地域分布
+    education_distributed = db.Column(db.String(255), default="")  # 学历分布
+    income_distributed = db.Column(db.String(255), default="")     # 收入分布
+    ugc_count = db.Column(db.Integer, default=0)
+    cooperation_type = db.Column(db.Integer, default=1)      # 是否是独家
+    divide_into = db.Column(db.Float, default=0)           # 分成比例
+    policies = db.Column(db.Float, default=0)              # 折扣政策
+    delivery = db.Column(db.String(255), default="")         # 配送政策
+    special = db.Column(db.String(255), default="")          # 特殊情况说明
+    product_position = db.Column(db.String(255), default="")       # 产品定位
+    body = db.Column(db.Text(), default=json.dumps({}))
+    __table_args__ = (db.UniqueConstraint(
+        'medium_id', 'name', name='_medium_product_app_id_name_unique'),)
+    __mapper_args__ = {'order_by': update_time.desc()}
+
+    def __init__(self, medium, name, create_time, update_time, register_count, install_count,
+                 active_count_by_day, active_count_by_month, pv_by_day, activation_count,
+                 pv_by_month, access_time, ugc_count, cooperation_type, divide_into, policies,
+                 delivery, special, sex_distributed, age_distributed, area_distributed,
+                 education_distributed, income_distributed, product_position, open_rate_by_day,
+                 body=None):
+        self.medium = medium
+        self.name = name
+        self.create_time = create_time or datetime.datetime.now()
+        self.update_time = update_time or datetime.datetime.now()
+        self.register_count = register_count
+        self.install_count = install_count
+        self.activation_count = activation_count
+        self.active_count_by_day = active_count_by_day
+        self.active_count_by_month = active_count_by_month
+        self.pv_by_day = pv_by_day
+        self.pv_by_month = pv_by_month
+        self.open_rate_by_day = open_rate_by_day
+        self.access_time = access_time
+        self.ugc_count = ugc_count
+        self.cooperation_type = cooperation_type
+        self.divide_into = divide_into
+        self.delivery = delivery
+        self.special = special
+        self.sex_distributed = sex_distributed
+        self.area_distributed = area_distributed
+        self.age_distributed = age_distributed
+        self.education_distributed = education_distributed
+        self.income_distributed = income_distributed
+        self.product_position = product_position
+        self.policies = policies
+        self.body = body or json.dumps({})
+
+
+class MediumProductDown(db.Model, BaseModelMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
+    medium = db.relationship(
+        'Medium', backref=db.backref('medium_product_down', lazy='dynamic'))
+    name = db.Column(db.String(100))
+    create_time = db.Column(db.DateTime)
+    update_time = db.Column(db.DateTime)
+    start_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
+    location = db.Column(db.String(100))  # 举办地点
+    subject = db.Column(db.String(255))  # 主题
+    before_year_count = db.Column(db.Integer, default=0)           # 往年人数
+    now_year_count = db.Column(db.Integer, default=0)              # 今年人数
+    sex_distributed = db.Column(db.String(255), default="")        # 性别分布
+    age_distributed = db.Column(db.String(255), default="")        # 年龄分布
+    area_distributed = db.Column(db.String(255), default="")       # 地域分布
+    education_distributed = db.Column(db.String(255), default="")  # 学历分布
+    income_distributed = db.Column(db.String(255), default="")     # 收入分布
+    cooperation_type = db.Column(db.Integer, default=1)      # 是否是独家
+    divide_into = db.Column(db.Float, default=0)           # 分成比例
+    policies = db.Column(db.Float, default=0)              # 折扣政策
+    delivery = db.Column(db.String(255), default="")         # 配送政策
+    special = db.Column(db.String(255), default="")          # 特殊情况说明
+    product_position = db.Column(db.String(255), default="")       # 产品定位
+    business_start_time = db.Column(db.DateTime)
+    business_end_time = db.Column(db.DateTime)
+    body = db.Column(db.Text(), default=json.dumps({}))
+    __table_args__ = (db.UniqueConstraint(
+        'medium_id', 'name', name='_medium_product_down_id_name_unique'),)
+    __mapper_args__ = {'order_by': update_time.desc()}
+
+    def __init__(self, medium, name, create_time, update_time, start_time, end_time, location,
+                 subject, before_year_count, now_year_count, sex_distributed, age_distributed,
+                 area_distributed, education_distributed, income_distributed, cooperation_type,
+                 divide_into, policies, delivery, special, product_position, business_start_time,
+                 business_end_time, body=None):
+        self.name = name
+        self.medium = medium
+        self.create_time = create_time
+        self.update_time = update_time
+        self.start_time = start_time
+        self.end_time = end_time
+        self.location = location
+        self.subject = subject
+        self.before_year_count = before_year_count
+        self.now_year_count = now_year_count
+        self.sex_distributed = sex_distributed
+        self.age_distributed = age_distributed
+        self.area_distributed = area_distributed
+        self.education_distributed = education_distributed
+        self.income_distributed = income_distributed
+        self.cooperation_type = cooperation_type
+        self.divide_into = divide_into
+        self.policies = policies
+        self.delivery = delivery
+        self.special = special
+        self.product_position = product_position
+        self.business_end_time = business_end_time
+        self.business_start_time = business_start_time
+        self.body = body or json.dumps({})
+
+
+MEDIUM_RESOURCE_TYPE_PC = 1
+MEDIUM_RESOURCE_TYPE_APP = 2
+MEDIUM_RESOURCE_TYPE_DOWN = 3
+MEDIUM_RESOURCE_TYPE_CN = {
+    MEDIUM_RESOURCE_TYPE_PC: u'PC端',
+    MEDIUM_RESOURCE_TYPE_APP: u'移动端',
+    MEDIUM_RESOURCE_TYPE_DOWN: u'线下活动',
+}
+
+SHAP_INTERNET = 1
+SHAP_CN = {
+    SHAP_INTERNET: u'互联网'
+}
+
+RESOURCE_TYPE_AD = 0
+RESOURCE_TYPE_CAMPAIGN = 1
+RESOURCE_TYPE_SPECIAL = 2
+RESOURCE_TYPE_OTHER = 4
+RESOURCE_TYPE_CN = {
+    RESOURCE_TYPE_AD: u"硬广",
+    RESOURCE_TYPE_CAMPAIGN: u"互动",
+    RESOURCE_TYPE_SPECIAL: u"特殊",
+    RESOURCE_TYPE_OTHER: u"其他"
+}
+
+BUY_UNIT_CPM = 1
+BUY_UNIT_DAY = 2
+BUY_UNIT_PHASE = 3
+BUY_UNIT_THOUSAND = 4
+BUY_UNIT_CN = {
+    BUY_UNIT_CPM: u'按CPM',
+    BUY_UNIT_DAY: u'按天',
+    BUY_UNIT_PHASE: u'按期',
+    BUY_UNIT_THOUSAND: u'按千份',
+}
+
+DIRECTIONAL_TYPE_NONE = 0
+DIRECTIONAL_TYPE_AREA = 1
+DIRECTIONAL_TYPE_TOPIC = 2
+DIRECTIONAL_TYPE_TOPIC_AND_AREA = 3
+DIRECTIONAL_TYPE_OTHER = 10
+DIRECTIONAL_TYPE_CN = {
+    DIRECTIONAL_TYPE_NONE: u'无',
+    DIRECTIONAL_TYPE_AREA: u'地域',
+    DIRECTIONAL_TYPE_TOPIC: u'话题',
+    DIRECTIONAL_TYPE_TOPIC_AND_AREA: u'地域、话题',
+    DIRECTIONAL_TYPE_OTHER: u'其他',
+}
+
+
+LESS_BUY_NONE = 0
+LESS_BUY_1000 = 1
+LESS_BUY_CN = {
+    LESS_BUY_NONE: u'无限制',
+    LESS_BUY_1000: u'不低于1000CPM',
+}
+
+
+class MediumResource(db.Model, BaseModelMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
+    medium = db.relationship(
+        'Medium', backref=db.backref('medium_resource', lazy='dynamic'))
+    type = db.Column(db.Integer, default=1)       # 资源类型
+    number = db.Column(db.String, default="")     # 编号
+    shape = db.Column(db.Integer, default=1)      # 形态
+    product = db.Column(db.Integer, default=0)    # 所属产品
+    resource_type = db.Column(db.Integer)         # 资源形式
+    page_postion = db.Column(db.String(200))      # 页面位置
+    ad_position = db.Column(db.String(200))       # 广告位置
+    cpm = db.Column(db.Float)
+    b_click = db.Column(db.Integer, default=1)    # 是否可点击
+    click_rate = db.Column(db.Float, default=0)   # 点击率
+    buy_unit = db.Column(db.Integer, default=1)   # 购买单元
+    buy_threshold = db.Column(db.String(200), default="")   # 购买门槛
+    money = db.Column(db.Float, default=0)        # 刊例单价
+    b_directional = db.Column(db.Integer, default=1)        # 是否可定向
+    directional_type = db.Column(db.Integer, default=1)     # 定向类型
+    directional_money = db.Column(db.Float, default=0)      # 定向价格
+    discount = db.Column(db.Float, default=0)     # 折扣
+    ad_size = db.Column(db.String(200))           # 广告尺寸
+    materiel_format = db.Column(db.String(200))   # 物料格式
+    less_buy = db.Column(db.Integer, default=0)   # 最小购买值
+    b_give = db.Column(db.Integer, default=0)     # 是否可配送
+    give_desc = db.Column(db.String(200))         # 配送门槛
+    b_check_exposure = db.Column(db.Integer, default=0)     # 是否可监测曝光
+    b_check_click = db.Column(db.Integer, default=0)        # 是否个监测点击
+    b_out_link = db.Column(db.Integer, default=0)           # 是否可外链
+    b_in_link = db.Column(db.Integer, default=0)            # 是否可内链
+    description = db.Column(db.String(255))       # 描述
+    create_time = db.Column(db.DateTime)
+    update_time = db.Column(db.DateTime)
+    body = db.Column(db.Text(), default=json.dumps({}))
+    __mapper_args__ = {'order_by': update_time.desc()}
+
+    def __init__(self, medium, type, number, shape, product, resource_type, page_postion,
+                 ad_position, cpm, b_click, click_rate, buy_unit, buy_threshold, money,
+                 b_directional, directional_type, directional_money, discount, ad_size,
+                 materiel_format, less_buy, b_give, give_desc, b_check_exposure, description,
+                 b_check_click, b_out_link, b_in_link, create_time, update_time, body):
+        self.medium = medium
+        self.type = type
+        self.number = number
+        self.shape = shape
+        self.product = product
+        self.resource_type = resource_type
+        self.page_postion = page_postion
+        self.ad_position = ad_position
+        self.cpm = cpm
+        self.b_click = b_click
+        self.click_rate = click_rate
+        self.buy_unit = buy_unit
+        self.buy_threshold = buy_threshold
+        self.money = money
+        self.b_directional = b_directional
+        self.directional_type = directional_type
+        self.directional_money = directional_money
+        self.discount = discount
+        self.ad_size = ad_size
+        self.materiel_format = materiel_format
+        self.less_buy = less_buy
+        self.b_give = b_give
+        self.give_desc = give_desc
+        self.b_check_exposure = b_check_exposure
+        self.description = description
+        self.b_check_click = b_check_click
+        self.b_out_link = b_out_link
+        self.b_in_link = b_in_link
+        self.create_time = create_time
+        self.update_time = update_time
+        self.body = body or json.dumps({})
+
+
 class AdSize(db.Model, BaseModelMixin):
     __tablename__ = 'ad_size'
     id = db.Column(db.Integer, primary_key=True)
@@ -147,12 +489,14 @@ class AdUnit(db.Model, BaseModelMixin, DeliveryMixin):
     name = db.Column(db.String(100))
     description = db.Column(db.String(500))
     size_id = db.Column(db.Integer, db.ForeignKey('ad_size.id'))
-    size = db.relationship('AdSize', backref=db.backref('adUnits', lazy='dynamic'))
+    size = db.relationship(
+        'AdSize', backref=db.backref('adUnits', lazy='dynamic'))
     margin = db.Column(db.String(50))
     target = db.Column(db.Integer)
     status = db.Column(db.Integer)
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
-    medium = db.relationship('Medium', backref=db.backref('units', lazy='dynamic'))
+    medium = db.relationship(
+        'Medium', backref=db.backref('units', lazy='dynamic'))
     estimate_num = db.Column(db.Integer)
 
     def __init__(self, name, description, size, margin, target, status, medium, estimate_num=0):
@@ -186,18 +530,20 @@ class AdUnit(db.Model, BaseModelMixin, DeliveryMixin):
         再加和计算该单元的预订量
         """
         return int(round(sum([x.schedule_num(date) * (float(self.estimate_num) / x.estimate_num)
-                         for x in self.positions])))
+                              for x in self.positions])))
 
     def retain_num(self, date):
         retain_num = self.estimate_num - self.schedule_num(date)
         return max(retain_num, 0)
 
     def schedule_nums_by_dates(self, dates_list):
-        position_s_nums = [(p.schedule_nums_by_dates(dates_list), p.estimate_num) for p in self.positions]
+        position_s_nums = [
+            (p.schedule_nums_by_dates(dates_list), p.estimate_num) for p in self.positions]
         # 每个位置在时间段内每天分配到当前unit的预订量
         position_to_nuit_nums = []
         for nums, e_num in position_s_nums:
-            position_to_nuit_nums.append([num * (float(self.estimate_num) / e_num) for num in nums])
+            position_to_nuit_nums.append(
+                [num * (float(self.estimate_num) / e_num) for num in nums])
         temp = map(list, itertools.izip(*position_to_nuit_nums))
         return [int(round(sum(num))) for num in temp]
 
@@ -225,14 +571,16 @@ class AdPosition(db.Model, BaseModelMixin):
     name = db.Column(db.String(100))
     description = db.Column(db.String(500))
     size_id = db.Column(db.Integer, db.ForeignKey('ad_size.id'))
-    size = db.relationship('AdSize', backref=db.backref('adPositions', lazy='dynamic'))
+    size = db.relationship(
+        'AdSize', backref=db.backref('adPositions', lazy='dynamic'))
     standard = db.Column(db.String(100))
     status = db.Column(db.Integer)
     level = db.Column(db.Integer)
     units = db.relationship('AdUnit', secondary=ad_position_unit_table,
                             backref=db.backref('positions', lazy='dynamic'))
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
-    medium = db.relationship('Medium', backref=db.backref('positions', lazy='dynamic'))
+    medium = db.relationship(
+        'Medium', backref=db.backref('positions', lazy='dynamic'))
     ad_type = db.Column(db.Integer)
     cpd_num = db.Column(db.Integer)
     max_order_num = db.Column(db.Integer)
@@ -381,8 +729,10 @@ class AdPosition(db.Model, BaseModelMixin):
         storage_info = []
         for i in range(0, last):
             min_num = 1 if current_nums[i] > 0 else 0
-            percent = max([current_nums[i] * 100 / (retain_nums[i] + current_nums[i]), min_num])
-            storage_info.append((self.storage_percent_cn(percent), dates_list[i]))
+            percent = max(
+                [current_nums[i] * 100 / (retain_nums[i] + current_nums[i]), min_num])
+            storage_info.append(
+                (self.storage_percent_cn(percent), dates_list[i]))
         return storage_info
 
     def get_storage_info(self, date):
@@ -391,7 +741,8 @@ class AdPosition(db.Model, BaseModelMixin):
                "ordered_num": self.ordered_num(date),
                "per_ordered_num": self.schedule_num(date) - self.ordered_num(date),
                "remain_num": self.retain_num(date)}
-        ret['orders'] = [order_info(o, self, date) for o in self.get_orders_by_date(date)]
+        ret['orders'] = [order_info(o, self, date)
+                         for o in self.get_orders_by_date(date)]
         return ret
 
     def get_orders_by_date(self, date):
@@ -420,9 +771,12 @@ def order_info(order, position, date):
     order_info_dic = {}
     order_info_dic["name"] = order.name
     order_info_dic["URL"] = order.path()
-    order_info_dic["occupy_num"] = order.occupy_num_by_date_position(date, position)
+    order_info_dic["occupy_num"] = order.occupy_num_by_date_position(
+        date, position)
     order_info_dic["state_cn"] = "&".join(order.items_status_cn)
-    order_info_dic["date_cn"] = u"%s至%s" % (order.start_date_cn, order.end_date_cn)
-    order_info_dic["special_sale"] = u"是" if order.special_sale_in_position(position) else u"否"
+    order_info_dic["date_cn"] = u"%s至%s" % (
+        order.start_date_cn, order.end_date_cn)
+    order_info_dic["special_sale"] = u"是" if order.special_sale_in_position(
+        position) else u"否"
     order_info_dic["creator"] = order.creator.name
     return order_info_dic

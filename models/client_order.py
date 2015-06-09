@@ -390,6 +390,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return self.client_end
 
     @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
+    @property
     def start_date_cn(self):
         return self.start_date.strftime(DATE_FORMAT)
 

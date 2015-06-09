@@ -9,6 +9,7 @@
     <table class="table table-bordered table-striped">
         <tr>
             <th>名称</th>
+            <th>外包性质</th>
             <th>类型</th>
             <th>开户行</th>
             <th>卡号</th>
@@ -18,6 +19,7 @@
         {% for t in targets %}
         <tr>
             <td><a href="{{url_for("outsource.target_detail", target_id=t.id)}}">{{t.name}}</a></td>
+            <td>{{t.otype_cn}}</td>
             <td>{{t.type_cn}}</td>
             <td>{{t.bank}}</td>
             <td>{{t.card}}</td>
