@@ -101,8 +101,10 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
             for i in k['orders']:
                 medium_orders = i['order'].medium_orders
                 medium_orders_count += len(medium_orders)
+                if len(medium_orders) == 0:
+                    medium_orders_count += 1
                 medium_order_count = len(medium_orders)
-                if medium_order_count == 1:
+                if medium_order_count == 0 or medium_order_count == 1:
                     worksheet.write(th, 2, i['order'].client.name, align_left)
                     worksheet.write(th, 3, i['order'].contract, align_left)
                     worksheet.write(th, 4, i['order'].agent.name, align_left)
@@ -171,21 +173,33 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                                           i['order'].client_start.strftime('%Y/%m/%d'), align_left)
                     worksheet.merge_range(th, 33, th + medium_order_count - 1, 33,
                                           i['order'].client_end.strftime('%Y/%m/%d'), align_left)
-                for j in range(len(medium_orders)):
-                    worksheet.write(th, 12, medium_orders[j].name, align_left)
+                if medium_orders:
+                    for j in range(len(medium_orders)):
+                        worksheet.write(th, 12, medium_orders[j].name, align_left)
+                        worksheet.write(
+                            th, 13, medium_orders[j].medium_money2, align_left)
+                        for m in range(len(Q_monthes)):
+                            worksheet.write(th, 14 + m, medium_orders[j].get_executive_report_medium_money_by_month(
+                                now_year, Q_monthes[m])['sale_money'], align_left)
+                        for m in range(len(Q_monthes)):
+                            worksheet.write(th, 17 + m, medium_orders[j].get_executive_report_medium_money_by_month(
+                                now_year, Q_monthes[m])['medium_money2'], align_left)
+                        for m in range(len(Q_monthes)):
+                            rate = medium_orders[j].get_executive_report_medium_money_by_month(now_year, Q_monthes[m])['sale_money'] -\
+                                medium_orders[j].get_executive_report_medium_money_by_month(
+                                    now_year, Q_monthes[m])['medium_money2']
+                            worksheet.write(th, 20 + m, rate, align_left)
+                        th += 1
+                else:
+                    worksheet.write(th, 12, '', align_left)
                     worksheet.write(
-                        th, 13, medium_orders[j].medium_money2, align_left)
+                        th, 13, '', align_left)
                     for m in range(len(Q_monthes)):
-                        worksheet.write(th, 14 + m, medium_orders[j].get_executive_report_medium_money_by_month(
-                            now_year, Q_monthes[m])['sale_money'], align_left)
+                        worksheet.write(th, 14 + m, '', align_left)
                     for m in range(len(Q_monthes)):
-                        worksheet.write(th, 17 + m, medium_orders[j].get_executive_report_medium_money_by_month(
-                            now_year, Q_monthes[m])['medium_money2'], align_left)
+                        worksheet.write(th, 17 + m, '', align_left)
                     for m in range(len(Q_monthes)):
-                        rate = medium_orders[j].get_executive_report_medium_money_by_month(now_year, Q_monthes[m])['sale_money'] -\
-                            medium_orders[j].get_executive_report_medium_money_by_month(
-                                now_year, Q_monthes[m])['medium_money2']
-                        worksheet.write(th, 20 + m, rate, align_left)
+                        worksheet.write(th, 20 + m, '', align_left)
                     th += 1
             worksheet.merge_range(
                 th - medium_orders_count, 1, th - 1, 1, u'确认', align_left)

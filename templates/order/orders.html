@@ -19,6 +19,7 @@
         <th>下单金额</th>
         <th>合同号</th>
         <th>预估ECPM</th>
+        <th>添加时间</th>
         <th>开始</th>
         <th>结束</th>
         <th>执行</th>
@@ -73,6 +74,7 @@
             <br><br>
             {% endfor %}
         </td>
+        <td>{{o.create_time_cn}}</td>
         <td>
             {% for mo in o.medium_orders %}    
             {{mo.start_date_cn}}

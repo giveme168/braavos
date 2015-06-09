@@ -55,6 +55,10 @@ class OutSourceTarget(db.Model, BaseModelMixin):
     def type_cn(self):
         return TARGET_TYPE_CN[self.type]
 
+    @property
+    def otype_cn(self):
+        return TARGET_OTYPE_CN[self.otype or 1]
+
     def client_outsources_by_status(self, status):
         return list(OutSource.query.filter_by(target_id=self.id, status=status))
 
