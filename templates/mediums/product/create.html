@@ -1,0 +1,137 @@
+{% extends "/mediums/mediums_base.html" %}
+{% from 'form.html' import form_tpl_ex_form %}
+{% block title %}媒体产品{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>新建{% if mtype == "pc" %}PC端{% elif mtype == "app" %}App端{% elif mtype == "down" %}线下{% endif %}媒体产品</h3>
+    <form class="form form-horizontal" method="POST" action="{{url_for('mediums_product.create', mtype=mtype)}}" onsubmit="return check_form(this);">
+        <input class="hide" name="mtype" value="{{mtype}}"/>
+        <input class="hide" name="custom_ids" id="custom_ids" value="">
+        {{ form.csrf_token }}
+        {% if mtype == 'down' %}
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">活动开始时间 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="start_time" name="start_time" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">活动结束时间 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="end_time" name="end_time" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">招商开始时间 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="business_start_time" name="business_start_time" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">结束结束时间 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="business_end_time" name="business_end_time" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:00">
+          </div>
+        </div>
+        {% endif %}
+        {{ form_tpl_ex_form(form) }}
+        <div id="custom">
+        </div>
+        <div class="form-group">
+            <div class="col-sm-6">
+                <button onclick="add_colume()" type="button" class="btn btn-info"  style="float:right;">添加自定义字段</button>
+            </div>
+        </div>
+        <br/><br/>
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        <a href="{{url_for('mediums_product.index', mtype=mtype)}}" class="btn btn-primary btn-sm col-md-offset-2">返回</a>
+    </from>
+</div>
+<script>
+Array.prototype.indexOf = function(val) {
+    for (var i = 0; i < this.length; i++) {
+        if (this[i] == val) return i;
+    }
+    return -1;
+};
+Array.prototype.remove = function(val) {
+    var index = this.indexOf(val);
+    if (index > -1) {
+        this.splice(index, 1);
+    }
+};
+var custom_ids = []
+var custom_id = 0
+
+function add_colume(){
+    custom_id += 1
+    custom_ids.push(custom_id)
+    var in_html = "<div class='form-group' id='custom_"+String(custom_id)+"'><div class='col-sm-5'><input type='text' class='form-control bra-form-control' id='custom_key_"+String(custom_id)+"' name='custom_key_"+String(custom_id)+"' placeholder='请输入自定义字段名称'/> : </div><div class='col-sm-4'><input type='text' name='custom_value_"+String(custom_id)+"' class='form-control bra-form-control' id='custom_value_"+String(custom_id)+"' placeholder='请输入自定义字段内容' /></div><button onclick='remove_colume("+String(custom_id)+")' type='button' class='btn btn-warning'>删除字段</button></div>"
+    $('#custom').append(in_html)
+    $('#custom_ids').val(custom_ids.join('|'))
+}
+
+function remove_colume(id){
+    $('#custom_'+String(id)).remove()
+    custom_ids.remove(parseInt(id))
+    $('#custom_ids').val(custom_ids.join('|'))
+}
+
+function check_form(obj){
+    if (obj.name.value == ''){
+        alert('请输入产品名称')
+        obj.name.focus()
+        return false;
+    }
+    return true;
+}
+$(function(){
+    Date.prototype.Format = function (fmt) { //author: meizz 
+        var o = {
+            "M+": this.getMonth() + 1, //月份 
+            "d+": this.getDate(), //日 
+            "h+": this.getHours(), //小时 
+            "m+": this.getMinutes(), //分 
+            "s+": this.getSeconds(), //秒 
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+            "S": this.getMilliseconds() //毫秒 
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+        if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 1
+    });
+    if ('{{mtype}}' == 'down'){
+        $('#start_time').val(new Date().Format("yyyy-MM-dd hh:")+'00')
+        $('#end_time').val(new Date().Format("yyyy-MM-dd hh:")+'00')
+        $('#business_start_time').val(new Date().Format("yyyy-MM-dd hh:")+'00')
+        $('#business_end_time').val(new Date().Format("yyyy-MM-dd hh:")+'00')
+    }
+    $("#start_time").change(function(e){
+        var end_date = $('#end_time').val()
+        if (end_date == ''){
+            var endDate = new Date($('#start_time').val());
+            endDate.setDate(endDate.getDate() + 1); 
+            $('#end_time').val(endDate.Format("yyyy-MM-dd hh:")+'00')
+            $('#end_time').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd hh:")+'00');
+        }
+    });
+    $("#business_start_time").change(function(e){
+        var end_date = $('#business_end_time').val()
+        if (end_date == ''){
+            var endDate = new Date($('#business_start_time').val());
+            endDate.setDate(endDate.getDate() + 1); 
+            $('#business_end_time').val(endDate.Format("yyyy-MM-dd hh:")+'00')
+            $('#business_end_time').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd hh:")+'00');
+        }
+    });
+})
+</script>
+{% endblock %}

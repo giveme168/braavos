@@ -125,7 +125,7 @@ def framework_generator(num):
 
 
 COOPERATION_TYPE_ONLY = 1
-COOPERATION_TYPE_NO_ONLY = 2
+COOPERATION_TYPE_NO_ONLY = 0
 COOPERATION_TYPE_CN = {
     COOPERATION_TYPE_ONLY: u'独家',
     COOPERATION_TYPE_NO_ONLY: u'非独家',
@@ -133,6 +133,7 @@ COOPERATION_TYPE_CN = {
 
 
 class MediumProductPC(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_medium_product_pc'
     id = db.Column(db.Integer, primary_key=True)
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
     medium = db.relationship(
@@ -149,7 +150,7 @@ class MediumProductPC(db.Model, BaseModelMixin):
     pv_by_month = db.Column(db.Integer, default=0)
     access_time = db.Column(db.Integer, default=0)           # 访问时长
     ugc_count = db.Column(db.Integer, default=0)
-    cooperation_type = db.Column(db.Integer, default=1)      # 是否是独家
+    cooperation_type = db.Column(db.Integer, default=1)      # 合作方式
     divide_into = db.Column(db.Float, default=0)           # 分成比例
     policies = db.Column(db.Float, default=0)              # 折扣政策
     delivery = db.Column(db.String(255), default="")         # 配送政策
@@ -160,7 +161,7 @@ class MediumProductPC(db.Model, BaseModelMixin):
     education_distributed = db.Column(db.String(255), default="")  # 学历分布
     income_distributed = db.Column(db.String(255), default="")     # 收入分布
     product_position = db.Column(db.String(255), default="")       # 产品定位
-    body = db.Column(db.Text(), default=json.dumps({}))
+    body = db.Column(db.Text(), default=json.dumps([]))
     __table_args__ = (db.UniqueConstraint(
         'medium_id', 'name', name='_medium_product_pc_id_name_unique'),)
     __mapper_args__ = {'order_by': update_time.desc()}
@@ -194,10 +195,22 @@ class MediumProductPC(db.Model, BaseModelMixin):
         self.income_distributed = income_distributed
         self.product_position = product_position
         self.policies = policies
-        self.body = body or json.dumps({})
+        self.body = body or json.dumps([])
+
+    @property
+    def update_time_cn(self):
+        return self.update_time.strftime(DATE_FORMAT)
+
+    @property
+    def cooperation_type_cn(self):
+        if self.cooperation_type:
+            return u'独家'
+        else:
+            return u'非独家'
 
 
 class MediumProductApp(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_medium_product_app'
     id = db.Column(db.Integer, primary_key=True)
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
     medium = db.relationship(
@@ -220,13 +233,13 @@ class MediumProductApp(db.Model, BaseModelMixin):
     education_distributed = db.Column(db.String(255), default="")  # 学历分布
     income_distributed = db.Column(db.String(255), default="")     # 收入分布
     ugc_count = db.Column(db.Integer, default=0)
-    cooperation_type = db.Column(db.Integer, default=1)      # 是否是独家
+    cooperation_type = db.Column(db.Integer, default=1)      # 合作方式
     divide_into = db.Column(db.Float, default=0)           # 分成比例
     policies = db.Column(db.Float, default=0)              # 折扣政策
     delivery = db.Column(db.String(255), default="")         # 配送政策
     special = db.Column(db.String(255), default="")          # 特殊情况说明
     product_position = db.Column(db.String(255), default="")       # 产品定位
-    body = db.Column(db.Text(), default=json.dumps({}))
+    body = db.Column(db.Text(), default=json.dumps([]))
     __table_args__ = (db.UniqueConstraint(
         'medium_id', 'name', name='_medium_product_app_id_name_unique'),)
     __mapper_args__ = {'order_by': update_time.desc()}
@@ -262,10 +275,22 @@ class MediumProductApp(db.Model, BaseModelMixin):
         self.income_distributed = income_distributed
         self.product_position = product_position
         self.policies = policies
-        self.body = body or json.dumps({})
+        self.body = body or json.dumps([])
+
+    @property
+    def update_time_cn(self):
+        return self.update_time.strftime(DATE_FORMAT)
+
+    @property
+    def cooperation_type_cn(self):
+        if self.cooperation_type:
+            return u'独家'
+        else:
+            return u'非独家'
 
 
 class MediumProductDown(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_medium_product_down'
     id = db.Column(db.Integer, primary_key=True)
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
     medium = db.relationship(
@@ -284,7 +309,7 @@ class MediumProductDown(db.Model, BaseModelMixin):
     area_distributed = db.Column(db.String(255), default="")       # 地域分布
     education_distributed = db.Column(db.String(255), default="")  # 学历分布
     income_distributed = db.Column(db.String(255), default="")     # 收入分布
-    cooperation_type = db.Column(db.Integer, default=1)      # 是否是独家
+    cooperation_type = db.Column(db.Integer, default=1)      # 合作方式
     divide_into = db.Column(db.Float, default=0)           # 分成比例
     policies = db.Column(db.Float, default=0)              # 折扣政策
     delivery = db.Column(db.String(255), default="")         # 配送政策
@@ -292,7 +317,7 @@ class MediumProductDown(db.Model, BaseModelMixin):
     product_position = db.Column(db.String(255), default="")       # 产品定位
     business_start_time = db.Column(db.DateTime)
     business_end_time = db.Column(db.DateTime)
-    body = db.Column(db.Text(), default=json.dumps({}))
+    body = db.Column(db.Text(), default=json.dumps([]))
     __table_args__ = (db.UniqueConstraint(
         'medium_id', 'name', name='_medium_product_down_id_name_unique'),)
     __mapper_args__ = {'order_by': update_time.desc()}
@@ -325,7 +350,34 @@ class MediumProductDown(db.Model, BaseModelMixin):
         self.product_position = product_position
         self.business_end_time = business_end_time
         self.business_start_time = business_start_time
-        self.body = body or json.dumps({})
+        self.body = body or json.dumps([])
+
+    @property
+    def update_time_cn(self):
+        return self.update_time.strftime(DATE_FORMAT)
+
+    @property
+    def cooperation_type_cn(self):
+        if self.cooperation_type:
+            return u'独家'
+        else:
+            return u'非独家'
+
+    @property
+    def start_time_cn(self):
+        return self.start_time.strftime('%Y-%m-%d %H:%M')
+
+    @property
+    def end_time_cn(self):
+        return self.end_time.strftime('%Y-%m-%d %H:%M')
+
+    @property
+    def business_start_time_cn(self):
+        return self.business_start_time.strftime('%Y-%m-%d %H:%M')
+
+    @property
+    def business_end_time_cn(self):
+        return self.business_end_time.strftime('%Y-%m-%d %H:%M')
 
 
 MEDIUM_RESOURCE_TYPE_PC = 1
@@ -387,6 +439,7 @@ LESS_BUY_CN = {
 
 
 class MediumResource(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_medium_resource'
     id = db.Column(db.Integer, primary_key=True)
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
     medium = db.relationship(
@@ -420,7 +473,7 @@ class MediumResource(db.Model, BaseModelMixin):
     description = db.Column(db.String(255))       # 描述
     create_time = db.Column(db.DateTime)
     update_time = db.Column(db.DateTime)
-    body = db.Column(db.Text(), default=json.dumps({}))
+    body = db.Column(db.Text(), default=json.dumps([]))
     __mapper_args__ = {'order_by': update_time.desc()}
 
     def __init__(self, medium, type, number, shape, product, resource_type, page_postion,
@@ -458,7 +511,7 @@ class MediumResource(db.Model, BaseModelMixin):
         self.b_in_link = b_in_link
         self.create_time = create_time
         self.update_time = update_time
-        self.body = body or json.dumps({})
+        self.body = body or json.dumps([])
 
 
 class AdSize(db.Model, BaseModelMixin):
