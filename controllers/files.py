@@ -3,7 +3,8 @@ from flask import Blueprint, request, current_app as app, abort, g, url_for, ren
 from flask import jsonify, send_from_directory, redirect, flash
 
 from models.order import Order
-from models.client_order import ClientOrder, CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_MEDIA
+from models.client_order import (ClientOrder, CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYREJECT,
+                                 CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYCONTRACT)
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
@@ -63,7 +64,8 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
             flash(u'资料上传成功', 'success')
             order.add_outsource_attachment(g.user, filename)
             return redirect(order.outsource_path())
-        if order.contract_status not in [CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_MEDIA]:
+        if order.contract_status not in [CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYREJECT,
+                                         CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYCONTRACT]:
             contract_email(order, attachment)
     else:
         flash(u'订单不存在，或文件上传出错!', 'danger')
@@ -204,6 +206,7 @@ def associated_douban_order_files(order_id):
 
 def contract_email(order, attachment):
     contract_emails = [m.email for m in set(User.contracts() +
+                                            User.medias() +
                                             order.direct_sales +
                                             order.agent_sales +
                                             [order.creator, g.user])]
@@ -217,5 +220,6 @@ def contract_email(order, attachment):
                      "action_msg": action_msg,
                      "msg": msg,
                      "order": order}
-    contract_apply_signal.send(app._get_current_object(), apply_context=apply_context)
+    contract_apply_signal.send(
+        app._get_current_object(), apply_context=apply_context)
     flash(u'已发送提醒邮件给 %s' % ', '.join(contract_emails), "info")
