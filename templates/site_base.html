@@ -64,6 +64,14 @@
                   <li><a href="{{url_for('data_query_weekly.douban_index')}}">直签豆瓣订单周报</a></li>
               </ul>
             </li>
+            {% if g.user.is_media() or g.user.is_planner() %}
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">媒体产品<span class="caret"></span></a>
+              <ul class="dropdown-menu" role="menu">
+                  <li><a href="{{url_for('mediums_product.index', mtype='pc')}}">媒体产品管理</a></li>
+              </ul>
+            </li>
+            {% endif %}
             {% if g.user.is_admin() or g.user.is_super_leader()%}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">库存与资源<span class="caret"></span></a>

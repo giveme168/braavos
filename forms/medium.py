@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from wtforms import IntegerField, TextField, validators, SelectField, TextAreaField, SelectMultipleField
+from wtforms import IntegerField, TextField, validators, SelectField, TextAreaField, SelectMultipleField, FloatField
 
 from libs.wtf import Form
 from models.user import Team
@@ -22,6 +22,95 @@ class NewMediumForm(Form):
         super(NewMediumForm, self).__init__(*args, **kwargs)
         self.owner.choices = [(t.id, t.name) for t in Team.all() if t.is_medium()]
 
+
+class NewMediumProductPC(Form):
+    name = TextField(u'产品名称', [validators.Required(u'请输入产品')])
+    medium = SelectField(u'所属媒体', coerce=int, default=1)
+    register_count = IntegerField(u'注册用户数', default=0)
+    alone_count_by_day = IntegerField(u'日独用户数', default=0)
+    active_count_by_day = IntegerField(u'日活用户数', default=0)
+    alone_count_by_month = IntegerField(u'月独用户数', default=0)
+    active_count_by_month = IntegerField(u'月活用户数', default=0)
+    pv_by_day = IntegerField(u'日PV', default=0)
+    pv_by_month = IntegerField(u'月PV', default=0)
+    access_time = IntegerField(u'访问时长（秒）', default=0)
+    ugc_count = IntegerField(u'UGC生产数量', default=0)
+    cooperation_type = SelectField(u'是否是独家', coerce=int, default=1)
+    divide_into = FloatField(u'分成比例（%）', default=20)
+    policies = SelectField(u'折扣政策', coerce=int, default=1)
+    delivery = TextAreaField(u'配送政策')
+    special = TextAreaField(u'特殊情况说明')
+    sex_distributed = TextAreaField(u'性别分布')
+    age_distributed = TextAreaField(u'年龄分布')
+    area_distributed = TextAreaField(u'区域分布')
+    education_distributed = TextAreaField(u'学历分布')
+    income_distributed = TextAreaField(u'收入分布')
+    product_position = TextAreaField(u'产品定位')
+
+    def __init__(self, *args, **kwargs):
+        super(NewMediumProductPC, self).__init__(*args, **kwargs)
+        self.medium.choices = [(k.id, k.name) for k in Medium.all()]
+        self.cooperation_type.choices = [(0, u'否'), (1, u'是')]
+        self.policies.choices = [(k, str(k)+u'折') for k in range(1,10)]
+
+
+class NewMediumProductApp(Form):
+    name = TextField(u'产品名称', [validators.Required(u'请输入产品')])
+    medium = SelectField(u'所属媒体', coerce=int, default=1)
+    install_count = IntegerField(u'安装量', default=0)
+    activation_count = IntegerField(u'激活量', default=0)
+    register_count = IntegerField(u'注册用户数', default=0)
+    active_count_by_day = IntegerField(u'日活用户数', default=0)
+    active_count_by_month = IntegerField(u'月活用户数', default=0)
+    pv_by_day = IntegerField(u'日PV', default=0)
+    pv_by_month = IntegerField(u'月PV', default=0)
+    open_rate_by_day = FloatField(u'日打开率', default=0)
+    access_time = IntegerField(u'访问时长（秒）', default=0)
+    ugc_count = IntegerField(u'UGC生产数量', default=0)
+    cooperation_type = SelectField(u'是否是独家', coerce=int, default=1)
+    divide_into = FloatField(u'分成比例（%）', default=20)
+    policies = SelectField(u'折扣政策', coerce=int, default=1)
+    delivery = TextAreaField(u'配送政策')
+    special = TextAreaField(u'特殊情况说明')
+    sex_distributed = TextAreaField(u'性别分布')
+    age_distributed = TextAreaField(u'年龄分布')
+    area_distributed = TextAreaField(u'区域分布')
+    education_distributed = TextAreaField(u'学历分布')
+    income_distributed = TextAreaField(u'收入分布')
+    product_position = TextAreaField(u'产品定位')
+
+    def __init__(self, *args, **kwargs):
+        super(NewMediumProductApp, self).__init__(*args, **kwargs)
+        self.medium.choices = [(k.id, k.name) for k in Medium.all()]
+        self.cooperation_type.choices = [(0, u'否'), (1, u'是')]
+        self.policies.choices = [(k, str(k)+u'折') for k in range(1,10)]
+
+
+class NewMediumProductDown(Form):
+    name = TextField(u'产品名称', [validators.Required(u'请输入产品')])
+    medium = SelectField(u'所属媒体', coerce=int, default=1)
+    location = TextField(u'举办地点')
+    subject = TextAreaField(u'主题')
+    before_year_count = IntegerField(u'往年人数', default=0)
+    now_year_count = IntegerField(u'今年预计人数', default=0)
+    cooperation_type = SelectField(u'是否是独家', coerce=int, default=1)
+    divide_into = FloatField(u'分成比例（%）', default=20)
+    policies = SelectField(u'折扣政策', coerce=int, default=1)
+    delivery = TextAreaField(u'配送政策')
+    special = TextAreaField(u'特殊情况说明')
+    sex_distributed = TextAreaField(u'性别分布')
+    age_distributed = TextAreaField(u'年龄分布')
+    area_distributed = TextAreaField(u'区域分布')
+    education_distributed = TextAreaField(u'学历分布')
+    income_distributed = TextAreaField(u'收入分布')
+    product_position = TextAreaField(u'产品定位')
+
+    def __init__(self, *args, **kwargs):
+        super(NewMediumProductDown, self).__init__(*args, **kwargs)
+        self.medium.choices = [(k.id, k.name) for k in Medium.all()]
+        self.cooperation_type.choices = [(0, u'否'), (1, u'是')]
+        self.policies.choices = [(k, str(k)+u'折') for k in range(1,10)]
+        
 
 class SizeForm(Form):
     width = IntegerField(u'Width', [validators.Required(u"请输入宽度.")])

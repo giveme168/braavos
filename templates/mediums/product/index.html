@@ -1,0 +1,145 @@
+{% extends "/mediums/mediums_base.html" %}
+{% block title %}媒体产品{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box" style="width:1200px;">
+    <div>
+        <ul class="nav nav-tabs">
+          <li id='_pc' class=""><a href="{{url_for('mediums_product.index', mtype='pc')}}">PC端</a></li>
+          <li id='_app' class=""><a href="{{url_for('mediums_product.index', mtype='app')}}">App端</a></li>
+          <li id='_down' class=""><a href="{{url_for('mediums_product.index', mtype='down')}}">线下活动</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-1">
+            <div class="search">
+                <a href="{{url_for('mediums_product.create', mtype=mtype)}}" class="btn btn-sm btn-default">添加产品</a>
+            </div>
+            <table class="table table-bordered">
+                <tr>
+                    <th>所属媒体</th>
+                    {% if mtype == 'pc' %}
+                        <th>名称</th>
+                        <th>最后更新时间</th>
+                        <th>注册用户数</th>
+                        <th>日独用户数</th>
+                        <th>日活用户数</th>
+                        <th>月独用户数</th>
+                        <th>月活用户数</th>
+                        <th>日PV</th>
+                        <th>月PV</th>
+                        <th>人均访问时长</th>
+                        <th>UGC产生数量</th>
+                        <th>合作方式</th>
+                        <th>分成比例</th>
+                        <th>折扣政策</th>
+                    {% elif mtype == 'app' %}
+                        <th>名称</th>
+                        <th>最后更新时间</th>
+                        <th>安装量</th>
+                        <th>激活率</th>
+                        <th>注册用户数</th>
+                        <th>日活用户数</th>
+                        <th>月活用户数</th>
+                        <th>日PV</th>
+                        <th>月PV</th>
+                        <th>日打开率</th>
+                        <th>人均访问时长</th>
+                        <th>UGC产生数量</th>
+                        <th>合作方式</th>
+                        <th>分成比例</th>
+                        <th>折扣政策</th>
+                    {% elif mtype == 'down' %}
+                        <th>名称</th>
+                        <th>最后更新时间</th>
+                        <th>举办开始时间</th>
+                        <th>举办结束时间</th>
+                        <th>举办地点</th>
+                        <th>举办主题</th>
+                        <th>往年人数</th>
+                        <th>今年人数</th>
+                        <th>合作方式</th>
+                        <th>分成比例</th>
+                        <th>折扣政策</th>
+                    {% endif %}
+                    <th width="5%">操作</th>
+                </tr>
+                {% for k in products.object_list %}
+                <tr id="tr_{{k.id}}">
+                    <td>{{k.medium.name}}</td>
+                    {% if mtype == 'pc' %}
+                        <td>{{k.name}}</td>
+                        <td>{{k.update_time_cn}}</td>
+                        <td>{{k.register_count}}</td>
+                        <td>{{k.alone_count_by_day}}</td>
+                        <td>{{k.active_count_by_day}}</td>
+                        <td>{{k.alone_count_by_month}}</td>
+                        <td>{{k.active_count_by_month}}</td>
+                        <td>{{k.pv_by_day}}</td>
+                        <td>{{k.pv_by_month}}</td>
+                        <td>{{k.access_time}}秒</td>
+                        <td>{{k.ugc_count}}</td>
+                        <td>{{k.cooperation_type_cn}}</td>
+                        <td>{{k.divide_into}}%</td>
+                        <td>{{k.policies}}折</td>
+                    {% elif mtype == 'app' %}
+                        <td>{{k.name}}</td>
+                        <td>{{k.update_time_cn}}</td>
+                        <td>{{k.install_count}}</td>
+                        <td>{{k.activation_count}}</td>
+                        <td>{{k.register_count}}</td>
+                        <td>{{k.active_count_by_day}}</td>
+                        <td>{{k.active_count_by_month}}</td>
+                        <td>{{k.pv_by_day}}</td>
+                        <td>{{k.pv_by_month}}</td>
+                        <td>{{k.open_rate_by_day}}%</td>
+                        <td>{{k.access_time}}秒</td>
+                        <td>{{k.ugc_count}}</td>
+                        <td>{{k.cooperation_type_cn}}</td>
+                        <td>{{k.divide_into}}%</td>
+                        <td>{{k.policies}}折</td>
+                    {% elif mtype == 'down' %}
+                        <td>{{k.name}}</td>
+                        <td>{{k.update_time_cn}}</td>
+                        <td>{{k.start_time_cn}}</td>
+                        <td>{{k.end_time_cn}}</td>
+                        <td>{{k.location}}</td>
+                        <td>{{k.subject}}</td>
+                        <td>{{k.before_year_count}}</td>
+                        <td>{{k.now_year_count}}</td>
+                        <td>{{k.cooperation_type_cn}}</td>
+                        <td>{{k.divide_into}}%</td>
+                        <td>{{k.policies}}折</td>
+                    {% endif %}
+                    <td>
+                        <a href="{{url_for('mediums_product.info', mtype=mtype, pid=k.id)}}">查看</a>&nbsp;&nbsp;
+                        {% if g.user.is_media() or g.user.is_planner() %}
+                        <a href="{{url_for('mediums_product.update', mtype=mtype, pid=k.id)}}">修改</a>&nbsp;&nbsp;
+                        {% endif %}
+                        {% if g.user.is_admin() %}
+                        <a href="javascript:deletes('/mediums/product/{{mtype}}/{{k.id}}/delete','{{k.name}}')">删除</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% set pages = products %}
+            {% include "pagination.html" %}
+          </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function(){
+        $("#_{{mtype}}").addClass("active");
+    })
+    function deletes(delete_url, title){
+        var flag=confirm("确定要删除:"+title+"这个产品吗?");
+        if(flag){
+            $.get(delete_url, {},
+            function(data){
+                $('#tr_'+data['id']).remove()
+            }, "json");
+        }
+    }
+</script>
+{% endblock %}

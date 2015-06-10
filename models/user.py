@@ -179,6 +179,9 @@ class User(db.Model, BaseModelMixin):
     def is_media(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_MEDIA
 
+    def is_planner(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_PLANNER
+
     def is_sale(self):
         return self.is_admin() or self.is_leader() or self.team.type == TEAM_TYPE_DIRECT_SELLER
 

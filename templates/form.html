@@ -31,6 +31,14 @@
     </form>
 {%- endmacro %}
 
+{% macro form_tpl_ex_form(form) -%}
+    {% for field in form %}
+      {% if field != form.csrf_token %}
+        {{ form_field(field) }}
+      {% endif %}
+    {% endfor %}
+{%- endmacro %}
+
 {% macro upload_field(field) -%}
       <div class="form-group file-widget">
         <label for="name" class="col-sm-2 control-label">{{field.label.text}} : </label>

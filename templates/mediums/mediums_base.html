@@ -1,0 +1,13 @@
+{% extends "/site_base.html" %}
+
+{% block left_box%}
+<style>
+.list-group-item {
+    margin-left:15px;
+}
+</style>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 媒体产品管理</li>
+    {% if g.user.is_media() or g.user.is_planner() %}
+    <a class="list-group-item" href="{{url_for('mediums_product.index', mtype='pc')}}">产品列表</a>
+    {% endif %}
+{% endblock %}
