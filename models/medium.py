@@ -394,9 +394,9 @@ SHAP_CN = {
     SHAP_INTERNET: u'互联网'
 }
 
-RESOURCE_TYPE_AD = 0
-RESOURCE_TYPE_CAMPAIGN = 1
-RESOURCE_TYPE_SPECIAL = 2
+RESOURCE_TYPE_AD = 1
+RESOURCE_TYPE_CAMPAIGN = 2
+RESOURCE_TYPE_SPECIAL = 3
 RESOURCE_TYPE_OTHER = 4
 RESOURCE_TYPE_CN = {
     RESOURCE_TYPE_AD: u"硬广",
@@ -405,15 +405,21 @@ RESOURCE_TYPE_CN = {
     RESOURCE_TYPE_OTHER: u"其他"
 }
 
+BUY_UNIT_NONE = 0
 BUY_UNIT_CPM = 1
-BUY_UNIT_DAY = 2
+BUY_UNIT_THOUSAND_WEEK = 2
 BUY_UNIT_PHASE = 3
 BUY_UNIT_THOUSAND = 4
+BUY_UNIT_DAY = 5
+
+
 BUY_UNIT_CN = {
-    BUY_UNIT_CPM: u'按CPM',
-    BUY_UNIT_DAY: u'按天',
-    BUY_UNIT_PHASE: u'按期',
-    BUY_UNIT_THOUSAND: u'按千份',
+    BUY_UNIT_NONE: u'无',
+    BUY_UNIT_CPM: u'CPM',
+    BUY_UNIT_THOUSAND_WEEK: u'千份（周）',
+    BUY_UNIT_PHASE: u'期',
+    BUY_UNIT_THOUSAND: u'千份',
+    BUY_UNIT_DAY: u'天',
 }
 
 DIRECTIONAL_TYPE_NONE = 0
@@ -437,6 +443,13 @@ LESS_BUY_CN = {
     LESS_BUY_1000: u'不低于1000CPM',
 }
 
+B_FALSE = 0
+B_TURE = 1
+B_CN = {
+    B_FALSE: u'否',
+    B_TURE: u'是',
+}
+
 
 class MediumResource(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_resource'
@@ -454,7 +467,7 @@ class MediumResource(db.Model, BaseModelMixin):
     cpm = db.Column(db.Float)
     b_click = db.Column(db.Integer, default=1)    # 是否可点击
     click_rate = db.Column(db.Float, default=0)   # 点击率
-    buy_unit = db.Column(db.Integer, default=1)   # 购买单元
+    buy_unit = db.Column(db.Integer, default=1)   # 购买单位
     buy_threshold = db.Column(db.String(200), default="")   # 购买门槛
     money = db.Column(db.Float, default=0)        # 刊例单价
     b_directional = db.Column(db.Integer, default=1)        # 是否可定向
@@ -512,6 +525,58 @@ class MediumResource(db.Model, BaseModelMixin):
         self.create_time = create_time
         self.update_time = update_time
         self.body = body or json.dumps([])
+
+    @property
+    def type_cn(self):
+        return MEDIUM_RESOURCE_TYPE_CN[self.type]
+
+    @property
+    def shape_cn(self):
+        return SHAP_CN[self.shape]
+
+    @property
+    def resource_type_cn(self):
+        return RESOURCE_TYPE_CN[self.resource_type]
+
+    @property
+    def b_click_cn(self):
+        return B_CN[self.b_click]
+
+    @property
+    def buy_unit_cn(self):
+        return BUY_UNIT_CN[self.buy_unit]
+
+    @property
+    def b_directional_cn(self):
+        return B_CN[self.b_directional]
+
+    @property
+    def less_buy_cn(self):
+        return LESS_BUY_CN[self.less_buy]
+
+    @property
+    def b_give_cn(self):
+        return B_CN[self.b_give]
+
+    @property
+    def b_check_exposure_cn(self):
+        return B_CN[self.b_check_exposure]
+
+    @property
+    def b_check_click_cn(self):
+        return B_CN[self.b_check_click]
+
+    @property
+    def b_out_link_cn(self):
+        return B_CN[self.b_out_link]
+
+    @property
+    def b_in_link_cn(self):
+        return B_CN[self.b_in_link]
+
+    @property
+    def directional_type_cn(self):
+        return DIRECTIONAL_TYPE_CN[self.directional_type]
 
 
 class AdSize(db.Model, BaseModelMixin):
