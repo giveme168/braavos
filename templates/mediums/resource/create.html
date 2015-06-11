@@ -1,0 +1,97 @@
+{% extends "/mediums/mediums_base.html" %}
+{% from 'form.html' import form_tpl_ex_form %}
+{% block title %}媒体资源{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>新建媒体资源</h3>
+    <form class="form form-horizontal" method="POST" action="{{url_for('mediums_resource.create')}}" onsubmit="return check_form(this);">
+        <input class="hide" name="mtype" value="{{mtype}}"/>
+        <input class="hide" name="custom_ids" id="custom_ids" value="">
+        {{ form.csrf_token }}
+        {{ form_tpl_ex_form(form) }}
+        <div id="custom">
+        </div>
+        <div class="form-group">
+            <div class="col-sm-6">
+                <button onclick="add_colume()" type="button" class="btn btn-info"  style="float:right;">添加自定义字段</button>
+            </div>
+        </div>
+        <br/><br/>
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        <a href="{{url_for('mediums_resource.index')}}" class="btn btn-primary btn-sm col-md-offset-2">返回</a>
+    </from>
+</div>
+<script>
+Array.prototype.indexOf = function(val) {
+    for (var i = 0; i < this.length; i++) {
+        if (this[i] == val) return i;
+    }
+    return -1;
+};
+Array.prototype.remove = function(val) {
+    var index = this.indexOf(val);
+    if (index > -1) {
+        this.splice(index, 1);
+    }
+};
+
+function init_produce(){
+    var medium = $('#medium').val()
+    var type = $('#type').val()
+    $.ajax({
+        type: "get",
+        dataType: "json",
+        url: "{{url_for('mediums_resource.get_product')}}",
+        data: {'medium':medium, 'type':type},
+        success: function(data){
+            $('#product').empty()
+            var products = data['products']
+            for (var i=0; i<products.length; i++){
+                $('#product').append("<option value='"+products[i]['id']+"'>"+products[i]['name']+"</option>")
+            }
+            $("#product").trigger("chosen:updated");
+        }
+    })
+}
+
+$(document).ready(function(){
+    init_produce()
+    $('#medium').change(function(){
+        init_produce()
+    })
+    $('#type').change(function(){
+        init_produce()
+    })
+})
+var custom_ids = []
+var custom_id = 0
+
+function add_colume(){
+    custom_id += 1
+    custom_ids.push(custom_id)
+    var in_html = "<div class='form-group' id='custom_"+String(custom_id)+"'><div class='col-sm-5'><input type='text' class='form-control bra-form-control' id='custom_key_"+String(custom_id)+"' name='custom_key_"+String(custom_id)+"' placeholder='请输入自定义字段名称'/> : </div><div class='col-sm-4'><input type='text' name='custom_value_"+String(custom_id)+"' class='form-control bra-form-control' id='custom_value_"+String(custom_id)+"' placeholder='请输入自定义字段内容' /></div><button onclick='remove_colume("+String(custom_id)+")' type='button' class='btn btn-warning'>删除字段</button></div>"
+    $('#custom').append(in_html)
+    $('#custom_ids').val(custom_ids.join('|'))
+}
+
+function remove_colume(id){
+    $('#custom_'+String(id)).remove()
+    custom_ids.remove(parseInt(id))
+    $('#custom_ids').val(custom_ids.join('|'))
+}
+
+function check_form(obj){
+    if (obj.number.value == ''){
+        alert('请输入资源标号')
+        obj.number.focus()
+        return false;
+    }else if(obj.product.value == ''){
+        alert('请选择所属产品')
+        obj.product.focus()
+        return false;
+    }
+    return true;
+}
+</script>
+{% endblock %}

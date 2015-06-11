@@ -1,0 +1,194 @@
+{% extends "/mediums/mediums_base.html" %}
+{% from 'form.html' import form_field %}
+{% block title %}媒体资源{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>查看媒体资源详情</h3>
+    <form class="form form-horizontal">
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">最后更新时间 : </label>
+          <div class="col-sm-10">
+            <label class="col-sm-8 control-label">{{resource.update_time_cn}}</label>
+          </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">资源编号 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.number}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">所属媒体 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.medium.name}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">所属媒体产品 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.product_obj.name}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">资源类型 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.type_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">资源形态 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.shape_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">资源形式 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.resource_type_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">页面位置 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.page_postion}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">广告位置 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.ad_position}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">曝光/CPM : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.cpm}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">是否可点击 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.b_click_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">点击率 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.click_rate}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">购买单位 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.buy_unit_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">购买门槛 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.buy_threshold}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">刊例单价 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.money}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">是否可定向 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.b_directional_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">定向类型 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.directional_type_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">定向价格 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.directional_money}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">折扣（%） : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.discount}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">广告尺寸 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.ad_size}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">物料格式 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.materiel_format}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">最小购买值 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.less_buy_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">是否可配送 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.b_give_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">配送门槛 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.give_desc}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">监测曝光 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.b_check_exposure_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">监测点击 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.b_check_click_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">是否可外链 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.b_out_link_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">是否可内链 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.b_in_link_cn}}</label>
+            </div>
+        </div>
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">描述 : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{resource.description}}</label>
+            </div>
+        </div>
+        {% for k in resource.c_body %}
+        <div class="form-group" style="border-bottom:1px solid #eee">
+            <label for="name" class="col-sm-2 control-label">{{k.c_key}} : </label>
+            <div class="col-sm-10">
+                <label class="col-sm-8 control-label">{{k.c_value}}</label>
+            </div>
+        </div>
+        {% endfor %}
+        <a href="{{url_for('mediums_resource.index')}}" class="btn btn-primary btn-sm col-md-offset-2">返回</a>
+    </from>
+</div>
+{% endblock %}

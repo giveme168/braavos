@@ -5,7 +5,7 @@ from flask import request, redirect, url_for, Blueprint, flash, json, jsonify
 from flask import render_template as tpl
 
 from models.medium import Medium, MediumProductPC, MediumProductApp, MediumProductDown
-from forms.medium import NewMediumProductPC, NewMediumProductApp, NewMediumProductDown
+from forms.medium import NewMediumProductPCForm, NewMediumProductAppForm, NewMediumProductDownForm
 from libs.paginator import Paginator
 
 mediums_product_bp = Blueprint(
@@ -32,11 +32,11 @@ def index(mtype):
 @mediums_product_bp.route('/product/<mtype>/create', methods=['GET', 'POST'])
 def create(mtype):
     if mtype == 'pc':
-        form = NewMediumProductPC(request.form)
+        form = NewMediumProductPCForm(request.form)
     elif mtype == 'app':
-        form = NewMediumProductApp(request.form)
+        form = NewMediumProductAppForm(request.form)
     elif mtype == 'down':
-        form = NewMediumProductDown(request.form)
+        form = NewMediumProductDownForm(request.form)
     if request.method == 'POST' and form.validate():
         body = []
         custom_ids = request.values.get('custom_ids', '')
@@ -144,7 +144,7 @@ def create(mtype):
 def update(mtype, pid):
     if mtype == 'pc':
         product = MediumProductPC.get(pid)
-        form = NewMediumProductPC(request.form)
+        form = NewMediumProductPCForm(request.form)
         form.name.data = product.name
         form.medium.data = product.medium.id
         form.register_count.data = product.register_count
@@ -169,7 +169,7 @@ def update(mtype, pid):
         form.product_position.data = product.product_position
     elif mtype == 'app':
         product = MediumProductApp.get(pid)
-        form = NewMediumProductApp(request.form)
+        form = NewMediumProductAppForm(request.form)
         form.medium.data = product.medium.id
         form.name.data = product.name
         form.install_count.data = product.install_count
@@ -195,7 +195,7 @@ def update(mtype, pid):
         form.product_position.data = product.product_position
     elif mtype == 'down':
         product = MediumProductDown.get(pid)
-        form = NewMediumProductDown(request.form)
+        form = NewMediumProductDownForm(request.form)
         form.medium.data = product.medium.id
         form.name.data = product.name
         form.medium.data = product.medium.id
@@ -219,13 +219,12 @@ def update(mtype, pid):
     if request.method == 'POST' and form.validate():
         body = []
         custom_ids = request.values.get('custom_ids', '')
-        print custom_ids
         for x in custom_ids.split('|'):
             key = request.values.get('custom_key_' + str(x), '')
             value = request.values.get('custom_value_' + str(x), '')
             body.append({'c_key': key, 'c_value': value})
         if mtype == 'pc':
-            form = NewMediumProductPC(request.form)
+            form = NewMediumProductPCForm(request.form)
             if product.name != form.name.data and MediumProductPC.query.filter_by(name=form.name.data).count() > 0:
                 flash(u'产品名称已存在', 'danger')
                 return tpl('/mediums/product/update.html', form=form, mtype=mtype)
@@ -254,7 +253,7 @@ def update(mtype, pid):
             product.body = json.dumps(body)
             product.save()
         elif mtype == 'app':
-            form = NewMediumProductApp(request.form)
+            form = NewMediumProductAppForm(request.form)
             if product.name != form.name.data and MediumProductApp.query.filter_by(name=form.name.data).count() > 0:
                 flash(u'产品名称已存在', 'danger')
                 return tpl('/mediums/product/update.html', form=form, mtype=mtype)
@@ -286,7 +285,7 @@ def update(mtype, pid):
             product.body = json.dumps(body)
             product.save()
         elif mtype == 'down':
-            form = NewMediumProductDown(request.form)
+            form = NewMediumProductDownForm(request.form)
             if product.name != form.name.data and MediumProductDown.query.filter_by(name=form.name.data).count() > 0:
                 flash(u'产品名称已存在', 'danger')
                 return tpl('/mediums/product/update.html', form=form, mtype=mtype)
