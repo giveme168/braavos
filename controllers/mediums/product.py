@@ -15,18 +15,77 @@ mediums_product_bp = Blueprint(
 @mediums_product_bp.route('/product/<mtype>/index', methods=['GET'])
 def index(mtype):
     page = int(request.values.get('p', 1))
+    medium_id = int(request.values.get('medium_id', 0))
+    reg_count = request.values.get('reg_count', '') or 0
+    active_count = request.values.get('active_count', '') or 0
+    pv_count = request.values.get('pv_count', '') or 0
+    time_count = request.values.get('time_count', '') or 0
+    location = request.values.get('location', '')
+    now_year_count = request.values.get('now_year_count', '') or 0
+    filters = {}
+    if medium_id:
+        filters['medium_id'] = medium_id
     if mtype == 'pc':
-        products = MediumProductPC.all()
+        if filters:
+            products = MediumProductPC.query.filter_by(**filters)
+        else:
+            products = MediumProductPC.all()
+        if reg_count:
+            products = products.filter(
+                MediumProductPC.register_count >= int(reg_count))
+        if active_count:
+            products = products.filter(
+                MediumProductPC.active_count_by_day >= int(active_count))
+        if pv_count:
+            products = products.filter(
+                MediumProductPC.pv_by_day >= int(pv_count))
+        if time_count:
+            products = products.filter(
+                MediumProductPC.access_time >= int(time_count))
     elif mtype == 'app':
-        products = MediumProductApp.all()
+        if filters:
+            products = MediumProductApp.query.filter_by(**filters)
+        else:
+            products = MediumProductApp.all()
+        if reg_count:
+            products = products.filter(
+                MediumProductApp.register_count >= int(reg_count))
+        if active_count:
+            products = products.filter(
+                MediumProductApp.active_count_by_day >= int(active_count))
+        if pv_count:
+            products = products.filter(
+                MediumProductApp.pv_by_day >= int(pv_count))
+        if time_count:
+            products = products.filter(
+                MediumProductApp.access_time >= int(time_count))
     elif mtype == 'down':
-        products = MediumProductDown.all()
+        if location:
+            filters['location'] = location
+        if filters:
+            products = MediumProductDown.query.filter_by(**filters)
+        else:
+            products = MediumProductDown.all()
+        if now_year_count:
+            products = products.filter(
+                MediumProductDown.now_year_count >= int(now_year_count))
     paginator = Paginator(list(products), 50)
     try:
         products = paginator.page(page)
     except:
         products = paginator.page(paginator.num_pages)
-    return tpl('/mediums/product/index.html', mtype=mtype, products=products)
+    mediums = Medium.all()
+    params = "&medium_id=%s" % (str(medium_id))
+    if mtype in ['pc', 'app']:
+        params += "&reg_count=%s&active_count=%s&pv_count=%s&time_count=%s" % (
+            reg_count or '', active_count or '', pv_count or '', time_count or '')
+    else:
+        params += "&location=%s&now_year_count=%s" % (
+            location, now_year_count or '')
+    return tpl('/mediums/product/index.html', mtype=mtype, products=products,
+               mediums=mediums, medium_id=medium_id, params=params, reg_count=reg_count or '',
+               active_count=active_count or '', pv_count=pv_count or '', time_count=time_count or '',
+               location=location, now_year_count=now_year_count or '')
 
 
 @mediums_product_bp.route('/product/<mtype>/create', methods=['GET', 'POST'])

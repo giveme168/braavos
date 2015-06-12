@@ -12,8 +12,42 @@
         <div class="tab-content">
           <div class="tab-pane active" id="tab-1">
             <div class="search">
-                <a href="{{url_for('mediums_product.create', mtype=mtype)}}" class="btn btn-sm btn-default">添加产品</a>
+                <form class="form-inline" role="form" action="{{url_for('mediums_product.index', mtype=mtype)}}" method='get'>
+                    <div class="form-group">
+                        <select class="form-control" id="medium_id" name="medium_id" placeholder="选择媒体">
+                            <option value='0'>所有媒体</option>
+                            {% for medium in mediums %}
+                                <option value="{{medium.id}}">{{medium.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if mtype in ['pc','app'] %}
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="reg_count" name="reg_count" placeholder="注册用户数大于">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="active_count" name="active_count" placeholder="日活用户数大于">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="pv_count" name="pv_count" placeholder="日pv大于">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="time_count" name="time_count" placeholder="人均访问时长大于">
+                    </div>
+                    {% endif %}
+                    {% if mtype == 'down' %}
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="location" name="location" placeholder="举办地点">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="now_year_count" name="now_year_count" placeholder="今年人数大于">
+                    </div>
+                    {% endif %}
+                    <input type="submit" value="查询" class="btn btn-sm btn-info" style="width:80px;"> &nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="{{url_for('mediums_product.create', mtype=mtype)}}" class="btn btn-sm btn-info" style="width:80px;">添加产品</a>
+                </form>
             </div>
+            <br/>
             <table class="table table-bordered">
                 <tr>
                     <th>所属媒体</th>
@@ -131,6 +165,14 @@
 <script>
     $(function(){
         $("#_{{mtype}}").addClass("active");
+        $('#medium_id').val('{{medium_id}}')
+        $('#medium_id').trigger("chosen:updated");
+        $('#reg_count').val('{{reg_count}}')
+        $('#active_count').val('{{active_count}}')
+        $('#pv_count').val('{{pv_count}}')
+        $('#time_count').val('{{time_count}}')
+        $('#location').val('{{location}}')
+        $('#now_year_count').val('{{now_year_count}}')
     })
     function deletes(delete_url, title){
         var flag=confirm("确定要删除:"+title+"这个产品吗?");
