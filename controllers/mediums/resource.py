@@ -15,7 +15,18 @@ mediums_resource_bp = Blueprint(
 @mediums_resource_bp.route('/resource/index', methods=['GET'])
 def index():
     page = int(request.values.get('p', 1))
-    resources = MediumResource.all()
+    medium_id = int(request.values.get('medium_id', 0))
+    number = request.values.get('number', '')
+    filters = {}
+    if medium_id:
+        filters['medium_id'] = medium_id
+    if filters:
+        resources = MediumResource.query.filter_by(**filters)
+    else:
+        resources = MediumResource.all()
+    if number:
+        resources = resources.filter(
+            MediumResource.number.startswith(number.strip()))
     paginator = Paginator(list(resources), 50)
     try:
         resources = paginator.page(page)
@@ -28,7 +39,8 @@ def index():
             k.product_obj = MediumProductApp.get(k.product)
         elif k.type == 3:
             k.product_obj = MediumProductDown.get(k.product)
-    return tpl('/mediums/resource/index.html', resources=resources)
+    return tpl('/mediums/resource/index.html', resources=resources, mediums=Medium.all(),
+               number=number, medium_id=medium_id, params="&medium_id=%s&number=%s" % (medium_id, number))
 
 
 @mediums_resource_bp.route('/resource/create', methods=['GET', 'POST'])
