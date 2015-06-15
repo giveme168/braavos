@@ -4,7 +4,7 @@ import datetime
 from flask import request, redirect, url_for, Blueprint, flash, json, jsonify
 from flask import render_template as tpl
 
-from models.medium import Medium, MediumProductPC, MediumProductApp, MediumProductDown
+from models.medium import Medium, MediumProductPC, MediumProductApp, MediumProductDown, MEDIUM_RESOURCE_TYPE_INT
 from forms.medium import NewMediumProductPCForm, NewMediumProductAppForm, NewMediumProductDownForm
 from libs.paginator import Paginator
 
@@ -85,7 +85,8 @@ def index(mtype):
     return tpl('/mediums/product/index.html', mtype=mtype, products=products,
                mediums=mediums, medium_id=medium_id, params=params, reg_count=reg_count or '',
                active_count=active_count or '', pv_count=pv_count or '', time_count=time_count or '',
-               location=location, now_year_count=now_year_count or '')
+               location=location, now_year_count=now_year_count or '',
+               MEDIUM_RESOURCE_TYPE_INT=MEDIUM_RESOURCE_TYPE_INT)
 
 
 @mediums_product_bp.route('/product/<mtype>/create', methods=['GET', 'POST'])

@@ -140,7 +140,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def name(self):
-        return u"%s-%s" % (self.group.name, self.description)
+        return u"框架-%s" % (self.group.name)
 
     @property
     def direct_sales_names(self):

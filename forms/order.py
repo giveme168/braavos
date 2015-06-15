@@ -49,7 +49,7 @@ class MediumOrderForm(Form):
     medium = SelectField(u'投放媒体', coerce=int, description=u"提交后不可修改")
     sale_money = FloatField(u'售卖金额(元)', default=0, description=u"无利润未分成")
     medium_money2 = FloatField(u'媒体金额(元)', default=0, description=u"已利润未分成")
-    medium_money = FloatField(u'下单金额(元)', default=0, description=u"已利润已分成, 实际给媒体下单金额")
+    medium_money = FloatField(u'分成金额(元)', default=0, description=u"已利润已分成, 实际给媒体分成金额")
     sale_CPM = IntegerField(u'预估量(CPM)', default=0)
     medium_CPM = IntegerField(u'实际量(CPM)', default=0, description=u"结项后由执行填写")
     medium_start = DateField(u'执行开始')

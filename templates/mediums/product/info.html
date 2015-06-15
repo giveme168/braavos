@@ -4,7 +4,7 @@
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3>查看{% if mtype == "pc" %}PC端{% elif mtype == "app" %}App端{% elif mtype == "down" %}线下{% endif %}媒体产品详情</h3>
+    <h3>查看{% if mtype == "pc" %}PC端{% elif mtype == "app" %}App端{% elif mtype == "down" %}线下{% endif %}媒体产品详情--{{product.name}}</h3>
     <form class="form form-horizontal">
         <div class="form-group">
           <label for="client_start" class="col-sm-2 control-label">最后更新时间 : </label>

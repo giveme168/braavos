@@ -95,7 +95,7 @@
                         <th>分成比例</th>
                         <th>折扣政策</th>
                     {% endif %}
-                    <th width="5%">操作</th>
+                    <th width="8%">操作</th>
                 </tr>
                 {% for k in products.object_list %}
                 <tr id="tr_{{k.id}}">
@@ -145,9 +145,10 @@
                         <td>{{k.policies}}折</td>
                     {% endif %}
                     <td>
-                        <a href="{{url_for('mediums_product.info', mtype=mtype, pid=k.id)}}">查看</a>&nbsp;&nbsp;
+                        <a href="{{url_for('mediums_product.info', mtype=mtype, pid=k.id)}}">查看</a><br/>
+                        <a href="{{url_for('mediums_resource.index', product_id=k.id, type=MEDIUM_RESOURCE_TYPE_INT[mtype])}}">产品资源</a><br/>
                         {% if g.user.is_media() or g.user.is_planner() %}
-                        <a href="{{url_for('mediums_product.update', mtype=mtype, pid=k.id)}}">修改</a>&nbsp;&nbsp;
+                        <a href="{{url_for('mediums_product.update', mtype=mtype, pid=k.id)}}">修改</a><br/>
                         {% endif %}
                         {% if g.user.is_admin() %}
                         <a href="javascript:deletes('/mediums/product/{{mtype}}/{{k.id}}/delete','{{k.name}}')">删除</a>
