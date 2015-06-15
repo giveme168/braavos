@@ -7,7 +7,9 @@
         <div class="tab-content">
           <div class="tab-pane active" id="tab-1">
             <div class="search">
-                <form class="form-inline" role="form" action="{{url_for('mediums_resource.index')}}" method='get'>
+                <form class="form-inline" role="form" action="{{url_for('mediums_resource.index')}}?{{params}}" method='get'>
+                    <input type="hidden" value="{{product_id}}" name="product_id">
+                    <intpu type="hidden" value="{{type}}" name="type">
                     <div class="form-group">
                         <select class="form-control" id="medium_id" name="medium_id" placeholder="选择媒体">
                             <option value='0'>所有媒体</option>
@@ -71,9 +73,9 @@
                 <td>{{k.b_out_link_cn}}</td>
                 <td>{{k.b_in_link_cn}}</td>
                 <td>
-                    <a href="{{url_for('mediums_resource.info', pid=k.id)}}">查看</a>&nbsp;&nbsp;
+                    <a href="{{url_for('mediums_resource.info', pid=k.id)}}">查看</a><br/>
                     {% if g.user.is_media() or g.user.is_planner() %}
-                    <a href="{{url_for('mediums_resource.update', pid=k.id)}}">修改</a>&nbsp;&nbsp;
+                    <a href="{{url_for('mediums_resource.update', pid=k.id)}}">修改</a><br/>
                     {% endif %}
                     {% if g.user.is_admin() %}
                     <a href="javascript:deletes('/mediums/resource/{{k.id}}/delete','{{k.number}}')">删除</a>

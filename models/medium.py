@@ -389,6 +389,13 @@ MEDIUM_RESOURCE_TYPE_CN = {
     MEDIUM_RESOURCE_TYPE_DOWN: u'线下活动',
 }
 
+MEDIUM_RESOURCE_TYPE_INT = {
+    'pc': 1,
+    'app': 2,
+    'down': 3,
+}
+
+
 SHAP_INTERNET = 1
 SHAP_CN = {
     SHAP_INTERNET: u'互联网'

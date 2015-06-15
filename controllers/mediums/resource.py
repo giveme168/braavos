@@ -16,10 +16,16 @@ mediums_resource_bp = Blueprint(
 def index():
     page = int(request.values.get('p', 1))
     medium_id = int(request.values.get('medium_id', 0))
+    product_id = int(request.values.get('product_id', 0))
+    type = int(request.values.get('type', 0))
     number = request.values.get('number', '')
     filters = {}
     if medium_id:
         filters['medium_id'] = medium_id
+    if product_id:
+        filters['product'] = product_id
+    if type:
+        filters['type'] = type
     if filters:
         resources = MediumResource.query.filter_by(**filters)
     else:
@@ -40,7 +46,8 @@ def index():
         elif k.type == 3:
             k.product_obj = MediumProductDown.get(k.product)
     return tpl('/mediums/resource/index.html', resources=resources, mediums=Medium.all(),
-               number=number, medium_id=medium_id, params="&medium_id=%s&number=%s" % (medium_id, number))
+               type=type, product_id=product_id, number=number, medium_id=medium_id,
+               params="&medium_id=%s&number=%s&type=%s&product_id=%s" % (medium_id, number, type, product_id))
 
 
 @mediums_resource_bp.route('/resource/create', methods=['GET', 'POST'])
