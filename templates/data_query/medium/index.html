@@ -1,0 +1,66 @@
+{% extends "/data_query/data_query_base.html" %}
+{% block title %}媒体执行额{% endblock %}
+{% block main_box %}
+<div class="bra-main bra-box" style="width:1040px;">
+    <h3>媒体订单周报</h3>
+    <div class="search">
+        <form class="form-inline" role="form" action="" method='get'>
+        <div class="form-group">
+            <select class="form-control" id="medium_id" name="medium_id" placeholder="选择媒体">
+                <option value='0'>所有媒体</option>
+                {% for medium in s_mediums %}
+                    <option value="{{medium.id}}">{{medium.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <input type="submit" value="查询" class="btn btn-sm btn-info" >
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+        </form>
+    </div>
+    <br>
+    <table class="table table-bordered">
+        <tr>
+            <th>媒体名称</th>
+            <th width="8%">类别</th>
+            {% for k in range(1,13) %}
+                <th>{{now_date.year}}-{{k}}</th>
+            {% endfor %}
+            <th>总计</th>
+        </tr>
+        {% for medium in mediums.object_list %}
+        <tr>
+            <td>{{medium.name}}</td>
+            <td>
+                售卖金额<br/>
+                媒体金额<br/>
+                金额差
+            </td>
+                {% for k in range(1,13) %}
+                    <td>
+                        {{medium.sale_money_report_by_month(k)}}<br/>
+                        {{medium.medium_money2_report_by_month(k)}}<br/>
+                        {{medium.sale_money_report_by_month(k)-medium.medium_money2_report_by_month(k)}}
+                    </td>
+                {% endfor %}
+            <td>
+                {{medium.sale_money_report_by_year()}}<br/>
+                {{medium.medium_money2_report_by_year()}}<br/>
+                {{medium.sale_money_report_by_year()-medium.medium_money2_report_by_year()}}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% set pages = mediums %}
+    {% include "pagination.html" %}
+</div>
+<script>
+    $(function(){
+        $("#medium_id option[value='{{medium_id}}']").attr("selected","selected");  
+        $("#medium_id").trigger("chosen:updated");
+    })
+    function download(){
+         window.location.href = window.location.pathname +
+          '?medium_id=' + $('#medium_id').val() + '&action=download';
+    }
+</script>
+{% endblock %}

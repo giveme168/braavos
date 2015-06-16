@@ -9,6 +9,7 @@ from . import db, BaseModelMixin
 from .consts import STATUS_CN, DATE_FORMAT
 from models.mixin.delivery import DeliveryMixin
 from models.item import OCCUPY_RESOURCE_STATUS, ITEM_STATUS_ORDER
+from models.order import Order, MediumOrderExecutiveReport
 
 TARGET_TOP = 1
 TARGET_BLANK = 0
@@ -84,6 +85,7 @@ class Medium(db.Model, BaseModelMixin):
     phone_num = db.Column(db.String(100))  # 电话
     bank = db.Column(db.String(100))  # 银行
     bank_num = db.Column(db.String(100))  # 银行号
+    __mapper_args__ = {'order_by': id.desc()}
 
     def __init__(self, name, owner, abbreviation=None, tax_num="",
                  address="", phone_num="", bank="", bank_num=""):
@@ -116,6 +118,36 @@ class Medium(db.Model, BaseModelMixin):
                 'bank': self.bank or '',
                 'bank_num': self.bank_num or '',
                 'abbreviation': self.abbreviation or ''}
+
+    def sale_money_report_by_month(self, month):
+        month_day = datetime.datetime.now().replace(
+            month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
+        return sum([k.sale_money for k in MediumOrderExecutiveReport.query.join(Order).filter(
+            Order.medium_id == self.id, MediumOrderExecutiveReport.month_day == month_day)])
+
+    def sale_money_report_by_year(self):
+        start_month_day = datetime.datetime.now().replace(
+            month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        end_month_day = start_month_day.replace(
+            month=12, day=1, hour=0, minute=0, second=0, microsecond=0)
+        return sum([k.sale_money for k in MediumOrderExecutiveReport.query.join(Order).filter(
+            Order.medium_id == self.id, MediumOrderExecutiveReport.month_day >= start_month_day,
+            MediumOrderExecutiveReport.month_day <= end_month_day,)])
+
+    def medium_money2_report_by_month(self, month):
+        month_day = datetime.datetime.now().replace(
+            month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
+        return sum([k.medium_money2 for k in MediumOrderExecutiveReport.query.join(Order).filter(
+            Order.medium_id == self.id, MediumOrderExecutiveReport.month_day == month_day)])
+
+    def medium_money2_report_by_year(self):
+        start_month_day = datetime.datetime.now().replace(
+            month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        end_month_day = start_month_day.replace(
+            month=12, day=1, hour=0, minute=0, second=0, microsecond=0)
+        return sum([k.medium_money2 for k in MediumOrderExecutiveReport.query.join(Order).filter(
+            Order.medium_id == self.id, MediumOrderExecutiveReport.month_day >= start_month_day,
+            MediumOrderExecutiveReport.month_day <= end_month_day,)])
 
 
 def framework_generator(num):
