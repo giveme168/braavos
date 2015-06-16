@@ -61,6 +61,9 @@
               <ul class="dropdown-menu" role="menu">
                   <li><a href="{{url_for('data_query_weekly.index')}}">媒体订单周报</a></li>
                   <li><a href="{{url_for('data_query_weekly.douban_index')}}">直签豆瓣订单周报</a></li>
+                  {% if g.user.is_media()  %}
+                  <li><a href="{{url_for('data_query_medium.index')}}">媒体执行额</a></li>
+                  {% endif %}
               </ul>
             </li>
             {% if g.user.is_media() or g.user.is_planner() %}

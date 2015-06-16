@@ -12,4 +12,9 @@
     <a class="list-group-item" href="{{url_for('data_query_weekly.douban_index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 直签豆瓣订单周报
     </a>
+    {% if g.user.is_media() %}
+    <a class="list-group-item" href="{{url_for('data_query_medium.index')}}">
+      <span class="glyphicon glyphicon-th-list"></span> 媒体执行额
+    </a>
+    {% endif %}
 {% endblock %}
