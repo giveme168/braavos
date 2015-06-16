@@ -8,6 +8,7 @@
    {% endif %}
 
    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.outsource_status', order_id=order.id)}}">
+     <input type="hidden" name="outsource_json" id="outsource_json">
      <div class="form-group">
         <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
         <div class="col-sm-10">
@@ -50,7 +51,10 @@
             <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="1">通过</button>
             <button class="btn btn-sm btn-warning outsource-btn" name="action" type="submit" value="2">不通过</button>
             {% endif %}
-          {% endif %} 
+          {% endif %}
+          {% if outsource.can_admin(g.user) %}
+          <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="100">保存及重新申请</button>
+          {% endif %}
           <!--<button class="btn btn-sm btn-default outsource-btn" name="action" type="submit" value="4">提醒</button>-->
         </div>
      </div>
@@ -103,7 +107,7 @@
         <div id="collapse-outsource-{{outsource_status}}" class="panel-collapse collapse in">
             <div class="panel-body">
             {% for o in outsources %}
-                {% if o.status != 4 %}
+                {% if o.status not in [3, 4] %}
                 <h4>
                   <input type="checkbox" name="outsource-id" class="outsource-id" value="{{o.id}}"/>
                   {{o.name}}
@@ -113,7 +117,7 @@
                 {{ outsource_form(o.form, o, order=order) }}
             {% endfor %}
             {% if g.user.is_leader() or outsources[0].can_admin(g.user) or g.user.is_operater_leader() %}
-                {% if outsource_status != 4 %}
+                {% if outsource_status not in [3, 4] %}
                   {{ status_box(order, outsource_status,  outsources[0]) }}
                 {% endif %}
             {% endif %}
@@ -175,12 +179,29 @@
       if(outsources.length < 1){
         alert("请勾选外包项!");
         e.preventDefault();
+        return false
       }
       if(actionVal == '2'){
         if(msg == ""){
             e.preventDefault();
             alert("请填写理由！");
          }
+      }
+      if (actionVal == '100'){
+          //e.preventDefault();
+          var outsources_obj = []
+          for (var i=0; i<outsources.length; i++){
+              var outsource_form_id = outsources[i].value
+              var o_form = $('#outsource_form_'+outsource_form_id)
+              var form_array = o_form.serializeArray()
+              outsource = {}
+              outsource['id'] = outsource_form_id
+              for(var j=0; j<form_array.length; j++){
+                outsource[form_array[j].name] = form_array[j].value
+              }
+              outsources_obj.push(outsource)
+          }
+          $(this).parents('form').find('#outsource_json').val($.toJSON(outsources_obj))
       }
     });
     $('.file-widget-btn').click(function(e){

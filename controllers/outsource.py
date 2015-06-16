@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
-from flask import Blueprint, request, redirect, abort, url_for
+from flask import Blueprint, request, redirect, abort, url_for, json
 from flask import render_template as tpl, flash, g, current_app
 
 from models.outsource import OutSourceTarget, OutSource, DoubanOutSource, MergerOutSource, MergerDoubanOutSource
@@ -454,6 +454,31 @@ def outsource_status(order_id):
         next_status = OUTSOURCE_STATUS_APPLY_MONEY
         action_msg = u'申请打款'
         to_users_name = ','.join([k.name for k in User.operater_leaders()])
+    elif action == 100:
+        if outsource_percent >= 0.02:
+            action_msg = u'外包款超过2%，申请审批'
+            next_status = OUTSOURCE_STATUS_EXCEED
+        else:
+            action_msg = u'申请审批'
+            next_status = OUTSOURCE_STATUS_APPLY_LEADER
+        to_users_name = ','.join(
+            [k.name for k in outsource_apply_user] + [k.name for k in order.operater_users])
+        outsources_json = json.loads(request.values.get('outsource_json', '[]'))
+        outsources = []
+        for k in outsources_json:
+            if type == 'douban':
+                outsource = DoubanOutSource.get(k['id'])
+            else:
+                outsource = OutSource.get(k['id'])
+            outsource.num = k['num']
+            outsource.target = OutSourceTarget.get(k['target'])
+            outsource.type = k['type']
+            outsource.subtype = k['subtype']
+            outsource.remark = k['remark']
+            outsource.pay_num = k['num']
+            outsource.status = next_status
+            outsource.save()
+            outsources.append(outsource)
     else:
         action_msg = u'消息提醒'
 
