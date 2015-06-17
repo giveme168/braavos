@@ -1,0 +1,129 @@
+{% extends "/data_query/data_query_base.html" %}
+{% block title %}外包执行额{% endblock %}
+{% block main_box %}
+<div class="bra-main bra-box" style="width:1500px;">
+    <h3>外包执行额</h3>
+    <div class="search">
+        <form class="form-inline" role="form" action="" method='get'>
+        <div class="form-group">
+            <select class="form-control" name="year" id="year" placeholder="选择执行年">
+                <option value="2015">2015</option>
+                <option value="2014">2014</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="Q" id="Q" style="width:80px;" placeholder="选择执行月">
+                {% for k in range(1,5) %}
+                    <option value='Q{{k}}'>Q{{k}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <input type="submit" value="查询" class="btn btn-sm btn-info" >
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+        </form>
+    </div>
+    <br>
+    <table class="table table-bordered">
+        <tr>
+            <th rowspan=2 colspan=2 width="15%">收支项目</th>
+            {% for k in Q_monthes %}
+            <th colspan=3>{{k}}月</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for k in Q_monthes %}
+            <th>华东</th>
+            <th>华北</th>
+            <th>华南</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th rowspan=10>外包项目</th>
+        </tr>
+        <tr>
+            <th>奖品</th>
+            {% for k in monthes_data['1'] %}
+            <th>{{k.huadong}}</th>
+            <th>{{k.huabei}}</th>
+            <th>{{k.huanan}}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>Flash</th>
+            {% for k in monthes_data['2'] %}
+            <th>{{k.huadong}}</th>
+            <th>{{k.huabei}}</th>
+            <th>{{k.huanan}}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>劳务(KOL、线下活动等)</th>
+            {% for k in monthes_data['3'] %}
+            <th>{{k.huadong}}</th>
+            <th>{{k.huabei}}</th>
+            <th>{{k.huanan}}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>效果优化</th>
+            {% for k in monthes_data['4'] %}
+            <th>{{k.huadong}}</th>
+            <th>{{k.huabei}}</th>
+            <th>{{k.huanan}}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>其他(视频等)</th>
+            {% for k in monthes_data['5'] %}
+            <th>{{k.huadong}}</th>
+            <th>{{k.huabei}}</th>
+            <th>{{k.huanan}}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>flash&H5开发</th>
+            {% for k in monthes_data['6'] %}
+            <th>{{k.huadong}}</th>
+            <th>{{k.huabei}}</th>
+            <th>{{k.huanan}}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>H5开发</th>
+            {% for k in monthes_data['7'] %}
+            <th>{{k.huadong}}</th>
+            <th>{{k.huabei}}</th>
+            <th>{{k.huanan}}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>区域总计</th>
+            {% for k in monthes_data['t_locataion'] %}
+            <th>{{k.huadong}}</th>
+            <th>{{k.huabei}}</th>
+            <th>{{k.huanan}}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th>总计</th>
+            {% for k in monthes_data['t_month'] %}
+            <th colspan=3>{{k}}</th>
+            {% endfor %}
+        </tr>
+    </table>
+</div>
+
+<script>
+    $(function(){
+        $("#Q option[value='{{Q}}']").attr("selected","selected");  
+        $("#Q").trigger("chosen:updated");
+        $("#year option[value='{{now_year}}']").attr("selected","selected");  
+        $("#year").trigger("chosen:updated");
+    })
+    function download(){
+         window.location.href = window.location.pathname +
+          '?year=' + $('#year').val() + '&Q=' + $('#Q').val() +
+          '&medium_id=' + $('#medium_id').val() + '&action=download';
+    }
+</script>
+{% endblock %}

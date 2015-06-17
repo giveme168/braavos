@@ -64,6 +64,9 @@
                   {% if g.user.is_media()  %}
                   <li><a href="{{url_for('data_query_medium.index')}}">媒体执行额</a></li>
                   {% endif %}
+                  {% if g.user.is_operater_leader()  %}
+                  <li><a href="{{url_for('data_query_outsource.index')}}">外包成本</a></li>
+                  {% endif %}
               </ul>
             </li>
             {% if g.user.is_media() or g.user.is_planner() %}

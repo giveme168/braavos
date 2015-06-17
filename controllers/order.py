@@ -23,13 +23,13 @@ from models.associated_douban_order import AssociatedDoubanOrder
 from models.user import User, TEAM_LOCATION_CN
 from models.excel import Excel
 from models.attachment import Attachment
-from models.download import (download_excel_table_by_clientorders,
-                             download_excel_table_by_doubanorders,
+from models.download import (download_excel_table_by_doubanorders,
                              download_excel_table_by_frameworkorders)
 
 from libs.signals import contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
+from controllers.data_query.helpers.outsource_helpers import write_client_excel
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
@@ -613,12 +613,7 @@ def display_orders(orders, title, status_id=-1):
     except:
         orders = paginator.page(paginator.num_pages)
     if 'download' == request.args.get('action', ''):
-        filename = (
-            "%s-%s.xls" % (u"新媒体订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
-        xls = Excel().write_excle(
-            download_excel_table_by_clientorders(orders.object_list))
-        response = get_download_response(xls, filename)
-        return response
+        return write_client_excel(orders.object_list)
     else:
         params = '&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s\
         &start_time=%s&end_time=%s&search_medium=%s' % (
