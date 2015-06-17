@@ -3,7 +3,8 @@ import datetime
 from flask import Blueprint, request, redirect, abort, url_for, json
 from flask import render_template as tpl, flash, g, current_app
 
-from models.outsource import OutSourceTarget, OutSource, DoubanOutSource, MergerOutSource, MergerDoubanOutSource
+from models.outsource import (OutSourceTarget, OutSource, DoubanOutSource,
+                              MergerOutSource, MergerDoubanOutSource, OutSourceExecutiveReport)
 from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.order import Order
 from models.douban_order import DoubanOrder
@@ -21,6 +22,54 @@ outsource_bp = Blueprint(
 
 
 ORDER_PAGE_NUM = 50
+
+
+def _insert_executive_report(order, rtype=None):
+    outsources = order.get_outsources_by_status(
+        2) + order.get_outsources_by_status(4)
+    if order.__tablename__ == 'bra_douban_order':
+        otype = 2
+    else:
+        otype = 1
+    if rtype == 'reload':
+        for k in outsources:
+            OutSourceExecutiveReport.query.filter_by(
+                outsource_id=k.id, otype=otype).delete()
+    for k in outsources:
+        for i in k.pre_month_money():
+            if not OutSourceExecutiveReport.query.filter_by(outsource_id=k.id,
+                                                            otype=otype, month_day=i['month']).first():
+                OutSourceExecutiveReport.add(target=k.target,
+                                             outsource_id=k.id,
+                                             otype=otype,
+                                             type=k.type,
+                                             subtype=k.subtype,
+                                             invoice=k.invoice,
+                                             num=i['num'],
+                                             pay_num=i['pay_num'],
+                                             create_time=datetime.datetime.now(),
+                                             month_day=i['month'],
+                                             days=i['days'])
+
+    return
+
+
+@outsource_bp.route('/order/<order_id>/executive_report', methods=['GET'])
+def executive_report(order_id):
+    otype = request.values.get('otype', 'ClientOrder')
+    if otype == 'DoubanOrder':
+        order = DoubanOrder.get(order_id)
+    else:
+        order = ClientOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_admin():
+        abort(402)
+    _insert_executive_report(order, request.values.get('rtype', None))
+    if otype == 'ClientOrder':
+        return redirect(url_for("outsource.client_orders"))
+    else:
+        return redirect(url_for("outsource.douban_orders"))
 
 
 @outsource_bp.route('/client_orders_distribute', methods=['GET', 'POST'])
@@ -98,9 +147,11 @@ def display_orders(orders, template, title, operaters):
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
-        orders = [o for o in orders if search_info.lower() in o.search_info.lower()]
+        orders = [
+            o for o in orders if search_info.lower() in o.search_info.lower()]
     if status == 'apply':
-        orders = [o for o in orders if o.get_outsources_by_status(1) + o.get_outsources_by_status(5)]
+        orders = [o for o in orders if o.get_outsources_by_status(
+            1) + o.get_outsources_by_status(5)]
     if status == 'pass':
         orders = [o for o in orders if o.get_outsources_by_status(2)]
     if status == 'money':
@@ -486,6 +537,8 @@ def outsource_status(order_id):
         for outsource in outsources:
             outsource.status = next_status
             outsource.save()
+        if action == 1:
+            _insert_executive_report(order, rtype='reload')
     order.add_comment(g.user,
                       u"%s:\n\r%s\n\r%s" % (
                           action_msg, "\n\r".join([o.name for o in outsources]), msg),
@@ -645,7 +698,8 @@ def merget_client_target_info(target_id):
     apply_outsources = OutSource.get_outsources_by_target(target_id, 2)
     apply_money_outsources = OutSource.get_outsources_by_target(target_id, 3)
     paid_outsources = OutSource.get_outsources_by_target(target_id, 4)
-    apply_merger_outsources = MergerOutSource.get_outsources_by_status(MERGER_OUTSOURCE_STATUS_APPLY)
+    apply_merger_outsources = MergerOutSource.get_outsources_by_status(
+        MERGER_OUTSOURCE_STATUS_APPLY)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     form = MergerOutSourceForm(request.form)
     return tpl('merger_client_target_info.html', target=target,
@@ -747,9 +801,11 @@ def merget_douban_target_info(target_id):
                 current_app._get_current_object(), apply_context=apply_context)
         return redirect(url_for("outsource.merget_douban_target_info", target_id=target_id))
     apply_outsources = DoubanOutSource.get_outsources_by_target(target_id, 2)
-    apply_money_outsources = DoubanOutSource.get_outsources_by_target(target_id, 3)
+    apply_money_outsources = DoubanOutSource.get_outsources_by_target(
+        target_id, 3)
     paid_outsources = DoubanOutSource.get_outsources_by_target(target_id, 4)
-    apply_merger_outsources = MergerDoubanOutSource.get_outsources_by_status(MERGER_OUTSOURCE_STATUS_APPLY)
+    apply_merger_outsources = MergerDoubanOutSource.get_outsources_by_status(
+        MERGER_OUTSOURCE_STATUS_APPLY)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     form = MergerOutSourceForm(request.form)
     return tpl('merger_douban_target_info.html', target=target, reminder_emails=reminder_emails,

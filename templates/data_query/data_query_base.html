@@ -17,4 +17,9 @@
       <span class="glyphicon glyphicon-th-list"></span> 媒体执行额
     </a>
     {% endif %}
+    {% if g.user.is_operater_leader() %}
+    <a class="list-group-item" href="{{url_for('data_query_outsource.index')}}">
+      <span class="glyphicon glyphicon-th-list"></span> 外包成本
+    </a>
+    {% endif %}
 {% endblock %}

@@ -65,6 +65,9 @@
             <th>打款中</th>
             <th>已打款</th>
             <th>项目经理</th>
+            {% if g.user.is_admin() %}
+            <th>操作</th>
+            {% endif %}
         </tr>
         {% for order in orders %}
         <tr>
@@ -83,6 +86,9 @@
             <td>{{order.get_outsources_by_status(3) | length}}</td>
             <td>{{order.get_outsources_by_status(4) | length}}</td>
             <td>{{order.operater_names}}</td>
+            {% if g.user.is_admin() %}
+            <td><a href="{{url_for('outsource.executive_report', order_id=order.id)}}?rtype=reload">生成执行额周报</a></td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>

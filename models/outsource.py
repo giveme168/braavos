@@ -5,6 +5,7 @@ from flask import url_for
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from models.user import User
+from libs.date_helpers import get_monthes_pre_days
 
 TARGET_TYPE_FLASH = 1
 TARGET_TYPE_KOL = 2
@@ -169,7 +170,6 @@ table_merger_outsources = db.Table('merget_outsources',
 
 class OutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'out_source'
-
     id = db.Column(db.Integer, primary_key=True)
     target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
     target = db.relationship(
@@ -296,6 +296,44 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
         except:
             return ''
 
+    @property
+    def order_start_date_cn(self):
+        return self.medium_order.start_date_cn
+
+    @property
+    def order_end_date_cn(self):
+        return self.medium_order.end_date_cn
+
+    @property
+    def order_start_date(self):
+        return self.medium_order.start_date
+
+    @property
+    def order_end_date(self):
+        return self.medium_order.end_date
+
+    def pre_month_money(self):
+        if self.num:
+            num = float(self.num) / \
+                ((self.order_end_date - self.order_start_date).days + 1)
+        else:
+            num = 0
+
+        if self.pay_num:
+            pay_num = float(self.pay_num) / \
+                ((self.order_end_date - self.order_start_date).days + 1)
+        else:
+            pay_num = 0
+        pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.order_start_date_cn, '%Y-%m-%d'),
+                                              datetime.datetime.strptime(self.order_end_date_cn, '%Y-%m-%d'))
+        pre_month_money_data = []
+        for k in pre_month_days:
+            pre_month_money_data.append(
+                {'num': '%.2f' % (num * k['days']),
+                 'pay_num': '%.2f' % (pay_num * k['days']),
+                 'month': k['month'], 'days': k['days']})
+        return pre_month_money_data
+
 
 table_merger_douban_outsources = db.Table('merget_douban_outsources',
                                           db.Column(
@@ -307,9 +345,51 @@ table_merger_douban_outsources = db.Table('merget_douban_outsources',
                                           )
 
 
+class OutSourceExecutiveReport(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_outsource_executive_report'
+    id = db.Column(db.Integer, primary_key=True)
+    target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
+    target = db.relationship('OutSourceTarget', backref=db.backref(
+        'report_outsources_target', lazy='dynamic'))
+    outsource_id = db.Column(db.Integer)
+    otype = db.Column(db.Integer)
+    type = db.Column(db.Integer)
+    subtype = db.Column(db.Integer)
+    invoice = db.Column(db.Boolean)  # 发票
+    num = db.Column(db.Float)
+    pay_num = db.Column(db.Float)
+    create_time = db.Column(db.DateTime)
+    month_day = db.Column(db.DateTime)
+    days = db.Column(db.Integer)
+    __table_args__ = (db.UniqueConstraint(
+        'outsource_id', 'otype', 'month_day', name='_outsource_month_day_report'),)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, target, outsource_id, otype, type, subtype, invoice,
+                 num, pay_num, days, month_day, create_time=None):
+        self.target = target
+        self.outsource_id = outsource_id
+        self.otype = otype
+        self.type = type
+        self.subtype = subtype
+        self.invoice = invoice
+        self.num = num
+        self.pay_num = pay_num
+        self.days = days
+        self.month_day = month_day
+        self.create_time = create_time or datetime.datetime.now()
+
+    def is_location(self, location):
+        if self.otype == 1:
+            order = OutSource.get(self.outsource_id).medium_order
+        else:
+            order = DoubanOutSource.get(self.outsource_id).douban_order
+        locations = [k.team.location for k in order.operaters]
+        return location in locations
+
+
 class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'douban_out_source'
-
     id = db.Column(db.Integer, primary_key=True)
     target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
     target = db.relationship('OutSourceTarget', backref=db.backref(
@@ -432,6 +512,44 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
             return self.merger_outsources[0].remark
         except:
             return ''
+
+    @property
+    def order_start_date_cn(self):
+        return self.douban_order.start_date_cn
+
+    @property
+    def order_end_date_cn(self):
+        return self.douban_order.end_date_cn
+
+    @property
+    def order_start_date(self):
+        return self.douban_order.start_date
+
+    @property
+    def order_end_date(self):
+        return self.douban_order.end_date
+
+    def pre_month_money(self):
+        if self.num:
+            num = float(self.num) / \
+                ((self.order_end_date - self.order_start_date).days + 1)
+        else:
+            num = 0
+
+        if self.pay_num:
+            pay_num = float(self.pay_num) / \
+                ((self.order_end_date - self.order_start_date).days + 1)
+        else:
+            pay_num = 0
+        pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.order_start_date_cn, '%Y-%m-%d'),
+                                              datetime.datetime.strptime(self.order_end_date_cn, '%Y-%m-%d'))
+        pre_month_money_data = []
+        for k in pre_month_days:
+            pre_month_money_data.append(
+                {'num': '%.2f' % (num * k['days']),
+                 'pay_num': '%.2f' % (pay_num * k['days']),
+                 'month': k['month'], 'days': k['days']})
+        return pre_month_money_data
 
 
 MERGER_OUTSOURCE_STATUS_PAIED = 0
