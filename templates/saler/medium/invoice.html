@@ -273,7 +273,7 @@ $(function() {
       {% if invoice_pay.pay_status == 2 and invoice.client_order.can_admin(g.user) %}
         <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">再次申请打款</button>
       {% endif %}
-      {% if invoice_pay.pay_status == 2 and g.user.is_super_leader() %}
+      {% if invoice_pay.pay_status == 2 and g.user.is_leader() %}
         <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="3">同意打款</button>
       {% endif %}
       {% if invoice_pay.pay_status == 3 and invoice.client_order.can_admin(g.user) %}
