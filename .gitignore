@@ -11,3 +11,4 @@
 \#*#
 *.bak
 /build
+local_config.py.sample
