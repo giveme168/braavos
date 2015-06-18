@@ -105,12 +105,14 @@ def write_client_excel(orders):
     keys = [u'代理/直客(甲方全称)', u'客户合同号', u'客户名称', u'Campaign名称', u'合同金额(元)',
             u'执行开始', u'执行结束', u'回款日期', u'直客销售', u'渠道销售', u'区域', u'合同模板类型',
             u'售卖类型', u'代理/直客', u'投放媒体', u'媒体合同号', u'售卖金额(元)', u'媒体金额(元)', u'分成金额(元)',
-            u'预估量(CPM)', u'实际量(CPM)', u'执行开始', u'执行结束', u'执行人员']
+            u'预估量(CPM)', u'实际量(CPM)', u'执行开始', u'执行结束', u'执行人员', u'豆瓣关联媒体订单',
+            u'豆瓣合同号', u'Campaign名称', u'豆瓣合同金额']
     for k in range(len(keys)):
         worksheet.write(0, 0 + k, keys[k], align_left)
     th = 1
     for k in range(len(orders)):
         mediums = orders[k].medium_orders
+        douban_orders = orders[k].associated_douban_orders
         if len(mediums) > 1:
             worksheet.merge_range(
                 th, 0, th + len(orders[k].medium_orders) - 1, 0, orders[k].agent.name, align_left)
@@ -140,6 +142,11 @@ def write_client_excel(orders):
                 th, 12, th + len(orders[k].medium_orders) - 1, 12, orders[k].resource_type_cn, align_left)
             worksheet.merge_range(
                 th, 13, th + len(orders[k].medium_orders) - 1, 13, orders[k].sale_type_cn, align_left)
+            for i in range(len(douban_orders)):
+                worksheet.write(th, 24, douban_orders[i].name, align_left)
+                worksheet.write(th, 25, douban_orders[i].contract, align_left)
+                worksheet.write(th, 26, douban_orders[i].campaign, align_left)
+                worksheet.write(th, 27, douban_orders[i].money, align_left)
             for i in range(len(mediums)):
                 worksheet.write(th, 14, mediums[i].medium.name, align_left)
                 worksheet.write(th, 15, mediums[i].medium_contract, align_left)
@@ -187,6 +194,15 @@ def write_client_excel(orders):
                 th, 22, orders[k].medium_orders[0].end_date_cn, align_left)
             worksheet.write(
                 th, 23, orders[k].medium_orders[0].operater_names, align_left)
+            if orders[k].associated_douban_orders:
+                worksheet.write(
+                    th, 24, orders[k].associated_douban_orders[0].name, align_left)
+                worksheet.write(
+                    th, 25, orders[k].associated_douban_orders[0].contract, align_left)
+                worksheet.write(
+                    th, 26, orders[k].associated_douban_orders[0].campaign, align_left)
+                worksheet.write(
+                    th, 27, orders[k].associated_douban_orders[0].money, align_left)
             th += 1
 
     workbook.close()
