@@ -3,7 +3,7 @@ DEFAULT_PASSWORD = 'default_password'
 
 class Config(object):
     SECRET_KEY = 'your key'
-    DEBUG = True
+    DEBUG = False
     TESTING = False
     SQLALCHEMY_DATABASE_URI = 'postgresql://vagrant:vagrant@localhost/braavos'
 
