@@ -6,8 +6,11 @@ from factory import create_app
 from urls import register_blueprint
 from config import config_object
 
+from flask_debugtoolbar import DebugToolbarExtension
+
 
 app = create_app(config_object)
+toolbar = DebugToolbarExtension(app)
 
 login_manager = LoginManager()
 login_manager.login_message = None

@@ -12,7 +12,7 @@ class DevelopmentConfig(object):
     SECRET_KEY = 'a hash key'
     DEBUG = True
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://vagrant:vagrant@localhost/braavos'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://dbuser:dbuser@localhost/braavos'
 
     DOMAIN = 'http://dev:8000'
     AD_DOMAIN = 'http://dev:8002'
