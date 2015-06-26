@@ -655,6 +655,17 @@ by %s\n
             count = len(set(self.agent_sales + self.direct_sales))
         return self.money / count
 
+    def zhixing_medium_money2(self, sale_type):
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+            user = self.agent_sales[0]
+        else:
+            count = len(self.direct_sales)
+            user = self.direct_sales[0]
+        if user.team.location == 3:
+            count = len(set(self.agent_sales + self.direct_sales))
+        return self.mediums_money2 / count
+
 
 class BackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_back_money'
