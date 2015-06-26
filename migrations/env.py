@@ -15,7 +15,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 from models.user import User, Team
-from models.client import Client, Group, Agent
+from models.client import Client, Group, Agent, AgentRebate
 from models.comment import Comment
 from models.attachment import Attachment
 from models.item import AdItem, AdSchedule
@@ -28,7 +28,8 @@ from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.delivery import Delivery
 from models.outsource import OutSourceTarget, OutSource
-from models.invoice import Invoice
+from models.invoice import Invoice, AgentInvoice, AgentInvoicePay, MediumInvoice, MediumInvoicePay
+from models.medium import MediumRebate
 # target_metadata = mymodel.Base.metadata
 from flask import current_app
 config.set_main_option('sqlalchemy.url', current_app.config.get('SQLALCHEMY_DATABASE_URI'))

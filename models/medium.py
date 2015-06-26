@@ -150,6 +150,32 @@ class Medium(db.Model, BaseModelMixin):
             MediumOrderExecutiveReport.month_day <= end_month_day,)])
 
 
+class MediumRebate(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_medium_rebate'
+
+    id = db.Column(db.Integer, primary_key=True)
+    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 媒体id
+    medium = db.relationship('Medium', backref=db.backref('mediumrebate', lazy='dynamic'))
+
+    rebate = db.Column(db.Float)
+    year = db.Column(db.Date)
+
+    creator = db.relationship('User', backref=db.backref('created_medium_rebate', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)   # 添加时间
+
+    __table_args__ = (db.UniqueConstraint('medium_id', 'year', name='_medium_rebate_year'),)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, rebate=0.0, year=None, creator=None, create_time=None):
+        self.rebate = rebate
+        self.year = year or datetime.date.today()
+        self.creator = creator
+        self.create_time = create_time or datetime.date.today()
+
+    def __repr__(self):
+        return '<MediumRebate %s>' % (self.id)
+
+
 def framework_generator(num):
     code = "ZQM%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
     code = code.upper()
