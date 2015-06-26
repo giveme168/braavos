@@ -27,8 +27,9 @@ def index():
         now_year + '-' + str(Q_monthes[0]), '%Y-%m')
     end_month_day = datetime.datetime.strptime(
         now_year + '-' + str(Q_monthes[-1]), '%Y-%m')
-    outsources = OutSourceExecutiveReport.query.filter(
-        OutSourceExecutiveReport.month_day >= start_month_day, OutSourceExecutiveReport.month_day <= end_month_day)
+    outsources = OutSourceExecutiveReport.query.filter(OutSourceExecutiveReport.month_day >= start_month_day,
+                                                       OutSourceExecutiveReport.month_day <= end_month_day,
+                                                       OutSourceExecutiveReport.order_status not in [7, 8, 9])
     types = [1, 2, 3, 4, 5, 6, 7]
     monthes_data = {}
     for k in types:
