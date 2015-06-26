@@ -75,6 +75,34 @@ class Agent(db.Model, BaseModelMixin):
         return framework_generator(self.id)
 
 
+class AgentRebate(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_agent_rebate'
+
+    id = db.Column(db.Integer, primary_key=True)
+    agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))  # 代理公司id
+    agent = db.relationship('Agent', backref=db.backref('agentrebate', lazy='dynamic'))
+
+    inad_rebate = db.Column(db.Float)
+    douban_rebate = db.Column(db.Float)
+    year = db.Column(db.Date)
+
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship('User', backref=db.backref('created_agent_rebate', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)  # 添加时间
+    __table_args__ = (db.UniqueConstraint('agent_id', 'year', name='_agent_rebate_year'),)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, inad_rebate=0.0, douban_rebate=0.0, year=None, creator=None, create_time=None):
+        self.inad_rebate = inad_rebate
+        self.douban_rebate = douban_rebate
+        self.year = year or datetime.date.tody()
+        self.creator = creator
+        self.create_time = create_time or datetime.date.today()
+
+    def __repr__(self):
+        return '<AgentRebate %s>' % (self.id)
+
+
 def framework_generator(num):
     code = "ZQC%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
     code = code.upper()
