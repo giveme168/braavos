@@ -1,6 +1,6 @@
 $(document).ready(function(){
   // 多选选择器
-  $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10});
+  $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
   // 全选操作
   $(".checkbox_all").click(function(){
     $(this).parents('table').find(".checkbox_one").prop('checked', $(this)[0].checked);

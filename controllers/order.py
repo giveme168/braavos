@@ -607,14 +607,14 @@ def display_orders(orders, title, status_id=-1):
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
-    paginator = Paginator(orders, ORDER_PAGE_NUM)
-    try:
-        orders = paginator.page(page)
-    except:
-        orders = paginator.page(paginator.num_pages)
     if 'download' == request.args.get('action', ''):
-        return write_client_excel(orders.object_list)
+        return write_client_excel(orders)
     else:
+        paginator = Paginator(orders, ORDER_PAGE_NUM)
+        try:
+            orders = paginator.page(page)
+        except:
+            orders = paginator.page(paginator.num_pages)
         params = '&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s\
         &start_time=%s&end_time=%s&search_medium=%s' % (
             orderby, search_info, location_id, status_id, start_time, end_time, search_medium)
@@ -800,19 +800,19 @@ def framework_delete_orders():
 
 def framework_display_orders(orders, title):
     page = int(request.args.get('p', 1))
-    paginator = Paginator(orders, ORDER_PAGE_NUM)
-    try:
-        orders = paginator.page(page)
-    except:
-        orders = paginator.page(paginator.num_pages)
     if 'download' == request.args.get('action', ''):
         filename = (
             "%s-%s.xls" % (u"框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
         xls = Excel().write_excle(
-            download_excel_table_by_frameworkorders(orders.object_list))
+            download_excel_table_by_frameworkorders(orders))
         response = get_download_response(xls, filename)
         return response
     else:
+        paginator = Paginator(orders, ORDER_PAGE_NUM)
+        try:
+            orders = paginator.page(page)
+        except:
+            orders = paginator.page(paginator.num_pages)
         return tpl('frameworks.html', title=title, orders=orders, page=page)
 
 
@@ -1065,19 +1065,19 @@ def douban_display_orders(orders, title, status_id=-1):
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
-    paginator = Paginator(orders, ORDER_PAGE_NUM)
-    try:
-        orders = paginator.page(page)
-    except:
-        orders = paginator.page(paginator.num_pages)
     if 'download' == request.args.get('action', ''):
         filename = (
             "%s-%s.xls" % (u"直签豆瓣订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
         xls = Excel().write_excle(
-            download_excel_table_by_doubanorders(orders.object_list))
+            download_excel_table_by_doubanorders(orders))
         response = get_download_response(xls, filename)
         return response
     else:
+        paginator = Paginator(orders, ORDER_PAGE_NUM)
+        try:
+            orders = paginator.page(page)
+        except:
+            orders = paginator.page(paginator.num_pages)
         return tpl('douban_orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
