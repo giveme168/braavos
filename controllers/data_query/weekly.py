@@ -71,7 +71,7 @@ def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order', sa
             k['total_order_invoice'] = sum(
                 [order['order'].invoice_pass_sum for order in k['orders']])
             k['total_order_mediums_money2'] = sum(
-                [order['order'].mediums_money2 for order in k['orders']])
+                [order['order'].zhixing_medium_money2(saler_type) for order in k['orders']])
             k['total_frist_medium_money2_by_month'] = 0
             k['total_second_medium_money2_by_month'] = 0
             k['total_third_medium_money2_by_month'] = 0

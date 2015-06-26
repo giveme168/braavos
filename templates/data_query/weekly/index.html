@@ -60,7 +60,7 @@
                 <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                 <td>{{i.order.zhixing_money(type)}}</td>
                 <td>{{i.order.invoice_pass_sum}}</td>
-                <td>{{i.order.mediums_money2}}</td>
+                <td>{{i.order.zhixing_medium_money2(type)}}</td>
                 <td> 
                     {% for mo in i.order.medium_orders %}  
                     {{mo.medium.name}}<br/></br/></br/>
