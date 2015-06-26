@@ -45,7 +45,7 @@
                 <td>{{i.order.client.industry_cn}}</td>
                 <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                 <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                <td>{{i.order.money}}</td>
+                <td>{{i.order.zhixing_money(type)}}</td>
                 <td></td>
                 <td>{{i.now_Q_money}}</td>
                 <td>{{i.last_Q_money}}</td>

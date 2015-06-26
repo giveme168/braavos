@@ -177,7 +177,7 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                     for j in range(len(medium_orders)):
                         worksheet.write(th, 12, medium_orders[j].name, align_left)
                         worksheet.write(
-                            th, 13, medium_orders[j].medium_money2, align_left)
+                            th, 13, medium_orders[j].zhixing_medium_money2(stype), align_left)
                         for m in range(len(Q_monthes)):
                             worksheet.write(th, 14 + m, medium_orders[j].get_executive_report_medium_money_by_month(
                                 now_year, Q_monthes[m], stype)['sale_money'], align_left)
