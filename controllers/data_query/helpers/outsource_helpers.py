@@ -174,26 +174,27 @@ def write_client_excel(orders):
             worksheet.write(th, 11, orders[k].contract_type_cn, align_left)
             worksheet.write(th, 12, orders[k].resource_type_cn, align_left)
             worksheet.write(th, 13, orders[k].sale_type_cn, align_left)
-            worksheet.write(
-                th, 14, orders[k].medium_orders[0].medium.name, align_left)
-            worksheet.write(
-                th, 15, orders[k].medium_orders[0].medium_contract, align_left)
-            worksheet.write(
-                th, 16, orders[k].medium_orders[0].sale_money, align_left)
-            worksheet.write(
-                th, 17, orders[k].medium_orders[0].medium_money2, align_left)
-            worksheet.write(
-                th, 18, orders[k].medium_orders[0].medium_money, align_left)
-            worksheet.write(
-                th, 19, orders[k].medium_orders[0].sale_CPM, align_left)
-            worksheet.write(
-                th, 20, orders[k].medium_orders[0].medium_CPM, align_left)
-            worksheet.write(
-                th, 21, orders[k].medium_orders[0].start_date_cn, align_left)
-            worksheet.write(
-                th, 22, orders[k].medium_orders[0].end_date_cn, align_left)
-            worksheet.write(
-                th, 23, orders[k].medium_orders[0].operater_names, align_left)
+            if orders[k].medium_orders:
+                worksheet.write(
+                    th, 14, orders[k].medium_orders[0].medium.name, align_left)
+                worksheet.write(
+                    th, 15, orders[k].medium_orders[0].medium_contract, align_left)
+                worksheet.write(
+                    th, 16, orders[k].medium_orders[0].sale_money, align_left)
+                worksheet.write(
+                    th, 17, orders[k].medium_orders[0].medium_money2, align_left)
+                worksheet.write(
+                    th, 18, orders[k].medium_orders[0].medium_money, align_left)
+                worksheet.write(
+                    th, 19, orders[k].medium_orders[0].sale_CPM, align_left)
+                worksheet.write(
+                    th, 20, orders[k].medium_orders[0].medium_CPM, align_left)
+                worksheet.write(
+                    th, 21, orders[k].medium_orders[0].start_date_cn, align_left)
+                worksheet.write(
+                    th, 22, orders[k].medium_orders[0].end_date_cn, align_left)
+                worksheet.write(
+                    th, 23, orders[k].medium_orders[0].operater_names, align_left)
             if orders[k].associated_douban_orders:
                 worksheet.write(
                     th, 24, orders[k].associated_douban_orders[0].name, align_left)

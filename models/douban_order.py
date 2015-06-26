@@ -182,7 +182,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @classmethod
     def get_all(cls):
         """查看所有没删除订单"""
-        return [o for o in cls.query.all() if o.status in [STATUS_ON, None]]
+        return [o for o in cls.query.all() if o.status in [STATUS_ON, None] and o.contract_status not in [7, 8, 9]]
 
     @classmethod
     def all(cls):
