@@ -58,7 +58,7 @@
                 <td>{{i.order.client.industry_cn}}</td>
                 <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                 <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                <td>{{i.order.money}}</td>
+                <td>{{i.order.zhixing_money(type)}}</td>
                 <td>{{i.order.invoice_pass_sum}}</td>
                 <td>{{i.order.mediums_money2}}</td>
                 <td> 
@@ -75,7 +75,7 @@
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money}}<br/></br/></br/>
+                                {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money}}<br/></br/></br/>
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -84,7 +84,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money}}<br/></br/></br/>
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -93,7 +93,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money}}<br/></br/></br/>
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -102,7 +102,7 @@
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                                {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -111,7 +111,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -120,7 +120,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -129,7 +129,7 @@
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                                {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -138,7 +138,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -147,7 +147,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k).medium_money2}}<br/></br/></br/>
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}

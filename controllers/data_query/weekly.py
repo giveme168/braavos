@@ -51,10 +51,10 @@ def _get_salers_user_by_location(client_orders, location, type='agent'):
     return list(set(salers))
 
 
-def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order'):
+def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order', saler_type='agent'):
     for k in saler_orders:
         k['total_order_money'] = sum(
-            [order['order'].money for order in k['orders']])
+            [order['order'].zhixing_money(saler_type) for order in k['orders']])
         k['total_now_Q_money'] = sum(
             [order['now_Q_money'] for order in k['orders']])
         k['total_last_Q_money'] = sum(
@@ -80,9 +80,9 @@ def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order'):
             k['total_third_saler_money_by_month'] = 0
             for i in range(len(Q_monthes)):
                 total_medium_money2 = sum([order['order'].get_executive_report_medium_money_by_month(
-                    now_year, Q_monthes[i])['medium_money2'] for order in k['orders']])
+                    now_year, Q_monthes[i], saler_type)['medium_money2'] for order in k['orders']])
                 sale_money = sum([order['order'].get_executive_report_medium_money_by_month(
-                    now_year, Q_monthes[i])['sale_money'] for order in k['orders']])
+                    now_year, Q_monthes[i], saler_type)['sale_money'] for order in k['orders']])
                 if i == 0:
                     k['total_frist_medium_money2_by_month'] += total_medium_money2
                     k['total_frist_saler_money_by_month'] += sale_money
@@ -163,27 +163,27 @@ def douban_index():
     huabei_agent_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, douban_orders, now_year, now_Q, Q_monthes, 'agent')} for user in huabei_agent_salers]
     huabei_agent_salers_orders = _get_report_total(
-        huabei_agent_saler_orders, now_year, Q_monthes, 'douban_order')
+        huabei_agent_saler_orders, now_year, Q_monthes, 'douban_order', 'agent')
     huabei_agent_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, douban_orders, now_year, now_Q, Q_monthes, 'direct')} for user in huabei_direct_salers]
     huabei_direct_salers_orders = _get_report_total(
-        huabei_agent_saler_orders, now_year, Q_monthes, 'douban_order')
+        huabei_agent_saler_orders, now_year, Q_monthes, 'douban_order', 'direct')
     huanan_agent_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, douban_orders, now_year, now_Q, Q_monthes, 'agent')} for user in huanan_agent_salers]
     huanan_agent_salers_orders = _get_report_total(
-        huanan_agent_saler_orders, now_year, Q_monthes, 'douban_order')
+        huanan_agent_saler_orders, now_year, Q_monthes, 'douban_order', 'agent')
     huanan_direct_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, douban_orders, now_year, now_Q, Q_monthes, 'direct')} for user in huanan_direct_salers]
     huanan_direct_salers_orders = _get_report_total(
-        huanan_direct_saler_orders, now_year, Q_monthes, 'douban_order')
+        huanan_direct_saler_orders, now_year, Q_monthes, 'douban_order', 'direct')
     huadong_agent_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, douban_orders, now_year, now_Q, Q_monthes, 'agent')} for user in huadong_agent_salers]
     huadong_agent_salers_orders = _get_report_total(
-        huadong_agent_saler_orders, now_year, Q_monthes, 'douban_order')
+        huadong_agent_saler_orders, now_year, Q_monthes, 'douban_order', 'agent')
     huanan_direct_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, douban_orders, now_year, now_Q, Q_monthes, 'direct')} for user in huadong_direct_salers]
     huadong_direct_salers_orders = _get_report_total(
-        huanan_direct_saler_orders, now_year, Q_monthes, 'douban_order')
+        huanan_direct_saler_orders, now_year, Q_monthes, 'douban_order', 'direct')
     if request.values.get('action', '') == 'download':
         response = write_client_excel(huabei_agent_salers_orders=huabei_agent_salers_orders,
                                       huabei_direct_salers_orders=huabei_direct_salers_orders,
@@ -275,27 +275,27 @@ def index():
     huabei_agent_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, client_orders, now_year, now_Q, Q_monthes, 'agent')} for user in huabei_agent_salers]
     huabei_agent_salers_orders = _get_report_total(
-        huabei_agent_saler_orders, now_year, Q_monthes)
+        huabei_agent_saler_orders, now_year, Q_monthes, 'client_order', 'agent')
     huabei_agent_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, client_orders, now_year, now_Q, Q_monthes, 'direct')} for user in huabei_direct_salers]
     huabei_direct_salers_orders = _get_report_total(
-        huabei_agent_saler_orders, now_year, Q_monthes)
+        huabei_agent_saler_orders, now_year, Q_monthes, 'client_order', 'direct')
     huanan_agent_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, client_orders, now_year, now_Q, Q_monthes, 'agent')} for user in huanan_agent_salers]
     huanan_agent_salers_orders = _get_report_total(
-        huanan_agent_saler_orders, now_year, Q_monthes)
+        huanan_agent_saler_orders, now_year, Q_monthes, 'client_order', 'agent')
     huanan_direct_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, client_orders, now_year, now_Q, Q_monthes, 'direct')} for user in huanan_direct_salers]
     huanan_direct_salers_orders = _get_report_total(
-        huanan_direct_saler_orders, now_year, Q_monthes)
+        huanan_direct_saler_orders, now_year, Q_monthes, 'client_order', 'direct')
     huadong_agent_saler_orders = [{'user': user, 'orders': _get_report_by_user(
         user, client_orders, now_year, now_Q, Q_monthes, 'agent')} for user in huadong_agent_salers]
     huadong_agent_salers_orders = _get_report_total(
-        huadong_agent_saler_orders, now_year, Q_monthes)
+        huadong_agent_saler_orders, now_year, Q_monthes, 'client_order', 'agent')
     huanan_direct_saler_orders = [{'user': user, 'orders': _get_report_by_user(
-        user, client_orders, now_year, now_Q, Q_monthes, 'direct')} for user in huadong_direct_salers]
+        user, client_orders, now_year, now_Q, Q_monthes, 'client_order', 'direct')} for user in huadong_direct_salers]
     huadong_direct_salers_orders = _get_report_total(
-        huanan_direct_saler_orders, now_year, Q_monthes)
+        huanan_direct_saler_orders, now_year, Q_monthes, 'client_order', 'direct')
 
     if request.values.get('action', '') == 'download':
         response = write_client_excel(huabei_agent_salers_orders=huabei_agent_salers_orders,

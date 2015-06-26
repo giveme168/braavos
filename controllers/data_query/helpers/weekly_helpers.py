@@ -46,7 +46,7 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                     th, 7, ','.join([u.name for u in i['order'].direct_sales]), align_left)
                 worksheet.write(
                     th, 8, ','.join([u.name for u in i['order'].agent_sales]), align_left)
-                worksheet.write(th, 9, i['order'].money, align_left)
+                worksheet.write(th, 9, i['order'].zhixing_money(stype), align_left)
                 worksheet.write(th, 10, "", align_left)
                 worksheet.write(th, 11, i['now_Q_money'], align_left)
                 worksheet.write(th, 12, i['last_Q_money'], align_left)
@@ -180,14 +180,14 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                             th, 13, medium_orders[j].medium_money2, align_left)
                         for m in range(len(Q_monthes)):
                             worksheet.write(th, 14 + m, medium_orders[j].get_executive_report_medium_money_by_month(
-                                now_year, Q_monthes[m])['sale_money'], align_left)
+                                now_year, Q_monthes[m], stype)['sale_money'], align_left)
                         for m in range(len(Q_monthes)):
                             worksheet.write(th, 17 + m, medium_orders[j].get_executive_report_medium_money_by_month(
-                                now_year, Q_monthes[m])['medium_money2'], align_left)
+                                now_year, Q_monthes[m], stype)['medium_money2'], align_left)
                         for m in range(len(Q_monthes)):
-                            rate = medium_orders[j].get_executive_report_medium_money_by_month(now_year, Q_monthes[m])['sale_money'] -\
+                            rate = medium_orders[j].get_executive_report_medium_money_by_month(now_year, Q_monthes[m], stype)['sale_money'] -\
                                 medium_orders[j].get_executive_report_medium_money_by_month(
-                                    now_year, Q_monthes[m])['medium_money2']
+                                    now_year, Q_monthes[m], stype)['medium_money2']
                             worksheet.write(th, 20 + m, rate, align_left)
                         th += 1
                 else:
