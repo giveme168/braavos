@@ -596,7 +596,6 @@ by %s\n
                     month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
             except:
                 pre_report = None
-
             try:
                 pre_money = pre_report.money
             except:
@@ -607,7 +606,15 @@ by %s\n
                 moneys.append(0)
         return moneys
 
-    def get_executive_report_medium_money_by_month(self, year, month):
+    def get_executive_report_medium_money_by_month(self, year, month, sale_type):
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+            user = self.agent_sales[0]
+        else:
+            count = len(self.direct_sales)
+            user = self.direct_sales[0]
+        if user.team.location == 3:
+            count = len(set(self.agent_sales + self.direct_sales))
         from models.order import MediumOrderExecutiveReport
         day_month = datetime.datetime.strptime(year + '-' + month, '%Y-%m')
         executive_reports = MediumOrderExecutiveReport.query.filter_by(
@@ -616,7 +623,9 @@ by %s\n
             medium_money = sum([k.medium_money for k in executive_reports])
             medium_money2 = sum([k.medium_money2 for k in executive_reports])
             sale_money = sum([k.sale_money for k in executive_reports])
-            return {'medium_money': medium_money, 'medium_money2': medium_money2, 'sale_money': sale_money}
+            return {'medium_money': medium_money / count,
+                    'medium_money2': medium_money2 / count,
+                    'sale_money': sale_money / count}
         else:
             return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
 
@@ -634,6 +643,17 @@ by %s\n
         else:
             ClientOrderReject.add(
                 client_order=self, reject_time=datetime.date.today())
+
+    def zhixing_money(self, sale_type):
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+            user = self.agent_sales[0]
+        else:
+            count = len(self.direct_sales)
+            user = self.direct_sales[0]
+        if user.team.location == 3:
+            count = len(set(self.agent_sales + self.direct_sales))
+        return self.money / count
 
 
 class BackMoney(db.Model, BaseModelMixin):

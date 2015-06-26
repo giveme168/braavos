@@ -532,13 +532,22 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                 {'money': '%.2f' % (pre_money * k['days']), 'month': k['month'], 'days': k['days']})
         return pre_month_money_data
 
-    def get_executive_report_medium_money_by_month(self, year, month):
+    def get_executive_report_medium_money_by_month(self, year, month, sale_type):
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+            user = self.agent_sales[0]
+        else:
+            count = len(self.direct_sales)
+            user = self.direct_sales[0]
+        if user.team.location == 3:
+            count = len(set(self.agent_sales + self.direct_sales))
         day_month = datetime.datetime.strptime(year + '-' + month, '%Y-%m')
         executive_report = MediumOrderExecutiveReport.query.filter_by(
             order=self, month_day=day_month).first()
         if executive_report:
-            return {'medium_money': executive_report.medium_money, 'medium_money2': executive_report.medium_money2,
-                    'sale_money': executive_report.sale_money}
+            return {'medium_money': executive_report.medium_money / count,
+                    'medium_money2': executive_report.medium_money2 / count,
+                    'sale_money': executive_report.sale_money / count}
         else:
             return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
 

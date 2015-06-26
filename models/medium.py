@@ -156,13 +156,11 @@ class MediumRebate(db.Model, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 媒体id
     medium = db.relationship('Medium', backref=db.backref('mediumrebate', lazy='dynamic'))
-
     rebate = db.Column(db.Float)
     year = db.Column(db.Date)
-
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User', backref=db.backref('created_medium_rebate', lazy='dynamic'))
     create_time = db.Column(db.DateTime)   # 添加时间
-
     __table_args__ = (db.UniqueConstraint('medium_id', 'year', name='_medium_rebate_year'),)
     __mapper_args__ = {'order_by': create_time.desc()}
 
@@ -170,7 +168,7 @@ class MediumRebate(db.Model, BaseModelMixin):
         self.rebate = rebate
         self.year = year or datetime.date.today()
         self.creator = creator
-        self.create_time = create_time or datetime.date.today()
+        self.create_time = create_time or datetime.datetime.now()
 
     def __repr__(self):
         return '<MediumRebate %s>' % (self.id)

@@ -97,7 +97,7 @@ class AgentRebate(db.Model, BaseModelMixin):
         self.douban_rebate = douban_rebate
         self.year = year or datetime.date.tody()
         self.creator = creator
-        self.create_time = create_time or datetime.date.today()
+        self.create_time = create_time or datetime.datetime.now()
 
     def __repr__(self):
         return '<AgentRebate %s>' % (self.id)
