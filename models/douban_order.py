@@ -549,6 +549,17 @@ by %s\n
             DoubanOrderReject.add(
                 douban_order=self, reject_time=datetime.date.today())
 
+    def zhixing_money(self, sale_type):
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+            user = self.agent_sales[0]
+        else:
+            count = len(self.direct_sales)
+            user = self.direct_sales[0]
+        if user.team.location == 3:
+            count = len(set(self.agent_sales + self.direct_sales))
+        return self.money / count
+
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_douban_order_executive_report'

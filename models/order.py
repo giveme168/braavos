@@ -551,6 +551,17 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         else:
             return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
 
+    def zhixing_medium_money2(self, sale_type):
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+            user = self.agent_sales[0]
+        else:
+            count = len(self.direct_sales)
+            user = self.direct_sales[0]
+        if user.team.location == 3:
+            count = len(set(self.agent_sales + self.direct_sales))
+        return self.medium_money2 / count
+
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_order_executive_report'
