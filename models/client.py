@@ -53,6 +53,7 @@ class Agent(db.Model, BaseModelMixin):
     phone_num = db.Column(db.String(100))  # 电话
     bank = db.Column(db.String(100))  # 银行
     bank_num = db.Column(db.String(100))  # 银行号
+    rebates = db.relationship('AgentRebate')
 
     def __init__(self, name, group=None,
                  tax_num="", address="", phone_num="",
@@ -74,6 +75,18 @@ class Agent(db.Model, BaseModelMixin):
     def current_framework(self):
         return framework_generator(self.id)
 
+    def inad_rebate_by_year(self, year):
+        rebate = [k for k in self.rebates if k.year.year == int(year)]
+        if len(rebate) > 0:
+            return rebate[0].inad_rebate
+        return 0
+
+    def douban_rebate_by_year(self, year):
+        rebate = [k for k in self.rebates if k.year.year == int(year)]
+        if len(rebate) > 0:
+            return rebate[0].douban_rebate
+        return 0
+
 
 class AgentRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_agent_rebate'
@@ -92,7 +105,8 @@ class AgentRebate(db.Model, BaseModelMixin):
     __table_args__ = (db.UniqueConstraint('agent_id', 'year', name='_agent_rebate_year'),)
     __mapper_args__ = {'order_by': create_time.desc()}
 
-    def __init__(self, inad_rebate=0.0, douban_rebate=0.0, year=None, creator=None, create_time=None):
+    def __init__(self, agent, inad_rebate=0.0, douban_rebate=0.0, year=None, creator=None, create_time=None):
+        self.agent = agent
         self.inad_rebate = inad_rebate
         self.douban_rebate = douban_rebate
         self.year = year or datetime.date.tody()
@@ -101,6 +115,10 @@ class AgentRebate(db.Model, BaseModelMixin):
 
     def __repr__(self):
         return '<AgentRebate %s>' % (self.id)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime("%Y-%m-%d")
 
 
 def framework_generator(num):

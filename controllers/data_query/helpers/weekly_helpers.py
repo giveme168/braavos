@@ -118,7 +118,7 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                     worksheet.write(th, 9, i['order'].money, align_left)
                     worksheet.write(th, 10, i['order'].invoice_pass_sum, align_left)
                     worksheet.write(
-                        th, 11, i['order'].mediums_money2, align_left)
+                        th, 11, i['order'].zhixing_medium_money2(stype), align_left)
                     worksheet.write(th, 23, '', align_left)
                     worksheet.write(th, 24, i['now_Q_money'], align_left)
                     worksheet.write(th, 25, i['last_Q_money'], align_left)
@@ -153,7 +153,7 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                     worksheet.merge_range(
                         th, 10, th + medium_order_count - 1, 10, i['order'].invoice_pass_sum, align_left)
                     worksheet.merge_range(
-                        th, 11, th + medium_order_count - 1, 11, i['order'].mediums_money2, align_left)
+                        th, 11, th + medium_order_count - 1, 11, i['order'].zhixing_medium_money2(stype), align_left)
                     worksheet.merge_range(
                         th, 23, th + medium_order_count - 1, 23, '', align_left)
                     worksheet.merge_range(

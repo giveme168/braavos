@@ -11,12 +11,18 @@
             <th>#id</th>
             <th>名称</th>
             <th>媒体团队</th>
+            {% if g.user.is_media() %}
+            <th>操作</th>
+            {% endif %}
         </tr>
         {% for m in mediums %}
         <tr>
             <td>{{m.id}}</td>
-            <td><a href="{{url_for("client.medium_detail", medium_id=m.id)}}">{{m.name}}</a></td>
+            <td><a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
             <td>{{m.owner.name}}</td>
+            {% if g.user.is_media() %}
+                <td><a href="{{url_for('client.medium_rebate', medium_id=m.id)}}">设置返点</a></td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>

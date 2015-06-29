@@ -1,0 +1,40 @@
+{% extends "/client_base.html" %}
+{% block title %} 媒体列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3> {{agent.name}} -- 返点信息
+        <a class="btn btn-sm btn-info" href="{{url_for('client.agent_rebate_create', agent_id=agent.id)}}">新建</a>
+        <a class="btn btn-default btn-sm" href="{{url_for('client.agents')}}">返回</a>
+    </h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>执行年</th>
+            <th>致趣返点</th>
+            <th>豆瓣返点</th>
+            <th>最后修改人</th>
+            <th>最后修改时间</th>
+            {% if g.user.is_media() %}
+            <th>操作</th>
+            {% endif %}
+        </tr>
+        {% for r in rebates %}
+        <tr>
+            <td>{{r.year.year}}</td>
+            <td>{{r.inad_rebate}}%</td>
+            <td>{{r.douban_rebate}}%</td>
+            <td>{{r.creator.name}}</td>
+            <td>{{r.create_time_cn}}</td>
+            {% if g.user.is_media() %}
+                <td>
+                    <a href="{{url_for('client.agent_rebate_update', agent_id=agent.id, rebate_id=r.id)}}">修改</a>&nbsp;&nbsp;
+                    {% if g.user.is_admin() %}
+                    <a href="{{url_for('client.agent_rebate_delete', agent_id=agent.id, rebate_id=r.id)}}">删除</a>
+                    {% endif %}
+                </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

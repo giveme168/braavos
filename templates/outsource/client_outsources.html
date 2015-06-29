@@ -104,7 +104,11 @@
                 <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-{{outsource_status}}">{{order.get_outsource_status_cn(outsource_status)}}</a>
             </h4>
         </div>
-        <div id="collapse-outsource-{{outsource_status}}" class="panel-collapse collapse in">
+        {% if outsource_status == 2 %}
+          <div id="collapse-outsource-{{outsource_status}}" class="panel-collapse collapse in" style="background-color: #EEFFBB;">
+        {% else %}
+          <div id="collapse-outsource-{{outsource_status}}" class="panel-collapse collapse in">
+        {% endif %}
             <div class="panel-body">
             {% for o in outsources %}
                 {% if o.status not in [3, 4] %}
