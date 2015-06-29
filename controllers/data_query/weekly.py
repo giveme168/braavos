@@ -294,7 +294,7 @@ def index():
     huadong_agent_salers_orders = _get_report_total(
         huadong_agent_saler_orders, now_year, Q_monthes, 'client_order', 'agent')
     huanan_direct_saler_orders = [{'user': user, 'orders': _get_report_by_user(
-        user, client_orders, now_year, now_Q, Q_monthes, 'client_order', 'direct')} for user in huadong_direct_salers]
+        user, client_orders, now_year, now_Q, Q_monthes, 'direct')} for user in huadong_direct_salers]
     huadong_direct_salers_orders = _get_report_total(
         huanan_direct_saler_orders, now_year, Q_monthes, 'client_order', 'direct')
 

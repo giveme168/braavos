@@ -321,6 +321,7 @@ def order_info(order_id, tab_id=1):
                'new_associated_douban_form': new_associated_douban_form,
                'order': order,
                'reminder_emails': reminder_emails,
+               'now_date': datetime.now(),
                'tab_id': int(tab_id)}
     return tpl('order_detail_info.html', **context)
 
@@ -757,6 +758,7 @@ def framework_order_info(order_id):
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     context = {'framework_form': framework_form,
                'order': order,
+               'now_date': datetime.now(),
                'reminder_emails': reminder_emails}
     return tpl('framework_detail_info.html', **context)
 
@@ -992,6 +994,7 @@ def douban_order_info(order_id):
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     context = {'douban_form': form,
                'order': order,
+               'now_date': datetime.now(),
                'reminder_emails': reminder_emails}
     return tpl('douban_detail_info.html', **context)
 

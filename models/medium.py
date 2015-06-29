@@ -85,6 +85,7 @@ class Medium(db.Model, BaseModelMixin):
     phone_num = db.Column(db.String(100))  # 电话
     bank = db.Column(db.String(100))  # 银行
     bank_num = db.Column(db.String(100))  # 银行号
+    rebates = db.relationship('MediumRebate')
     __mapper_args__ = {'order_by': id.desc()}
 
     def __init__(self, name, owner, abbreviation=None, tax_num="",
@@ -149,6 +150,12 @@ class Medium(db.Model, BaseModelMixin):
             Order.medium_id == self.id, MediumOrderExecutiveReport.month_day >= start_month_day,
             MediumOrderExecutiveReport.month_day <= end_month_day,)])
 
+    def rebate_by_year(self, year):
+        rebate = [k for k in self.rebates if k.year.year == int(year)]
+        if len(rebate) > 0:
+            return rebate[0].rebate
+        return 0
+
 
 class MediumRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_rebate'
@@ -164,7 +171,8 @@ class MediumRebate(db.Model, BaseModelMixin):
     __table_args__ = (db.UniqueConstraint('medium_id', 'year', name='_medium_rebate_year'),)
     __mapper_args__ = {'order_by': create_time.desc()}
 
-    def __init__(self, rebate=0.0, year=None, creator=None, create_time=None):
+    def __init__(self, medium, rebate=0.0, year=None, creator=None, create_time=None):
+        self.medium = medium
         self.rebate = rebate
         self.year = year or datetime.date.today()
         self.creator = creator
@@ -172,6 +180,10 @@ class MediumRebate(db.Model, BaseModelMixin):
 
     def __repr__(self):
         return '<MediumRebate %s>' % (self.id)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime("%Y-%m-%d")
 
 
 def framework_generator(num):
