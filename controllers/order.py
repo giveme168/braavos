@@ -659,9 +659,13 @@ def new_framework_order():
                                    agent_sales=User.gets(form.agent_sales.data),
                                    contract_type=form.contract_type.data,
                                    creator=g.user,
+                                   inad_rebate=form.inad_rebate.data,
+                                   douban_rebate=form.douban_rebate.data,
                                    create_time=datetime.now())
         order.add_comment(g.user, u"新建了该框架订单")
         flash(u'新建框架订单成功, 请上传合同!', 'success')
+        # 框架合同同步甲方返点信息
+        _insert_agent_rebate(order)
         return redirect(url_for("order.framework_order_info", order_id=order.id))
     else:
         form.client_start.data = datetime.now().date()
