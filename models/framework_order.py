@@ -94,7 +94,8 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator = db.relationship(
         'User', backref=db.backref('created_framework_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
-
+    inad_rebate = db.Column(db.Float)
+    douban_rebate = db.Column(db.Float)
     contract_generate = True
     media_apply = False
     kind = "framework-order"
@@ -104,7 +105,8 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None,
                  direct_sales=None, agent_sales=None,
-                 creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
+                 creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW,
+                 inad_rebate=0.0, douban_rebate=0.0):
         self.group = group
         self.agents = agents or []
         self.description = description or ""
@@ -124,6 +126,8 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.create_time = create_time or datetime.datetime.now()
         self.contract_status = contract_status
         self.status = status
+        self.inad_rebate = inad_rebate
+        self.douban_rebate = douban_rebate
 
     @classmethod
     def get_all(cls):
