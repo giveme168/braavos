@@ -12,14 +12,19 @@
     <a class="list-group-item" href="{{url_for('data_query_weekly.douban_index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 直签豆瓣订单周报
     </a>
-    {% if g.user.is_media() %}
+    {% if g.user.is_media() or g.user.is_super_leader() %}
     <a class="list-group-item" href="{{url_for('data_query_medium.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 媒体执行额
     </a>
     {% endif %}
-    {% if g.user.is_operater_leader() %}
+    {% if g.user.is_operater_leader() or g.user.is_super_leader() %}
     <a class="list-group-item" href="{{url_for('data_query_outsource.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 外包成本
+    </a>
+    {% endif %}
+    {% if g.user.is_finance() or g.user.is_super_leader() %}
+    <a class="list-group-item" href="{{url_for('data_query_finance.order')}}">
+      <span class="glyphicon glyphicon-th-list"></span> 执行成本
     </a>
     {% endif %}
 {% endblock %}
