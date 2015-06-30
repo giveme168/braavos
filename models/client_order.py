@@ -190,6 +190,31 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def mediums_money2(self):
         return sum([x.medium_money2 or 0 for x in self.medium_orders])
 
+    def medium_rebate_money(self, year, month, type='profit'):
+        rebate_money = 0
+        if self.client_start.year == int(year) and self.client_start.month == int(month):
+            for medium_order in self.medium_orders:
+                rebate = medium_order.medium.rebate_by_year(self.client_start.year)
+                if type == 'profit':
+                    rebate_money += medium_order.medium_money2 * rebate / 100
+                else:
+                    rebate_money += medium_order.medium_money2 * (1 - rebate / 100)
+        return rebate_money
+
+    def rebate_money(self, year, month, type='profit'):
+        rebate_money = 0
+        if self.client_start.year == int(year) and self.client_start.month == int(month):
+            rebate = self.agent.inad_rebate_by_year(self.client_start.year)
+            if type == 'profit':
+                rebate_money += self.money * (1 - rebate / 100)
+            else:
+                rebate_money += self.money * rebate / 100
+        return rebate_money
+
+    def profit_money(self, year, month):
+        return self.money - self.medium_rebate_money(year, month, type='cost') - \
+            self.rebate_money(year, month, type='cost')
+
     @property
     def mediums_invoice_sum(self):
         return sum([k.money for k in MediumInvoice.query.filter_by(client_order_id=self.id)])
@@ -485,6 +510,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return self.backinvoicerebates
 
     @property
+    def back_invoice_rebate_money(self):
+        return sum([k.money for k in self.backinvoicerebates])
+
+    @property
     def jiafang_name(self):
         return self.agent.name
 
@@ -587,6 +616,8 @@ by %s\n
             count = len(self.direct_sales)
         if user.team.location == 3:
             count = len(set(self.agent_sales + self.direct_sales))
+        if sale_type == 'normal':
+            count = 1
         pre_reports = ClientOrderExecutiveReport.query.filter_by(
             client_order=self)
         moneys = []
@@ -615,6 +646,8 @@ by %s\n
             user = self.direct_sales[0]
         if user.team.location == 3:
             count = len(set(self.agent_sales + self.direct_sales))
+        if sale_type == 'normal':
+            count = 1
         from models.order import MediumOrderExecutiveReport
         day_month = datetime.datetime.strptime(year + '-' + month, '%Y-%m')
         executive_reports = MediumOrderExecutiveReport.query.filter_by(
