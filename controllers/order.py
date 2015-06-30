@@ -113,6 +113,15 @@ def order_delete(order_id):
     return redirect(url_for("order.my_orders"))
 
 
+def _delete_executive_report(order):
+    if order.__tablename__ == 'bra_douban_order':
+        DoubanOrderExecutiveReport.query.filter_by(douban_order=order).delete()
+    elif order.__tablename__ == 'bra_client_order':
+        ClientOrderExecutiveReport.query.filter_by(client_order=order).delete()
+        MediumOrderExecutiveReport.query.filter_by(client_order=order).delete()
+    return
+
+
 def _insert_executive_report(order, rtype):
     if order.contract == '' or order.contract_status not in [2, 4, 5]:
         return False
@@ -500,10 +509,12 @@ def contract_status_change(order, action, emails, msg):
         to_users = to_users + order.leaders + User.medias() + User.contracts()
         if order.__tablename__ == 'bra_douban_order' and order.contract:
             to_users += User.douban_contracts()
+        _delete_executive_report(order)
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
         order.insert_reject_time()
         action_msg = u"合同被驳回，请从新提交审核"
+        _delete_executive_report(order)
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     to_emails = list(set(emails + [x.email for x in to_users]))
