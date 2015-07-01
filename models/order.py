@@ -562,6 +562,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             count = len(set(self.agent_sales + self.direct_sales))
         return self.medium_money2 / count
 
+    def get_medium_rebate_money(self):
+        rebate = self.medium.rebate_by_year(year=self.start_date.year)
+        return round(1.0 * rebate * self.medium_money2 / 100, 2)
+
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_order_executive_report'

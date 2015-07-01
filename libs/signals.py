@@ -15,6 +15,7 @@ douban_contract_apply_signal = braavos_signals.signal('douban_contract_apply')
 outsource_apply_signal = braavos_signals.signal('outsource_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
+agent_invoice_apply_signal = braavos_signals.signal('agent_invoice_apply')
 outsource_distribute_signal = braavos_signals.signal('outsource_distribute')
 merger_outsource_apply_signal = braavos_signals.signal('merger_outsource_apply')
 apply_leave_signal = braavos_signals.signal('apply_leave')
@@ -153,6 +154,38 @@ by %s
     send_simple_mail(
         apply_context['title'], recipients=apply_context['to'], body=text)
 
+
+def agent_invoice_apply(sender, apply_context):
+    invoice = apply_context['invoice']
+    order = invoice.client_order
+    invoice_pays = apply_context['invoice_pays']
+    invoice_info = u"发票信息: " + invoice.detail + u'; 发票金额: ' + \
+        str(invoice.money) + u'; 发票号: ' + invoice.invoice_num + \
+        u'; 未打款金额: ' + str(invoice.get_unpay_money)
+    invoice_pay_info = "\n".join(
+        [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
+    if apply_context['send_type'] == "saler":
+        url = mail.app.config[
+            'DOMAIN'] + '/saler/agent_invoice/%s/order' % (invoice.client_order_id)
+    else:
+        url = mail.app.config[
+            'DOMAIN'] + '/finance/agent_pay/%s/info' % (invoice.client_order_id)
+    text = u"""%s
+订单: %s
+链接地址: %s
+发票信息:
+%s
+
+打款信息:
+%s
+
+留言如下:
+    %s
+\n
+by %s
+""" % (apply_context['action_msg'], order.name, url, invoice_info, invoice_pay_info, apply_context['msg'], g.user.name)
+    send_simple_mail(
+        apply_context['title'], recipients=apply_context['to'], body=text)
 
 def invoice_apply(sender, apply_context):
     order = apply_context['order']
@@ -396,6 +429,7 @@ def init_signal(app):
     outsource_apply_signal.connect_via(app)(outsource_apply)
     invoice_apply_signal.connect_via(app)(invoice_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
+    agent_invoice_apply_signal.connect_via(app)(agent_invoice_apply)
     outsource_distribute_signal.connect_via(app)(outsource_distribute)
     merger_outsource_apply_signal.connect_via(app)(merger_outsource_apply)
     apply_leave_signal.connect_via(app)(apply_leave)

@@ -9,7 +9,7 @@ from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import ITEM_STATUS_LEADER_ACTIONS
 from .user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
-from invoice import Invoice, MediumInvoice, MediumInvoicePay
+from invoice import Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice, AgentInvoicePay
 from libs.mail import mail
 from libs.date_helpers import get_monthes_pre_days
 
@@ -187,6 +187,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [x.medium for x in self.medium_orders]
 
     @property
+    def agents(self):
+        return [self.agent]
+
+    @property
     def mediums_money2(self):
         return sum([x.medium_money2 or 0 for x in self.medium_orders])
 
@@ -216,13 +220,38 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             self.rebate_money(year, month, type='cost')
 
     @property
+    def mediums_rebate_money(self):
+        return sum([medium_order.get_medium_rebate_money() for medium_order in self.medium_orders])
+
+    @property
+    def agent_money(self):
+        inad_rebate = self.agent.inad_rebate_by_year(year=self.start_date.year)
+        return round(float(inad_rebate) * self.money / 100, 2)
+
+    @property
+    def agents_rebate_money(self):
+        return self.agent_money
+
+    @property
     def mediums_invoice_sum(self):
         return sum([k.money for k in MediumInvoice.query.filter_by(client_order_id=self.id)])
+
+    @property
+    def agents_invoice_sum(self):  # 一个ClientOrder实例只有一个agent
+        return sum([k.money for k in AgentInvoice.query.filter_by(client_order_id=self.id)])
 
     @property
     def mediums_invoice_apply_sum(self):
         invoices = MediumInvoice.query.filter_by(client_order_id=self.id)
         return sum([k.money for k in MediumInvoicePay.all() if k.pay_status == 3 and k.medium_invoice in invoices])
+
+    @property
+    def agents_invoice_apply_sum(self):
+        money = 0.0
+        for invoice in AgentInvoice.query.filter_by(client_order_id=self.id):
+            for invoice_pay in AgentInvoicePay.query.filter_by(agent_invoice_id=invoice.id, pay_status=3):
+                money += invoice_pay.money
+        return money
 
     @property
     def mediums_invoice_pass_sum(self):
@@ -235,6 +264,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def get_medium_invoice_pay_by_status(self, type):
         return [k for k in MediumInvoicePay.all()
                 if k.pay_status == int(type) and k.medium_invoice in self.mediuminvoices]
+
+    def get_agent_invoice_pay_by_status(self, type):
+        return [k for k in AgentInvoicePay.all()
+                if isinstance(k.pay_status, int) and k.agent_invoice in self.agentinvoices]
 
     @property
     def medium_ids(self):
