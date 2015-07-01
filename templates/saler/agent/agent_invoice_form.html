@@ -113,7 +113,7 @@
         {{form.csrf_token}}
         {{ form_field(form.client_order)}}
         <div class="form-group">
-          <label for="name" class="col-sm-2 control-label">代理 : </label>
+          <label for="name" class="col-sm-2 control-label">甲方: </label>
           <div class="col-sm-10">
             <select class="form-control bra-form-control" id="new_agent" name="agent" onchange="check_agent(this)">
               {% for agent in order.agents %}
