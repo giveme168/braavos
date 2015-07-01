@@ -3,7 +3,8 @@ import datetime
 
 from . import db, BaseModelMixin
 
-################## 
+
+##################
 # msg_channel type
 # 0 : 合同
 # 1 : 客户发票
@@ -12,7 +13,6 @@ from . import db, BaseModelMixin
 # 4 : 回款
 # 5 : 甲方打款与发票
 ##################
-
 class Comment(db.Model, BaseModelMixin):
     __tablename__ = 'bra_comment'
     id = db.Column(db.Integer, primary_key=True)

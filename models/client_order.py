@@ -258,6 +258,11 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         invoices = MediumInvoice.query.filter_by(client_order_id=self.id)
         return sum([k.money for k in MediumInvoicePay.all() if k.pay_status == 0 and k.medium_invoice in invoices])
 
+    @property
+    def agent_invoice_pass_sum(self):
+        invoices = AgentInvoice.query.filter_by(client_order_id=self.id)
+        return sum([k.money for k in AgentInvoicePay.all() if k.pay_status == 0 and k.agent_invoice in invoices])
+
     def get_invoice_by_status(self, type):
         return [invoice for invoice in self.invoices if invoice.invoice_status == type]
 
