@@ -44,7 +44,7 @@ def new_invoice(order_id):
     form.client_order.choices = [(order.id, order.client.name)]
     form.medium.choices = [(order.id, order.client.name) for k in order.mediums]
     form.bool_invoice.choices = MEDIUM_INVOICE_BOOL_INVOICE_CN.items()
-    if order.mediums_rebate_money < order.mediums_invoice_sum + float(form.money.data):
+    if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
         flash(u'新建打款发票失败，发票超过媒体总金额!', 'danger')
         return redirect(url_for("saler_medium_invoice.index", order_id=order_id))
     if request.method == 'POST':
