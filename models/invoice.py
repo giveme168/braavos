@@ -292,7 +292,7 @@ AGENT_INVOICE_STATUS_CN = {
 }
 
 
-# 给代理/直客(甲方的全称)卡的发票
+# 给代理/直客(甲方的全称)开的发票
 class AgentInvoice(db.Model, BaseModelMixin):
     __tablename__ = 'bra_agent_invoice'
     id = db.Column(db.Integer, primary_key=True)
