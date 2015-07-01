@@ -16,6 +16,8 @@
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 媒体打款管理</li>
     <a class="list-group-item" href="{{url_for('finance_medium_pay.index')}}">媒体打款信息</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 回款管理</li>
+    <a class="list-group-item" href="{{url_for('finance_agent_pay.index')}}">代理打款信息</a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 回款管理</li>
     <a class="list-group-item" href="{{url_for('finance_client_order_back_money.index')}}">客户订单回款</a>
     {% endif %}
 {% endblock %}

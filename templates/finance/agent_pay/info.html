@@ -1,0 +1,53 @@
+{% extends "finance_base.html" %}
+{% from 'comments.html' import comments_box %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h4>{{ order.agent.name }}-{{order.name}} 代理发票及打款情况</h4>
+    <table class="table table-bordered table-striped">
+      <tr>
+        <th>代理总金额</th>
+        <th>发票总金额</th>
+        <th>已打款金额</th>
+      </tr>
+      <tr>
+        <td>{{order.agents_rebate_money}}元</td>
+        <td>{{order.agents_invoice_sum}}元</td>
+        <td>{{order.agents_invoice_pass_sum}}元</td>
+      </tr>
+    </table>
+    <h4>发票详情</h4>
+    <table class="table table-bordered table-striped">
+      <tr>
+        <th>发票金额</th>
+        <th>已打款金额</th>
+        <th>申请中打款金额</th>
+        <th>未打款金额</th>
+        <th>开票时间</th>
+        <th>发票类型</th>
+        <th>发票号</th>
+        <th>发票内容</th>
+        <th width="20%">操作</th>
+      </tr>
+      {% for invoice in invoices %}
+      <tr>
+        <td>{{invoice.money}}元</td>
+        <td>{{invoice.get_pay_money}}元</td>
+        {% if invoice.get_apply_pay_money > 0 %}
+          <td style="color:red;">{{invoice.get_apply_pay_money}}元</td>
+        {% else %}
+          <td>{{invoice.get_apply_pay_money}}元</td>
+        {% endif %}
+        <td>{{invoice.get_unpay_money}}元</td>
+        <td>{{invoice.add_time_cn}}</td>
+        <td>{{invoice.invoice_type_cn}}</td>
+        <td>{{invoice.invoice_num}}</td>
+        <td>{{invoice.detail}}</td>
+        <td>
+            <a href="{{url_for('finance_agent_pay.pay_info', invoice_id=invoice.id)}}">查看</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+</div>
+{% endblock %}

@@ -75,6 +75,14 @@ class Agent(db.Model, BaseModelMixin):
     def current_framework(self):
         return framework_generator(self.id)
 
+    @property
+    def tax_info(self):
+        return {'tax_num': self.tax_num or '',
+                'address': self.address or '',
+                'phone_num': self.phone_num or '',
+                'bank': self.bank or '',
+                'bank_num': self.bank_num or ''}
+
     def inad_rebate_by_year(self, year):
         rebate = [k for k in self.rebates if k.year.year == int(year)]
         if len(rebate) > 0:
