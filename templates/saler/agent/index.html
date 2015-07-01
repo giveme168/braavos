@@ -3,10 +3,10 @@
 {% from 'comments.html' import comments_box %}
 {% macro contract_box(order) -%}
 <div class="bra-main bra-box" style="width:100%;">
-  <h4>代理\直客(甲方全称)发票及打款情况</h4>
+  <h4>甲方发票及打款情况</h4>
   <table class="table table-bordered table-striped">
     <tr>
-      <th>代理\直客(甲方全称)总金额</th>
+      <th>甲方总金额</th>
       <th>发票总金额</th>
       <th>已打款金额</th>
     </tr>
@@ -52,7 +52,7 @@
   <div class="panel panel-default" id="new-invoice" style="display:none;">
     <div class="panel-heading">
       <h4 class="panel-title">
-      <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写代理发票 </a>
+      <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写甲方发票 </a>
       </h4>
     </div>
     <div id="collapse-invoice-new" class="panel-collapse collapse in">
@@ -118,7 +118,7 @@ $(function() {
         <li class=""><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>客户发票</a></li>
         <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
         <li class=""><a href='{{url_for("saler_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
-        <li class="active"><a href='{{url_for("saler_agent_invoice.index", order_id=order.id)}}'>代理发票与打款</a></li>
+        <li class="active"><a href='{{url_for("saler_agent_invoice.index", order_id=order.id)}}'>甲方发票与打款</a></li>
         {% endif %}
       </ul>
       <div class="tab-content">
