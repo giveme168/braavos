@@ -11,7 +11,7 @@
       <th>已打款金额</th>
     </tr>
     <tr>
-      <td>{{order.mediums_rebate_money}}元</td>
+      <td>{{order.mediums_money2}}元</td>
       <td>{{order.mediums_invoice_sum}}元</td>
       <td>{{order.mediums_invoice_apply_sum}}元</td>
     </tr>
@@ -118,7 +118,7 @@ $(function() {
         <li class=""><a href='{{url_for("saler_invoice.index", order_id=order.id)}}'>客户发票</a></li>
         <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
         <li class="active"><a href='{{url_for("saler_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
-        <li class=""><a href='{{url_for("saler_agent_invoice.index", order_id=order.id)}}'>代理发票与打款</a></li>
+        <li class=""><a href='{{url_for("saler_agent_invoice.index", order_id=order.id)}}'>甲方发票与打款</a></li>
         {% endif %}
       </ul>
       <div class="tab-content">

@@ -105,7 +105,7 @@ def invoice_pay_num(invoice_id):
     flash(u'保存成功!', 'success')
     invoice.client_order.add_comment(g.user,
                                      u"更新了打款金额:\n\r%s" % invoice.pay_money,
-                                     msg_channel=3)
+                                     msg_channel=5)
     return redirect(url_for("finance_agent_pay.info", order_id=invoice.client_order.id))
 
 
@@ -144,7 +144,7 @@ def invoice_pass(invoice_id):
                     invoice_pay.agent_invoice.client_order.name +
                         '-' + invoice_pay.agent_invoice.agent.name,
                     str(invoice_pay.money)),
-                msg_channel=3)
+                msg_channel=5)
     else:
         action_msg = u'消息提醒'
     apply_context = {"title": "代理订单款已打款",
