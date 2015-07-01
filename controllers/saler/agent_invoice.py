@@ -81,7 +81,8 @@ def invoice(invoice_id):
     if not invoice:
         abort(404)
     form = get_invoice_form(invoice)
-    return tpl('/saler/agent/invoice.html', form=form, invoice=invoice,
+    reminder_emails = [(u.name, u.email) for u in User.all_active()]
+    return tpl('/saler/agent/invoice.html', form=form, invoice=invoice, reminder_emails=reminder_emails,
                INVOICE_TYPE_CN=INVOICE_TYPE_CN, AGENT_INVOICE_STATUS_CN=AGENT_INVOICE_STATUS_CN)
 
 
