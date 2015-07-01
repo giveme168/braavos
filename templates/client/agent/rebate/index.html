@@ -14,7 +14,7 @@
             <th>豆瓣返点</th>
             <th>最后修改人</th>
             <th>最后修改时间</th>
-            {% if g.user.is_media() %}
+            {% if g.user.is_contract() %}
             <th>操作</th>
             {% endif %}
         </tr>
@@ -25,7 +25,7 @@
             <td>{{r.douban_rebate}}%</td>
             <td>{{r.creator.name}}</td>
             <td>{{r.create_time_cn}}</td>
-            {% if g.user.is_media() %}
+            {% if g.user.is_contract() %}
                 <td>
                     <a href="{{url_for('client.agent_rebate_update', agent_id=agent.id, rebate_id=r.id)}}">修改</a>&nbsp;&nbsp;
                     {% if g.user.is_admin() %}

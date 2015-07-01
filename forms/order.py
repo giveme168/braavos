@@ -85,6 +85,8 @@ class FrameworkOrderForm(Form):
     direct_sales = SelectMultipleField(u'直客销售', coerce=int)
     agent_sales = SelectMultipleField(u'渠道销售', coerce=int)
     contract_type = SelectField(u'合同模板类型', coerce=int)
+    inad_rebate = FloatField(u'致趣返点信息', default=0, description="%")
+    douban_rebate = FloatField(u'豆瓣返点信息', default=0, description="%")
 
     def __init__(self, *args, **kwargs):
         super(FrameworkOrderForm, self).__init__(*args, **kwargs)

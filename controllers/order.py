@@ -8,7 +8,7 @@ from forms.order import (ClientOrderForm, MediumOrderForm,
                          FrameworkOrderForm, DoubanOrderForm,
                          AssociatedDoubanOrderForm)
 
-from models.client import Client, Group, Agent
+from models.client import Client, Group, Agent, AgentRebate
 from models.medium import Medium
 from models.order import Order, MediumOrderExecutiveReport
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
@@ -111,6 +111,15 @@ def order_delete(order_id):
     order.status = STATUS_DEL
     order.save()
     return redirect(url_for("order.my_orders"))
+
+
+def _delete_executive_report(order):
+    if order.__tablename__ == 'bra_douban_order':
+        DoubanOrderExecutiveReport.query.filter_by(douban_order=order).delete()
+    elif order.__tablename__ == 'bra_client_order':
+        ClientOrderExecutiveReport.query.filter_by(client_order=order).delete()
+        MediumOrderExecutiveReport.query.filter_by(client_order=order).delete()
+    return
 
 
 def _insert_executive_report(order, rtype):
@@ -500,10 +509,12 @@ def contract_status_change(order, action, emails, msg):
         to_users = to_users + order.leaders + User.medias() + User.contracts()
         if order.__tablename__ == 'bra_douban_order' and order.contract:
             to_users += User.douban_contracts()
+        _delete_executive_report(order)
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
         order.insert_reject_time()
         action_msg = u"合同被驳回，请从新提交审核"
+        _delete_executive_report(order)
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     to_emails = list(set(emails + [x.email for x in to_users]))
@@ -648,9 +659,13 @@ def new_framework_order():
                                    agent_sales=User.gets(form.agent_sales.data),
                                    contract_type=form.contract_type.data,
                                    creator=g.user,
+                                   inad_rebate=form.inad_rebate.data,
+                                   douban_rebate=form.douban_rebate.data,
                                    create_time=datetime.now())
         order.add_comment(g.user, u"新建了该框架订单")
         flash(u'新建框架订单成功, 请上传合同!', 'success')
+        # 框架合同同步甲方返点信息
+        _insert_agent_rebate(order)
         return redirect(url_for("order.framework_order_info", order_id=order.id))
     else:
         form.client_start.data = datetime.now().date()
@@ -697,7 +712,36 @@ def get_framework_form(order):
     framework_form.direct_sales.data = [u.id for u in order.direct_sales]
     framework_form.agent_sales.data = [u.id for u in order.agent_sales]
     framework_form.contract_type.data = order.contract_type
+    framework_form.inad_rebate.data = order.inad_rebate or 0.0
+    framework_form.douban_rebate.data = order.douban_rebate or 0.0
     return framework_form
+
+
+################
+# 导入甲方返点信息
+################
+def _insert_agent_rebate(order):
+    agents = order.agents
+    start_date = order.start_date.replace(month=1, day=1)
+    inad_rebate = order.inad_rebate
+    douban_rebate = order.douban_rebate
+
+    for agent in agents:
+        agent_rebate = AgentRebate.query.filter_by(agent=agent, year=start_date).first()
+        if agent_rebate:
+            agent_rebate.inad_rebate = inad_rebate
+            agent_rebate.douban_rebate = douban_rebate
+            agent_rebate.create_time = datetime.now()
+            agent_rebate.creator = g.user
+            agent_rebate.save()
+        else:
+            AgentRebate.add(agent=agent,
+                            douban_rebate=douban_rebate,
+                            inad_rebate=inad_rebate,
+                            year=start_date,
+                            creator=g.user,
+                            create_time=datetime.now())
+    return
 
 
 @order_bp.route('/framework_order/<order_id>/info', methods=['GET', 'POST'])
@@ -714,9 +758,10 @@ def framework_order_info(order_id):
                 flash(u'您没有编辑权限! 请联系该框架的创建者或者销售同事!', 'danger')
             else:
                 framework_form = FrameworkOrderForm(request.form)
+                agents = Agent.gets(framework_form.agents.data)
                 if framework_form.validate():
                     order.group = Group.get(framework_form.group.data)
-                    order.agents = Agent.gets(framework_form.agents.data)
+                    order.agents = agents
                     order.description = framework_form.description.data
                     order.money = framework_form.money.data
                     order.client_start = framework_form.client_start.data
@@ -727,9 +772,14 @@ def framework_order_info(order_id):
                     order.agent_sales = User.gets(
                         framework_form.agent_sales.data)
                     order.contract_type = framework_form.contract_type.data
+                    order.inad_rebate = framework_form.inad_rebate.data
+                    order.douban_rebate = framework_form.douban_rebate.data
                     order.save()
                     order.add_comment(g.user, u"更新了该框架订单")
                     flash(u'[框架订单]%s 保存成功!' % order.name, 'success')
+
+                    # 框架合同同步甲方返点信息
+                    _insert_agent_rebate(order)
         elif info_type == 2:
             if not g.user.is_contract():
                 flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')

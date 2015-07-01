@@ -25,6 +25,8 @@
         <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
       </div>
     </div>
+    {{ form_field(form.inad_rebate) }}
+    {{ form_field(form.douban_rebate) }}
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
     {{ form_field(form.contract_type) }}

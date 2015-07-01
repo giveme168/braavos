@@ -1,6 +1,6 @@
 {% extends "/order_base.html" %}
 {% from '/form.html' import form_field %}
-{% from '/saler/medium/medium_invoice_form.html' import invoice_form %}
+{% from '/saler/agent/agent_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 {% macro contract_box(order) -%}
 <div class="bra-main bra-box" style="width:100%;">
@@ -37,13 +37,13 @@
   </table>
   <div class="well" id="invoice_from" style="display:none;">
       <h4>
-          {{invoice.client_order.name}}-{{ invoice.medium.name }}-{{ invoice.money }}元
+          {{invoice.client_order.name}}-{{ invoice.agent.name }}-{{ invoice.money }}元
       </h4>
       {% if g.user.is_super_leader() or invoice.client_order.can_admin(g.user)%}
-      <form class="form form-horizontal" method="POST" action="{{url_for('saler_medium_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+      <form class="form form-horizontal" method="POST" action="{{url_for('saler_agent_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
       {{form.csrf_token}}
       {{ form_field(form.client_order)}}
-      {{ form_field(form.medium)}}
+      {{ form_field(form.agent)}}
       {{ form_field(form.company) }}
       {{ form_field(form.tax_id) }}
       {{ form_field(form.address) }}
@@ -71,7 +71,7 @@
       <div class="panel panel-default" id="non-invoice">
         <div class="panel-heading">
           <h4 class="panel-title">
-          <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-{{k}}"> {{ MEDIUM_INVOICE_STATUS_CN[k] }}</a>
+          <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-{{k}}"> {{ AGENT_INVOICE_STATUS_CN[k] }}</a>
           </h4>
         </div>
         <div id="collapse-invoice-{{k}}" class="panel-collapse collapse in ">
@@ -96,7 +96,7 @@
                {% else %}
                <div class="well">
                <input type="checkbox" name="invoice-id" class="invoice-id" value="{{i.id}}"/>
-               <form class="form form-horizontal" method="POST" action="{{url_for('saler_medium_invoice.update_invoice_pay', invoice_id=invoice.id, invoice_pay_id=i.id)}}" onsubmit="return checkform(this)">
+               <form class="form form-horizontal" method="POST" action="{{url_for('saler_agent_invoice.update_invoice_pay', invoice_id=invoice.id, invoice_pay_id=i.id)}}" onsubmit="return checkform(this)">
                 <div class="form-group">
                     <label for="client_start" class="col-sm-2 control-label">打款时间 : </label>
                     <div class="col-sm-4">
@@ -121,7 +121,7 @@
               {% endif %}
             {% endfor %}
             {% if k != 0 %}
-              {{ status_box(invoice_pays[0].medium_invoice, invoice_pays[0]) }}
+              {{ status_box(invoice_pays[0].agent_invoice, invoice_pays[0]) }}
             {% endif %}
           </div>
         </div>
@@ -138,7 +138,7 @@
       <div class="panel-body">
         <div class="well">
             <h4></h4>
-            <form class="form form-horizontal" method="POST" action="{{url_for('saler_medium_invoice.new_invoice_pay', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+            <form class="form form-horizontal" method="POST" action="{{url_for('saler_agent_invoice.new_invoice_pay', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
             <div class="form-group">
                 <label for="client_start" class="col-sm-2 control-label">打款时间 : </label>
                 <div class="col-sm-4">
@@ -232,8 +232,8 @@ $(function() {
         {% if invoice.client_order.can_admin(g.user) %}
         <li class=""><a href='{{url_for("saler_invoice.index", order_id=invoice.client_order.id)}}'>客户发票</a></li>
         <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=invoice.client_order.id)}}'>客户回款</a></li>
-        <li class="active"><a href='{{url_for("saler_medium_invoice.index", order_id=invoice.client_order.id)}}'>媒体发票与打款</a></li>
-        <li class=""><a href='{{url_for("saler_agent_invoice.index", order_id=invoice.client_order.id)}}'>媒体发票与打款</a></li>
+        <li class=""><a href='{{url_for("saler_medium_invoice.index", order_id=invoice.client_order.id)}}'>媒体发票与打款</a></li>
+        <li class="active"><a href='{{url_for("saler_agent_invoice.index", order_id=invoice.client_order.id)}}'>代理发票与打款</a></li>
         {% endif %}
       </ul>
       <div class="tab-content">
@@ -247,7 +247,7 @@ $(function() {
 {% endblock %}
 {% macro status_box(invoice, invoice_pay) -%}
 <input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
-<form class="form form-horizontal invoice-status-form" id="status-form" method="POST" action="{{url_for('saler_medium_invoice.apply_pay', invoice_id=invoice.id)}}">
+<form class="form form-horizontal invoice-status-form" id="status-form" method="POST" action="{{url_for('saler_agent_invoice.apply_pay', invoice_id=invoice.id)}}">
   <div class="form-group">
     <label for="email" class="col-sm-2 control-label">邮箱 : </label>
     <div class="col-sm-10">
