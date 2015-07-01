@@ -536,11 +536,14 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         if sale_type == 'agent':
             count = len(self.agent_sales)
             user = self.agent_sales[0]
+        elif sale_type == 'normal':
+            count = 1
         else:
             count = len(self.direct_sales)
             user = self.direct_sales[0]
-        if user.team.location == 3:
-            count = len(set(self.agent_sales + self.direct_sales))
+        if sale_type != 'normal':
+            if user.team.location == 3:
+                count = len(set(self.agent_sales + self.direct_sales))
         day_month = datetime.datetime.strptime(str(year) + '-' + str(month), '%Y-%m')
         executive_report = MediumOrderExecutiveReport.query.filter_by(
             order=self, month_day=day_month).first()
