@@ -68,7 +68,7 @@ def new_invoice(order_id):
         invoice.save()
         flash(u'新建打款发票(%s)成功!' % form.company.data, 'success')
         order.add_comment(g.user, u"添加打款发票申请信息：%s" % (
-            u'发票内容: %s; 发票金额: %s元; 发票号: %s' % (invoice.detail, str(invoice.money), invoice.invoice_num)), msg_channel=3)
+            u'发票内容: %s; 发票金额: %s元; 发票号: %s' % (invoice.detail, str(invoice.money), invoice.invoice_num)), msg_channel=5)
     else:
         for k in form.errors:
             flash(u"新建打款发票失败，%s" % (form.errors[k][0]), 'danger')
@@ -180,7 +180,7 @@ def update_invoice(invoice_id):
             flash(u'修改打款发票(%s)成功!' % form.company.data, 'success')
             invoice.client_order.add_comment(g.user, u"修改打款发票信息,%s" % (
                 u'打款发票内容: %s; 发票金额: %s元; 发票号: %s' %
-                (invoice.detail, str(invoice.money), invoice.invoice_num)), msg_channel=3)
+                (invoice.detail, str(invoice.money), invoice.invoice_num)), msg_channel=5)
     else:
         for k in form.errors:
             flash(u"修改打款发票失败，%s" % (form.errors[k][0]), 'danger')
@@ -215,7 +215,7 @@ def apply_pay(invoice_id):
             invoice.agent_invoice.client_order.add_comment(g.user, u"%s,%s" % (
                 action_msg, u'[%s代理申请打款，打款金额: %s, 发票号: %s]  %s ' %
                 (invoice.agent_invoice.company, invoice.money,
-                    invoice.agent_invoice.invoice_num, invoice.detail)), msg_channel=3)
+                    invoice.agent_invoice.invoice_num, invoice.detail)), msg_channel=5)
         send_type = "saler"
     elif action == 3:
         action_msg = u'同意代理订单打款申请，请财务打款'
@@ -229,7 +229,7 @@ def apply_pay(invoice_id):
             invoice.agent_invoice.client_order.add_comment(g.user, u"%s,%s" % (
                 action_msg, u'[%s代理同意打款，打款金额: %s, 发票号: %s]  %s ' %
                 (invoice.agent_invoice.company, invoice.money,
-                    invoice.agent_invoice.invoice_num, invoice.detail)), msg_channel=3)
+                    invoice.agent_invoice.invoice_num, invoice.detail)), msg_channel=5)
         send_type = "finance"
     else:
         action_msg = u'消息提醒'
@@ -278,7 +278,7 @@ def apply_invoice(invoice_id):
                   (invoice.company, invoice.money, invoice.invoice_num, action_msg), 'success')
             invoice.client_order.add_comment(g.user, u"%s,%s" % (
                 action_msg, u'打款发票内容: %s; 发票金额: %s元; 发票号: %s' %
-                (invoice.detail, str(invoice.money), invoice.invoice_num)), msg_channel=3)
+                (invoice.detail, str(invoice.money), invoice.invoice_num)), msg_channel=5)
     else:
         action_msg = u'消息提醒'
 
