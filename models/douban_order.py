@@ -352,6 +352,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return sum([o.pay_num for o in self.douban_outsources if o.status != 0]) if self.douban_outsources else 0
 
     @property
+    def outsources_paied_sum(self):
+        return sum([o.pay_num for o in self.douban_outsources if o.status == 4]) if self.douban_outsources else 0
+
+    @property
     def outsources_percent(self):
         return "%.1f" % (self.outsources_sum * 100 / float(self.money)) if self.money else "0"
 
@@ -516,6 +520,8 @@ by %s\n
             count = len(self.direct_sales)
         if user.team.location == 3:
             count = len(set(self.agent_sales + self.direct_sales))
+        if sale_type == 'normal':
+            count = 1
         pre_reports = DoubanOrderExecutiveReport.query.filter_by(douban_order=self)
         moneys = []
         for j in monthes:
@@ -531,8 +537,21 @@ by %s\n
                 moneys.append(pre_money / count)
             except:
                 moneys.append(0)
-
         return moneys
+
+    def rebate_money(self, year, month, type='profit'):
+        rebate_money = 0
+        if self.client_start.year == int(year) and self.client_start.month == int(month):
+            rebate = self.agent.douban_rebate_by_year(self.client_start.year)
+            if type == 'profit':
+                rebate_money += self.money * (1 - rebate / 100)
+            else:
+                rebate_money += self.money * rebate / 100
+        return rebate_money
+
+    def profit_money(self, year, month):
+        rebate_money = self.rebate_money(self.client_start.year, self.client_start.month, type='cost')
+        return self.money * 0.4 - rebate_money - self.outsources_paied_sum
 
     def get_saler_leaders(self):
         leaders = []
