@@ -21,7 +21,7 @@
         <td>{{order.client.name}}</td>
         <td>{{order.campaign}}</td>
         <td>{{order.money}}</td>
-        <td>{{order.money*0.4}}</td>
+        <td>{{order.income(year, month)}}</td>
         <td>{{order.executive_report(g.user, year, [month], 'normal')[0]}}</td>
         <td>{{order.rebate_money(year, month, 'cost')}}</td>
         <td>{{order.outsources_paied_sum}}</td>
