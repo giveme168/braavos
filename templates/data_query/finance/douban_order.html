@@ -3,8 +3,9 @@
 {% macro all_items(orders) -%}
 <table class="table table-bordered">
     <tr>
-        <th>合同号</th>
+        <th style="width:160px;">合同号</th>
         <th>客户名称</th>
+        <th>代理/直客</th>
         <th>项目名称</th>
         <th>合同总金额</th>
         <th>收入</th>
@@ -19,6 +20,7 @@
     <tr>
         <td>{{order.contract}}</td>
         <td>{{order.client.name}}</td>
+        <td>{{order.agent.name}}</td>
         <td>{{order.campaign}}</td>
         <td>{{order.money}}</td>
         <td>{{order.income(year, month)}}</td>

@@ -3,16 +3,17 @@
 {% macro all_items(orders) -%}
 <table class="table table-bordered">
     <tr>
-        <th>合同号</th>
+        <th style="width:160px;">合同号</th>
         <th>客户名称</th>
+        <th>代理/直客</th>
         <th>项目名称</th>
         <th>合同总金额</th>
         <th>已开发票</th>
         <th>返点收入</th>
         <th>已开返点发票</th>
         <th>{{month}}月执行额</th>
-        <th>投放媒体</th>
-        <th>媒体合同号</th>
+        <th style="width:100px;">投放媒体</th>
+        <th style="width:160px;">媒体合同号</th>
         <th>{{month}}月媒体售卖金额</th>
         <th>媒体金额（成本）</th>
         <th>媒体累计开票额</th>
@@ -29,6 +30,7 @@
     <tr>
         <td>{{order.contract}}</td>
         <td>{{order.client.name}}</td>
+        <td>{{order.agent.name}}</td>
         <td>{{order.campaign}}</td>
         <td>{{order.money}}</td>
         <td>{{order.invoice_pass_sum}}</td>
