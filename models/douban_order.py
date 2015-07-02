@@ -549,6 +549,11 @@ by %s\n
                 rebate_money += self.money * rebate / 100
         return rebate_money
 
+    def income(self, year, month):
+        if self.client_start.year == int(year) and self.client_start.month == int(month):
+            return self.money * 0.4
+        return 0
+
     def profit_money(self, year, month):
         rebate_money = self.rebate_money(self.client_start.year, self.client_start.month, type='cost')
         return self.money * 0.4 - rebate_money - self.outsources_paied_sum
