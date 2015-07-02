@@ -24,17 +24,18 @@ def write_douban_order_excel(orders, year, month):
     for k in range(len(orders)):
         worksheet.write(th, 0, orders[k].contract, align_left)
         worksheet.write(th, 1, orders[k].client.name, align_left)
-        worksheet.write(th, 2, orders[k].campaign, align_left)
-        worksheet.write(th, 3, orders[k].money, align_left)
-        worksheet.write(th, 4, orders[k].money * 0.4, align_left)
-        worksheet.write(th, 5, orders[k].executive_report(
+        worksheet.write(th, 2, orders[k].agent.name, align_left)
+        worksheet.write(th, 4, orders[k].campaign, align_left)
+        worksheet.write(th, 5, orders[k].money, align_left)
+        worksheet.write(th, 6, orders[k].money * 0.4, align_left)
+        worksheet.write(th, 7, orders[k].executive_report(
             g.user, year, [month], 'normal')[0], align_left)
         worksheet.write(
             th, 6, orders[k].rebate_money(year, month, 'cost'), align_left)
-        worksheet.write(th, 7, orders[k].outsources_paied_sum, align_left)
-        worksheet.write(th, 8, orders[k].profit_money(year, month), align_left)
-        worksheet.write(th, 9, orders[k].start_date_cn, align_left)
-        worksheet.write(th, 10, orders[k].end_date_cn, align_left)
+        worksheet.write(th, 8, orders[k].outsources_paied_sum, align_left)
+        worksheet.write(th, 9, orders[k].profit_money(year, month), align_left)
+        worksheet.write(th, 10, orders[k].start_date_cn, align_left)
+        worksheet.write(th, 11, orders[k].end_date_cn, align_left)
         th += 1
     workbook.close()
     response.data = output.getvalue()
@@ -80,77 +81,80 @@ def write_order_excel(orders, year, month):
             worksheet.merge_range(
                 th, 1, th + len(mediums) - 1, 1, orders[k].client.name, align_left)
             worksheet.merge_range(
-                th, 2, th + len(mediums) - 1, 2, orders[k].campaign, align_left)
+                th, 2, th + len(mediums) - 1, 2, orders[k].agent.name, align_left)
             worksheet.merge_range(
-                th, 3, th + len(mediums) - 1, 3, orders[k].money, align_left)
+                th, 3, th + len(mediums) - 1, 3, orders[k].campaign, align_left)
             worksheet.merge_range(
-                th, 4, th + len(mediums) - 1, 4, orders[k].invoice_pass_sum, align_left)
+                th, 4, th + len(mediums) - 1, 4, orders[k].money, align_left)
             worksheet.merge_range(
-                th, 5, th + len(mediums) - 1, 5, orders[k].medium_rebate_money(year, month, 'profit'), align_left)
+                th, 5, th + len(mediums) - 1, 5, orders[k].invoice_pass_sum, align_left)
             worksheet.merge_range(
-                th, 6, th + len(mediums) - 1, 6, u'暂无', align_left)
-            worksheet.merge_range(th, 7, th + len(mediums) - 1, 7,
+                th, 6, th + len(mediums) - 1, 6, orders[k].medium_rebate_money(year, month, 'profit'), align_left)
+            worksheet.merge_range(
+                th, 7, th + len(mediums) - 1, 7, u'暂无', align_left)
+            worksheet.merge_range(th, 8, th + len(mediums) - 1, 8,
                                   orders[k].executive_report(g.user, year, [month], 'normal')[0], align_left)
             worksheet.merge_range(
-                th, 11, th + len(mediums) - 1, 11, orders[k].medium_rebate_money(year, month, 'cost'), align_left)
+                th, 12, th + len(mediums) - 1, 12, orders[k].medium_rebate_money(year, month, 'cost'), align_left)
             worksheet.merge_range(
-                th, 12, th + len(mediums) - 1, 12, orders[k].mediums_invoice_sum, align_left)
+                th, 13, th + len(mediums) - 1, 13, orders[k].mediums_invoice_sum, align_left)
             worksheet.merge_range(
-                th, 13, th + len(mediums) - 1, 13, orders[k].mediums_invoice_pass_sum, align_left)
+                th, 14, th + len(mediums) - 1, 14, orders[k].mediums_invoice_pass_sum, align_left)
             worksheet.merge_range(
-                th, 14, th + len(mediums) - 1, 14, orders[k].rebate_money(year, month, 'cost'), align_left)
+                th, 15, th + len(mediums) - 1, 15, orders[k].rebate_money(year, month, 'cost'), align_left)
             worksheet.merge_range(
-                th, 15, th + len(mediums) - 1, 15, orders[k].agents_invoice_sum, align_left)
+                th, 16, th + len(mediums) - 1, 16, orders[k].agents_invoice_sum, align_left)
             worksheet.merge_range(
-                th, 16, th + len(mediums) - 1, 16, orders[k].agent_invoice_pass_sum, align_left)
+                th, 17, th + len(mediums) - 1, 17, orders[k].agent_invoice_pass_sum, align_left)
             worksheet.merge_range(
-                th, 17, th + len(mediums) - 1, 17, orders[k].profit_money(year, month), align_left)
+                th, 18, th + len(mediums) - 1, 18, orders[k].profit_money(year, month), align_left)
             worksheet.merge_range(
-                th, 18, th + len(mediums) - 1, 18, orders[k].start_date_cn, align_left)
+                th, 19, th + len(mediums) - 1, 19, orders[k].start_date_cn, align_left)
             worksheet.merge_range(
-                th, 19, th + len(mediums) - 1, 19, orders[k].end_date_cn, align_left)
+                th, 20, th + len(mediums) - 1, 20, orders[k].end_date_cn, align_left)
             for i in range(len(mediums)):
-                worksheet.write(th, 8, mediums[i].medium.name, align_left)
-                worksheet.write(th, 9, mediums[i].medium_contract, align_left)
-                worksheet.write(th, 10, mediums[i].get_executive_report_medium_money_by_month(
+                worksheet.write(th, 9, mediums[i].medium.name, align_left)
+                worksheet.write(th, 10, mediums[i].medium_contract, align_left)
+                worksheet.write(th, 11, mediums[i].get_executive_report_medium_money_by_month(
                     year, month, 'normal')['sale_money'], align_left)
                 th += 1
         else:
             worksheet.write(th, 0, orders[k].contract, align_left)
             worksheet.write(th, 1, orders[k].client.name, align_left)
-            worksheet.write(th, 2, orders[k].campaign, align_left)
-            worksheet.write(th, 3, orders[k].money, align_left)
-            worksheet.write(th, 4, orders[k].invoice_pass_sum, align_left)
+            worksheet.write(th, 2, orders[k].agent.name, align_left)
+            worksheet.write(th, 3, orders[k].campaign, align_left)
+            worksheet.write(th, 4, orders[k].money, align_left)
+            worksheet.write(th, 5, orders[k].invoice_pass_sum, align_left)
             worksheet.write(
-                th, 5, orders[k].medium_rebate_money(year, month, 'profit'), align_left)
+                th, 6, orders[k].medium_rebate_money(year, month, 'profit'), align_left)
             worksheet.write(
-                th, 6, u'暂无', align_left)
-            worksheet.write(th, 7, orders[k].executive_report(
+                th, 7, u'暂无', align_left)
+            worksheet.write(th, 8, orders[k].executive_report(
                 g.user, year, [month], 'normal')[0], align_left)
             if orders[k].medium_orders:
                 worksheet.write(
-                    th, 8, orders[k].medium_orders[0].medium.name, align_left)
+                    th, 9, orders[k].medium_orders[0].medium.name, align_left)
                 worksheet.write(
-                    th, 9, orders[k].medium_orders[0].medium_contract, align_left)
+                    th, 10, orders[k].medium_orders[0].medium_contract, align_left)
                 medium_order = orders[k].medium_orders[0]
                 executive_report_money = medium_order.get_executive_report_medium_money_by_month(year,
                                                                                                  month,
                                                                                                  'normal')['sale_money']
-                worksheet.write(th, 10, executive_report_money, align_left)
+                worksheet.write(th, 11, executive_report_money, align_left)
             worksheet.write(
-                th, 11, orders[k].medium_rebate_money(year, month, 'cost'), align_left)
-            worksheet.write(th, 12, orders[k].mediums_invoice_sum, align_left)
+                th, 12, orders[k].medium_rebate_money(year, month, 'cost'), align_left)
+            worksheet.write(th, 13, orders[k].mediums_invoice_sum, align_left)
             worksheet.write(
-                th, 13, orders[k].mediums_invoice_pass_sum, align_left)
+                th, 14, orders[k].mediums_invoice_pass_sum, align_left)
             worksheet.write(
-                th, 14, orders[k].rebate_money(year, month, 'cost'), align_left)
-            worksheet.write(th, 15, orders[k].agents_invoice_sum, align_left)
+                th, 15, orders[k].rebate_money(year, month, 'cost'), align_left)
+            worksheet.write(th, 16, orders[k].agents_invoice_sum, align_left)
             worksheet.write(
-                th, 16, orders[k].agent_invoice_pass_sum, align_left)
+                th, 17, orders[k].agent_invoice_pass_sum, align_left)
             worksheet.write(
-                th, 17, orders[k].profit_money(year, month), align_left)
-            worksheet.write(th, 18, orders[k].start_date_cn, align_left)
-            worksheet.write(th, 19, orders[k].end_date_cn, align_left)
+                th, 18, orders[k].profit_money(year, month), align_left)
+            worksheet.write(th, 19, orders[k].start_date_cn, align_left)
+            worksheet.write(th, 20, orders[k].end_date_cn, align_left)
             th += 1
 
     workbook.close()
