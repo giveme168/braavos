@@ -216,8 +216,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return rebate_money
 
     def profit_money(self, year, month):
-        return self.money - self.medium_rebate_money(year, month, type='cost') - \
-            self.rebate_money(year, month, type='cost')
+        return self.money - self.medium_rebate_money(self.client_start.year, self.client_start.month, type='cost') - \
+            self.rebate_money(self.client_start.year, self.client_start.month, type='cost') - self.outsources_paied_sum
 
     @property
     def mediums_rebate_money(self):
@@ -293,6 +293,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def outsources_sum(self):
         return sum([o.pay_num or 0 for o in self.outsources if o.status != 0]) if self.outsources else 0
+
+    @property
+    def outsources_paied_sum(self):
+        return sum([o.pay_num for o in self.outsources if o.status == 4]) if self.outsources else 0
 
     @property
     def outsources_percent(self):
