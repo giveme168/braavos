@@ -99,19 +99,21 @@ class Invoice(db.Model, BaseModelMixin):
     def get_invoices_status(cls, status):
         return cls.query.filter_by(invoice_status=status)
 
-#媒体返点发票(媒体给inad打钱, inad给媒体开发票)
+
+# 媒体返点发票(媒体给inad打钱, inad给媒体开发票)
 class MediumRebateInvoice(db.Model, BaseModelMixin):
+
     __tablename__ = 'bra_medium_rebate_invoice'
 
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_client_order.id')) # 客户合同
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
     client_order = db.relationship(
         'ClientOrder', backref=db.backref("mediumrebateinvoices", lazy='dynamic'))
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
     medium = db.relationship(
         'Medium', backref=db.backref('mediumrebateinvoices', lazy='dynamic'))
-    
+
     # common part of *Invoice classes
     ###########################################################################
     company = db.Column(db.String(100))  # 公司名称
@@ -127,18 +129,17 @@ class MediumRebateInvoice(db.Model, BaseModelMixin):
     invoice_num = db.Column(db.String(200), default='')  # 发票号
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
-        'User', backref=db.backref('created_medium_rebate_invoice', 
+        'User', backref=db.backref('created_medium_rebate_invoice',
                                    lazy='dynamic'))
     create_time = db.Column(db.DateTime)
     ###########################################################################
     back_time = db.Column(db.DateTime)
     __mapper_args__ = {'order_by': create_time.desc()}
 
-
-    def __init__(self, client_order, medium, company="", tax_id="", address="", 
-                 phone="", bank_id="", bank="",detail="", invoice_num="", 
-                 money=0.0, invoice_type=INVOICE_STATUS_NORMAL, 
-                 invoice_status=INVOICE_STATUS_NORMAL, creator=None, 
+    def __init__(self, client_order, medium, company="", tax_id="", address="",
+                 phone="", bank_id="", bank="", detail="", invoice_num="",
+                 money=0.0, invoice_type=INVOICE_STATUS_NORMAL,
+                 invoice_status=INVOICE_STATUS_NORMAL, creator=None,
                  create_time=None, back_time=None):
         self.client_order = client_order
         self.medium = medium
@@ -154,19 +155,19 @@ class MediumRebateInvoice(db.Model, BaseModelMixin):
         self.invoice_status = invoice_status
         self.invoice_num = invoice_num
         self.creator = creator
-        self.create_time = create_time or datatime.date.today()
+        self.create_time = create_time or datetime.date.today()
         self.back_time = back_time or datetime.date.today()
 
     def __repr__(self):
         return '<MediumRebateInvoice: %s>' % self.id
-    
+
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
 
     @property
     def back_time_cn(self):
-        if back_time:
+        if self.back_time:
             return self.back_time.strftime('%Y-%m-%d')
         else:
             return ""
