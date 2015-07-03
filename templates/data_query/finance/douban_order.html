@@ -62,9 +62,11 @@
 </div>
 <script>
     $(function(){
-        $("#year option[value='{{year}}']").attr("selected","selected");  
+        //$("#year option[value='{{year}}']").attr("selected","selected");  
+        $("#year").val("{{year}}");
         $("#year").trigger("chosen:updated");
-        $("#month option[value='{{month}}']").attr("selected","selected");  
+        $("#month").val("{{month}}")
+        //$("#month option[value='{{month}}']").attr("selected","selected");  
         $("#month").trigger("chosen:updated");
     })
     function download(){

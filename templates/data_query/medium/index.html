@@ -55,7 +55,8 @@
 </div>
 <script>
     $(function(){
-        $("#medium_id option[value='{{medium_id}}']").attr("selected","selected");  
+        //$("#medium_id option[value='{{medium_id}}']").attr("selected","selected");  
+        $("#medium_id").val("{{medium_id}}")
         $("#medium_id").trigger("chosen:updated");
     })
     function download(){
