@@ -63,22 +63,22 @@ class OutSourceTarget(db.Model, BaseModelMixin):
     def client_outsources_by_status(self, status):
         outsources = list(
             OutSource.query.filter_by(target_id=self.id, status=status))
-        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9]]
+        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and k.medium_order.status == 1]
 
     def client_outsources_by_paied(self):
         outsources = list(
             OutSource.query.filter_by(target_id=self.id, status=OUTSOURCE_STATUS_PAIED))
-        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9]]
+        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and k.medium_order.status == 1]
 
     def douban_outsources_by_status(self, status):
         outsources = list(
             DoubanOutSource.query.filter_by(target_id=self.id, status=status))
-        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9]]
+        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9] and k.douban_order.status == 1]
 
     def douban_outsources_by_paied(self):
         outsources = list(DoubanOutSource.query.filter_by(
             target_id=self.id, status=OUTSOURCE_STATUS_PAIED))
-        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9]]
+        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9] and k.douban_order.status == 1]
 
     def outsource_status_cn(self, status):
         if int(status) == OUTSOURCE_STATUS_PAIED:
@@ -287,7 +287,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     def get_outsources_by_target(cls, target_id, status):
         outsources = list(
             cls.query.filter_by(target_id=target_id, status=status))
-        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9]]
+        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and k.medium_order.status == 1]
 
     @property
     def create_time_cn(self):
@@ -398,12 +398,20 @@ class OutSourceExecutiveReport(db.Model, BaseModelMixin):
         return location in locations
 
     @property
-    def order_status(self):
+    def contract_status(self):
         if self.otype == 1:
             order = OutSource.get(self.outsource_id).medium_order
         else:
             order = DoubanOutSource.get(self.outsource_id).douban_order
         return order.contract_status
+
+    @property
+    def order_status(self):
+        if self.otype == 1:
+            order = OutSource.get(self.outsource_id).medium_order
+        else:
+            order = DoubanOutSource.get(self.outsource_id).douban_order
+        return order.status
 
 
 class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
@@ -514,7 +522,7 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     def get_outsources_by_target(cls, target_id, status):
         outsources = list(
             cls.query.filter_by(target_id=target_id, status=status))
-        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9]]
+        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9] and k.douban_order.status == 1]
 
     @property
     def create_time_cn(self):

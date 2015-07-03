@@ -115,9 +115,11 @@
 
 <script>
     $(function(){
-        $("#Q option[value='{{Q}}']").attr("selected","selected");  
+        //$("#Q option[value='{{Q}}']").attr("selected","selected");  
+        $("#Q").val("{{Q}}")
         $("#Q").trigger("chosen:updated");
-        $("#year option[value='{{now_year}}']").attr("selected","selected");  
+        //$("#year option[value='{{now_year}}']").attr("selected","selected");  
+        $("#year").val("{{now_year}}")
         $("#year").trigger("chosen:updated");
     })
     function download(){
