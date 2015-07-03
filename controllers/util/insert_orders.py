@@ -11,6 +11,7 @@ from models.client_order import ClientOrder
 from models.order import Order
 from models.client import Client, Agent
 from models.medium import Medium
+from controllers.order import _insert_executive_report as insert_executive_report
 
 util_insert_orders_bp = Blueprint(
     'util_insert_orders', __name__, template_folder='../../templates/util')
@@ -69,6 +70,7 @@ def index():
                                   (medium.name, mo.sale_money))
             order.save()
         flash(u'导入客户订单成功!', 'success')
+        insert_executive_report(order, '')
         return redirect(order.info_path())
     else:
         form.client_start.data = datetime.now().date()
