@@ -9,6 +9,7 @@ from models.user import User
 from models.douban_order import DoubanOrder
 from forms.order import DoubanOrderForm
 from models.client import Client, Agent
+from controllers.order import _insert_executive_report as insert_executive_report
 
 util_insert_douban_orders_bp = Blueprint(
     'util_insert_douban_orders', __name__, template_folder='../../templates/util')
@@ -47,6 +48,7 @@ def index():
                               order.client.name,
                               order.campaign
                           ))
+        insert_executive_report(order, '')
         flash(u'导入订单成功', 'success')
         return redirect(order.info_path())
     else:
