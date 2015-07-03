@@ -812,7 +812,7 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
     create_time = db.Column(db.DateTime)
     __table_args__ = (db.UniqueConstraint(
         'client_order_id', 'month_day', name='_client_order_month_day'),)
-    __mapper_args__ = {'order_by': month_day.desc()}
+    __mapper_args__ = {'order_by': create_time.desc()}
 
     def __init__(self, client_order, money=0, month_day=None, days=0, create_time=None):
         self.client_order = client_order

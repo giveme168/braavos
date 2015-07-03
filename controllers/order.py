@@ -410,7 +410,7 @@ def order_medium_edit_cpm(medium_id):
         medium_money = int(round(float(medium_money)))
         if mo.medium_money != medium_money:
             mo.client_order.add_comment(
-                g.user, u"更新了媒体订单: %s 的付款金额%s " % (mo.medium.name, medium_money))
+                g.user, u"更新了媒体订单: %s 的分成金额%s " % (mo.medium.name, medium_money))
         mo.medium_money = medium_money
     mo.save()
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
