@@ -180,6 +180,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return self.client_order.contract
 
     @property
+    def status(self):
+        return self.client_order.status
+
+    @property
     def order_type_cn(self):
         return ORDER_TYPE_CN[self.order_type]
 
