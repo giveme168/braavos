@@ -142,7 +142,7 @@
                             {% if OUTSOURCE_STATUS_PASS == status%}
                               {% if g.user.is_operater_leader() %}
                             <th><a href="javascript:update_pay_num('{{t.id}}','{{t.pay_num}}')">修改</a></th>
-                              {% if g.user.is_operater_leader() %}
+                              {% endif %}
                             {% endif %}
                         </tr>
                         {% endfor %}
