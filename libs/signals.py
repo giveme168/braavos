@@ -12,6 +12,7 @@ order_apply_signal = braavos_signals.signal('order_apply')
 reply_apply_signal = braavos_signals.signal('reply_apply')
 contract_apply_signal = braavos_signals.signal('contract_apply')
 douban_contract_apply_signal = braavos_signals.signal('douban_contract_apply')
+framework_douban_contract_apply_signal = braavos_signals.signal('framework_douban_contract_apply')
 outsource_apply_signal = braavos_signals.signal('outsource_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
@@ -235,6 +236,43 @@ by %s
     send_simple_mail(apply_context['title'], recipients=apply_context['to'], body=text)
 '''
 
+def framework_douban_contract_apply(sender, apply_context):
+    print '3333'
+    """框架订单豆瓣合同号申请"""
+    order = apply_context['order']
+    url = mail.app.config['DOMAIN'] + order.info_path()
+    douban_users = User.douban_contracts()
+    body = u"""
+Dear %s:
+
+请帮忙递交法务审核合同 + 分配合同号, 谢谢~
+
+项目: 框架
+代理集团: %s
+直客销售: %s
+渠道销售: %s
+时间: %s : %s
+金额: %s
+
+附注:
+    致趣订单管理系统链接地址: %s
+
+by %s\n
+""" % (','.join([x.name for x in douban_users]), order.group.name,
+       order.direct_sales_names, order.agent_sales_names,
+       order.start_date_cn, order.end_date_cn,
+       order.money, url, g.user.name)
+    file_paths = []
+    if order.get_last_contract():
+        file_paths.append(order.get_last_contract().real_path)
+    if order.get_last_schedule():
+        file_paths.append(order.get_last_schedule().real_path)
+    print '2222'
+    send_attach_mail(u'【合同流程】%s-%s' % (order.name, u'豆瓣合同号申请'),
+                     recipients=apply_context['to'],
+                     body=body,
+                     file_paths=file_paths)
+
 
 def douban_contract_apply(sender, apply_context):
     """豆瓣合同号申请"""
@@ -429,6 +467,7 @@ def init_signal(app):
     reply_apply_signal.connect_via(app)(reply_apply_signal)
     contract_apply_signal.connect_via(app)(contract_apply)
     douban_contract_apply_signal.connect_via(app)(douban_contract_apply)
+    framework_douban_contract_apply_signal.connect_via(app)(framework_douban_contract_apply)
     outsource_apply_signal.connect_via(app)(outsource_apply)
     invoice_apply_signal.connect_via(app)(invoice_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
