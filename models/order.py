@@ -536,6 +536,11 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                 {'money': '%.2f' % (pre_money * k['days']), 'month': k['month'], 'days': k['days']})
         return pre_month_money_data
 
+    def rebate_medium_by_month(self, year, month):
+        rebate = self.medium.rebate_by_year(self.medium_start.year)
+        ex_monety = self.get_executive_report_medium_money_by_month(year, month, 'normal')['medium_money2']
+        return ex_monety * rebate / 100
+
     def get_executive_report_medium_money_by_month(self, year, month, sale_type):
         if sale_type == 'agent':
             count = len(self.agent_sales)

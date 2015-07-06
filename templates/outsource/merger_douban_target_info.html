@@ -119,7 +119,9 @@
                             {% endif %}
                             <th>操作时间</th>
                             {% if OUTSOURCE_STATUS_PASS == status%}
+                            {% if g.user.is_operater_leader() %}
                             <th>操作</th>
+                            {% endif %}
                             {% endif %}
                         </tr>
                         {% for t in outsources %}
@@ -138,7 +140,9 @@
                             {% endif %}
                             <td>{{t.create_time_cn}}</td>
                             {% if OUTSOURCE_STATUS_PASS == status%}
+                              {% if g.user.is_operater_leader() %}
                             <th><a href="javascript:update_pay_num('{{t.id}}','{{t.pay_num}}')">修改</a></th>
+                              {% if g.user.is_operater_leader() %}
                             {% endif %}
                         </tr>
                         {% endfor %}

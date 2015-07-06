@@ -198,12 +198,19 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         rebate_money = 0
         if self.client_start.year == int(year) and self.client_start.month == int(month):
             for medium_order in self.medium_orders:
-                rebate = medium_order.medium.rebate_by_year(self.client_start.year)
+                rebate = medium_order.medium.rebate_by_year(
+                    self.client_start.year)
                 if type == 'profit':
                     rebate_money += medium_order.medium_money2 * rebate / 100
                 else:
-                    rebate_money += medium_order.medium_money2 * (1 - rebate / 100)
+                    rebate_money += medium_order.medium_money2 * \
+                        (1 - rebate / 100)
         return rebate_money
+
+    def rebate_agent_by_month(self, year, month):
+        rebate = self.agent.inad_rebate_by_year(self.client_start.year)
+        ex_money = self.executive_report(g.user, year, [month], 'normal')[0]
+        return ex_money * rebate / 100
 
     def rebate_money(self, year, month, type='profit'):
         rebate_money = 0
@@ -215,9 +222,17 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                 rebate_money += self.money * rebate / 100
         return rebate_money
 
+    def sum_rebate_medium_by_month(self, year, month):
+        return sum([k.rebate_medium_by_month(year, month) for k in self.medium_orders])
+
+    def sum_medium_exmoney_by_month(self, year, month):
+        return sum([k.get_executive_report_medium_money_by_month(year, month, 'normal')['medium_money2']
+                    for k in self.medium_orders])
+
     def profit_money(self, year, month):
-        return self.money - self.medium_rebate_money(self.client_start.year, self.client_start.month, type='cost') - \
-            self.rebate_money(self.client_start.year, self.client_start.month, type='cost') - self.outsources_paied_sum
+        return self.executive_report(g.user, year, [month], 'normal')[0] - self.rebate_agent_by_month(year, month) - \
+            self.sum_medium_exmoney_by_month(
+                year, month) - self.sum_rebate_medium_by_month(year, month)
 
     @property
     def mediums_rebate_money(self):

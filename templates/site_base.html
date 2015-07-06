@@ -70,8 +70,8 @@
                   <li><a href="{{url_for('data_query_outsource.index')}}">外包成本</a></li>
                   {% endif %}
                   {% if g.user.is_finance() or g.user.is_super_leader() %}
-                  <li><a href="{{url_for('data_query_finance.order')}}">媒体订单执行成本</a></li>
-                  <li><a href="{{url_for('data_query_finance.douban_order')}}">豆瓣订单执行成本</a></li>
+                  <li><a href="{{url_for('data_query_profit.client_order')}}">媒体订单执行成本</a></li>
+                  <li><a href="{{url_for('data_query_profit.douban_order')}}">豆瓣订单执行成本</a></li>
                   {% endif %}
               </ul>
             </li>
