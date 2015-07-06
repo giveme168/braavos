@@ -319,7 +319,7 @@ def merger_outsource_apply(sender, apply_context):
     if action == 1:
         to_user_name = ','.join([k.name for k in User.all() if k.email.find('huangliang') >= 0])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+['giveme168@163.com']
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
@@ -330,7 +330,7 @@ def merger_outsource_apply(sender, apply_context):
     elif action == -1:
         to_user_name = ','.join([k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+['giveme168@163.com']
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
@@ -341,7 +341,7 @@ def merger_outsource_apply(sender, apply_context):
     elif action == 2:
         to_user_name = ','.join([k.name for k in User.finances()])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]+['giveme168@163.com']
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('finance_pay.info', target_id=merger_outsource.target.id)
@@ -352,7 +352,7 @@ def merger_outsource_apply(sender, apply_context):
     elif action == 0:
         to_user_name = ','.join([k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]+['giveme168@163.com']
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)

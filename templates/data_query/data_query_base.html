@@ -23,10 +23,10 @@
     </a>
     {% endif %}
     {% if g.user.is_finance() or g.user.is_super_leader() %}
-    <a class="list-group-item" href="{{url_for('data_query_finance.order')}}">
+    <a class="list-group-item" href="{{url_for('data_query_profit.client_order')}}">
       <span class="glyphicon glyphicon-th-list"></span> 媒体订单执行成本
     </a>
-    <a class="list-group-item" href="{{url_for('data_query_finance.douban_order')}}">
+    <a class="list-group-item" href="{{url_for('data_query_profit.douban_order')}}">
       <span class="glyphicon glyphicon-th-list"></span> 豆瓣订单执行成本
     </a>
     {% endif %}
