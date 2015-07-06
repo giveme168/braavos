@@ -785,12 +785,13 @@ def framework_order_info(order_id):
                 flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
             else:
                 order.contract = request.values.get("base_contract", "")
+                order.douban_contract = request.values.get("douban_contract", "")
                 order.save()
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
-                msg = u"新合同号如下:\n\n%s-致趣: %s\n\n" % (
-                    order.group.name, order.contract)
+                msg = u"新合同号如下:\n\n%s-致趣: %s\n\n豆瓣合同号: %s" % (
+                    order.group.name, order.contract, order.douban_contract)
                 to_users = order.direct_sales + \
                     order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]

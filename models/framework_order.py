@@ -78,6 +78,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     description = db.Column(db.String(500))  # 描述
 
     contract = db.Column(db.String(100))  # 客户合同号
+    douban_contract = db.Column(db.String(100))  # 豆瓣合同号
     money = db.Column(db.Integer)  # 客户合同金额
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
@@ -249,6 +250,9 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def get_default_contract(self):
         return contract_generator(self.group, self.id)
+
+    def douban_contract_apply_path(self):
+        return url_for("contract.framework_douban_apply", order_id=self.id)
 
 
 def contract_generator(group, num):

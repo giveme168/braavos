@@ -232,7 +232,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def profit_money(self, year, month):
         return self.executive_report(g.user, year, [month], 'normal')[0] - self.rebate_agent_by_month(year, month) - \
             self.sum_medium_exmoney_by_month(
-                year, month) - self.sum_rebate_medium_by_month(year, month)
+                year, month) + self.sum_rebate_medium_by_month(year, month)
 
     @property
     def mediums_rebate_money(self):
