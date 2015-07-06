@@ -91,6 +91,8 @@ def write_order_excel(orders, year, month):
             worksheet.merge_range(th, 7, th + len(mediums) - 1, 7,
                                   orders[k].rebate_agent_by_month(year, month), align_left)
             worksheet.merge_range(
+                th, 13, th + len(mediums) - 1, 13, orders[k].profit_money(year, month), align_left)
+            worksheet.merge_range(
                 th, 14, th + len(mediums) - 1, 14, orders[k].start_date_cn, align_left)
             worksheet.merge_range(
                 th, 15, th + len(mediums) - 1, 15, orders[k].end_date_cn, align_left)
@@ -102,8 +104,6 @@ def write_order_excel(orders, year, month):
                     year, month, 'normal')['sale_money'], align_left)
                 worksheet.write(
                     th, 12, mediums[i].rebate_medium_by_month(year, month), align_left)
-                worksheet.write(
-                    th, 13, mediums[i].profit_money(year, month), align_left)
                 th += 1
 
         else:

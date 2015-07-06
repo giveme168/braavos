@@ -4,7 +4,7 @@
 <table class="table table-bordered">
     <tr>
         <th>所属区域</th>
-        <th style="width:160px;">合同号</th>
+        <th style="width:165px;">合同号</th>
         <th>客户名称</th>
         <th>直客/代理</th>
         <th>项目名称</th>
@@ -12,7 +12,7 @@
         <th>客户{{month}}月执行额</th>
         <th>{{month}}支付代理返点</th>
         <th style="width:100px;">投放媒体</th>
-        <th style="width:160px;">媒体合同号</th>
+        <th style="width:165px;">媒体合同号</th>
         <th>媒体合同总金额</th>
         <th>{{month}}媒体执行金额</th>
         <th>{{month}}月度媒体返点</th>
@@ -51,7 +51,7 @@
             {% endfor %}
         </td>
         <td>{% for k in order.medium_orders %}
-            {{k.rebate_medium_by_month(year, month)}}
+            {{k.rebate_medium_by_month(year, month)}}<br/>
             {% endfor %}
         </td>
         <td>{{order.profit_money(year, month)}}</td>
