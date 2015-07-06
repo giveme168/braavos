@@ -237,7 +237,6 @@ by %s
 '''
 
 def framework_douban_contract_apply(sender, apply_context):
-    print '3333'
     """框架订单豆瓣合同号申请"""
     order = apply_context['order']
     url = mail.app.config['DOMAIN'] + order.info_path()
@@ -267,7 +266,6 @@ by %s\n
         file_paths.append(order.get_last_contract().real_path)
     if order.get_last_schedule():
         file_paths.append(order.get_last_schedule().real_path)
-    print '2222'
     send_attach_mail(u'【合同流程】%s-%s' % (order.name, u'豆瓣合同号申请'),
                      recipients=apply_context['to'],
                      body=body,
