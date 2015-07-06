@@ -65,8 +65,8 @@ def write_order_excel(orders, year, month):
     align_left = workbook.add_format(
         {'align': 'left', 'valign': 'vcenter', 'border': 1})
     keys = [u'所属区域', u'合同号', u'客户名称', u'项目名称', u'合同总金额', u'客户',
-            str(month) + u'月执行额', str(month) + u'支付代理返点', u'投放媒体', u'媒体合同号',
-            u'媒体合同总金额', str(month) + u'媒体执行金额', str(month) + u'月度媒体返点',
+            str(month) + u'月执行额', str(month) + u'月支付代理返点', u'投放媒体', u'媒体合同号',
+            u'媒体合同总金额', str(month) + u'月媒体执行金额', str(month) + u'月媒体返点',
             str(month) + u'月合同利润', u'合同开始', u'合同结束']
     for k in range(len(keys)):
         worksheet.write(0, 0 + k, keys[k], align_left)
