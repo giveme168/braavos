@@ -539,6 +539,10 @@ by %s\n
                 moneys.append(0)
         return moneys
 
+    @property
+    def agent_rebate(self):
+        return self.agent.douban_rebate_by_year(self.client_start.year)
+
     def rebate_agent_by_month(self, year, month):
         rebate = self.agent.douban_rebate_by_year(self.client_start.year)
         ex_money = self.executive_report(g.user, year, [month], 'normal')[0]
@@ -614,6 +618,14 @@ class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     @property
     def month_cn(self):
         return self.month_day.strftime('%Y-%m') + u'月'
+
+    @property
+    def locations(self):
+        return self.douban_order.locations
+
+    @property
+    def status(self):
+        return self.douban_order.status
 
 
 class DoubanOrderReject(db.Model, BaseModelMixin):

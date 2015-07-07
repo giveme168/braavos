@@ -132,7 +132,8 @@ class DoubanOrderForm(Form):
         self.client.choices = [(c.id, c.name) for c in Client.all()]
         self.direct_sales.choices = [(m.id, m.name) for m in User.sales()]
         self.agent_sales.choices = [(m.id, m.name) for m in User.sales()]
-        self.operaters.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_OPERATER)]
+        operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
+        self.operaters.choices = [(m.id, m.name) for m in operaters]
         self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
         self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
