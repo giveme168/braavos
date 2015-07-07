@@ -180,7 +180,7 @@ def executive_report(order_id):
         order = ClientOrder.get(order_id)
     if not order:
         abort(404)
-    if not g.user.is_super_admin() or not g.user.is_media() or not g.user.is_contract():
+    if not g.user.is_super_admin() or not g.user.is_media() or not g.user.is_contract() or not g.user.is_media_leader():
         abort(402)
     _insert_executive_report(order, rtype)
     if order.__tablename__ == 'bra_douban_order':
@@ -221,7 +221,7 @@ def get_client_form(order):
 
 def get_medium_form(order, user=None):
     medium_form = MediumOrderForm()
-    if user.is_super_leader() or user.is_media():
+    if user.is_super_leader() or user.is_media() or user.is_media_leader():
         medium_form.medium.choices = [
             (medium.id, medium.name) for medium in Medium.all()]
     else:
@@ -373,7 +373,7 @@ def medium_order(mo_id):
     if not mo:
         abort(404)
     form = MediumOrderForm(request.form)
-    if g.user.is_super_leader() or g.user.is_media():
+    if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader():
         mo.medium = Medium.get(form.medium.data)
     mo.medium_money = int(round(float(form.medium_money.data or 0)))
     mo.medium_money2 = int(round(float(form.medium_money2.data or 0)))
@@ -552,7 +552,7 @@ def delete_orders():
 
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader():
         orders = ClientOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -572,7 +572,7 @@ def my_orders():
             orders = [o for o in orders if o.contract_status in [
                 CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
             status_id = CONTRACT_STATUS_APPLYPASS
-        elif g.user.is_media():
+        elif g.user.is_media() or g.user.is_media_leader():
             orders = [
                 o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYREJECT]]
             status_id = CONTRACT_STATUS_MEDIA
@@ -816,7 +816,7 @@ def framework_order_info(order_id):
 
 @order_bp.route('/my_framework_orders', methods=['GET'])
 def my_framework_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader():
         orders = FrameworkOrder.all()
         if g.user.is_admin():
             pass
@@ -826,7 +826,7 @@ def my_framework_orders():
         elif g.user.is_contract():
             orders = [o for o in orders if o.contract_status in [
                 CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
-        elif g.user.is_media():
+        elif g.user.is_media() or g.user.is_media_leader():
             orders = [
                 o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
     elif g.user.is_leader():
@@ -1052,7 +1052,7 @@ def douban_order_info(order_id):
 
 @order_bp.route('/my_douban_orders', methods=['GET'])
 def my_douban_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader():
         orders = DoubanOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -1072,7 +1072,7 @@ def my_douban_orders():
             orders = [o for o in orders if o.contract_status in [
                 CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
             status_id = CONTRACT_STATUS_APPLYPASS
-        elif g.user.is_media():
+        elif g.user.is_media() or g.user.is_media_leader():
             orders = [
                 o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
             status_id = CONTRACT_STATUS_MEDIA

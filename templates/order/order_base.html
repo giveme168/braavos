@@ -2,7 +2,7 @@
 
 {% block left_box%}
     <!-- 只有leader和合同管理员才能看所有订单 -->
-    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_operater()%}
+    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_operater() or g.user.is_media_leader()%}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 新媒体</li>
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的新媒体订单
@@ -41,12 +41,12 @@
     {% endif %}
 
     <!-- 只有leader 销售 合同管理员才能看框架 -->
-    {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() %}
+    {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() %}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 框架</li>
     <a class="list-group-item" href="{{url_for('order.my_framework_orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 我的框架
     </a>
-    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() %}
+    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() %}
     <a class="list-group-item" href="{{url_for('order.framework_orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 全部框架
     </a>

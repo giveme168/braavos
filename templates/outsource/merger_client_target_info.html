@@ -152,6 +152,18 @@
                             {% endif %}
                         </tr>
                         {% endfor %}
+                        <tr>
+                          <td>合计</td>
+                          {% if OUTSOURCE_STATUS_PASS == status%}
+                          <td colspan=5></td>
+                          {% else %}
+                          <td colspan=4></td>
+                          {% endif %}
+                          <td>{{outsources|sum(attribute='num')}}</td>
+                          <td></td>
+                          <td>{{outsources|sum(attribute='pay_num')}}</td>
+                          <td colspan=4></td>
+                        </tr>
                     </table>
                     {% if OUTSOURCE_STATUS_PASS == status and outsources %}
                     <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
