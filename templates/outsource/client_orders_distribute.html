@@ -71,7 +71,7 @@
             <td>{{order.get_outsources_by_status(1)|length + order.get_outsources_by_status(5)|length}}</td>
             <td>{{order.get_outsources_by_status(2)|length}}</td>
             <td>{{order.operater_names}}</td>
-            <td><a href="javascript:edit_operator('{{order.medium_orders[0].id}}','{{order.operater_ids}}')">修改</a></td>
+            <td><a href="javascript:edit_operator('{{order.id}}','{{order.operater_ids}}')">修改</a></td>
         </tr>
         {% endfor %}
     </table>

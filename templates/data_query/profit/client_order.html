@@ -12,6 +12,7 @@
         <th>客户{{month}}月执行额</th>
         <th>{{month}}月支付代理返点</th>
         <th style="width:100px;">投放媒体</th>
+        <th>{{month}}月客户金额</th>
         <th style="width:165px;">媒体合同号</th>
         <th>媒体合同总金额</th>
         <th>{{month}}月媒体执行金额</th>
@@ -37,12 +38,17 @@
         </td>
         <td>
             {% for k in order.medium_orders %}
+            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').sale_money }}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in order.medium_orders %}
             {{ k.medium_contract }}<br/>
             {% endfor %}
         </td>
         <td>
             {% for k in order.medium_orders %}
-            {{ k.medium_money2 }}<br/>
+            {{ k.medium_money2  or ''}}<br/>
             {% endfor %}
         </td>
         <td>

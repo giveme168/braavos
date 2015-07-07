@@ -16,7 +16,7 @@
                 <li role="presentation" class="dropdown-header">订单管理</li>
                 <li><a href="{{url_for('order.my_orders')}}">新媒体订单</a></li>
                 <li><a href="{{url_for('order.my_douban_orders')}}">直签豆瓣订单</a></li>
-                {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() %}
+                {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() or g.user.is_media_leader()%}
                 <li><a href="{{url_for('order.my_framework_orders')}}">框架订单</a></li>
                 {% endif %}
                 <li role="presentation" class="dropdown-header">客户管理</li>
@@ -24,7 +24,7 @@
                 <li><a href="{{url_for('client.agents')}}">代理/直客</a></li>
                 <li><a href="{{url_for('client.groups')}}">代理集团</a></li>
                 <li><a href="{{url_for('client.mediums')}}">媒体</a></li>
-                {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() %}
+                {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() or g.user.is_media_leader() %}
                 <li role="presentation" class="dropdown-header">数据报表</li>
                 <li><a href="{{url_for('data_query_order.index')}}">月度订单金额统计</a></li>
                 {% endif %}
@@ -63,19 +63,19 @@
               <ul class="dropdown-menu" role="menu">
                   <li><a href="{{url_for('data_query_weekly.index')}}">媒体订单周报</a></li>
                   <li><a href="{{url_for('data_query_weekly.douban_index')}}">直签豆瓣订单周报</a></li>
-                  {% if g.user.is_media() or g.user.is_super_leader() %}
+                  {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
                   <li><a href="{{url_for('data_query_medium.index')}}">媒体执行额</a></li>
                   {% endif %}
                   {% if g.user.is_operater_leader() or g.user.is_super_leader() %}
                   <li><a href="{{url_for('data_query_outsource.index')}}">外包成本</a></li>
                   {% endif %}
-                  {% if g.user.is_finance() or g.user.is_super_leader() %}
+                  {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_media_leader() %}
                   <li><a href="{{url_for('data_query_profit.client_order')}}">媒体订单执行成本</a></li>
                   <li><a href="{{url_for('data_query_profit.douban_order')}}">豆瓣订单执行成本</a></li>
                   {% endif %}
               </ul>
             </li>
-            {% if g.user.is_media() or g.user.is_planner() %}
+            {% if g.user.is_media() or g.user.is_planner() or g.user.is_media_leader() %}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">媒体产品<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
