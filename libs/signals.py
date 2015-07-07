@@ -325,14 +325,12 @@ def outsource_apply(sender, apply_context):
     outsources_info = "\n".join([o.outsource_info for o in outsources])
 
     url = mail.app.config['DOMAIN'] + order.outsource_path()
-    # 暂时关闭外包流程邮件
-    '''
+    
     send_simple_mail(apply_context['title'], recipients=apply_context['to'],
                      body=order.outsource_email_info(apply_context['to_users'],
                                                      apply_context[
                                                          'title'], outsources_info,
                                                      url, apply_context['msg']))
-    '''
 
 
 def merger_outsource_apply(sender, apply_context):
