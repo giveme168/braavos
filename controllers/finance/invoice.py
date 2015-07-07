@@ -227,7 +227,8 @@ def pass_invoice(invoice_id):
                      "msg": msg,
                      "order": invoice.client_order,
                      "send_type": "saler",
-                     "invoices": invoices}
+                     "invoices": invoices,
+                     "url": invoice.client_order.finance_invoice_path()}
     invoice_apply_signal.send(
         current_app._get_current_object(), apply_context=apply_context)
     flash(u'[%s 发票已开] 已发送邮件给 %s ' %

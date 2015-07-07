@@ -7,9 +7,10 @@
             <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
             {{ invoice.company }}-{{ invoice.money }}元
         </h4>
-        <form class="form form-horizontal" method="POST" action="{{url_for('saler_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+        <form class="form form-horizontal" method="POST" action="{{url_for('saler_medium_rebate_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
         {{ form.csrf_token }}
         {{ form_field(form.client_order)}}
+        {{ form_field(form.medium)}}
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}
@@ -45,6 +46,9 @@
             <td>{{invoice.company}}</td>
           </tr>
           <tr>
+              <th>媒体</th>
+              <td>{{invoice.medium.name}}</td>
+          </tr>
             <th>税号</th>
             <td>{{invoice.tax_id}}</td>
           </tr>
@@ -90,9 +94,10 @@
 {% endif %}
 {% else %}
     <div class="well">
-        <form class="form form-horizontal" method="POST" action="{{url_for('saler_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
-        {{form.csrf_token}}
+        <form class="form form-horizontal" method="POST" action="{{url_for('saler_medium_rebate_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
+        {{ form.csrf_token}}
         {{ form_field(form.client_order)}}
+        {{ form_field(form.medium)}}
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}

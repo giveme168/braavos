@@ -9,7 +9,7 @@ from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import ITEM_STATUS_LEADER_ACTIONS
 from .user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
-from invoice import Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice, AgentInvoicePay
+from invoice import Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice, AgentInvoicePay, MediumRebateInvoice
 from libs.mail import mail
 from libs.date_helpers import get_monthes_pre_days
 
@@ -257,8 +257,12 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def agent_invoice_pass_sum(self):
+        money = 0.0
         invoices = AgentInvoice.query.filter_by(client_order_id=self.id)
-        return sum([k.money for k in AgentInvoicePay.all() if k.pay_status == 0 and k.agent_invoice in invoices])
+        for invoice in invoices:
+            for invoice_pay in AgentInvoicePay.query.filter_by(pay_status=0, agent_invoice=invoice):
+                money += invoice_pay.money
+        return money
 
     @property
     def agents_invoice_pass_sum(self):
@@ -306,11 +310,21 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def invoice_apply_sum(self):
         return sum([k.money for k in Invoice.query.filter_by(client_order_id=self.id)
                     if k.invoice_status == 3])
+    @property
+    def mediums_rebate_invoice_apply_sum(self):
+        return sum([invoice.money for invoice in MediumRebateInvoice.query.filter_by(client_order_id=self.id)
+                    if invoice.invoice_status == 3])
+
 
     @property
     def invoice_pass_sum(self):
         return sum([k.money for k in Invoice.query.filter_by(client_order_id=self.id)
                     if k.invoice_status == 0])
+
+    @property
+    def mediums_rebate_invoice_pass_sum(self):
+        return sum([invoice.money for invoice in MediumRebateInvoice.query.filter_by(client_order_id=self.id)
+                    if invoice.invoice_status == 0])
 
     @property
     def invoice_percent(self):
