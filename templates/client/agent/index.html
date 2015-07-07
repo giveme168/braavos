@@ -20,7 +20,7 @@
             <td>{{a.id}}</td>
             <td><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
             <td><a href="{{url_for("client.group_detail", group_id=a.group.id)}}">{{a.group.name}}</a></td>
-            {% if g.user.is_contract() %}
+            {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_media_leader() %}
                 <td><a href="{{url_for('client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
             {% endif %}
         </tr>

@@ -536,6 +536,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                 {'money': '%.2f' % (pre_money * k['days']), 'month': k['month'], 'days': k['days']})
         return pre_month_money_data
 
+    @property
+    def medium_rebate(self):
+        return self.medium.rebate_by_year(self.medium_start.year)
+
     def rebate_medium_by_month(self, year, month):
         rebate = self.medium.rebate_by_year(self.medium_start.year)
         ex_monety = self.get_executive_report_medium_money_by_month(year, month, 'normal')['medium_money2']
@@ -613,6 +617,14 @@ class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
     @property
     def month_cn(self):
         return self.month_day.strftime('%Y-%m') + u'月'
+
+    @property
+    def locations(self):
+        return self.client_order.locations
+
+    @property
+    def status(self):
+        return self.client_order.status
 
 
 class StyleTypes(object):

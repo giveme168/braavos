@@ -20,7 +20,7 @@
             <td>{{m.id}}</td>
             <td><a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
             <td>{{m.owner.name}}</td>
-            {% if g.user.is_media() %}
+            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
                 <td><a href="{{url_for('client.medium_rebate', medium_id=m.id)}}">设置返点</a></td>
             {% endif %}
         </tr>
