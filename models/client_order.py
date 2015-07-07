@@ -315,7 +315,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def outsources_percent(self):
-        return "%.2f" % (self.outsources_sum * 100 / float(self.money)) if self.money else "0"
+        if self.money:
+            return "%.2f" % (self.outsources_sum * 100 / float(self.money)) if self.money else "0"
+        else:
+            return "%.2f" % (self.outsources_sum * 100 / 1)
 
     @property
     def invoice_apply_sum(self):
