@@ -67,9 +67,9 @@ def get_invoice_from(client_order, invoice=None):
         invoice_form.company.data = u'上海致趣广告有限公司'
         invoice_form.bank.data = u'招商银行股份有限公司上海丽园支行'
         invoice_form.bank_id.data = u'308290003425'
-        invoice_form.address.data = u'上海市嘉定区嘉定镇沪宜公路3638号3幢1156室' 
-        invoice_form.phone.data = u'021-60513176' 
-        invoice_form.tax_id.data = u'310114301420674' 
+        invoice_form.address.data = u'上海市嘉定区嘉定镇沪宜公路3638号3幢1156室'
+        invoice_form.phone.data = u'021-60513176'
+        invoice_form.tax_id.data = u'310114301420674'
         invoice_form.back_time.data = datetime.date.today()
     return invoice_form
 
@@ -83,7 +83,7 @@ def new_invoice(order_id):
     form.client_order.choices = [(order.id, order.client.name)]
     form.medium.choices = [(medium.id, medium.name) for medium in order.mediums]
     if request.method == 'POST' and form.validate():
-        if float(form.money.data) > float(order.mediums_rebate_money - order.mediums_rebate_invoice_apply_sum 
+        if float(form.money.data) > float(order.mediums_rebate_money - order.mediums_rebate_invoice_apply_sum
                                           - order.mediums_rebate_invoice_pass_sum):
             flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
             return redirect(url_for("saler_medium_rebate_invoice.index", order_id=order_id))

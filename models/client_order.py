@@ -310,11 +310,11 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def invoice_apply_sum(self):
         return sum([k.money for k in Invoice.query.filter_by(client_order_id=self.id)
                     if k.invoice_status == 3])
+
     @property
     def mediums_rebate_invoice_apply_sum(self):
         return sum([invoice.money for invoice in MediumRebateInvoice.query.filter_by(client_order_id=self.id)
                     if invoice.invoice_status == 3])
-
 
     @property
     def invoice_pass_sum(self):
