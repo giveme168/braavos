@@ -24,7 +24,7 @@ def write_douban_order_excel(orders, year, month):
     for k in range(18):
         worksheet.set_column(k, 0, 15)
     # 设置高度
-    for k in range(0, len(orders) + 1):
+    for k in range(0, len(orders) + 2):
         worksheet.set_row(k, 20)
 
     th = 1
@@ -83,7 +83,7 @@ def write_order_excel(orders, year, month):
     for k in range(18):
         worksheet.set_column(k, 0, 15)
     # 设置高度
-    for k in range(0, len(orders) + 1):
+    for k in range(0, len(orders) + 2):
         worksheet.set_row(k, 20)
 
     th = 1
