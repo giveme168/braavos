@@ -64,7 +64,7 @@ def write_order_excel(orders, year, month):
     worksheet = workbook.add_worksheet()
     align_left = workbook.add_format(
         {'align': 'left', 'valign': 'vcenter', 'border': 1})
-    keys = [u'所属区域', u'合同号', u'客户名称', u'项目名称', u'合同总金额', u'客户',
+    keys = [u'所属区域', u'合同号', u'客户名称', u'直客/代理', u'项目名称', u'合同总金额',
             str(month) + u'月执行额', str(month) + u'月支付代理返点', u'投放媒体',
             str(month) + u'月客户金额', u'媒体合同号',
             u'媒体合同总金额', str(month) + u'月媒体执行金额', str(month) + u'月媒体返点',

@@ -1,12 +1,13 @@
 # -*- coding: UTF-8 -*-
 import datetime
 
-from flask import Blueprint
+from flask import Blueprint, request
 from flask import render_template as tpl
 
 from libs.date_helpers import get_monthes_pre_days
 from models.douban_order import DoubanOrderExecutiveReport
 from models.order import MediumOrderExecutiveReport
+from controllers.data_query.helpers.super_leader_helpers import write_medium_money_excel
 
 data_query_super_leader_medium_bp = Blueprint(
     'data_query_super_leader_medium', __name__, template_folder='../../templates/data_query')
@@ -36,17 +37,17 @@ def _get_medium_moneys(orders, pre_monthes, medium_id):
                 a_rebate = sum([k['medium_money2'] / len(k['locations']) *
                                 k['agent_rebate'] / 100 for k in location_orders])
                 profit = sale_money - m_ex_money - a_rebate
-                money_obj['sale_money'].append(sale_money)
-                money_obj['money2'].append(money2)
-                money_obj['m_ex_money'].append(m_ex_money)
-                money_obj['a_rebate'].append(a_rebate)
-                money_obj['profit'].append(profit)
+                money_obj['sale_money'].append(round(sale_money, 2))
+                money_obj['money2'].append(round(money2, 2))
+                money_obj['m_ex_money'].append(round(m_ex_money, 2))
+                money_obj['a_rebate'].append(round(a_rebate, 2))
+                money_obj['profit'].append(round(profit, 2))
             else:
-                money_obj['sale_money'].append(0)
-                money_obj['money2'].append(0)
-                money_obj['m_ex_money'].append(0)
-                money_obj['a_rebate'].append(0)
-                money_obj['profit'].append(0)
+                money_obj['sale_money'].append(0.0)
+                money_obj['money2'].append(0.0)
+                money_obj['m_ex_money'].append(0.0)
+                money_obj['a_rebate'].append(0.0)
+                money_obj['profit'].append(0.0)
     return money_obj
 
 
@@ -76,15 +77,15 @@ def money():
                 rebate = sum(
                     [k.money / len(k.locations) * k.douban_order.agent_rebate / 100 for k in location_orders])
                 profit = in_money - rebate
-                douban_money['ex_money'].append(ex_money)
-                douban_money['in_money'].append(in_money)
-                douban_money['rebate'].append(rebate)
-                douban_money['profit'].append(profit)
+                douban_money['ex_money'].append(round(ex_money, 2))
+                douban_money['in_money'].append(round(in_money, 2))
+                douban_money['rebate'].append(round(rebate, 2))
+                douban_money['profit'].append(round(profit, 2))
             else:
-                douban_money['ex_money'].append(0)
-                douban_money['in_money'].append(0)
-                douban_money['rebate'].append(0)
-                douban_money['profit'].append(0)
+                douban_money['ex_money'].append(0.0)
+                douban_money['in_money'].append(0.0)
+                douban_money['rebate'].append(0.0)
+                douban_money['profit'].append(0.0)
     medium_orders = MediumOrderExecutiveReport.query.filter(
         MediumOrderExecutiveReport.month_day >= start_date_month,
         MediumOrderExecutiveReport.month_day <= end_date_month)
@@ -103,10 +104,29 @@ def money():
     kecheng_money = _get_medium_moneys(medium_orders, pre_monthes, 4)
     midi_money = _get_medium_moneys(medium_orders, pre_monthes, 21)
     other_money = _get_medium_moneys(medium_orders, pre_monthes, None)
+    total = sum([i for k in douban_money.values() for i in k] +
+                [i for k in youli_money.values() for i in k] +
+                [i for k in momo_money.values() for i in k] +
+                [i for k in zhihu_money.values() for i in k] +
+                [i for k in xiachufang_money.values() for i in k] +
+                [i for k in xueqiu_money.values() for i in k] +
+                [i for k in huxiu_money.values() for i in k] +
+                [i for k in kecheng_money.values() for i in k] +
+                [i for k in midi_money.values() for i in k] +
+                [i for k in other_money.values() for i in k] +
+                [i for k in wuxian_money.values() for i in k])
+    if request.values.get('action', '') == 'download':
+        response = write_medium_money_excel(pre_monthes=pre_monthes, douban_money=douban_money,
+                                            youli_money=youli_money, wuxian_money=wuxian_money,
+                                            momo_money=momo_money, zhihu_money=zhihu_money,
+                                            xiachufang_money=xiachufang_money, xueqiu_money=xueqiu_money,
+                                            huxiu_money=huxiu_money, kecheng_money=kecheng_money,
+                                            midi_money=midi_money, other_money=other_money, total=total)
+        return response
     return tpl('/data_query/super_leader/medium_money.html',
                pre_monthes=pre_monthes, douban_money=douban_money,
                youli_money=youli_money, wuxian_money=wuxian_money,
                momo_money=momo_money, zhihu_money=zhihu_money,
                xiachufang_money=xiachufang_money, xueqiu_money=xueqiu_money,
                huxiu_money=huxiu_money, kecheng_money=kecheng_money,
-               midi_money=midi_money, other_money=other_money)
+               midi_money=midi_money, other_money=other_money, total=total)
