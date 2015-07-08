@@ -20,6 +20,13 @@ def write_douban_order_excel(orders, year, month):
             str(month) + u'月执行额', str(month) + u'月支付代理返点', str(month) + u'月合同利润', u'合同开始', u'合同结束']
     for k in range(len(keys)):
         worksheet.write(0, 0 + k, keys[k], align_left)
+    # 设置宽度为30
+    for k in range(18):
+        worksheet.set_column(k, 0, 15)
+    # 设置高度
+    for k in range(0, len(orders) + 1):
+        worksheet.set_row(k, 20)
+
     th = 1
     for k in range(len(orders)):
         worksheet.write(th, 0, orders[k].locations_cn, align_left)
@@ -71,6 +78,14 @@ def write_order_excel(orders, year, month):
             str(month) + u'月合同利润', u'合同开始', u'合同结束']
     for k in range(len(keys)):
         worksheet.write(0, 0 + k, keys[k], align_left)
+
+    # 设置宽度为30
+    for k in range(18):
+        worksheet.set_column(k, 0, 15)
+    # 设置高度
+    for k in range(0, len(orders) + 1):
+        worksheet.set_row(k, 20)
+
     th = 1
     for k in range(len(orders)):
         mediums = orders[k].medium_orders
@@ -92,11 +107,11 @@ def write_order_excel(orders, year, month):
             worksheet.merge_range(th, 7, th + len(mediums) - 1, 7,
                                   orders[k].rebate_agent_by_month(year, month), align_left)
             worksheet.merge_range(
-                th, 13, th + len(mediums) - 1, 14, orders[k].profit_money(year, month), align_left)
+                th, 14, th + len(mediums) - 1, 14, orders[k].profit_money(year, month), align_left)
             worksheet.merge_range(
-                th, 14, th + len(mediums) - 1, 15, orders[k].start_date_cn, align_left)
+                th, 15, th + len(mediums) - 1, 15, orders[k].start_date_cn, align_left)
             worksheet.merge_range(
-                th, 15, th + len(mediums) - 1, 16, orders[k].end_date_cn, align_left)
+                th, 16, th + len(mediums) - 1, 16, orders[k].end_date_cn, align_left)
             for i in range(len(mediums)):
                 worksheet.write(th, 8, mediums[i].medium.name, align_left)
                 worksheet.write(th, 9, mediums[i].get_executive_report_medium_money_by_month(
