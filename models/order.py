@@ -541,7 +541,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return self.medium.rebate_by_year(self.medium_start.year)
 
     def rebate_medium_by_month(self, year, month):
-        rebate = self.medium.rebate_by_year(self.medium_start.year)
+        rebate = self.medium.rebate_by_year(year)
         ex_monety = self.get_executive_report_medium_money_by_month(year, month, 'normal')['medium_money2']
         return ex_monety * rebate / 100
 

@@ -40,7 +40,10 @@ class Group(db.Model, BaseModelMixin):
         self.name = name
 
     def get_agent_count(self):
-        return Agent.query.filter_by(group=self).count()
+        return Agent.query.filter_by(group_id=self.id).count()
+
+    def get_framework_order_count(self):
+        return FrameworkOrder.query.filter_by(group_id=self.id).count()
 
     @classmethod
     def name_exist(cls, name):
@@ -103,16 +106,16 @@ class Agent(db.Model, BaseModelMixin):
         return 0
 
     def get_client_order_count(self):
-        return ClientOrder.query.filter_by(agent=self).count()
+        return ClientOrder.query.filter_by(agent_id=self.id).count()
 
     def get_douban_order_count(self):
-        return DoubanOrder.query.filter_by(agent=self).count()
+        return DoubanOrder.query.filter_by(agent_id=self.id).count()
 
     def get_framework_order_count(self):
         return len([k for k in FrameworkOrder.all() if self in k.agents])
 
     def get_agent_invoice_count(self):
-        return AgentInvoice.query.filter_by(agent=self).count()
+        return AgentInvoice.query.filter_by(agent_id=self.id).count()
 
 
 class AgentRebate(db.Model, BaseModelMixin):

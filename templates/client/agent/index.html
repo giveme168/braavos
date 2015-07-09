@@ -1,5 +1,5 @@
 {% extends "/client_base.html" %}
-{% block title %}甲方全称{% endblock %}
+{% block title %}代理/直客全称{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box">
@@ -15,10 +15,6 @@
             <th>操作</th>
             {% endif %}
             {% if g.user.is_super_leader() %}
-            <th>媒体合同关联个数</th>
-            <th>直签豆瓣合同关联个数</th>
-            <th>框架合同关联个数</th>
-            <th>关联甲方返点发票个数</th>
             <th>整理操作</th>
             {% endif %}
         </tr>
@@ -31,10 +27,6 @@
                 <td><a href="{{url_for('client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
             {% endif %}
             {% if g.user.is_super_leader() %}
-            <th>{{a.get_client_order_count()}}</th>
-            <th>{{a.get_douban_order_count()}}</th>
-            <th>{{a.get_framework_order_count()}}</th>
-            <th>{{a.get_agent_invoice_count()}}</th>
             <th>
                 {% if a.get_client_order_count() + a.get_douban_order_count() + a.get_framework_order_count() + a.get_agent_invoice_count() == 0 %}
                 <a href="{{url_for('client.agent_delete', agent_id=a.id)}}">删除</a>

@@ -11,7 +11,7 @@
             <th>#id</th>
             <th>名称</th>
             <th>媒体团队</th>
-            {% if g.user.is_media() %}
+            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
             <th>操作</th>
             {% endif %}
         </tr>
