@@ -11,7 +11,7 @@
             <th>#id</th>
             <th>名称</th>
             <th>所属集团</th>
-            {% if g.user.is_contract() %}
+            {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_media_leader() %}
             <th>操作</th>
             {% endif %}
             {% if g.user.is_super_leader() %}
@@ -19,6 +19,7 @@
             <th>直签豆瓣合同关联个数</t>
             <th>框架合同关联个数</th>
             <th>关联甲方返点发票个数</th>
+            <th>整理操作</th>
             {% endif %}
         </tr>
         {% for a in agents %}
@@ -34,6 +35,11 @@
             <th>{{a.get_douban_order()|length}}</th>
             <th>{{a.get_framework_order()|length}}</th>
             <th>{{a.get_agent_invoice()|length}}</th>
+            <th>
+                {% if a.get_client_order()|length + a.get_douban_order()|length + a.get_framework_order()|length + a.get_agent_invoice()|length == 0 %}
+                <a href="{{url_for('client.agent_delete', agent_id=a.id)}}">删除</a>
+                {% endif %}
+            </th>
             {% endif %}
         </tr>
         {% endfor %}
