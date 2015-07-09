@@ -39,6 +39,9 @@ class Group(db.Model, BaseModelMixin):
     def __init__(self, name):
         self.name = name
 
+    def get_agent_count(self):
+        return Agent.query.filter_by(group=self).count()
+
     @classmethod
     def name_exist(cls, name):
         is_exist = Group.query.filter_by(name=name).count() > 0
@@ -99,17 +102,17 @@ class Agent(db.Model, BaseModelMixin):
             return rebate[0].douban_rebate
         return 0
 
-    def get_client_order(self):
-        return list(ClientOrder.query.filter_by(agent=self))
+    def get_client_order_count(self):
+        return ClientOrder.query.filter_by(agent=self).count()
 
-    def get_douban_order(self):
-        return list(DoubanOrder.query.filter_by(agent=self))
+    def get_douban_order_count(self):
+        return DoubanOrder.query.filter_by(agent=self).count()
 
-    def get_framework_order(self):
-        return list([k for k in FrameworkOrder.all() if self in k.agents])
+    def get_framework_order_count(self):
+        return len([k for k in FrameworkOrder.all() if self in k.agents])
 
-    def get_agent_invoice(self):
-        return list(AgentInvoice.query.filter_by(agent=self))
+    def get_agent_invoice_count(self):
+        return AgentInvoice.query.filter_by(agent=self).count()
 
 
 class AgentRebate(db.Model, BaseModelMixin):
