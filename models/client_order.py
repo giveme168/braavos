@@ -246,6 +246,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         for medium_order in self.medium_orders:
             if medium_order.medium == medium:
                 return medium_order.get_medium_rebate_money()
+        return 0.0
 
     @property
     def agent_money(self):
