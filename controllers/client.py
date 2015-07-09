@@ -111,6 +111,13 @@ def client_detail(client_id):
     return tpl('client.html', form=form, title=u"客户-" + client.name)
 
 
+@client_bp.route('/agent/<agent_id>/delete', methods=['GET', 'POST'])
+def agent_delete(agent_id):
+    Agent.get(agent_id).delete()
+    flash(u'删除成功', 'success')
+    return redirect(url_for('client.agents'))
+
+
 @client_bp.route('/agent/<agent_id>', methods=['GET', 'POST'])
 def agent_detail(agent_id):
     agent = Agent.get(agent_id)
