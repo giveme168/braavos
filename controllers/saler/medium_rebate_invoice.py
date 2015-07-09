@@ -75,7 +75,7 @@ def get_invoice_from(client_order, invoice=None):
 
 
 @saler_medium_rebate_invoice_bp.route('/<order_id>/order/new', methods=['POST'])
-def new_invoice(order_id):
+def new_invoice(order_id, redirect_epoint='saler_medium_rebate_invoice.index'):
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
@@ -83,10 +83,12 @@ def new_invoice(order_id):
     form.client_order.choices = [(order.id, order.client.name)]
     form.medium.choices = [(medium.id, medium.name) for medium in order.mediums]
     if request.method == 'POST' and form.validate():
-        if float(form.money.data) > float(order.mediums_rebate_money - order.mediums_rebate_invoice_apply_sum
-                                          - order.mediums_rebate_invoice_pass_sum):
+        medium = Medium.get(form.medium.data)
+        if float(form.money.data) > float(order.get_medium_rebate_money(medium) -
+                                          order.get_medium_rebate_invoice_apply_sum(medium) -
+                                          order.get_medium_rebate_invoice_pass_sum(medium)):
             flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
-            return redirect(url_for("saler_medium_rebate_invoice.index", order_id=order_id))
+            return redirect(url_for(redirect_epoint, order_id=order_id))
         invoice = MediumRebateInvoice.add(client_order=order,
                                           medium=Medium.get(form.medium.data),
                                           company=form.company.data,
@@ -102,12 +104,13 @@ def new_invoice(order_id):
                                           creator=g.user,
                                           invoice_num=" ",
                                           back_time=form.back_time.data)
+        invoice.save()
         order.add_comment(g.user, u"添加发票申请信息：%s" % (
             u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=6)
     else:
         for k in form.errors:
             flash(u"新建发票失败，%s" % (form.errors[k][0]), 'danger')
-    return redirect(url_for("saler_medium_rebate_invoice.index", order_id=order_id))
+    return redirect(url_for(redirect_epoint, order_id=order_id))
 
 
 @saler_medium_rebate_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
