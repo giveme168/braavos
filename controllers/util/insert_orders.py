@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from flask import Blueprint, request, g, flash, redirect, abort
+from flask import Blueprint, request, g, flash, redirect, abort, url_for
 from flask import render_template as tpl
 
 from forms.order import ClientOrderForm
@@ -27,6 +27,9 @@ def index():
     form = ClientOrderForm(request.form)
     mediums = [(m.id, m.name) for m in Medium.all()]
     if request.method == 'POST' and form.validate():
+        if ClientOrder.query.filter_by(contract=request.values.get('contract')).count() > 0:
+            flash(u'合同号已存在', 'danger')
+            return redirect(url_for('util_insert_orders.index'))
         order = ClientOrder.add(agent=Agent.get(form.agent.data),
                                 client=Client.get(form.client.data),
                                 campaign=form.campaign.data,
