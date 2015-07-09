@@ -27,11 +27,13 @@ def index():
         now_year + '-' + str(Q_monthes[0]), '%Y-%m')
     end_month_day = datetime.datetime.strptime(
         now_year + '-' + str(Q_monthes[-1]), '%Y-%m')
-    outsources = OutSourceExecutiveReport.query.filter(OutSourceExecutiveReport.month_day >= start_month_day,
-                                                       OutSourceExecutiveReport.month_day <= end_month_day,
-                                                       OutSourceExecutiveReport.contract_status not in [7, 8, 9],
-                                                       OutSourceExecutiveReport.order_status == 1)
+    outsources = [k for k in OutSourceExecutiveReport.query.filter(
+        OutSourceExecutiveReport.month_day >= start_month_day,
+        OutSourceExecutiveReport.month_day <= end_month_day)
+        if k.contract_status not in [7, 8, 9] and k.order_status == 1]
+    # 所有外包分类
     types = [1, 2, 3, 4, 5, 6, 7]
+
     monthes_data = {}
     for k in types:
         monthes_data[str(k)] = []
@@ -44,12 +46,12 @@ def index():
         t_huanan_num = 0
         for i in types:
             num_data = {}
-            num_data['huabei'] = sum([j.pay_num for j in outsources.filter_by(month_day=month_day,
-                                                                              type=i) if j.is_location(1)])
-            num_data['huadong'] = sum([j.pay_num for j in outsources.filter_by(month_day=month_day,
-                                                                               type=i) if j.is_location(2)])
-            num_data['huanan'] = sum([j.pay_num for j in outsources.filter_by(
-                month_day=month_day, type=i) if j.is_location(3)])
+            num_data['huabei'] = sum(
+                [j.pay_num for j in outsources if j.month_day == month_day and j.type == i and j.is_location(1)])
+            num_data['huadong'] = sum(
+                [j.pay_num for j in outsources if j.month_day == month_day and j.type == i and j.is_location(2)])
+            num_data['huanan'] = sum(
+                [j.pay_num for j in outsources if j.month_day == month_day and j.type == i and j.is_location(3)])
             t_huabei_num += num_data['huabei']
             t_huadong_num += num_data['huadong']
             t_huanan_num += num_data['huanan']

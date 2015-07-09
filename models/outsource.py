@@ -391,10 +391,10 @@ class OutSourceExecutiveReport(db.Model, BaseModelMixin):
 
     def is_location(self, location):
         if self.otype == 1:
-            order = OutSource.get(self.outsource_id).medium_order
+            order = OutSource.get(self.outsource_id).medium_order.client_order
         else:
             order = DoubanOutSource.get(self.outsource_id).douban_order
-        locations = [k.team.location for k in order.operaters]
+        locations = order.locations
         return location in locations
 
     @property
