@@ -87,7 +87,7 @@ def new_invoice(order_id, redirect_epoint='saler_medium_rebate_invoice.index'):
         if float(form.money.data) > float(order.get_medium_rebate_money(medium) -
                                           order.get_medium_rebate_invoice_apply_sum(medium) -
                                           order.get_medium_rebate_invoice_pass_sum(medium)):
-            flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
+            flash(u"新建发票失败，您申请的发票超过了媒体:%s 返点金额: %s" % (medium.name, order.get_medium_rebate_money(medium)), 'danger')
             return redirect(url_for(redirect_epoint, order_id=order_id))
         invoice = MediumRebateInvoice.add(client_order=order,
                                           medium=Medium.get(form.medium.data),

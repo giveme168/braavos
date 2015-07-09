@@ -1,14 +1,14 @@
 """add model MediumRebateInvoice
 
-Revision ID: 22d3fc324b59
-Revises: 2a3a99449ad3
-Create Date: 2015-07-03 17:09:55.457864
+Revision ID: 3aee0a8689b8
+Revises: 272cc4af8f0b
+Create Date: 2015-07-09 17:02:36.047535
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '22d3fc324b59'
-down_revision = '2a3a99449ad3'
+revision = '3aee0a8689b8'
+down_revision = '272cc4af8f0b'
 
 from alembic import op
 import sqlalchemy as sa
