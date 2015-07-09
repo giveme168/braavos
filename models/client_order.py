@@ -9,7 +9,7 @@ from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import ITEM_STATUS_LEADER_ACTIONS
 from .user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
-from invoice import Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice, AgentInvoicePay
+from invoice import Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice, AgentInvoicePay, MediumRebateInvoice
 from libs.mail import mail
 from libs.date_helpers import get_monthes_pre_days
 
@@ -242,6 +242,12 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def mediums_rebate_money(self):
         return sum([medium_order.get_medium_rebate_money() for medium_order in self.medium_orders])
 
+    def get_medium_rebate_money(self, medium):
+        for medium_order in self.medium_orders:
+            if medium_order.medium == medium:
+                return medium_order.get_medium_rebate_money()
+        return 0.0
+
     @property
     def agent_money(self):
         inad_rebate = self.agent.inad_rebate_by_year(year=self.start_date.year)
@@ -276,8 +282,12 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def agent_invoice_pass_sum(self):
+        money = 0.0
         invoices = AgentInvoice.query.filter_by(client_order_id=self.id)
-        return sum([k.money for k in AgentInvoicePay.all() if k.pay_status == 0 and k.agent_invoice in invoices])
+        for invoice in invoices:
+            for invoice_pay in AgentInvoicePay.query.filter_by(pay_status=0, agent_invoice=invoice):
+                money += invoice_pay.money
+        return money
 
     @property
     def agents_invoice_pass_sum(self):
@@ -285,6 +295,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def get_invoice_by_status(self, type):
         return [invoice for invoice in self.invoices if invoice.invoice_status == type]
+
+    def get_medium_rebate_invoice_by_status(self, invoice_status):
+        return [medium_rebate_invoice for medium_rebate_invoice in self.mediumrebateinvoices
+                if medium_rebate_invoice.invoice_status == invoice_status]
 
     def get_medium_invoice_pay_by_status(self, type):
         return [k for k in MediumInvoicePay.all()
@@ -330,9 +344,27 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                     if k.invoice_status == 3])
 
     @property
+    def mediums_rebate_invoice_apply_sum(self):
+        return sum([invoice.money for invoice in MediumRebateInvoice.query.filter_by(client_order_id=self.id)
+                    if invoice.invoice_status == 3])
+
+    def get_medium_rebate_invoice_apply_sum(self, medium):
+        return sum([invoice.money for invoice in MediumRebateInvoice.query.filter_by(client_order_id=self.id,
+                                                                                     invoice_status=3, medium=medium)])
+
+    @property
     def invoice_pass_sum(self):
         return sum([k.money for k in Invoice.query.filter_by(client_order_id=self.id)
                     if k.invoice_status == 0])
+
+    @property
+    def mediums_rebate_invoice_pass_sum(self):
+        return sum([invoice.money for invoice in MediumRebateInvoice.query.filter_by(client_order_id=self.id)
+                    if invoice.invoice_status == 0])
+
+    def get_medium_rebate_invoice_pass_sum(self, medium):
+        return sum([invoice.money for invoice in MediumRebateInvoice.query.filter_by(client_order_id=self.id,
+                                                                                     invoice_status=0, medium=medium)])
 
     @property
     def invoice_percent(self):
@@ -531,6 +563,21 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                        order_id=self.id,
                        attachment_id=attachment.id,
                        status=ATTACHMENT_STATUS_REJECT)
+
+    def saler_medium_invoice_path(self):
+        return url_for("saler_medium_invoice.index", order_id=self.id)
+
+    def finance_medium_invoice_path(self):
+        return url_for("finance_medium_pay.info", order_id=self.id)
+
+    def saler_agent_invoice_path(self):
+        return url_for("saler_agent_invoice.index", order_id=self.id)
+
+    def finance_agent_invoice_path(self):
+        return url_for("finance_agent_pay.info", order_id=self.id)
+
+    def saler_medium_rebate_invoice_path(self):
+        return url_for("saler_medium_rebate_invoice.index", order_id=self.id)
 
     @classmethod
     def contract_exist(cls, contract):

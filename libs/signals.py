@@ -193,10 +193,7 @@ def invoice_apply(sender, apply_context):
     invoices = apply_context['invoices']
     invoice_info = "\n".join(
         [u'发票信息: ' + o.detail + u'; 发票金额' + str(o.money) for o in invoices])
-    if apply_context['send_type'] == "saler":
-        url = mail.app.config['DOMAIN'] + order.saler_invoice_path()
-    else:
-        url = mail.app.config['DOMAIN'] + order.finance_invoice_path()
+    url = mail.app.config['DOMAIN'] + apply_context['url']
     text = u"""%s
 订单: %s
 合同号: %s

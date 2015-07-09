@@ -6,33 +6,31 @@ from flask import render_template as tpl
 
 from models.user import User, TEAM_LOCATION_CN
 from models.client_order import ClientOrder, CONTRACT_STATUS_CN
-from models.invoice import (Invoice, INVOICE_STATUS_CN,
+from models.invoice import (MediumRebateInvoice, INVOICE_STATUS_CN,
                             INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
                             INVOICE_STATUS_APPLYPASS)
 from libs.signals import invoice_apply_signal
 from libs.paginator import Paginator
-from forms.invoice import InvoiceForm
-from controllers.finance.helpers.invoice_helpers import write_excel
+from controllers.finance.helpers.invoice_helpers import write_medium_rebate_invoice_excel
 from controllers.tools import get_download_response
+from controllers.saler.medium_rebate_invoice import get_invoice_from, new_invoice as _new_invoice
 
-
-finance_invoice_bp = Blueprint(
-    'finance_invoice', __name__, template_folder='../../templates/finance')
-
+finance_medium_rebate_invoice_bp = Blueprint(
+    'finance_medium_rebate_invoice', __name__, template_folder='../../templates/finance')
 
 ORDER_PAGE_NUM = 50
 
 
-@finance_invoice_bp.route('/', methods=['GET'])
+@finance_medium_rebate_invoice_bp.route('/', methods=['GET'])
 def index():
     if not g.user.is_finance():
         abort(404)
     orders = set([
-        invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
-    return tpl('/finance/invoice/index.html', orders=orders)
+        invoice.client_order for invoice in MediumRebateInvoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
+    return tpl('/finance/medium_rebate_invoice/index.html', orders=orders)
 
 
-@finance_invoice_bp.route('/pass', methods=['GET'])
+@finance_medium_rebate_invoice_bp.route('/pass', methods=['GET'])
 def index_pass():
     if not g.user.is_finance():
         abort(404)
@@ -60,20 +58,20 @@ def index_pass():
         orders = paginator.page(paginator.num_pages)
     type = request.args.get('type', '')
     if type == 'excel':
-        orders = set([invoice.client_order for invoice in Invoice.get_invoices_status(
+        orders = set([invoice.client_order for invoice in MediumRebateInvoice.get_invoices_status(
             INVOICE_STATUS_PASS)])
-        xls = write_excel(list(orders))
+        xls = write_medium_rebate_invoice_excel(list(orders))
         response = get_download_response(
-            xls, ("%s-%s.xls" % (u"申请过的发票信息", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
+            xls, ("%s-%s.xls" % (u"申请过的媒体返点发票信息", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
         return response
-    return tpl('/finance/invoice/index_pass.html', orders=orders, locations=select_locations,
+    return tpl('/finance/medium_rebate_invoice/index_pass.html', orders=orders, locations=select_locations,
                location_id=location_id, statuses=select_statuses, orderby=orderby,
                now_date=datetime.date.today(), search_info=search_info, page=page,
                params='&orderby=%s&searchinfo=%s&selected_location=%s' %
                       (orderby, search_info, location_id))
 
 
-@finance_invoice_bp.route('/<order_id>/info', methods=['GET'])
+@finance_medium_rebate_invoice_bp.route('/<order_id>/info', methods=['GET'])
 def info(order_id):
     if not g.user.is_finance():
         abort(404)
@@ -81,66 +79,28 @@ def info(order_id):
     if not order:
         abort(404)
     invoices_data = {
-        'PASS': [{'invoice': x, 'form': get_invoice_from(x)} for x in
-                 Invoice.query.filter_by(client_order=order) if x.invoice_status == INVOICE_STATUS_PASS],
-        'APPLYPASS': [{'invoice': x, 'form': get_invoice_from(x)} for x in
-                      Invoice.query.filter_by(client_order=order) if x.invoice_status == INVOICE_STATUS_APPLYPASS],
+        'PASS': [{'invoice': x, 'form': get_invoice_from(order, x)} for x in
+                 MediumRebateInvoice.query.filter_by(client_order=order) if x.invoice_status == INVOICE_STATUS_PASS],
+        'APPLYPASS': [{'invoice': x, 'form': get_invoice_from(order, x)} for x in
+                      MediumRebateInvoice.query.filter_by(client_order=order)
+                      if x.invoice_status == INVOICE_STATUS_APPLYPASS],
     }
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
-    new_invoice_form = InvoiceForm()
-    new_invoice_form.client_order.choices = [(order.id, order.client.name)]
-    new_invoice_form.company.data = order.agent.name
-    new_invoice_form.bank.data = order.agent.bank
-    new_invoice_form.bank_id.data = order.agent.bank_num
-    new_invoice_form.address.data = order.agent.address
-    new_invoice_form.phone.data = order.agent.phone_num
-    new_invoice_form.tax_id.data = order.agent.tax_num
-    new_invoice_form.back_time.data = datetime.date.today()
-    return tpl('/finance/invoice/info.html', order=order,
+    new_invoice_form = get_invoice_from(order, invoice=None)
+    return tpl('/finance/medium_rebate_invoice/info.html', order=order,
                invoices_data=invoices_data, INVOICE_STATUS_CN=INVOICE_STATUS_CN,
                reminder_emails=reminder_emails, INVOICE_TYPE_CN=INVOICE_TYPE_CN,
                new_invoice_form=new_invoice_form)
 
 
-@finance_invoice_bp.route('/<order_id>/order/new', methods=['POST'])
-def new_invoice(order_id):
-    order = ClientOrder.get(order_id)
-    if not order:
-        abort(404)
-    form = InvoiceForm(request.form)
-    form.client_order.choices = [(order.id, order.client.name)]
-    if request.method == 'POST' and form.validate():
-        if int(form.money.data) > (int(order.money) - int(order.invoice_apply_sum) - int(order.invoice_pass_sum)):
-            flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
-            return redirect(url_for("saler_invoice.index", order_id=order_id))
-        invoice = Invoice.add(client_order=order,
-                              company=form.company.data,
-                              tax_id=form.tax_id.data,
-                              address=form.address.data,
-                              phone=form.phone.data,
-                              bank_id=form.bank_id.data,
-                              bank=form.bank.data,
-                              detail=form.detail.data,
-                              money=form.money.data,
-                              invoice_type=form.invoice_type.data,
-                              creator=g.user,
-                              invoice_status=0,
-                              invoice_num=request.values.get(
-                                  'new_invoice_num', ''),
-                              back_time=form.back_time.data)
-        invoice.save()
-        flash(u'开发票(%s)成功!' % form.company.data, 'success')
-        order.add_comment(g.user, u"已开发票信息：%s" % (
-            u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=1)
-    else:
-        for k in form.errors:
-            flash(u"新建发票失败，%s" % (form.errors[k][0]), 'danger')
-    return redirect(url_for("finance_invoice.info", order_id=order.id))
+@finance_medium_rebate_invoice_bp.route('/<order_id>/order/new', methods=['POST'])
+def new_invoice(order_id, redirect_epoint='finance_medium_rebate_invoice.info'):
+    return _new_invoice(order_id, redirect_epoint)
 
 
-@finance_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
+@finance_medium_rebate_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
 def update_invoice(invoice_id):
-    invoice = Invoice.get(invoice_id)
+    invoice = MediumRebateInvoice.get(invoice_id)
     if not invoice:
         abort(404)
     if request.method == 'POST':
@@ -151,7 +111,9 @@ def update_invoice(invoice_id):
         invoice_num = request.values.get('edit_invoice_num', '')
         invoice_type = request.values.get('invoice_type', 0)
         if not tax_id:
-            flash(u"修改发票失败，公司名称不能为空", 'danger')
+            flash(u"修改发票失败，税号不能为空", 'danger')
+        elif not company:
+            flash(u"修改发票失败, 公司名称不能为空", 'danger')
         elif not detail:
             flash(u"修改发票失败，发票内容不能为空", 'danger')
         elif not money:
@@ -168,15 +130,15 @@ def update_invoice(invoice_id):
             invoice.save()
             flash(u'修改发票(%s)成功!' % company, 'success')
             invoice.client_order.add_comment(g.user, u"修改发票信息,%s" % (
-                u'发票内容: %s; 发票号: %s; 发票金额: %s元' % (invoice.detail, invoice_num, str(invoice.money))), msg_channel=1)
-    return redirect(url_for("finance_invoice.info", order_id=invoice.client_order.id))
+                u'发票内容: %s; 发票号: %s; 发票金额: %s元' % (invoice.detail, invoice_num, str(invoice.money))), msg_channel=6)
+    return redirect(url_for("finance_medium_rebate_invoice.info", order_id=invoice.client_order.id))
 
 
-@finance_invoice_bp.route('/<invoice_id>/invoice_num', methods=['POST'])
+@finance_medium_rebate_invoice_bp.route('/<invoice_id>/invoice_num', methods=['POST'])
 def invoice_num(invoice_id):
     if not g.user.is_finance():
         abort(404)
-    invoice = Invoice.get(invoice_id)
+    invoice = MediumRebateInvoice.get(invoice_id)
     if not invoice:
         abort(404)
     invoice_num = request.values.get('invoice_num', '')
@@ -184,19 +146,19 @@ def invoice_num(invoice_id):
     invoice.save()
     flash(u'保存成功!', 'success')
     invoice.client_order.add_comment(
-        g.user, u"%s" % (u'更新了发票号: %s;' % (invoice.invoice_num)), msg_channel=1)
-    return redirect(url_for("finance_invoice.info", order_id=invoice.client_order.id))
+        g.user, u"%s" % (u'更新了发票号: %s;' % (invoice.invoice_num)), msg_channel=6)
+    return redirect(url_for("finance_medium_rebate_invoice.info", order_id=invoice.client_order.id))
 
 
-@finance_invoice_bp.route('/<invoice_id>/pass', methods=['POST'])
+@finance_medium_rebate_invoice_bp.route('/<invoice_id>/pass', methods=['POST'])
 def pass_invoice(invoice_id):
     if not g.user.is_finance():
         abort(404)
-    invoice = Invoice.get(invoice_id)
+    invoice = MediumRebateInvoice.get(invoice_id)
     if not invoice:
         abort(404)
     invoices_ids = request.values.getlist('invoices')
-    invoices = Invoice.gets(invoices_ids)
+    invoices = MediumRebateInvoice.gets(invoices_ids)
     if not invoices:
         abort(403)
     emails = request.values.getlist('email')
@@ -216,7 +178,7 @@ def pass_invoice(invoice_id):
             flash(u'[%s 发票已开，发票金额%s]  %s ' %
                   (invoice.company, invoice.money, action_msg), 'success')
             invoice.client_order.add_comment(g.user, u"%s,%s" % (
-                action_msg, u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=1)
+                action_msg, u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=6)
     else:
         action_msg = u'消息提醒'
 
@@ -233,19 +195,4 @@ def pass_invoice(invoice_id):
         current_app._get_current_object(), apply_context=apply_context)
     flash(u'[%s 发票已开] 已发送邮件给 %s ' %
           (invoice.client_order, ', '.join(to_emails)), 'info')
-    return redirect(url_for("finance_invoice.info", order_id=invoice.client_order.id))
-
-
-def get_invoice_from(invoice):
-    invoice_form = InvoiceForm()
-    invoice_form.client_order.choices = [
-        (invoice.client_order.id, invoice.client_order.client.name)]
-    invoice_form.company.data = invoice.company
-    invoice_form.bank.data = invoice.bank
-    invoice_form.bank_id.data = invoice.bank_id
-    invoice_form.address.data = invoice.address
-    invoice_form.phone.data = invoice.phone
-    invoice_form.tax_id.data = invoice.tax_id
-    invoice_form.money.data = invoice.money
-    invoice_form.detail.data = invoice.detail
-    return invoice_form
+    return redirect(url_for("finance_medium_rebate_invoice.info", order_id=invoice.client_order.id))

@@ -28,7 +28,8 @@ from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.delivery import Delivery
 from models.outsource import OutSourceTarget, OutSource
-from models.invoice import Invoice, AgentInvoice, AgentInvoicePay, MediumInvoice, MediumInvoicePay
+from models.invoice import Invoice, AgentInvoice, AgentInvoicePay, \
+    MediumInvoice, MediumInvoicePay, MediumRebateInvoice
 from models.medium import MediumRebate
 # target_metadata = mymodel.Base.metadata
 from flask import current_app
