@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from flask import Blueprint, request, g, flash, redirect, abort
+from flask import Blueprint, request, g, flash, redirect, abort, url_for
 from flask import render_template as tpl
 
 
@@ -21,6 +21,9 @@ def index():
         abort(402)
     form = DoubanOrderForm(request.form)
     if request.method == 'POST' and form.validate():
+        if DoubanOrder.query.filter_by(contract=request.values.get('contract')).count() > 0:
+            flash(u'合同号已存在', 'danger')
+            return redirect(url_for('util_insert_douban_orders.index'))
         order = DoubanOrder.add(client=Client.get(form.client.data),
                                 agent=Agent.get(form.agent.data),
                                 campaign=form.campaign.data,

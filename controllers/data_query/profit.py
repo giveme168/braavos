@@ -6,14 +6,14 @@ from flask import render_template as tpl
 
 from models.client_order import ClientOrderExecutiveReport
 from models.douban_order import DoubanOrderExecutiveReport
-from controllers.data_query.helpers.finance_helpers import write_order_excel, write_douban_order_excel
+from controllers.data_query.helpers.profit_helpers import write_order_excel, write_douban_order_excel
 
-data_query_finance_bp = Blueprint(
-    'data_query_finance', __name__, template_folder='../../templates/data_query')
+data_query_profit_bp = Blueprint(
+    'data_query_profit', __name__, template_folder='../../templates/data_query')
 
 
-@data_query_finance_bp.route('/order', methods=['GET'])
-def order():
+@data_query_profit_bp.route('/client_order', methods=['GET'])
+def client_order():
     now_date = datetime.datetime.now()
     year = str(request.values.get('year', now_date.year))
     month = str(request.values.get('month', now_date.month))
@@ -25,11 +25,11 @@ def order():
     if request.values.get('action', '') == 'download':
         response = write_order_excel(client_orders, year, month)
         return response
-    return tpl('/data_query/finance/order.html', year=int(year),
+    return tpl('/data_query/profit/client_order.html', year=int(year),
                month=int(month), client_orders=client_orders)
 
 
-@data_query_finance_bp.route('/douban_order', methods=['GET'])
+@data_query_profit_bp.route('/douban_order', methods=['GET'])
 def douban_order():
     now_date = datetime.datetime.now()
     year = str(request.values.get('year', now_date.year))
@@ -42,5 +42,5 @@ def douban_order():
     if request.values.get('action', '') == 'download':
         response = write_douban_order_excel(douban_orders, year, month)
         return response
-    return tpl('/data_query/finance/douban_order.html', year=int(year),
+    return tpl('/data_query/profit/douban_order.html', year=int(year),
                month=int(month), douban_orders=douban_orders)

@@ -2,6 +2,10 @@
 import datetime
 
 from . import db, BaseModelMixin
+from models.client_order import ClientOrder
+from models.douban_order import DoubanOrder
+from models.framework_order import FrameworkOrder
+from models.invoice import AgentInvoice
 from consts import CLIENT_INDUSTRY_CN
 
 
@@ -34,6 +38,12 @@ class Group(db.Model, BaseModelMixin):
 
     def __init__(self, name):
         self.name = name
+
+    def get_agent_count(self):
+        return Agent.query.filter_by(group_id=self.id).count()
+
+    def get_framework_order_count(self):
+        return FrameworkOrder.query.filter_by(group_id=self.id).count()
 
     @classmethod
     def name_exist(cls, name):
@@ -94,6 +104,18 @@ class Agent(db.Model, BaseModelMixin):
         if len(rebate) > 0:
             return rebate[0].douban_rebate
         return 0
+
+    def get_client_order_count(self):
+        return ClientOrder.query.filter_by(agent_id=self.id).count()
+
+    def get_douban_order_count(self):
+        return DoubanOrder.query.filter_by(agent_id=self.id).count()
+
+    def get_framework_order_count(self):
+        return len([k for k in FrameworkOrder.all() if self in k.agents])
+
+    def get_agent_invoice_count(self):
+        return AgentInvoice.query.filter_by(agent_id=self.id).count()
 
 
 class AgentRebate(db.Model, BaseModelMixin):

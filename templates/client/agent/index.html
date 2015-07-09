@@ -1,5 +1,5 @@
 {% extends "/client_base.html" %}
-{% block title %}甲方全称{% endblock %}
+{% block title %}代理/直客全称{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box">
@@ -11,8 +11,11 @@
             <th>#id</th>
             <th>名称</th>
             <th>所属集团</th>
-            {% if g.user.is_contract() %}
+            {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_media_leader() %}
             <th>操作</th>
+            {% endif %}
+            {% if g.user.is_super_leader() %}
+            <th>整理操作</th>
             {% endif %}
         </tr>
         {% for a in agents %}
@@ -20,8 +23,15 @@
             <td>{{a.id}}</td>
             <td><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
             <td><a href="{{url_for("client.group_detail", group_id=a.group.id)}}">{{a.group.name}}</a></td>
-            {% if g.user.is_contract() %}
+            {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_media_leader() %}
                 <td><a href="{{url_for('client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
+            {% endif %}
+            {% if g.user.is_super_leader() %}
+            <th>
+                {% if a.get_client_order_count() + a.get_douban_order_count() + a.get_framework_order_count() + a.get_agent_invoice_count() == 0 %}
+                <a href="{{url_for('client.agent_delete', agent_id=a.id)}}">删除</a>
+                {% endif %}
+            </th>
             {% endif %}
         </tr>
         {% endfor %}

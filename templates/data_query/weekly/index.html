@@ -260,13 +260,17 @@
 </div>
 <script>
     $(function(){
-        $("#Q option[value='{{Q}}']").attr("selected","selected");  
+        //$("#Q option[value='{{Q}}']").attr("selected","selected");
+        $("#Q").val('{{Q}}')
         $("#Q").trigger("chosen:updated");
-        $("#year option[value='{{now_year}}']").attr("selected","selected");  
+        //$("#year option[value='{{now_year}}']").attr("selected","selected");  
+        $("#year").val('{{now_year}}')
         $("#year").trigger("chosen:updated");
-        $("#medium_id option[value='{{medium_id}}']").attr("selected","selected");  
+        //$("#medium_id option[value='{{medium_id}}']").attr("selected","selected");  
+        $("#medium_id").val('{{medium_id}}')
         $("#medium_id").trigger("chosen:updated");
-        $("#location_id option[value='{{location_id}}']").attr("selected","selected");  
+        //$("#location_id option[value='{{location_id}}']").attr("selected","selected");  
+        $("#location_id").val('{{location_id}}')
         $("#location_id").trigger("chosen:updated");
     })
     function download(){

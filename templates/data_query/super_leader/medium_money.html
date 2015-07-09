@@ -1,0 +1,447 @@
+{% extends "/data_query/data_query_base.html" %}
+{% block title %}媒体清单{% endblock %}
+{% block main_box %}
+<div class="bra-main bra-box" style="width:2200px;">
+    <h3>媒体清单&nbsp;&nbsp;<input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();"></h3>
+    <br>
+    <table class="table table-bordered">
+    <tr>
+        <td colspan=2 style="width:15%;">时间</td>
+        {% for k in pre_monthes %}
+        <td colspan=3>{{k.month.month}}月</td>
+        {% endfor %}
+        <td>总计</td>
+    </tr>
+    <tr>
+        <td colspan=2>媒体项目</td>
+        {% for k in pre_monthes %}
+        <td>华北</td>
+        <td>华东</td>
+        <td>华南</td>
+        {% endfor %}
+        <td></td>
+    </tr>
+    <tr>
+        <td rowspan=66>致趣收入</td>
+        <td  style="background-color:#CCFF99;">豆瓣执行收入</td>
+        {% for k in douban_money.ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ douban_money.ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣服务费收入计提</td> 
+        {% for k in douban_money.in_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ douban_money.in_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣返点成本</td> 
+        {% for k in douban_money.rebate %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ douban_money.rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣毛利</td> 
+        {% for k in douban_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ douban_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣收入(优力互动)</td>
+        {% for k in youli_money.sale_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ youli_money.sale_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣媒体合同金额(优力互动)</td> 
+        {% for k in youli_money.money2 %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ youli_money.money2|sum() }}</td>
+    </tr>
+
+
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣媒体净成本(优力互动)</td> 
+        {% for k in youli_money.m_ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ youli_money.m_ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣代理成本(优力互动)</td> 
+        {% for k in youli_money.a_rebate %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ youli_money.a_rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">致趣豆瓣毛利(优力互动)</td> 
+        {% for k in youli_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ youli_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣收入(无线互联)</td>
+        {% for k in wuxian_money.sale_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ wuxian_money.sale_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣媒体合同金额(无线互联)</td> 
+        {% for k in wuxian_money.money2 %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ wuxian_money.money2|sum() }}</td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣媒体净成本(无线互联)</td> 
+        {% for k in wuxian_money.m_ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ wuxian_money.m_ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">豆瓣代理成本(无线互联)</td> 
+        {% for k in wuxian_money.a_rebate %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ wuxian_money.a_rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td  style="background-color:#CCFF99;">致趣豆瓣毛利(无线互联)</td> 
+        {% for k in wuxian_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ wuxian_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#33CCFF;">陌陌收入</td>
+        {% for k in momo_money.sale_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ momo_money.sale_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#33CCFF;">陌陌媒体执行金额</td>
+        {% for k in momo_money.money2 %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ momo_money.money2|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#33CCFF;">陌陌媒体净成本</td> 
+        {% for k in momo_money.m_ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ momo_money.m_ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#33CCFF;">陌陌代理成本</td> 
+        {% for k in momo_money.a_rebate %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ momo_money.a_rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#33CCFF;">陌陌毛利</td> 
+        {% for k in momo_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ momo_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#0066FF;">知乎收入</td>
+        {% for k in zhihu_money.sale_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ zhihu_money.sale_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#0066FF;">知乎媒体执行金额</td> 
+        {% for k in zhihu_money.money2 %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ zhihu_money.money2|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#0066FF;">知乎媒体净成本</td> 
+        {% for k in zhihu_money.m_ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ zhihu_money.m_ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#0066FF;">知乎代理成本</td> 
+        {% for k in zhihu_money.a_rebate %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ zhihu_money.a_rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#0066FF;">知乎毛利</td> 
+        {% for k in zhihu_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ zhihu_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#AA7700;">下厨房收入</td>
+        {% for k in xiachufang_money.sale_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ xiachufang_money.sale_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#AA7700;">下厨房媒体执行金额</td> 
+        {% for k in xiachufang_money.money2 %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ xiachufang_money.money2|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#AA7700;" >下厨房媒体净成本</td> 
+        {% for k in xiachufang_money.m_ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ xiachufang_money.m_ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#AA7700;">下厨房代理成本</td> 
+        {% for k in xiachufang_money.a_rebate %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ xiachufang_money.a_rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#AA7700;">下厨房毛利</td> 
+        {% for k in xiachufang_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ xiachufang_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#007799;">雪球收入</td>
+        {% for k in xueqiu_money.sale_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ xueqiu_money.sale_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#007799;">雪球媒体执行金额</td> 
+        {% for k in xueqiu_money.money2 %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ xueqiu_money.money2|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#007799;">雪球媒体净成本</td> 
+        {% for k in xueqiu_money.m_ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ xueqiu_money.m_ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#007799;">雪球代理成本</td>
+        {% for k in xueqiu_money.a_rebate %}
+        <td>{{k}}</td>
+        {% endfor %} 
+        <td>{{ xueqiu_money.a_rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#007799;">雪球毛利</td> 
+        {% for k in xueqiu_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ xueqiu_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#9F88FF;">虎嗅收入</td>
+        {% for k in huxiu_money.sale_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ huxiu_money.sale_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#9F88FF;">虎嗅媒体执行金额</td>
+        {% for k in huxiu_money.money2 %}
+        <td>{{k}}</td>
+        {% endfor %} 
+        <td>{{ huxiu_money.money2|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#9F88FF;">虎嗅媒体净成本</td> 
+        {% for k in huxiu_money.m_ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ huxiu_money.m_ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#9F88FF;">虎嗅代理成本</td>
+        {% for k in huxiu_money.a_rebate %}
+        <td>{{k}}</td>
+        {% endfor %} 
+        <td>{{ huxiu_money.a_rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#9F88FF;">虎嗅毛利</td> 
+        {% for k in huxiu_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ huxiu_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF8888;">课程格子收入</td>
+        {% for k in kecheng_money.sale_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ kecheng_money.sale_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF8888;">课程格子媒体执行金额</td> 
+        {% for k in kecheng_money.money2 %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ kecheng_money.money2|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF8888;" >课程格子媒体净成本</td> 
+        {% for k in kecheng_money.m_ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ kecheng_money.m_ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF8888;">课程格子代理成本</td> 
+        {% for k in kecheng_money.a_rebate %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ kecheng_money.a_rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF8888;">课程格子毛利</td> 
+        {% for k in kecheng_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ kecheng_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#FFBB00;">迷笛收入</td>
+        {% for k in midi_money.sale_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ midi_money.sale_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FFBB00;">迷笛媒体执行金额</td> 
+        {% for k in midi_money.money2 %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ midi_money.money2|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FFBB00;">迷笛媒体净成本</td> 
+        {% for k in midi_money.m_ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ midi_money.m_ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FFBB00;">迷笛代理成本</td>
+        {% for k in midi_money.a_rebate %}
+        <td>{{k}}</td>
+        {% endfor %} 
+        <td>{{ midi_money.a_rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FFBB00;">迷笛毛利</td> 
+        {% for k in midi_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ midi_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#AAAAAA;">其他收入</td>
+        {% for k in other_money.sale_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ other_money.sale_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#AAAAAA;">其他媒体执行金额</td> 
+        {% for k in other_money.money2 %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ other_money.money2|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#AAAAAA;">其他媒体净成本</td> 
+        {% for k in other_money.m_ex_money %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ other_money.m_ex_money|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#AAAAAA;">其他代理成本</td> 
+        {% for k in other_money.a_rebate %}
+        <td>{{k}}</td>
+        {% endfor %} 
+        <td>{{ other_money.a_rebate|sum() }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#AAAAAA;">其他毛利</td> 
+        {% for k in other_money.profit %}
+        <td>{{k}}</td>
+        {% endfor %}
+        <td>{{ other_money.profit|sum() }}</td>
+    </tr>
+    <tr>
+        <td colspan='{{other_money.profit|length + 1}}'>合计</td>
+        <td>{{total}}</td>
+    </tr>
+</table>
+</div>
+
+<script>
+    function download(){
+         window.location.href = window.location.pathname + '?action=download';
+    }
+</script>
+{% endblock %}

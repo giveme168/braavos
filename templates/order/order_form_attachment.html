@@ -1,6 +1,6 @@
 {% from 'form.html' import form_field %}
 
-{% macro base_order_attachment(order, contract_path, schedule_path) -%}
+{% macro base_order_attachment(order, contract_path, schedule_path, others_path=None) -%}
 <hr>
 <div id="attachment-{{order.kind}}-{{order.id}}">
 <form method="POST" action="{{contract_path}}" enctype="multipart/form-data">
@@ -41,6 +41,23 @@
     {% endif %}
   {% endif %}
 </form>
+{% if order.__tablename__ == 'bra_framework_order' %}
+<form method="POST" action="{{others_path}}" enctype="multipart/form-data">
+  <input class="hide" type="text" name="order" value="{{order.id}}">
+  <input class="file-widget-input hide" type="file" name="file">
+  <button class="file-widget-btn btn btn-sm btn-info">
+    <span>其他附件</span>
+  </button>
+  {% set others = order.get_last_others() %}
+  {% if others %}
+  <a href="{{others.path}}">
+    {{others.filename}}
+    {{others.status_cn}}
+  </a>
+    <a href="{{others.path}}" class="btn btn-sm btn-default">下载</a>
+  {% endif %}
+</form>
+{% endif %}
 <a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">查看历史版本</a>
 </div>
 {%- endmacro %}
@@ -78,7 +95,7 @@ $(function(){
 {%- endmacro %}
 
 {% macro framework_order_attachment(order) -%}
-    {{ base_order_attachment(order, url_for('files.framework_contract_upload'), url_for('files.framework_schedule_upload')) }}
+    {{ base_order_attachment(order, url_for('files.framework_contract_upload'), url_for('files.framework_schedule_upload'), url_for('files.framework_others_upload')) }}
     {{ base_attachment_script() }}
 {%- endmacro %}
 

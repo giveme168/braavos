@@ -19,6 +19,7 @@ files_bp = Blueprint('files', __name__, template_folder='../templates/files')
 FILE_TYPE_CONTRACT = 0
 FILE_TYPE_SCHEDULE = 1
 FILE_TYPE_OUTSOURCE = 3
+FILE_TYPE_OTHERS = 4
 
 
 @files_bp.route('/files/<filename>', methods=['GET'])
@@ -64,6 +65,9 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
             flash(u'资料上传成功', 'success')
             order.add_outsource_attachment(g.user, filename)
             return redirect(order.outsource_path())
+        elif file_type == FILE_TYPE_OTHERS:
+            flash(u'其他资料上传成功', 'success')
+            attachment = order.add_other_attachment(g.user, filename)
         if order.contract_status not in [CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYREJECT,
                                          CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYCONTRACT]:
             contract_email(order, attachment)
@@ -130,6 +134,13 @@ def framework_schedule_upload():
     order_id = request.values.get('order')
     order = FrameworkOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_SCHEDULE)
+
+
+@files_bp.route('/framework/others/upload', methods=['POST'])
+def framework_others_upload():
+    order_id = request.values.get('order')
+    order = FrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_OTHERS)
 
 
 @files_bp.route('/douban/contract/upload', methods=['POST'])

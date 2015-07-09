@@ -1,6 +1,7 @@
 import datetime
 
-from models.attachment import Attachment, ATTACHMENT_TYPE_CONTRACT, ATTACHMENT_TYPE_SCHEDULE, ATTACHMENT_TYPE_OUTSOURCE
+from models.attachment import (Attachment, ATTACHMENT_TYPE_CONTRACT, ATTACHMENT_TYPE_SCHEDULE,
+                               ATTACHMENT_TYPE_OUTSOURCE, ATTACHMENT_TYPE_OTHERS)
 
 
 class AttachmentMixin():
@@ -49,6 +50,20 @@ class AttachmentMixin():
                                           target_id=self.target_id,
                                           attachment_type=ATTACHMENT_TYPE_OUTSOURCE
                                           ).order_by(Attachment.create_time.desc())
+
+    def add_other_attachment(self, user, filename):
+        Attachment.add(self.target_type, self.target_id, filename,
+                       ATTACHMENT_TYPE_OTHERS, user, datetime.datetime.now())
+        return self.get_last_others()
+
+    def get_other_attachments(self):
+        return Attachment.query.filter_by(target_type=self.target_type,
+                                          target_id=self.target_id,
+                                          attachment_type=ATTACHMENT_TYPE_OTHERS
+                                          ).order_by(Attachment.create_time.desc())
+
+    def get_last_others(self):
+        return self.get_other_attachments().first()
 
     def get_last_schedule(self):
         return self.get_schedule_attachments().first()

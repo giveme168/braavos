@@ -1,19 +1,23 @@
 {% extends "/data_query/data_query_base.html" %}
-{% block title %}豆瓣订单执行成本{% endblock %}
+{% block title %}媒体订单执行成本{% endblock %}
 {% macro all_items(orders) -%}
 <table class="table table-bordered">
     <tr>
-        <th>区域</th>
-        <th style="width:160px;">合同号</th>
+        <th>所属区域</th>
+        <th style="width:165px;">合同号</th>
         <th>客户名称</th>
-        <th>代理/直客</th>
+        <th>直客/代理</th>
         <th>项目名称</th>
         <th>合同总金额</th>
-        <th>收入</th>
-        <th>{{month}}月执行额</th>
-        <th>返点成本</th>
-        <th>累计外包成本(已打款)</th>
-        <th>合同利润</th>
+        <th>客户{{month}}月执行额</th>
+        <th>{{month}}月支付代理返点</th>
+        <th style="width:100px;">投放媒体</th>
+        <th>{{month}}月客户金额</th>
+        <th style="width:165px;">媒体合同号</th>
+        <th>媒体合同总金额</th>
+        <th>{{month}}月媒体执行金额</th>
+        <th>{{month}}月媒体返点</th>
+        <th>{{month}}月合同利润</th>
         <th>合同开始</th> 
         <th>合同结束</th> 
     </tr>
@@ -25,10 +29,37 @@
         <td>{{order.agent.name}}</td>
         <td>{{order.campaign}}</td>
         <td>{{order.money}}</td>
-        <td>{{order.income(year, month)}}</td>
         <td>{{order.executive_report(g.user, year, [month], 'normal')[0]}}</td>
-        <td>{{order.rebate_money(year, month, 'cost')}}</td>
-        <td>{{order.outsources_paied_sum}}</td>
+        <td>{{order.rebate_agent_by_month(year, month)}}</td>
+        <td>
+            {% for k in order.medium_orders %}
+            {{ k.name }}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in order.medium_orders %}
+            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').sale_money }}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in order.medium_orders %}
+            {{ k.medium_contract }}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in order.medium_orders %}
+            {{ k.medium_money2  or ''}}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in order.medium_orders %}
+            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').medium_money2 }}<br/>
+            {% endfor %}
+        </td>
+        <td>{% for k in order.medium_orders %}
+            {{k.rebate_medium_by_month(year, month)}}<br/>
+            {% endfor %}
+        </td>
         <td>{{order.profit_money(year, month)}}</td>
         <td>{{order.start_date_cn}}</td>
         <td>{{order.end_date_cn}}</td>
@@ -38,7 +69,7 @@
 {%- endmacro %}
 {% block main_box %}
 <div class="bra-main bra-box" style="width:2200px;">
-    <h3>直签豆瓣订单执行成本</h3>
+    <h3>媒体订单执行成本</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
         <div class="form-group">
@@ -60,7 +91,7 @@
         </form>
     </div>
     <br>
-    {{ all_items(douban_orders) }}
+    {{ all_items(client_orders) }}
 </div>
 <script>
     $(function(){

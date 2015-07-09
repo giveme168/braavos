@@ -13,6 +13,7 @@ USER_STATUS_CN = {
     USER_STATUS_OFF: u"停用",
     USER_STATUS_ON: u"有效"
 }
+TEAM_TYPE_MEDIA_LEADER = 20       # 内部-媒介Leader
 TEAM_TYPE_OPS_LEADER = 19  # 行政-Leader
 TEAM_TYPE_OPS = 18  # 行政
 TEAM_TYPE_HR_LEADER = 17  # 人力-Leader
@@ -55,6 +56,7 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_HR_LEADER: u'内部人力-Leader',
     TEAM_TYPE_OPS: u'内部行政',
     TEAM_TYPE_OPS_LEADER: u'内部行政-Leader',
+    TEAM_TYPE_MEDIA_LEADER: u'内部-媒介Leader'
 }
 
 TEAM_LOCATION_DEFAULT = 0
@@ -178,6 +180,9 @@ class User(db.Model, BaseModelMixin):
 
     def is_media(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_MEDIA
+
+    def is_media_leader(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_MEDIA_LEADER
 
     def is_planner(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_PLANNER

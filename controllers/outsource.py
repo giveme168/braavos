@@ -77,21 +77,22 @@ def client_orders_distribute():
     if request.method == 'POST':
         order_id = request.values.get('order_id', '')
         operator = request.values.get('operater_ids', '')
-        order = Order.get(order_id)
+        order = ClientOrder.get(order_id)
         if operator:
             operater_users = User.gets(operator.split(','))
-            order.operaters = operater_users
             to_emails = [k.email for k in operater_users]
+            for k in order.medium_orders:
+                k.operaters = operater_users
+                k.save()
         else:
             order.operaters = []
             to_emails = []
-        order.save()
         if to_emails:
             apply_context = {"sender": g.user,
                              "to": to_emails + [g.user.email],
                              "action_msg": '',
                              "msg": '',
-                             "order": order.client_order}
+                             "order": order}
             outsource_distribute_signal.send(
                 current_app._get_current_object(), apply_context=apply_context)
         return redirect(url_for('outsource.client_orders_distribute'))
@@ -478,8 +479,12 @@ def outsource_status(order_id):
             order.agent_sales[0])
     except:
         outsource_apply_user = []
-    outsource_percent = (
-        sum([k.pay_num for k in outsources]) + order.outsources_sum) / float(order.money)
+    if order.money:
+        outsource_percent = (
+            sum([k.pay_num for k in outsources]) + order.outsources_sum) / float(order.money)
+    else:
+        outsource_percent = (
+            sum([k.pay_num for k in outsources]) + order.outsources_sum) / 1
 
     if action == 0:
         if outsource_percent >= 0.02:

@@ -124,7 +124,7 @@ class Medium(db.Model, BaseModelMixin):
         month_day = datetime.datetime.now().replace(
             month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
         return sum([k.sale_money for k in MediumOrderExecutiveReport.query.join(Order).filter(
-            Order.medium_id == self.id, MediumOrderExecutiveReport.month_day == month_day)])
+            Order.medium_id == self.id, MediumOrderExecutiveReport.month_day == month_day) if k.status == 1])
 
     def sale_money_report_by_year(self):
         start_month_day = datetime.datetime.now().replace(
@@ -133,13 +133,13 @@ class Medium(db.Model, BaseModelMixin):
             month=12, day=1, hour=0, minute=0, second=0, microsecond=0)
         return sum([k.sale_money for k in MediumOrderExecutiveReport.query.join(Order).filter(
             Order.medium_id == self.id, MediumOrderExecutiveReport.month_day >= start_month_day,
-            MediumOrderExecutiveReport.month_day <= end_month_day,)])
+            MediumOrderExecutiveReport.month_day <= end_month_day) if k.status == 1])
 
     def medium_money2_report_by_month(self, month):
         month_day = datetime.datetime.now().replace(
             month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
         return sum([k.medium_money2 for k in MediumOrderExecutiveReport.query.join(Order).filter(
-            Order.medium_id == self.id, MediumOrderExecutiveReport.month_day == month_day)])
+            Order.medium_id == self.id, MediumOrderExecutiveReport.month_day == month_day) if k.status == 1])
 
     def medium_money2_report_by_year(self):
         start_month_day = datetime.datetime.now().replace(
@@ -148,7 +148,7 @@ class Medium(db.Model, BaseModelMixin):
             month=12, day=1, hour=0, minute=0, second=0, microsecond=0)
         return sum([k.medium_money2 for k in MediumOrderExecutiveReport.query.join(Order).filter(
             Order.medium_id == self.id, MediumOrderExecutiveReport.month_day >= start_month_day,
-            MediumOrderExecutiveReport.month_day <= end_month_day,)])
+            MediumOrderExecutiveReport.month_day <= end_month_day) if k.status == 1])
 
     def rebate_by_year(self, year):
         rebate = [k for k in self.rebates if k.year.year == int(year)]
@@ -162,13 +162,16 @@ class MediumRebate(db.Model, BaseModelMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 媒体id
-    medium = db.relationship('Medium', backref=db.backref('mediumrebate', lazy='dynamic'))
+    medium = db.relationship(
+        'Medium', backref=db.backref('mediumrebate', lazy='dynamic'))
     rebate = db.Column(db.Float)
     year = db.Column(db.Date)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator = db.relationship('User', backref=db.backref('created_medium_rebate', lazy='dynamic'))
+    creator = db.relationship(
+        'User', backref=db.backref('created_medium_rebate', lazy='dynamic'))
     create_time = db.Column(db.DateTime)   # 添加时间
-    __table_args__ = (db.UniqueConstraint('medium_id', 'year', name='_medium_rebate_year'),)
+    __table_args__ = (
+        db.UniqueConstraint('medium_id', 'year', name='_medium_rebate_year'),)
     __mapper_args__ = {'order_by': create_time.desc()}
 
     def __init__(self, medium, rebate=0.0, year=None, creator=None, create_time=None):

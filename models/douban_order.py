@@ -539,6 +539,15 @@ by %s\n
                 moneys.append(0)
         return moneys
 
+    @property
+    def agent_rebate(self):
+        return self.agent.douban_rebate_by_year(self.client_start.year)
+
+    def rebate_agent_by_month(self, year, month):
+        rebate = self.agent.douban_rebate_by_year(self.client_start.year)
+        ex_money = self.executive_report(g.user, year, [month], 'normal')[0]
+        return ex_money * rebate / 100
+
     def rebate_money(self, year, month, type='profit'):
         rebate_money = 0
         if self.client_start.year == int(year) and self.client_start.month == int(month):
@@ -555,8 +564,7 @@ by %s\n
         return 0
 
     def profit_money(self, year, month):
-        rebate_money = self.rebate_money(self.client_start.year, self.client_start.month, type='cost')
-        return self.money * 0.4 - rebate_money - self.outsources_paied_sum
+        return self.money * 0.4 - self.rebate_agent_by_month(year, month)
 
     def get_saler_leaders(self):
         leaders = []
@@ -610,6 +618,14 @@ class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     @property
     def month_cn(self):
         return self.month_day.strftime('%Y-%m') + u'月'
+
+    @property
+    def locations(self):
+        return self.douban_order.locations
+
+    @property
+    def status(self):
+        return self.douban_order.status
 
 
 class DoubanOrderReject(db.Model, BaseModelMixin):

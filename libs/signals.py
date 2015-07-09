@@ -12,6 +12,7 @@ order_apply_signal = braavos_signals.signal('order_apply')
 reply_apply_signal = braavos_signals.signal('reply_apply')
 contract_apply_signal = braavos_signals.signal('contract_apply')
 douban_contract_apply_signal = braavos_signals.signal('douban_contract_apply')
+framework_douban_contract_apply_signal = braavos_signals.signal('framework_douban_contract_apply')
 outsource_apply_signal = braavos_signals.signal('outsource_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
@@ -232,6 +233,41 @@ by %s
     send_simple_mail(apply_context['title'], recipients=apply_context['to'], body=text)
 '''
 
+def framework_douban_contract_apply(sender, apply_context):
+    """框架订单豆瓣合同号申请"""
+    order = apply_context['order']
+    url = mail.app.config['DOMAIN'] + order.info_path()
+    douban_users = User.douban_contracts()
+    body = u"""
+Dear %s:
+
+请帮忙递交法务审核合同 + 分配合同号, 谢谢~
+
+项目: 框架
+代理集团: %s
+直客销售: %s
+渠道销售: %s
+时间: %s : %s
+金额: %s
+
+附注:
+    致趣订单管理系统链接地址: %s
+
+by %s\n
+""" % (','.join([x.name for x in douban_users]), order.group.name,
+       order.direct_sales_names, order.agent_sales_names,
+       order.start_date_cn, order.end_date_cn,
+       order.money, url, g.user.name)
+    file_paths = []
+    if order.get_last_contract():
+        file_paths.append(order.get_last_contract().real_path)
+    if order.get_last_schedule():
+        file_paths.append(order.get_last_schedule().real_path)
+    send_attach_mail(u'【合同流程】%s-%s' % (order.name, u'豆瓣合同号申请'),
+                     recipients=apply_context['to'],
+                     body=body,
+                     file_paths=file_paths)
+
 
 def douban_contract_apply(sender, apply_context):
     """豆瓣合同号申请"""
@@ -286,14 +322,12 @@ def outsource_apply(sender, apply_context):
     outsources_info = "\n".join([o.outsource_info for o in outsources])
 
     url = mail.app.config['DOMAIN'] + order.outsource_path()
-    # 暂时关闭外包流程邮件
-    '''
+    
     send_simple_mail(apply_context['title'], recipients=apply_context['to'],
                      body=order.outsource_email_info(apply_context['to_users'],
                                                      apply_context[
                                                          'title'], outsources_info,
                                                      url, apply_context['msg']))
-    '''
 
 
 def merger_outsource_apply(sender, apply_context):
@@ -316,7 +350,7 @@ def merger_outsource_apply(sender, apply_context):
     if action == 1:
         to_user_name = ','.join([k.name for k in User.all() if k.email.find('huangliang') >= 0])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+['giveme168@163.com']
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
@@ -327,7 +361,7 @@ def merger_outsource_apply(sender, apply_context):
     elif action == -1:
         to_user_name = ','.join([k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+['giveme168@163.com']
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
@@ -338,7 +372,7 @@ def merger_outsource_apply(sender, apply_context):
     elif action == 2:
         to_user_name = ','.join([k.name for k in User.finances()])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]+['giveme168@163.com']
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('finance_pay.info', target_id=merger_outsource.target.id)
@@ -349,7 +383,7 @@ def merger_outsource_apply(sender, apply_context):
     elif action == 0:
         to_user_name = ','.join([k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]+['giveme168@163.com']
+                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
@@ -426,6 +460,7 @@ def init_signal(app):
     reply_apply_signal.connect_via(app)(reply_apply_signal)
     contract_apply_signal.connect_via(app)(contract_apply)
     douban_contract_apply_signal.connect_via(app)(douban_contract_apply)
+    framework_douban_contract_apply_signal.connect_via(app)(framework_douban_contract_apply)
     outsource_apply_signal.connect_via(app)(outsource_apply)
     invoice_apply_signal.connect_via(app)(invoice_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)

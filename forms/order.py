@@ -8,7 +8,7 @@ from models.order import DISCOUNT_SALE
 from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN, SALE_TYPE_CN
 from models.user import User
 from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
-                         TEAM_TYPE_OPERATER)
+                         TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER)
 
 
 class ClientOrderForm(Form):
@@ -62,7 +62,8 @@ class MediumOrderForm(Form):
     def __init__(self, *args, **kwargs):
         super(MediumOrderForm, self).__init__(*args, **kwargs)
         self.medium.choices = [(m.id, m.name) for m in Medium.all()]
-        self.operaters.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_OPERATER)]
+        operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
+        self.operaters.choices = [(m.id, m.name) for m in operaters]
         self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
         self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
         self.discount.choices = DISCOUNT_SALE.items()
@@ -131,7 +132,8 @@ class DoubanOrderForm(Form):
         self.client.choices = [(c.id, c.name) for c in Client.all()]
         self.direct_sales.choices = [(m.id, m.name) for m in User.sales()]
         self.agent_sales.choices = [(m.id, m.name) for m in User.sales()]
-        self.operaters.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_OPERATER)]
+        operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
+        self.operaters.choices = [(m.id, m.name) for m in operaters]
         self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
         self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()

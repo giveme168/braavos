@@ -123,7 +123,9 @@
                             {% endif %}
                             <th>操作时间</th>
                             {% if OUTSOURCE_STATUS_PASS == status%}
+                             {% if g.user.is_operater_leader() %}
                             <th>操作</th>
+                             {% endif %}
                             {% endif %}
                         </tr>
                         {% for t in outsources %}
@@ -144,10 +146,24 @@
                             {% endif %}
                             <td>{{t.create_time_cn}}</td>
                             {% if OUTSOURCE_STATUS_PASS == status%}
+                              {% if g.user.is_operater_leader() %}
                             <th><a href="javascript:update_pay_num('{{t.id}}','{{t.pay_num}}')">修改</a></th>
+                              {% endif %}
                             {% endif %}
                         </tr>
                         {% endfor %}
+                        <tr>
+                          <td>合计</td>
+                          {% if OUTSOURCE_STATUS_PASS == status%}
+                          <td colspan=5></td>
+                          {% else %}
+                          <td colspan=4></td>
+                          {% endif %}
+                          <td>{{outsources|sum(attribute='num')}}</td>
+                          <td></td>
+                          <td>{{outsources|sum(attribute='pay_num')}}</td>
+                          <td colspan=4></td>
+                        </tr>
                     </table>
                     {% if OUTSOURCE_STATUS_PASS == status and outsources %}
                     <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选

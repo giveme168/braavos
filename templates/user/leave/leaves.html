@@ -92,7 +92,8 @@ Date.prototype.Format = function (fmt) { //author: meizz
 }
 
 $(function(){
-    $("#type option[value='{{type}}']").attr("selected","selected");  
+    //$("#type option[value='{{type}}']").attr("selected","selected");  
+    $("#type").val("{{type}}")
     $("#type").trigger("chosen:updated");
 
     $('#start').val('{{start}}')
