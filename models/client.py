@@ -2,6 +2,10 @@
 import datetime
 
 from . import db, BaseModelMixin
+from models.client_order import ClientOrder
+from models.douban_order import DoubanOrder
+from models.framework_order import FrameworkOrder
+from models.invoice import AgentInvoice
 from consts import CLIENT_INDUSTRY_CN
 
 
@@ -94,6 +98,18 @@ class Agent(db.Model, BaseModelMixin):
         if len(rebate) > 0:
             return rebate[0].douban_rebate
         return 0
+
+    def get_client_order(self):
+        return list(ClientOrder.query.filter_by(agent=self))
+
+    def get_douban_order(self):
+        return list(DoubanOrder.query.filter_by(agent=self))
+
+    def get_framework_order(self):
+        return list([k for k in FrameworkOrder.all() if self in k.agents])
+
+    def get_agent_invoice(self):
+        return list(AgentInvoice.query.filter_by(agent=self))
 
 
 class AgentRebate(db.Model, BaseModelMixin):
