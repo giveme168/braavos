@@ -10,11 +10,23 @@
         <tr>
             <th>#id</th>
             <th>名称</th>
+            {% if g.user.is_super_leader() %}
+            <th>关联代理个数</th>
+            <th>操作</th>
+            {% endif %}
         </tr>
-        {% for g in groups %}
+        {% for group in groups %}
         <tr>
-            <td>{{g.id}}</td>
-            <td><a href="{{url_for("client.group_detail", group_id=g.id)}}">{{g.name}}</a></td>
+            <td>{{group.id}}</td>
+            <td><a href="{{url_for("client.group_detail", group_id=group.id)}}">{{group.name}}</a></td>
+            {% if g.user.is_super_leader() %}
+            <td>{{group.get_agent_count()}}</td>
+            <td>
+                {% if group.get_agent_count() == 0 %}
+                    <a href="{{url_for('client.group_delete', group_id=group.id)}}">删除</a>
+                {% endif %}
+            </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>

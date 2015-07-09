@@ -147,6 +147,13 @@ def agent_detail(agent_id):
                title=u"代理/直客-" + agent.name)
 
 
+@client_bp.route('/group/<group_id>/delete', methods=['GET', 'POST'])
+def group_delete(group_id):
+    Group.get(group_id).delete()
+    flash(u'删除成功', 'success')
+    return redirect(url_for('client.groups'))
+
+
 @client_bp.route('/group/<group_id>', methods=['GET', 'POST'])
 def group_detail(group_id):
     group = Group.get(group_id)
