@@ -167,6 +167,24 @@ def _insert_executive_report(order, rtype):
                                                         days=i['days'],
                                                         create_time=None)
                     er.save()
+    elif order.__tablename__ == 'bra_order':
+        if rtype:
+            MediumOrderExecutiveReport.query.filter_by(order=order).delete()
+        for i in order.pre_month_medium_orders_money():
+            if not MediumOrderExecutiveReport.query.filter_by(client_order=order.client_order,
+                                                              order=order, month_day=i['month']).first():
+                er = MediumOrderExecutiveReport.add(client_order=order.client_order,
+                                                    order=order,
+                                                    medium_money=i[
+                                                        'medium_money'],
+                                                    medium_money2=i[
+                                                        'medium_money2'],
+                                                    sale_money=i[
+                                                        'sale_money'],
+                                                    month_day=i['month'],
+                                                    days=i['days'],
+                                                    create_time=None)
+                er.save()
     return True
 
 
@@ -413,6 +431,8 @@ def order_medium_edit_cpm(medium_id):
                 g.user, u"更新了媒体订单: %s 的分成金额%s " % (mo.medium.name, medium_money))
         mo.medium_money = medium_money
     mo.save()
+    if medium_money != '':
+        _insert_executive_report(mo, 'reload')
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
     return redirect(mo.info_path())
 
@@ -597,7 +617,8 @@ def display_orders(orders, title, status_id=-1):
     elif start_time and end_time:
         start_time = datetime.strptime(start_time, '%Y-%m-%d').date()
         end_time = datetime.strptime(end_time, '%Y-%m-%d').date()
-        orders = [k for k in orders if k.create_time.date() >= start_time and k.create_time.date() <= end_time]
+        orders = [k for k in orders if k.create_time.date(
+        ) >= start_time and k.create_time.date() <= end_time]
 
     if search_medium > 0:
         orders = [k for k in orders if search_medium in k.medium_ids]
@@ -727,7 +748,8 @@ def _insert_agent_rebate(order):
     douban_rebate = order.douban_rebate
 
     for agent in agents:
-        agent_rebate = AgentRebate.query.filter_by(agent=agent, year=start_date).first()
+        agent_rebate = AgentRebate.query.filter_by(
+            agent=agent, year=start_date).first()
         if agent_rebate:
             agent_rebate.inad_rebate = inad_rebate
             agent_rebate.douban_rebate = douban_rebate
@@ -785,7 +807,8 @@ def framework_order_info(order_id):
                 flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
             else:
                 order.contract = request.values.get("base_contract", "")
-                order.douban_contract = request.values.get("douban_contract", "")
+                order.douban_contract = request.values.get(
+                    "douban_contract", "")
                 order.save()
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
@@ -1206,7 +1229,8 @@ def attachment_status_email(order, attachment):
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     to_emails = list(set([x.email for x in to_users]))
     action_msg = u"%s文件:%s-%s" % (attachment.type_cn, attachment.filename, attachment.status_cn)
-    msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (attachment.filename, attachment.status_cn)
+    msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (
+        attachment.filename, attachment.status_cn)
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,
