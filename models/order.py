@@ -542,7 +542,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def rebate_medium_by_month(self, year, month):
         rebate = self.medium.rebate_by_year(year)
-        ex_monety = self.get_executive_report_medium_money_by_month(year, month, 'normal')['medium_money2']
+        ex_monety = self.get_executive_report_medium_money_by_month(
+            year, month, 'normal')['medium_money2']
         return ex_monety * rebate / 100
 
     def get_executive_report_medium_money_by_month(self, year, month, sale_type):
@@ -556,7 +557,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             user = self.direct_sales[0]
         if sale_type != 'normal' and user.team.location == 3:
             count = len(set(self.agent_sales + self.direct_sales))
-        day_month = datetime.datetime.strptime(str(year) + '-' + str(month), '%Y-%m')
+        day_month = datetime.datetime.strptime(
+            str(year) + '-' + str(month), '%Y-%m')
         executive_report = MediumOrderExecutiveReport.query.filter_by(
             order=self, month_day=day_month).first()
         if executive_report:
@@ -580,6 +582,27 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def get_medium_rebate_money(self):
         rebate = self.medium.rebate_by_year(year=self.start_date.year)
         return round(1.0 * rebate * self.medium_money2 / 100, 2)
+
+    @property
+    def associated_douban_contract(self):
+        if self.associated_douban_orders.count() > 0:
+            return self.associated_douban_orders[0].contract
+        return self.medium_contract
+
+    def associated_douban_orders_pro_month_money(self, year, month):
+        if self.associated_douban_orders.count():
+            pre_money = self.associated_douban_orders[0].money / \
+                ((self.medium_end - self.medium_start).days + 1)
+            pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
+                                                  datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
+            pre_month_money_data = 0
+            search_pro_month = datetime.datetime.strptime(year + '-' + month, "%Y-%m")
+            for k in pre_month_days:
+                if k['month'] == search_pro_month:
+                    pre_month_money_data = round(pre_money * k['days'], 2)
+                    break
+            return pre_month_money_data
+        return 0
 
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):

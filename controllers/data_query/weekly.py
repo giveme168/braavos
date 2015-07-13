@@ -78,20 +78,28 @@ def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order', sa
             k['total_frist_saler_money_by_month'] = 0
             k['total_second_saler_money_by_month'] = 0
             k['total_third_saler_money_by_month'] = 0
+            k['total_frist_douban_money_by_month'] = 0
+            k['total_second_douban_money_by_month'] = 0
+            k['total_third_douban_money_by_month'] = 0
             for i in range(len(Q_monthes)):
                 total_medium_money2 = sum([order['order'].get_executive_report_medium_money_by_month(
                     now_year, Q_monthes[i], saler_type)['medium_money2'] for order in k['orders']])
                 sale_money = sum([order['order'].get_executive_report_medium_money_by_month(
                     now_year, Q_monthes[i], saler_type)['sale_money'] for order in k['orders']])
+                douban_money = sum([order['order'].associated_douban_orders_pro_month_money(
+                    now_year, Q_monthes[i]) for order in k['orders']])
                 if i == 0:
                     k['total_frist_medium_money2_by_month'] += total_medium_money2
                     k['total_frist_saler_money_by_month'] += sale_money
+                    k['total_frist_douban_money_by_month'] += douban_money
                 elif i == 1:
                     k['total_second_medium_money2_by_month'] += total_medium_money2
                     k['total_second_saler_money_by_month'] += sale_money
+                    k['total_second_douban_money_by_month'] += douban_money
                 elif i == 2:
                     k['total_third_medium_money2_by_month'] += total_medium_money2
                     k['total_third_saler_money_by_month'] += sale_money
+                    k['total_third_douban_money_by_month'] += douban_money
     return saler_orders
 
 
