@@ -382,6 +382,9 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def associated_douban_orders(self):
         return [ao for mo in self.medium_orders for ao in mo.associated_douban_orders]
 
+    def associated_douban_orders_pro_month_money(self, year, month):
+        return sum([k.associated_douban_orders_pro_month_money(year, month) for k in self.medium_orders])
+
     @property
     def contract_type_cn(self):
         return CONTRACT_TYPE_CN[self.contract_type]

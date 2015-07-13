@@ -20,6 +20,7 @@
         <th>已开发票金额</th>
         <th>媒体总金额</th>
         <th>投放媒体</th>
+        <th>媒体合同号</th>
         <th>媒体金额</th>
         {% for k in Q_monthes %}
         <th>媒体{{k}}月售卖金额</th>
@@ -28,7 +29,7 @@
         <th>媒体{{k}}月媒体金额</th>
         {% endfor %}
         {% for k in Q_monthes %}
-        <th>媒体{{k}}金额差</th>
+        <th>媒体{{k}}月豆瓣金额</th>
         {% endfor %}
         <th>本季度确认额</th>
         <th>本季度执行额</th>
@@ -64,6 +65,11 @@
                 <td> 
                     {% for mo in i.order.medium_orders %}  
                     {{mo.medium.name}}<br/></br/></br/>
+                    {% endfor %}
+                </td>
+                <td> 
+                    {% for mo in i.order.medium_orders %}  
+                    {{mo.associated_douban_contract}}<br/></br/></br/>
                     {% endfor %}
                 </td>
                 <td>
@@ -129,7 +135,7 @@
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
+                                {{mo.associated_douban_orders_pro_month_money(now_year, k)}}<br/><br/><br/>
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -138,7 +144,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
+                            {{mo.associated_douban_orders_pro_month_money(now_year, k)}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -147,7 +153,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money-mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
+                            {{mo.associated_douban_orders_pro_month_money(now_year, k)}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -180,9 +186,9 @@
             <td>{{k.total_second_medium_money2_by_month}}</td>
             <td>{{k.total_third_medium_money2_by_month}}</td>
 
-            <td>{{k.total_frist_saler_money_by_month - k.total_frist_medium_money2_by_month}}</td>
-            <td>{{k.total_second_saler_money_by_month - k.total_second_medium_money2_by_month}}</td>
-            <td>{{k.total_third_saler_money_by_month - k.total_third_medium_money2_by_month}}</td>
+            <td>{{k.total_frist_douban_money_by_month}}</td>
+            <td>{{k.total_second_douban_money_by_month}}</td>
+            <td>{{k.total_third_douban_money_by_month}}</td>
             <td></td>
             <td>{{k.total_now_Q_money}}</td>
             <td>{{k.total_last_Q_money}}</td>

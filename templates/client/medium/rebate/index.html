@@ -13,7 +13,7 @@
             <th>返点</th>
             <th>最后修改人</th>
             <th>最后修改时间</th>
-            {% if g.user.is_media() %}
+            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader()%}
             <th>操作</th>
             {% endif %}
         </tr>
@@ -23,7 +23,7 @@
             <td>{{r.rebate}}%</td>
             <td>{{r.creator.name}}</td>
             <td>{{r.create_time_cn}}</td>
-            {% if g.user.is_media() %}
+            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
                 <td>
                     <a href="{{url_for('client.medium_rebate_update', medium_id=medium.id, rebate_id=r.id)}}">修改</a>&nbsp;&nbsp;
                     {% if g.user.is_admin() %}
