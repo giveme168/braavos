@@ -240,7 +240,8 @@ def index():
         client_orders = [
             order for order in client_orders if medium_id in [k.id for k in order.mediums]]
 
-    if g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or g.user.is_finance():
+    if g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or \
+            g.user.is_finance() or g.user.is_media_leader():
         client_orders = client_orders
     elif g.user.is_leader():
         client_orders = [
