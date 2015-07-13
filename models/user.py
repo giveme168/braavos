@@ -268,7 +268,7 @@ class User(db.Model, BaseModelMixin):
                           if k.email.find('fenghaiyan') >= 0]
         if user.team.location in [TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG]:
             leader_emails += [k for k in cls.all() if k.email.find(
-                'huawei') >= 0 and k.team.type == TEAM_TYPE_SUPER_LEADER]
+                'gaixin') >= 0 and k.team.type == TEAM_TYPE_SUPER_LEADER]
         else:
             leader_emails += [k for k in cls.all() if k.email.find(
                 'huangliang') >= 0 and k.team.type == TEAM_TYPE_SUPER_LEADER]
