@@ -591,7 +591,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def associated_douban_orders_pro_month_money(self, year, month):
         if self.associated_douban_orders.count():
-            pre_money = self.associated_douban_orders[0].money / \
+            pre_money = float(self.associated_douban_orders[0].money) / \
                 ((self.medium_end - self.medium_start).days + 1)
             pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
                                                   datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
@@ -599,7 +599,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             search_pro_month = datetime.datetime.strptime(year + '-' + month, "%Y-%m")
             for k in pre_month_days:
                 if k['month'] == search_pro_month:
-                    pre_month_money_data = pre_money * k['days']
+                    pre_month_money_data = round(pre_money * k['days'], 2)
                     break
             return pre_month_money_data
         return 0

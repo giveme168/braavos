@@ -19,7 +19,7 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
         if otype == 'douban':
             worksheet.merge_range(th, 0, th, 20, location, location_format)
         else:
-            worksheet.merge_range(th, 0, th, 33, location, location_format)
+            worksheet.merge_range(th, 0, th, 34, location, location_format)
     th += 1
     if stype == 'agent':
         keys = [u'渠道销售']
@@ -159,23 +159,23 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                     worksheet.merge_range(
                         th, 11, th + medium_order_count - 1, 11, i['order'].zhixing_medium_money2(stype), align_left)
                     worksheet.merge_range(
-                        th, 23, th + medium_order_count - 1, 23, '', align_left)
+                        th, 24, th + medium_order_count - 1, 24, '', align_left)
                     worksheet.merge_range(
-                        th, 24, th + medium_order_count - 1, 24, i['now_Q_money'], align_left)
+                        th, 25, th + medium_order_count - 1, 25, i['now_Q_money'], align_left)
                     worksheet.merge_range(
-                        th, 25, th + medium_order_count - 1, 25, i['last_Q_money'], align_left)
+                        th, 26, th + medium_order_count - 1, 26, i['last_Q_money'], align_left)
                     worksheet.merge_range(
-                        th, 26, th + medium_order_count - 1, 26, i['after_Q_money'], align_left)
+                        th, 27, th + medium_order_count - 1, 27, i['after_Q_money'], align_left)
                     for m in range(len(i['moneys'])):
                         worksheet.merge_range(
-                            th, 27 + m, th + medium_order_count - 1, 27 + m, i['moneys'][m], align_left)
+                            th, 28 + m, th + medium_order_count - 1, 28 + m, i['moneys'][m], align_left)
                     worksheet.merge_range(
-                        th, 30, th + medium_order_count - 1, 30, i['order'].resource_type_cn, align_left)
-                    worksheet.merge_range(th, 31, th + medium_order_count - 1,
-                                          31, ",".join([u.name for u in i['order'].operater_users]), align_left)
-                    worksheet.merge_range(th, 32, th + medium_order_count - 1, 32,
-                                          i['order'].client_start.strftime('%Y/%m/%d'), align_left)
+                        th, 31, th + medium_order_count - 1, 31, i['order'].resource_type_cn, align_left)
+                    worksheet.merge_range(th, 32, th + medium_order_count - 1,
+                                          32, ",".join([u.name for u in i['order'].operater_users]), align_left)
                     worksheet.merge_range(th, 33, th + medium_order_count - 1, 33,
+                                          i['order'].client_start.strftime('%Y/%m/%d'), align_left)
+                    worksheet.merge_range(th, 34, th + medium_order_count - 1, 34,
                                           i['order'].client_end.strftime('%Y/%m/%d'), align_left)
                 if medium_orders:
                     for j in range(len(medium_orders)):
