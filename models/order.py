@@ -599,7 +599,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             search_pro_month = datetime.datetime.strptime(year + '-' + month, "%Y-%m")
             for k in pre_month_days:
                 if k['month'] == search_pro_month:
-                    pre_month_money_data = round(pre_money * k['days'], 2)
+                    pre_month_money_data = pre_money * k['days']
                     break
             return pre_month_money_data
         return 0
