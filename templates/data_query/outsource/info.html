@@ -78,17 +78,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '1')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '1')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '1')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -110,17 +104,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '2')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '2')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '2')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -143,17 +131,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '3')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '3')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '3')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -179,17 +161,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '4')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '4')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '4')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -211,17 +187,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '5')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '5')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '5')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -243,17 +213,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '6')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '6')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '6')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -278,17 +242,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '7')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '7')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '7')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -310,17 +268,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '8')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '8')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '8')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -343,17 +295,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '9')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '9')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '9')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -379,17 +325,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '10')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '10')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '10')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -411,17 +351,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '11')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '11')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '11')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
@@ -444,17 +378,11 @@
             <td></td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
-            <td>{{k.report_outsource_sum_by_month(now_year, '12')}}</td>
-            <td>{{k.report_outsources_percent_by_month(now_year, '12')}}%</td>
-            <td>{{k.report_outsources_paied_sum_by_month (now_year, '12')}}</td>
-            {% for i in range(1,5) %}
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
-            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            <td>{{k.outsources_sum}}</td>
+            <td>{{k.outsources_percent}}%</td>
+            <td>{{k.outsources_paied_sum}}</td>
+            {% for i in k.o_money %}
+                <td>{{i}}</td>
             {% endfor %}
         </tr>
         {% endfor %}
