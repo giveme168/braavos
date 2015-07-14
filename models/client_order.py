@@ -6,12 +6,13 @@ from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
+from models.outsource import OutSourceExecutiveReport
 from .item import ITEM_STATUS_LEADER_ACTIONS
 from .user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
 from invoice import Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice, AgentInvoicePay, MediumRebateInvoice
 from libs.mail import mail
-from libs.date_helpers import get_monthes_pre_days
+from libs.date_helpers import get_monthes_pre_days, check_Q_get_monthes
 
 
 CONTRACT_TYPE_NORMAL = 0
@@ -338,6 +339,38 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         else:
             return "%.2f" % (self.outsources_sum * 100 / 1)
 
+    def report_outsource_sum_by_month(self, year, month):
+        r_outsources = OutSourceExecutiveReport.query.filter_by(
+            month_day=datetime.datetime.strptime(
+                str(year) + '-' + month, '%Y-%m'),
+            otype=1)
+        return sum([k.pay_num for k in r_outsources if k.order == self])
+
+    def report_outsources_paied_sum_by_month(self, year, month):
+        r_outsources = OutSourceExecutiveReport.query.filter_by(
+            month_day=datetime.datetime.strptime(
+                str(year) + '-' + month, '%Y-%m'),
+            otype=1)
+        pay_outsource = [o.id for o in self.outsources if o.status == 4]
+        return sum([k.pay_num for k in r_outsources if k.order == self and k.outsource_id in pay_outsource])
+
+    def report_outsources_percent_by_month(self, year, month):
+        if self.money:
+            return "%.2f" % (self.report_outsource_sum_by_month(year, month) * 100 / float(self.money))
+        else:
+            return "%.2f" % (self.report_outsource_sum_by_month(year, month) * 100 / 1)
+
+    def get_outsource_target_by_Q(self, year, Q, type_id):
+        Q = 'Q' + str(Q)
+        monthes = [datetime.datetime.strptime(
+            str(year) + '-' + str(k), '%Y-%m') for k in check_Q_get_monthes(Q)]
+        outsources = [k for k in OutSourceExecutiveReport.query.filter(
+            OutSourceExecutiveReport.month_day >= monthes[0],
+            OutSourceExecutiveReport.month_day <= monthes[2],
+            OutSourceExecutiveReport.type == type_id)
+            if k.order == self]
+        return sum([k.pay_num for k in outsources])
+
     @property
     def invoice_apply_sum(self):
         return sum([k.money for k in Invoice.query.filter_by(client_order_id=self.id)
@@ -449,7 +482,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales + \
+        owner = self.direct_sales + self.agent_sales +\
             [self.creator] + self.operater_users
         return user.is_admin() or user in owner
 

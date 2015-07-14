@@ -6,6 +6,7 @@ from flask import render_template as tpl
 
 from models.outsource import OutSourceExecutiveReport
 from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q)
+from libs.date_helpers import get_monthes_pre_days
 from controllers.data_query.helpers.outsource_helpers import write_outsource_excel
 
 
@@ -64,3 +65,22 @@ def index():
         return write_outsource_excel(Q_monthes, monthes_data)
     return tpl('/data_query/outsource/index.html', Q=now_Q, now_year=now_year,
                Q_monthes=Q_monthes, monthes_data=monthes_data)
+
+
+@data_query_outsource_bp.route('/info', methods=['GET'])
+def info():
+    now_year = request.values.get('year', datetime.datetime.now().year)
+    now_year_date = datetime.datetime.strptime(str(now_year), '%Y')
+    start_date = now_year_date
+    end_date = now_year_date.replace(month=12, day=31)
+
+    outsources = [k for k in OutSourceExecutiveReport.query.filter(
+        OutSourceExecutiveReport.month_day >= start_date,
+        OutSourceExecutiveReport.month_day <= end_date)
+        if k.contract_status not in [7, 8, 9] and k.order_status == 1]
+
+    pre_monthes = get_monthes_pre_days(start_date, end_date)
+    pre_month_orders = {}
+    for k in pre_monthes:
+        pre_month_orders[str(k['month'].month)] = list(set([s.order for s in outsources if s.month_day == k['month']]))
+    return tpl('/data_query/outsource/info.html', now_year=now_year, pre_month_orders=pre_month_orders)

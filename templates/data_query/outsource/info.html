@@ -1,0 +1,476 @@
+{% extends "/data_query/data_query_base.html" %}
+{% block title %}外包详情{% endblock %}
+{% block main_box %}
+<div class="bra-main bra-box" style="width:2300px;">
+    <h3>外包详情</h3>
+    <div class="search">
+        <form class="form-inline" role="form" action="" method='get'>
+        <div class="form-group">
+            <select class="form-control" name="year" id="year" placeholder="选择执行年">
+                {% for k in range(10) %}
+                <option value="{{2014+k}}">{{2014+k}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <input type="submit" value="查询" class="btn btn-sm btn-info" >
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+        </form>
+    </div>
+    <br>
+    <table class="table table-bordered">
+        <tr>
+            <th colspan=2 rowspan=4 style="width:120px;">月份</th>
+        </tr>
+        <tr>
+            <th colspan=11 rowspan=2>合同信息</th>
+            <th colspan=7 >项目成本</th>
+            <th colspan=7 >项目成本</th>
+            <th colspan=7 >项目成本</th>
+            <th colspan=7 >项目成本</th>
+        </tr>
+        <tr>
+            {% for k in range(1,5) %}
+            <th colspan=7 >Q{{k}}</th>
+            {% endfor %}
+        </tr>                            
+        <tr>
+            <th>项目合同号</th>
+            <th>项目名称</th>
+            <th>Q1执行额</th>
+            <th>Q2执行额</th>
+            <th>Q3执行额</th>
+            <th>Q4执行额</th>
+            <th>项目金额</th>
+            <th>大区</th>
+            <th>应付小计</th>
+            <th>所占比重</th>
+            <th>实付金额</th>
+
+            {% for k in range(1,5) %}
+            <th>奖品</th>
+            <th>Flash</th>
+            <th>劳务(KOL、线下活动等)</th>
+            <th>效果优化</th>
+            <th>其他(视频等)</th>
+            <th>flash&H5开发</th>
+            <th>H5开发</th>
+            {% endfor %}
+        </tr>
+        
+        <tr>
+            <th rowspan={{ pre_month_orders['1']|length+pre_month_orders['2']|length+pre_month_orders['3']|length+4 }}>Q1</th>
+        </tr>
+        <tr>
+            <th rowspan={{pre_month_orders['1']|length+1}}>1月</th>
+            {% if not pre_month_orders['1'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['1'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '1')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '1')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '1')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr>
+            <th rowspan={{pre_month_orders['2']|length+1}}>2月</th>
+            {% if not pre_month_orders['2'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['2'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '2')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '2')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '2')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+        <tr>
+            <th rowspan={{pre_month_orders['3']|length+1}}>3月</th>
+            {% if not pre_month_orders['3'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['3'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '3')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '3')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '3')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+        <tr>
+            <th rowspan={{ pre_month_orders['4']|length+pre_month_orders['5']|length+pre_month_orders['6']|length+4 }}>Q2</th>
+        </tr>
+        <tr>
+            <th rowspan={{pre_month_orders['4']|length+1}}>4月</th>
+            {% if not pre_month_orders['4'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['4'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '4')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '4')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '4')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr>
+            <th rowspan={{pre_month_orders['5']|length+1}}>5月</th>
+            {% if not pre_month_orders['5'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['5'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '5')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '5')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '5')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr>
+            <th rowspan={{pre_month_orders['6']|length+1}}>6月</th>
+            {% if not pre_month_orders['6'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['6'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '6')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '6')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '6')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr>
+            <th rowspan={{ pre_month_orders['7']|length+pre_month_orders['8']|length+pre_month_orders['9']|length+4 }}>Q3</th>
+        </tr>
+        <tr>
+            <th rowspan={{pre_month_orders['7']|length+1}}>7月</th>
+            {% if not pre_month_orders['7'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['7'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '7')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '7')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '7')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr>
+            <th rowspan={{pre_month_orders['8']|length+1}}>8月</th>
+            {% if not pre_month_orders['8'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['8'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '8')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '8')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '8')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+        <tr>
+            <th rowspan={{pre_month_orders['9']|length+1}}>9月</th>
+            {% if not pre_month_orders['9'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['9'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '9')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '9')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '9')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+        <tr>
+            <th rowspan={{ pre_month_orders['10']|length+pre_month_orders['11']|length+pre_month_orders['12']|length+4 }}>Q4</th>
+        </tr>
+        <tr>
+            <th rowspan={{pre_month_orders['10']|length+1}}>10月</th>
+            {% if not pre_month_orders['10'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['10'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '10')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '10')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '10')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        <tr>
+            <th rowspan={{pre_month_orders['11']|length+1}}>11月</th>
+            {% if not pre_month_orders['11'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['11'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '11')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '11')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '11')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+        <tr>
+            <th rowspan={{pre_month_orders['12']|length+1}}>12月</th>
+            {% if not pre_month_orders['12'] %}
+            {% for k in range(39) %}
+            <td></td>
+            {% endfor %}
+            {% endif %}
+        </tr>
+        {% for k in  pre_month_orders['12'] %}
+        <tr>
+            <td>{{k.contract or "无合同号"}}</td>
+            <td>{{k.campaign}}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>{{k.money}}</td>
+            <td>{{k.locations_cn}}</td>
+            <td>{{k.report_outsource_sum_by_month(now_year, '12')}}</td>
+            <td>{{k.report_outsources_percent_by_month(now_year, '12')}}%</td>
+            <td>{{k.report_outsources_paied_sum_by_month (now_year, '12')}}</td>
+            {% for i in range(1,5) %}
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 1)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 2)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 3)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 4)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 5)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 6)}}</td>
+            <td>{{k.get_outsource_target_by_Q(now_year, i, 7)}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+
+    </table>
+</div>
+
+<script>
+    $(function(){
+        $("#year").val("{{now_year}}")
+        $("#year").trigger("chosen:updated");
+    })
+    function download(){
+         window.location.href = window.location.pathname +
+          '?year=' + $('#year').val() + '&action=download';
+    }
+</script>
+{% endblock %}
