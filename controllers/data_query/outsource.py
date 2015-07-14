@@ -74,13 +74,37 @@ def info():
     start_date = now_year_date
     end_date = now_year_date.replace(month=12, day=31)
 
-    outsources = [k for k in OutSourceExecutiveReport.query.filter(
+    outsources = [{'order': k.order, 'month': k.month_day, 'pay_num': k.pay_num,
+                   'type': k.type} for k in OutSourceExecutiveReport.query.filter(
         OutSourceExecutiveReport.month_day >= start_date,
         OutSourceExecutiveReport.month_day <= end_date)
         if k.contract_status not in [7, 8, 9] and k.order_status == 1]
 
     pre_monthes = get_monthes_pre_days(start_date, end_date)
     pre_month_orders = {}
+
     for k in pre_monthes:
-        pre_month_orders[str(k['month'].month)] = list(set([s.order for s in outsources if s.month_day == k['month']]))
+        pre_month_orders[str(k['month'].month)] = list(
+            set([s['order'] for s in outsources if s['month'] == k['month']]))
+
+    for k in pre_month_orders.values():
+        for i in k:
+            Q1_monthes = [datetime.datetime.strptime(
+                str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q1')]
+            Q2_monthes = [datetime.datetime.strptime(
+                str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q2')]
+            Q3_monthes = [datetime.datetime.strptime(
+                str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q3')]
+            Q4_monthes = [datetime.datetime.strptime(
+                str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q4')]
+            o_money = []
+            o_money += [sum([o['pay_num'] for o in outsources if o['month'] >= Q1_monthes[0] and o[
+                            'month'] <= Q1_monthes[2] and o['type'] == t and o['order'] == i]) for t in range(1, 8)]
+            o_money += [sum([o['pay_num'] for o in outsources if o['month'] >= Q2_monthes[0] and o[
+                            'month'] <= Q2_monthes[2] and o['type'] == t and o['order'] == i]) for t in range(1, 8)]
+            o_money += [sum([o['pay_num'] for o in outsources if o['month'] >= Q3_monthes[0] and o[
+                            'month'] <= Q3_monthes[2] and o['type'] == t and o['order'] == i]) for t in range(1, 8)]
+            o_money += [sum([o['pay_num'] for o in outsources if o['month'] >= Q4_monthes[0] and o[
+                            'month'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i]) for t in range(1, 8)]
+            i.o_money = o_money
     return tpl('/data_query/outsource/info.html', now_year=now_year, pre_month_orders=pre_month_orders)
