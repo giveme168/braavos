@@ -462,12 +462,7 @@ def outsource_status(order_id):
     if not order:
         abort(404)
     outsource_ids = request.values.getlist('outsources')
-    if type == 'douban':
-        outsources = DoubanOutSource.gets(outsource_ids)
-    else:
-        outsources = OutSource.gets(outsource_ids)
-    if not outsources:
-        abort(403)
+
     action = int(request.values.get('action', 0))
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
@@ -479,19 +474,20 @@ def outsource_status(order_id):
             order.agent_sales[0])
     except:
         outsource_apply_user = []
-    if action != 100:
-        if order.money:
-            outsource_percent = (
-                sum([k.pay_num for k in outsources]) + order.outsources_sum) / float(order.money)
-        else:
-            outsource_percent = (
-                sum([k.pay_num for k in outsources]) + order.outsources_sum) / 1
+    outsources_ids = set(outsource_ids) | set(
+        [str(k.id) for k in order.apply_outsources()])
+    if type == 'douban':
+        outsources = DoubanOutSource.gets(outsources_ids)
     else:
-        if order.money:
-            outsource_percent = order.outsources_sum / float(order.money)
-        else:
-            outsource_percent = order.outsources_sum / 1
+        outsources = OutSource.gets(outsources_ids)
+    if not outsources:
+        abort(403)
 
+    if order.money:
+        outsource_percent = sum(
+            [k.pay_num for k in outsources]) / float(order.money)
+    else:
+        outsource_percent = sum([k.pay_num for k in outsources]) / 1
     if action == 0:
         if outsource_percent >= 0.02:
             next_status = OUTSOURCE_STATUS_EXCEED

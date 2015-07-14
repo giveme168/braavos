@@ -328,6 +328,9 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def outsources_sum(self):
         return sum([o.pay_num or 0 for o in self.outsources if o.status != 0]) if self.outsources else 0
 
+    def apply_outsources(self):
+        return [o for o in self.outsources if o.status != 0]
+
     @property
     def outsources_paied_sum(self):
         return sum([o.pay_num for o in self.outsources if o.status == 4]) if self.outsources else 0
