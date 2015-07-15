@@ -709,6 +709,12 @@ def merget_client_target_info(target_id):
     paid_outsources = OutSource.get_outsources_by_target(target_id, 4)
     apply_merger_outsources = MergerOutSource.get_outsources_by_status(
         MERGER_OUTSOURCE_STATUS_APPLY, target_id=target_id)
+
+    # 在流程中的合并付款中的外包项不用出现再正在付款中
+    m_outsources = []
+    for k in apply_merger_outsources:
+        m_outsources += k.outsources
+    apply_money_outsources = [k for k in OutSource.get_outsources_by_target(target_id, 3) if k not in m_outsources]
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     form = MergerOutSourceForm(request.form)
     return tpl('merger_client_target_info.html', target=target,
@@ -810,11 +816,16 @@ def merget_douban_target_info(target_id):
                 current_app._get_current_object(), apply_context=apply_context)
         return redirect(url_for("outsource.merget_douban_target_info", target_id=target_id))
     apply_outsources = DoubanOutSource.get_outsources_by_target(target_id, 2)
-    apply_money_outsources = DoubanOutSource.get_outsources_by_target(
-        target_id, 3)
     paid_outsources = DoubanOutSource.get_outsources_by_target(target_id, 4)
     apply_merger_outsources = MergerDoubanOutSource.get_outsources_by_status(
         MERGER_OUTSOURCE_STATUS_APPLY, target_id=target_id)
+    # 在流程中的合并付款中的外包项不用出现再正在付款中
+    m_outsources = []
+    for k in apply_merger_outsources:
+        m_outsources += k.outsources
+    apply_money_outsources = [k for k in DoubanOutSource.get_outsources_by_target(target_id, 3)
+                              if k not in m_outsources]
+
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     form = MergerOutSourceForm(request.form)
     return tpl('merger_douban_target_info.html', target=target, reminder_emails=reminder_emails,
