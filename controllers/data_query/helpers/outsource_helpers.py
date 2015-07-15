@@ -134,7 +134,7 @@ def _insert_Q(worksheet, align_center, Q, start, end):
 def _insert_total_data(worksheet, align_center_color, data, th):
     worksheet.merge_range(th, 0, th, 12, u'合计', align_center_color)
     for k in range(len(data)):
-        worksheet.write(th, k + 13, data[k], align_center_color)
+        worksheet.write(th, k + 13, str(float(data[k])), align_center_color)
     th += 1
     return th
 

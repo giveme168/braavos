@@ -477,17 +477,19 @@ def outsource_status(order_id):
     outsources_ids = set(outsource_ids) | set(
         [str(k.id) for k in order.apply_outsources()])
     if type == 'douban':
-        outsources = DoubanOutSource.gets(outsources_ids)
+        total_outsources = DoubanOutSource.gets(outsources_ids)
+        outsources = DoubanOutSource.gets(outsource_ids)
     else:
-        outsources = OutSource.gets(outsources_ids)
+        total_outsources = OutSource.gets(outsources_ids)
+        outsources = OutSource.gets(outsource_ids)
     if not outsources:
         abort(403)
 
     if order.money:
         outsource_percent = sum(
-            [k.pay_num for k in outsources]) / float(order.money)
+            [k.pay_num for k in total_outsources]) / float(order.money)
     else:
-        outsource_percent = sum([k.pay_num for k in outsources]) / 1
+        outsource_percent = sum([k.pay_num for k in total_outsources]) / 1
     if action == 0:
         if outsource_percent >= 0.02:
             next_status = OUTSOURCE_STATUS_EXCEED
@@ -706,7 +708,7 @@ def merget_client_target_info(target_id):
     apply_money_outsources = OutSource.get_outsources_by_target(target_id, 3)
     paid_outsources = OutSource.get_outsources_by_target(target_id, 4)
     apply_merger_outsources = MergerOutSource.get_outsources_by_status(
-        MERGER_OUTSOURCE_STATUS_APPLY)
+        MERGER_OUTSOURCE_STATUS_APPLY, target_id=target_id)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     form = MergerOutSourceForm(request.form)
     return tpl('merger_client_target_info.html', target=target,
@@ -812,7 +814,7 @@ def merget_douban_target_info(target_id):
         target_id, 3)
     paid_outsources = DoubanOutSource.get_outsources_by_target(target_id, 4)
     apply_merger_outsources = MergerDoubanOutSource.get_outsources_by_status(
-        MERGER_OUTSOURCE_STATUS_APPLY)
+        MERGER_OUTSOURCE_STATUS_APPLY, target_id=target_id)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     form = MergerOutSourceForm(request.form)
     return tpl('merger_douban_target_info.html', target=target, reminder_emails=reminder_emails,
