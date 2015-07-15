@@ -3,7 +3,7 @@ import StringIO
 import mimetypes
 import datetime
 
-from flask import Response
+from flask import Response, g
 from werkzeug.datastructures import Headers
 import xlsxwriter
 
@@ -76,7 +76,154 @@ def write_outsource_excel(monthes, data):
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
-                (u"OutsourceWeekly", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+                (u"外包总计", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+def _insert_month_data(worksheet, align_center, data, now_year, month, th):
+    if data:
+        worksheet.merge_range(
+            th, 1, th + len(data) - 1, 1, month + u'月', align_center)
+        for k in data:
+            worksheet.write(th, 2, k.contract or u'无合同号', align_center)
+            worksheet.write(th, 3, k.campaign, align_center)
+            worksheet.write(th, 4, sum(k.executive_report(
+                g.user, now_year, ['01', '02', '03'], 'normal')), align_center)
+            worksheet.write(th, 5, sum(k.executive_report(
+                g.user, now_year, ['04', '05', '06'], 'normal')), align_center)
+            worksheet.write(th, 6, sum(k.executive_report(
+                g.user, now_year, ['07', '08', '09'], 'normal')), align_center)
+            worksheet.write(th, 7, sum(k.executive_report(
+                g.user, now_year, ['10', '11', '12'], 'normal')), align_center)
+            worksheet.write(th, 8, k.money, align_center)
+            worksheet.write(th, 9, k.locations_cn, align_center)
+            worksheet.write(th, 10, float(k.outsources_sum), align_center)
+            worksheet.write(
+                th, 11, str(float(k.outsources_percent)) + '%', align_center)
+            worksheet.write(th, 12, float(k.outsources_paied_sum), align_center)
+            o_money = k.o_money
+            for i in range(len(o_money)):
+                worksheet.write(th, 13 + i, o_money[i], align_center)
+            th += 1
+    else:
+        worksheet.write(th, 1, month + u'月', align_center)
+        for k in range(39):
+            worksheet.write(th, 1 + k + 1, '', align_center)
+        th += 1
+    return th
+
+
+def _insert_Q(worksheet, align_center, Q, start, end):
+    worksheet.merge_range(start, 0, end, 0, Q, align_center)
+    return
+
+
+def _insert_total_data(worksheet, align_center_color, data, th):
+    worksheet.merge_range(th, 0, th, 12, u'合计', align_center_color)
+    for k in range(len(data)):
+        worksheet.write(th, k + 13, data[k], align_center_color)
+    th += 1
+    return th
+
+
+def write_outsource_info_excel(now_year, pre_month_orders, total_Q_data):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    align_center_color = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1, 'fg_color': '#228B22'})
+    # 设置宽度为30
+    for k in range(41):
+        worksheet.set_column(k, 0, 15)
+    # 设置高度
+    for k in range(1000):
+        worksheet.set_row(k, 25)
+    worksheet.merge_range(0, 0, 2, 1, u'详情/月份', align_center_color)
+
+    worksheet.merge_range(0, 2, 1, 12, u'合同信息', align_center_color)
+    keys = [u'项目合同号', u'项目名称', u'Q1执行额', u'Q2执行额', u'Q3执行额',
+            u'Q4执行额', u'项目金额', u'大区', u'应付小计', u'所占比重', u'实付金额']
+    for k in range(len(keys)):
+        worksheet.write(2, k + 2, keys[k], align_center_color)
+
+    start, end = 13, 19
+    for k in range(4):
+        worksheet.merge_range(0, start, 0, end, u'项目成本', align_center_color)
+        worksheet.merge_range(
+            1, start, 1, end, 'Q' + str(k + 1), align_center_color)
+        start, end = end + 1, end + 7
+
+    keys = [u'奖品', u'Flash', u'劳务(KOL、线下活动等)', u'效果优化', u'其他(视频等)',
+            u'flash&H5开发', u'H5开发']
+
+    td = 13
+    for i in range(4):
+        for k in keys:
+            worksheet.write(2, td, k, align_center_color)
+            td += 1
+
+    th = 3
+    Q1_start = th
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['1'], now_year, '1', th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['2'], now_year, '2', th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['3'], now_year, '3', th)
+    _insert_Q(worksheet, align_center, 'Q1', Q1_start, th - 1)
+    Q2_start = th
+    th = _insert_total_data(
+        worksheet, align_center_color, total_Q_data['first'], th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['4'], now_year, '4', th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['5'], now_year, '5', th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['6'], now_year, '6', th)
+    _insert_Q(worksheet, align_center, 'Q2', Q2_start + 1, th - 1)
+    Q3_start = th
+    th = _insert_total_data(
+        worksheet, align_center_color, total_Q_data['second'], th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['7'], now_year, '7', th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['8'], now_year, '8', th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['9'], now_year, '9', th)
+    _insert_Q(worksheet, align_center, 'Q3', Q3_start + 1, th - 1)
+    Q4_start = th
+    th = _insert_total_data(
+        worksheet, align_center_color, total_Q_data['third'], th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['10'], now_year, '10', th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['11'], now_year, '11', th)
+    th = _insert_month_data(
+        worksheet, align_center, pre_month_orders['12'], now_year, '12', th)
+    _insert_Q(worksheet, align_center, 'Q4', Q4_start + 1, th - 1)
+    th = _insert_total_data(
+        worksheet, align_center_color, total_Q_data['forth'], th)
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                ('外包详情', datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
     mimetype_tuple = mimetypes.guess_type(filename)
     response_headers = Headers({
         'Pragma': "public",

@@ -1,7 +1,7 @@
 {% extends "/data_query/data_query_base.html" %}
 {% block title %}外包详情{% endblock %}
 {% block main_box %}
-<div class="bra-main bra-box" style="width:2300px;">
+<div class="bra-main bra-box" style="width:2800px;">
     <h3>外包详情</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
@@ -72,10 +72,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -98,10 +98,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -125,10 +125,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -139,7 +139,12 @@
             {% endfor %}
         </tr>
         {% endfor %}
-
+        <tr>
+            <th colspan=13>合计</th>
+            {% for i in total_Q_data.first %}
+            <td>{{i}}</td>
+            {% endfor %}
+        </tr>
         <tr>
             <th rowspan={{ pre_month_orders['4']|length+pre_month_orders['5']|length+pre_month_orders['6']|length+4 }}>Q2</th>
         </tr>
@@ -155,10 +160,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -181,10 +186,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -207,10 +212,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -221,6 +226,12 @@
             {% endfor %}
         </tr>
         {% endfor %}
+        <tr>
+            <th colspan=13>合计</th>
+            {% for i in total_Q_data.second %}
+            <td>{{i}}</td>
+            {% endfor %}
+        </tr>
         <tr>
             <th rowspan={{ pre_month_orders['7']|length+pre_month_orders['8']|length+pre_month_orders['9']|length+4 }}>Q3</th>
         </tr>
@@ -236,10 +247,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -262,10 +273,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -289,10 +300,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -303,7 +314,12 @@
             {% endfor %}
         </tr>
         {% endfor %}
-
+        <tr>
+            <th colspan=13>合计</th>
+            {% for i in total_Q_data.third %}
+            <td>{{i}}</td>
+            {% endfor %}
+        </tr>
         <tr>
             <th rowspan={{ pre_month_orders['10']|length+pre_month_orders['11']|length+pre_month_orders['12']|length+4 }}>Q4</th>
         </tr>
@@ -319,10 +335,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -345,10 +361,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -359,7 +375,6 @@
             {% endfor %}
         </tr>
         {% endfor %}
-
         <tr>
             <th rowspan={{pre_month_orders['12']|length+1}}>12月</th>
             {% if not pre_month_orders['12'] %}
@@ -372,10 +387,10 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
+            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum}}</td>
@@ -386,7 +401,12 @@
             {% endfor %}
         </tr>
         {% endfor %}
-
+        <tr>
+            <th colspan=13>合计</th>
+            {% for i in total_Q_data.forth %}
+            <td>{{i}}</td>
+            {% endfor %}
+        </tr>
 
     </table>
 </div>
