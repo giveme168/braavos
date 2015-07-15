@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
+import numpy
 
 from flask import Blueprint, request
 from flask import render_template as tpl
@@ -7,7 +8,7 @@ from flask import render_template as tpl
 from models.outsource import OutSourceExecutiveReport
 from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q)
 from libs.date_helpers import get_monthes_pre_days
-from controllers.data_query.helpers.outsource_helpers import write_outsource_excel
+from controllers.data_query.helpers.outsource_helpers import write_outsource_excel, write_outsource_info_excel
 
 
 data_query_outsource_bp = Blueprint(
@@ -83,20 +84,25 @@ def info():
     pre_monthes = get_monthes_pre_days(start_date, end_date)
     pre_month_orders = {}
 
+    # 季度月份数
+    Q1_monthes = [datetime.datetime.strptime(
+        str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q1')]
+    Q2_monthes = [datetime.datetime.strptime(
+        str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q2')]
+    Q3_monthes = [datetime.datetime.strptime(
+        str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q3')]
+    Q4_monthes = [datetime.datetime.strptime(
+        str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q4')]
+
+    # 获取每个月的合同信息
     for k in pre_monthes:
         pre_month_orders[str(k['month'].month)] = list(
             set([s['order'] for s in outsources if s['month'] == k['month']]))
 
-    for k in pre_month_orders.values():
-        for i in k:
-            Q1_monthes = [datetime.datetime.strptime(
-                str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q1')]
-            Q2_monthes = [datetime.datetime.strptime(
-                str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q2')]
-            Q3_monthes = [datetime.datetime.strptime(
-                str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q3')]
-            Q4_monthes = [datetime.datetime.strptime(
-                str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q4')]
+    # 获取单个合同每个季度的单项外包数据
+    for k in range(len(pre_month_orders.values())):
+        orders = pre_month_orders.values()[k]
+        for i in orders:
             o_money = []
             o_money += [sum([o['pay_num'] for o in outsources if o['month'] >= Q1_monthes[0] and o[
                             'month'] <= Q1_monthes[2] and o['type'] == t and o['order'] == i]) for t in range(1, 8)]
@@ -107,4 +113,20 @@ def info():
             o_money += [sum([o['pay_num'] for o in outsources if o['month'] >= Q4_monthes[0] and o[
                             'month'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i]) for t in range(1, 8)]
             i.o_money = o_money
-    return tpl('/data_query/outsource/info.html', now_year=now_year, pre_month_orders=pre_month_orders)
+    total_Q_data = {}
+    total_Q_data['first'] = numpy.array([0 for k in range(28)])
+    total_Q_data['second'] = numpy.array([0 for k in range(28)])
+    total_Q_data['third'] = numpy.array([0 for k in range(28)])
+    total_Q_data['forth'] = numpy.array([0 for k in range(28)])
+    for k in pre_month_orders['1'] + pre_month_orders['2'] + pre_month_orders['3']:
+        total_Q_data['first'] += numpy.array(k.o_money)
+    for k in pre_month_orders['4'] + pre_month_orders['5'] + pre_month_orders['6']:
+        total_Q_data['second'] += numpy.array(k.o_money)
+    for k in pre_month_orders['7'] + pre_month_orders['8'] + pre_month_orders['9']:
+        total_Q_data['third'] += numpy.array(k.o_money)
+    for k in pre_month_orders['10'] + pre_month_orders['11'] + pre_month_orders['12']:
+        total_Q_data['forth'] += numpy.array(k.o_money)
+    if request.values.get('action', '') == 'download':
+        return write_outsource_info_excel(now_year, pre_month_orders, total_Q_data)
+    return tpl('/data_query/outsource/info.html', now_year=now_year,
+               pre_month_orders=pre_month_orders, total_Q_data=total_Q_data)

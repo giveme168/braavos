@@ -35,3 +35,4 @@ xpinyin==0.5.3
 requests
 XlsxWriter
 flask-debugtoolbar
+numpy
