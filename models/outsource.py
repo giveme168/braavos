@@ -627,8 +627,8 @@ class MergerOutSource(db.Model, BaseModelMixin, CommentMixin):
         self.create_time = datetime.date.today()
 
     @classmethod
-    def get_outsources_by_status(cls, status):
-        return cls.query.filter_by(status=status)
+    def get_outsources_by_status(cls, status, target_id):
+        return cls.query.filter_by(status=status, target_id=target_id)
 
     @property
     def media_info(self):
@@ -668,8 +668,8 @@ class MergerDoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
         self.create_time = datetime.date.today()
 
     @classmethod
-    def get_outsources_by_status(cls, status):
-        return cls.query.filter_by(status=status)
+    def get_outsources_by_status(cls, status, target_id):
+        return cls.query.filter_by(status=status, target_id=target_id)
 
     @property
     def media_info(self):

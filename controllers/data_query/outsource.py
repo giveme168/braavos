@@ -104,20 +104,20 @@ def info():
         orders = pre_month_orders.values()[k]
         for i in orders:
             o_money = []
-            o_money += [sum([o['pay_num'] for o in outsources if o['month'] >= Q1_monthes[0] and o[
-                            'month'] <= Q1_monthes[2] and o['type'] == t and o['order'] == i]) for t in range(1, 8)]
-            o_money += [sum([o['pay_num'] for o in outsources if o['month'] >= Q2_monthes[0] and o[
-                            'month'] <= Q2_monthes[2] and o['type'] == t and o['order'] == i]) for t in range(1, 8)]
-            o_money += [sum([o['pay_num'] for o in outsources if o['month'] >= Q3_monthes[0] and o[
-                            'month'] <= Q3_monthes[2] and o['type'] == t and o['order'] == i]) for t in range(1, 8)]
-            o_money += [sum([o['pay_num'] for o in outsources if o['month'] >= Q4_monthes[0] and o[
-                            'month'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i]) for t in range(1, 8)]
+            o_money += [float(sum([o['pay_num'] for o in outsources if o['month'] >= Q1_monthes[0] and o[
+                'month'] <= Q1_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
+            o_money += [float(sum([o['pay_num'] for o in outsources if o['month'] >= Q2_monthes[0] and o[
+                'month'] <= Q2_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
+            o_money += [float(sum([o['pay_num'] for o in outsources if o['month'] >= Q3_monthes[0] and o[
+                'month'] <= Q3_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
+            o_money += [float(sum([o['pay_num'] for o in outsources if o['month'] >= Q4_monthes[0] and o[
+                'month'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
             i.o_money = o_money
     total_Q_data = {}
-    total_Q_data['first'] = numpy.array([0 for k in range(28)])
-    total_Q_data['second'] = numpy.array([0 for k in range(28)])
-    total_Q_data['third'] = numpy.array([0 for k in range(28)])
-    total_Q_data['forth'] = numpy.array([0 for k in range(28)])
+    total_Q_data['first'] = numpy.array([float(0) for k in range(28)])
+    total_Q_data['second'] = numpy.array([float(0) for k in range(28)])
+    total_Q_data['third'] = numpy.array([float(0) for k in range(28)])
+    total_Q_data['forth'] = numpy.array([float(0) for k in range(28)])
     for k in pre_month_orders['1'] + pre_month_orders['2'] + pre_month_orders['3']:
         total_Q_data['first'] += numpy.array(k.o_money)
     for k in pre_month_orders['4'] + pre_month_orders['5'] + pre_month_orders['6']:
