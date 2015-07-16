@@ -776,7 +776,7 @@ def framework_order_info(order_id):
     if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
         if info_type == 0:
-            if not order.can_admin(g.user):
+            if not order.can_admin(g.user) and not g.user.is_contract():
                 flash(u'您没有编辑权限! 请联系该框架的创建者或者销售同事!', 'danger')
             else:
                 framework_form = FrameworkOrderForm(request.form)

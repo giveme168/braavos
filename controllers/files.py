@@ -60,7 +60,7 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
             flash(u'合同文件上传成功!', 'success')
         elif file_type == FILE_TYPE_SCHEDULE:
             attachment = order.add_schedule_attachment(g.user, filename)
-            flash(u'排期文件上传成功!', 'success')
+            flash(u'文件上传成功!', 'success')
         elif file_type == FILE_TYPE_OUTSOURCE:
             flash(u'资料上传成功', 'success')
             order.add_outsource_attachment(g.user, filename)
