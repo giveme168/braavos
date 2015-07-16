@@ -2,11 +2,11 @@
 {% block title %}我的客户订单{% endblock %}
 
 {% block main_box %}
-<div class="bra-main bra-box">
+<div class="bra-main bra-box" style="width:1300px;">
     <h3>{{title}}</h3>
     <div class="search">
         <input class="col-md-1" style="width:200px;" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
-        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
+        <div class="col-md-2" style="padding:0;margin:0 5px;" id="search-area">
             <select class="col-md-12" id="search_location" name="location" placeholder="区域">
                 {% for v, m in locations %}
                     {% if v == location_id|int %}
@@ -40,6 +40,7 @@
             <select class="col-md-12" id="status" name="status" placeholder="选择查看状态">
                 <option value="">所有</option>
                 <option value="apply">报备中</option>
+                <option value="apply_upper">超过2%报备中</option>
                 <option value="pass">已报备</option>
                 <option value="money">打款中</option>
                 <option value="pay">已打款</option>
@@ -61,6 +62,7 @@
             <th>结束时间</th>
             <th>未报备</th>
             <th>报备中</th>
+            <th>超过2%报备中</th>
             <th>已报备</th>
             <th>打款中</th>
             <th>已打款</th>
@@ -81,7 +83,8 @@
             <td>{{order.start_date_cn}}</td>
             <td>{{order.end_date_cn}}</td>
             <td>{{order.get_outsources_by_status(0) | length}}</td>
-            <td>{{order.get_outsources_by_status(1) | length + order.get_outsources_by_status(5) | length}}</td>
+            <td>{{order.get_outsources_by_status(1) | length}}</td>
+            <td>{{order.get_outsources_by_status(5) | length}}</td>
             <td>{{order.get_outsources_by_status(2) | length}}</td>
             <td>{{order.get_outsources_by_status(3) | length}}</td>
             <td>{{order.get_outsources_by_status(4) | length}}</td>

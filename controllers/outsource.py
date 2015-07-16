@@ -8,7 +8,8 @@ from models.outsource import (OutSourceTarget, OutSource, DoubanOutSource,
 from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.order import Order
 from models.douban_order import DoubanOrder
-from models.user import User, TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER, TEAM_LOCATION_CN
+from models.user import (User, TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER, TEAM_LOCATION_CN,
+                         TEAM_TYPE_LEADER, TEAM_LOCATION_HUANAN, TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG)
 from models.outsource import (OUTSOURCE_STATUS_NEW, OUTSOURCE_STATUS_APPLY_LEADER,
                               OUTSOURCE_STATUS_PASS, OUTSOURCE_STATUS_APPLY_MONEY,
                               OUTSOURCE_STATUS_EXCEED, INVOICE_RATE, OUTSOURCE_STATUS_PAIED,
@@ -143,16 +144,36 @@ def display_orders(orders, template, title, operaters):
     location_id = int(request.args.get('selected_location', '-1'))
     status = request.args.get('status', '')
     page = int(request.args.get('p', 1))
-    if location_id >= 0:
+
+    if g.user.team.type == TEAM_TYPE_LEADER:
+        status = 'apply'
+        location_id = g.user.team.location
+
+    # 盖新的查看内容
+    if int(g.user.id) == 15:
+        status = 'apply_upper'
+        location_id = [TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG]
+
+    # Oscar的查看内容
+    if int(g.user.id) == 16:
+        status = 'apply_upper'
+        location_id = TEAM_LOCATION_HUANAN
+
+    if isinstance(location_id, list):
+        orders = [o for o in orders if len(set(location_id) & set(o.locations)) > 0]
+    elif location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
+
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_info.lower()]
+
     if status == 'apply':
-        orders = [o for o in orders if o.get_outsources_by_status(
-            1) + o.get_outsources_by_status(5)]
+        orders = [o for o in orders if o.get_outsources_by_status(1)]
+    if status == 'apply_upper':
+        orders = [o for o in orders if o.get_outsources_by_status(5)]
     if status == 'pass':
         orders = [o for o in orders if o.get_outsources_by_status(2)]
     if status == 'money':
@@ -714,7 +735,8 @@ def merget_client_target_info(target_id):
     m_outsources = []
     for k in apply_merger_outsources:
         m_outsources += k.outsources
-    apply_money_outsources = [k for k in OutSource.get_outsources_by_target(target_id, 3) if k not in m_outsources]
+    apply_money_outsources = [k for k in OutSource.get_outsources_by_target(
+        target_id, 3) if k not in m_outsources]
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     form = MergerOutSourceForm(request.form)
     return tpl('merger_client_target_info.html', target=target,
