@@ -606,6 +606,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return sum([k.money for k in self.backmoneys] + [k.money for k in self.back_invoice_rebate_list])
 
     @property
+    def client_back_moneys(self):
+        return sum([k.money for k in self.backmoneys])
+
+    @property
     def back_money_status_cn(self):
         if self.back_money_status == 0:
             return BACK_MONEY_STATUS_CN[BACK_MONEY_STATUS_END]
