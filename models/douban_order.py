@@ -537,7 +537,7 @@ by %s\n
             else:
                 pre_money = 0
             try:
-                moneys.append(pre_money / count)
+                moneys.append(round(pre_money / count, 2))
             except:
                 moneys.append(0)
         return moneys
@@ -549,7 +549,7 @@ by %s\n
     def rebate_agent_by_month(self, year, month):
         rebate = self.agent.douban_rebate_by_year(self.client_start.year)
         ex_money = self.executive_report(g.user, year, [month], 'normal')[0]
-        return ex_money * rebate / 100
+        return round(ex_money * rebate / 100, 2)
 
     def rebate_money(self, year, month, type='profit'):
         rebate_money = 0
@@ -567,7 +567,8 @@ by %s\n
         return 0
 
     def profit_money(self, year, month):
-        return self.money * 0.4 - self.rebate_agent_by_month(year, month)
+        return round(self.executive_report(g.user, year, [month], 'normal')[0] * 0.4 -
+                     self.rebate_agent_by_month(year, month), 2)
 
     def get_saler_leaders(self):
         leaders = []
