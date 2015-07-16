@@ -7,7 +7,7 @@
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
   <button class="file-widget-btn btn btn-sm btn-primary">
-    <span>上传合同</span>
+    <span>上传致趣合同</span>
   </button>
   {% set contract = order.get_last_contract() %}
   {% if contract %}
@@ -25,8 +25,8 @@
 <form method="POST" action="{{schedule_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
-  <button class="file-widget-btn btn btn-sm btn-info">
-    <span>上传排期</span>
+  <button class="file-widget-btn btn btn-sm btn-primary">
+    <span>上传豆瓣合同</span>
   </button>
   {% set schedule = order.get_last_schedule() %}
   {% if schedule %}

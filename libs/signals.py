@@ -259,8 +259,8 @@ by %s\n
        order.start_date_cn, order.end_date_cn,
        order.money, url, g.user.name)
     file_paths = []
-    if order.get_last_contract():
-        file_paths.append(order.get_last_contract().real_path)
+    #if order.get_last_contract():
+    #    file_paths.append(order.get_last_contract().real_path)
     if order.get_last_schedule():
         file_paths.append(order.get_last_schedule().real_path)
     send_attach_mail(u'【合同流程】%s-%s' % (order.name, u'豆瓣合同号申请'),

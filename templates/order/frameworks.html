@@ -5,6 +5,7 @@
 <table class="table table-bordered table-striped">
     <tr>
         <th>代理集团</th>
+        <th>直客/代理</th>
         <th>合同金额</th>
         <th>合同号</th>
         <th>直客销售</th>
@@ -18,8 +19,13 @@
     {% for o in orders %}
     <tr>
         <td>{{o.group.name}}</td>
+        <td>
+            {% for agent in o.agents %}
+            {{agent.name}} <br>
+            {% endfor %}
+        </td>
         <td>{{o.money}}</td>
-        <td>{{o.contract or "无合同号"}}</td>
+        <td><a href="{{url_for('order.framework_order_info', order_id=o.id)}}">{{o.contract or "无合同号"}}</a></td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
         <td>{{o.start_date_cn}}</td>
