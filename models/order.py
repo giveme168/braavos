@@ -589,6 +589,13 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             return self.associated_douban_orders[0].contract
         return self.medium_contract
 
+    @property
+    def associated_douban_order(self):
+        if self.associated_douban_orders.count():
+            return self.associated_douban_orders[0]
+        else:
+            return {}
+
     def associated_douban_orders_pro_month_money(self, year, month):
         if self.associated_douban_orders.count():
             pre_money = float(self.associated_douban_orders[0].money) / \
