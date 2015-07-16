@@ -253,26 +253,26 @@
             <td>{{target.client_outsources_by_status(OUTSOURCE_STATUS_PASS) | length }}</td>
         </tr>
     </table>
-    <!--正在打款信息开始-->
-    {% if paid_outsources %}
-      {{ merger_outsources_table(paid_outsources, 4) }}
-    {% endif %}
-    <!--正在打款信息结束-->
-    <!--正在打款信息开始-->
-    {% if apply_money_outsources %}
-      {{ merger_outsources_table(apply_money_outsources, 3) }}
-    {% endif %}
-    <!--正在打款信息结束-->
-    <!--合并付款开始-->
-    {% if apply_outsources %}
-      {{ merger_outsources_table(apply_outsources, 2) }}
-    {% endif %}
-    <!--合并付款结束-->
     <!--申请中的打款信息开始-->
     {% if apply_merger_outsources.count() > 0 %}
       {{ merger_table(apply_merger_outsources, 1, target) }}
     {% endif %}
     <!--申请中的打款信息结束-->
+    <!--合并付款开始-->
+    {% if apply_outsources %}
+      {{ merger_outsources_table(apply_outsources, 2) }}
+    {% endif %}
+    <!--合并付款结束-->
+    <!--正在打款信息开始-->
+    {% if apply_money_outsources %}
+      {{ merger_outsources_table(apply_money_outsources, 3) }}
+    {% endif %}
+    <!--正在打款信息结束-->
+    <!--正在打款信息开始-->
+    {% if paid_outsources %}
+      {{ merger_outsources_table(paid_outsources, 4) }}
+    {% endif %}
+    <!--正在打款信息结束-->
 </div>
 <!-- Modal -->
 <div class="modal fade" id="update_Modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
