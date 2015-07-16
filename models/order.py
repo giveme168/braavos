@@ -544,7 +544,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         rebate = self.medium.rebate_by_year(year)
         ex_monety = self.get_executive_report_medium_money_by_month(
             year, month, 'normal')['medium_money2']
-        return ex_monety * rebate / 100
+        return round(ex_monety * rebate / 100, 2)
 
     def get_executive_report_medium_money_by_month(self, year, month, sale_type):
         if sale_type == 'agent':
@@ -562,9 +562,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         executive_report = MediumOrderExecutiveReport.query.filter_by(
             order=self, month_day=day_month).first()
         if executive_report:
-            return {'medium_money': executive_report.medium_money / count,
-                    'medium_money2': executive_report.medium_money2 / count,
-                    'sale_money': executive_report.sale_money / count}
+            return {'medium_money': round(executive_report.medium_money / count, 2),
+                    'medium_money2': round(executive_report.medium_money2 / count, 2),
+                    'sale_money': round(executive_report.sale_money / count, 2)}
         else:
             return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
 
