@@ -150,12 +150,12 @@ def display_orders(orders, template, title, operaters):
         location_id = g.user.team.location
 
     # 盖新的查看内容
-    if int(g.user.id) == 8:
+    if int(g.user.id) == 15:
         status = 'apply_upper'
         location_id = [TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG]
 
     # Oscar的查看内容
-    if int(g.user.id) == 9:
+    if int(g.user.id) == 16:
         status = 'apply_upper'
         location_id = TEAM_LOCATION_HUANAN
 
