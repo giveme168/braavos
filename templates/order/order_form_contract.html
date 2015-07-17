@@ -10,7 +10,7 @@
     </div>
   </div>
   <div class="form-group">
-    <label for="name" class="col-sm-4 control-label">申请致趣合同号 : </label>
+    <label for="name" class="col-sm-4 control-label">致趣合同号 : </label>
     <div class="col-sm-8">
         <input class="form-control bra-form-control" name="base_contract" type="text" value="{{order.contract}}"/>
         {% if order.contract_generate %}
@@ -41,7 +41,7 @@
   {% endfor %}
   {% if order.__tablename__ == 'bra_framework_order' %}
   <div class="form-group">
-    <label for="name" class="col-sm-4 control-label">申请豆瓣合同号 : </label>
+    <label for="name" class="col-sm-4 control-label">豆瓣合同号 : </label>
     <div class="col-sm-8">
       <input class="form-control bra-form-control" name="douban_contract"type="text" value="{{order.douban_contract or ''}}"/>
       <a class="btn btn-info btn-sm" href="{{order.douban_contract_apply_path()}}">向豆瓣申请</a>
