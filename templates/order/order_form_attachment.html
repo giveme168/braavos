@@ -7,7 +7,11 @@
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
   <button class="file-widget-btn btn btn-sm btn-primary">
+  {% if order.__tablename__ == 'bra_framework_order'%}
     <span>上传致趣合同</span>
+  {% else %}
+    <span>上传合同</span>
+  {% endif %}
   </button>
   {% set contract = order.get_last_contract() %}
   {% if contract %}
