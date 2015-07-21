@@ -214,7 +214,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def rebate_agent_by_month(self, year, month):
         rebate = self.agent.inad_rebate_by_year(year)
         ex_money = self.executive_report(g.user, year, [month], 'normal')[0]
-        return ex_money * rebate / 100
+        return round(ex_money * rebate / 100, 2)
 
     def rebate_money(self, year, month, type='profit'):
         rebate_money = 0
@@ -606,6 +606,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return sum([k.money for k in self.backmoneys] + [k.money for k in self.back_invoice_rebate_list])
 
     @property
+    def client_back_moneys(self):
+        return sum([k.money for k in self.backmoneys])
+
+    @property
     def back_money_status_cn(self):
         if self.back_money_status == 0:
             return BACK_MONEY_STATUS_CN[BACK_MONEY_STATUS_END]
@@ -750,7 +754,7 @@ by %s\n
             except:
                 pre_money = 0
             try:
-                moneys.append(pre_money / count)
+                moneys.append(round(pre_money / count, 2))
             except:
                 moneys.append(0)
         return moneys
