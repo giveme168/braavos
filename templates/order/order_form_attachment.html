@@ -7,7 +7,11 @@
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
   <button class="file-widget-btn btn btn-sm btn-primary">
+  {% if order.__tablename__ == 'bra_framework_order'%}
     <span>上传致趣合同</span>
+  {% else %}
+    <span>上传合同</span>
+  {% endif %}
   </button>
   {% set contract = order.get_last_contract() %}
   {% if contract %}
@@ -25,9 +29,15 @@
 <form method="POST" action="{{schedule_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
+  {% if order.__tablename__ == 'bra_framework_order' %}
   <button class="file-widget-btn btn btn-sm btn-primary">
     <span>上传豆瓣合同</span>
   </button>
+  {% else %}
+  <button class="file-widget-btn btn btn-sm btn-info">
+    <span>上传排期</span>
+  </button>
+  {% endif %}
   {% set schedule = order.get_last_schedule() %}
   {% if schedule %}
   <a href="{{schedule.path}}">
