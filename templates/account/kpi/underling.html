@@ -1,0 +1,88 @@
+{% extends "/account/account_base.html" %}
+{% block title %}下属绩效考核{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box" style="width:1200px;">
+    <div>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-1">
+            <div class="search">
+                <form class="form-inline" role="form" action="{{url_for('account_kpi.underling')}}?{{params}}" method='get'>
+                    <!--
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="number" name="number" placeholder="编号">
+                    </div>-->
+                    <div class="form-group">
+                        <select class="form-control" id="status" name="status" placeholder="选择状态">
+                            <option value='0'>所有状态</option>
+                            <option value="2">Leader审批中</option>
+                            <option value="3">HR整理中</option>
+                            <option value="4">归档</option>
+                        </select>
+                    </div>
+                    
+                    <input type="submit" value="查询" class="btn btn-sm btn-info" style="width:80px;">
+                </form>
+            </div>
+            <br/>
+            <table class="table table-bordered">
+                <tr>
+                    <th>填写人</th>
+                    <th>KR指标自评分/上级评分</th>
+                    <th>改进提升自评分/上级评分</th>
+                    <th>管理指标自评分/上级评分</th>
+                    <th>胜任能力自评分/上级评分</th>
+                    <th>绩效评估自评总分/上级评分</th>
+                    <th>状态</th>
+                    <th style="width:100px;">操作</th>
+                </tr>
+                {% for k in reports %}
+                <tr id="tr_{{k.id}}">
+                    <td><a href="{{url_for('account_kpi.info', r_id=k.id)}}">{{k.creator.name}}</a></td>
+                    <td>{{k.self_KR_score}}/{{k.KR_score}}</td>
+                    <td>{{k.self_upper_score}}/{{k.upper_score}}</td>
+                    <td>{% if k.type==2 %}{{k.self_manage_score}}/{{k.manage_score}}{% else %}无{% endif %}</td>
+                    <td>{{k.self_ability_score}}/{{k.ability_score}}</td>
+                    <td>{{k.self_total_score}}/{{k.total_score}}</td>
+                    <td>{{k.status_cn}}</td>
+                    <td>
+                        {% if k.status == 2 and g.user.is_kpi_leader%}
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=1)}}">打回重填</a><br/>
+                            <a href="{{url_for('account_kpi.check_apply', r_id=k.id)}}">审批</a><br/>
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=3)}}">提交HR</a><br/>
+                        {% elif k.status == 3 and g.user.is_HR_leader() %}
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=2)}}">打回重评</a><br/>
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=4)}}">归档</a><br/>
+                        {% elif k.status == 4 and g.user.is_HR_leader() %}
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=3)}}">取消归档</a><br/>
+                            <a href="{{url_for('account_kpi.info', r_id=k.id)}}?action=excel">下载</a><br/>
+                        {% endif %}
+                        {% if g.user.is_admin() %}
+                            <a href="javascript:deletes('{{url_for('account_kpi.delete', r_id=k.id)}}', '{{k.creator.name}}')">删除</a><br/>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% set pages = reports %}
+            {% include "pagination.html" %}
+          </div>
+        </div>
+    </div>
+</div>
+<script>
+    function deletes(url, title){
+        var flag=confirm("确定要删除:"+title+"这个人的绩效考核吗?");
+        if(flag){
+            $.get(url, {},
+            function(data){
+                $('#tr_'+data['id']).remove()
+            }, "json");
+        }
+    }
+    $(function(){
+        $('#status').val('{{status}}')
+        $('#status').trigger("chosen:updated");
+    })
+</script>
+{% endblock %}

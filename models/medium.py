@@ -540,28 +540,28 @@ class MediumResource(db.Model, BaseModelMixin):
     shape = db.Column(db.Integer, default=1)      # 形态
     product = db.Column(db.Integer, default=0)    # 所属产品
     resource_type = db.Column(db.Integer)         # 资源形式
-    page_postion = db.Column(db.String(200))      # 页面位置
-    ad_position = db.Column(db.String(200))       # 广告位置
+    page_postion = db.Column(db.String(450))      # 页面位置
+    ad_position = db.Column(db.String(450))       # 广告位置
     cpm = db.Column(db.Float)
     b_click = db.Column(db.Integer, default=1)    # 是否可点击
     click_rate = db.Column(db.Float, default=0)   # 点击率
     buy_unit = db.Column(db.Integer, default=1)   # 购买单位
-    buy_threshold = db.Column(db.String(200), default="")   # 购买门槛
+    buy_threshold = db.Column(db.String(450), default="")   # 购买门槛
     money = db.Column(db.Float, default=0)        # 刊例单价
     b_directional = db.Column(db.Integer, default=1)        # 是否可定向
     directional_type = db.Column(db.Integer, default=1)     # 定向类型
     directional_money = db.Column(db.Float, default=0)      # 定向价格
     discount = db.Column(db.Float, default=0)     # 折扣
-    ad_size = db.Column(db.String(200))           # 广告尺寸
-    materiel_format = db.Column(db.String(200))   # 物料格式
+    ad_size = db.Column(db.String(450))           # 广告尺寸
+    materiel_format = db.Column(db.String(450))   # 物料格式
     less_buy = db.Column(db.Integer, default=0)   # 最小购买值
     b_give = db.Column(db.Integer, default=0)     # 是否可配送
-    give_desc = db.Column(db.String(200))         # 配送门槛
+    give_desc = db.Column(db.String(450))         # 配送门槛
     b_check_exposure = db.Column(db.Integer, default=0)     # 是否可监测曝光
     b_check_click = db.Column(db.Integer, default=0)        # 是否个监测点击
     b_out_link = db.Column(db.Integer, default=0)           # 是否可外链
     b_in_link = db.Column(db.Integer, default=0)            # 是否可内链
-    description = db.Column(db.String(255))       # 描述
+    description = db.Column(db.String(450))       # 描述
     create_time = db.Column(db.DateTime)
     update_time = db.Column(db.DateTime)
     body = db.Column(db.Text(), default=json.dumps([]))

@@ -20,6 +20,7 @@ agent_invoice_apply_signal = braavos_signals.signal('agent_invoice_apply')
 outsource_distribute_signal = braavos_signals.signal('outsource_distribute')
 merger_outsource_apply_signal = braavos_signals.signal('merger_outsource_apply')
 apply_leave_signal = braavos_signals.signal('apply_leave')
+kpi_apply_signal = braavos_signals.signal('kpi_apply')
 
 
 def password_changed(sender, user):
@@ -452,6 +453,72 @@ Dear %s:
                      (leave.creator.name), recipients=to_emails, body=body)
 
 
+def kpi_apply(sender, apply_context):
+    report = apply_context['report']
+    if report.status == 2:
+        url = mail.app.config['DOMAIN'] + url_for('account_kpi.check_apply', r_id=report.id)
+        to_names = ','.join([k.name for k in report.creator.team_leaders])
+        user_name = report.creator.name
+        to_users = [k.email for k in report.creator.team_leaders] + [report.creator.email]
+        title = u'绩效考核申请审批'
+        body = u"""
+Dear %s:
+
+请您为 %s 的绩效考核打分。
+
+附注: 
+    KPI链接地址: %s
+
+    """ % (to_names, user_name, url)
+    elif report.status == 1:
+        url = mail.app.config['DOMAIN'] + url_for('account_kpi.update', r_id=report.id)
+        to_names = report.creator.name
+        user_name = report.creator.name
+        to_users = [k.email for k in report.creator.team_leaders] + [report.creator.email]
+        title = u'绩效考核被打回'
+        body = u"""
+Dear %s:
+
+您的绩效考核被打回请重新填写。
+
+附注: 
+    KPI链接地址: %s
+
+    """ % (to_names, url)
+    elif report.status == 3:
+        url = mail.app.config['DOMAIN'] + url_for('account_kpi.info', r_id=report.id)
+        to_names = ','.join([k.name for k in User.HR_leaders()])
+        user_name = report.creator.name
+        to_users = [k.email for k in User.HR_leaders()] + [report.creator.email] + [k.email for k in report.creator.team_leaders]
+        title = u'绩效考核申请归档'
+        body = u"""
+Dear %s:
+
+%s 的绩效已提交给您，请查看并归档。
+
+附注: 
+    KPI链接地址: %s
+
+    """ % (to_names, user_name, url)
+    elif report.status == 4:
+        url = mail.app.config['DOMAIN'] + url_for('account_kpi.info', r_id=report.id)
+        to_names = report.creator.name
+        user_name = report.creator.name
+        to_users = [k.email for k in User.HR_leaders()] + [report.creator.email] + [k.email for k in report.creator.team_leaders]
+        title = u'绩效考核已归档'
+        body = u"""
+Dear %s:
+
+您的绩效已归档，请通过下边链接查看评分。
+
+附注: 
+    KPI链接地址: %s
+
+    """ % (to_names, url)
+    
+    send_simple_mail(title, list(set(to_users)), body=body)
+
+
 def init_signal(app):
     """注册信号的接收器"""
     password_changed_signal.connect_via(app)(password_changed)
@@ -468,3 +535,4 @@ def init_signal(app):
     outsource_distribute_signal.connect_via(app)(outsource_distribute)
     merger_outsource_apply_signal.connect_via(app)(merger_outsource_apply)
     apply_leave_signal.connect_via(app)(apply_leave)
+    kpi_apply_signal.connect_via(app)(kpi_apply)

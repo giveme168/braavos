@@ -118,7 +118,7 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                         th, 7, ','.join([u.name for u in i['order'].direct_sales]), align_left)
                     worksheet.write(
                         th, 8, ','.join([u.name for u in i['order'].agent_sales]), align_left)
-                    worksheet.write(th, 9, i['order'].money, align_left)
+                    worksheet.write(th, 9, i['order'].zhixing_money(stype), align_left)
                     worksheet.write(
                         th, 10, i['order'].invoice_pass_sum, align_left)
                     worksheet.write(
@@ -194,7 +194,8 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                         for m in range(len(Q_monthes)):
                             worksheet.write(
                                 th, 21 + m, medium_orders[j].associated_douban_orders_pro_month_money(now_year,
-                                                                                                      Q_monthes[m]),
+                                                                                                      Q_monthes[m],
+                                                                                                      stype),
                                 align_left)
                         th += 1
                 else:

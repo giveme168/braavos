@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
+import numpy
 
 from flask import Blueprint, request
 from flask import render_template as tpl
@@ -7,6 +8,7 @@ from flask import render_template as tpl
 from libs.date_helpers import get_monthes_pre_days
 from models.douban_order import DoubanOrderExecutiveReport
 from models.order import MediumOrderExecutiveReport
+from models.client import Agent
 from controllers.data_query.helpers.super_leader_helpers import write_medium_money_excel
 
 data_query_super_leader_medium_bp = Blueprint(
@@ -27,15 +29,15 @@ def _get_medium_moneys(orders, pre_monthes, medium_id):
             location_orders = [
                 o for o in pro_month_orders if len(set(o['locations']) & set([k]))]
             if location_orders:
-                sale_money = sum([k['sale_money'] / len(k['locations'])
-                                  for k in location_orders])
-                money2 = sum([k['medium_money2'] / len(k['locations'])
-                              for k in location_orders])
+                sale_money = sum([o['sale_money'] / len(o['locations'])
+                                  for o in location_orders])
+                money2 = sum([o['medium_money2'] / len(o['locations'])
+                              for o in location_orders])
                 medium_rebate = sum(
-                    [k['medium_money2'] / len(k['locations']) * k['medium_rebate'] / 100 for k in location_orders])
+                    [o['medium_money2'] / len(o['locations']) * o['medium_rebate'] / 100 for o in location_orders])
                 m_ex_money = money2 - medium_rebate
-                a_rebate = sum([k['medium_money2'] / len(k['locations']) *
-                                k['agent_rebate'] / 100 for k in location_orders])
+                a_rebate = sum([o['medium_money2'] / len(o['locations']) *
+                                o['agent_rebate'] / 100 for o in location_orders])
                 profit = sale_money - m_ex_money - a_rebate
                 money_obj['sale_money'].append(round(sale_money, 2))
                 money_obj['money2'].append(round(money2, 2))
@@ -63,6 +65,28 @@ def money():
     douban_orders = DoubanOrderExecutiveReport.query.filter(
         DoubanOrderExecutiveReport.month_day >= start_date_month,
         DoubanOrderExecutiveReport.month_day <= end_date_month)
+
+    medium_orders = MediumOrderExecutiveReport.query.filter(
+        MediumOrderExecutiveReport.month_day >= start_date_month,
+        MediumOrderExecutiveReport.month_day <= end_date_month)
+    medium_orders = [{'month_day': k.month_day, 'order_id': k.client_order.id,
+                      'status': k.status, 'medium_id': k.order.medium_id,
+                      'locations': k.locations, 'sale_money': k.sale_money,
+                      'medium_money2': k.medium_money2,
+                      'medium_rebate': k.order.medium_rebate_by_year(k.month_day),
+                      'agent_rebate': k.client_order.agent_rebate} for k in medium_orders]
+    youli_money = _get_medium_moneys(medium_orders, pre_monthes, 3)
+    wuxian_money = _get_medium_moneys(medium_orders, pre_monthes, 8)
+    momo_money = _get_medium_moneys(medium_orders, pre_monthes, 7)
+    zhihu_money = _get_medium_moneys(medium_orders, pre_monthes, 5)
+    xiachufang_money = _get_medium_moneys(medium_orders, pre_monthes, 6)
+    xueqiu_money = _get_medium_moneys(medium_orders, pre_monthes, 9)
+    huxiu_money = _get_medium_moneys(medium_orders, pre_monthes, 14)
+    kecheng_money = _get_medium_moneys(medium_orders, pre_monthes, 4)
+    midi_money = _get_medium_moneys(medium_orders, pre_monthes, 21)
+    other_money = _get_medium_moneys(medium_orders, pre_monthes, None)
+
+    # 获取直签豆瓣数据
     douban_money = {'ex_money': [], 'in_money': [], 'rebate': [], 'profit': []}
     for d in pre_monthes:
         pro_month_orders = [
@@ -86,24 +110,28 @@ def money():
                 douban_money['in_money'].append(0.0)
                 douban_money['rebate'].append(0.0)
                 douban_money['profit'].append(0.0)
-    medium_orders = MediumOrderExecutiveReport.query.filter(
-        MediumOrderExecutiveReport.month_day >= start_date_month,
-        MediumOrderExecutiveReport.month_day <= end_date_month)
-    medium_orders = [{'month_day': k.month_day,
-                      'status': k.status, 'medium_id': k.order.medium_id,
-                      'locations': k.locations, 'sale_money': k.sale_money,
-                      'medium_money2': k.medium_money2, 'medium_rebate': k.order.medium_rebate,
-                      'agent_rebate': k.client_order.agent_rebate} for k in medium_orders]
-    youli_money = _get_medium_moneys(medium_orders, pre_monthes, 3)
-    wuxian_money = _get_medium_moneys(medium_orders, pre_monthes, 8)
-    momo_money = _get_medium_moneys(medium_orders, pre_monthes, 7)
-    zhihu_money = _get_medium_moneys(medium_orders, pre_monthes, 5)
-    xiachufang_money = _get_medium_moneys(medium_orders, pre_monthes, 6)
-    xueqiu_money = _get_medium_moneys(medium_orders, pre_monthes, 9)
-    huxiu_money = _get_medium_moneys(medium_orders, pre_monthes, 14)
-    kecheng_money = _get_medium_moneys(medium_orders, pre_monthes, 4)
-    midi_money = _get_medium_moneys(medium_orders, pre_monthes, 21)
-    other_money = _get_medium_moneys(medium_orders, pre_monthes, None)
+    douban_money['ex_money'] = numpy.array(douban_money['ex_money']) + numpy.array(youli_money['money2']) +\
+        numpy.array(wuxian_money['money2'])
+    douban_money['in_money'] = numpy.array(douban_money['in_money']) + numpy.array(
+        [k * 0.4 for k in youli_money['money2']]) + numpy.array([k * 0.4 for k in wuxian_money['money2']])
+    # 获取代理优力的豆瓣返点
+    try:
+        agent_youli_rebate = Agent.get(
+            94).douban_rebate_by_year(now_date.year) / 100
+    except:
+        agent_youli_rebate = 0
+    # 获取代理无线的豆瓣返点
+    try:
+        agent_wuxian_rebate = Agent.get(
+            105).douban_rebate_by_year(now_date.year) / 100
+    except:
+        agent_wuxian_rebate = 0
+    douban_money['rebate'] = numpy.array(douban_money['rebate']) +\
+        numpy.array([k * agent_youli_rebate for k in youli_money['money2']]) +\
+        numpy.array([k * agent_wuxian_rebate for k in wuxian_money['money2']])
+    douban_money['profit'] = numpy.array(
+        douban_money['in_money']) - numpy.array(douban_money['rebate'])
+
     total = sum([i for k in douban_money.values() for i in k] +
                 [i for k in youli_money.values() for i in k] +
                 [i for k in momo_money.values() for i in k] +
