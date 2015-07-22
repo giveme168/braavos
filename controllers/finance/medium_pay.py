@@ -5,15 +5,14 @@ from flask import render_template as tpl
 
 from models.user import TEAM_LOCATION_CN
 from models.client_order import ClientOrder, CONTRACT_STATUS_CN
-from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_INVOICE_CN,
-                            MEDIUM_INVOICE_STATUS_NORMAL, MEDIUM_INVOICE_STATUS_APPLY,
-                            MEDIUM_INVOICE_STATUS_CN, MEDIUM_INVOICE_STATUS_PASS,
-                            MediumInvoicePay, MEDIUM_INVOICE_STATUS_AGREE)
+from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_STATUS_CN, MEDIUM_INVOICE_STATUS_PASS,
+                            MediumInvoicePay)
 from forms.invoice import MediumInvoiceForm
 from models.user import User
 from libs.signals import medium_invoice_apply_signal
 from libs.paginator import Paginator
-from controllers.saler.medium_invoice import new_invoice as _new_invoice, update_invoice as _update_invoice, get_invoice_from
+from controllers.saler.medium_invoice import (new_invoice as _new_invoice,
+                                              update_invoice as _update_invoice, get_invoice_from)
 
 
 finance_medium_pay_bp = Blueprint(
@@ -89,8 +88,8 @@ def info(order_id):
     new_invoice_form.medium.choices = [(k.id, k.name)for k in order.mediums]
     new_invoice_form.add_time.data = datetime.date.today()
     return tpl('/finance/medium_pay/info.html', order=order, invoices=invoices,
-            new_invoice_form=new_invoice_form, reminder_emails=reminder_emails,
-            MEDIUM_INVOICE_STATUS_CN=MEDIUM_INVOICE_STATUS_CN, INVOICE_TYPE_CN=INVOICE_TYPE_CN)
+               new_invoice_form=new_invoice_form, reminder_emails=reminder_emails,
+               MEDIUM_INVOICE_STATUS_CN=MEDIUM_INVOICE_STATUS_CN, INVOICE_TYPE_CN=INVOICE_TYPE_CN)
 
 
 @finance_medium_pay_bp.route('/<invoice_id>/pay_info', methods=['GET'])
@@ -172,10 +171,12 @@ def invoice_pass(invoice_id):
     flash(u'已发送邮件给 %s ' % (', '.join(to_emails)), 'info')
     return redirect(url_for("finance_medium_pay.pay_info", invoice_id=invoice_id))
 
+
 @finance_medium_pay_bp.route('/<order_id>/order/new', methods=['POST'])
 def new_invoice(order_id, redirect_endpoint='finance_medium_pay.info'):
-    return _new_invoice(order_id, redirect_endpoint) 
+    return _new_invoice(order_id, redirect_endpoint)
+
 
 @finance_medium_pay_bp.route('/<invoice_id>/update', methods=['POST'])
 def update_invoice(invoice_id, redirect_endpoint='finance_medium_pay.info'):
-    return _update_invoice(invoice_id, redirect_endpoint) 
+    return _update_invoice(invoice_id, redirect_endpoint)

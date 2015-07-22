@@ -4,11 +4,10 @@ import datetime
 from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app, jsonify
 from flask import render_template as tpl
 
-from models.client_order import ClientOrder, CONTRACT_STATUS_CN
+from models.client_order import ClientOrder
 from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_INVOICE_CN,
                             MEDIUM_INVOICE_STATUS_NORMAL, MEDIUM_INVOICE_STATUS_APPLY,
-                            MEDIUM_INVOICE_STATUS_CN, MEDIUM_INVOICE_STATUS_PASS,
-                            MediumInvoicePay, MEDIUM_INVOICE_STATUS_AGREE)
+                            MEDIUM_INVOICE_STATUS_CN, MediumInvoicePay, MEDIUM_INVOICE_STATUS_AGREE)
 
 from models.user import User
 from models.medium import Medium
