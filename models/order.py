@@ -540,6 +540,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def medium_rebate(self):
         return self.medium.rebate_by_year(self.medium_start.year)
 
+    def medium_rebate_by_year(self, date):
+        return self.medium.rebate_by_year(date.year)
+
     def rebate_medium_by_month(self, year, month):
         rebate = self.medium.rebate_by_year(year)
         ex_monety = self.get_executive_report_medium_money_by_month(
@@ -577,7 +580,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             user = self.direct_sales[0]
         if user.team.location == 3:
             count = len(set(self.agent_sales + self.direct_sales))
-        return self.medium_money2 / count
+        if self.medium_money2:
+            return self.medium_money2 / count
+        return 0
 
     def get_medium_rebate_money(self):
         rebate = self.medium.rebate_by_year(year=self.start_date.year)
@@ -596,7 +601,15 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         else:
             return {}
 
-    def associated_douban_orders_pro_month_money(self, year, month):
+    def associated_douban_orders_pro_month_money(self, year, month, sale_type):
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+            user = self.agent_sales[0]
+        else:
+            count = len(self.direct_sales)
+            user = self.direct_sales[0]
+        if user.team.location == 3:
+            count = len(set(self.agent_sales + self.direct_sales))
         if self.associated_douban_orders.count():
             pre_money = float(self.associated_douban_orders[0].money) / \
                 ((self.medium_end - self.medium_start).days + 1)
@@ -608,7 +621,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                 if k['month'] == search_pro_month:
                     pre_month_money_data = round(pre_money * k['days'], 2)
                     break
-            return pre_month_money_data
+            return pre_month_money_data / count
         return 0
 
 

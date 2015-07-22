@@ -1,0 +1,860 @@
+{% extends "/account/account_base.html" %}
+{% from 'form.html' import form_tpl_ex_form %}
+{% block title %}修改绩效考核表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box" style="width:1400px;">
+    <h3>修改绩效考核表&nbsp;&nbsp;&nbsp;<a style="color:red;" href="#" data-toggle="modal" data-target=".bs-example-modal-lg">查看填写说明</a></h3>
+    <form class="form form-horizontal" method="POST" action="{{url_for('account_kpi.update', r_id=report.id)}}" onsubmit="return check_form(this);">
+        <table class="table table-bordered">
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=12 style="text-align:center;">关键绩效考核指标（KPI）</th>
+                <th style="text-align:right;">KPI权重：</th>
+                <th colspan=2>80%</th>
+            </tr>
+            <tr>
+                <th colspan=2 style="text-align:center;">维度</th>
+                <th colspan=5 style="text-align:center;">指标说明（指标含义、计算公式或说明）</th>
+                <th colspan=4 style="text-align:center;">衡量标准(请尽量量化评价标准）</th>
+                <th>权重%</th>
+                <th style="text-align:center;">实际完成情况</th>
+                <th style="text-align:center;">员工自评</th>
+                <th style="text-align:center;">上级评分</th>
+            </tr>
+            <tr>
+                <th rowspan=4 colspan=2 style="text-align:center;">KR指标</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="kr_1_key" name="kr_1_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.kr_1_key}}</textarea></th>
+                <th colspan=4><textarea id="kr_1_value" name="kr_1_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.kr_1_value}}</textarea></th>
+                <th>
+                    <select id="kr_1_w" name="kr_1_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="kr_1_res" name="kr_1_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.kr_1_res}}</textarea></th>
+                <th>
+                    <select id="kr_1_s" style="width:60px;" name="kr_1_s" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="kr_2_key" name="kr_2_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.kr_2_key}}</textarea></th>
+                <th colspan=4><textarea id="kr_2_value" name="kr_2_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.kr_2_value}}</textarea></th>
+                <th>
+                    <select id="kr_2_w" name="kr_2_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="kr_2_res" name="kr_2_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.kr_2_res}}</textarea></th>
+                <th>
+                    <select id="kr_2_s" name="kr_2_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="kr_3_key" name="kr_3_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.kr_3_key}}</textarea></th>
+                <th colspan=4><textarea id="kr_3_value" name="kr_3_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.kr_3_value}}</textarea></th>
+                <th>
+                    <select id="kr_3_w" name="kr_3_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="kr_3_res" name="kr_3_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.kr_3_res}}</textarea></th>
+                <th>
+                    <select id="kr_3_s" name="kr_3_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr>
+                <th rowspan=4 colspan=2  style="text-align:center;">改进提升</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="up_1_key" name="up_1_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.up_1_key}}</textarea></th>
+                <th colspan=4><textarea id="up_1_value" name="up_1_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.up_1_value}}</textarea></th>
+                <th>
+                    <select id="up_1_w" name="up_1_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="up_1_res" name="up_1_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.up_1_res}}</textarea></th>
+                <th>
+                    <select id="up_1_s" name="up_1_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="up_2_key" name="up_2_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.up_2_key}}</textarea></th>
+                <th colspan=4><textarea id="up_2_value" name="up_2_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.up_2_value}}</textarea></th>
+                <th>
+                    <select id="up_2_w" name="up_2_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="up_2_res" name="up_2_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.up_2_res}}</textarea></th>
+                <th>
+                    <select id="up_2_s" name="up_2_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="up_3_key" name="up_3_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.up_3_key}}</textarea></th>
+                <th colspan=4><textarea id="up_3_value" name="up_3_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.up_3_value}}</textarea></th>
+                <th>
+                    <select id="up_3_w" name="up_3_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="up_3_res" name="up_3_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.up_3_res}}</textarea></th>
+                <th>
+                    <select id="up_3_s" name="up_3_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            {% if type == 2 %}
+            <tr>
+                <th rowspan=4 colspan=2 style="text-align:center;">管理指标</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="manage_1_key" name="manage_1_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.manage_1_key}}</textarea></th>
+                <th colspan=4><textarea id="manage_1_value" name="manage_1_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.manage_1_value}}</textarea></th>
+                <th>
+                    <select id="manage_1_w" name="manage_1_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="manage_1_res" name="manage_1_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.manage_1_res}}</textarea></th>
+                <th>
+                    <select id="manage_1_s" name="manage_1_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="manage_2_key" name="manage_2_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.manage_2_key}}</textarea></th>
+                <th colspan=4><textarea id="manage_2_value" name="manage_2_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.manage_2_value}}</textarea></th>
+                <th>
+                    <select id="manage_2_w" name="manage_2_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="manage_2_res" name="manage_2_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.manage_2_res}}</textarea></th>
+                <th>
+                    <select id="manage_2_s" name="manage_2_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="manage_3_key" name="manage_3_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.manage_3_key}}</textarea></th>
+                <th colspan=4><textarea id="manage_3_value" name="manage_3_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.manage_3_value}}</textarea></th>
+                <th>
+                    <select id="manage_3_w" name="manage_3_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="manage_3_res" name="manage_3_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.manage_3_res}}</textarea></th>
+                <th>
+                    <select id="manage_3_s" name="manage_3_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            {% endif %}
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=11 style="text-align:right;">KPI权重合计：</th>
+                <th id="total_kpi_w">0%</th>
+                <th style="text-align:right;">KPI评分合计：</th>
+                <th id="total_kpi_s">0.00</th>
+                <th>未评分</th>
+            </tr>
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=12 style="text-align:center;">胜任能力评估</th>
+                <th style="text-align:right;">胜任能力权重：</th>
+                <th colspan=2>20%</th>
+            </tr>
+            <tr>
+                <th colspan=5>胜任能力</th>
+                <th colspan=6>能力说明</th>
+                <th>    </th>
+                <th>实际行为表现</th>
+                <th>员工自评</th>
+                <th>上级评分</th>
+            </tr>
+            <tr>
+                <th colspan=5 >知识技能</th>
+                <th colspan=6>具备胜任目前工作所需要的各项知识技能和技巧。</th>
+                <th>4%</th>
+                <th><textarea id="knowledge_res" name="knowledge_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.knowledge_res}}</textarea></th>
+                <th>
+                    <select id="knowledge_s" name="knowledge_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr>
+                <th colspan=5>积极主动</th>
+                <th colspan=6>工作积极主动，不计较个人得失。 </th>
+                <th>4%</th>
+                <th><textarea id="positive_res" name="positive_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.positive_res}}</textarea></th>
+                <th>
+                    <select id="positive_s" name="positive_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr>
+                <th colspan=5>团队合作</th>
+                <th colspan=6>团队合作意识强，包括部门内部及跨部门合作。</th>
+                <th>4%</th>
+                <th><textarea id="team_res" name="team_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.team_res}}</textarea></th>
+                <th>
+                    <select id="team_s" name="team_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr>
+                <th colspan=5>学习能力</th>
+                <th colspan=6>开放心态，具备自我学习和成长的能力和意识。</th>
+                <th>4%</th>
+                <th><textarea id="teach_res" name="teach_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.teach_res}}</textarea></th>
+                <th>
+                    <select id="teach_s" name="teach_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr>
+                <th colspan=5>遵规守纪</th>
+                <th colspan=6>遵守部门工作纪律，遵循公司各项规章制度。</th>
+                <th>4%</th>
+                <th><textarea id="abide_res" name="abide_res" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.now_report_obj.abide_res}}</textarea></th>
+                <th>
+                    <select id="abide_s" name="abide_s" style="width:60px;" onchange="calculate_data(this)">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>未评分</th>
+            </tr>
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=11 style="text-align:right;">胜任力权重合计：</th>
+                <th>20%</th>
+                <th style="text-align:right;">胜任能力评分合计：</th>
+                <th id="competence_total_s">0.00</th>
+                <th>未评分</th>
+            </tr>
+            <tr>
+                <th colspan=5 style="text-align:center;">权重总计：</th>
+                <th>100%</th>
+                <th colspan=7 style="text-align:right;">ΣKPI（评分*权重）+Σ胜任力（评分*权重）=绩效评估总分</th>
+                <th id="total_s">0.00</th>
+                <th>未评分</th>
+            </tr>
+            <tr>
+                <th colspan=5 >自我总结：</th>
+                <th colspan=10 height="100px;">
+                    <textarea id="self_summary" name="self_summary" class="form-control bra-form-control" style="resize:none; width:99%; height:100px;">{{report.now_report_obj.self_summary}}</textarea>
+                </th>
+            </tr>
+            <tr>
+                <th colspan=5>上级评语：</th>
+                <th colspan=10 height="100px;">未评价</th>
+            </tr>
+            <!--下半年规划开始-->
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=12 style="text-align:center;">2015年6-12月关键绩效考核指标（KPI）</th>
+                <th style="text-align:right;">KPI权重：</th>
+                <th colspan=2>80%</th>
+            </tr>
+            <tr>
+                <th colspan=2 style="text-align:center;">维度</th>
+                <th colspan=5 style="text-align:center;">指标说明（指标含义、计算公式或说明）</th>
+                <th colspan=4 style="text-align:center;">衡量标准(请尽量量化评价标准）</th>
+                <th>权重%</th>
+                <th style="text-align:center;">实际完成情况</th>
+                <th style="text-align:center;">员工自评</th>
+                <th style="text-align:center;">上级评分</th>
+            </tr>
+            <tr>
+                <th rowspan=4 colspan=2 style="text-align:center;">KR指标</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="next_kr_1_key" name="next_kr_1_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_kr_1_key}}</textarea></th>
+                <th colspan=4><textarea id="next_kr_1_value" name="next_kr_1_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_kr_1_value}}</textarea></th>
+                <th>
+                    <select id="next_kr_1_w" name="next_kr_1_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="next_kr_1_res" name="next_kr_1_res" class="form-control bra-form-control" style="resize:none; width:95%;display:none;">{{report.future_report_obj.next_kr_1_res}}</textarea></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="next_kr_2_key" name="next_kr_2_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_kr_2_key}}</textarea></th>
+                <th colspan=4><textarea id="next_kr_2_value" name="next_kr_2_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_kr_2_value}}</textarea></th>
+                <th>
+                    <select id="next_kr_2_w" name="next_kr_2_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="next_kr_2_res" name="next_kr_2_res" class="form-control bra-form-control" style="resize:none; width:95%;display:none;">{{report.future_report_obj.next_kr_2_res}}</textarea></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="next_kr_3_key" name="next_kr_3_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_kr_3_key}}</textarea></th>
+                <th colspan=4><textarea id="next_kr_3_value" name="next_kr_3_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_kr_3_value}}</textarea></th>
+                <th>
+                    <select id="next_kr_3_w" name="next_kr_3_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="next_kr_3_res" name="next_kr_3_res" class="form-control bra-form-control" style="resize:none; width:95%;display:none;">{{report.future_report_obj.next_kr_3_res}}</textarea></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr>
+                <th rowspan=4 colspan=2  style="text-align:center;">改进提升</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="next_up_1_key" name="next_up_1_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_up_1_key}}</textarea></th>
+                <th colspan=4><textarea id="next_up_1_value" name="next_up_1_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_up_1_value}}</textarea></th>
+                <th>
+                    <select id="next_up_1_w" name="next_up_1_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="next_up_1_res" name="next_up_1_res" class="form-control bra-form-control" style="resize:none; width:95%; display:none;">{{report.future_report_obj.next_up_1_res}}</textarea></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="next_up_2_key" name="next_up_2_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_up_2_key}}</textarea></th>
+                <th colspan=4><textarea id="next_up_2_value" name="next_up_2_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_up_2_value}}</textarea></th>
+                <th>
+                    <select id="next_up_2_w" name="next_up_2_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="next_up_2_res" name="next_up_2_res" class="form-control bra-form-control" style="resize:none; width:95%; display:none;">{{report.future_report_obj.next_up_2_res}}</textarea></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="next_up_3_key" name="next_up_3_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_up_3_key}}</textarea></th>
+                <th colspan=4><textarea id="next_up_3_value" name="next_up_3_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_up_3_value}}</textarea></th>
+                <th>
+                    <select id="next_up_3_w" name="next_up_3_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="next_up_3_res" name="next_up_3_res" class="form-control bra-form-control" style="resize:none; width:95%; display:none;">{{report.future_report_obj.next_up_3_res}}</textarea></th>
+                <th></th>
+                <th></th>
+            </tr>
+            {% if type == 2 %}
+            <tr>
+                <th rowspan=4 colspan=2 style="text-align:center;">管理指标</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="next_manage_1_key" name="next_manage_1_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_manage_1_key}}</textarea></th>
+                <th colspan=4><textarea id="next_manage_1_value" name="next_manage_1_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_manage_1_value}}</textarea></th>
+                <th>
+                    <select id="next_manage_1_w" name="next_manage_1_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="next_manage_1_res" name="next_manage_1_res" class="form-control bra-form-control" style="resize:none; width:95%; display:none;">{{report.future_report_obj.next_manage_1_res}}</textarea></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="next_manage_2_key" name="next_manage_2_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_manage_2_key}}</textarea></th>
+                <th colspan=4><textarea id="next_manage_2_value" name="next_manage_2_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_manage_2_value}}</textarea></th>
+                <th>
+                    <select id="next_manage_2_w" name="next_manage_2_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="next_manage_2_res" name="next_manage_2_res" class="form-control bra-form-control" style="resize:none; width:95%; display:none;">{{report.future_report_obj.next_manage_2_res}}</textarea></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5><textarea id="next_manage_3_key" name="next_manage_3_key" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_manage_3_key}}</textarea></th>
+                <th colspan=4><textarea id="next_manage_3_value" name="next_manage_3_value" class="form-control bra-form-control" style="resize:none; width:95%;">{{report.future_report_obj.next_manage_3_value}}</textarea></th>
+                <th>
+                    <select id="next_manage_3_w" name="next_manage_3_w" style="width:70px;" onchange="calculate_data(this)">
+                        {% for k in weights %}
+                            <option value="{{k}}">{{k}}%</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th><textarea id="next_manage_3_res" name="next_manage_3_res" class="form-control bra-form-control" style="resize:none; width:95%; display:none;">{{report.future_report_obj.next_manage_3_res}}</textarea></th>
+                <th></th>
+                <th></th>
+            </tr>
+            {% endif %}
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=11 style="text-align:right;">KPI权重合计：</th>
+                <th id="next_total_kpi_w">0%</th>
+                <th style="text-align:right;">KPI评分合计：</th>
+                <th id="next_total_kpi_s"></th>
+                <th></th>
+            </tr>
+            <!--下半年规划结束-->
+        </table>
+        <br/><br/>
+        <a href="{{url_for('account_kpi.index')}}" class="btn btn-primary btn-sm col-md-offset-3" style="width:150px;">返回</a>
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-3" style="width:150px;" value="保存"/>
+    </from>
+</div>
+<!--填写说明开始-->
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+          <h4 class="modal-title" id="myLargeModalLabel">填写说明</h4>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="col-sm-12">1. 评分为5分制，评分标准请见右侧《绩效评分&等级标准》。</div>
+            <div class="col-sm-12">2. 包括KR和胜任力两部分组成，权重分别为80%和20%。其中KR指标分为改进提升指标、业绩目标。</div>
+            <div class="col-sm-12">3. 管理人员需要填写管理指标，使用管理表单。</div>
+            <div class="col-sm-12">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>KPI评分档</th>
+                        <th>评分标准</th>
+                        <th>绩效等级</th>
+                        <th>等级说明</th>
+                        <th style="width:80px;">绩效总分</th>
+                    </tr>
+                    <tr>
+                        <th>5</th>
+                        <th>杰出</th>
+                        <th rowspan=3>A</th>
+                        <th rowspan=3>显著超过预期绩效目标或能力要求，并在目标达成过程中体现的行为态度都堪称典范，对团队其他成员有重要影响。</th>
+                        <th rowspan=3>≧4</th>
+                    </tr>
+                    <tr>
+                        <th>4.5</th>
+                        <th>持续一贯地超出期望</th>
+                    </tr>
+                    <tr>
+                        <th>4</th>
+                        <th>超出期望</th>
+                    </tr>
+                    <tr>
+                        <th>3.75</th>
+                        <th>部分超出期望</th>
+                        <th>B</th>
+                        <th>达到绩效目标和能力要求，同时在主要业务领域取得较突出成绩，并在过程中持续保持良好的行为态度，能够对团队其他成员产生一定影响。</th>
+                        <th>3.75-4</th>
+                    </tr>
+                    <tr>
+                        <th>3.5</th>
+                        <th>符合期望</th>
+                        <th rowspan=3>C</th>
+                        <th rowspan=3>基本达到绩效目标和能力要求，并在过程中保持较好的行为态度。</th>
+                        <th rowspan=3>3-3.75</th>
+                    </tr>
+                    <tr>
+                        <th>3.25</th>
+                        <th>基本符合期望，还需提高</th>
+                    </tr>
+                    <tr>
+                        <th>3</th>
+                        <th>达到最低要求，有待改进</th>
+                    </tr>
+                    <tr>
+                        <th>2.5</th>
+                        <th>基本不能胜任</th>
+                        <th rowspan=2>D</th>
+                        <th rowspan=2>未达到绩效目标或能力要求，无法胜任本岗位，淘汰/调岗。</th>
+                        <th rowspan=2>＜3</th>
+                    </tr>
+                    <tr>
+                        <th>2</th>
+                        <th>不合格</th>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-sm-12"> 注：绩效总分区间含下限不含上限</div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+<!--填写说明结束-->
+<script>
+    function check_form(obj){
+        // --------------------统计权重开始------------------------
+        var total_kpi_w = 0
+        // kr权重
+        var kr_1_w = parseInt($('#kr_1_w').val())
+        var kr_2_w = parseInt($('#kr_2_w').val())
+        var kr_3_w = parseInt($('#kr_3_w').val())
+        var up_1_w = parseInt($('#up_1_w').val())
+        var up_2_w = parseInt($('#up_2_w').val())
+        var up_3_w = parseInt($('#up_3_w').val())
+        total_kpi_w = kr_1_w+kr_2_w+kr_3_w+up_1_w+up_2_w+up_3_w
+        {% if type == 2 %}
+        var manage_1_w = parseInt($('#manage_1_w').val())
+        var manage_2_w = parseInt($('#manage_2_w').val())
+        var manage_3_w = parseInt($('#manage_3_w').val())
+        total_kpi_w += manage_1_w+manage_2_w+manage_3_w
+        {% endif %}
+
+        var next_total_kpi_w = 0
+        // kr权重
+        var next_kr_1_w = parseInt($('#next_kr_1_w').val())
+        var next_kr_2_w = parseInt($('#next_kr_2_w').val())
+        var next_kr_3_w = parseInt($('#next_kr_3_w').val())
+        var next_up_1_w = parseInt($('#next_up_1_w').val())
+        var next_up_2_w = parseInt($('#next_up_2_w').val())
+        var next_up_3_w = parseInt($('#next_up_3_w').val())
+        next_total_kpi_w = next_kr_1_w+next_kr_2_w+next_kr_3_w+next_up_1_w+next_up_2_w+next_up_3_w
+        {% if type == 2 %}
+        var next_manage_1_w = parseInt($('#next_manage_1_w').val())
+        var next_manage_2_w = parseInt($('#next_manage_2_w').val())
+        var next_manage_3_w = parseInt($('#next_manage_3_w').val())
+        next_total_kpi_w += next_manage_1_w+next_manage_2_w+next_manage_3_w
+        {% endif %}
+        // ---------------------统计权重结束----------------------
+
+        // ---------------------当季统计指标开始-------------------------
+        var kr_1_key = $('#kr_1_key').val()
+        var kr_1_value = $('#kr_1_value').val()
+        var kr_1_res = $('#kr_1_res').val()
+
+        var up_1_key = $('#up_1_key').val()
+        var up_1_value = $('#up_1_value').val()
+        var up_1_res = $('#up_1_res').val()
+        
+        if(kr_1_key == '' || kr_1_value == '' || kr_1_res == ''){
+            alert('请至少填写一项完整的KR指标')
+            return false
+        }
+        if(up_1_key == '' || up_1_value == '' || up_1_res == ''){
+            alert('请至少填写一项完整的改进提升')
+            return false
+        }
+        
+        {% if type == 2 %}
+        var manage_1_key = $('#manage_1_key').val()
+        var manage_1_value = $('#manage_1_value').val()
+        var manage_1_res = $('#manage_1_res').val()
+        if(manage_1_key == '' || manage_1_value == '' || manage_1_res == ''){
+            alert('请至少填写一项完整的管理指标')
+            return false
+        }
+        {% endif %}
+        // --------------------当季统计指标结束------------------------
+
+
+        // --------------------胜任力评估开始--------------------------
+        var knowledge_res = $('#knowledge_res').val()
+        var positive_res = $('#positive_res').val()
+        var team_res = $('#team_res').val()
+        var teach_res = $('#teach_res').val()
+        var abide_res = $('#abide_res').val()
+
+        if (knowledge_res==''){
+            $('#knowledge_res').focus()
+            alert('请填写知识技能的实际行为表现')
+            return false
+
+        }
+        if (positive_res==''){
+            $('#positive_res').focus()
+            alert('请填写积极主动的实际行为表现')
+            return false
+            
+        }
+        if (team_res==''){
+            $('#team_res').focus()
+            alert('请填写团队合作的实际行为表现')
+            return false
+        }
+        if (teach_res==''){
+            $('#teach_res').focus()
+            alert('请填写学习能力的实际行为表现')
+            return false
+        }
+        if (abide_res==''){
+            $('#abide_res').focus()
+            alert('请填写遵规守纪的实际行为表现')
+            return false
+        }
+        // --------------------胜任力评估结束--------------------------
+
+        // --------------------评价开始--------------------------
+        var self_summary = $('#self_summary').val()
+        if (self_summary == ''){
+            $('#self_summary').focus()
+            alert('请填写自我评价')
+            return false
+        }
+        // --------------------评价结束--------------------------
+
+        // ---------------------下季统计指标开始-------------------------
+        var next_kr_1_key = $('#next_kr_1_key').val()
+        var next_kr_1_value = $('#next_kr_1_value').val()
+        var next_kr_1_res = $('#next_kr_1_res').val()
+
+        var next_up_1_key = $('#next_up_1_key').val()
+        var next_up_1_value = $('#next_up_1_value').val()
+        var next_up_1_res = $('#next_up_1_res').val()
+        
+        if(next_kr_1_key == '' || next_kr_1_value == ''){
+            alert('请至少填写一项完整的下半年KR指标')
+            return false
+        }
+        if(next_up_1_key == '' || next_up_1_value == ''){
+            alert('请至少填写一项完整的下半年改进提升')
+            return false
+        }
+        
+        {% if type == 2 %}
+        var next_manage_1_key = $('#next_manage_1_key').val()
+        var next_manage_1_value = $('#next_manage_1_value').val()
+        var next_manage_1_res = $('#next_manage_1_res').val()
+        if(next_manage_1_key == '' || next_manage_1_value == ''){
+            alert('请至少填写一项完整的下半年管理指标')
+            return false
+        }
+        {% endif %}
+        // --------------------下季统计指标结束------------------------
+
+        if (total_kpi_w==80 && next_total_kpi_w==80){
+            return true
+        }else{
+            alert('当前KPI权重、及下半年KPI权重必须等于80%')
+            return false
+        }
+    }
+    function calculate_data(obj){
+        var total_kpi_w = 0
+        var total_kpi_s = 0
+        // kr权重
+        var kr_1_w = parseInt($('#kr_1_w').val())
+        var kr_2_w = parseInt($('#kr_2_w').val())
+        var kr_3_w = parseInt($('#kr_3_w').val())
+        var up_1_w = parseInt($('#up_1_w').val())
+        var up_2_w = parseInt($('#up_2_w').val())
+        var up_3_w = parseInt($('#up_3_w').val())
+        total_kpi_w = kr_1_w+kr_2_w+kr_3_w+up_1_w+up_2_w+up_3_w
+        {% if type == 2 %}
+        var manage_1_w = parseInt($('#manage_1_w').val())
+        var manage_2_w = parseInt($('#manage_2_w').val())
+        var manage_3_w = parseInt($('#manage_3_w').val())
+        total_kpi_w += manage_1_w+manage_2_w+manage_3_w
+        {% endif %}
+
+        // kr自评分
+        var kr_1_s = parseFloat($('#kr_1_s').val())
+        var kr_2_s = parseFloat($('#kr_2_s').val())
+        var kr_3_s = parseFloat($('#kr_3_s').val())
+        var up_1_s = parseFloat($('#up_1_s').val())
+        var up_2_s = parseFloat($('#up_2_s').val())
+        var up_3_s = parseFloat($('#up_3_s').val())
+        total_kpi_s = kr_1_s*kr_1_w/100 +kr_2_s*kr_2_w/100+kr_3_s*kr_3_w/100+up_1_s*up_1_w/100+up_2_s*up_2_w/100+up_3_s*up_3_w/100
+        {% if type == 2 %}
+        var manage_1_s = parseFloat($('#manage_1_s').val())
+        var manage_2_s = parseFloat($('#manage_2_s').val())
+        var manage_3_s = parseFloat($('#manage_3_s').val())
+        total_kpi_s += manage_1_s*manage_1_w/100+manage_2_s*manage_2_w/100+manage_3_s*manage_3_w/100
+        {% endif %}
+        $('#total_kpi_s').html(total_kpi_s.toFixed(2))
+        
+        if (total_kpi_w > 80){
+            obj.focus();
+            $('#total_kpi_w').html("<a style='color:red'>"+total_kpi_w + "%</a>")
+            alert('KPI权重必须等于80%，请重新分配');
+        }else{
+            $('#total_kpi_w').html(total_kpi_w+"%")
+        }
+        
+
+        var knowledge_s = parseFloat($('#knowledge_s').val())
+        var positive_s = parseFloat($('#positive_s').val())
+        var team_s = parseFloat($('#team_s').val())
+        var teach_s = parseFloat($('#teach_s').val())
+        var abide_s = parseFloat($('#abide_s').val())
+        var competence_total_s = knowledge_s*0.04 + positive_s*0.04 + team_s*0.04 + teach_s*0.04 + abide_s*0.04
+        $('#competence_total_s').html(competence_total_s.toFixed(2))
+        $('#total_s').html((total_kpi_s+competence_total_s).toFixed(2))
+
+        // ------------------下半年工作计划--------------------
+        var next_total_kpi_w = 0
+        
+        // kr权重
+        var next_kr_1_w = parseInt($('#next_kr_1_w').val())
+        var next_kr_2_w = parseInt($('#next_kr_2_w').val())
+        var next_kr_3_w = parseInt($('#next_kr_3_w').val())
+        var next_up_1_w = parseInt($('#next_up_1_w').val())
+        var next_up_2_w = parseInt($('#next_up_2_w').val())
+        var next_up_3_w = parseInt($('#next_up_3_w').val())
+        next_total_kpi_w = next_kr_1_w+next_kr_2_w+next_kr_3_w+next_up_1_w+next_up_2_w+next_up_3_w
+        {% if type == 2 %}
+        var next_manage_1_w = parseInt($('#next_manage_1_w').val())
+        var next_manage_2_w = parseInt($('#next_manage_2_w').val())
+        var next_manage_3_w = parseInt($('#next_manage_3_w').val())
+        next_total_kpi_w += next_manage_1_w+next_manage_2_w+next_manage_3_w
+        {% endif %}
+        if (next_total_kpi_w > 80){
+            obj.focus();
+            $('#next_total_kpi_w').html("<a style='color:red'>"+next_total_kpi_w + "%</a>")
+            alert('下半年KPI权重必须等于80%，请重新分配');
+        }else{
+            $('#next_total_kpi_w').html(next_total_kpi_w+'%')
+        }
+
+    }
+    $(function(){
+        $('#kr_1_w').val(parseInt('{{report.now_report_obj.kr_1_w}}'))
+        $('#kr_2_w').val(parseInt('{{report.now_report_obj.kr_2_w}}'))
+        $('#kr_3_w').val(parseInt('{{report.now_report_obj.kr_3_w}}'))
+        $('#up_1_w').val(parseInt('{{report.now_report_obj.up_1_w}}'))
+        $('#up_2_w').val(parseInt('{{report.now_report_obj.up_2_w}}'))
+        $('#up_3_w').val(parseInt('{{report.now_report_obj.up_3_w}}'))
+        {% if type == 2 %}
+        $('#manage_1_w').val(parseInt('{{report.now_report_obj.manage_1_w}}'))
+        $('#manage_2_w').val(parseInt('{{report.now_report_obj.manage_2_w}}'))
+        $('#manage_3_w').val(parseInt('{{report.now_report_obj.manage_3_w}}'))
+        $('#manage_1_s').val('{{report.now_report_obj.manage_1_s}}')
+        $('#manage_2_s').val('{{report.now_report_obj.manage_2_s}}')
+        $('#manage_3_s').val('{{report.now_report_obj.manage_3_s}}')
+        $('#next_manage_1_w').val(parseInt('{{report.future_report_obj.next_manage_1_w}}'))
+        $('#next_manage_2_w').val(parseInt('{{report.future_report_obj.next_manage_2_w}}'))
+        $('#next_manage_3_w').val(parseInt('{{report.future_report_obj.next_manage_3_w}}'))
+        {% endif %}
+        $('#kr_1_s').val('{{report.now_report_obj.kr_1_s}}')
+        $('#kr_2_s').val('{{report.now_report_obj.kr_2_s}}')
+        $('#kr_3_s').val('{{report.now_report_obj.kr_3_s}}')
+        $('#up_1_s').val('{{report.now_report_obj.up_1_s}}')
+        $('#up_2_s').val('{{report.now_report_obj.up_2_s}}')
+        $('#up_3_s').val('{{report.now_report_obj.up_3_s}}')
+        $('#next_kr_1_w').val(parseInt('{{report.future_report_obj.next_kr_1_w}}'))
+        $('#next_kr_2_w').val(parseInt('{{report.future_report_obj.next_kr_2_w}}'))
+        $('#next_kr_3_w').val(parseInt('{{report.future_report_obj.next_kr_3_w}}'))
+        $('#next_up_1_w').val(parseInt('{{report.future_report_obj.next_up_1_w}}'))
+        $('#next_up_2_w').val(parseInt('{{report.future_report_obj.next_up_2_w}}'))
+        $('#next_up_3_w').val(parseInt('{{report.future_report_obj.next_up_3_w}}'))
+
+        $('#knowledge_s').val('{{report.now_report_obj.knowledge_s}}')
+        $('#knowledge_s').trigger("chosen:updated");
+        $('#positive_s').val('{{report.now_report_obj.positive_s}}')
+        $('#positive_s').trigger("chosen:updated");
+        $('#team_s').val('{{report.now_report_obj.team_s}}')
+        $('#team_s').trigger("chosen:updated");
+        $('#teach_s').val('{{report.now_report_obj.teach_s}}')
+        $('#teach_s').trigger("chosen:updated");
+        $('#abide_s').val('{{report.now_report_obj.abide_s}}')
+        $('#abide_s').trigger("chosen:updated");
+
+        var keys = ['1','2','3']
+        for(var i=0; i<keys.length;i++){
+            $("#kr_"+keys[i]+"_w").trigger("chosen:updated");
+            $("#kr_"+keys[i]+"_s").trigger("chosen:updated");
+            $("#up_"+keys[i]+"_w").trigger("chosen:updated");
+            $("#up_"+keys[i]+"_s").trigger("chosen:updated");
+            $("#next_kr_"+keys[i]+"_w").trigger("chosen:updated");
+            $("#next_up_"+keys[i]+"_w").trigger("chosen:updated");
+            {% if type == 2 %}
+                $("#manage_"+keys[i]+"_s").trigger("chosen:updated");
+                $("#manage_"+keys[i]+"_w").trigger("chosen:updated");
+                $("#next_manage_"+keys[i]+"_w").trigger("chosen:updated");
+            {% endif %}
+        }
+        calculate_data('')
+    })
+</script>
+
+{% endblock %}
