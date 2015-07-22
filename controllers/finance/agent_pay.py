@@ -88,7 +88,7 @@ def info(order_id):
     new_invoice_form.agent.choices = [(k.id, k.name) for k in order.agents]
     new_invoice_form.add_time.data = datetime.date.today()
     return tpl('/finance/agent_pay/info.html', order=order, invoices=invoices, new_invoice_form=new_invoice_form,
-            reminder_emails=reminder_emails, INVOICE_TYPE_CN=INVOICE_TYPE_CN)
+               reminder_emails=reminder_emails, INVOICE_TYPE_CN=INVOICE_TYPE_CN)
 
 
 @finance_agent_pay_bp.route('/<invoice_id>/pay_info', methods=['GET'])
