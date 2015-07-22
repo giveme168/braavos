@@ -510,7 +510,7 @@ def contract_status_change(order, action, emails, msg):
     elif action == 5:
         order.contract_status = CONTRACT_STATUS_APPLYPRINT
         action_msg = u"申请打印合同"
-        to_users = to_users + User.contracts()
+        to_users = to_users + User.contracts() + order.leaders
     elif action == 6:
         order.contract_status = CONTRACT_STATUS_PRINTED
         action_msg = u"合同打印完毕"
@@ -541,10 +541,11 @@ def contract_status_change(order, action, emails, msg):
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
         to_emails = list(
             set([k.email for k in User.douban_contracts()] + to_emails))
-    elif (order.__tablename__ == 'bra_client_order'
-          and order.associated_douban_orders and order.contract_status == 4 and action == 5):
-        to_emails = list(
-            set([k.email for k in User.douban_contracts()] + to_emails))
+# 关联豆瓣订单 申请打印 不发送豆瓣管理员
+#    elif (order.__tablename__ == 'bra_client_order'
+#          and order.associated_douban_orders and order.contract_status == 4 and action == 5):
+#        to_emails = list(
+#            set([k.email for k in User.douban_contracts()] + to_emails))
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,

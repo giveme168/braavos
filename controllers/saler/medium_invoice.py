@@ -4,11 +4,12 @@ import datetime
 from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app, jsonify
 from flask import render_template as tpl
 
-from models.client_order import ClientOrder
+from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_INVOICE_CN,
                             MEDIUM_INVOICE_STATUS_NORMAL, MEDIUM_INVOICE_STATUS_APPLY,
-                            MEDIUM_INVOICE_STATUS_CN,
+                            MEDIUM_INVOICE_STATUS_CN, MEDIUM_INVOICE_STATUS_PASS,
                             MediumInvoicePay, MEDIUM_INVOICE_STATUS_AGREE)
+
 from models.user import User
 from models.medium import Medium
 from forms.invoice import MediumInvoiceForm
@@ -36,7 +37,7 @@ def index(order_id):
 
 
 @saler_medium_invoice_bp.route('/<order_id>/order/new', methods=['POST'])
-def new_invoice(order_id):
+def new_invoice(order_id, redirect_endpoint='saler_medium_invoice.index'):
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
@@ -46,7 +47,7 @@ def new_invoice(order_id):
     form.bool_invoice.choices = MEDIUM_INVOICE_BOOL_INVOICE_CN.items()
     if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
         flash(u'新建打款发票失败，发票超过媒体总金额!', 'danger')
-        return redirect(url_for("saler_medium_invoice.index", order_id=order_id))
+        return redirect(url_for(redirect_endpoint, order_id=order_id))
     if request.method == 'POST':
         invoice = MediumInvoice.add(client_order=order,
                                     medium=Medium.get(form.medium.data),
@@ -72,7 +73,7 @@ def new_invoice(order_id):
     else:
         for k in form.errors:
             flash(u"新建打款发票失败，%s" % (form.errors[k][0]), 'danger')
-    return redirect(url_for("saler_medium_invoice.index", order_id=order_id))
+    return redirect(url_for(redirect_endpoint, order_id=order_id))
 
 
 @saler_medium_invoice_bp.route('/<invoice_id>/invoice', methods=['POST', 'GET'])
@@ -146,7 +147,7 @@ def get_invoice_from(invoice):
 
 
 @saler_medium_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
-def update_invoice(invoice_id):
+def update_invoice(invoice_id, redirect_endpoint='saler_medium_invoice.index'):
     invoice = MediumInvoice.get(invoice_id)
     if not invoice:
         abort(404)
@@ -161,7 +162,6 @@ def update_invoice(invoice_id):
         elif not form.money.data:
             flash(u"修改打款发票失败，发票金额不能为空", 'danger')
         else:
-            print
             invoice.company = form.company.data,
             invoice.tax_id = form.tax_id.data,
             invoice.address = form.address.data,
@@ -185,7 +185,7 @@ def update_invoice(invoice_id):
     else:
         for k in form.errors:
             flash(u"修改打款发票失败，%s" % (form.errors[k][0]), 'danger')
-    return redirect(url_for("saler_medium_invoice.index", order_id=invoice.client_order.id))
+    return redirect(url_for(redirect_endpoint, order_id=invoice.client_order.id))
 
 
 @saler_medium_invoice_bp.route('/<invoice_id>/apply_pay', methods=['POST'])
