@@ -1,0 +1,14 @@
+{% extends "/site_base.html" %}
+
+{% block left_box%}
+<style>
+.list-group-item {
+    margin-left:15px;
+}
+</style>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 绩效考核</li>
+    <a class="list-group-item" href="{{url_for('account_kpi.index')}}">我的绩效考核</a>
+    {% if g.user.is_kpi_leader or g.user.is_HR_leader() or g.user.is_super_leader() %}
+    <a class="list-group-item" href="{{url_for('account_kpi.underling')}}">下属的绩效考核</a>
+    {% endif %}
+{% endblock %}

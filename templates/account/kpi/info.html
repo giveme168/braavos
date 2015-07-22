@@ -1,0 +1,313 @@
+{% extends "/account/account_base.html" %}
+{% from 'form.html' import form_tpl_ex_form %}
+{% block title %}审批绩效考核表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box" style="width:1400px;">
+    
+    <form class="form form-horizontal">
+        <table class="table table-bordered">
+            <tr>
+                <th>填表日期：</th>
+                <th>{{report.create_time.strftime('%Y-%m-%d')}}</th>
+                <th>姓名：</th>
+                <th>{{report.creator.name}}</th>
+                <th>职务：</th>
+                <th>{{report.creator.team.name}}</th>
+                <th>考核周期：</th>
+                <th>{{report.version_cn}}</th>
+            </tr>
+        </table>
+        <table class="table table-bordered">
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=12 style="text-align:center;">关键绩效考核指标（KPI）</th>
+                <th style="text-align:right;">KPI权重：</th>
+                <th colspan=2>80%</th>
+            </tr>
+            <tr>
+                <th colspan=2 style="text-align:center;">维度</th>
+                <th colspan=5 style="text-align:center;">指标说明（指标含义、计算公式或说明）</th>
+                <th colspan=4 style="text-align:center;">衡量标准(请尽量量化评价标准）</th>
+                <th>权重%</th>
+                <th style="text-align:center;">实际完成情况</th>
+                <th style="text-align:center;">员工自评</th>
+                <th style="text-align:center;">上级评分</th>
+            </tr>
+            <tr>
+                <th rowspan=4 colspan=2 style="text-align:center;">KR指标</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.now_report_obj.kr_1_key}}</th>
+                <th colspan=4>{{report.now_report_obj.kr_1_value}}</th>
+                <th>{{report.now_report_obj.kr_1_w}}%</th>
+                <th>{{report.now_report_obj.kr_1_res}}</th>
+                <th>{{report.now_report_obj.kr_1_s}}</th>
+                <th>{{report.now_report_obj.leader_kr_1_s}}</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.now_report_obj.kr_2_key}}</th>
+                <th colspan=4>{{report.now_report_obj.kr_2_value}}</th>
+                <th>{{report.now_report_obj.kr_2_w}}%</th>
+                <th>{{report.now_report_obj.kr_2_res}}</th>
+                <th>{{report.now_report_obj.kr_2_s}}</th>
+                <th>{{report.now_report_obj.leader_kr_2_s}}</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.now_report_obj.kr_3_key}}</th>
+                <th colspan=4>{{report.now_report_obj.kr_3_value}}</th>
+                <th>{{report.now_report_obj.kr_3_w}}%</th>
+                <th>{{report.now_report_obj.kr_3_res}}</th>
+                <th>{{report.now_report_obj.kr_3_s}}</th>
+                <th>{{report.now_report_obj.leader_kr_3_s}}</th>
+            </tr>
+            <tr>
+                <th rowspan=4 colspan=2  style="text-align:center;">改进提升</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.now_report_obj.up_1_key}}</th>
+                <th colspan=4>{{report.now_report_obj.up_1_value}}</th>
+                <th>{{report.now_report_obj.up_1_w}}%</th>
+                <th>{{report.now_report_obj.up_1_res}}</th>
+                <th>{{report.now_report_obj.up_1_s}}</th>
+                <th>{{report.now_report_obj.leader_up_1_s}}</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.now_report_obj.up_2_key}}</th>
+                <th colspan=4>{{report.now_report_obj.up_2_value}}</th>
+                <th>{{report.now_report_obj.up_2_w}}%</th>
+                <th>{{report.now_report_obj.up_2_res}}</th>
+                <th>{{report.now_report_obj.up_2_s}}</th>
+                <th>{{report.now_report_obj.leader_up_2_s}}</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.now_report_obj.up_3_key}}</th>
+                <th colspan=4>{{report.now_report_obj.up_3_value}}</th>
+                <th>{{report.now_report_obj.up_3_w}}%</th>
+                <th>{{report.now_report_obj.up_3_res}}</th>
+                <th>{{report.now_report_obj.up_3_s}}</th>
+                <th>{{report.now_report_obj.leader_up_3_s}}</th>
+            </tr>
+            {% if type == 2 %}
+            <tr>
+                <th rowspan=4 colspan=2 style="text-align:center;">管理指标</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.now_report_obj.manage_1_key}}</th>
+                <th colspan=4>{{report.now_report_obj.manage_1_value}}</th>
+                <th>{{report.now_report_obj.manage_1_w}}%</th>
+                <th>{{report.now_report_obj.manage_1_res}}</th>
+                <th>{{report.now_report_obj.manage_1_s}}</th>
+                <th>{{report.now_report_obj.leader_manage_1_s}}</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.now_report_obj.manage_2_key}}</th>
+                <th colspan=4>{{report.now_report_obj.manage_2_value}}</th>
+                <th>{{report.now_report_obj.manage_2_w}}%</th>
+                <th>{{report.now_report_obj.manage_2_res}}</th>
+                <th>{{report.now_report_obj.manage_2_s}}</th>
+                <th>{{report.now_report_obj.leader_manage_2_s}}</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.now_report_obj.manage_3_key}}</th>
+                <th colspan=4>{{report.now_report_obj.manage_3_value}}</th>
+                <th>{{report.now_report_obj.manage_3_w}}%</th>
+                <th>{{report.now_report_obj.manage_3_res}}</th>
+                <th>{{report.now_report_obj.manage_3_s}}</th>
+                <th>{{report.now_report_obj.leader_manage_3_s}}</th>
+            </tr>
+            {% endif %}
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=11 style="text-align:right;">KPI权重合计：</th>
+                <th id="total_kpi_w">80%</th>
+                <th style="text-align:right;">KPI评分合计：</th>
+                <th>{{report.self_KR_score+report.self_upper_score+report.self_manage_score}}</th>
+                <th id="total_leader_kpi_s">{{report.KR_score+report.upper_score+report.manage_score}}</th>
+            </tr>
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=12 style="text-align:center;">胜任能力评估</th>
+                <th style="text-align:right;">胜任能力权重：</th>
+                <th colspan=2>20%</th>
+            </tr>
+            <tr>
+                <th colspan=5>胜任能力</th>
+                <th colspan=6>能力说明</th>
+                <th>    </th>
+                <th>实际行为表现</th>
+                <th>员工自评</th>
+                <th>上级评分</th>
+            </tr>
+            <tr>
+                <th colspan=5 >知识技能</th>
+                <th colspan=6>具备胜任目前工作所需要的各项知识技能和技巧。</th>
+                <th>4%</th>
+                <th>{{report.now_report_obj.knowledge_res}}</th>
+                <th>{{report.now_report_obj.knowledge_s}}</th>
+                <th>{{report.now_report_obj.leader_knowledge_s}}</th>
+            </tr>
+            <tr>
+                <th colspan=5>积极主动</th>
+                <th colspan=6>工作积极主动，不计较个人得失。 </th>
+                <th>4%</th>
+                <th>{{report.now_report_obj.positive_res}}</th>
+                <th>{{report.now_report_obj.positive_s}}</th>
+                <th>{{report.now_report_obj.leader_positive_s}}</th>
+            </tr>
+            <tr>
+                <th colspan=5>团队合作</th>
+                <th colspan=6>团队合作意识强，包括部门内部及跨部门合作。</th>
+                <th>4%</th>
+                <th>{{report.now_report_obj.team_res}}</th>
+                <th>{{report.now_report_obj.team_s}}</th>
+                <th>{{report.now_report_obj.leader_team_s}}</th>
+            </tr>
+            <tr>
+                <th colspan=5>学习能力</th>
+                <th colspan=6>开放心态，具备自我学习和成长的能力和意识。</th>
+                <th>4%</th>
+                <th>{{report.now_report_obj.teach_res}}</th>
+                <th>{{report.now_report_obj.teach_s}}</th>
+                <th>{{report.now_report_obj.leader_teach_s}}</th>
+            </tr>
+            <tr>
+                <th colspan=5>遵规守纪</th>
+                <th colspan=6>遵守部门工作纪律，遵循公司各项规章制度。</th>
+                <th>4%</th>
+                <th>{{report.now_report_obj.abide_res}}</th>
+                <th>{{report.now_report_obj.abide_s}}</th>
+                <th>{{report.now_report_obj.leader_abide_s}}</th>
+            </tr>
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=11 style="text-align:right;">胜任力权重合计：</th>
+                <th>20%</th>
+                <th style="text-align:right;">胜任能力评分合计：</th>
+                <th>{{report.self_ability_score}}</th>
+                <th id="competence_leader_total_s">{{report.ability_score}}</th>
+            </tr>
+            <tr>
+                <th colspan=5 style="text-align:center;">权重总计：</th>
+                <th>100%</th>
+                <th colspan=7 style="text-align:right;">ΣKPI（评分*权重）+Σ胜任力（评分*权重）=绩效评估总分</th>
+                <th>{{report.self_total_score}}</th>
+                <th id="total_leader_s">{{report.total_score}}</th>
+            </tr>
+            <tr>
+                <th colspan=5 >自我总结：</th>
+                <th colspan=10 height="100px;">{{report.now_report_obj.self_summary}}</th>
+            </tr>
+            <tr>
+                <th colspan=5>上级评语：</th>
+                <th colspan=10 height="100px;">{{report.now_report_obj.leader_summary}}</th>
+            </tr>
+            <!--下半年规划开始-->
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=12 style="text-align:center;">2015年6-12月关键绩效考核指标（KPI）</th>
+                <th style="text-align:right;">KPI权重：</th>
+                <th colspan=2>80%</th>
+            </tr>
+            <tr>
+                <th colspan=2 style="text-align:center;">维度</th>
+                <th colspan=5 style="text-align:center;">指标说明（指标含义、计算公式或说明）</th>
+                <th colspan=4 style="text-align:center;">衡量标准(请尽量量化评价标准）</th>
+                <th>权重%</th>
+                <th style="text-align:center;">实际完成情况</th>
+                <th style="text-align:center;">员工自评</th>
+                <th style="text-align:center;">上级评分</th>
+            </tr>
+            <tr>
+                <th rowspan=4 colspan=2 style="text-align:center;">KR指标</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.future_report_obj.next_kr_1_key}}</th>
+                <th colspan=4>{{report.future_report_obj.next_kr_1_value}}</th>
+                <th>{{report.future_report_obj.next_kr_1_w}}%</th>
+                <th>{{report.future_report_obj.next_kr_1_res}}</th>
+                <th>无</th>
+                <th>无</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.future_report_obj.next_kr_2_key}}</th>
+                <th colspan=4>{{report.future_report_obj.next_kr_2_value}}</th>
+                <th>{{report.future_report_obj.next_kr_2_w}}%</th>
+                <th>{{report.future_report_obj.next_kr_2_res}}</th>
+                <th>无</th>
+                <th>无</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.future_report_obj.next_kr_3_key}}</th>
+                <th colspan=4>{{report.future_report_obj.next_kr_3_value}}</th>
+                <th>{{report.future_report_obj.next_kr_3_w}}%</th>
+                <th>{{report.future_report_obj.next_kr_3_res}}</th>
+                <th>无</th>
+                <th>无</th>
+            </tr>
+            <tr>
+                <th rowspan=4 colspan=2  style="text-align:center;">改进提升</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.future_report_obj.next_up_1_key}}</th>
+                <th colspan=4>{{report.future_report_obj.next_up_1_value}}</th>
+                <th>{{report.future_report_obj.next_up_1_w}}%</th>
+                <th>{{report.future_report_obj.next_up_1_res}}</th>
+                <th>无</th>
+                <th>无</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.future_report_obj.next_up_2_key}}</th>
+                <th colspan=4>{{report.future_report_obj.next_up_2_value}}</th>
+                <th>{{report.future_report_obj.next_up_2_w}}%</th>
+                <th>{{report.future_report_obj.next_up_2_res}}</th>
+                <th>无</th>
+                <th>无</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.future_report_obj.next_up_3_key}}</th>
+                <th colspan=4>{{report.future_report_obj.next_up_3_value}}</th>
+                <th>{{report.future_report_obj.next_up_3_w}}%</th>
+                <th>{{report.future_report_obj.next_up_3_res}}</th>
+                <th>无</th>
+                <th>无</th>
+            </tr>
+            {% if type == 2 %}
+            <tr>
+                <th rowspan=4 colspan=2 style="text-align:center;">管理指标</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.future_report_obj.next_manage_1_key}}</th>
+                <th colspan=4>{{report.future_report_obj.next_manage_1_value}}</th>
+                <th>{{report.future_report_obj.next_manage_1_w}}%</th>
+                <th>{{report.future_report_obj.next_manage_1_res}}</th>
+                <th>无</th>
+                <th>无</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.future_report_obj.next_manage_2_key}}</th>
+                <th colspan=4>{{report.future_report_obj.next_manage_2_value}}</th>
+                <th>{{report.future_report_obj.next_manage_2_w}}%</th>
+                <th>{{report.future_report_obj.next_manage_2_res}}</th>
+                <th>无</th>
+                <th>无</th>
+            </tr>
+            <tr height="50px;">
+                <th colspan=5>{{report.future_report_obj.next_manage_3_key}}</th>
+                <th colspan=4>{{report.future_report_obj.next_manage_3_value}}</th>
+                <th>{{report.future_report_obj.next_manage_3_w}}%</th>
+                <th>{{report.future_report_obj.next_manage_3_res}}</th>
+                <th>无</th>
+                <th>无</th>
+            </tr>
+            {% endif %}
+            <tr style="background-color: #AAAAAA;">
+                <th colspan=11 style="text-align:right;">KPI权重合计：</th>
+                <th id="next_total_kpi_w">80%</th>
+                <th style="text-align:right;">KPI评分合计：</th>
+                <th id="next_total_kpi_s">0.00</th>
+                <th>未评分</th>
+            </tr>
+            <!--下半年规划结束-->
+        </table>
+        <br/><br/>
+        <a href="{{url_for('account_kpi.index')}}" class="btn btn-primary btn-sm col-md-offset-3" style="width:150px;">返回</a>
+        <a href="{{url_for('account_kpi.apply', r_id=report.id, status=4)}}" class="btn btn-primary btn-sm col-md-offset-3" style="width:150px;">归档</a>
+    </from>
+</div>
+{% endblock %}

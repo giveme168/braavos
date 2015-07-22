@@ -2,7 +2,7 @@
 import datetime
 from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import url_for
+from flask import url_for, json
 
 from . import db, BaseModelMixin
 
@@ -106,6 +106,14 @@ class User(db.Model, BaseModelMixin):
     def __repr__(self):
         return '<User %s, %s>' % (self.name, self.email)
     '''
+
+    # 是否是绩效考核leader
+    @property
+    def is_kpi_leader(self):
+        return len([k for k in User.all() if self in k.team_leaders]) > 0
+
+    def kpi_undering_users(self):
+        return [k for k in User.all() if self in k.team_leaders]
 
     @property
     def display_name(self):
@@ -213,6 +221,10 @@ class User(db.Model, BaseModelMixin):
     @classmethod
     def leaders(cls):
         return cls.gets_by_team_type(TEAM_TYPE_LEADER)
+
+    @classmethod
+    def HR_leaders(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_HR_LEADER)
 
     @classmethod
     def operater_leaders(cls):
@@ -454,3 +466,94 @@ class Leave(db.Model, BaseModelMixin):
                 return u'1天'
             else:
                 return u'0天'
+
+
+P_VERSION_ITEMS = [{'type': 1, 'name': u'2015上半年'}]
+P_VERSION_CN = {
+    1: u'2015年上半年'
+}
+
+P_TYPE_CN = {
+    1: u'普通员工表',
+    2: u'管理人员表'
+}
+
+P_STATUS_NEW = 1
+P_STATUS_APPLY = 2
+P_STATUS_HR = 3
+P_STATUS_END = 4
+P_STATUS_CN = {
+    P_STATUS_NEW: u'新添加',
+    P_STATUS_APPLY: u'领导评分中',
+    P_STATUS_HR: u'HR整理中',
+    P_STATUS_END: u'归档',
+}
+
+
+class PerformanceEvaluation(db.Model, BaseModelMixin):
+    __tablename__ = 'user_preformance_evaluation'
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.Integer)  # 表格类型: 1 普通员工表; 2 管理人员表
+    version = db.Column(db.Integer, default=1)  # 表格版本
+    status = db.Column(db.Integer, default=0)  # 状态
+
+    upper_score = db.Column(db.Float, default=0.0)
+    self_upper_score = db.Column(db.Float, default=0.0)
+    KR_score = db.Column(db.Float, default=0.0)
+    self_KR_score = db.Column(db.Float, default=0.0)
+    manage_score = db.Column(db.Float, default=0.0)
+    self_manage_score = db.Column(db.Float, default=0.0)
+    ability_score = db.Column(db.Float, default=0.0)
+    self_ability_score = db.Column(db.Float, default=0.0)
+    partner_score = db.Column(db.Float, default=0.0)
+    total_score = db.Column(db.Float, default=0.0)
+    self_total_score = db.Column(db.Float, default=0.0)
+
+    now_report = db.Column(db.Text())
+    future_report = db.Column(db.Text())
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('creator_performance_evaluation', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+    body = db.Column(db.Text(), default=json.dumps({}))
+    __mapper_args__ = {'order_by': id.desc()}
+
+    def __init__(self, now_report, future_report, creator, upper_score=0.00,
+                 KR_score=0.00, manage_score=0.00, ability_score=0.00, total_score=0.00,
+                 self_upper_score=0.00, self_KR_score=0.00, self_manage_score=0.00,
+                 self_ability_score=0.00, self_total_score=0.00, partner_score=0.00,
+                 type=1, status=1, version=1, create_time=None):
+        self.type = type
+        self.version = version or 1
+        self.status = status
+        self.upper_score = upper_score
+        self.KR_score = KR_score
+        self.manage_score = manage_score
+        self.ability_score = ability_score
+        self.partner_score = partner_score
+        self.total_score = total_score
+        self.self_upper_score = self_upper_score
+        self.self_KR_score = self_KR_score
+        self.self_manage_score = self_manage_score
+        self.self_ability_score = self_ability_score
+        self.self_total_score = self_total_score
+        self.now_report = now_report
+        self.future_report = future_report
+        self.creator = creator
+        self.create_time = create_time or datetime.datetime.now()
+
+    @property
+    def type_cn(self):
+        return P_TYPE_CN[self.type]
+
+    @property
+    def version_cn(self):
+        return P_VERSION_CN[self.version]
+
+    @property
+    def status_cn(self):
+        return P_STATUS_CN[self.status]
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime('%Y-%m-%d')

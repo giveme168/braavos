@@ -87,7 +87,7 @@ def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order', sa
                 sale_money = sum([order['order'].get_executive_report_medium_money_by_month(
                     now_year, Q_monthes[i], saler_type)['sale_money'] for order in k['orders']])
                 douban_money = sum([order['order'].associated_douban_orders_pro_month_money(
-                    now_year, Q_monthes[i]) for order in k['orders']])
+                    now_year, Q_monthes[i], saler_type) for order in k['orders']])
                 if i == 0:
                     k['total_frist_medium_money2_by_month'] += total_medium_money2
                     k['total_frist_saler_money_by_month'] += sale_money

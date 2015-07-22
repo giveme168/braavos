@@ -135,7 +135,7 @@
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.associated_douban_orders_pro_month_money(now_year, k)}}<br/><br/><br/>
+                                {{mo.associated_douban_orders_pro_month_money(now_year, k, type)}}<br/><br/><br/>
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -144,7 +144,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.associated_douban_orders_pro_month_money(now_year, k)}}<br/></br/></br/>
+                            {{mo.associated_douban_orders_pro_month_money(now_year, k, type)}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -153,7 +153,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.associated_douban_orders_pro_month_money(now_year, k)}}<br/></br/></br/>
+                            {{mo.associated_douban_orders_pro_month_money(now_year, k, type)}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
