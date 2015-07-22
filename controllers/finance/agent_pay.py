@@ -8,8 +8,11 @@ from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.invoice import (AgentInvoice, AgentInvoicePay, AGENT_INVOICE_STATUS_PASS,
                             INVOICE_TYPE_CN)
 from models.user import User
+from forms.invoice import AgentInvoiceForm
 from libs.signals import agent_invoice_apply_signal
 from libs.paginator import Paginator
+from controllers.saler.agent_invoice import (new_invoice as _new_invoice,
+                                             update_invoice as _update_invoice, get_invoice_from)
 
 
 finance_agent_pay_bp = Blueprint(
@@ -79,7 +82,13 @@ def info(order_id):
     if not order:
         abort(404)
     invoices = AgentInvoice.query.filter_by(client_order=order)
-    return tpl('/finance/agent_pay/info.html', order=order, invoices=invoices)
+    reminder_emails = [(u.id, u.name) for u in User.all_active()]
+    new_invoice_form = AgentInvoiceForm()
+    new_invoice_form.client_order.choices = [(order.id, order.name)]
+    new_invoice_form.agent.choices = [(k.id, k.name) for k in order.agents]
+    new_invoice_form.add_time.data = datetime.date.today()
+    return tpl('/finance/agent_pay/info.html', order=order, invoices=invoices, new_invoice_form=new_invoice_form,
+            reminder_emails=reminder_emails, INVOICE_TYPE_CN=INVOICE_TYPE_CN)
 
 
 @finance_agent_pay_bp.route('/<invoice_id>/pay_info', methods=['GET'])
@@ -87,8 +96,9 @@ def pay_info(invoice_id):
     if not g.user.is_finance():
         abort(404)
     invoice = AgentInvoice.get(invoice_id)
+    form = get_invoice_from(invoice)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
-    return tpl('/finance/agent_pay/pay_info.html', invoice=invoice, reminder_emails=reminder_emails,
+    return tpl('/finance/agent_pay/pay_info.html', form=form, invoice=invoice, reminder_emails=reminder_emails,
                INVOICE_TYPE_CN=INVOICE_TYPE_CN)
 
 
@@ -159,3 +169,13 @@ def invoice_pass(invoice_id):
         current_app._get_current_object(), apply_context=apply_context)
     flash(u'已发送邮件给 %s ' % (', '.join(to_emails)), 'info')
     return redirect(url_for("finance_agent_pay.pay_info", invoice_id=invoice_id))
+
+
+@finance_agent_pay_bp.route('/<order_id>/order/new', methods=['POST'])
+def new_invoice(order_id, redirect_endpoint='finance_agent_pay.info'):
+    return _new_invoice(order_id, redirect_endpoint)
+
+
+@finance_agent_pay_bp.route('/<invoice_id>/update', methods=['POST'])
+def update_invoice(invoice_id, redirect_endpoint='finance_agent_pay.info'):
+    return _update_invoice(invoice_id, redirect_endpoint)

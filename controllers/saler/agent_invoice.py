@@ -36,7 +36,7 @@ def index(order_id):
 
 
 @saler_agent_invoice_bp.route('/<order_id>/order/new', methods=['POST'])
-def new_invoice(order_id):
+def new_invoice(order_id, redirect_endpoint='saler_agent_invoice.index'):
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
@@ -46,7 +46,7 @@ def new_invoice(order_id):
     form.bool_invoice.choices = AGENT_INVOICE_BOOL_INVOICE_CN.items()
     if order.agent_money < order.agents_invoice_sum + float(form.money.data):
         flash(u'新建打款发票失败，发票超过代理总金额!', 'danger')
-        return redirect(url_for("saler_agent_invoice.index", order_id=order_id))
+        return redirect(url_for(redirect_endpoint, order_id=order_id))
     if request.method == 'POST':
         invoice = AgentInvoice.add(client_order=order,
                                    agent=Agent.get(form.agent.data),
@@ -72,7 +72,7 @@ def new_invoice(order_id):
     else:
         for k in form.errors:
             flash(u"新建打款发票失败，%s" % (form.errors[k][0]), 'danger')
-    return redirect(url_for("saler_agent_invoice.index", order_id=order_id))
+    return redirect(url_for(redirect_endpoint, order_id=order_id))
 
 
 @saler_agent_invoice_bp.route('/<invoice_id>/invoice', methods=['POST', 'GET'])
@@ -145,8 +145,12 @@ def get_invoice_form(invoice):
     return invoice_form
 
 
+def get_invoice_from(invoice):
+    return get_invoice_form(invoice)
+
+
 @saler_agent_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
-def update_invoice(invoice_id):
+def update_invoice(invoice_id, redirect_endpoint='saler_agent_invoice.index'):
     invoice = AgentInvoice.get(invoice_id)
     if not invoice:
         abort(404)
@@ -185,7 +189,7 @@ def update_invoice(invoice_id):
     else:
         for k in form.errors:
             flash(u"修改打款发票失败，%s" % (form.errors[k][0]), 'danger')
-    return redirect(url_for("saler_agent_invoice.index", order_id=invoice.client_order.id))
+    return redirect(url_for(redirect_endpoint, order_id=invoice.client_order.id))
 
 
 @saler_agent_invoice_bp.route('/<invoice_id>/apply_pay', methods=['POST'])
