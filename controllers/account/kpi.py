@@ -4,7 +4,7 @@ import datetime
 from flask import request, redirect, url_for, Blueprint, flash, json, jsonify, g, current_app
 from flask import render_template as tpl
 
-from models.user import PerformanceEvaluation
+from models.user import User, PerformanceEvaluation
 from libs.paginator import Paginator
 from libs.signals import kpi_apply_signal
 from controllers.account.helpers.kpi_helpers import write_report_excel
@@ -373,6 +373,20 @@ def check_apply(r_id):
     return tpl('/account/kpi/apply.html', type=report.type, scores=scores, report=report)
 
 
+def _get_all_under_users(self_user):
+    under_users = []
+    all_user = [user for user in User.all() if user.is_active()]
+
+    def get_under(under_users, all_user, self_user):
+        d_user = [user for user in all_user if self_user in user.team_leaders]
+        for k in d_user:
+            under_users.append(k)
+            if k.is_kpi_leader and self_user != k:
+                return get_under(under_users, all_user, k)
+        return under_users
+    return get_under(under_users, all_user, self_user)
+
+
 @account_kpi_bp.route('/underling', methods=['GET'])
 def underling():
     page = int(request.values.get('p', 1))
@@ -381,7 +395,7 @@ def underling():
         reports = PerformanceEvaluation.query.filter(
             PerformanceEvaluation.status > 1)
     else:
-        underling_users = [k.id for k in g.user.kpi_undering_users()]
+        underling_users = [k.id for k in set(_get_all_under_users(g.user))]
         reports = PerformanceEvaluation.query.filter(
             PerformanceEvaluation.creator_id.in_(underling_users),
             PerformanceEvaluation.status > 1)
