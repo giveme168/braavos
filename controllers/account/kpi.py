@@ -7,7 +7,7 @@ from flask import render_template as tpl
 from models.user import User, PerformanceEvaluation
 from libs.paginator import Paginator
 from libs.signals import kpi_apply_signal
-from controllers.account.helpers.kpi_helpers import write_report_excel
+from controllers.account.helpers.kpi_helpers import write_report_excel, write_simple_report_excel
 
 account_kpi_bp = Blueprint(
     'account_kpi', __name__, template_folder='../../templates/account/kpi/')
@@ -414,6 +414,8 @@ def underling():
 
     if status != 0:
         reports = [k for k in reports if k.status == status]
+    if request.values.get('action') == 'excel':
+        return write_simple_report_excel(reports)
     paginator = Paginator(list(reports), 20)
     try:
         reports = paginator.page(page)

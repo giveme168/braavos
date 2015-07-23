@@ -1,10 +1,70 @@
 # -*- coding: UTF-8 -*-
 import StringIO
 import mimetypes
+import datetime
 
 from flask import Response
 from werkzeug.datastructures import Headers
 import xlsxwriter
+
+
+def write_simple_report_excel(reports):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    keys = [u'员工姓名', u'职务', u'考核周期', u'KR指标自评分', u'KR指标上级评分', u'改进提升自评分',
+            u'改进提升上级评分', u'管理指标自评分', u'管理指标上级评分', u'胜任能力自评分', u'胜任能力上级评分',
+            u'绩效评估自评总分', u'绩效评估上级总评分', u'填表时间']
+    worksheet.set_column(0, len(keys), 18)
+    for k in range(len(keys)):
+        worksheet.write(0, k, keys[k], align_center)
+    worksheet.set_row(0, 20)
+    reports = [k for k in reports if k.status >= 3]
+    th = 1
+    for k in range(len(reports)):
+        worksheet.write(th, 0, reports[k].creator.name, align_center)
+        worksheet.write(th, 1, reports[k].creator.team.name, align_center)
+        worksheet.write(th, 2, reports[k].version_cn, align_center)
+        worksheet.write(th, 3, reports[k].self_KR_score, align_center)
+        worksheet.write(th, 4, reports[k].KR_score, align_center)
+        worksheet.write(th, 5, reports[k].self_upper_score, align_center)
+        worksheet.write(th, 6, reports[k].upper_score, align_center)
+        if reports[k].type == 2:
+            worksheet.write(th, 7, reports[k].self_manage_score, align_center)
+            worksheet.write(th, 8, reports[k].manage_score, align_center)
+        else:
+            worksheet.write(th, 7, u'无', align_center)
+            worksheet.write(th, 8, u'无', align_center)
+        worksheet.write(th, 9, reports[k].self_ability_score, align_center)
+        worksheet.write(th, 10, reports[k].ability_score, align_center)
+        worksheet.write(th, 11, reports[k].self_total_score, align_center)
+        worksheet.write(th, 12, reports[k].total_score, align_center)
+        worksheet.write(th, 13, reports[k].create_time_cn, align_center)
+        worksheet.set_row(th, 20)
+        th += 1
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                ("绩效考核总表", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
 
 
 def write_report_excel(report):
