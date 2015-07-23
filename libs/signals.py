@@ -485,7 +485,7 @@ Dear %s:
     KPI链接地址: %s
 
     """ % (to_names, url)
-    elif report.status == 3:
+    elif report.status == 4:
         url = mail.app.config['DOMAIN'] + url_for('account_kpi.info', r_id=report.id)
         to_names = ','.join([k.name for k in User.HR_leaders()])
         user_name = report.creator.name
@@ -500,7 +500,7 @@ Dear %s:
     KPI链接地址: %s
 
     """ % (to_names, user_name, url)
-    elif report.status == 4:
+    elif report.status == 5:
         url = mail.app.config['DOMAIN'] + url_for('account_kpi.info', r_id=report.id)
         to_names = report.creator.name
         user_name = report.creator.name

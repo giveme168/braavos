@@ -7,7 +7,7 @@ from flask import render_template as tpl
 from models.user import User, PerformanceEvaluation
 from libs.paginator import Paginator
 from libs.signals import kpi_apply_signal
-from controllers.account.helpers.kpi_helpers import write_report_excel
+from controllers.account.helpers.kpi_helpers import write_report_excel, write_simple_report_excel
 
 account_kpi_bp = Blueprint(
     'account_kpi', __name__, template_folder='../../templates/account/kpi/')
@@ -296,10 +296,10 @@ def apply(r_id, status):
             return redirect(url_for("account_kpi.underling"))
         else:
             return redirect(url_for("account_kpi.index"))
-    elif int(status) == 3:
+    elif int(status) == 4:
         flash(u'提交给HR成功', 'success')
         return redirect(url_for("account_kpi.underling"))
-    elif int(status) == 4:
+    elif int(status) == 5:
         flash(u'归档成功', 'success')
         return redirect(url_for("account_kpi.underling"))
 
@@ -414,6 +414,8 @@ def underling():
 
     if status != 0:
         reports = [k for k in reports if k.status == status]
+    if request.values.get('action') == 'excel':
+        return write_simple_report_excel(reports)
     paginator = Paginator(list(reports), 20)
     try:
         reports = paginator.page(page)
@@ -430,7 +432,7 @@ def info(r_id):
     report = PerformanceEvaluation.get(r_id)
     if not g.user.is_HR_leader():
         if report.creator == g.user:
-            if report.status != 4:
+            if report.status != 5:
                 flash(u'对不起，您的绩效考核评分还没有完成!', 'danger')
                 return redirect(url_for("account_kpi.index"))
         elif report.creator != g.user or g.user not in report.creator.team_leaders:

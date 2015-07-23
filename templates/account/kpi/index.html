@@ -2,7 +2,7 @@
 {% block title %}我的绩效考核{% endblock %}
 
 {% block main_box %}
-<div class="bra-main bra-box" style="width:1200px;">
+<div class="bra-main bra-box" style="width:1100px;">
     <div>
         <div class="tab-content">
           <div class="tab-pane active" id="tab-1">
@@ -15,34 +15,47 @@
             <table class="table table-bordered">
                 <tr>
                     <th>填写人</th>
-                    <th>KR指标自评分</th>
-                    <th>改进提升自评分</th>
-                    <th>管理指标自评分</th>
-                    <th>胜任能力自评分</th>
-                    <th>绩效评估自评总分</th>
+                    <th>KR指标自评分/上级评分</th>
+                    <th>改进提升自评分/上级评分</th>
+                    <th>管理指标自评分/上级评分</th>
+                    <th>胜任能力自评分/上级评分</th>
+                    <th>绩效评估自评总分/上级评分</th>
                     <th>状态</th>
                     <th width="8%">操作</th>
                 </tr>
                 {% for k in reports %}
                 <tr>
                     <td>
-                        {% if k.status == 4 %}
+                        {% if k.status == 5 %}
                         <a href="{{url_for('account_kpi.info', r_id=k.id)}}">{{k.creator.name}}</a>
                         {% else %}
                         {{k.creator.name}}
                         {% endif %}
                     </td>
-                    <td>{{k.self_KR_score}}</td>
-                    <td>{{k.self_upper_score}}</td>
-                    <td>{% if k.type == 2 %}{{k.self_manage_score}}{% else %}无{% endif %}</td>
-                    <td>{{k.self_ability_score}}</td>
-                    <td>{{k.self_total_score}}</td>
+                    <td>{{k.self_KR_score}} / {% if k.status == 5 %}{{k.KR_score}}{% else %}未评分{% endif %}</td>
+                    <td>{{k.self_upper_score}} / {% if k.status == 5 %}{{k.upper_score}}{% else %}未评分{% endif %}</td>
+                    <td>{% if k.type == 2 %}
+                            {{k.self_manage_score}}
+                            {% else %}
+                            无
+                            {% endif %} /
+                            {% if k.type == 2 %}
+                                {% if k.status==5 %}
+                                    {{k.manage_score}}
+                                {%else%}
+                                    未评分
+                                {% endif %}
+                            {% else %}
+                            无
+                        {% endif %}</td>
+                    <td>{{k.self_ability_score}} / {% if k.status==5 %}{{k.ability_score}}{% else %}未评分{% endif %}</td>
+                    <td>{{k.self_total_score}} / {% if k.status==5 %}{{k.total_score}}{% else %}未评分{% endif %}</td>
                     <td>{{k.status_cn}}</td>
                     <td>
                         {% if k.status == 1 %}
                             <a href="{{url_for('account_kpi.update', r_id=k.id)}}">修改</a><br/>
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=2)}}">申请评分</a>
-                        {% elif k.status == 4 %}
+                        {% elif k.status == 5 %}
                             <a href="{{url_for('account_kpi.info', r_id=k.id)}}?action=excel">下载</a><br/>
                         {% endif %}
 

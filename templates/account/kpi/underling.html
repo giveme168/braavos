@@ -2,7 +2,7 @@
 {% block title %}下属绩效考核{% endblock %}
 
 {% block main_box %}
-<div class="bra-main bra-box" style="width:1200px;">
+<div class="bra-main bra-box" style="width:1100px;">
     <div>
         <div class="tab-content">
           <div class="tab-pane active" id="tab-1">
@@ -37,6 +37,9 @@
                         </select>
                     </div>
                     <input type="submit" value="查询" class="btn btn-sm btn-info" style="width:80px;">
+                    {% if g.user.is_HR_leader() or g.user.is_super_leader() %}
+                    <a class="btn btn-sm btn-info" style="width:80px;" href="?action=excel">导出总表</a>
+                    {% endif %}
                 </form>
             </div>
             <br/>
@@ -54,11 +57,24 @@
                 {% for k in reports %}
                 <tr id="tr_{{k.id}}">
                     <td><a href="{{url_for('account_kpi.info', r_id=k.id)}}">{{k.creator.name}}</a></td>
-                    <td>{{k.self_KR_score}}/{{k.KR_score}}</td>
-                    <td>{{k.self_upper_score}}/{{k.upper_score}}</td>
-                    <td>{% if k.type==2 %}{{k.self_manage_score}}/{{k.manage_score}}{% else %}无{% endif %}</td>
-                    <td>{{k.self_ability_score}}/{{k.ability_score}}</td>
-                    <td>{{k.self_total_score}}/{{k.total_score}}</td>
+                    <td>{{k.self_KR_score}} / {% if k.status >= 3 %}{{k.KR_score}}{% else %}未评分{% endif %}</td>
+                    <td>{{k.self_upper_score}} / {% if k.status >= 3 %}{{k.upper_score}}{% else %}未评分{% endif %}</td>
+                    <td>{% if k.type == 2 %}
+                            {{k.self_manage_score}}
+                        {% else %}
+                            无
+                        {% endif %} /
+                        {% if k.type == 2 %}
+                            {% if k.status>=3 %}
+                                {{k.manage_score}}
+                            {%else%}
+                                未评分
+                            {% endif %}
+                        {% else %}
+                            无
+                        {% endif %}</td>
+                    <td>{{k.self_ability_score}} / {% if k.status>=3 %}{{k.ability_score}}{% else %}未评分{% endif %}</td>
+                    <td>{{k.self_total_score}} / {% if k.status>=3 %}{{k.total_score}}{% else %}未评分{% endif %}</td>
                     <td>{{k.status_cn}}</td>
                     <td>
                         {% if k.status == 2 and g.user.is_kpi_leader%}
@@ -66,12 +82,12 @@
                             <a href="{{url_for('account_kpi.check_apply', r_id=k.id)}}">审批</a><br/>
                         {% elif k.status == 3 and g.user.is_kpi_leader %}
                         <a href="{{url_for('account_kpi.check_apply', r_id=k.id)}}">重新审批</a><br/>
-                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=3)}}">提交HR</a><br/>
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=4)}}">提交HR</a><br/>
                         {% elif k.status == 4 and g.user.is_HR_leader() %}
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=2)}}">打回重评</a><br/>
-                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=4)}}">归档</a><br/>
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=5)}}">归档</a><br/>
                         {% elif k.status == 5 and g.user.is_HR_leader() %}
-                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=3)}}">取消归档</a><br/>
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=4)}}">取消归档</a><br/>
                             <a href="{{url_for('account_kpi.info', r_id=k.id)}}?action=excel">下载</a><br/>
                         {% endif %}
                         {% if g.user.is_admin() %}
