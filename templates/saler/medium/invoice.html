@@ -233,7 +233,7 @@ $(function() {
         <li class=""><a href='{{url_for("saler_invoice.index", order_id=invoice.client_order.id)}}'>客户发票</a></li>
         <li class=""><a href='{{url_for("saler_client_order_back_money.index", order_id=invoice.client_order.id)}}'>客户回款</a></li>
         <li class="active"><a href='{{url_for("saler_medium_invoice.index", order_id=invoice.client_order.id)}}'>媒体发票与打款</a></li>
-        <li class="active"><a href='{{url_for("saler_medium_rebate_invoice.index", order_id=invoice.client_order.id)}}'>媒体返点发票</a></li>
+        <li class=""><a href='{{url_for("saler_medium_rebate_invoice.index", order_id=invoice.client_order.id)}}'>媒体返点发票</a></li>
         <li class=""><a href='{{url_for("saler_agent_invoice.index", order_id=invoice.client_order.id)}}'>媒体发票与打款</a></li>
         {% endif %}
       </ul>

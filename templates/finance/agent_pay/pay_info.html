@@ -1,4 +1,6 @@
 {% extends "finance_base.html" %}
+{% from '/form.html' import form_field %}
+{% from '/finance/agent_pay/agent_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 
 {% block main_box%}
@@ -65,7 +67,43 @@
             <td>没有发票</td>
             {% endif %}
           </tr>
-        </table>
+          <tr>
+              <th>操作</th>
+              <td>
+                  <a href='javascript:update_invoice()'>修改发票</a>
+              </td>
+           </tr>
+    </table>
+    <div class="well" id="invoice_from" style="display:none;">
+        <h4>
+            {{invoice.client_order.name}}-{{ invoice.agent.name }}-{{ invoice.money }}元
+        </h4>
+        {% if g.user.is_super_leader() or invoice.client_order.can_admin(g.user) or g.user.is_finance() %}
+        <form class="form form-horizontal" method="POST" action="{{url_for('finance_agent_pay.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+        {{form.csrf_token}}
+        {{ form_field(form.client_order)}}
+        {{ form_field(form.agent)}}
+        {{ form_field(form.company) }}
+        {{ form_field(form.tax_id) }}
+        {{ form_field(form.address) }}
+        {{ form_field(form.phone) }}
+        {{ form_field(form.bank_id) }}
+        {{ form_field(form.bank) }}
+        {{ form_field(form.detail) }}
+        {{ form_field(form.money) }}
+        {{ form_field(form.invoice_num) }}
+        {{ form_field(form.invoice_type) }}
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">开票时间 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+          </div>
+        </div>
+        {{ form_field(form.bool_invoice) }}
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        </form>
+        {% endif %}
+    </div>
     {% set invoices_data_apply = invoice.get_invoice_pas_by_status(3) %}
     {% set invoices_data_pass = invoice.get_invoice_pas_by_status(0) %}
     {% if invoices_data_pass|length > 0 %}
@@ -146,6 +184,17 @@
       $("#new-invoice").show();
     };
   });
+  showInvoice = function(ele){
+      $(ele).hide();
+      $("#new_invoice").show();
+  };
+  function update_invoice(){
+      if($('#invoice_from').css('display') == 'none'){
+          $('#invoice_from').show()
+      }else{
+        $('#invoice_from').hide()
+      }
+  }
   function check_all(e){
     $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));
     $(e).parent().find(".invoice-id").trigger("change");

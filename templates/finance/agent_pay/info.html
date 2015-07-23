@@ -1,4 +1,5 @@
 {% extends "finance_base.html" %}
+{% from '/finance/agent_pay/agent_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 
 {% block main_box%}
@@ -49,5 +50,63 @@
       </tr>
       {% endfor %}
     </table>
+  <div class="panel panel-default" id="new-invoice" style="display:none;">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+      <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写甲方发票 </a>
+      </h4>
+    </div>
+    <div id="collapse-invoice-new" class="panel-collapse collapse in">
+      <div class="panel-body">
+        <div class="well">
+          {{ invoice_form(order, new_invoice_form, INVOICE_TYPE_CN) }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写发票</button>
+  <div>{{ comments_box(order, msg_channel=5) }}</div>
 </div>
+<script>
+showInvoice = function(ele) {
+  $(ele).hide();
+  $("#new-invoice").show();
+};
+
+function check_all(e) {
+  $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));
+  $(e).parent().find(".invoice-id").trigger("change");
+}
+$(function() {
+  $(".invoice-id").change(function(e) {
+    if ($(this).prop("checked")) {
+      if ($("#form-invoice-" + $(this).val()).length < 1) {
+        $(this).parents(".panel-collapse").find(".invoice-status-form")
+          .append('<input class="hide invoices" name="invoices" id="form-invoice-' + $(this).val() + '" value="' + $(this).val() + '"/>');
+      }
+    } else {
+      $(this).parents(".panel-collapse").find(".invoice-all").prop("checked", false);
+      if ($("#form-invoice-" + $(this).val()).length > 0) {
+        $("#form-invoice-" + $(this).val()).remove();
+      }
+    }
+  });
+  $(".invoice-btn").click(function(e) {
+    var actionVal = $(this).val();
+    var email = $(this).parents('form').find("#contract-email").val();
+    var invoices = $(this).parents('form').find(".invoices");
+    var msg = $(this).parents('form').find("#msg").val();
+    if (invoices.length < 1) {
+      alert("请勾选要申请的发票!");
+      e.preventDefault();
+    }
+    if (actionVal == '2') {
+      if (msg == "") {
+        alert("请填写理由！");
+        e.preventDefault();
+      }
+    }
+  });
+});
+</script>
 {% endblock %}
