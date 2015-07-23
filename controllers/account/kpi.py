@@ -430,7 +430,7 @@ def underling():
 @account_kpi_bp.route('/<r_id>/info', methods=['GET'])
 def info(r_id):
     report = PerformanceEvaluation.get(r_id)
-    if not g.user.is_HR_leader():
+    if not g.user.is_HR_leader() and not g.user.is_super_leader():
         if report.creator == g.user:
             if report.status != 5:
                 flash(u'对不起，您的绩效考核评分还没有完成!', 'danger')
