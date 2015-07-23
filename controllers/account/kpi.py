@@ -391,6 +391,7 @@ def _get_all_under_users(self_user):
 def underling():
     page = int(request.values.get('p', 1))
     status = int(request.values.get('status', 0))
+
     if g.user.is_HR_leader or g.user.is_super_leader():
         reports = PerformanceEvaluation.query.filter(
             PerformanceEvaluation.status > 1)
@@ -399,6 +400,17 @@ def underling():
         reports = PerformanceEvaluation.query.filter(
             PerformanceEvaluation.creator_id.in_(underling_users),
             PerformanceEvaluation.status > 1)
+    total_score = str(request.values.get('total_score', 0))
+    if total_score != '0':
+        total_score_p = total_score.split('-')
+        if len(total_score) == 1:
+            reports = [
+                k for k in reports if float(k.total_score) == float(total_score)]
+        else:
+            start, end = float(total_score_p[0]), float(total_score_p[1])
+            reports = [k for k in reports if float(
+                k.total_score) >= start and float(k.total_score) < end]
+
     if status != 0:
         reports = [k for k in reports if k.status == status]
     paginator = Paginator(list(reports), 20)
@@ -407,7 +419,9 @@ def underling():
     except:
         reports = paginator.page(paginator.num_pages)
     return tpl('/account/kpi/underling.html', reports=reports, status=status,
-               params='&status=' + str(status))
+               params='&status=' +
+               str(status) + '&total_score=' + str(total_score),
+               total_score=total_score)
 
 
 @account_kpi_bp.route('/<r_id>/info', methods=['GET'])
