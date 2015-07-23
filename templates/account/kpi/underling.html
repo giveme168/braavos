@@ -13,6 +13,7 @@
                         <input type="text" class="form-control" id="number" name="number" placeholder="编号">
                     </div>-->
                     <div class="form-group">
+                        <label for="">状态：</label>
                         <select class="form-control" id="status" name="status" placeholder="选择状态">
                             <option value='0'>所有状态</option>
                             <option value="2">Leader审批中</option>
@@ -20,7 +21,21 @@
                             <option value="4">归档</option>
                         </select>
                     </div>
-                    
+                    <div class="form-group">
+                        <label for="">评分：</label>
+                        <select class="form-control" id="total_score" name="total_score" placeholder="选择评分">
+                            <option value='0'>所有评分</option>
+                            <option value='5'>杰出</option>
+                            <option value="4.5-5">持续一贯地超出期望</option>
+                            <option value="4-4.5">超出期望</option>
+                            <option value="3.75-4">部分超出期望</option>
+                            <option value="3.5-3.75">符合期望</option>
+                            <option value="3.25-3.5">基本符合期望，还需提高</option>
+                            <option value="3-3.25">达到最低要求，有待改进</option>
+                            <option value="2.5-3">基本不能胜任</option>
+                            <option value="0-2.5">不合格</option>
+                        </select>
+                    </div>
                     <input type="submit" value="查询" class="btn btn-sm btn-info" style="width:80px;">
                 </form>
             </div>
@@ -83,6 +98,8 @@
     $(function(){
         $('#status').val('{{status}}')
         $('#status').trigger("chosen:updated");
+        $('#total_score').val('{{total_score}}')
+        $('#total_score').trigger("chosen:updated");
     })
 </script>
 {% endblock %}
