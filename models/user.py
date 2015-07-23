@@ -480,11 +480,13 @@ P_TYPE_CN = {
 
 P_STATUS_NEW = 1
 P_STATUS_APPLY = 2
-P_STATUS_HR = 3
-P_STATUS_END = 4
+P_STATUS_APPLY_END = 3
+P_STATUS_HR = 4
+P_STATUS_END = 5
 P_STATUS_CN = {
     P_STATUS_NEW: u'新添加',
     P_STATUS_APPLY: u'领导评分中',
+    P_STATUS_APPLY_END: u'领导评分完成',
     P_STATUS_HR: u'HR整理中',
     P_STATUS_END: u'归档',
 }

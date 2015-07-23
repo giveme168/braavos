@@ -361,6 +361,7 @@ def check_apply(r_id):
         report.KR_score = KR_score
         report.manage_score = manage_score
         report.ability_score = ability_score
+        report.status = 3
         report.total_score = total_score
         report.now_report = json.dumps(report.now_report_obj)
         report.create_time = datetime.datetime.now()
