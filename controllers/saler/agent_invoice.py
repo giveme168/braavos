@@ -159,6 +159,10 @@ def update_invoice(invoice_id, redirect_endpoint='saler_agent_invoice.index'):
         (invoice.client_order.id, invoice.client_order.name)]
     form.agent.choices = [(invoice.agent.id, invoice.agent.name)]
     form.bool_invoice.bool_invoice = AGENT_INVOICE_BOOL_INVOICE_CN.items()
+    order = invoice.client_order
+    if order.agent_money < order.agents_invoice_sum + float(form.money.data):
+        flash(u'新建打款发票失败，发票超过代理总金额!', 'danger')
+        return redirect(url_for(redirect_endpoint, order_id=order.id))
     if request.method == 'POST':
         if not form.invoice_num.data:
             flash(u"修改打款发票失败，发票号不能为空", 'danger')
