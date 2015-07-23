@@ -2,7 +2,7 @@
 {% block title %}下属绩效考核{% endblock %}
 
 {% block main_box %}
-<div class="bra-main bra-box" style="width:1200px;">
+<div class="bra-main bra-box" style="width:1100px;">
     <div>
         <div class="tab-content">
           <div class="tab-pane active" id="tab-1">
@@ -66,12 +66,12 @@
                             <a href="{{url_for('account_kpi.check_apply', r_id=k.id)}}">审批</a><br/>
                         {% elif k.status == 3 and g.user.is_kpi_leader %}
                         <a href="{{url_for('account_kpi.check_apply', r_id=k.id)}}">重新审批</a><br/>
-                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=3)}}">提交HR</a><br/>
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=4)}}">提交HR</a><br/>
                         {% elif k.status == 4 and g.user.is_HR_leader() %}
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=2)}}">打回重评</a><br/>
-                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=4)}}">归档</a><br/>
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=5)}}">归档</a><br/>
                         {% elif k.status == 5 and g.user.is_HR_leader() %}
-                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=3)}}">取消归档</a><br/>
+                            <a href="{{url_for('account_kpi.apply', r_id=k.id, status=4)}}">取消归档</a><br/>
                             <a href="{{url_for('account_kpi.info', r_id=k.id)}}?action=excel">下载</a><br/>
                         {% endif %}
                         {% if g.user.is_admin() %}

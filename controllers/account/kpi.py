@@ -296,10 +296,10 @@ def apply(r_id, status):
             return redirect(url_for("account_kpi.underling"))
         else:
             return redirect(url_for("account_kpi.index"))
-    elif int(status) == 3:
+    elif int(status) == 4:
         flash(u'提交给HR成功', 'success')
         return redirect(url_for("account_kpi.underling"))
-    elif int(status) == 4:
+    elif int(status) == 5:
         flash(u'归档成功', 'success')
         return redirect(url_for("account_kpi.underling"))
 
@@ -430,7 +430,7 @@ def info(r_id):
     report = PerformanceEvaluation.get(r_id)
     if not g.user.is_HR_leader():
         if report.creator == g.user:
-            if report.status != 4:
+            if report.status != 5:
                 flash(u'对不起，您的绩效考核评分还没有完成!', 'danger')
                 return redirect(url_for("account_kpi.index"))
         elif report.creator != g.user or g.user not in report.creator.team_leaders:
