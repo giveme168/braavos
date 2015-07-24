@@ -27,6 +27,9 @@ def index():
 
 @account_kpi_bp.route('/create', methods=['GET', 'POST'])
 def create():
+    if PerformanceEvaluation.query.filter_by(version=1, creator=g.user).count() > 0:
+        flash(u'您已经填写过绩效考核表了!', 'danger')
+        return redirect(url_for("account_kpi.index"))
     if g.user.is_kpi_leader:
         type = 2
     else:
@@ -158,6 +161,9 @@ def update(r_id):
     report = PerformanceEvaluation.get(r_id)
     if report.creator != g.user:
         flash(u'对不起，该绩效考核不是您的!', 'danger')
+        return redirect(url_for("account_kpi.index"))
+    if int(report.status) != 1:
+        flash(u'对不起，您的绩效考核在审批中暂时不能修改!', 'danger')
         return redirect(url_for("account_kpi.index"))
     if request.method == 'POST':
         now_report = {}
