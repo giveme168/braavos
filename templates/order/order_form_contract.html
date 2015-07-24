@@ -172,7 +172,7 @@
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="6">打印完毕</button>
             {% endif %}
             {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 9]%}
-              {% if order.create_time.strftime('%Y%m') == now_date.strftime('%Y%m') %}
+              {% if order.client_start.strftime('%Y%m') == now_date.strftime('%Y%m') %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">申请撤单</button>
               {% endif %}
             {% endif %}
