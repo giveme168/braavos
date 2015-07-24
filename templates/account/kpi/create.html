@@ -864,7 +864,7 @@
         var next_manage_3_s = parseFloat($('#next_manage_3_s').val())
         next_total_kpi_s += next_manage_1_s*next_manage_1_w/100+next_manage_2_s*next_manage_2_w/100+next_manage_3_s*next_manage_2_w/100
         {% endif %}
-        $('#next_total_kpi_s').html(next_total_kpi_s.toFixed(2))
+        //$('#next_total_kpi_s').html(next_total_kpi_s.toFixed(2))
         
         if (next_total_kpi_w > 80){
             obj.focus();
