@@ -497,7 +497,7 @@ class PerformanceEvaluation(db.Model, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer)  # 表格类型: 1 普通员工表; 2 管理人员表
     version = db.Column(db.Integer, default=1)  # 表格版本
-    status = db.Column(db.Integer, default=0)  # 状态
+    status = db.Column(db.Integer, default=1)  # 状态
 
     upper_score = db.Column(db.Float, default=0.0)
     self_upper_score = db.Column(db.Float, default=0.0)
