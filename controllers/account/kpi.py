@@ -399,7 +399,7 @@ def underling():
     page = int(request.values.get('p', 1))
     status = int(request.values.get('status', 0))
 
-    if g.user.is_HR_leader or g.user.is_super_leader():
+    if g.user.is_HR_leader() or g.user.is_super_leader():
         reports = PerformanceEvaluation.query.filter(
             PerformanceEvaluation.status > 1)
     else:
