@@ -3,11 +3,11 @@ import datetime
 from flask import url_for, g
 
 from . import db, BaseModelMixin
-from models.mixin.comment import CommentMixin
-from models.mixin.attachment import AttachmentMixin
-from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
+from .mixin.comment import CommentMixin
+from .mixin.attachment import AttachmentMixin
+from .attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import ITEM_STATUS_LEADER_ACTIONS
-from user import User, TEAM_LOCATION_CN
+from .user import User, TEAM_LOCATION_CN
 from .consts import DATE_FORMAT
 from .invoice import Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice, AgentInvoicePay, MediumRebateInvoice
 from libs.mail import mail
@@ -82,24 +82,24 @@ direct_sales = db.Table('searchAd_client_order_direct_sales',
                         db.Column(
                             'sale_id', db.Integer, db.ForeignKey('user.id')),
                         db.Column(
-                            'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
+                            'client_order_id', db.Integer, db.ForeignKey('searchAd_bra_client_order.id'))
                         )
 agent_sales = db.Table('searchAd_client_order_agent_sales',
                        db.Column(
                            'agent_sale_id', db.Integer, db.ForeignKey('user.id')),
                        db.Column(
-                           'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
+                           'client_order_id', db.Integer, db.ForeignKey('searchAd_bra_client_order.id'))
                        )
 table_medium_orders = db.Table('searchAd_client_order_medium_orders',
                                db.Column(
                                    'order_id', db.Integer, db.ForeignKey('bra_order.id')),
                                db.Column(
-                                   'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
+                                   'client_order_id', db.Integer, db.ForeignKey('searchAd_bra_client_order.id'))
                                )
 
 
 class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
-    __tablename__ = 'searchAd_client_order'
+    __tablename__ = 'searchAd_bra_client_order'
 
     id = db.Column(db.Integer, primary_key=True)
     agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))  # 客户合同甲方
@@ -320,7 +320,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [o for o in self.outsources if o.status == outsource_status]
 
     def get_outsource_status_cn(self, status):
-        from models.outsource import OUTSOURCE_STATUS_CN
+        from .outsource import OUTSOURCE_STATUS_CN
         return OUTSOURCE_STATUS_CN[status]
 
     @property
@@ -770,7 +770,7 @@ by %s\n
             count = len(set(self.agent_sales + self.direct_sales))
         if sale_type == 'normal':
             count = 1
-        from models.order import MediumOrderExecutiveReport
+        from .order import MediumOrderExecutiveReport
         day_month = datetime.datetime.strptime(year + '-' + month, '%Y-%m')
         executive_reports = MediumOrderExecutiveReport.query.filter_by(
             client_order=self, month_day=day_month)
@@ -823,7 +823,7 @@ by %s\n
 
 
 class BackMoney(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_client_order_back_money'
+    __tablename__ = 'searchAd_bra_client_order_back_money'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
         db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
@@ -850,7 +850,7 @@ class BackMoney(db.Model, BaseModelMixin):
 
 
 class BackInvoiceRebate(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_client_order_back_invoice_rebate'
+    __tablename__ = 'searchAd_bra_client_order_back_invoice_rebate'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
         db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
@@ -879,7 +879,7 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
 
 
 class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_client_order_executive_report'
+    __tablename__ = 'searchAd_bra_client_order_executive_report'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
         db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
@@ -906,7 +906,7 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
 
 
 class ClientOrderReject(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_client_order_reject'
+    __tablename__ = 'searchAd_bra_client_order_reject'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
         db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同

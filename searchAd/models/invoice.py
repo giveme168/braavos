@@ -29,7 +29,7 @@ INVOICE_STATUS_CN = {
 
 
 class Invoice(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_invoice'
+    __tablename__ = 'searchAd_bra_invoice'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
         db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
@@ -103,7 +103,7 @@ class Invoice(db.Model, BaseModelMixin):
 # 媒体返点发票(媒体给inad打钱, inad给媒体开发票)
 class MediumRebateInvoice(db.Model, BaseModelMixin):
 
-    __tablename__ = 'searchAd_medium_rebate_invoice'
+    __tablename__ = 'searchAd_bra_medium_rebate_invoice'
 
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
@@ -214,7 +214,7 @@ MEDIUM_INVOICE_STATUS_CN = {
 
 # 客户订单-媒体发票
 class MediumInvoice(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_medium_invoice'
+    __tablename__ = 'searchAd_bra_medium_invoice'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
         db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
@@ -321,7 +321,7 @@ class MediumInvoice(db.Model, BaseModelMixin):
 
 # 客户订单-媒体发票
 class MediumInvoicePay(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_medium_invoice_pay'
+    __tablename__ = 'searchAd_bra_medium_invoice_pay'
     id = db.Column(db.Integer, primary_key=True)
     medium_invoice_id = db.Column(
         db.Integer, db.ForeignKey('bra_medium_invoice.id'))  # 客户发票
@@ -379,7 +379,7 @@ AGENT_INVOICE_STATUS_CN = {
 
 # 给代理/直客(甲方的全称)开的发票
 class AgentInvoice(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_agent_invoice'
+    __tablename__ = 'searchAd_bra_agent_invoice'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
         db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
@@ -486,7 +486,7 @@ class AgentInvoice(db.Model, BaseModelMixin):
 
 # inad付款给代理/直客(甲方的全称)的金额
 class AgentInvoicePay(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_agent_invoice_pay'
+    __tablename__ = 'searchAd_bra_agent_invoice_pay'
     id = db.Column(db.Integer, primary_key=True)
     agent_invoice_id = db.Column(
         db.Integer, db.ForeignKey('bra_agent_invoice.id'))  # 客户发票

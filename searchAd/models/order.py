@@ -4,24 +4,21 @@ from collections import defaultdict
 from flask import url_for
 from xlwt import Utils
 
-from models.mixin.comment import CommentMixin
-from models.mixin.attachment import AttachmentMixin
-from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
-from models.excel import (
-    ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
-    EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
-    EXCEL_DATA_TYPE_NUM, COLOUR_RED, COLOUR_LIGHT_GRAY)
-from libs.date_helpers import get_monthes_pre_days
-
-
 from . import db, BaseModelMixin
-from models.item import (ITEM_STATUS_CN, SALE_TYPE_CN,
+from .mixin.comment import CommentMixin
+from .mixin.attachment import AttachmentMixin
+from .attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
+from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
                    ITEM_STATUS_LEADER_ACTIONS, OCCUPY_RESOURCE_STATUS,
                    ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY,
                    ITEM_STATUS_ORDER)
 from .client_order import table_medium_orders, ClientOrder
+from .excel import (
+    ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
+    EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
+    EXCEL_DATA_TYPE_NUM, COLOUR_RED, COLOUR_LIGHT_GRAY)
 from .consts import DATE_FORMAT
-
+from libs.date_helpers import get_monthes_pre_days
 
 
 ORDER_TYPE_NORMAL = 0         # 标准广告
@@ -61,24 +58,24 @@ operater_users = db.Table('searchAd_order_users_operater',
                           db.Column(
                               'user_id', db.Integer, db.ForeignKey('user.id')),
                           db.Column(
-                              'order_id', db.Integer, db.ForeignKey('bra_order.id'))
+                              'order_id', db.Integer, db.ForeignKey('searchAd_bra_order.id'))
                           )
 designer_users = db.Table('searchAd_order_users_designerer',
                           db.Column(
                               'user_id', db.Integer, db.ForeignKey('user.id')),
                           db.Column(
-                              'order_id', db.Integer, db.ForeignKey('bra_order.id'))
+                              'order_id', db.Integer, db.ForeignKey('searchAd_bra_order.id'))
                           )
 planer_users = db.Table('searchAd_order_users_planer',
                         db.Column(
                             'user_id', db.Integer, db.ForeignKey('user.id')),
                         db.Column(
-                            'order_id', db.Integer, db.ForeignKey('bra_order.id'))
+                            'order_id', db.Integer, db.ForeignKey('searchAd_bra_order.id'))
                         )
 
 
 class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
-    __tablename__ = 'searchAd_order'
+    __tablename__ = 'searchAd_bra_order'
 
     id = db.Column(db.Integer, primary_key=True)
     campaign = db.Column(db.String(100))  # 活动名称
@@ -629,7 +626,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_medium_order_executive_report'
+    __tablename__ = 'searchAd_bra_medium_order_executive_report'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
         db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同

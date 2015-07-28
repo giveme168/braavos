@@ -2,12 +2,10 @@
 import datetime
 
 from . import db, BaseModelMixin
-
 from .client_order import ClientOrder
 from .douban_order import DoubanOrder
 from .framework_order import FrameworkOrder
 from .invoice import AgentInvoice
-
 from .consts import CLIENT_INDUSTRY_CN
 
 
@@ -33,7 +31,7 @@ class Client(db.Model, BaseModelMixin):
 
 
 class Group(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_group'
+    __tablename__ = 'searchAd_bra_group'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
@@ -121,7 +119,7 @@ class Agent(db.Model, BaseModelMixin):
 
 
 class AgentRebate(db.Model, BaseModelMixin):
-    __tablename__ = 'searchAd_agent_rebate'
+    __tablename__ = 'searchAd_bra_agent_rebate'
 
     id = db.Column(db.Integer, primary_key=True)
     agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))  # 代理公司id
