@@ -596,6 +596,10 @@ by %s\n
             count = len(set(self.agent_sales + self.direct_sales))
         return self.money / count
 
+    @property
+    def order_path(self):
+        return url_for('order.douban_order_info', order_id=self.id)
+
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_douban_order_executive_report'
