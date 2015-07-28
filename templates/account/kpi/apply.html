@@ -3,6 +3,13 @@
 {% block title %}审批绩效考核表{% endblock %}
 
 {% block main_box %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+        width:250px;
+    }
+</style>
 <div class="bra-main bra-box" style="width:1100px;">
     <h3>审批修改绩效考核表&nbsp;&nbsp;&nbsp;<a style="color:red;" href="#" data-toggle="modal" data-target=".bs-example-modal-lg">查看填写说明</a></h3>
     <form class="form form-horizontal" method="POST" action="{{url_for('account_kpi.check_apply', r_id=report.id)}}" onsubmit="return check_form(this);">
@@ -37,10 +44,10 @@
                 <th rowspan=4 colspan=2 style="text-align:center;">KR指标</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.now_report_obj.kr_1_key}}</th>
-                <th colspan=4>{{report.now_report_obj.kr_1_value}}</th>
+                <th colspan=5><pre>{{report.now_report_obj.kr_1_key}}</pre></th>
+                <th colspan=4><pre>{{report.now_report_obj.kr_1_value}}</pre></th>
                 <th>{{report.now_report_obj.kr_1_w}}%</th>
-                <th>{{report.now_report_obj.kr_1_res}}</th>
+                <th><pre>{{report.now_report_obj.kr_1_res}}</pre></th>
                 <th>{{report.now_report_obj.kr_1_s}}</th>
                 <th><select id="leader_kr_1_s" style="width:60px;" name="leader_kr_1_s" onchange="calculate_data(this)">
                         {% for k in scores %}
@@ -50,10 +57,10 @@
                 </th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.now_report_obj.kr_2_key}}</th>
-                <th colspan=4>{{report.now_report_obj.kr_2_value}}</th>
+                <th colspan=5><pre>{{report.now_report_obj.kr_2_key}}</pre></th>
+                <th colspan=4><pre>{{report.now_report_obj.kr_2_value}}</pre></th>
                 <th>{{report.now_report_obj.kr_2_w}}%</th>
-                <th>{{report.now_report_obj.kr_2_res}}</th>
+                <th><pre>{{report.now_report_obj.kr_2_res}}</pre></th>
                 <th>{{report.now_report_obj.kr_2_s}}</th>
                 <th><select id="leader_kr_2_s" style="width:60px;" name="leader_kr_2_s" onchange="calculate_data(this)">
                         {% for k in scores %}
@@ -63,10 +70,10 @@
                 </th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.now_report_obj.kr_3_key}}</th>
-                <th colspan=4>{{report.now_report_obj.kr_3_value}}</th>
+                <th colspan=5><pre>{{report.now_report_obj.kr_3_key}}</pre></th>
+                <th colspan=4><pre>{{report.now_report_obj.kr_3_value}}</pre></th>
                 <th>{{report.now_report_obj.kr_3_w}}%</th>
-                <th>{{report.now_report_obj.kr_3_res}}</th>
+                <th><pre>{{report.now_report_obj.kr_3_res}}</pre></th>
                 <th>{{report.now_report_obj.kr_3_s}}</th>
                 <th><select id="leader_kr_3_s" style="width:60px;" name="leader_kr_3_s" onchange="calculate_data(this)">
                         {% for k in scores %}
@@ -79,10 +86,10 @@
                 <th rowspan=4 colspan=2  style="text-align:center;">改进提升</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.now_report_obj.up_1_key}}</th>
-                <th colspan=4>{{report.now_report_obj.up_1_value}}</th>
+                <th colspan=5><pre>{{report.now_report_obj.up_1_key}}</pre></th>
+                <th colspan=4><pre>{{report.now_report_obj.up_1_value}}</pre></th>
                 <th>{{report.now_report_obj.up_1_w}}%</th>
-                <th>{{report.now_report_obj.up_1_res}}</th>
+                <th><pre>{{report.now_report_obj.up_1_res}}</pre></th>
                 <th>{{report.now_report_obj.up_1_s}}</th>
                 <th>
                     <select id="leader_up_1_s" name="leader_up_1_s" style="width:60px;" onchange="calculate_data(this)">
@@ -93,10 +100,10 @@
                 </th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.now_report_obj.up_2_key}}</th>
-                <th colspan=4>{{report.now_report_obj.up_2_value}}</th>
+                <th colspan=5><pre>{{report.now_report_obj.up_2_key}}</pre></th>
+                <th colspan=4><pre>{{report.now_report_obj.up_2_value}}</pre></th>
                 <th>{{report.now_report_obj.up_2_w}}%</th>
-                <th>{{report.now_report_obj.up_2_res}}</th>
+                <th><pre>{{report.now_report_obj.up_2_res}}</pre></th>
                 <th>{{report.now_report_obj.up_2_s}}</th>
                 <th>
                     <select id="leader_up_2_s" name="leader_up_2_s" style="width:60px;" onchange="calculate_data(this)">
@@ -107,10 +114,10 @@
                 </th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.now_report_obj.up_3_key}}</th>
-                <th colspan=4>{{report.now_report_obj.up_3_value}}</th>
+                <th colspan=5><pre>{{report.now_report_obj.up_3_key}}</pre></th>
+                <th colspan=4><pre>{{report.now_report_obj.up_3_value}}</pre></th>
                 <th>{{report.now_report_obj.up_3_w}}%</th>
-                <th>{{report.now_report_obj.up_3_res}}</th>
+                <th><pre>{{report.now_report_obj.up_3_res}}</pre></th>
                 <th>{{report.now_report_obj.up_3_s}}</th>
                 <th>
                     <select id="leader_up_3_s" name="leader_up_3_s" style="width:60px;" onchange="calculate_data(this)">
@@ -125,10 +132,10 @@
                 <th rowspan=4 colspan=2 style="text-align:center;">管理指标</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.now_report_obj.manage_1_key}}</th>
-                <th colspan=4>{{report.now_report_obj.manage_1_value}}</th>
+                <th colspan=5><pre>{{report.now_report_obj.manage_1_key}}</pre></th>
+                <th colspan=4><pre>{{report.now_report_obj.manage_1_value}}</pre></th>
                 <th>{{report.now_report_obj.manage_1_w}}%</th>
-                <th>{{report.now_report_obj.manage_1_res}}</th>
+                <th><pre>{{report.now_report_obj.manage_1_res}}</pre></th>
                 <th>{{report.now_report_obj.manage_1_s}}</th>
                 <th><select id="leader_manage_1_s" name="leader_manage_1_s" style="width:60px;" onchange="calculate_data(this)">
                         {% for k in scores %}
@@ -138,10 +145,10 @@
                 </th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.now_report_obj.manage_2_key}}</th>
-                <th colspan=4>{{report.now_report_obj.manage_2_value}}</th>
+                <th colspan=5><pre>{{report.now_report_obj.manage_2_key}}</pre></th>
+                <th colspan=4><pre>{{report.now_report_obj.manage_2_value}}</pre></th>
                 <th>{{report.now_report_obj.manage_2_w}}%</th>
-                <th>{{report.now_report_obj.manage_2_res}}</th>
+                <th><pre>{{report.now_report_obj.manage_2_res}}</pre></th>
                 <th>{{report.now_report_obj.manage_2_s}}</th>
                 <th><select id="leader_manage_2_s" name="leader_manage_2_s" style="width:60px;" onchange="calculate_data(this)">
                         {% for k in scores %}
@@ -151,10 +158,10 @@
                 </th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.now_report_obj.manage_3_key}}</th>
-                <th colspan=4>{{report.now_report_obj.manage_3_value}}</th>
+                <th colspan=5><pre>{{report.now_report_obj.manage_3_key}}</pre></th>
+                <th colspan=4><pre>{{report.now_report_obj.manage_3_value}}</pre></th>
                 <th>{{report.now_report_obj.manage_3_w}}%</th>
-                <th>{{report.now_report_obj.manage_3_res}}</th>
+                <th><pre>{{report.now_report_obj.manage_3_res}}</pre></th>
                 <th>{{report.now_report_obj.manage_3_s}}</th>
                 <th><select id="leader_manage_3_s" name="leader_manage_3_s" style="width:60px;" onchange="calculate_data(this)">
                         {% for k in scores %}
@@ -188,7 +195,7 @@
                 <th colspan=5 >知识技能</th>
                 <th colspan=6>具备胜任目前工作所需要的各项知识技能和技巧。</th>
                 <th>4%</th>
-                <th>{{report.now_report_obj.knowledge_res}}</th>
+                <th><pre>{{report.now_report_obj.knowledge_res}}</pre></th>
                 <th>{{report.now_report_obj.knowledge_s}}</th>
                 <th><select id="leader_knowledge_s" name="leader_knowledge_s" style="width:60px;" onchange="calculate_data(this)">
                         {% for k in scores %}
@@ -201,7 +208,7 @@
                 <th colspan=5>积极主动</th>
                 <th colspan=6>工作积极主动，不计较个人得失。 </th>
                 <th>4%</th>
-                <th>{{report.now_report_obj.positive_res}}</th>
+                <th><pre>{{report.now_report_obj.positive_res}}</pre></th>
                 <th>{{report.now_report_obj.positive_s}}</th>
                 <th>
                     <select id="leader_positive_s" name="leader_positive_s" style="width:60px;" onchange="calculate_data(this)">
@@ -215,7 +222,7 @@
                 <th colspan=5>团队合作</th>
                 <th colspan=6>团队合作意识强，包括部门内部及跨部门合作。</th>
                 <th>4%</th>
-                <th>{{report.now_report_obj.team_res}}</th>
+                <th><pre>{{report.now_report_obj.team_res}}</pre></th>
                 <th>{{report.now_report_obj.team_s}}</th>
                 <th>
                     <select id="leader_team_s" name="leader_team_s" style="width:60px;" onchange="calculate_data(this)">
@@ -229,7 +236,7 @@
                 <th colspan=5>学习能力</th>
                 <th colspan=6>开放心态，具备自我学习和成长的能力和意识。</th>
                 <th>4%</th>
-                <th>{{report.now_report_obj.teach_res}}</th>
+                <th><pre>{{report.now_report_obj.teach_res}}</pre></th>
                 <th>{{report.now_report_obj.teach_s}}</th>
                 <th>
                     <select id="leader_teach_s" name="leader_teach_s" style="width:60px;" onchange="calculate_data(this)">
@@ -243,7 +250,7 @@
                 <th colspan=5>遵规守纪</th>
                 <th colspan=6>遵守部门工作纪律，遵循公司各项规章制度。</th>
                 <th>4%</th>
-                <th>{{report.now_report_obj.abide_res}}</th>
+                <th><pre>{{report.now_report_obj.abide_res}}</pre></th>
                 <th>{{report.now_report_obj.abide_s}}</th>
                 <th><select id="leader_abide_s" name="leader_abide_s" style="width:60px;" onchange="calculate_data(this)">
                         {% for k in scores %}
@@ -267,7 +274,7 @@
             </tr>
             <tr>
                 <th colspan=5 >自我总结：</th>
-                <th colspan=10 height="100px;">{{report.now_report_obj.self_summary}}</th>
+                <th colspan=10 height="100px;"><pre style="width: 1000px;">{{report.now_report_obj.self_summary}}</pre></th>
             </tr>
             <tr>
                 <th colspan=5>上级评语：</th>
@@ -292,26 +299,26 @@
                 <th rowspan=4 colspan=2 style="text-align:center;">KR指标</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.future_report_obj.next_kr_1_key}}</th>
-                <th colspan=4>{{report.future_report_obj.next_kr_1_value}}</th>
+                <th colspan=5><pre>{{report.future_report_obj.next_kr_1_key}}</pre></th>
+                <th colspan=4><pre>{{report.future_report_obj.next_kr_1_value}}</pre></th>
                 <th>{{report.future_report_obj.next_kr_1_w}}%</th>
-                <th>{{report.future_report_obj.next_kr_1_res}}</th>
+                <th><pre>{{report.future_report_obj.next_kr_1_res}}</pre></th>
                 <th>无</th>
                 <th>无</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.future_report_obj.next_kr_2_key}}</th>
-                <th colspan=4>{{report.future_report_obj.next_kr_2_value}}</th>
+                <th colspan=5><pre>{{report.future_report_obj.next_kr_2_key}}</pre></th>
+                <th colspan=4><pre>{{report.future_report_obj.next_kr_2_value}}</pre></th>
                 <th>{{report.future_report_obj.next_kr_2_w}}%</th>
-                <th>{{report.future_report_obj.next_kr_2_res}}</th>
+                <th><pre>{{report.future_report_obj.next_kr_2_res}}</pre></th>
                 <th>无</th>
                 <th>无</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.future_report_obj.next_kr_3_key}}</th>
-                <th colspan=4>{{report.future_report_obj.next_kr_3_value}}</th>
+                <th colspan=5><pre>{{report.future_report_obj.next_kr_3_key}}</pre></th>
+                <th colspan=4><pre>{{report.future_report_obj.next_kr_3_value}}</pre></th>
                 <th>{{report.future_report_obj.next_kr_3_w}}%</th>
-                <th>{{report.future_report_obj.next_kr_3_res}}</th>
+                <th><pre>{{report.future_report_obj.next_kr_3_res}}</pre></th>
                 <th>无</th>
                 <th>无</th>
             </tr>
@@ -319,26 +326,26 @@
                 <th rowspan=4 colspan=2  style="text-align:center;">改进提升</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.future_report_obj.next_up_1_key}}</th>
-                <th colspan=4>{{report.future_report_obj.next_up_1_value}}</th>
+                <th colspan=5><pre>{{report.future_report_obj.next_up_1_key}}</pre></th>
+                <th colspan=4><pre>{{report.future_report_obj.next_up_1_value}}</pre></th>
                 <th>{{report.future_report_obj.next_up_1_w}}%</th>
-                <th>{{report.future_report_obj.next_up_1_res}}</th>
+                <th><pre>{{report.future_report_obj.next_up_1_res}}</pre></th>
                 <th>无</th>
                 <th>无</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.future_report_obj.next_up_2_key}}</th>
-                <th colspan=4>{{report.future_report_obj.next_up_2_value}}</th>
+                <th colspan=5><pre>{{report.future_report_obj.next_up_2_key}}</pre></th>
+                <th colspan=4><pre>{{report.future_report_obj.next_up_2_value}}</pre></th>
                 <th>{{report.future_report_obj.next_up_2_w}}%</th>
-                <th>{{report.future_report_obj.next_up_2_res}}</th>
+                <th><pre>{{report.future_report_obj.next_up_2_res}}</pre></th>
                 <th>无</th>
                 <th>无</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.future_report_obj.next_up_3_key}}</th>
-                <th colspan=4>{{report.future_report_obj.next_up_3_value}}</th>
+                <th colspan=5><pre>{{report.future_report_obj.next_up_3_key}}</pre></th>
+                <th colspan=4><pre>{{report.future_report_obj.next_up_3_value}}</pre></th>
                 <th>{{report.future_report_obj.next_up_3_w}}%</th>
-                <th>{{report.future_report_obj.next_up_3_res}}</th>
+                <th><pre>{{report.future_report_obj.next_up_3_res}}</pre></th>
                 <th>无</th>
                 <th>无</th>
             </tr>
@@ -347,26 +354,26 @@
                 <th rowspan=4 colspan=2 style="text-align:center;">管理指标</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.future_report_obj.next_manage_1_key}}</th>
-                <th colspan=4>{{report.future_report_obj.next_manage_1_value}}</th>
+                <th colspan=5><pre>{{report.future_report_obj.next_manage_1_key}}</pre></th>
+                <th colspan=4><pre>{{report.future_report_obj.next_manage_1_value}}</pre></th>
                 <th>{{report.future_report_obj.next_manage_1_w}}%</th>
-                <th>{{report.future_report_obj.next_manage_1_res}}</th>
+                <th><pre>{{report.future_report_obj.next_manage_1_res}}</pre></th>
                 <th>无</th>
                 <th>无</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.future_report_obj.next_manage_2_key}}</th>
-                <th colspan=4>{{report.future_report_obj.next_manage_2_value}}</th>
+                <th colspan=5><pre>{{report.future_report_obj.next_manage_2_key}}</pre></th>
+                <th colspan=4><pre>{{report.future_report_obj.next_manage_2_value}}</pre></th>
                 <th>{{report.future_report_obj.next_manage_2_w}}%</th>
-                <th>{{report.future_report_obj.next_manage_2_res}}</th>
+                <th><pre>{{report.future_report_obj.next_manage_2_res}}</pre></th>
                 <th>无</th>
                 <th>无</th>
             </tr>
             <tr height="50px;">
-                <th colspan=5>{{report.future_report_obj.next_manage_3_key}}</th>
-                <th colspan=4>{{report.future_report_obj.next_manage_3_value}}</th>
+                <th colspan=5><pre>{{report.future_report_obj.next_manage_3_key}}</pre></th>
+                <th colspan=4><pre>{{report.future_report_obj.next_manage_3_value}}</pre></th>
                 <th>{{report.future_report_obj.next_manage_3_w}}%</th>
-                <th>{{report.future_report_obj.next_manage_3_res}}</th>
+                <th><pre>{{report.future_report_obj.next_manage_3_res}}</pre></th>
                 <th>无</th>
                 <th>无</th>
             </tr>
