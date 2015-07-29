@@ -29,8 +29,11 @@ def write_medium_money_excel(pre_monthes, douban_money,
     output = StringIO.StringIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
+
     align_center = workbook.add_format(
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    align_center_money = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1, 'num_format': u'#,##0.0'})
     # 设置宽度为30
     for k in range(0, len(pre_monthes) * 3 + 1):
         worksheet.set_column(k + 2, 2, 10)
@@ -90,137 +93,138 @@ def write_medium_money_excel(pre_monthes, douban_money,
     th = 2
     # 直签豆瓣
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['ex_money'])
+        worksheet, align_center_money, pre_monthes, th, douban_money['ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['in_money'])
+        worksheet, align_center_money, pre_monthes, th, douban_money['in_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['rebate'])
+        worksheet, align_center_money, pre_monthes, th, douban_money['rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, douban_money['profit'])
     th += 1
     # 优利互助
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['sale_money'])
+        worksheet, align_center_money, pre_monthes, th, youli_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['money2'])
+        worksheet, align_center_money, pre_monthes, th, youli_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['m_ex_money'])
+        worksheet, align_center_money, pre_monthes, th, youli_money['m_ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['a_rebate'])
+        worksheet, align_center_money, pre_monthes, th, youli_money['a_rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, youli_money['profit'])
     th += 1
     # 无线互联
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['sale_money'])
+        worksheet, align_center_money, pre_monthes, th, wuxian_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['money2'])
+        worksheet, align_center_money, pre_monthes, th, wuxian_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['m_ex_money'])
+        worksheet, align_center_money, pre_monthes, th, wuxian_money['m_ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['a_rebate'])
+        worksheet, align_center_money, pre_monthes, th, wuxian_money['a_rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, wuxian_money['profit'])
     th += 1
     # 陌陌
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, momo_money['sale_money'])
+        worksheet, align_center_money, pre_monthes, th, momo_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, momo_money['money2'])
+        worksheet, align_center_money, pre_monthes, th, momo_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, momo_money['m_ex_money'])
+        worksheet, align_center_money, pre_monthes, th, momo_money['m_ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, momo_money['a_rebate'])
+        worksheet, align_center_money, pre_monthes, th, momo_money['a_rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, momo_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, momo_money['profit'])
     th += 1
     # 知乎
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, zhihu_money['sale_money'])
+        worksheet, align_center_money, pre_monthes, th, zhihu_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, zhihu_money['money2'])
+        worksheet, align_center_money, pre_monthes, th, zhihu_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, zhihu_money['m_ex_money'])
+        worksheet, align_center_money, pre_monthes, th, zhihu_money['m_ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, zhihu_money['a_rebate'])
+        worksheet, align_center_money, pre_monthes, th, zhihu_money['a_rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, zhihu_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, zhihu_money['profit'])
     th += 1
     # 下厨房
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, xiachufang_money['sale_money'])
+        worksheet, align_center_money, pre_monthes, th, xiachufang_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, xiachufang_money['money2'])
+        worksheet, align_center_money, pre_monthes, th, xiachufang_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, xiachufang_money['m_ex_money'])
+        worksheet, align_center_money, pre_monthes, th, xiachufang_money['m_ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, xiachufang_money['a_rebate'])
+        worksheet, align_center_money, pre_monthes, th, xiachufang_money['a_rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, xiachufang_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, xiachufang_money['profit'])
     th += 1
     # 雪球
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, xueqiu_money['sale_money'])
+        worksheet, align_center_money, pre_monthes, th, xueqiu_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, xueqiu_money['money2'])
+        worksheet, align_center_money, pre_monthes, th, xueqiu_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, xueqiu_money['m_ex_money'])
+        worksheet, align_center_money, pre_monthes, th, xueqiu_money['m_ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, xueqiu_money['a_rebate'])
+        worksheet, align_center_money, pre_monthes, th, xueqiu_money['a_rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, xueqiu_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, xueqiu_money['profit'])
     th += 1
     # 虎嗅
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, huxiu_money['sale_money'])
+        worksheet, align_center_money, pre_monthes, th, huxiu_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, huxiu_money['money2'])
+        worksheet, align_center_money, pre_monthes, th, huxiu_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, huxiu_money['m_ex_money'])
+        worksheet, align_center_money, pre_monthes, th, huxiu_money['m_ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, huxiu_money['a_rebate'])
+        worksheet, align_center_money, pre_monthes, th, huxiu_money['a_rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, huxiu_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, huxiu_money['profit'])
     th += 1
     # 课程格子
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, kecheng_money['sale_money'])
+        worksheet, align_center_money, pre_monthes, th, kecheng_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, kecheng_money['money2'])
+        worksheet, align_center_money, pre_monthes, th, kecheng_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, kecheng_money['m_ex_money'])
+        worksheet, align_center_money, pre_monthes, th, kecheng_money['m_ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, kecheng_money['a_rebate'])
+        worksheet, align_center_money, pre_monthes, th, kecheng_money['a_rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, kecheng_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, kecheng_money['profit'])
     th += 1
     # 迷笛
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, midi_money['sale_money'])
+        worksheet, align_center_money, pre_monthes, th, midi_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, midi_money['money2'])
+        worksheet, align_center_money, pre_monthes, th, midi_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, midi_money['m_ex_money'])
+        worksheet, align_center_money, pre_monthes, th, midi_money['m_ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, midi_money['a_rebate'])
+        worksheet, align_center_money, pre_monthes, th, midi_money['a_rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, midi_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, midi_money['profit'])
     th += 1
     # 其他
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, other_money['sale_money'])
+        worksheet, align_center_money, pre_monthes, th, other_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, other_money['money2'])
+        worksheet, align_center_money, pre_monthes, th, other_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, other_money['m_ex_money'])
+        worksheet, align_center_money, pre_monthes, th, other_money['m_ex_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, other_money['a_rebate'])
+        worksheet, align_center_money, pre_monthes, th, other_money['a_rebate'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, other_money['profit'])
+        worksheet, align_center_money, pre_monthes, th, other_money['profit'])
     # 合计
     worksheet.merge_range(
         66, 1, 66, len(pre_monthes) * 3 + 1, u'合计', align_center)
-    worksheet.write(66, len(pre_monthes) * 3 + 2, float(total), align_center)
+    worksheet.write(
+        66, len(pre_monthes) * 3 + 2, float(total), align_center_money)
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %

@@ -16,6 +16,8 @@ def write_outsource_excel(monthes, data):
     worksheet = workbook.add_worksheet()
     align_left = workbook.add_format(
         {'align': 'left', 'valign': 'vcenter', 'border': 1})
+    align_left_money = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1, 'num_format': '#,##0.0'})
     worksheet.merge_range(0, 0, 1, 1, u'收支项目', align_left)
 
     for k in range(len(monthes)):
@@ -34,49 +36,49 @@ def write_outsource_excel(monthes, data):
     for k in range(len(keys)):
         worksheet.write(2 + k, 1, keys[k], align_left)
     for k in range(len(data['1'])):
-        worksheet.write(2, 2 + k * 3, data['1'][k]['huadong'], align_left)
-        worksheet.write(2, 3 + k * 3, data['1'][k]['huabei'], align_left)
-        worksheet.write(2, 4 + k * 3, data['1'][k]['huanan'], align_left)
+        worksheet.write(2, 2 + k * 3, data['1'][k]['huadong'], align_left_money)
+        worksheet.write(2, 3 + k * 3, data['1'][k]['huabei'], align_left_money)
+        worksheet.write(2, 4 + k * 3, data['1'][k]['huanan'], align_left_money)
     for k in range(len(data['2'])):
-        worksheet.write(3, 2 + k * 3, data['2'][k]['huadong'], align_left)
-        worksheet.write(3, 3 + k * 3, data['2'][k]['huabei'], align_left)
-        worksheet.write(3, 4 + k * 3, data['2'][k]['huanan'], align_left)
+        worksheet.write(3, 2 + k * 3, data['2'][k]['huadong'], align_left_money)
+        worksheet.write(3, 3 + k * 3, data['2'][k]['huabei'], align_left_money)
+        worksheet.write(3, 4 + k * 3, data['2'][k]['huanan'], align_left_money)
     for k in range(len(data['3'])):
-        worksheet.write(4, 2 + k * 3, data['3'][k]['huadong'], align_left)
-        worksheet.write(4, 3 + k * 3, data['3'][k]['huabei'], align_left)
-        worksheet.write(4, 4 + k * 3, data['3'][k]['huanan'], align_left)
+        worksheet.write(4, 2 + k * 3, data['3'][k]['huadong'], align_left_money)
+        worksheet.write(4, 3 + k * 3, data['3'][k]['huabei'], align_left_money)
+        worksheet.write(4, 4 + k * 3, data['3'][k]['huanan'], align_left_money)
     for k in range(len(data['4'])):
-        worksheet.write(5, 2 + k * 3, data['4'][k]['huadong'], align_left)
-        worksheet.write(5, 3 + k * 3, data['4'][k]['huabei'], align_left)
-        worksheet.write(5, 4 + k * 3, data['4'][k]['huanan'], align_left)
+        worksheet.write(5, 2 + k * 3, data['4'][k]['huadong'], align_left_money)
+        worksheet.write(5, 3 + k * 3, data['4'][k]['huabei'], align_left_money)
+        worksheet.write(5, 4 + k * 3, data['4'][k]['huanan'], align_left_money)
     for k in range(len(data['5'])):
-        worksheet.write(6, 2 + k * 3, data['5'][k]['huadong'], align_left)
-        worksheet.write(6, 3 + k * 3, data['5'][k]['huabei'], align_left)
-        worksheet.write(6, 4 + k * 3, data['5'][k]['huanan'], align_left)
+        worksheet.write(6, 2 + k * 3, data['5'][k]['huadong'], align_left_money)
+        worksheet.write(6, 3 + k * 3, data['5'][k]['huabei'], align_left_money)
+        worksheet.write(6, 4 + k * 3, data['5'][k]['huanan'], align_left_money)
     for k in range(len(data['6'])):
-        worksheet.write(7, 2 + k * 3, data['6'][k]['huadong'], align_left)
-        worksheet.write(7, 3 + k * 3, data['6'][k]['huabei'], align_left)
-        worksheet.write(7, 4 + k * 3, data['6'][k]['huanan'], align_left)
+        worksheet.write(7, 2 + k * 3, data['6'][k]['huadong'], align_left_money)
+        worksheet.write(7, 3 + k * 3, data['6'][k]['huabei'], align_left_money)
+        worksheet.write(7, 4 + k * 3, data['6'][k]['huanan'], align_left_money)
     for k in range(len(data['7'])):
-        worksheet.write(8, 2 + k * 3, data['7'][k]['huadong'], align_left)
-        worksheet.write(8, 3 + k * 3, data['7'][k]['huabei'], align_left)
-        worksheet.write(8, 4 + k * 3, data['7'][k]['huanan'], align_left)
+        worksheet.write(8, 2 + k * 3, data['7'][k]['huadong'], align_left_money)
+        worksheet.write(8, 3 + k * 3, data['7'][k]['huabei'], align_left_money)
+        worksheet.write(8, 4 + k * 3, data['7'][k]['huanan'], align_left_money)
     for k in range(len(data['t_locataion'])):
         worksheet.write(
-            9, 2 + k * 3, data['t_locataion'][k]['huadong'], align_left)
+            9, 2 + k * 3, data['t_locataion'][k]['huadong'], align_left_money)
         worksheet.write(
-            9, 3 + k * 3, data['t_locataion'][k]['huabei'], align_left)
+            9, 3 + k * 3, data['t_locataion'][k]['huabei'], align_left_money)
         worksheet.write(
-            9, 4 + k * 3, data['t_locataion'][k]['huanan'], align_left)
+            9, 4 + k * 3, data['t_locataion'][k]['huanan'], align_left_money)
     # for k in range(len(data['t_month'])):
-    worksheet.merge_range(10, 2, 10, 4, data['t_month'][0], align_left)
-    worksheet.merge_range(10, 5, 10, 7, data['t_month'][1], align_left)
-    worksheet.merge_range(10, 8, 10, 10, data['t_month'][2], align_left)
+    worksheet.merge_range(10, 2, 10, 4, data['t_month'][0], align_left_money)
+    worksheet.merge_range(10, 5, 10, 7, data['t_month'][1], align_left_money)
+    worksheet.merge_range(10, 8, 10, 10, data['t_month'][2], align_left_money)
 
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
-                (u"外包总计", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+                ("外包总计", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
     mimetype_tuple = mimetypes.guess_type(filename)
     response_headers = Headers({
         'Pragma': "public",
@@ -93,7 +95,7 @@ def write_outsource_excel(monthes, data):
     return response
 
 
-def _insert_month_data(worksheet, align_center, data, now_year, month, th):
+def _insert_month_data(worksheet, align_center, align_center_money, data, now_year, month, th):
     if data:
         worksheet.merge_range(
             th, 1, th + len(data) - 1, 1, month + u'月', align_center)
@@ -101,22 +103,22 @@ def _insert_month_data(worksheet, align_center, data, now_year, month, th):
             worksheet.write(th, 2, k.contract or u'无合同号', align_center)
             worksheet.write(th, 3, k.campaign, align_center)
             worksheet.write(th, 4, sum(k.executive_report(
-                g.user, now_year, ['01', '02', '03'], 'normal')), align_center)
+                g.user, now_year, ['01', '02', '03'], 'normal')), align_center_money)
             worksheet.write(th, 5, sum(k.executive_report(
-                g.user, now_year, ['04', '05', '06'], 'normal')), align_center)
+                g.user, now_year, ['04', '05', '06'], 'normal')), align_center_money)
             worksheet.write(th, 6, sum(k.executive_report(
-                g.user, now_year, ['07', '08', '09'], 'normal')), align_center)
+                g.user, now_year, ['07', '08', '09'], 'normal')), align_center_money)
             worksheet.write(th, 7, sum(k.executive_report(
-                g.user, now_year, ['10', '11', '12'], 'normal')), align_center)
-            worksheet.write(th, 8, k.money, align_center)
+                g.user, now_year, ['10', '11', '12'], 'normal')), align_center_money)
+            worksheet.write(th, 8, k.money, align_center_money)
             worksheet.write(th, 9, k.locations_cn, align_center)
-            worksheet.write(th, 10, float(k.outsources_sum), align_center)
+            worksheet.write(th, 10, float(k.outsources_sum), align_center_money)
             worksheet.write(
                 th, 11, str(float(k.outsources_percent)) + '%', align_center)
-            worksheet.write(th, 12, float(k.outsources_paied_sum), align_center)
+            worksheet.write(th, 12, float(k.outsources_paied_sum), align_center_money)
             o_money = k.o_money
             for i in range(len(o_money)):
-                worksheet.write(th, 13 + i, o_money[i], align_center)
+                worksheet.write(th, 13 + i, o_money[i], align_center_money)
             th += 1
     else:
         worksheet.write(th, 1, month + u'月', align_center)
@@ -131,10 +133,10 @@ def _insert_Q(worksheet, align_center, Q, start, end):
     return
 
 
-def _insert_total_data(worksheet, align_center_color, data, th):
+def _insert_total_data(worksheet, align_center_color, align_center_color_money, data, th):
     worksheet.merge_range(th, 0, th, 12, u'合计', align_center_color)
     for k in range(len(data)):
-        worksheet.write(th, k + 13, str(float(data[k])), align_center_color)
+        worksheet.write(th, k + 13, str(float(data[k])), align_center_color_money)
     th += 1
     return th
 
@@ -149,6 +151,10 @@ def write_outsource_info_excel(now_year, pre_month_orders, total_Q_data):
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
     align_center_color = workbook.add_format(
         {'align': 'center', 'valign': 'vcenter', 'border': 1, 'fg_color': '#228B22'})
+    align_center_money = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1, 'num_format': '#,##0.0'})
+    align_center_color_money = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1, 'fg_color': '#228B22', 'num_format': '#,##0.0'})
     # 设置宽度为30
     for k in range(41):
         worksheet.set_column(k, 0, 15)
@@ -182,44 +188,44 @@ def write_outsource_info_excel(now_year, pre_month_orders, total_Q_data):
     th = 3
     Q1_start = th
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['1'], now_year, '1', th)
+        worksheet, align_center, align_center_money, pre_month_orders['1'], now_year, '1', th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['2'], now_year, '2', th)
+        worksheet, align_center, align_center_money, pre_month_orders['2'], now_year, '2', th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['3'], now_year, '3', th)
+        worksheet, align_center, align_center_money, pre_month_orders['3'], now_year, '3', th)
     _insert_Q(worksheet, align_center, 'Q1', Q1_start, th - 1)
     Q2_start = th
     th = _insert_total_data(
-        worksheet, align_center_color, total_Q_data['first'], th)
+        worksheet, align_center_color, align_center_color_money, total_Q_data['first'], th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['4'], now_year, '4', th)
+        worksheet, align_center, align_center_money, pre_month_orders['4'], now_year, '4', th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['5'], now_year, '5', th)
+        worksheet, align_center, align_center_money, pre_month_orders['5'], now_year, '5', th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['6'], now_year, '6', th)
+        worksheet, align_center, align_center_money, pre_month_orders['6'], now_year, '6', th)
     _insert_Q(worksheet, align_center, 'Q2', Q2_start + 1, th - 1)
     Q3_start = th
     th = _insert_total_data(
-        worksheet, align_center_color, total_Q_data['second'], th)
+        worksheet, align_center_color, align_center_color_money, total_Q_data['second'], th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['7'], now_year, '7', th)
+        worksheet, align_center, align_center_money, pre_month_orders['7'], now_year, '7', th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['8'], now_year, '8', th)
+        worksheet, align_center, align_center_money, pre_month_orders['8'], now_year, '8', th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['9'], now_year, '9', th)
+        worksheet, align_center, align_center_money, pre_month_orders['9'], now_year, '9', th)
     _insert_Q(worksheet, align_center, 'Q3', Q3_start + 1, th - 1)
     Q4_start = th
     th = _insert_total_data(
-        worksheet, align_center_color, total_Q_data['third'], th)
+        worksheet, align_center_color, align_center_color_money, total_Q_data['third'], th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['10'], now_year, '10', th)
+        worksheet, align_center, align_center_money, pre_month_orders['10'], now_year, '10', th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['11'], now_year, '11', th)
+        worksheet, align_center, align_center_money, pre_month_orders['11'], now_year, '11', th)
     th = _insert_month_data(
-        worksheet, align_center, pre_month_orders['12'], now_year, '12', th)
+        worksheet, align_center, align_center_money, pre_month_orders['12'], now_year, '12', th)
     _insert_Q(worksheet, align_center, 'Q4', Q4_start + 1, th - 1)
     th = _insert_total_data(
-        worksheet, align_center_color, total_Q_data['forth'], th)
+        worksheet, align_center_color, align_center_color_money, total_Q_data['forth'], th)
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %

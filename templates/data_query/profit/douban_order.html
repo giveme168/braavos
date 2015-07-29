@@ -22,10 +22,10 @@
         <td>{{order.client.name}}</td>
         <td>{{order.agent.name}}</td>
         <td>{{order.campaign}}</td>
-        <td>{{order.money}}</td>
-        <td>{{order.executive_report(g.user, year, [month], 'normal')[0]}}</td>
-        <td>{{order.rebate_agent_by_month(year, month)}}</td>
-        <td>{{order.profit_money(year, month)}}</td>
+        <td>{{order.money|format_price}}</td>
+        <td>{{order.executive_report(g.user, year, [month], 'normal')[0]|format_price}}</td>
+        <td>{{order.rebate_agent_by_month(year, month)|format_price}}</td>
+        <td>{{order.profit_money(year, month)|format_price}}</td>
         <td>{{order.start_date_cn}}</td>
         <td>{{order.end_date_cn}}</td>
     </tr>
