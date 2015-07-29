@@ -168,7 +168,7 @@ def agent_invoice_apply(sender, apply_context):
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if apply_context['send_type'] == "saler":
         url = mail.app.config[
-            'DOMAIN'] + '/saler/agent_invoice/%s/order' % (invoice.client_order_id)
+            'DOMAIN'] + '/saler/agent_invoice/%s/invoice' % (invoice.id)
     else:
         url = mail.app.config[
             'DOMAIN'] + '/finance/agent_pay/%s/info' % (invoice.client_order_id)
