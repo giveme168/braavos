@@ -173,6 +173,9 @@ def agent_invoice_apply(sender, apply_context):
         url = mail.app.config[
             'DOMAIN'] + '/finance/agent_pay/%s/info' % (invoice.client_order_id)
     text = u"""%s
+
+Dear 黄亮:
+
 订单: %s
 链接地址: %s
 发票信息:
