@@ -9,6 +9,7 @@
         <th>直客/代理</th>
         <th>项目名称</th>
         <th>合同总金额</th>
+        <th>已回款金额</th>
         <th>客户{{month}}月执行额</th>
         <th>{{month}}月支付代理返点</th>
         <th style="width:100px;">投放媒体</th>
@@ -28,9 +29,10 @@
         <td>{{order.client.name}}</td>
         <td>{{order.agent.name}}</td>
         <td>{{order.campaign}}</td>
-        <td>{{order.money}}</td>
-        <td>{{order.executive_report(g.user, year, [month], 'normal')[0]}}</td>
-        <td>{{order.rebate_agent_by_month(year, month)}}</td>
+        <td>{{order.money|format_price}}</td>
+        <td>{{order.back_moneys|format_price}}</td>
+        <td>{{order.executive_report(g.user, year, [month], 'normal')[0]|format_price}}</td>
+        <td>{{order.rebate_agent_by_month(year, month)|format_price}}</td>
         <td>
             {% for k in order.medium_orders %}
             {{ k.name }}<br/>
@@ -38,7 +40,7 @@
         </td>
         <td>
             {% for k in order.medium_orders %}
-            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').sale_money }}<br/>
+            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').sale_money|format_price }}<br/>
             {% endfor %}
         </td>
         <td>
@@ -48,19 +50,19 @@
         </td>
         <td>
             {% for k in order.medium_orders %}
-            {{ k.medium_money2  or ''}}<br/>
+            {{ k.medium_money2|format_price  or '0'}}<br/>
             {% endfor %}
         </td>
         <td>
             {% for k in order.medium_orders %}
-            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').medium_money2 }}<br/>
+            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').medium_money2|format_price }}<br/>
             {% endfor %}
         </td>
         <td>{% for k in order.medium_orders %}
-            {{k.rebate_medium_by_month(year, month)}}<br/>
+            {{k.rebate_medium_by_month(year, month)|format_price}}<br/>
             {% endfor %}
         </td>
-        <td>{{order.profit_money(year, month)}}</td>
+        <td>{{order.profit_money(year, month)|format_price}}</td>
         <td>{{order.start_date_cn}}</td>
         <td>{{order.end_date_cn}}</td>
     </tr>

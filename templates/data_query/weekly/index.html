@@ -59,9 +59,9 @@
                 <td>{{i.order.client.industry_cn}}</td>
                 <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                 <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                <td>{{i.order.zhixing_money(type)}}</td>
-                <td>{{i.order.invoice_pass_sum}}</td>
-                <td>{{i.order.zhixing_medium_money2(type)}}</td>
+                <td>{{i.order.zhixing_money(type)|format_price}}</td>
+                <td>{{i.order.invoice_pass_sum|format_price}}</td>
+                <td>{{i.order.zhixing_medium_money2(type)|format_price}}</td>
                 <td> 
                     {% for mo in i.order.medium_orders %}  
                     {{mo.medium.name}}<br/></br/></br/>
@@ -74,14 +74,14 @@
                 </td>
                 <td>
                     {% for mo in i.order.medium_orders %}  
-                    {{mo.zhixing_medium_money2(type)}}<br/></br/></br/>
+                    {{mo.zhixing_medium_money2(type)|format_price}}<br/></br/></br/>
                     {% endfor %}
                 </td>
                 <td>
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money}}<br/></br/></br/>
+                                {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money|format_price}}<br/></br/></br/>
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -90,7 +90,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money}}<br/></br/></br/>
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money|format_price}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -99,7 +99,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money}}<br/></br/></br/>
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money|format_price}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -108,7 +108,7 @@
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
+                                {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2|format_price}}<br/></br/></br/>
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -117,7 +117,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2|format_price}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -126,7 +126,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2}}<br/></br/></br/>
+                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2|format_price}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -135,7 +135,7 @@
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.associated_douban_orders_pro_month_money(now_year, k, type)}}<br/><br/><br/>
+                                {{mo.associated_douban_orders_pro_month_money(now_year, k, type)|format_price}}<br/><br/><br/>
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -144,7 +144,7 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.associated_douban_orders_pro_month_money(now_year, k, type)}}<br/></br/></br/>
+                            {{mo.associated_douban_orders_pro_month_money(now_year, k, type)|format_price}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -153,17 +153,17 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.associated_douban_orders_pro_month_money(now_year, k, type)}}<br/></br/></br/>
+                            {{mo.associated_douban_orders_pro_month_money(now_year, k, type)|format_price}}<br/></br/></br/>
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
                 </td>
                 <td></td>
-                <td>{{i.now_Q_money}}</td>
-                <td>{{i.last_Q_money}}</td>
-                <td>{{i.after_Q_money}}</td>
+                <td>{{i.now_Q_money|format_price}}</td>
+                <td>{{i.last_Q_money|format_price}}</td>
+                <td>{{i.after_Q_money|format_price}}</td>
                 {% for k in i.moneys %}
-                <td>{{k}}</td>
+                <td>{{k|format_price}}</td>
                 {% endfor %}
                 <td>{{i.order.resource_type_cn}}</td>
                 <td>{% for o in i.order.operater_users %}{{o.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
@@ -173,30 +173,30 @@
         {% endfor %}
         <tr>
             <td colspan="8">Total</td>
-            <td>{{k.total_order_money}}</td>
-            <td>{{k.total_order_invoice}}</td>
-            <td>{{k.total_order_mediums_money2}}</td>
+            <td>{{k.total_order_money|format_price}}</td>
+            <td>{{k.total_order_invoice|format_price}}</td>
+            <td>{{k.total_order_mediums_money2|format_price}}</td>
             <td></td>
             <td></td>
-            <td>{{k.total_order_mediums_money2}}</td>
-            <td>{{k.total_frist_saler_money_by_month}}</td>
-            <td>{{k.total_second_saler_money_by_month}}</td>
-            <td>{{k.total_third_saler_money_by_month}}</td>
+            <td>{{k.total_order_mediums_money2|format_price}}</td>
+            <td>{{k.total_frist_saler_money_by_month|format_price}}</td>
+            <td>{{k.total_second_saler_money_by_month|format_price}}</td>
+            <td>{{k.total_third_saler_money_by_month|format_price}}</td>
 
-            <td>{{k.total_frist_medium_money2_by_month}}</td>
-            <td>{{k.total_second_medium_money2_by_month}}</td>
-            <td>{{k.total_third_medium_money2_by_month}}</td>
+            <td>{{k.total_frist_medium_money2_by_month|format_price}}</td>
+            <td>{{k.total_second_medium_money2_by_month|format_price}}</td>
+            <td>{{k.total_third_medium_money2_by_month|format_price}}</td>
 
-            <td>{{k.total_frist_douban_money_by_month}}</td>
-            <td>{{k.total_second_douban_money_by_month}}</td>
-            <td>{{k.total_third_douban_money_by_month}}</td>
+            <td>{{k.total_frist_douban_money_by_month|format_price}}</td>
+            <td>{{k.total_second_douban_money_by_month|format_price}}</td>
+            <td>{{k.total_third_douban_money_by_month|format_price}}</td>
             <td></td>
-            <td>{{k.total_now_Q_money}}</td>
-            <td>{{k.total_last_Q_money}}</td>
-            <td>{{k.total_after_Q_money}}</td>
-            <td>{{k.total_frist_month_money}}</td>
-            <td>{{k.total_second_month_money}}</td>
-            <td>{{k.total_third_month_money}}</td>
+            <td>{{k.total_now_Q_money|format_price}}</td>
+            <td>{{k.total_last_Q_money|format_price}}</td>
+            <td>{{k.total_after_Q_money|format_price}}</td>
+            <td>{{k.total_frist_month_money|format_price}}</td>
+            <td>{{k.total_second_month_money|format_price}}</td>
+            <td>{{k.total_third_month_money|format_price}}</td>
             <td colspan="4"></td>
         </tr>
         <tr>

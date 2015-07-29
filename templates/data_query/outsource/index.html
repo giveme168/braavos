@@ -43,71 +43,71 @@
         <tr>
             <th>奖品</th>
             {% for k in monthes_data['1'] %}
-            <th>{{k.huadong}}</th>
-            <th>{{k.huabei}}</th>
-            <th>{{k.huanan}}</th>
+            <th>{{k.huadong|format_price}}</th>
+            <th>{{k.huabei|format_price}}</th>
+            <th>{{k.huanan|format_price}}</th>
             {% endfor %}
         </tr>
         <tr>
             <th>Flash</th>
             {% for k in monthes_data['2'] %}
-            <th>{{k.huadong}}</th>
-            <th>{{k.huabei}}</th>
-            <th>{{k.huanan}}</th>
+            <th>{{k.huadong|format_price}}</th>
+            <th>{{k.huabei|format_price}}</th>
+            <th>{{k.huanan|format_price}}</th>
             {% endfor %}
         </tr>
         <tr>
             <th>劳务(KOL、线下活动等)</th>
             {% for k in monthes_data['3'] %}
-            <th>{{k.huadong}}</th>
-            <th>{{k.huabei}}</th>
-            <th>{{k.huanan}}</th>
+            <th>{{k.huadong|format_price}}</th>
+            <th>{{k.huabei|format_price}}</th>
+            <th>{{k.huanan|format_price}}</th>
             {% endfor %}
         </tr>
         <tr>
             <th>效果优化</th>
             {% for k in monthes_data['4'] %}
-            <th>{{k.huadong}}</th>
-            <th>{{k.huabei}}</th>
-            <th>{{k.huanan}}</th>
+            <th>{{k.huadong|format_price}}</th>
+            <th>{{k.huabei|format_price}}</th>
+            <th>{{k.huanan|format_price}}</th>
             {% endfor %}
         </tr>
         <tr>
             <th>其他(视频等)</th>
             {% for k in monthes_data['5'] %}
-            <th>{{k.huadong}}</th>
-            <th>{{k.huabei}}</th>
-            <th>{{k.huanan}}</th>
+            <th>{{k.huadong|format_price}}</th>
+            <th>{{k.huabei|format_price}}</th>
+            <th>{{k.huanan|format_price}}</th>
             {% endfor %}
         </tr>
         <tr>
             <th>flash&H5开发</th>
             {% for k in monthes_data['6'] %}
-            <th>{{k.huadong}}</th>
-            <th>{{k.huabei}}</th>
-            <th>{{k.huanan}}</th>
+            <th>{{k.huadong|format_price}}</th>
+            <th>{{k.huabei|format_price}}</th>
+            <th>{{k.huanan|format_price}}</th>
             {% endfor %}
         </tr>
         <tr>
             <th>H5开发</th>
             {% for k in monthes_data['7'] %}
-            <th>{{k.huadong}}</th>
-            <th>{{k.huabei}}</th>
-            <th>{{k.huanan}}</th>
+            <th>{{k.huadong|format_price}}</th>
+            <th>{{k.huabei|format_price}}</th>
+            <th>{{k.huanan|format_price}}</th>
             {% endfor %}
         </tr>
         <tr>
             <th>区域总计</th>
             {% for k in monthes_data['t_locataion'] %}
-            <th>{{k.huadong}}</th>
-            <th>{{k.huabei}}</th>
-            <th>{{k.huanan}}</th>
+            <th>{{k.huadong|format_price}}</th>
+            <th>{{k.huabei|format_price}}</th>
+            <th>{{k.huanan|format_price}}</th>
             {% endfor %}
         </tr>
         <tr>
             <th>总计</th>
             {% for k in monthes_data['t_month'] %}
-            <th colspan=3>{{k}}</th>
+            <th colspan=3>{{k|format_price}}</th>
             {% endfor %}
         </tr>
     </table>
