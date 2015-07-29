@@ -228,6 +228,7 @@ def apply_pay(invoice_id):
         send_type = "saler"
     elif action == 3:
         action_msg = u'同意代理订单打款申请，请财务打款'
+        to_emails += [k.email for k in User.finances()]
         for invoice in invoice_pays:
             invoice.pay_status = AGENT_INVOICE_STATUS_AGREE
             invoice.save()
