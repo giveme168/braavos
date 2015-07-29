@@ -382,13 +382,14 @@ def check_apply(r_id):
 
 def _get_all_under_users(self_user):
     under_users = []
-    all_user = [user for user in User.all() if user.is_active()]
+    all_user = [{'uid': user.id, 'is_kpi_leader': user.is_kpi_leader, 'leaders': [
+        k.id for k in user.team_leaders]} for user in User.all() if user.is_active()]
 
     def get_under(under_users, all_user, self_user):
-        d_user = [user for user in all_user if self_user in user.team_leaders]
+        d_user = [user for user in all_user if self_user.id in user['leaders']]
         for k in d_user:
             under_users.append(k)
-            if k.is_kpi_leader and self_user != k:
+            if k['is_kpi_leader'] and self_user.id != k['uid']:
                 return get_under(under_users, all_user, k)
         return under_users
     return get_under(under_users, all_user, self_user)
@@ -400,13 +401,17 @@ def underling():
     status = int(request.values.get('status', 0))
 
     if g.user.is_HR_leader() or g.user.is_super_leader():
-        reports = PerformanceEvaluation.query.filter(
-            PerformanceEvaluation.status > 1)
+        # reports = PerformanceEvaluation.query.filter(
+        #     PerformanceEvaluation.status > 1)
+        reports = [k for k in PerformanceEvaluation.all() if k.status > 1]
     else:
-        underling_users = [k.id for k in set(_get_all_under_users(g.user))]
-        reports = PerformanceEvaluation.query.filter(
-            PerformanceEvaluation.creator_id.in_(underling_users),
-            PerformanceEvaluation.status > 1)
+        underling_users = list(
+            set([k['uid'] for k in _get_all_under_users(g.user)]))
+        reports = [k for k in PerformanceEvaluation.all(
+        ) if k.status > 1 and k.creator.id in underling_users]
+        # reports = PerformanceEvaluation.query.filter(
+        #     PerformanceEvaluation.creator_id.in_(underling_users),
+        #     PerformanceEvaluation.status > 1)
     total_score = str(request.values.get('total_score', 0))
     if total_score != '0':
         total_score_p = total_score.split('-')
