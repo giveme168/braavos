@@ -76,7 +76,7 @@ def write_outsource_excel(monthes, data):
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
-                (u"外包总计", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+                ("外包总计", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
     mimetype_tuple = mimetypes.guess_type(filename)
     response_headers = Headers({
         'Pragma': "public",
