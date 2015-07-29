@@ -380,19 +380,19 @@ def check_apply(r_id):
     return tpl('/account/kpi/apply.html', type=report.type, scores=scores, report=report)
 
 
-def _get_all_under_users(self_user):
+def _get_all_under_users(self_user_id):
     under_users = []
     all_user = [{'uid': user.id, 'is_kpi_leader': user.is_kpi_leader, 'leaders': [
         k.id for k in user.team_leaders]} for user in User.all() if user.is_active()]
 
-    def get_under(under_users, all_user, self_user):
-        d_user = [user for user in all_user if self_user.id in user['leaders']]
+    def get_under(under_users, all_user, self_user_id):
+        d_user = [user for user in all_user if self_user_id in user['leaders']]
         for k in d_user:
             under_users.append(k)
-            if k['is_kpi_leader'] and self_user.id != k['uid']:
-                return get_under(under_users, all_user, k)
+            if k['is_kpi_leader'] and self_user_id != k['uid']:
+                return get_under(under_users, all_user, k['uid'])
         return under_users
-    return get_under(under_users, all_user, self_user)
+    return get_under(under_users, all_user, self_user_id)
 
 
 @account_kpi_bp.route('/underling', methods=['GET'])
@@ -406,7 +406,7 @@ def underling():
         reports = [k for k in PerformanceEvaluation.all() if k.status > 1]
     else:
         underling_users = list(
-            set([k['uid'] for k in _get_all_under_users(g.user)]))
+            set([k['uid'] for k in _get_all_under_users(g.user.id)]))
         reports = [k for k in PerformanceEvaluation.all(
         ) if k.status > 1 and k.creator.id in underling_users]
         # reports = PerformanceEvaluation.query.filter(
@@ -442,11 +442,12 @@ def underling():
 def info(r_id):
     report = PerformanceEvaluation.get(r_id)
     if not g.user.is_HR_leader() and not g.user.is_super_leader():
+        under_users = [k['uid'] for k in _get_all_under_users(g.user.id)]
         if report.creator == g.user:
             if report.status != 5:
                 flash(u'对不起，您的绩效考核评分还没有完成!', 'danger')
                 return redirect(url_for("account_kpi.index"))
-        elif report.creator != g.user or g.user not in report.creator.team_leaders:
+        elif report.creator.id not in under_users:
             flash(u'对不起，您没有权限查看别人的绩效考核!', 'danger')
             return redirect(url_for("account_kpi.index"))
     report.now_report_obj = json.loads(report.now_report)
