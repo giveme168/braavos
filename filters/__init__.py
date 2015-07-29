@@ -21,7 +21,7 @@ def nl2br(eval_ctx, value):
 
 def format_price(amount, currency=u'￥'):
     n = float('{0:.2f}'.format(amount))
-    return u'{1}{0:,}'.format(n, currency)
+    return u'{0:,}'.format(n)
 
 
 def register_filter(app):

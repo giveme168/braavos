@@ -17,8 +17,6 @@ def write_client_excel(mediums):
     worksheet = workbook.add_worksheet()
     align_left = workbook.add_format(
         {'align': 'left', 'valign': 'vcenter', 'border': 1})
-    align_left_money = workbook.add_format(
-        {'align': 'left', 'valign': 'vcenter', 'border': 1, 'num_format': '#,##0.0'})
     keys = [u"媒体名称", u"类别"] + [u"%s-%s-01" % (now_date.year, str(k)) for k in range(1, 13)] + [u'总计']
     for k in range(len(keys)):
         worksheet.write(0, 0 + k, keys[k], align_left)
@@ -30,17 +28,17 @@ def write_client_excel(mediums):
         worksheet.write(th + 2, 1, u'金额差', align_left)
         for i in range(1, 13):
             worksheet.write(
-                th, 1 + i, mediums[k].sale_money_report_by_month(i), align_left_money)
+                th, 1 + i, mediums[k].sale_money_report_by_month(i), align_left)
             worksheet.write(
-                th + 1, 1 + i, mediums[k].medium_money2_report_by_month(i), align_left_money)
+                th + 1, 1 + i, mediums[k].medium_money2_report_by_month(i), align_left)
             worksheet.write(th + 2, 1 + i, mediums[k].sale_money_report_by_month(
-                i) - mediums[k].medium_money2_report_by_month(i), align_left_money)
+                i) - mediums[k].medium_money2_report_by_month(i), align_left)
         worksheet.write(
-            th, 14, mediums[k].sale_money_report_by_year(), align_left_money)
+            th, 14, mediums[k].sale_money_report_by_year(), align_left)
         worksheet.write(
-            th + 1, 14, mediums[k].medium_money2_report_by_year(), align_left_money)
+            th + 1, 14, mediums[k].medium_money2_report_by_year(), align_left)
         worksheet.write(th + 2, 14, mediums[k].sale_money_report_by_year() - mediums[
-                        k].medium_money2_report_by_year(), align_left_money)
+                        k].medium_money2_report_by_year(), align_left)
         th += 3
     workbook.close()
     response.data = output.getvalue()
