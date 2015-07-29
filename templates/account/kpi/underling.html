@@ -51,6 +51,7 @@
                     <th>管理指标自评分/上级评分</th>
                     <th>胜任能力自评分/上级评分</th>
                     <th>绩效评估自评总分/上级评分</th>
+                    <th>直属领导</th>
                     <th>状态</th>
                     <th style="width:100px;">操作</th>
                 </tr>
@@ -75,6 +76,7 @@
                         {% endif %}</td>
                     <td>{{k.self_ability_score}} / {% if k.status>=3 %}{{k.ability_score}}{% else %}未评分{% endif %}</td>
                     <td>{{k.self_total_score}} / {% if k.status>=3 %}{{k.total_score}}{% else %}未评分{% endif %}</td>
+                    <td>{% for k in k.creator.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
                     <td>{{k.status_cn}}</td>
                     <td>
                         {% if k.status == 2 and g.user.is_kpi_leader%}
