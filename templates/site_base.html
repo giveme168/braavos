@@ -44,21 +44,21 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">财务管理<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
                 <li role="presentation" class="dropdown-header">发票管理</li>
-                <li><a href="{{url_for('finance_invoice.index')}}">申请中的发票</a></li>
-                <li><a href="{{url_for('finance_invoice.index_pass')}}">所有客户发票信息</a></li>
+                <li><a href="{{url_for('finance_client_order_invoice.index')}}">申请中的发票</a></li>
+                <li><a href="{{url_for('finance_client_order_invoice.index_pass')}}">所有客户发票信息</a></li>
                 <li role="presentation" class="dropdown-header">外包打款管理</li>
-                <li><a href="{{url_for('finance_pay.index')}}">媒体订单</a></li>
-                <li><a href="{{url_for('finance_pay.douban_index')}}">直签豆瓣订单</a></li>
+                <li><a href="{{url_for('finance_outsource_pay.index')}}">媒体订单</a></li>
+                <li><a href="{{url_for('finance_outsource_pay.douban_index')}}">直签豆瓣订单</a></li>
                 <li role="presentation" class="dropdown-header">媒体打款管理</li>
-                <li><a href="{{url_for('finance_medium_pay.index')}}">媒体打款信息</a></li>
+                <li><a href="{{url_for('finance_client_order_medium_pay.index')}}">媒体打款信息</a></li>
                 <li role="presentation" class="dropdown-header">甲方打款管理</li>
-                <li><a href="{{url_for('finance_agent_pay.index')}}">甲方打款信息</a></li>
+                <li><a href="{{url_for('finance_client_order_agent_pay.index')}}">甲方打款信息</a></li>
                 <li role="presentation" class="dropdown-header">回款管理</li>
                 <li><a href="{{url_for('finance_client_order_back_money.index')}}">新媒体订单回款</a></li>
                 <li><a href="{{url_for('finance_douban_order_back_money.index')}}">豆瓣订单回款</a></li>
                 <li role="presentation" class="dropdown-header">媒体返点发票管理</li>
-                <li><a href="{{url_for('finance_medium_rebate_invoice.index')}}">申请中的媒体返点发票</a></li>
-                <li><a href="{{url_for('finance_medium_rebate_invoice.index_pass')}}">所有媒体返点发票信息</a></li>
+                <li><a href="{{url_for('finance_client_order_medium_rebate_invoice.index')}}">申请中的媒体返点发票</a></li>
+                <li><a href="{{url_for('finance_client_order_medium_rebate_invoice.index_pass')}}">所有媒体返点发票信息</a></li>
               </ul>
             </li>
             {% endif %}

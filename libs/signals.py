@@ -386,10 +386,10 @@ def merger_outsource_apply(sender, apply_context):
                     >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('finance_pay.info', target_id=merger_outsource.target.id)
+                'DOMAIN'] + url_for('finance_outsource_pay.info', target_id=merger_outsource.target.id)
         else:
             url = mail.app.config[
-                'DOMAIN'] + url_for('finance_pay.douban_info', target_id=merger_outsource.target.id)
+                'DOMAIN'] + url_for('finance_outsource_pay.douban_info', target_id=merger_outsource.target.id)
         flash(u'已发送邮件给 %s ' % (', '.join(to_user)), 'info')
     elif action == 0:
         to_user_name = ','.join([k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])

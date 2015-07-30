@@ -1,0 +1,69 @@
+{% extends "/finance/finance_base.html" %}
+{% block title %}我的客户订单{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>对公外包收款方打款信息</h3>
+    <table class="table table-bordered">
+        <tr>
+            <th>外包商名称</th>
+            <th>类型</th>
+            <th>开户行</th>    
+            <th>卡号</th>
+            <th>支付宝</th>
+            <th>联系方式</th>
+            <th>申请打款个数</th>
+            <th>已打款个数</th>
+            <th>操作</th>
+        </tr>
+        {% for target in targets %}
+        <tr>
+            <td>{{ target.name }}</td>
+            <td>{{ target.type_cn }}</td>
+            <td>{{ target.bank }}</td>
+            <td>{{ target.card }}</td>
+            <td>{{ target.alipay }}</td>
+            <td>{{ target.contract }}</td> 
+            {% if target.merger_douban_order_outsources_by_status(2)|length > 0 %}
+                <td><a  style="color:red;" href="{{url_for('finance_outsource_pay.douban_info',target_id=target.id)}}">{{ target.merger_douban_order_outsources_by_status(2)|length }}</a></td>
+            {% else %}
+                <td>0</td>
+            {% endif %}
+            
+            <td>{{ target.merger_douban_order_outsources_by_status(0)|length }}</td>
+            <td><a href="{{url_for('finance_outsource_pay.douban_info',target_id=target.id)}}">查看</a></td>     
+        {% endfor %}
+    </table>
+    <h3>个人外包收款方打款信息</h3>
+    <table class="table table-bordered">
+        <tr>
+            <th>外包商名称</th>
+            <th>类型</th>
+            <th>开户行</th>    
+            <th>卡号</th>
+            <th>支付宝</th>
+            <th>联系方式</th>
+            <th>申请打款个数</th>
+            <th>已打款个数</th>
+            <th>操作</th>
+        </tr>
+        {% for target in personal_targets %}
+        <tr>
+            <td>{{ target.name }}</td>
+            <td>{{ target.type_cn }}</td>
+            <td>{{ target.bank }}</td>
+            <td>{{ target.card }}</td>
+            <td>{{ target.alipay }}</td>
+            <td>{{ target.contract }}</td> 
+            {% if target.merger_douban_order_outsources_by_status(2)|length > 0 %}
+                <td><a style="color:red;" href="{{url_for('finance_outsource_pay.douban_info',target_id=target.id)}}">{{ target.merger_douban_order_outsources_by_status(2)|length }}</a></td>
+            {% else %}
+                <td>0</td>
+            {% endif %}
+            
+            <td>{{ target.merger_douban_order_outsources_by_status(0)|length }}</td>
+            <td><a href="{{url_for('finance_outsource_pay.douban_info',target_id=target.id)}}">查看</a></td>     
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

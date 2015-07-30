@@ -1,0 +1,94 @@
+{% extends "/finance/finance_base.html" %}
+{% block title %}所有客户发票{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>所有客户发票<a class="btn btn-sm btn-default" href="{{url_for('finance_client_order_invoice.index_pass')}}?type=excel">下载</a></h3>
+    <div class="search">
+        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
+        <div class="col-md-2" style="padding:0;margin:0 5px;" id="search-area">
+            <select class="col-md-12" id="search_location" name="location" placeholder="区域">
+                {% for v, m in locations %}
+                    {% if v == location_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                    {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2" style="padding:0;margin-right:5px;">
+            <select class="col-md-12" id="orderby" name="orderby" placeholder="排序方式">
+                <option value="create_time">按添加时间排序</option>
+                <option value="reminde_date">按回款时间排序</option>
+                <option value="contract">按合同号排序</option>
+            </select>
+        </div>
+        <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
+    </div>
+    <table class="table table-bordered">
+        <tr>
+            <th>代理/直客</th>
+            <th>客户名称</th>
+            <th>合同号</th>
+            <th>合同总金额</th>
+            <th>预计回款时间</th>
+            <th>已开发票金额</th>
+            <th>未开发票金额</th>
+            <th>申请通过个数</th>
+            <th>区域</th>
+            <th>操作</th>
+        </tr>
+        {% for order in orders %}
+            <tr>
+                <td>{{order.agent.name}}</td>
+                <td><a href="{{url_for('finance_client_order_invoice.info', order_id=order.id)}}">{{order.name}}</a></td>
+                <td>{{order.contract}} </td>
+                <td>{{order.money}}元</td>
+                <td>{{order.reminde_date_cn}}</td>
+                <td>{{order.invoice_pass_sum}}元</td>
+                <td>{{order.money - order.invoice_pass_sum}}</td>
+                <td>{{order.get_invoice_by_status(0)|length }}</td>
+                <td>{{order.locations_cn}}</td>
+                <td><a href="{{url_for('finance_client_order_invoice.info', order_id=order.id)}}">查看</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+    {% set pages = orders %}
+    {% include "pagination.html" %}
+</div>
+<script>
+    function sort(value) {
+        var orderby = '{{orderby}}',
+            sortby = '{{sortby}}';
+        if (value == sortby) {
+            if (orderby == 'desc') {
+                orderby = 'asc'
+            } else {
+                orderby = 'desc'
+            }
+        } else {
+            sortby = value
+            orderby = 'desc'
+        }
+        window.location.href = window.location.pathname + '?sortby=' + sortby + '&orderby=' + orderby +
+            '&searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&selected_location=' + encodeURIComponent($('#search_location').val());
+    }
+
+    function search() {
+        window.location.href = window.location.pathname +
+            '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&selected_location=' + ($('#search_location').val()) +
+            '&orderby=' + ($('#orderby').val());
+    }
+    $(function() {
+        {% if g.user.is_super_leader() or g.user.is_finance() %} 
+        {% else %}
+            $("#search-area").hide() 
+        {% endif %}
+        $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
+        $("#orderby").trigger("chosen:updated");
+    });
+</script>
+{% endblock %}
