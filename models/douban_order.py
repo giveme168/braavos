@@ -65,6 +65,13 @@ STATUS_CN = {
     STATUS_ON: u'正常',
 }
 
+BACK_MONEY_STATUS_END = 0
+BACK_MONEY_STATUS_NOW = 1
+BACK_MONEY_STATUS_CN = {
+    BACK_MONEY_STATUS_END: u'回款完成',
+    BACK_MONEY_STATUS_NOW: u'正在回款',
+}
+
 direct_sales = db.Table('douban_order_direct_sales',
                         db.Column(
                             'direct_sale_id', db.Integer, db.ForeignKey('user.id')),
@@ -136,6 +143,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator = db.relationship(
         'User', backref=db.backref('created_douban_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    back_money_status = db.Column(db.Integer)
 
     contract_generate = False
     media_apply = False
@@ -145,6 +153,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def __init__(self, agent, client, campaign, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  medium_CPM=0, sale_CPM=0,
+                 back_money_status=BACK_MONEY_STATUS_NOW,
                  client_start=None, client_end=None, reminde_date=None,
                  direct_sales=None, agent_sales=None,
                  operaters=None, designers=None, planers=None,
@@ -178,6 +187,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.create_time = create_time or datetime.datetime.now()
         self.contract_status = contract_status
         self.status = status
+        self.back_money_status = back_money_status
 
     @classmethod
     def get_all(cls):
@@ -600,6 +610,40 @@ by %s\n
     def order_path(self):
         return url_for('order.douban_order_info', order_id=self.id)
 
+    @property
+    def back_moneys(self):
+        return sum([k.money for k in self.douban_backmoneys] + [k.money for k in self.back_invoice_rebate_list])
+
+    @property
+    def client_back_moneys(self):
+        return sum([k.money for k in self.douban_backmoneys])
+
+    @property
+    def back_money_status_cn(self):
+        if self.back_money_status == 0:
+            return BACK_MONEY_STATUS_CN[BACK_MONEY_STATUS_END]
+        else:
+            return BACK_MONEY_STATUS_CN[self.back_money_status or 1]
+
+    @property
+    def back_money_percent(self):
+        if self.back_money_status == 0:
+            return 100
+        else:
+            return int(float(self.back_moneys) / self.money * 100) if self.money else 0
+
+    @property
+    def back_money_list(self):
+        return self.douban_backmoneys
+
+    @property
+    def back_invoice_rebate_list(self):
+        return self.douban_backinvoicerebates
+
+    @property
+    def back_invoice_rebate_money(self):
+        return sum([k.money for k in self.douban_backinvoicerebates])
+
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_douban_order_executive_report'
@@ -655,3 +699,59 @@ class DoubanOrderReject(db.Model, BaseModelMixin):
     @property
     def reject_time_cn(self):
         return self.reject_time.strftime('%Y-%m') + u'月'
+
+
+class BackMoney(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_douban_order_back_money'
+    id = db.Column(db.Integer, primary_key=True)
+    douban_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_douban_order.id'))  # 客户合同
+    douban_order = db.relationship(
+        'DoubanOrder', backref=db.backref('douban_backmoneys', lazy='dynamic'))
+    money = db.Column(db.Float())
+    back_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, douban_order, money=0.0, create_time=None, back_time=None):
+        self.douban_order = douban_order
+        self.money = money
+        self.create_time = create_time or datetime.date.today()
+        self.back_time = back_time or datetime.date.today()
+
+    @property
+    def back_time_cn(self):
+        return self.back_time.strftime(DATE_FORMAT)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
+
+class BackInvoiceRebate(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_douban_order_back_invoice_rebate'
+    id = db.Column(db.Integer, primary_key=True)
+    douban_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_douban_order.id'))  # 客户合同
+    douban_order = db.relationship(
+        'DoubanOrder', backref=db.backref('douban_backinvoicerebates', lazy='dynamic'))
+    num = db.Column(db.String(100))  # 发票号
+    money = db.Column(db.Float())
+    back_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, douban_order, num='', money=0.0, create_time=None, back_time=None):
+        self.douban_order = douban_order
+        self.num = num
+        self.money = money
+        self.create_time = create_time or datetime.date.today()
+        self.back_time = back_time or datetime.date.today()
+
+    @property
+    def back_time_cn(self):
+        return self.back_time.strftime(DATE_FORMAT)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)

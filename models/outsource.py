@@ -61,8 +61,7 @@ class OutSourceTarget(db.Model, BaseModelMixin):
         return TARGET_OTYPE_CN[self.otype or 1]
 
     def client_outsources_by_status(self, status):
-        outsources = list(
-            OutSource.query.filter_by(target_id=self.id, status=status))
+        outsources = list(OutSource.query.filter_by(target_id=self.id, status=status))
         return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and k.medium_order.status == 1]
 
     def client_outsources_by_paied(self):
@@ -297,7 +296,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
             return ''
 
     def finance_pay_path(self):
-        return url_for('finance_pay.index')
+        return url_for('finance_outsource_pay.index')
 
     @property
     def invoice_info(self):
@@ -540,7 +539,7 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
             return ''
 
     def finance_pay_path(self):
-        return url_for('finance_pay.douban_index')
+        return url_for('finance_outsource_pay.douban_index')
 
     @property
     def invoice_info(self):

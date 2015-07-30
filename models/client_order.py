@@ -550,13 +550,13 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return url_for("outsource.client_outsources", order_id=self.id)
 
     def finance_outsource_path(self):
-        return url_for("finance_pay.info", order_id=self.id)
+        return url_for("finance_client_order_pay.info", order_id=self.id)
 
     def saler_invoice_path(self):
-        return url_for("saler_invoice.index", order_id=self.id)
+        return url_for("saler_client_order_invoice.index", order_id=self.id)
 
     def finance_invoice_path(self):
-        return url_for("finance_invoice.info", order_id=self.id)
+        return url_for("finance_client_order_invoice.info", order_id=self.id)
 
     def attach_status_confirm_path(self, attachment):
         return url_for('order.client_attach_status',
@@ -571,19 +571,19 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                        status=ATTACHMENT_STATUS_REJECT)
 
     def saler_medium_invoice_path(self):
-        return url_for("saler_medium_invoice.index", order_id=self.id)
+        return url_for("saler_client_order_medium_invoice.index", order_id=self.id)
 
     def finance_medium_invoice_path(self):
-        return url_for("finance_medium_pay.info", order_id=self.id)
+        return url_for("finance_client_order_medium_pay.info", order_id=self.id)
 
     def saler_agent_invoice_path(self):
-        return url_for("saler_agent_invoice.index", order_id=self.id)
+        return url_for("saler_client_order_agent_invoice.index", order_id=self.id)
 
     def finance_agent_invoice_path(self):
-        return url_for("finance_agent_pay.info", order_id=self.id)
+        return url_for("finance_client_order_agent_pay.info", order_id=self.id)
 
     def saler_medium_rebate_invoice_path(self):
-        return url_for("saler_medium_rebate_invoice.index", order_id=self.id)
+        return url_for("saler_client_order_medium_rebate_invoice.index", order_id=self.id)
 
     @classmethod
     def contract_exist(cls, contract):
