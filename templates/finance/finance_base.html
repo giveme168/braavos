@@ -8,19 +8,20 @@
 </style>
     {% if g.user.is_finance()%}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 发票管理</li>
-    <a class="list-group-item" href="{{url_for('finance_invoice.index')}}">申请中的发票</a>
-    <a class="list-group-item" href="{{url_for('finance_invoice.index_pass')}}">所有客户发票信息</a>
+    <a class="list-group-item" href="{{url_for('finance_client_order_invoice.index')}}">申请中的发票</a>
+    <a class="list-group-item" href="{{url_for('finance_client_order_invoice.index_pass')}}">所有客户发票信息</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 外包打款管理</li>
-    <a class="list-group-item" href="{{url_for('finance_pay.index')}}">媒体订单</a>
-    <a class="list-group-item" href="{{url_for('finance_pay.douban_index')}}">直签豆瓣订单</a>
+    <a class="list-group-item" href="{{url_for('finance_outsource_pay.index')}}">媒体订单</a>
+    <a class="list-group-item" href="{{url_for('finance_outsource_pay.douban_index')}}">直签豆瓣订单</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 媒体打款管理</li>
-    <a class="list-group-item" href="{{url_for('finance_medium_pay.index')}}">媒体打款信息</a>
+    <a class="list-group-item" href="{{url_for('finance_client_order_medium_pay.index')}}">媒体打款信息</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 甲方打款管理</li>
-    <a class="list-group-item" href="{{url_for('finance_agent_pay.index')}}">甲方打款信息</a>
+    <a class="list-group-item" href="{{url_for('finance_client_order_agent_pay.index')}}">甲方打款信息</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 回款管理</li>
-    <a class="list-group-item" href="{{url_for('finance_client_order_back_money.index')}}">客户订单回款</a>
+    <a class="list-group-item" href="{{url_for('finance_client_order_back_money.index')}}">新媒体订单回款</a>
+    <a class="list-group-item" href="{{url_for('finance_douban_order_back_money.index')}}">豆瓣订单回款</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>媒体返点发票管理</li>
-    <a class="list-group-item" href="{{url_for('finance_medium_rebate_invoice.index')}}">申请中的媒体返点发票</a>
-    <a class="list-group-item" href="{{url_for('finance_medium_rebate_invoice.index_pass')}}">所有媒体返点发票信息</a>
+    <a class="list-group-item" href="{{url_for('finance_client_order_medium_rebate_invoice.index')}}">申请中的媒体返点发票</a>
+    <a class="list-group-item" href="{{url_for('finance_client_order_medium_rebate_invoice.index_pass')}}">所有媒体返点发票信息</a>
     {% endif %}
 {% endblock %}

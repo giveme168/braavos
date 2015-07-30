@@ -9,6 +9,7 @@
         <th>代理/直客</th>
         <th>项目名称</th>
         <th>客户合同总金额</th>
+        <th>回款总金额</th>
         <th>客户{{month}}月执行额</th>
         <th>{{month}}月支付代理返点</th>
         <th>{{month}}月合同利润</th>
@@ -23,6 +24,7 @@
         <td>{{order.agent.name}}</td>
         <td>{{order.campaign}}</td>
         <td>{{order.money|format_price}}</td>
+        <td>{{order.back_moneys|format_price}}</td>
         <td>{{order.executive_report(g.user, year, [month], 'normal')[0]|format_price}}</td>
         <td>{{order.rebate_agent_by_month(year, month)|format_price}}</td>
         <td>{{order.profit_money(year, month)|format_price}}</td>
@@ -33,7 +35,7 @@
 </table>
 {%- endmacro %}
 {% block main_box %}
-<div class="bra-main bra-box" style="width:2200px;">
+<div class="bra-main bra-box" style="width:1350px;">
     <h3>直签豆瓣订单执行成本</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>

@@ -16,7 +16,7 @@ def write_douban_order_excel(orders, year, month):
     worksheet = workbook.add_worksheet()
     align_left = workbook.add_format(
         {'align': 'left', 'valign': 'vcenter', 'border': 1})
-    keys = [u'区域', u'合同号', u'客户名称', u'代理/直客', u'项目名称', u'客户合同总金额', u'客户' +
+    keys = [u'区域', u'合同号', u'客户名称', u'代理/直客', u'项目名称', u'客户合同总金额', u'回款总金额', u'客户' +
             str(month) + u'月执行额', str(month) + u'月支付代理返点', str(month) + u'月合同利润', u'合同开始', u'合同结束']
     for k in range(len(keys)):
         worksheet.write(0, 0 + k, keys[k], align_left)
@@ -35,13 +35,14 @@ def write_douban_order_excel(orders, year, month):
         worksheet.write(th, 3, orders[k].agent.name, align_left)
         worksheet.write(th, 4, orders[k].campaign, align_left)
         worksheet.write(th, 5, orders[k].money, align_left)
-        worksheet.write(th, 6, orders[k].executive_report(
+        worksheet.write(th, 6, orders[k].back_moneys, align_left)
+        worksheet.write(th, 7, orders[k].executive_report(
             g.user, year, [month], 'normal')[0], align_left)
         worksheet.write(
-            th, 7, orders[k].rebate_agent_by_month(year, month), align_left)
-        worksheet.write(th, 8, orders[k].profit_money(year, month), align_left)
-        worksheet.write(th, 9, orders[k].start_date_cn, align_left)
-        worksheet.write(th, 10, orders[k].end_date_cn, align_left)
+            th, 8, orders[k].rebate_agent_by_month(year, month), align_left)
+        worksheet.write(th, 9, orders[k].profit_money(year, month), align_left)
+        worksheet.write(th, 10, orders[k].start_date_cn, align_left)
+        worksheet.write(th, 11, orders[k].end_date_cn, align_left)
         th += 1
     workbook.close()
     response.data = output.getvalue()

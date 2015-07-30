@@ -1,0 +1,148 @@
+{% extends "/order_base.html" %}
+{% from 'comments.html' import comments_box %}
+{% block main_box%}
+  <div class="bra-main bra-box">
+    <h4> {{ order.name }} 回款情况</h4>
+    <ul class="nav nav-tabs">
+      <li class=""><a href='{{url_for("order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
+      {% if order.can_admin(g.user) %}
+      <li class=""><a href='{{url_for("saler_client_order_invoice.index", order_id=order.id)}}'>客户发票</a></li>
+      <li class="active"><a href='{{url_for("saler_client_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
+      <li class=""><a href='{{url_for("saler_client_order_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
+      <li class=""><a href='{{url_for("saler_client_order_medium_rebate_invoice.index", order_id=order.id)}}'>媒体返点发票</a></li>
+      <li class=""><a href='{{url_for("saler_client_order_agent_invoice.index", order_id=order.id)}}'>甲方发票与打款</a></li>
+      {% endif %}
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab-2">
+        <div class="bra-main bra-box" style="width:100%;">
+          <h4>回款进度</h4>
+          <table class="table table-bordered">
+            <tr>
+              <th>订单总金额</th>
+              <th>已回款金额</th>
+              <th>未回款金额</th>
+              <th>回款状态</th>
+              <th>最迟回款时间</th>
+            </tr>
+            <tr>
+              <td>{{order.money}} 元</td>
+              <td>{{order.back_moneys}} 元</td>
+              <td>{{order.money-order.back_moneys}} 元</td>
+              <td>{{order.back_money_status_cn}}</td>
+              <td>{{order.reminde_date_cn}}</td>
+            </tr>
+            <tr>
+              <td colspan="5">
+                <div class="progress">
+                  <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{order.back_money_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{order.back_money_percent}}%;">
+                    {{order.back_money_percent}}%
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
+          <div class="panel panel-default" id="non-invoice">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 已回款信息 </a>
+              </h4>
+            </div>
+            <div id="collapse-invoice-0" class="panel-collapse collapse in">
+              <div class="panel-body">
+                
+                <div class="col-md-12">
+                  <div class="col-md-21" style="">
+                    <table class="table table-bordered">
+                      <tr>
+                        <th>回款时间</th>
+                        <th>金额</th>
+                      </tr>
+                      {% for back in order.back_money_list %}
+                        <tr>
+                          <td>{{back.back_time_cn}}</td>
+                          <td>{{back.money}}</td>
+                        </tr>
+                      {% endfor %}
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default" id="non-invoice">
+              <div class="panel-heading">
+                  <h4 class="panel-title">
+                      <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 返点发票信息 </a>
+                  </h4>
+              </div>
+              <div id="collapse-invoice-0" class="panel-collapse collapse in">
+                  <div class="panel-body">
+                      
+                      <div class="col-md-12">
+                          <div class="col-md-21" style="">
+                              <table class="table table-bordered">
+                                <tr>
+                                  <th>开票时间</th>
+                                  <th>发票金额</th>
+                                  <th>发票号</th>
+                                </tr>
+                                {% for back in order.back_invoice_rebate_list %}
+                                <tr>
+                                  <td>{{back.back_time_cn}}</td>
+                                  <td>{{back.money}}</td>
+                                  <td>{{back.num}}</td>
+                                </tr>
+                                {% endfor %}
+                              </table>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="panel panel-default" id="new-invoice" style="display:none;">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 申请发票信息 </a>
+              </h4>
+            </div>
+            <div id="collapse-invoice-new" class="panel-collapse collapse in">
+              <div class="panel-body">
+                <div class="well">
+                  <form class="form form-horizontal" method="POST" action="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}" onsubmit="return checkform(this)">
+                    <div class="form-group">
+                      <label for="client_start" class="col-sm-2 control-label">回款金额 : </label>
+                      <div class="col-sm-4">
+                        <input type="text" id="money" name="money" value="" class="form-control bra-form-control">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="client_start" class="col-sm-2 control-label">回款时间 : </label>
+                      <div class="col-sm-4">
+                        <input type="text" id="back_time" name="back_time" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="client_start" class="col-sm-2 control-label">该合同是否已完成全部回款 : </label>
+                      <div class="col-sm-10">
+                        <select class="form-control bra-form-control" id="back_money_status" name="back_money_status">
+                          <option value="1">未完成</option>
+                          <option value="0">已完成</option>
+                        </select>
+                        <span class="errors"></span>
+                        <span class="tips"></span>
+                      </div>
+                    </div>
+                    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>{{ comments_box(order, msg_channel=4) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
