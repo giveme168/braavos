@@ -1,5 +1,5 @@
 {% extends "/finance_base.html" %}
-{% block title %}新媒体订单列表{% endblock %}
+{% block title %}豆瓣订单列表{% endblock %}
 {% macro all_items(orders) -%}
 <table class="table table-bordered">
     <tr>
@@ -23,7 +23,7 @@
         <tr>
         {% endif %}
             <td>{{o.agent.name}}</td>
-            <td><a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.id)}}">{{o.name}}</a></td>
+            <td><a href="{{url_for('finance_douban_order_back_money.back_money',order_id=o.id)}}">{{o.name}}</a></td>
             <td>{{o.money}}元</td>
             <td>{{o.back_moneys}}元</td>
             <td>{{o.money-o.back_moneys}}元</td>
@@ -40,7 +40,7 @@
 {%- endmacro %}
 {% block main_box %}
     <div class="bra-main bra-box" style="">
-        <h3>新媒体订单列表</h3>
+        <h3>豆瓣订单列表</h3>
         <div class="search">
             <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
             <div class="col-md-2" style="padding:0;margin:0 5px;" id="search-area">
