@@ -113,6 +113,14 @@ def order_delete(order_id):
     return redirect(url_for("order.my_orders"))
 
 
+@order_bp.route('/order/<order_id>/medium_order/<medium_id>/delete', methods=['GET'])
+def medium_order_delete(order_id, medium_id):
+    order = Order.get(medium_id)
+    MediumOrderExecutiveReport.query.filter_by(order=order).delete()
+    order.delete()
+    return redirect(url_for("order.order_info", order_id=order_id, tab_id=1))
+
+
 def _delete_executive_report(order):
     if order.__tablename__ == 'bra_douban_order':
         DoubanOrderExecutiveReport.query.filter_by(douban_order=order).delete()
@@ -633,7 +641,7 @@ def display_orders(orders, title, status_id=-1):
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [
-            o for o in orders if search_info.lower() in o.search_info.lower()]
+            o for o in orders if search_info.lower().strip() in o.search_info.lower()]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)

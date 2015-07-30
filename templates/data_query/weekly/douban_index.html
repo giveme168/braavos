@@ -45,13 +45,13 @@
                 <td>{{i.order.client.industry_cn}}</td>
                 <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
                 <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                <td>{{i.order.zhixing_money(type)}}</td>
+                <td>{{i.order.zhixing_money(type)|format_price}}</td>
                 <td></td>
-                <td>{{i.now_Q_money}}</td>
-                <td>{{i.last_Q_money}}</td>
-                <td>{{i.after_Q_money}}</td>
+                <td>{{i.now_Q_money|format_price}}</td>
+                <td>{{i.last_Q_money|format_price}}</td>
+                <td>{{i.after_Q_money|format_price}}</td>
                 {% for k in i.moneys %}
-                <td>{{k}}</td>
+                <td>{{k|format_price}}</td>
                 {% endfor %}
                 <td>{{i.order.resource_type_cn}}</td>
                 <td>{% for o in i.order.operater_users %}{{o.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
@@ -61,14 +61,14 @@
         {% endfor %}
         <tr>
             <td colspan="8">Total</td>
-            <td>{{k.total_order_money}}</td>
+            <td>{{k.total_order_money|format_price}}</td>
             <td></td>
-            <td>{{k.total_now_Q_money}}</td>
-            <td>{{k.total_last_Q_money}}</td>
-            <td>{{k.total_after_Q_money}}</td>
-            <td>{{k.total_frist_month_money}}</td>
-            <td>{{k.total_second_month_money}}</td>
-            <td>{{k.total_third_month_money}}</td>
+            <td>{{k.total_now_Q_money|format_price}}</td>
+            <td>{{k.total_last_Q_money|format_price}}</td>
+            <td>{{k.total_after_Q_money|format_price}}</td>
+            <td>{{k.total_frist_month_money|format_price}}</td>
+            <td>{{k.total_second_month_money|format_price}}</td>
+            <td>{{k.total_third_month_money|format_price}}</td>
             <td colspan="4"></td>
         </tr>
         <tr>

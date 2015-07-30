@@ -135,11 +135,16 @@ def medium_invoice_apply(sender, apply_context):
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if apply_context['send_type'] == "saler":
         url = mail.app.config[
-            'DOMAIN'] + '/saler/medium_invoice/%s/order' % (invoice.client_order_id)
+            'DOMAIN'] + '/saler/medium_invoice/%s/invoice' % (invoice.id)
+        name = u'黄亮'
     else:
         url = mail.app.config[
             'DOMAIN'] + '/finance/medium_pay/%s/info' % (invoice.client_order_id)
+        name = ', '.join([k.name for k in User.finances()])
     text = u"""%s
+
+Dear %s:
+
 订单: %s
 链接地址: %s
 发票信息:
@@ -152,7 +157,7 @@ def medium_invoice_apply(sender, apply_context):
     %s
 \n
 by %s
-""" % (apply_context['action_msg'], order.name, url, invoice_info, invoice_pay_info, apply_context['msg'], g.user.name)
+""" % (apply_context['action_msg'], name, order.name, url, invoice_info, invoice_pay_info, apply_context['msg'], g.user.name)
     send_simple_mail(
         apply_context['title'], recipients=apply_context['to'], body=text)
 
@@ -168,11 +173,16 @@ def agent_invoice_apply(sender, apply_context):
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if apply_context['send_type'] == "saler":
         url = mail.app.config[
-            'DOMAIN'] + '/saler/agent_invoice/%s/order' % (invoice.client_order_id)
+            'DOMAIN'] + '/saler/agent_invoice/%s/invoice' % (invoice.id)
+        name = u'黄亮'
     else:
         url = mail.app.config[
             'DOMAIN'] + '/finance/agent_pay/%s/info' % (invoice.client_order_id)
+        name = ', '.join([k.name for k in User.finances()])
     text = u"""%s
+
+Dear %s:
+
 订单: %s
 链接地址: %s
 发票信息:
@@ -185,7 +195,7 @@ def agent_invoice_apply(sender, apply_context):
     %s
 \n
 by %s
-""" % (apply_context['action_msg'], order.name, url, invoice_info, invoice_pay_info, apply_context['msg'], g.user.name)
+""" % (apply_context['action_msg'], name, order.name, url, invoice_info, invoice_pay_info, apply_context['msg'], g.user.name)
     send_simple_mail(
         apply_context['title'], recipients=apply_context['to'], body=text)
 

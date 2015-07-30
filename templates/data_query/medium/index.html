@@ -37,15 +37,15 @@
             </td>
                 {% for k in range(1,13) %}
                     <td>
-                        {{medium.sale_money_report_by_month(k)}}<br/>
-                        {{medium.medium_money2_report_by_month(k)}}<br/>
-                        {{medium.sale_money_report_by_month(k)-medium.medium_money2_report_by_month(k)}}
+                        {{medium.sale_money_report_by_month(k)|format_price}}<br/>
+                        {{medium.medium_money2_report_by_month(k)|format_price}}<br/>
+                        {{(medium.sale_money_report_by_month(k)-medium.medium_money2_report_by_month(k))|format_price}}
                     </td>
                 {% endfor %}
             <td>
-                {{medium.sale_money_report_by_year()}}<br/>
-                {{medium.medium_money2_report_by_year()}}<br/>
-                {{medium.sale_money_report_by_year()-medium.medium_money2_report_by_year()}}
+                {{medium.sale_money_report_by_year()|format_price}}<br/>
+                {{medium.medium_money2_report_by_year()|format_price}}<br/>
+                {{(medium.sale_money_report_by_year()-medium.medium_money2_report_by_year())|format_price}}
             </td>
         </tr>
         {% endfor %}
