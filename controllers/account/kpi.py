@@ -390,7 +390,7 @@ def _get_all_under_users(self_user_id):
         for k in d_user:
             under_users.append(k)
             if k['is_kpi_leader'] and self_user_id != k['uid']:
-                return get_under(under_users, all_user, k['uid'])
+                under_users += get_under(under_users, all_user, k['uid'])
         return under_users
     return get_under(under_users, all_user, self_user_id)
 
