@@ -50,11 +50,13 @@ def merget_client_target_paid(target_id):
     merger_clients = MergerOutSource.gets(outsource_ids)
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
+    pay_time = request.values.get('pay_time', datetime.datetime.now().strftime('%Y-%m-%d'))
     if action == 0:
         sub_title = u"外包已打款"
         for k in merger_clients:
             for o in k.outsources:
                 o.status = OUTSOURCE_STATUS_PAIED
+                o.create_time = datetime.datetime.strptime(pay_time, '%Y-%m-%d')
                 o.save()
             k.status = MERGER_OUTSOURCE_STATUS_PAIED
             k.save()
@@ -80,11 +82,13 @@ def merget_douban_target_paid(target_id):
     merger_clients = MergerDoubanOutSource.gets(outsource_ids)
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
+    pay_time = request.values.get('pay_time', datetime.datetime.now().strftime('%Y-%m-%d'))
     if action == 0:
         sub_title = u"外包已打款"
         for k in merger_clients:
             for o in k.outsources:
                 o.status = OUTSOURCE_STATUS_PAIED
+                o.create_time = datetime.datetime.strptime(pay_time, '%Y-%m-%d')
                 o.save()
             k.status = MERGER_OUTSOURCE_STATUS_PAIED
             k.save()
