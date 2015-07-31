@@ -198,7 +198,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     __mapper_args__ = {'order_by': create_time.desc()}
 
     def __init__(self, target, medium_order, num, type, subtype, pay_num=0,
-                 invoice=False, paid=False, remark=None, status=0):
+                 invoice=False, paid=False, remark=None, status=0, create_time=None):
         self.target = target
         self.medium_order = medium_order
         self.num = num
@@ -209,7 +209,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
         self.paid = paid
         self.remark = remark or ""
         self.status = status
-        self.create_time = datetime.date.today()
+        self.create_time = create_time or datetime.date.today()
 
     @property
     def name(self):
@@ -445,7 +445,7 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     __mapper_args__ = {'order_by': create_time.desc()}
 
     def __init__(self, target, douban_order, num, type, subtype, pay_num=0,
-                 invoice=False, paid=False, remark=None, status=0):
+                 invoice=False, paid=False, remark=None, status=0, create_time=None):
         self.target = target
         self.douban_order = douban_order
         self.num = num
@@ -456,7 +456,7 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
         self.paid = paid
         self.remark = remark or ""
         self.status = status
-        self.create_time = datetime.date.today()
+        self.create_time = create_time or datetime.date.today()
 
     @property
     def name(self):

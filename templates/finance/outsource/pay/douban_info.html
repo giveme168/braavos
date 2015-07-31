@@ -27,7 +27,11 @@
                             <th>申请打款总金额</th>
                             <th>是否有发票</th>
                             <th>发票信息</th>
+                            {% if status == 2 %}
                             <th>申请时间</th>
+                            {% else %}
+                            <th>打款时间</th>
+                            {% endif %}
                             <th>订单名称</th>
                             <th>合同号</th>
                             <th>外包单项金额</th>
@@ -41,10 +45,10 @@
                             <td rowspan="{{t.outsources|length + 1}}">{{t.pay_num}}</td>
                             <td rowspan="{{t.outsources|length + 1}}">{% if t.invoice %}有{%else%}无{%endif%}</td>
                             <td rowspan="{{t.outsources|length + 1}}">{{ t.remark }}</td>
-                            <td rowspan="{{t.outsources|length + 1}}">{{ t.create_time_cn }}</td>
                         </tr>
                           {% for o in t.outsources %}
                           <tr>
+                              <td>{% if status==2 %}{{ t.create_time_cn }}{% else %}{{ o.create_time_cn }}{% endif %}</td>
                               <td>{{o.douban_order.name}}</td>
                               <td>{{o.douban_order.contract}}</td>
                               <td>{{o.pay_num}}</td>
@@ -71,6 +75,12 @@
                           <div class="col-sm-10">
                               <textarea class="form-control bra-form-control" id="msg"
                               name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+                          </div>
+                       </div>
+                       <div class="form-group">
+                          <label class="col-sm-2 control-label">打款时间</label>
+                          <div class="col-sm-10">
+                            <input class="datetimepicker form-control bra-form-control" id="pay_time" name="pay_time" type="text" value="" readonly="readonly" data-date-format="yyyy-mm-dd">
                           </div>
                        </div>
                        <div class="form-group">
@@ -120,17 +130,40 @@
     <!--申请中的打款信息结束-->
 </div>
 <script>
-  $(function(){
-    showoutsource = function(ele){
-      $(ele).hide();
-      $("#new-outsource").show();
+Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
     };
-  });
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
   function check_all(e){
     $(e).parent().find(".outsource-id").prop("checked", $(e).prop("checked"));
     $(e).parent().find(".outsource-id").trigger("change");
   }
   $(function(){
+    showoutsource = function(ele){
+      $(ele).hide();
+      $("#new-outsource").show();
+    };
+    $('#pay_time').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+      });
+    var now_date = new Date()
+    $('#pay_time').val(now_date.Format("yyyy-MM-dd"))
+
     $(".outsource-id").change(function(e){
       if($(this).prop("checked")){
         if($("#form-outsource-"+$(this).val()).length < 1){
@@ -149,8 +182,13 @@
       var email = $(this).parents('form').find("#contract-email").val();
       var outsources = $(this).parents('form').find(".outsources");
       var msg = $(this).parents('form').find("#msg").val();
+      var pay_time = $('#pay_time').val()
       if(outsources.length < 1){
         alert("请勾选要申请的项目!");
+        e.preventDefault();
+      }
+      if (pay_time == ''){
+        alert("请选择打款时间!");
         e.preventDefault();
       }
       if(actionVal == '2'){
