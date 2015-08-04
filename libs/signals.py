@@ -563,7 +563,9 @@ def out_apply(sender, out, status):
     title = u'【外出报备】' + '-' + out.creator.name
     url = mail.app.config['DOMAIN'] + url_for('account_out.info', oid=out.id)
     body = u"""
-%s 的%s
+Dear %s: 
+
+%s
 
 开始时间：%s
 结束时间：%s

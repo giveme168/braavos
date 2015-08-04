@@ -303,6 +303,10 @@ class User(db.Model, BaseModelMixin):
     def is_out_saler(self):
         return self.team.type in [TEAM_TYPE_AGENT_SELLER, TEAM_TYPE_DIRECT_SELLER, TEAM_TYPE_LEADER]
 
+    @property
+    def team_leaders_cn(self):
+        return ','.join([k.name for k in self.team_leaders])
+
 
 team_admins = db.Table('team_admin_users',
                        db.Column(

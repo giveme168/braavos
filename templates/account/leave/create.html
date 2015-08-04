@@ -3,6 +3,12 @@
 {% block title %}填写请假申请表{% endblock %}
 
 {% block main_box %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+    }
+</style>
 <div class="bra-main bra-box">
     {% if leave %}
     <h3>修改请假申请表</h3>
@@ -38,6 +44,12 @@
                     <option value='2'>下半天</option>
                 </select>
             </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">默认收件人 : </label>
+          <div class="col-sm-6">
+            <pre>{{g.user.team_leaders_cn}}，admin@inad.com（请假时长大于5天有黄亮审批）</pre>
+          </div>
         </div>
         {{ form_field(form.senders) }}
         {{ form_field(form.reason) }}
