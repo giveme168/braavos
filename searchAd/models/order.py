@@ -4,20 +4,20 @@ from collections import defaultdict
 from flask import url_for
 from xlwt import Utils
 
-from . import db, BaseModelMixin
-from .mixin.comment import CommentMixin
-from .mixin.attachment import AttachmentMixin
-from .attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
-from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
+from models import db, BaseModelMixin
+from models.mixin.comment import CommentMixin
+from models.mixin.attachment import AttachmentMixin
+from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
+from models.item import (ITEM_STATUS_CN, SALE_TYPE_CN,
                    ITEM_STATUS_LEADER_ACTIONS, OCCUPY_RESOURCE_STATUS,
                    ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY,
                    ITEM_STATUS_ORDER)
-from .client_order import table_medium_orders, ClientOrder
-from .excel import (
+from .client_order import table_medium_orders, searchAdClientOrder
+from models.excel import (
     ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
     EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
     EXCEL_DATA_TYPE_NUM, COLOUR_RED, COLOUR_LIGHT_GRAY)
-from .consts import DATE_FORMAT
+from models.consts import DATE_FORMAT
 from libs.date_helpers import get_monthes_pre_days
 
 
@@ -74,18 +74,18 @@ planer_users = db.Table('searchAd_order_users_planer',
                         )
 
 
-class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
+class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'searchAd_bra_order'
 
     id = db.Column(db.Integer, primary_key=True)
     campaign = db.Column(db.String(100))  # 活动名称
-    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 投放媒体
+    medium_id = db.Column(db.Integer, db.ForeignKey('searchAd_medium.id'))  # 投放媒体
     medium = db.relationship(
-        'Medium', backref=db.backref('orders', lazy='dynamic'))
+        'searchAdMedium', backref=db.backref('orders', lazy='dynamic'))
     order_type = db.Column(db.Integer)  # 订单类型: CPM
 
     client_orders = db.relationship(
-        'ClientOrder', secondary=table_medium_orders)
+        'searchAdClientOrder', secondary=table_medium_orders)
 
     medium_contract = db.Column(db.String(100))  # 媒体合同号
     medium_money = db.Column(db.Integer)  # 下单金额
@@ -103,11 +103,11 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
-        'User', backref=db.backref('created_orders', lazy='dynamic'))
+        'User', backref=db.backref('searchAd_created_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
 
     contract_generate = True
-    kind = "medium-order"
+    kind = "searchAd-medium-order"
 
     def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
                  medium_contract="", medium_money=0, sale_money=0, medium_money2=0,
@@ -157,7 +157,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def client_order(self):
-        return ClientOrder.get(self.client_orders[0].id)
+        return searchAdClientOrder.get(self.client_orders[0].id)
 
     @property
     def operater_names(self):
@@ -234,22 +234,22 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return url_for('schedule.order_detail', order_id=self.id, step=0)
 
     def edit_path(self):
-        return url_for('order.medium_order', mo_id=self.id)
+        return url_for('searchAd_order.medium_order', mo_id=self.id)
 
     def attachment_path(self):
-        return url_for('files.medium_order_files', order_id=self.id)
+        return url_for('files.searchAd_medium_order_files', order_id=self.id)
 
     def info_path(self):
-        return self.client_order.info_path()
+        return self.client_order.order_path
 
     def attach_status_confirm_path(self, attachment):
-        return url_for('order.medium_attach_status',
+        return url_for('searchAd_order.medium_attach_status',
                        order_id=self.id,
                        attachment_id=attachment.id,
                        status=ATTACHMENT_STATUS_PASSED)
 
     def attach_status_reject_path(self, attachment):
-        return url_for('order.medium_attach_status',
+        return url_for('searchAd_order.medium_attach_status',
                        order_id=self.id,
                        attachment_id=attachment.id,
                        status=ATTACHMENT_STATUS_REJECT)
@@ -354,8 +354,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def delete(self):
         self.delete_comments()
         self.delete_attachments()
-        for ao in self.associated_douban_orders:
-            ao.delete()
+        #for ao in self.associated_douban_orders:
+        #    ao.delete()
         db.session.delete(self)
         db.session.commit()
 
@@ -625,17 +625,17 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return 0
 
 
-class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
+class searchAdMediumOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_medium_order_executive_report'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+        db.Integer, db.ForeignKey('searchAd_bra_client_order.id'))  # 客户合同
     client_order = db.relationship(
-        'ClientOrder', backref=db.backref('order_executive_reports', lazy='dynamic'))
+        'searchAdClientOrder', backref=db.backref('order_executive_reports', lazy='dynamic'))
     order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_order.id'))  # 客户合同
+        db.Integer, db.ForeignKey('searchAd_bra_order.id'))  # 客户合同
     order = db.relationship(
-        'Order', backref=db.backref('medium_executive_reports', lazy='dynamic'))
+        'searchAdOrder', backref=db.backref('medium_executive_reports', lazy='dynamic'))
     medium_money = db.Column(db.Float())
     medium_money2 = db.Column(db.Float())
     sale_money = db.Column(db.Float())
@@ -643,7 +643,7 @@ class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
     days = db.Column(db.Integer)
     create_time = db.Column(db.DateTime)
     __table_args__ = (db.UniqueConstraint(
-        'client_order_id', 'order_id', 'month_day', name='_medium_order_month_day'),)
+        'client_order_id', 'order_id', 'month_day', name='_searchAd_medium_order_month_day'),)
     __mapper_args__ = {'order_by': month_day.desc()}
 
     def __init__(self, client_order, order, medium_money=0, medium_money2=0,

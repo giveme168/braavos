@@ -1,15 +1,14 @@
 # -*- coding: UTF-8 -*-
 import datetime
 
-from . import db, BaseModelMixin
-from .client_order import ClientOrder
-from .douban_order import DoubanOrder
-from .framework_order import FrameworkOrder
-from .invoice import AgentInvoice
-from .consts import CLIENT_INDUSTRY_CN
+from models import db, BaseModelMixin
+from models.consts import CLIENT_INDUSTRY_CN
+
+from .client_order import searchAdClientOrder
+from .invoice import searchAdAgentInvoice
 
 
-class Client(db.Model, BaseModelMixin):
+class searchAdClient(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_client'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -22,7 +21,7 @@ class Client(db.Model, BaseModelMixin):
 
     @classmethod
     def name_exist(cls, name):
-        is_exist = Client.query.filter_by(name=name).count() > 0
+        is_exist = searchAdClient.query.filter_by(name=name).count() > 0
         return is_exist
 
     @property
@@ -30,7 +29,7 @@ class Client(db.Model, BaseModelMixin):
         return CLIENT_INDUSTRY_CN[self.industry]
 
 
-class Group(db.Model, BaseModelMixin):
+class searchAdGroup(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_group'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -40,30 +39,32 @@ class Group(db.Model, BaseModelMixin):
         self.name = name
 
     def get_agent_count(self):
-        return Agent.query.filter_by(group_id=self.id).count()
+        return searchAdAgent.query.filter_by(group_id=self.id).count()
 
-    def get_framework_order_count(self):
-        return FrameworkOrder.query.filter_by(group_id=self.id).count()
+#    def get_framework_order_count(self):
+#        return FrameworkOrder.query.filter_by(group_id=self.id).count()
 
     @classmethod
     def name_exist(cls, name):
-        is_exist = Group.query.filter_by(name=name).count() > 0
+        is_exist = searchAdGroup.query.filter_by(name=name).count() > 0
         return is_exist
 
 
-class Agent(db.Model, BaseModelMixin):
+class searchAdAgent(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_agent'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    group_id = db.Column(db.Integer, db.ForeignKey('bra_group.id'))
-    group = db.relationship('Group', backref=db.backref('agents', lazy='dynamic'))
+
+    group_id = db.Column(db.Integer, db.ForeignKey('searchAd_bra_group.id'))
+    group = db.relationship('searchAdGroup', backref=db.backref('agents', lazy='dynamic'))
+
     tax_num = db.Column(db.String(100))  # 税号
     address = db.Column(db.String(100))  # 地址
     phone_num = db.Column(db.String(100))  # 电话
     bank = db.Column(db.String(100))  # 银行
     bank_num = db.Column(db.String(100))  # 银行号
-    rebates = db.relationship('AgentRebate')
+    rebates = db.relationship('searchAdAgentRebate')
 
     def __init__(self, name, group=None,
                  tax_num="", address="", phone_num="",
@@ -78,7 +79,7 @@ class Agent(db.Model, BaseModelMixin):
 
     @classmethod
     def name_exist(cls, name):
-        is_exist = Agent.query.filter_by(name=name).count() > 0
+        is_exist = searchAdAgent.query.filter_by(name=name).count() > 0
         return is_exist
 
     @property
@@ -106,33 +107,33 @@ class Agent(db.Model, BaseModelMixin):
         return 0
 
     def get_client_order_count(self):
-        return ClientOrder.query.filter_by(agent_id=self.id).count()
+        return searchAdClientOrder.query.filter_by(agent_id=self.id).count()
 
-    def get_douban_order_count(self):
-        return DoubanOrder.query.filter_by(agent_id=self.id).count()
+#    def get_douban_order_count(self):
+#        return DoubanOrder.query.filter_by(agent_id=self.id).count()
 
-    def get_framework_order_count(self):
-        return len([k for k in FrameworkOrder.all() if self in k.agents])
+#    def get_framework_order_count(self):
+#        return len([k for k in FrameworkOrder.all() if self in k.agents])
 
     def get_agent_invoice_count(self):
-        return AgentInvoice.query.filter_by(agent_id=self.id).count()
+        return searchAdAgentInvoice.query.filter_by(agent_id=self.id).count()
 
 
-class AgentRebate(db.Model, BaseModelMixin):
+class searchAdAgentRebate(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_agent_rebate'
 
     id = db.Column(db.Integer, primary_key=True)
-    agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))  # 代理公司id
-    agent = db.relationship('Agent', backref=db.backref('agentrebate', lazy='dynamic'))
+    agent_id = db.Column(db.Integer, db.ForeignKey('searchAd_agent.id'))  # 代理公司id
+    agent = db.relationship('searchAdAgent', backref=db.backref('agentrebate', lazy='dynamic'))
 
     inad_rebate = db.Column(db.Float)
     douban_rebate = db.Column(db.Float)
     year = db.Column(db.Date)
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    creator = db.relationship('User', backref=db.backref('created_agent_rebate', lazy='dynamic'))
+    creator = db.relationship('User', backref=db.backref('searchAd_created_agent_rebate', lazy='dynamic'))
     create_time = db.Column(db.DateTime)  # 添加时间
-    __table_args__ = (db.UniqueConstraint('agent_id', 'year', name='_agent_rebate_year'),)
+    __table_args__ = (db.UniqueConstraint('agent_id', 'year', name='_searchAd_agent_rebate_year'),)
     __mapper_args__ = {'order_by': create_time.desc()}
 
     def __init__(self, agent, inad_rebate=0.0, douban_rebate=0.0, year=None, creator=None, create_time=None):
@@ -144,7 +145,7 @@ class AgentRebate(db.Model, BaseModelMixin):
         self.create_time = create_time or datetime.datetime.now()
 
     def __repr__(self):
-        return '<AgentRebate %s>' % (self.id)
+        return '<searchAdAgentRebate %s>' % (self.id)
 
     @property
     def create_time_cn(self):
@@ -152,6 +153,6 @@ class AgentRebate(db.Model, BaseModelMixin):
 
 
 def framework_generator(num):
-    code = "ZQC%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
+    code = "SearchAd-ZQC%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
     code = code.upper()
     return code

@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 
-from . import db, BaseModelMixin
+from models import db, BaseModelMixin
 
 
 INVOICE_TYPE_NORMAL = 0         # 一般纳税人增值税专用发票
@@ -28,13 +28,13 @@ INVOICE_STATUS_CN = {
 }
 
 
-class Invoice(db.Model, BaseModelMixin):
+class searchAdInvoice(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_invoice'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+        db.Integer, db.ForeignKey('searchAd_bra_client_order.id'))  # 客户合同
     client_order = db.relationship(
-        'ClientOrder', backref=db.backref('invoices', lazy='dynamic'))
+        'searchAdClientOrder', backref=db.backref('invoices', lazy='dynamic'))
     company = db.Column(db.String(100))  # 公司名称
     tax_id = db.Column(db.String(100))  # 税号
     address = db.Column(db.String(120))  # 公司地址
@@ -48,7 +48,7 @@ class Invoice(db.Model, BaseModelMixin):
     invoice_num = db.Column(db.String(200), default='')  # 发票号
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
-        'User', backref=db.backref('created_invoice', lazy='dynamic'))
+        'User', backref=db.backref('searchAd_created_invoice', lazy='dynamic'))
     back_time = db.Column(db.DateTime)
     create_time = db.Column(db.DateTime)
     __mapper_args__ = {'order_by': create_time.desc()}
@@ -101,18 +101,18 @@ class Invoice(db.Model, BaseModelMixin):
 
 
 # 媒体返点发票(媒体给inad打钱, inad给媒体开发票)
-class MediumRebateInvoice(db.Model, BaseModelMixin):
+class searchAdMediumRebateInvoice(db.Model, BaseModelMixin):
 
     __tablename__ = 'searchAd_bra_medium_rebate_invoice'
 
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+        db.Integer, db.ForeignKey('searchAd_bra_client_order.id'))  # 客户合同
     client_order = db.relationship(
-        'ClientOrder', backref=db.backref("mediumrebateinvoices", lazy='dynamic'))
-    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
+        'searchAdClientOrder', backref=db.backref("mediumrebateinvoices", lazy='dynamic'))
+    medium_id = db.Column(db.Integer, db.ForeignKey('searchAd_medium.id'))
     medium = db.relationship(
-        'Medium', backref=db.backref('mediumrebateinvoices', lazy='dynamic'))
+        'searchAdMedium', backref=db.backref('mediumrebateinvoices', lazy='dynamic'))
 
     # common part of *Invoice classes
     ###########################################################################
@@ -129,7 +129,7 @@ class MediumRebateInvoice(db.Model, BaseModelMixin):
     invoice_num = db.Column(db.String(200), default='')  # 发票号
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
-        'User', backref=db.backref('created_medium_rebate_invoice',
+        'User', backref=db.backref('searchAd_created_medium_rebate_invoice',
                                    lazy='dynamic'))
     create_time = db.Column(db.DateTime)
     ###########################################################################
@@ -213,17 +213,17 @@ MEDIUM_INVOICE_STATUS_CN = {
 
 
 # 客户订单-媒体发票
-class MediumInvoice(db.Model, BaseModelMixin):
+class searchAdMediumInvoice(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_medium_invoice'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+        db.Integer, db.ForeignKey('searchAd_bra_client_order.id'))  # 客户合同
     client_order = db.relationship(
-        'ClientOrder', backref=db.backref('mediuminvoices', lazy='dynamic'))
+        'searchAdClientOrder', backref=db.backref('mediuminvoices', lazy='dynamic'))
 
-    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
+    medium_id = db.Column(db.Integer, db.ForeignKey('searchAd_medium.id'))
     medium = db.relationship(
-        'Medium', backref=db.backref('mediuminvoices', lazy="dynamic"))
+        'searchAdMedium', backref=db.backref('mediuminvoices', lazy="dynamic"))
 
     company = db.Column(db.String(100))  # 公司名称
     tax_id = db.Column(db.String(100))  # 税号
@@ -239,7 +239,7 @@ class MediumInvoice(db.Model, BaseModelMixin):
     invoice_num = db.Column(db.String(200), default='')  # 发票号
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
-        'User', backref=db.backref('created_medium_invoice', lazy='dynamic'))
+        'User', backref=db.backref('searchAd_created_medium_invoice', lazy='dynamic'))
 
     add_time = db.Column(db.DateTime)  # 开具发票时间
     pay_time = db.Column(db.DateTime)  # 打款时间
@@ -320,13 +320,13 @@ class MediumInvoice(db.Model, BaseModelMixin):
 
 
 # 客户订单-媒体发票
-class MediumInvoicePay(db.Model, BaseModelMixin):
+class searchAdMediumInvoicePay(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_medium_invoice_pay'
     id = db.Column(db.Integer, primary_key=True)
     medium_invoice_id = db.Column(
-        db.Integer, db.ForeignKey('bra_medium_invoice.id'))  # 客户发票
+        db.Integer, db.ForeignKey('searchAd_bra_medium_invoice.id'))  # 客户发票
     medium_invoice = db.relationship(
-        'MediumInvoice', backref=db.backref('medium_invoice_pays', lazy='dynamic'))
+        'searchAdMediumInvoice', backref=db.backref('medium_invoice_pays', lazy='dynamic'))
     detail = db.Column(db.String(200))  # 留言
     pay_status = db.Column(db.Integer)  # 付款状态
     money = db.Column(db.Float)  # 打款金额
@@ -378,17 +378,17 @@ AGENT_INVOICE_STATUS_CN = {
 
 
 # 给代理/直客(甲方的全称)开的发票
-class AgentInvoice(db.Model, BaseModelMixin):
+class searchAdAgentInvoice(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_agent_invoice'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+        db.Integer, db.ForeignKey('searchAd_bra_client_order.id'))  # 客户合同
     client_order = db.relationship(
-        'ClientOrder', backref=db.backref('agentinvoices', lazy='dynamic'))
+        'searchAdClientOrder', backref=db.backref('agentinvoices', lazy='dynamic'))
 
-    agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))
+    agent_id = db.Column(db.Integer, db.ForeignKey('searchAd_agent.id'))
     agent = db.relationship(
-        'Agent', backref=db.backref('agentinvoices', lazy="dynamic"))
+        'searchAdAgent', backref=db.backref('agentinvoices', lazy="dynamic"))
 
     company = db.Column(db.String(100))  # 公司名称
     tax_id = db.Column(db.String(100))  # 税号
@@ -404,7 +404,7 @@ class AgentInvoice(db.Model, BaseModelMixin):
     invoice_num = db.Column(db.String(200), default='')  # 发票号
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
-        'User', backref=db.backref('created_agent_invoice', lazy='dynamic'))
+        'User', backref=db.backref('searchAd_created_agent_invoice', lazy='dynamic'))
 
     add_time = db.Column(db.DateTime)  # 开具发票时间
     pay_time = db.Column(db.DateTime)  # 打款时间
@@ -485,13 +485,13 @@ class AgentInvoice(db.Model, BaseModelMixin):
 
 
 # inad付款给代理/直客(甲方的全称)的金额
-class AgentInvoicePay(db.Model, BaseModelMixin):
+class searchAdAgentInvoicePay(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_agent_invoice_pay'
     id = db.Column(db.Integer, primary_key=True)
     agent_invoice_id = db.Column(
-        db.Integer, db.ForeignKey('bra_agent_invoice.id'))  # 客户发票
+        db.Integer, db.ForeignKey('searchAd_bra_agent_invoice.id'))  # 客户发票
     agent_invoice = db.relationship(
-        'AgentInvoice', backref=db.backref('agent_invoice_pays', lazy='dynamic'))
+        'searchAdAgentInvoice', backref=db.backref('agent_invoice_pays', lazy='dynamic'))
     detail = db.Column(db.String(200))  # 留言
     pay_status = db.Column(db.Integer)  # 付款状态
     money = db.Column(db.Float)  # 打款金额
