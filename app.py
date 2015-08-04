@@ -48,6 +48,8 @@ def request_user():
 
 @app.route('/')
 def index():
+    if g.user.is_searchad_member():
+        return redirect(url_for('searchAd_order.index'))
     return redirect(url_for('order.index'))
 
 # urls
