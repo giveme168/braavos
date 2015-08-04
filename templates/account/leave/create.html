@@ -1,8 +1,14 @@
-{% extends "/user_info_base.html" %}
+{% extends "/account/account_leave_base.html" %}
 {% from 'form.html' import form_field %}
 {% block title %}填写请假申请表{% endblock %}
 
 {% block main_box %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+    }
+</style>
 <div class="bra-main bra-box">
     {% if leave %}
     <h3>修改请假申请表</h3>
@@ -15,29 +21,38 @@
         <div class="form-group">
           <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
           <div class="col-sm-4">
-            <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+            <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh">
           </div>
         </div>
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
           <div class="col-sm-4">
-            <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+            <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh">
           </div>
         </div>
         <div class="form-group">
             <label class="col-sm-2 control-label">请假时长 : </label>
             <div class="col-sm-4">
-                <select class="form-control bra-form-control" style="width:60%;" name="day" id="day">
-                    {% for k in range(21) %}
-                    <option value='{{k}}'>{{k}}天</option>
-                    {% endfor %}
-                </select>
+                <div id="select_days" style="width:60%; display: inline-block;">
+                    <select class="form-control bra-form-control" style="width:100%;" name="day" id="day"  onchange="check_days(this)">
+                        {% for k in days %}
+                        <option value='{{k.key}}'>{{k.value}}天</option>
+                        {% endfor %}
+                        <option value="other">其他</option>
+                    </select>
+                </div>+
                 <select class="form-control bra-form-control" style="width:35%;" name="half" id="half">
                     <option value='0'>整</option>
                     <option value='1'>上半天</option>
                     <option value='2'>下半天</option>
                 </select>
             </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">默认收件人 : </label>
+          <div class="col-sm-6">
+            <pre>{{g.user.team_leaders_cn}}，admin@inad.com（请假时长大于5天有黄亮审批）</pre>
+          </div>
         </div>
         {{ form_field(form.senders) }}
         {{ form_field(form.reason) }}
@@ -84,16 +99,36 @@ function checkform(obj){
         alert('请选择请假天数')
         obj.day.focus()
         return false;
+    }else if(day <0){
+        alert('请选择正确的请假天数')
+        obj.day.focus()
+        return false;
     }
     return true;
 }
-
+function check_days(obj){
+    if(obj.value=='other'){
+        $('#select_days').empty()
+        $('#select_days').html('<input type="number" id="day" name="day" value="" class="form-control bra-form-control" style="width:100%;">')
+    }
+}
 $(function(){
     {% if leave %}
         $('#start').val('{{leave.start_time_cn}}')
         $('#end').val('{{leave.end_time_cn}}')
-        $('#day').val('{{leave.rate_day}}'.split('-')[0])
-        $('#half').val('{{leave.rate_day}}'.split('-')[1])
+        
+        days = []
+        {% for k in days %}
+        days.push(parseInt('{{k.key}}'))
+        {% endfor %}
+        var day_half = '{{leave.rate_day}}'.split('-')
+        if (day_half[0] in days){
+        }else{
+            $('#select_days').empty()
+            $('#select_days').html('<input type="number" id="day" name="day" value="" class="form-control bra-form-control" style="width:100%;">')
+        }
+        $('#day').val(day_half[0])
+        $('#half').val(day_half[1])
         $("#day").trigger("chosen:updated");
         $("#half").trigger("chosen:updated");
     {% endif %}
@@ -102,17 +137,18 @@ $(function(){
         todayHighlight: true,
         language: 'zh-CN',
         hours:[6,14,19],
-        minView: 2,
+        minView: 1,
     });
     $('#start').datetimepicker('setHoursDisabled', [0,1,2,3,4,5,6,7,8,9,11,12,13,15,16,17,18,20,21,22,23,24]);
     $('#end').datetimepicker('setHoursDisabled', [0,1,2,3,4,5,6,7,8,9,11,12,13,15,16,17,18,20,21,22,23,24]);
     $("#start").change(function(e){
         var end_date = $('#end').val()
         if (end_date == ''){
-            var endDate = new Date($('#start').val());
-            endDate.setDate(endDate.getDate() + 1); 
-            $('#end').val(endDate.Format("yyyy-MM-dd"))
-            $('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd"));
+            var start_p = $('#start').val().split(' ')
+            var endDate = new Date(start_p[0]);
+            endDate.setDate(endDate.getDate() + 0.5); 
+            $('#end').val(endDate.Format("yyyy-MM-dd")+' '+start_p[1])
+            $('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd")+' '+start_p[1]);
         }
     });
 })

@@ -1,20 +1,35 @@
-{% extends "/user_info_base.html" %}
+{% extends "/account/account_leave_base.html" %}
 {% block title %}请假列表{% endblock %}
 
 {% block main_box %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+    }
+</style>
 <div class="bra-main bra-box">
-    <h3>所有请假列表</h3>
+    <h3>{{title}}</h3>
     <div class="search">
         <form class="form-inline" method="GET">
             <div class="form-group">
                 <label for="">类型</label>
                 <select id="type" name="type" placeholder="类型" style="width:150px;">
-                    <option value="">全部</value>
+                    <option value="0">全部</value>
                     <option value="1">事假</value>
                     <option value="2">年假</value>
                     <option value="3">病假</value>
                     <option value="4">婚假</value>
                     <option value="5">产假</value>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="">下属</label>
+                <select id="user_id" name="user_id" placeholder="下属" style="width:150px;">
+                    <option value="0">全部</value>
+                    {% for k in under_users %}
+                    <option value="{{k.uid}}">{{k.name}}</value>
+                    {% endfor %}
                 </select>
             </div>
             <div class="form-group">
@@ -29,7 +44,7 @@
         </form>
     </div>
     <br/>
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered">
         <tr>
             <th>请假类型</th>
             <th>请假人</th>
@@ -45,25 +60,25 @@
         {% for l in leaves %}
         <tr>
             <td>{{l.type_cn}}</td>
-            <td><a href="?p={{page}}&user_id={{l.creator.id}}&type={{type}}&start={{start}}&end={{end}}">{{l.creator.name}}</a></td>
+            <td><a href="{{url_for('account_leave.info', lid=l.id)}}">{{l.creator.name}}</a></td>
             <td>{{l.start_time_cn}}</td>
             <td>{{l.end_time_cn}}</td>
             <td>{{l.rate_day_cn}}</td>
             <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
             <td>{% for k in l.creator.team_leaders %}{{k.name}}</br>{% endfor %}</td>
-            <td>{{l.reason}}</td>
+            <td><pre>{{l.reason}}</pre></td>
             <td>{{l.status_cn}}</td>
             <td>
                 {% if l.status != 3 %}
                 {% if l.is_long_leave() %}
                     {% if g.user.is_super_leader() %}
-                        <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a>&nbsp;&nbsp;
-                        <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a>
+                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
+                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
                     {% endif %}
                 {% else %}
                     {% if g.user in l.creator.team_leaders or g.user.is_super_admin() %}
-                        <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a>&nbsp;&nbsp;
-                        <a href="{{url_for('user.leave_status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a>
+                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
+                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
                     {% endif %}
                 {% endif %}
                 {% endif %}
@@ -95,7 +110,8 @@ $(function(){
     //$("#type option[value='{{type}}']").attr("selected","selected");  
     $("#type").val("{{type}}")
     $("#type").trigger("chosen:updated");
-
+    $("#user_id").val("{{user_id}}")
+    $("#user_id").trigger("chosen:updated");
     $('#start').val('{{start}}')
     $('#end').val('{{end}}')
     $('.datetimepicker').datetimepicker({

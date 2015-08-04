@@ -110,6 +110,9 @@ def money():
                 douban_money['in_money'].append(0.0)
                 douban_money['rebate'].append(0.0)
                 douban_money['profit'].append(0.0)
+    # 直签豆瓣数据结束
+
+    # 豆瓣收入、服务费、返点、毛利为直签豆瓣+优力和无线总和
     douban_money['ex_money'] = numpy.array(douban_money['ex_money']) + numpy.array(youli_money['money2']) +\
         numpy.array(wuxian_money['money2'])
     douban_money['in_money'] = numpy.array(douban_money['in_money']) + numpy.array(
@@ -131,7 +134,7 @@ def money():
         numpy.array([k * agent_wuxian_rebate for k in wuxian_money['money2']])
     douban_money['profit'] = numpy.array(
         douban_money['in_money']) - numpy.array(douban_money['rebate'])
-
+    # 结束豆瓣收入、服务费、返点、毛利为直签豆瓣+优力和无线总和
     total = sum([i for k in douban_money.values() for i in k] +
                 [i for k in youli_money.values() for i in k] +
                 [i for k in momo_money.values() for i in k] +

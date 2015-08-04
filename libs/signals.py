@@ -12,7 +12,8 @@ order_apply_signal = braavos_signals.signal('order_apply')
 reply_apply_signal = braavos_signals.signal('reply_apply')
 contract_apply_signal = braavos_signals.signal('contract_apply')
 douban_contract_apply_signal = braavos_signals.signal('douban_contract_apply')
-framework_douban_contract_apply_signal = braavos_signals.signal('framework_douban_contract_apply')
+framework_douban_contract_apply_signal = braavos_signals.signal(
+    'framework_douban_contract_apply')
 outsource_apply_signal = braavos_signals.signal('outsource_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
@@ -21,6 +22,7 @@ outsource_distribute_signal = braavos_signals.signal('outsource_distribute')
 merger_outsource_apply_signal = braavos_signals.signal('merger_outsource_apply')
 apply_leave_signal = braavos_signals.signal('apply_leave')
 kpi_apply_signal = braavos_signals.signal('kpi_apply')
+apply_out_signal = braavos_signals.signal('out_apply')
 
 
 def password_changed(sender, user):
@@ -103,9 +105,9 @@ def contract_apply(sender, apply_context, action=None):
     order = apply_context['order']
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
         contract_apply_douban(sender, apply_context)
-    elif order.__tablename__ == 'bra_client_order' and order.associated_douban_orders and order.contract_status == 4 and action == 5:
-        apply_context['order'] = order.associated_douban_orders[0]
-        contract_apply_douban(sender, apply_context)
+    # elif order.__tablename__ == 'bra_client_order' and order.associated_douban_orders and order.contract_status == 4 and action == 5:
+    #    apply_context['order'] = order.associated_douban_orders[0]
+    #    contract_apply_douban(sender, apply_context)
     else:
         url = mail.app.config['DOMAIN'] + order.info_path()
         send_simple_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
@@ -199,6 +201,7 @@ by %s
     send_simple_mail(
         apply_context['title'], recipients=apply_context['to'], body=text)
 
+
 def invoice_apply(sender, apply_context):
     order = apply_context['order']
     invoices = apply_context['invoices']
@@ -244,6 +247,7 @@ by %s
     send_simple_mail(apply_context['title'], recipients=apply_context['to'], body=text)
 '''
 
+
 def framework_douban_contract_apply(sender, apply_context):
     """框架订单豆瓣合同号申请"""
     order = apply_context['order']
@@ -270,7 +274,7 @@ by %s\n
        order.start_date_cn, order.end_date_cn,
        order.money, url, g.user.name)
     file_paths = []
-    #if order.get_last_contract():
+    # if order.get_last_contract():
     #    file_paths.append(order.get_last_contract().real_path)
     if order.get_last_schedule():
         file_paths.append(order.get_last_schedule().real_path)
@@ -333,7 +337,7 @@ def outsource_apply(sender, apply_context):
     outsources_info = "\n".join([o.outsource_info for o in outsources])
 
     url = mail.app.config['DOMAIN'] + order.outsource_path()
-    
+
     send_simple_mail(apply_context['title'], recipients=apply_context['to'],
                      body=order.outsource_email_info(apply_context['to_users'],
                                                      apply_context[
@@ -359,9 +363,10 @@ def merger_outsource_apply(sender, apply_context):
     to_user_name = ''
 
     if action == 1:
-        to_user_name = ','.join([k.name for k in User.all() if k.email.find('huangliang') >= 0])
+        to_user_name = ','.join(
+            [k.name for k in User.all() if k.email.find('huangliang') >= 0])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
+                    >= 0 or k.email.find('fenghaiyan') >= 0] + [k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
@@ -370,9 +375,10 @@ def merger_outsource_apply(sender, apply_context):
                 'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
         flash(u'已发送邮件给 %s ' % (', '.join(to_user)), 'info')
     elif action == -1:
-        to_user_name = ','.join([k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])
+        to_user_name = ','.join(
+            [k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
+                    >= 0 or k.email.find('fenghaiyan') >= 0] + [k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
@@ -383,7 +389,7 @@ def merger_outsource_apply(sender, apply_context):
     elif action == 2:
         to_user_name = ','.join([k.name for k in User.finances()])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
+                    >= 0 or k.email.find('fenghaiyan') >= 0] + [k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('finance_outsource_pay.info', target_id=merger_outsource.target.id)
@@ -392,9 +398,10 @@ def merger_outsource_apply(sender, apply_context):
                 'DOMAIN'] + url_for('finance_outsource_pay.douban_info', target_id=merger_outsource.target.id)
         flash(u'已发送邮件给 %s ' % (', '.join(to_user)), 'info')
     elif action == 0:
-        to_user_name = ','.join([k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])
+        to_user_name = ','.join(
+            [k.name for k in User.all() if k.email.find('fenghaiyan') >= 0])
         to_user += [k.email for k in User.all() if k.email.find('huangliang')
-                    >= 0 or k.email.find('fenghaiyan') >= 0]+[k.email for k in User.finances()]
+                    >= 0 or k.email.find('fenghaiyan') >= 0] + [k.email for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
@@ -431,15 +438,21 @@ by %s\n
 def apply_leave(sender, leave):
     status = leave.status
     if status in [0, 2]:
-        to_name = ','.join([k.name for k in leave.creator.team_leaders])
-        url = mail.app.config['DOMAIN'] + url_for('user.leaves')
+        if leave.is_long_leave():
+            to_name = u'黄亮'
+        else:
+            to_name = ','.join([k.name for k in leave.creator.team_leaders])
+        url = mail.app.config['DOMAIN'] + \
+            url_for('account_leave.info', lid=leave.id)
     elif status in [3, 4]:
         to_name = leave.creator.name
         url = mail.app.config['DOMAIN'] + \
-            url_for('user.leave', user_id=leave.creator.id)
+            url_for('account_leave.index', user_id=leave.creator.id)
     to_users = leave.senders + leave.creator.team_leaders + \
         [leave.creator] + [g.user]
     to_emails = list(set([k.email for k in to_users])) + ['admin@inad.com']
+    if leave.is_long_leave():
+        to_emails += ['huangliang@inad.com']
 
     body = u"""
 Dear %s:
@@ -449,15 +462,18 @@ Dear %s:
 请假人: %s
 请假日期: %s - %s，共%s
 请假类型: %s
-请假原因: %s
+请假原因: 
+%s
 
 请批准，谢谢
 
+by %s
 
 附注: 
-    致趣订单管理系统链接地址: %s
+    请假申请链接地址: %s
 
-""" % (to_name, leave.status_cn, leave.creator.name, leave.start_time_cn, leave.end_time_cn, leave.rate_day_cn, leave.type_cn, leave.reason, url)
+""" % (to_name, leave.status_cn, leave.creator.name, leave.start_time_cn, leave.end_time_cn,
+       leave.rate_day_cn, leave.type_cn, leave.reason, g.user.name, url)
 
     send_simple_mail(u'【请假申请】- %s' %
                      (leave.creator.name), recipients=to_emails, body=body)
@@ -466,10 +482,12 @@ Dear %s:
 def kpi_apply(sender, apply_context):
     report = apply_context['report']
     if report.status == 2:
-        url = mail.app.config['DOMAIN'] + url_for('account_kpi.check_apply', r_id=report.id)
+        url = mail.app.config['DOMAIN'] + \
+            url_for('account_kpi.check_apply', r_id=report.id)
         to_names = ','.join([k.name for k in report.creator.team_leaders])
         user_name = report.creator.name
-        to_users = [k.email for k in report.creator.team_leaders] + [report.creator.email]
+        to_users = [k.email for k in report.creator.team_leaders] + \
+            [report.creator.email]
         title = u'绩效考核申请审批'
         body = u"""
 Dear %s:
@@ -481,10 +499,12 @@ Dear %s:
 
     """ % (to_names, user_name, url)
     elif report.status == 1:
-        url = mail.app.config['DOMAIN'] + url_for('account_kpi.update', r_id=report.id)
+        url = mail.app.config['DOMAIN'] + \
+            url_for('account_kpi.update', r_id=report.id)
         to_names = report.creator.name
         user_name = report.creator.name
-        to_users = [k.email for k in report.creator.team_leaders] + [report.creator.email]
+        to_users = [k.email for k in report.creator.team_leaders] + \
+            [report.creator.email]
         title = u'绩效考核被打回'
         body = u"""
 Dear %s:
@@ -496,10 +516,12 @@ Dear %s:
 
     """ % (to_names, url)
     elif report.status == 4:
-        url = mail.app.config['DOMAIN'] + url_for('account_kpi.info', r_id=report.id)
+        url = mail.app.config['DOMAIN'] + \
+            url_for('account_kpi.info', r_id=report.id)
         to_names = ','.join([k.name for k in User.HR_leaders()])
         user_name = report.creator.name
-        to_users = [k.email for k in User.HR_leaders()] + [report.creator.email] + [k.email for k in report.creator.team_leaders]
+        to_users = [k.email for k in User.HR_leaders(
+        )] + [report.creator.email] + [k.email for k in report.creator.team_leaders]
         title = u'绩效考核申请归档'
         body = u"""
 Dear %s:
@@ -511,10 +533,12 @@ Dear %s:
 
     """ % (to_names, user_name, url)
     elif report.status == 5:
-        url = mail.app.config['DOMAIN'] + url_for('account_kpi.info', r_id=report.id)
+        url = mail.app.config['DOMAIN'] + \
+            url_for('account_kpi.info', r_id=report.id)
         to_names = report.creator.name
         user_name = report.creator.name
-        to_users = [k.email for k in User.HR_leaders()] + [report.creator.email] + [k.email for k in report.creator.team_leaders]
+        to_users = [k.email for k in User.HR_leaders(
+        )] + [report.creator.email] + [k.email for k in report.creator.team_leaders]
         title = u'绩效考核已归档'
         body = u"""
 Dear %s:
@@ -525,8 +549,54 @@ Dear %s:
     KPI链接地址: %s
 
     """ % (to_names, url)
-    
+
     send_simple_mail(title, list(set(to_users)), body=body)
+
+
+def out_apply(sender, out, status):
+    if status == 1:
+        msg = u'外出报备申请'
+    elif status == 10:
+        msg = u'外出报备撤销'
+    elif status == 2:
+        msg = u'会议纪要填写完成'
+    title = u'【外出报备】' + '-' + out.creator.name
+    url = mail.app.config['DOMAIN'] + url_for('account_out.info', oid=out.id)
+    body = u"""
+Dear %s: 
+
+%s
+
+开始时间：%s
+结束时间：%s
+公司名称：%s
+会见人：  %s
+地址：   %s
+外出原因：
+%s
+会议纪要：
+%s
+
+附注: 
+    外出报备链接地址: %s
+
+    """ % (','.join([k.name for k in out.creator.team_leaders]), msg, out.start_time_cn,
+           out.end_time_cn, out.m_persion_cn, out.persions, out.address, out.reason, out.meeting_s, url)
+
+    if out.creator_type == 1:
+        to_users = [k.email for k in out.creator.team_leaders] + \
+            ['admin@inad.com'] + [g.user.email]
+        if status == 2:
+            to_users = [k.email for k in out.creator.team_leaders] + \
+                ['bus@inad.com'] + [g.user.email]
+        send_simple_mail(title, to_users, body=body)
+    else:
+        to_users = [k.email for k in out.creator.team_leaders] + \
+            ['admin@inad.com'] + [g.user.email]
+        if status == 2:
+            to_users = [
+                k.email for k in out.creator.team_leaders] + [g.user.email]
+        send_simple_mail(title, to_users, body=body)
 
 
 def init_signal(app):
@@ -537,7 +607,8 @@ def init_signal(app):
     reply_apply_signal.connect_via(app)(reply_apply_signal)
     contract_apply_signal.connect_via(app)(contract_apply)
     douban_contract_apply_signal.connect_via(app)(douban_contract_apply)
-    framework_douban_contract_apply_signal.connect_via(app)(framework_douban_contract_apply)
+    framework_douban_contract_apply_signal.connect_via(
+        app)(framework_douban_contract_apply)
     outsource_apply_signal.connect_via(app)(outsource_apply)
     invoice_apply_signal.connect_via(app)(invoice_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
@@ -546,3 +617,4 @@ def init_signal(app):
     merger_outsource_apply_signal.connect_via(app)(merger_outsource_apply)
     apply_leave_signal.connect_via(app)(apply_leave)
     kpi_apply_signal.connect_via(app)(kpi_apply)
+    apply_out_signal.connect_via(app)(out_apply)

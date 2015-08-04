@@ -141,7 +141,8 @@
               </a>
               <ul class="dropdown-menu" role="menu">
                 <li><a href="{{url_for('account_kpi.index')}}">绩效考核</a></li>
-                <li><a href="{{url_for('user.leave',user_id = g.user.id)}}">请假申请</a></li>
+                <li><a href="{{url_for('account_out.index')}}">外出报备</a></li>
+                <li><a href="{{url_for('account_leave.index',user_id = g.user.id)}}">请假申请</a></li>
                 <li><a href="{{url_for('user.pwd_change')}}">密码修改</a></li>
                 <li><a href="https://cn.gravatar.com/" target="_blank">头像修改</a></li>
                 <li><a href="{{url_for('user.logout')}}">登出</a></li>

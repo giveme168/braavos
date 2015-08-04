@@ -1,0 +1,17 @@
+{% extends "/site_base.html" %}
+
+{% block left_box%}
+    <a class="list-group-item" href="{{url_for('account_leave.index',user_id = g.user.id)}}">
+        <span class="glyphicon glyphicon-user"></span> 我的请假申请
+    </a>
+    {% if g.user.is_kpi_leader %}
+    <a class="list-group-item" href="{{url_for('account_leave.underling')}}">
+        <span class="glyphicon glyphicon-user"></span> 下属的请假申请
+    </a>
+    {% endif %}
+    {% if g.user.is_HR_leader() or g.user.is_OPS() or g.user.is_super_leader()  %}
+    <a class="list-group-item" href="{{url_for('account_leave.leaves')}}">
+        <span class="glyphicon glyphicon-user"></span> 所有请假列表
+    </a>
+    {% endif %}
+{% endblock %}
