@@ -431,11 +431,11 @@ class Leave(db.Model, BaseModelMixin):
 
     @property
     def start_time_cn(self):
-        return self.start_time.strftime('%Y-%m-%d')
+        return self.start_time.strftime('%Y-%m-%d %H')
 
     @property
     def end_time_cn(self):
-        return self.end_time.strftime('%Y-%m-%d')
+        return self.end_time.strftime('%Y-%m-%d %H')
 
     @property
     def create_time_cn(self):

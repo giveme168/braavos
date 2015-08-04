@@ -110,9 +110,9 @@ def create(user_id):
         status = request.values.get('status')
         leave = Leave.add(type=form.type.data,
                           start_time=datetime.datetime.strptime(
-                              request.values.get('start'), '%Y-%m-%d'),
+                              request.values.get('start'), '%Y-%m-%d %H'),
                           end_time=datetime.datetime.strptime(
-                              request.values.get('end'), '%Y-%m-%d'),
+                              request.values.get('end'), '%Y-%m-%d %H'),
                           rate_day=request.values.get(
                               'day', '0') + '-' + request.values.get('half', '1'),
                           reason=form.reason.data,
@@ -127,7 +127,9 @@ def create(user_id):
             apply_leave_signal.send(
                 current_app._get_current_object(), leave=leave)
         return redirect(url_for('account_leave.index', user_id=user_id))
-    return tpl('/account/leave/create.html', form=form, leave=None)
+    days = [{'key': k, 'value': k} for k in range(1, 21)]
+    days += [{'key': k, 'value': k} for k in [30, 98, 113, 128]]
+    return tpl('/account/leave/create.html', form=form, leave=None, days=days)
 
 
 @account_leave_bp.route('/<user_id>/<lid>/delete')
@@ -159,9 +161,9 @@ def update(user_id, lid):
         status = request.values.get('status')
         leave.type = form.type.data
         leave.start_time = datetime.datetime.strptime(
-            request.values.get('start'), '%Y-%m-%d'),
+            request.values.get('start'), '%Y-%m-%d %H'),
         leave.end_time = datetime.datetime.strptime(
-            request.values.get('end'), '%Y-%m-%d'),
+            request.values.get('end'), '%Y-%m-%d %H'),
         leave.rate_day = request.values.get(
             'day', '0') + '-' + request.values.get('half', '1'),
         leave.reason = form.reason.data
@@ -179,7 +181,9 @@ def update(user_id, lid):
     form.type.data = leave.type
     form.reason.data = leave.reason
     form.senders.data = [u.id for u in leave.senders]
-    return tpl('/account/leave/create.html', form=form, leave=leave)
+    days = [{'key': k, 'value': k} for k in range(1, 21)]
+    days += [{'key': k, 'value': k} for k in [30, 98, 113, 128]]
+    return tpl('/account/leave/create.html', form=form, leave=leave, days=days)
 
 
 @account_leave_bp.route('/<lid>/info', methods=['GET', 'POST'])
