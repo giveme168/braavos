@@ -1,0 +1,9 @@
+{% extends "/order_base.html" %}
+{% from 'order_form_douban.html' import order_douban_form %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>新建豆瓣订单</h3>
+     {{ order_douban_form(form) }}
+</div>
+{% endblock %}

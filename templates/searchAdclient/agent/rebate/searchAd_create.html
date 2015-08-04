@@ -1,0 +1,51 @@
+{% extends "/searchAd_client_base.html" %}
+{% block title %} 代理/直客返点信息列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>新建 {{agent.name}} 返点信息</h3>
+    <form class="form form-horizontal" method="POST" action="{{url_for('searchAd_client.agent_rebate_create', agent_id=agent.id)}}" onsubmit="return check_form(this);">
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">执行年 : </label>
+          <div class="col-sm-4">
+            <select name="year" id="year" style="width:120px;">
+                {% for k in range(0, 10) %}
+                <option value="{{2014+k}}">{{2014+k}}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">致趣返点信息 : </label>
+          <div class="col-sm-6">
+            <input type="number" name="inad_rebate" step="any" id="inad_rebate" class="form-control bra-form-control" placeholder="请输入数字" />
+            <span style="color:red;" class="tips">%</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">豆瓣返点信息 : </label>
+          <div class="col-sm-6">
+            <input type="number" name="douban_rebate" step="any" id="douban_rebate" class="form-control bra-form-control" placeholder="请输入数字" />
+            <span style="color:red;" class="tips">%</span>
+          </div>
+        </div>
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        <a href="{{url_for('searchAd_client.agent_rebate', agent_id=agent.id)}}" class="btn btn-primary btn-sm col-md-offset-2">返回</a>
+    </from>
+</div>
+<script>
+function check_form(obj){
+    if (obj.inad_rebate.value == ''){
+        alert('请输入致趣返点信息')
+        obj.inad_rebate.focus()
+        return false;
+    }
+    if (obj.douban_rebate.value == ''){
+        alert('请输入豆瓣返点信息')
+        obj.douban_rebate.focus()
+        return false;
+    }
+    return true;
+}
+</script>
+{% endblock %}

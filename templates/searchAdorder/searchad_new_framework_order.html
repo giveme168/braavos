@@ -1,0 +1,9 @@
+{% extends "/order_base.html" %}
+{% from 'order_form_framework.html' import order_framework_form %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>新建框架</h3>
+     {{ order_framework_form(form) }}
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "/order_base.html" %}
+{% from 'order_form_douban.html' import order_douban_form %}
+{% from 'order_form_contract.html' import order_contract_form %}
+{% from 'order_form_attachment.html' import douban_order_attachment %}
+{% from 'comments.html' import comments_box %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h4> {{ order.name }} </h4>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 豆瓣订单 </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {{ order_douban_form(douban_form, order) }}
+                    <br><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {{ douban_order_attachment(order) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 合同状态 </a>
+                </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {{order_contract_form(order, reminder_emails, True, now_date)}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>{{ comments_box(order) }}</div>
+</div>
+{% endblock %}

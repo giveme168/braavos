@@ -1,0 +1,19 @@
+{% extends "/searchAd_client_base.html" %}
+{% from 'form.html' import form_field %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>{{ title }}</h3>
+    <form class="form form-horizontal" method="POST">
+      {{form.csrf_token}}
+      {{ form_field(form.name) }}
+      {{ form_field(form.abbreviation) }}
+      {{ form_field(form.owner) }}
+      {{ form_field(form.tax_num) }}
+      {{ form_field(form.address) }}
+      {{ form_field(form.phone_num) }}
+      {{ form_field(form.bank) }}
+      {{ form_field(form.bank_num) }}
+      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+</div>
+{% endblock %}

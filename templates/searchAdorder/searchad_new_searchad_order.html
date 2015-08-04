@@ -1,0 +1,9 @@
+{% extends "/searchad_order_base.html" %}
+{% from 'searchad_order_form_client.html' import new_order_client_form %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>新建客户订单</h3>
+     {{ new_order_client_form(form, mediums) }}
+</div>
+{% endblock %}

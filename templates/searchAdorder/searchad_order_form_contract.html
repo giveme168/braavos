@@ -1,0 +1,222 @@
+{% from 'form.html' import form_field %}
+{% macro order_contract_form(order, reminder_emails, douban_contract=False, now_date=None) -%}
+<form class="form form-horizontal" method="POST">
+  {% if g.user.is_contract() %}
+  <input class="hide" name="info_type" value="2"/>
+  <div class="form-group">
+    <label for="name" class="col-sm-4 control-label">合同号申请状态 : </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{order.contract_status_cn}}</label>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="name" class="col-sm-4 control-label">致趣合同号 : </label>
+    <div class="col-sm-8">
+        <input class="form-control bra-form-control" name="base_contract" type="text" value="{{order.contract}}"/>
+        {% if order.contract_generate %}
+        <button class="btn btn-sm btn-default btn-generator" data-contract="{{order.get_default_contract()}}">生成</button>
+        {% endif %}
+        {% if douban_contract %}
+        <a class="btn btn-info btn-sm" href="{{order.douban_contract_apply_path()}}">向豆瓣申请</a>
+        {% endif %}
+    </div>
+  </div>
+  {% for mo in order.medium_orders %}
+  <div class="form-group">
+    <label for="name" class="col-sm-4 control-label">[致趣-{{mo.medium.name}}] {{mo.start_date_cn}} 合同号 : </label>
+    <div class="col-sm-8">
+      <input class="form-control bra-form-control" name="medium_contract_{{mo.id}}"type="text" value="{{mo.medium_contract}}"/>
+      <button class="btn btn-sm btn-default btn-generator" data-contract="{{mo.get_default_contract()}}">生成</button>
+    </div>
+  </div>
+  {% endfor %}
+  {% for o in order.associated_douban_orders %}
+  <div class="form-group">
+    <label for="name" class="col-sm-4 control-label">[{{o.name}}-豆瓣] {{o.medium_order.start_date_cn}} 合同号 : </label>
+    <div class="col-sm-8">
+      <input class="form-control bra-form-control" name="douban_contract_{{o.id}}"type="text" value="{{o.contract}}"/>
+      <a class="btn btn-info btn-sm" href="{{o.douban_contract_apply_path()}}">向豆瓣申请</a>
+    </div>
+  </div>
+  {% endfor %}
+  {% if order.__tablename__ == 'bra_framework_order' %}
+  <div class="form-group">
+    <label for="name" class="col-sm-4 control-label">豆瓣合同号 : </label>
+    <div class="col-sm-8">
+      <input class="form-control bra-form-control" name="douban_contract"type="text" value="{{order.douban_contract or ''}}"/>
+      <a class="btn btn-info btn-sm" href="{{order.douban_contract_apply_path()}}">向豆瓣申请</a>
+    </div>
+  </div>
+  {% endif %}
+  <input type="submit" class="btn btn-primary btn-sm col-md-offset-4" value="保存"/>
+  {% else %}
+  <div class="form-group">
+    <label for="name" class="col-sm-4 control-label">合同号申请状态 : </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{order.contract_status_cn}}</label>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="name" class="col-sm-4 control-label">订单合同号 : </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{order.contract}}</label>
+    </div>
+  </div>
+  {% for mo in order.medium_orders %}
+  <div class="form-group">
+    <label for="name" class="col-sm-4 control-label">[致趣-{{mo.medium.name}}] 合同号 : </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{mo.medium_contract}}</label>
+    </div>
+  </div>
+  {% endfor %}
+  {% for o in order.associated_douban_orders %}
+  <div class="form-group">
+    <label for="name" class="col-sm-4 control-label">[{{o.name}}-豆瓣] 合同号 : </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{o.contract}}</label>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+</form>
+{% if order.medium_orders %}
+<hr>
+<form class="form form-horizontal">
+  {% for mo in order.medium_orders %}
+  <div class="form-group">
+    <label class="col-sm-4 control-label">[致趣-{{mo.medium.name}}] 预估ECPM (元): </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{"%.1f" % mo.sale_ECPM}}</label>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% for o in order.associated_douban_orders %}
+  <div class="form-group">
+    <label class="col-sm-4 control-label">[{{o.name}}-豆瓣] 预估ECPM (元): </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{"%.1f" % o.sale_ECPM}}</label>
+    </div>
+  </div>
+  {% endfor %}
+</form>
+{% elif order.sale_ECPM %}
+<hr>
+<form class="form form-horizontal">
+  <div class="form-group">
+    <label class="col-sm-4 control-label">豆瓣订单预估ECPM (元): </label>
+    <div class="col-sm-8">
+        <label style="height: 34px; padding: 6px 12px;">{{"%.1f" % order.sale_ECPM}}</label>
+    </div>
+  </div>
+</form>
+{% endif %}
+<hr>
+<div class="col-md-8">
+  <form class="form form-horizontal" id="contract-form" method="POST" action="{{order.contract_path()}}">
+    <div class="form-group">
+        <label for="email" class="col-sm-2 control-label">邮箱 : </label>
+        <div class="col-sm-10">
+            <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要通知人员的邮箱">
+              {% for u in reminder_emails %}
+              <option value="{{u[1]}}">{{u[0]}}</option>
+              {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="msg" class="col-sm-2 control-label">留言 : </label>
+        <div class="col-sm-10">
+            <textarea class="form-control bra-form-control" id="msg"
+            name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">操作 : </label>
+        <div class="col-sm-6">
+            {% if order.media_apply %}
+              {% if order.contract_status == 0 and order.can_admin(g.user) %}
+              <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请利润分配</button>
+              {% endif %}
+              {% if order.contract_status in [6, 3] and g.user.is_media() %}
+              <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请审批</button>
+              {% endif %} 
+            {% else %}
+              {% if order.contract_status in [0, 3] and order.can_admin(g.user) %}
+              <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请审批</button>
+              {% endif %}
+            {% endif %}
+            {% if order.contract_status == 1 and g.user.is_leader() %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="3">通过申请</button>
+            <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="4">拒绝申请</button>
+            {% endif %}
+            {% if order.contract_status == 1 and order.can_admin(g.user) %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">再次申请审批</button>
+            {% endif %}
+            {% if order.contract_status == 2 and g.user.is_leader() %}
+              {% if order.can_edit_contract_time() %}
+                <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="0">驳回</button>
+              {% endif %}
+            {% endif %}
+            {% if order.contract_status == 2 and order.can_admin(g.user) %}
+              {% if order.can_edit_contract_time() %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="0">撤回</button>
+              {% endif %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="5">申请打印</button>
+            {% endif %}
+            {% if order.contract_status == 4 and order.can_admin(g.user) %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="5">再次申请打印</button>
+            {% endif %}
+            {% if order.contract_status == 4 and g.user.is_contract() %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="6">打印完毕</button>
+            {% endif %}
+            {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 9]%}
+              {% if order.can_edit_contract_time() %}
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">申请撤单</button>
+              {% endif %}
+            {% endif %}
+            {% if order.contract_status == 7 %}
+              {%if order.can_admin(g.user) %}
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">再次申请撤单</button>
+              {% endif %}
+              {% if g.user.is_leader() %} 
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="8">确认撤单</button>
+              {% endif %}
+            {% endif %}
+            {% if order.contract_status == 8 %}
+              {% if g.user.is_leader() %} 
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="8">再次确认撤单</button>
+              {% endif %}
+              {% if g.user.is_super_leader() %}
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="9">同意撤单</button>
+              {% endif %}
+            {% endif %}
+        </div>
+        <!--
+        <div class="col-md-4">
+            <button class="btn btn-sm btn-info contract-submit" type="submit" name="action" value="7">留言</button>
+            <span style="font-size: 10px; color:gray;">申请之后不需要再留言</span>
+        </div>
+        -->
+    </div>
+  </form>
+</div>
+<script>
+ $(".contract-submit").click(function(e){
+   var actionVal = $(this).val();
+   var email = $("#contract-email").val();
+   var msg = $("#msg").val();
+   if(actionVal == '2' || actionVal == '4' || actionVal == '7'){
+     if(msg == ""){
+         e.preventDefault();
+         alert("请填写理由！");
+      }
+   }
+ });
+ $(".btn-generator").click(function(e){
+      e.preventDefault();
+      $(this).parent().find("input").val($(this).data("contract"));
+ });
+</script>
+{%- endmacro %}

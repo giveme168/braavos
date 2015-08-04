@@ -1,0 +1,30 @@
+{% extends "/searchAd_client_base.html" %}
+{% block title %}搜索广告-代理/直客全称{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3> 代理公司
+        <a class="btn btn-default btn-sm" href="{{url_for('searchAd_client.new_agent')}}">新建</a>
+    </h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>#id</th>
+            <th>名称</th>
+            <th>所属集团</th>
+            {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_media_leader() %}
+            <th>操作</th>
+            {% endif %}
+        </tr>
+        {% for a in agents %}
+        <tr>
+            <td>{{a.id}}</td>
+            <td><a href="{{url_for("searchAd_client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
+            <td><a href="{{url_for("searchAd_client.group_detail", group_id=a.group.id)}}">{{a.group.name}}</a></td>
+            {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_media_leader() %}
+                <td><a href="{{url_for('searchAd_client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
