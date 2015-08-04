@@ -23,6 +23,26 @@
     <a class="list-group-item" href="{{url_for('order.new_douban_order')}}">
         <span class="glyphicon glyphicon-plus"></span> 新建直签豆瓣订单
     </a>
+    <!-- 增加搜索广告订单 -->
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 搜索广告订单</li>
+    <a class="list-group-item" href="{{url_for('searchAd_order.my_searchAd_orders')}}">
+      <span class="glyphicon glyphicon-th-list"></span> 我的搜索广告订单
+    </a>
+    <a class="list-group-item" href="{{url_for('searchAd_order.searchAd_orders')}}">
+        <span class="glyphicon glyphicon-th-list"></span> 全部搜索广告订单
+    </a>
+    <a class="list-group-item" href="{{url_for('searchAd_order.new_searchAd_order')}}">
+        <span class="glyphicon glyphicon-plus"></span> 新建搜索广告订单
+    </a>
+    {% elif g.user.is_searchad_member()  %}
+    <!-- 增加搜索广告订单 -->
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 搜索广告订单</li>
+    <a class="list-group-item" href="{{url_for('searchAd_order.my_searchAd_orders')}}">
+      <span class="glyphicon glyphicon-th-list"></span> 我的搜索广告订单
+    </a>
+    <a class="list-group-item" href="{{url_for('searchAd_order.new_searchAd_order')}}">
+        <span class="glyphicon glyphicon-plus"></span> 新建搜索广告订单
+    </a>
     {% else %}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 新媒体</li>
     <a class="list-group-item" href="{{url_for('order.my_orders')}}">

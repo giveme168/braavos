@@ -155,12 +155,12 @@
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">再次申请审批</button>
             {% endif %}
             {% if order.contract_status == 2 and g.user.is_leader() %}
-              {%  if order.create_time.strftime('%Y%m') == now_date.strftime('%Y%m') %}
+              {% if order.can_edit_contract_time() %}
                 <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="0">驳回</button>
               {% endif %}
             {% endif %}
             {% if order.contract_status == 2 and order.can_admin(g.user) %}
-              {%  if order.create_time.strftime('%Y%m') == now_date.strftime('%Y%m') %}
+              {% if order.can_edit_contract_time() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="0">撤回</button>
               {% endif %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="5">申请打印</button>
@@ -172,7 +172,7 @@
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="6">打印完毕</button>
             {% endif %}
             {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 9]%}
-              {% if order.create_time.strftime('%Y%m') == now_date.strftime('%Y%m') %}
+              {% if order.can_edit_contract_time() %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">申请撤单</button>
               {% endif %}
             {% endif %}
