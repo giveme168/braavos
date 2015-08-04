@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-import datetime
 from flask import Blueprint, request, redirect, url_for, abort, g
 from flask import render_template as tpl, flash, current_app
 from flask.ext.login import login_user, logout_user, current_user
 
 from . import admin_required
-from models.user import Team, User, USER_STATUS_CN, Leave, LEAVE_STATUS_NORMAL, LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS
-from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm, UserLeaveForm
+from models.user import Team, User, USER_STATUS_CN
+from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
 from config import DEFAULT_PASSWORD
-from libs.signals import password_changed_signal, apply_leave_signal
-from libs.paginator import Paginator
+from libs.signals import password_changed_signal
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
 page_num = 50
@@ -177,125 +175,3 @@ def pwd_reset(user_id):
     user.set_password(DEFAULT_PASSWORD)
     user.save()
     return redirect(url_for('user.users'))
-
-
-@user_bp.route('/leaves')
-def leaves():
-    user_id = request.values.get('user_id', '')
-    page = int(request.values.get('p', 1))
-    type = request.values.get('type', '')
-    start = request.values.get('start', '')
-    end = request.values.get('end', '')
-    filters = {}
-    if user_id:
-        filters['creator_id'] = user_id
-    if type:
-        filters['type'] = int(type)
-
-    if g.user.is_super_leader() or g.user.is_OPS_leader() or g.user.is_HR_leader():
-        leaves = [k for k in Leave.query.filter_by(
-            **filters).all() if k.status in [LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS]]
-    else:
-        leaves = [o for o in Leave.query.filter_by(
-            **filters).all() if g.user in o.creator.team_leaders and
-            o.status in [LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS]]
-    if start and end:
-        start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
-        end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
-        leaves = [k for k in leaves if k.start_time >=
-                  start_time and k.start_time < end_time]
-
-    paginator = Paginator(leaves, 50)
-    try:
-        leaves = paginator.page(page)
-    except:
-        leaves = paginator.page(paginator.num_pages)
-    return tpl('/leave/leaves.html', leaves=leaves, user_id=user_id, type=type, start=start,
-               params="&user_id=%s&type=%s&start=%s&end=%s" % (user_id, type, start, end), end=end, page=page)
-
-
-@user_bp.route('/<user_id>/leave')
-def leave(user_id):
-    page = int(request.values.get('p', 1))
-    leaves = [k for k in Leave.all() if k.creator.id == int(user_id)]
-    paginator = Paginator(leaves, 1)
-    try:
-        leaves = paginator.page(page)
-    except:
-        leaves = paginator.page(paginator.num_pages)
-    return tpl('/leave/user_leave.html', leaves=leaves, page=page)
-
-
-@user_bp.route('/<user_id>/leave/create', methods=['GET', 'POST'])
-def leave_create(user_id):
-    form = UserLeaveForm(request.form)
-    if request.method == 'POST':
-        status = request.values.get('status')
-        Leave.add(type=form.type.data,
-                  start_time=datetime.datetime.strptime(
-                      request.values.get('start'), '%Y-%m-%d'),
-                  end_time=datetime.datetime.strptime(
-                      request.values.get('end'), '%Y-%m-%d'),
-                  rate_day=request.values.get(
-                      'day', '0') + '-' + request.values.get('half', '1'),
-                  reason=form.reason.data,
-                  status=status,
-                  senders=User.gets(form.senders.data),
-                  creator=g.user,
-                  create_time=datetime.date.today())
-        if int(status) == LEAVE_STATUS_NORMAL:
-            flash(u'添加成功', 'success')
-        else:
-            flash(u'已发送申请', 'success')
-        return redirect(url_for('user.leave', user_id=user_id))
-    return tpl('/leave/user_leave_create.html', form=form, leave=None)
-
-
-@user_bp.route('/<user_id>/leave/<lid>/delete')
-def leave_delete(user_id, lid):
-    Leave.get(lid).delete()
-    flash(u'删除成功', 'success')
-    return redirect(url_for('user.leave', user_id=user_id))
-
-
-@user_bp.route('/<user_id>/leave/<lid>/status')
-def leave_status(user_id, lid):
-    status = int(request.values.get('status', 1))
-    leave = Leave.get(lid)
-    leave.status = status
-    leave.save()
-    flash(leave.status_cn, 'success')
-    apply_leave_signal.send(current_app._get_current_object(), leave=leave)
-    if status == LEAVE_STATUS_APPLY:
-        return redirect(url_for('user.leave', user_id=user_id))
-    else:
-        return redirect(url_for('user.leaves'))
-
-
-@user_bp.route('/<user_id>/leave/<lid>/update', methods=['GET', 'POST'])
-def leave_update(user_id, lid):
-    leave = Leave.get(lid)
-    form = UserLeaveForm(request.form)
-    if request.method == 'POST':
-        status = request.values.get('status')
-        leave.type = form.type.data
-        leave.start_time = datetime.datetime.strptime(
-            request.values.get('start'), '%Y-%m-%d'),
-        leave.end_time = datetime.datetime.strptime(
-            request.values.get('end'), '%Y-%m-%d'),
-        leave.rate_day = request.values.get(
-            'day', '0') + '-' + request.values.get('half', '1'),
-        leave.reason = form.reason.data
-        leave.status = status
-        leave.senders = User.gets(form.senders.data)
-        leave.create_time = datetime.date.today()
-        leave.save()
-        if int(status) == LEAVE_STATUS_APPLY:
-            flash(u'已发送申请', 'success')
-        else:
-            flash(u'修改成功', 'success')
-        return redirect(url_for('user.leave', user_id=user_id))
-    form.type.data = leave.type
-    form.reason.data = leave.reason
-    form.senders.data = [u.id for u in leave.senders]
-    return tpl('/leave/user_leave_create.html', form=form, leave=leave)

@@ -1,0 +1,54 @@
+{% extends "/account/account_out_base.html" %}
+{% block title %}请假列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>我的外出报备列表
+        <a class="btn btn-sm btn-default" href="{{url_for('account_out.create')}}">填写外出报备</a>
+    </h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>创建人</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>公司名称</th>
+            <th>地点</th>
+            <th>原因</th>
+            <th>状态</th>
+            <th width="15%">操作</th>
+        </tr>
+        {% for o in outs %}
+        <tr>
+            <td>{{o.creator.name}}</td>
+            <td>{{o.start_time_cn}}</td>
+            <td>{{o.end_time_cn}}</td>
+            <td>{{o.m_persion_cn}}</td>
+            <td>{{o.address}}</td>
+            <td>{{o.reason}}</td>
+            <td>{{o.status_cn}}</td>
+            <td>
+               {% if o.status == 0 %}
+               <a href="{{url_for('account_out.update', oid=o.id)}}">修改</a></br>
+               <a href="{{url_for('account_out.status', oid=o.id)}}?status=1">发送报备邮件</a></br>
+               <a href="{{url_for('account_out.delete', oid=o.id)}}">删除</a>
+               {% elif o.status == 1 %}
+               <a href="{{url_for('account_out.meeting_s', oid=o.id)}}">填写会议纪要</a><br/>
+               <a href="{{url_for('account_out.status', oid=o.id)}}?status=10">撤回</a>
+               {% elif o.status == 2 %}
+               <a href="{{url_for('account_out.meeting_s', oid=o.id)}}">修改会议纪要</a><br/>
+               {% endif %} 
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% set pages = outs %}
+    {% include "pagination.html" %}
+</div>
+<script>
+function check_del(url){ 
+    if(confirm("确认要删除这条信息吗？")){ 
+        window.location.href = url
+    }
+}
+</script>
+{% endblock %}

@@ -534,7 +534,7 @@ by %s\n
         else:
             count = len(self.direct_sales)
         if user.team.location == 3:
-            count = len(set(self.agent_sales + self.direct_sales))
+            count = len(self.agent_sales + self.direct_sales)
         if sale_type == 'normal':
             count = 1
         pre_reports = DoubanOrderExecutiveReport.query.filter_by(douban_order=self)
@@ -605,7 +605,7 @@ by %s\n
             count = len(self.direct_sales)
             user = self.direct_sales[0]
         if user.team.location == 3:
-            count = len(set(self.agent_sales + self.direct_sales))
+            count = len(self.agent_sales + self.direct_sales)
         return self.money / count
 
     @property

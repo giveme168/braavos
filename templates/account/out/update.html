@@ -1,0 +1,149 @@
+{% extends "/account/account_out_base.html" %}
+{% from 'form.html' import form_field %}
+{% block title %}填写外出报备表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>修改外出报备表</h3>
+    <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
+        <input type="hidden" value="1" name="m_persion_type" id="m_persion_type">
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="start_time" name="start_time" readonly="readonly" value="{{out.start_time_cn}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:ii">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="end_time" name="end_time" value="{{out.end_time_cn}}" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:ii">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">公司名称 : </label>
+          <div class="col-sm-4" id="insert_m_person">
+            {% if g.user.is_out_saler %}
+            <select value='m_persion' id="m_persion" name="m_persion" class="form-control bra-form-control" onchange="check_m_persion(this)">
+                {% for k in m_persions %}
+                <option value='{{k.key}}'>{{k.name}}</option>
+                {% endfor %}
+            </select>
+            {% else %}
+            <input type="text" id="m_persion" name="m_persion" value="" class="form-control bra-form-control">
+            {% endif %}
+          </div>
+        </div>
+         <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">会见人 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="persions" name="persions" value="{{out.persions}}" class="form-control bra-form-control" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">地点 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="address" name="address" value="{{out.address}}" class="form-control bra-form-control" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">外出原因 : </label>
+          <div class="col-sm-4">
+            <textarea type="text" id="reason" name="reason" class="form-control bra-form-control">{{out.reason}}</textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">会议纪要 : </label>
+          <div class="col-sm-4">
+            <textarea type="text" readonly="readonly" placeholder="暂不用填写，请外出回来后及时填写"class="form-control bra-form-control"></textarea>
+          </div>
+        </div>
+        <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_out.index')}}"/>返回</a>
+        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2" name="action" value='0'/>保存不发申请</button>
+        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2" name="action" value='1'/>保存并发送报备邮件</button>
+    </form>
+</div>
+<script>
+Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+function checkform(obj){
+    var start = obj.start_time.value
+    var end = obj.end_time.value
+    var reason = obj.reason.value
+    var m_persion = obj.m_persion.value
+    if (start == ''){
+        alert('请选择外出开始时间')
+        obj.start.focus()
+        return false;
+    }else if(end == ''){
+        alert('请选择外出结束时间')
+        obj.end.focus()
+        return false;
+    }else if(m_persion == ''){
+        alert('请填写会见人')
+        obj.m_persion.focus()
+        return false;
+    }else if(reason == ''){
+        alert('请说明外出原因')
+        obj.reason.focus()
+        return false;
+    }
+    return true;
+}
+
+function check_m_persion(obj){
+    if(parseInt(obj.value)==100){
+        $('#insert_m_person').empty()
+        $('#insert_m_person').html('<input type="text" id="m_persion" name="m_persion" value="" class="form-control bra-form-control">')
+        $('#m_persion_type').val('2')
+    }
+}
+
+$(function(){
+    {% if g.user.is_out_saler %}
+    $('#m_persion_type').val('1')
+    {% else %}
+    $('#m_persion_type').val('2')
+    {% endif %}
+    {% if out.m_persion_type == 1 %}
+        $('#m_persion').val('{{out.m_persion}}')
+        $("#m_persion").trigger("chosen:updated");
+    {% else %}
+        $('#insert_m_person').empty()
+        $('#insert_m_person').html('<input type="text" id="m_persion" name="m_persion" value="" class="form-control bra-form-control">')
+        $('#m_persion_type').val('2')
+        $('#m_persion').val('{{out.m_persion}}')
+    {% endif %}    
+    
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 0,
+    });
+    
+    $("#start_time").change(function(e){
+        var end_date = $('#end_time').val()
+        if (end_date == ''){
+            var endDate = new Date($('#start_time').val());
+            endDate.setDate(endDate.getDate()); 
+            $('#end_time').val(endDate.Format("yyyy-MM-dd hh:mm"))
+            $('#end_time').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd hh:mm"));
+        }
+    });
+})
+</script>
+{% endblock %}

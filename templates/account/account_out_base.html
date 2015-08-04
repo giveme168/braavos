@@ -1,0 +1,17 @@
+{% extends "/site_base.html" %}
+
+{% block left_box%}
+    <a class="list-group-item" href="{{url_for('account_out.index')}}">
+        <span class="glyphicon glyphicon-user"></span> 我的外出报备
+    </a>
+    {% if g.user.is_kpi_leader %}
+    <a class="list-group-item" href="{{url_for('account_out.underling')}}">
+        <span class="glyphicon glyphicon-user"></span> 下属的外出报备
+    </a>
+    {% endif %}
+    {% if g.user.is_HR_leader() or g.user.is_OPS() or g.user.is_super_leader()  %}
+    <a class="list-group-item" href="{{url_for('account_out.outs')}}">
+        <span class="glyphicon glyphicon-user"></span> 所有外出报备列表
+    </a>
+    {% endif %}
+{% endblock %}
