@@ -177,6 +177,9 @@ class User(db.Model, BaseModelMixin):
     def is_OPS_leader(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_OPS_LEADER
 
+    def is_OPS(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_OPS
+
     def is_HR_leader(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_HR_LEADER
 
@@ -296,6 +299,10 @@ class User(db.Model, BaseModelMixin):
         return [k for k in cls.all() if k.team.location == location
                 and k.team.type in [TEAM_TYPE_DIRECT_SELLER, TEAM_TYPE_LEADER]]
 
+    @property
+    def is_out_saler(self):
+        return self.team.type in [TEAM_TYPE_AGENT_SELLER, TEAM_TYPE_DIRECT_SELLER, TEAM_TYPE_LEADER]
+
 
 team_admins = db.Table('team_admin_users',
                        db.Column(
@@ -396,6 +403,7 @@ class Leave(db.Model, BaseModelMixin):
     creator = db.relationship(
         'User', backref=db.backref('creator_leave', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': id.desc()}
 
     def __init__(self, type, start_time=None, end_time=None, rate_day='0-1', reason='',
                  senders=None, creator=None, create_time=None, status=1):
@@ -466,6 +474,81 @@ class Leave(db.Model, BaseModelMixin):
                 return u'1天'
             else:
                 return u'0天'
+
+
+OUT_CREATOR_TYPE_SALER = 1
+OUT_CREATOR_TYPE_NORMAL = 2
+OUT_CREATOR_TYPE_CN = {
+    OUT_CREATOR_TYPE_SALER: u'销售',
+    OUT_CREATOR_TYPE_NORMAL: u'普通'
+}
+
+OUT_STATUS_NEW = 0
+OUT_STATUS_APPLY = 1
+OUT_STATUS_MEETED = 2
+OUT_STATUS_CN = {
+    OUT_STATUS_NEW: u'新添加',
+    OUT_STATUS_APPLY: u'外出已报备',
+    OUT_STATUS_MEETED: u'会议纪要填写完毕'
+}
+
+OUT_M_PERSION_TYPE_NORMAL = 1
+OUT_M_PERSION_TYPE_OTHER = 2
+
+
+class Out(db.Model, BaseModelMixin):
+    __tablename__ = 'user_out'
+    id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
+    address = db.Column(db.String(300))
+    reason = db.Column(db.Text())             # 外出原因
+    meeting_s = db.Column(db.Text())          # 会议纪要
+    persions = db.Column(db.String(300))      # 会见人
+    m_persion = db.Column(db.String(200))     # 公司名称
+    m_persion_type = db.Column(db.Integer)    # 公司名称类型
+    creator_type = db.Column(db.Integer)      # 创建人类型：销售 or 普通
+    status = db.Column(db.Integer)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('creator_out', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': id.desc()}
+
+    def __init__(self, start_time, end_time, reason, m_persion, creator, m_persion_type,
+                 address, persions, meeting_s='', creator_type=1, status=1, create_time=None):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.address = address
+        self.persions = persions
+        self.reason = reason
+        self.meeting_s = meeting_s
+        self.m_persion = m_persion
+        self.m_persion_type = m_persion_type
+        self.creator_type = creator_type
+        self.status = status
+        self.creator = creator
+        self.create_time = create_time or datetime.date.today()
+
+    @property
+    def start_time_cn(self):
+        return self.start_time.strftime('%Y-%m-%d %H:%M')
+
+    @property
+    def end_time_cn(self):
+        return self.end_time.strftime('%Y-%m-%d %H:%M')
+
+    @property
+    def status_cn(self):
+        return OUT_STATUS_CN[self.status]
+
+    @property
+    def m_persion_cn(self):
+        if self.m_persion_type == 1:
+            m_persion_p = self.m_persion.split('-')
+            return m_persion_p[2]
+        else:
+            return self.m_persion
 
 
 P_VERSION_ITEMS = [{'type': 1, 'name': u'2015上半年'}]

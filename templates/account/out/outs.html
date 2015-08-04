@@ -1,0 +1,99 @@
+{% extends "/account/account_out_base.html" %}
+{% block title %}外出报备列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>{{title}}</h3>
+    <div class="search">
+        <form class="form-inline" method="GET">
+            <div class="form-group">
+                <label for="">下属</label>
+                <select id="user_id" name="user_id" placeholder="下属" style="width:150px;">
+                    <option value="0">全部</value>
+                    {% for k in under_users %}
+                    <option value="{{k.uid}}">{{k.name}}</value>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="">开始时间</label>
+                <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:ii">
+            </div>
+            <div class="form-group">
+                <label for="">结束时间</label>
+                <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:ii">
+            </div>
+            <button type="submit" class="btn btn-sm btn-info">查询</button>
+        </form>
+    </div>
+    <br/>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>创建人</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>公司名称</th>
+            <th>地点</th>
+            <th>原因</th>
+            <th>状态</th>
+            <th width="15%">操作</th>
+        </tr>
+        {% for o in outs %}
+        <tr>
+            <td>{{o.creator.name}}</td>
+            <td>{{o.start_time_cn}}</td>
+            <td>{{o.end_time_cn}}</td>
+            <td>{{o.m_persion_cn}}</td>
+            <td>{{o.address}}</td>
+            <td>{{o.reason}}</td>
+            <td>{{o.status_cn}}</td>
+            <td>
+                <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% set pages = outs %}
+    {% include "pagination.html" %}
+</div>
+<script>
+Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+$(function(){
+    //$("#type option[value='{{type}}']").attr("selected","selected");  
+    $("#user_id").val("{{user_id}}")
+    $("#user_id").trigger("chosen:updated");
+    $('#start').val('{{start}}')
+    $('#end').val('{{end}}')
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 0,
+    });
+    $("#start").change(function(e){
+        var end_date = $('#end').val()
+        if (end_date == ''){
+            var endDate = new Date($('#start').val()+':00:00');
+            endDate.setDate(endDate.getDate()); 
+            $('#end').val(endDate.Format("yyyy-MM-dd hh:mm"))
+            $('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd hh:mm"));
+        }
+    });
+})
+</script>
+{% endblock %}
