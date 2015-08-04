@@ -214,6 +214,15 @@ class User(db.Model, BaseModelMixin):
             admins += k.admins
         return self in admins
 
+    def is_searchad_saler(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_SEARCH_AD_SELLER
+
+    def is_searchad_leader(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_SEARCH_AD_LEADER
+
+    def is_searchad_member(self):
+        return self.is_searchad_saler() or self.is_searchad_leader()
+
     @classmethod
     def gets_by_team_type(cls, team_type):
         return [x for x in cls.all_active() if x.team.type == team_type]
@@ -242,6 +251,12 @@ class User(db.Model, BaseModelMixin):
     def sales(cls):
         return (cls.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER) +
                 cls.gets_by_team_type(TEAM_TYPE_AGENT_SELLER) +
+                cls.leaders())
+
+    @classmethod
+    def searchAd_sales(cls):
+        return (cls.gets_by_team_type(TEAM_TYPE_SEARCH_AD_SELLER) +
+                cls.gets_by_team_type(TEAM_TYPE_SEARCH_AD_LEADER) +
                 cls.leaders())
 
     @classmethod

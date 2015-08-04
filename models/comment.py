@@ -44,6 +44,8 @@ class Comment(db.Model, BaseModelMixin):
         from .framework_order import FrameworkOrder
         from .item import AdItem
         from .material import Material
+        from searchAd.models.order import searchAdOrder
+        from searchAd.models.client_order import searchAdClientOrder
 
         TARGET_DICT = {
             'Order': Order,
@@ -52,6 +54,8 @@ class Comment(db.Model, BaseModelMixin):
             'FrameworkOrder': FrameworkOrder,
             'AdItem': AdItem,
             'Material': Material,
+            'searchAdOrder': searchAdOrder,
+            'searchAdClientOrder': searchAdClientOrder,
         }
 
         return TARGET_DICT[self.target_type].get(self.target_id)

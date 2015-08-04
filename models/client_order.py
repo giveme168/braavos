@@ -827,6 +827,14 @@ by %s\n
     def order_path(self):
         return url_for('order.order_info', order_id=self.id, tab_id=1)
 
+    def can_edit_contract_time(self, now_date=None):
+        if not now_date:
+            now_date = datetime.date.today()
+        if self.client_start.month > now_date.month:
+            return True
+        else:
+            return False
+
 
 class BackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_back_money'

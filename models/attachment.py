@@ -83,12 +83,18 @@ class Attachment(db.Model, BaseModelMixin):
         from .douban_order import DoubanOrder
         from .associated_douban_order import AssociatedDoubanOrder
 
+        # add for searchAd team
+        from searchAd.models.order import searchAdOrder
+        from searchAd.models.client_order import searchAdClientOrder
+
         TARGET_DICT = {
             'Order': Order,
             'ClientOrder': ClientOrder,
             'FrameworkOrder': FrameworkOrder,
             'DoubanOrder': DoubanOrder,
             'AssociatedDoubanOrder': AssociatedDoubanOrder,
+            'searchAdOrder': searchAdOrder,
+            'searchAdClientOrder': searchAdClientOrder
         }
 
         return TARGET_DICT[self.target_type].get(self.target_id)

@@ -90,7 +90,7 @@ def new_order():
                 order.medium_orders = order.medium_orders + [mo]
                 order.add_comment(g.user, u"新建了媒体订单: %s %s元" %
                                   (medium.name, mo.sale_money))
-            order.save()
+        order.save()
         flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
         return redirect(order.info_path())
     else:
