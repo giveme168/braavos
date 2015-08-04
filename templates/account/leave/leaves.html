@@ -8,7 +8,7 @@
         border:1px solid #ffffff;
     }
 </style>
-<div class="bra-main bra-box">
+<div class="bra-main bra-box" style="width:1200px;">
     <h3>{{title}}</h3>
     <div class="search">
         <form class="form-inline" method="GET">
@@ -23,6 +23,16 @@
                     <option value="5">产假</value>
                 </select>
             </div>
+            {% if title == '下属的请假申请列表' %}
+            <div class="form-group">
+                <label for="">状态</label>
+                <select id="status" name="status" placeholder="状态" style="width:150px;">
+                    <option value="100">所有状态</option>
+                    <option value="2">申请中</value>
+                    <option value="3">通过申请</value>
+                </select>
+            </div>
+            {% endif %}
             <div class="form-group">
                 <label for="">下属</label>
                 <select id="user_id" name="user_id" placeholder="下属" style="width:150px;">
@@ -110,6 +120,8 @@ $(function(){
     //$("#type option[value='{{type}}']").attr("selected","selected");  
     $("#type").val("{{type}}")
     $("#type").trigger("chosen:updated");
+    $("#status").val("{{status}}")
+    $("#status").trigger("chosen:updated");
     $("#user_id").val("{{user_id}}")
     $("#user_id").trigger("chosen:updated");
     $('#start').val('{{start}}')
