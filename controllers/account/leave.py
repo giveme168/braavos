@@ -28,6 +28,10 @@ def leaves():
         end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
         leaves = [k for k in leaves if k.start_time >=
                   start_time and k.start_time < end_time]
+    if type:
+        leaves = [k for k in leaves if k.type == int(type)]
+    if user_id:
+        leaves = [k for k in leaves if k.creator.id == user_id]
 
     paginator = Paginator(leaves, 50)
     try:
@@ -59,6 +63,7 @@ def underling():
     user_id = int(request.values.get('user_id', 0))
     page = int(request.values.get('p', 1))
     type = int(request.values.get('type', 0))
+    status = int(request.values.get('status', 100))
     start = request.values.get('start', '')
     end = request.values.get('end', '')
 
@@ -77,6 +82,8 @@ def underling():
                   start_time and k.start_time < end_time]
     if type:
         leaves = [k for k in leaves if k.type == int(type)]
+    if status != 100:
+        leaves = [k for k in leaves if k.status == status]
 
     paginator = Paginator(leaves, 50)
     try:
@@ -84,8 +91,10 @@ def underling():
     except:
         leaves = paginator.page(paginator.num_pages)
     return tpl('/account/leave/leaves.html', leaves=leaves, user_id=user_id, type=type, start=start,
-               title=u'下属的请假申请列表', under_users=under_users,
-               params="&user_id=%s&type=%s&start=%s&end=%s" % (user_id, type, start, end), end=end, page=page)
+               title=u'下属的请假申请列表', under_users=under_users, status=status,
+               params="&user_id=%s&type=%s&start=%s&end=%s&status=%s" % (
+                   user_id, type, start, end, str(status)),
+               end=end, page=page)
 
 
 @account_leave_bp.route('/<user_id>')
