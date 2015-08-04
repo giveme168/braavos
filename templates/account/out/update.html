@@ -3,6 +3,12 @@
 {% block title %}填写外出报备表{% endblock %}
 
 {% block main_box %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+    }
+</style>
 <div class="bra-main bra-box">
     <h3>修改外出报备表</h3>
     <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
@@ -55,6 +61,12 @@
           <label for="client_end" class="col-sm-2 control-label">会议纪要 : </label>
           <div class="col-sm-4">
             <textarea type="text" readonly="readonly" placeholder="暂不用填写，请外出回来后及时填写"class="form-control bra-form-control"></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">默认收件人 : </label>
+          <div class="col-sm-6">
+            <pre>{{g.user.team_leaders_cn}}，admin@inad.com</pre>
           </div>
         </div>
         <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_out.index')}}"/>返回</a>
@@ -138,10 +150,10 @@ $(function(){
     $("#start_time").change(function(e){
         var end_date = $('#end_time').val()
         if (end_date == ''){
-            var endDate = new Date($('#start_time').val());
-            endDate.setDate(endDate.getDate()); 
-            $('#end_time').val(endDate.Format("yyyy-MM-dd hh:mm"))
-            $('#end_time').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd hh:mm"));
+            //var endDate = new Date($('#start_time').val());
+            //endDate.setDate(endDate.getDate()); 
+            $('#end_time').val($('#start_time').val())
+            $('#end_time').datetimepicker('setStartDate', $('#start_time').val());
         }
     });
 })
