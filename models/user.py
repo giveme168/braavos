@@ -224,7 +224,7 @@ class User(db.Model, BaseModelMixin):
         return self.is_admin() or self.team.type == TEAM_TYPE_SEARCH_AD_LEADER
 
     def is_searchad_member(self):
-        return self.is_searchad_saler() or self.is_searchad_leader()
+        return self.is_searchad_saler() or self.is_searchad_leader() or self.is_super_leader()
 
     @classmethod
     def gets_by_team_type(cls, team_type):

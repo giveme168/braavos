@@ -48,7 +48,7 @@ def request_user():
 
 @app.route('/')
 def index():
-    if g.user.is_searchad_member():
+    if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()):
         return redirect(url_for('searchAd_order.index'))
     return redirect(url_for('order.index'))
 
