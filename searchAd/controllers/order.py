@@ -7,8 +7,8 @@ from flask import render_template as tpl, flash, current_app
 from models.user import User, TEAM_LOCATION_CN
 from models.excel import Excel
 from models.attachment import Attachment
-from models.download import (download_excel_table_by_doubanorders,
-                             download_excel_table_by_frameworkorders)
+#from models.download import (download_excel_table_by_doubanorders,
+#                             download_excel_table_by_frameworkorders)
 
 from ..models.client import searchAdClient, searchAdGroup, searchAdAgent, searchAdAgentRebate
 from ..models.medium import searchAdMedium
@@ -25,7 +25,7 @@ from ..forms.order import ClientOrderForm, MediumOrderForm
 from libs.signals import contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
-from controllers.data_query.helpers.outsource_helpers import write_client_excel
+from controllers.data_query.helpers.outsource_helpers import write_searchAd_client_excel
 
 searchAd_order_bp = Blueprint('searchAd_order', __name__, template_folder='../../templates/searchAdorder')
 
@@ -443,7 +443,7 @@ def display_orders(orders, title, status_id=-1):
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
     if 'download' == request.args.get('action', ''):
-        return write_client_excel(orders)
+        return write_searchAd_client_excel(orders)
     else:
         paginator = Paginator(orders, ORDER_PAGE_NUM)
         try:
