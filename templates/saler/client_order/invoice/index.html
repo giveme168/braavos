@@ -162,7 +162,7 @@
           {% if invoice.invoice_status in [1, 4] %}
           <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">发票开具申请</button>
           {% elif invoice.invoice_status == 2 %}
-            {% if g.user.is_contract() or g.user.is_media()%}
+            {% if order.can_admin(g.user) %}
             <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">再次发票开具申请</button>
             {% endif %}
             {% if g.user.is_leader() %}
