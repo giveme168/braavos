@@ -12,6 +12,8 @@ from models.user import User
 from libs.files import files_set, attachment_set
 from libs.signals import contract_apply_signal
 from models.attachment import Attachment
+from searchAd.models.client_order import searchAdClientOrder
+from searchAd.models.order import searchAdOrder
 
 
 files_bp = Blueprint('files', __name__, template_folder='../templates/files')
@@ -83,6 +85,13 @@ def client_contract_upload():
     return attachment_upload(order, FILE_TYPE_CONTRACT)
 
 
+@files_bp.route('/searchAd_client/contract/upload', methods=['POST'])
+def searchAd_client_contract_upload():
+    order_id = request.values.get('order')
+    order = searchAdClientOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
+
+
 @files_bp.route('/attachment/<order_id>/<aid>/delete', methods=['GET'])
 def attachment_delete(order_id, aid):
     attachment = Attachment.get(aid)
@@ -99,12 +108,23 @@ def attachment_delete(order_id, aid):
         return redirect(url_for("files.associated_douban_order_files", order_id=order_id))
     elif target_type == 'FrameworkOrder':
         return redirect(url_for("files.framework_order_files", order_id=order_id))
+    elif target_type == 'searchAdClientOrder':
+        return redirect(url_for("files.searchAd_client_order_files", order_id=order_id))
+    elif target_type == 'searchAdOrder':
+        return redirect(url_for("files.searchAd_medium_order_files", order_id=order_id))
 
 
 @files_bp.route('/client/schedule/upload', methods=['POST'])
 def client_schedule_upload():
     order_id = request.values.get('order')
     order = ClientOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
+
+
+@files_bp.route('/searchAd_client/schedule/upload', methods=['POST'])
+def searchAd_client_schedule_upload():
+    order_id = request.values.get('order')
+    order = searchAdClientOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_SCHEDULE)
 
 
@@ -115,10 +135,24 @@ def medium_contract_upload():
     return attachment_upload(order, FILE_TYPE_CONTRACT)
 
 
+@files_bp.route('/searchAd_medium/contract/upload', methods=['POST'])
+def searchAd_medium_contract_upload():
+    order_id = request.values.get('order')
+    order = searchAdOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
+
+
 @files_bp.route('/medium/schedule/upload', methods=['POST'])
 def medium_schedule_upload():
     order_id = request.values.get('order')
     order = Order.get(order_id)
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
+
+
+@files_bp.route('/searchAd_medium/schedule/upload', methods=['POST'])
+def searchAd_medium_schedule_upload():
+    order_id = request.values.get('order')
+    order = searchAdOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_SCHEDULE)
 
 
@@ -195,6 +229,18 @@ def client_order_files(order_id):
 def medium_order_files(order_id):
     co = Order.get(order_id)
     return tpl("order_files.html", order=co)
+
+
+@files_bp.route('/searchAd_client_order/<order_id>/all_files', methods=['GET'])
+def searchAd_client_order_files(order_id):
+    order = searchAdClientOrder.get(order_id)
+    return tpl("order_files.html", order=order)
+
+
+@files_bp.route('/searchAd_medium_order/<order_id>/all_files', methods=['get'])
+def searchAd_medium_order_files(order_id):
+    order = searchAdOrder.get(order_id)
+    return tpl('order_files.html', order=order)
 
 
 @files_bp.route('/framework_order/<order_id>/all_files', methods=['get'])

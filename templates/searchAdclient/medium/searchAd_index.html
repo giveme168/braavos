@@ -1,0 +1,30 @@
+{% extends "/searchAd_client_base.html" %}
+{% block title %} 搜索广告-媒体列表{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3> 媒体列表
+        <a class="btn btn-default btn-sm" href="{{url_for('searchAd_client.new_medium')}}">新建</a>
+    </h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>#id</th>
+            <th>名称</th>
+            <th>媒体团队</th>
+            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+            <th>操作</th>
+            {% endif %}
+        </tr>
+        {% for m in mediums %}
+        <tr>
+            <td>{{m.id}}</td>
+            <td><a href="{{url_for('searchAd_client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
+            <td>{{m.owner.name}}</td>
+            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+                <td><a href="{{url_for('searchAd_client.medium_rebate', medium_id=m.id)}}">设置返点</a></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

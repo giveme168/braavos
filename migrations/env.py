@@ -20,7 +20,7 @@ from models.comment import Comment
 from models.attachment import Attachment
 from models.item import AdItem, AdSchedule
 from models.material import Material
-from models.medium import Medium, AdSize, AdUnit, AdPosition
+from models.medium import Medium, MediumRebate, AdSize, AdUnit, AdPosition
 from models.order import Order
 from models.client_order import ClientOrder
 from models.framework_order import FrameworkOrder
@@ -30,8 +30,15 @@ from models.delivery import Delivery
 from models.outsource import OutSourceTarget, OutSource
 from models.invoice import Invoice, AgentInvoice, AgentInvoicePay, \
     MediumInvoice, MediumInvoicePay, MediumRebateInvoice
-from models.medium import MediumRebate
 # target_metadata = mymodel.Base.metadata
+# models for searchAd
+from searchAd.models.client import searchAdClient, searchAdGroup, searchAdAgent, searchAdAgentRebate
+from searchAd.models.medium import searchAdMedium, searchAdMediumRebate
+from searchAd.models.client_order import searchAdClientOrder
+from searchAd.models.order import searchAdOrder
+from searchAd.models.invoice import searchAdInvoice, searchAdAgentInvoice, searchAdAgentInvoicePay, \
+    searchAdMediumInvoice, searchAdMediumInvoicePay, searchAdMediumRebateInvoice
+
 from flask import current_app
 config.set_main_option('sqlalchemy.url', current_app.config.get('SQLALCHEMY_DATABASE_URI'))
 target_metadata = current_app.extensions['migrate'].db.metadata

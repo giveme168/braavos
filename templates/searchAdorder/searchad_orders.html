@@ -1,0 +1,304 @@
+{% extends "/searchad_order_base.html" %}
+{% block title %}搜索广告-订单列表{% endblock %}
+
+{% macro all_items(orders) -%}
+<table class="table table-bordered">
+    <tr>
+        <th>代理/直客</th>
+        <th>客户</th>
+        <th>Campaign</th>
+        <th>合同金额</th>
+        <th>合同号</th>
+        <th>回款比例</th>
+        <th>回款日期</th>
+        <th>销售</th>
+        {#
+        <th>渠道销售</th>
+        #}
+        <th>区域</th>
+        <th>直签/代理</th>
+        <th>媒体订单</th>
+        <th>客户下单金额</th>
+        <th>给媒体/供应商下单金额</th>
+        <th>合同号</th>
+        <th>预估ECPM</th>
+        <th>添加时间</th>
+        <th>开始</th>
+        <th>结束</th>
+        <th>执行</th>
+        {#
+        {% if g.user.is_super_admin() %}
+        <th>排期</th>
+        {% endif %}
+        #}
+        {#
+        <th>豆瓣金额</th>
+        <th>豆瓣合同号</th>
+        #}
+        <th>合同号状态</th>
+        <th>操作</th>
+    </tr>
+    {% for o in orders %}
+    {% if now_date > o.reminde_date and o.back_money_percent != 100 %}
+    <tr style="border:2px solid #FF8888;">
+    {% else %}
+    <tr>
+    {% endif %}
+        <td>{{o.agent.name}}</td>
+        <td>{{o.client.name}}</td>
+        <td><a href="{{o.info_path()}}">{{o.campaign}}</a></td>
+        <td>{{o.money}}</td>
+        <td><a href="{{o.info_path()}}">{{o.contract or "无合同号"}}</a></td>
+        <td>{{o.back_money_percent}}%</td>
+        <td>{{o.reminde_date_cn}}</td>
+        <td>{{o.direct_sales_names}}</td>
+        {#
+        <td>{{o.agent_sales_names}}</td>
+        #}
+        <td>{{o.locations_cn}}</td>
+        <td>{{o.sale_type_cn}}</td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.medium.name}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.sale_money}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.medium_money2}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            <a href="{{o.info_path()}}">
+            {% for mo in o.medium_orders %}    
+            {{mo.medium_contract or "无合同号"}}
+            <br><br>
+            {% endfor %}
+            </a>
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{"%.1f" % (mo.medium_money / mo.sale_CPM) if (mo.medium_money and mo.sale_CPM) else "无预估"}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>{{o.create_time_cn}}</td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.start_date_cn}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.end_date_cn}} 
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.operater_names}} 
+            <br><br>
+            {% endfor %}
+        </td>
+        {#
+        {% if g.user.is_super_admin() %}
+        <td>
+            {% for mo in o.medium_orders %}    
+            <a href="{{mo.path()}}">排期设置</a>
+            <br><br>
+            {% endfor %}
+        </td>
+        {% endif %}
+        #}
+        {#
+        <td>
+            {% for ao in o.associated_douban_orders %}    
+            {{ao.money}}
+            <br><br>
+            {% endfor %}
+        </td>
+         <td>
+            {% for ao in o.associated_douban_orders %}    
+            {{ao.contract}}
+            <br><br>
+            {% endfor %}
+        </td>
+        #}
+        <td>{{o.contract_status_cn}}</td>
+        <td>
+            {% if g.user.is_super_admin() %}
+                {% if o.status == 0 %}
+                    <a href="{{url_for('searchAd_order.order_recovery', order_id=o.id)}}" style="color:red;">恢复</a>
+                {% else %}
+                    <a href="{{url_for('searchAd_order.order_delete', order_id=o.id)}}" style="color:red;">删除</a>
+                {% endif %}
+            {% endif %}
+            {#
+            {% if g.user.is_media() or g.user.is_contract() or g.user.is_super_admin() %}
+                {% if o.contract_status in [2,4,5] and o.contract %}
+                    {% if o.is_executive_report() %}
+                        <a href="{{url_for('order.executive_report', order_id=o.id)}}?rtype=reload">重新生成周报报表</a>
+                    {% else %}
+                        <a href="{{url_for('order.executive_report', order_id=o.id)}}">生成周报报表</a>
+                    {% endif %}
+                    
+                {% endif %}
+            {% endif %}
+            #}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{%- endmacro %}
+
+{% block main_box %}
+<div class="bra-main bra-box" style="width:2000px;">
+    <h3> {{title}}</h3>
+    <div class="search">
+        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
+        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
+            <select class="col-md-12" id="search_location" name="location" placeholder="区域">
+                {% for v, m in locations %}
+                    {% if v == location_id|int %}
+                    <option selected="" value="{{v}}">{{m}}</option>
+                    {% else %}
+                    <option value="{{v}}">{{m}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-1" style="padding:0;margin-right:5px;">
+            <select class="col-md-12" id="search_status" name="status" placeholder="合同状态">
+                {% for v, m in statuses %}
+                    {% if v == status_id|int %}
+                    <option selected="" value="{{v}}">{{m}}</option>
+                    {% else %}
+                    <option value="{{v}}">{{m}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-1" style="padding:0;margin-right:5px;">
+            <select class="col-md-12" id="orderby" name="orderby" placeholder="排序方式">
+                <option value="create_time">按添加时间排序</option>
+                <option value="client_start">按执行开始时间排序</option>
+                <option value="client_end">按执行结束时间排序</option>
+                <option value="reminde_date">按回款时间排序</option>
+                <option value="contract">按合同号排序</option>
+            </select>
+        </div>
+        {% if g.user.is_media() %}
+        <input type="text" id="start_time" name="start_time" class="datetimepicker form-control bra-form-control" style="width:200px;" data-date-format="yyyy-mm-dd" placeholder="开始时间">
+        <input type="text" id="end_time" name="end_time" class="datetimepicker form-control bra-form-control" style="width:200px;" data-date-format="yyyy-mm-dd" placeholder="结束时间">
+        <div class="col-md-1" style="padding:0;margin-right:5px;">
+            <select class="col-md-12" id="search_medium" name="search_medium" placeholder="选择媒体">
+                <option selected="" value="0">全部媒体</option>
+                {% for k in mediums %}
+                <option value="{{k.id}}">{{k.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
+        <input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">
+    </div>
+    <br>
+    {{ all_items(orders.object_list) }}
+    {% set pages = orders %}
+    {% include "pagination.html" %}
+</div>
+<script>
+function sort(value){
+    var orderby = '{{orderby}}',
+        sortby = '{{sortby}}';
+    if (value == sortby) {
+        if (orderby == 'desc'){
+            orderby = 'asc'
+        } else {
+            orderby = 'desc'
+        }
+    } else {
+        sortby = value
+        orderby = 'desc'
+    }
+    var params = '?sortby='+sortby+'&orderby='+orderby+
+    '&searchinfo='+encodeURIComponent($('#search_info').val())+
+    '&selected_location='+encodeURIComponent($('#search_location').val())+
+    '&selected_status='+encodeURIComponent($('#search_status').val());
+    {% if g.user.is_media() %}
+        params += '&start_time='+$('#start_time').val()+
+        '&end_time='+$('#end_time').val()+
+        '&search_medium='+$('#search_medium').val()
+    {% endif %}
+    window.location.href = window.location.pathname+params;
+}
+
+function search(){
+    var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+      '&selected_location=' + ($('#search_location').val()) +
+      '&selected_status=' + ($('#search_status').val())+
+      '&orderby=' + ($('#orderby').val());
+    {% if g.user.is_media() %}
+        params += '&start_time='+$('#start_time').val()+
+        '&end_time='+$('#end_time').val()+
+        '&search_medium='+$('#search_medium').val()
+    {% endif %}
+    window.location.href = window.location.pathname + params;
+      
+}
+
+function download(){
+    var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+      '&selected_location=' + ($('#search_location').val()) +
+      '&selected_status=' + ($('#search_status').val()) +
+      '&orderby=' + ($('#orderby').val())+
+      '&action=download';
+    {% if g.user.is_media() %}
+        params += '&start_time='+$('#start_time').val()+
+        '&end_time='+$('#end_time').val()+
+        '&search_medium='+$('#search_medium').val()
+    {% endif %}
+    window.location.href = window.location.pathname + params;
+      
+}
+
+function enter_search(){
+    //按下‘Enter’键
+    if(event.keyCode == 13){
+        search();
+    }
+}
+$(function(){
+    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() %}
+    {% else %}
+    $("#search-area").hide()
+    {% endif %}
+    $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
+    $("#orderby").trigger("chosen:updated");
+    
+    {% if g.user.is_media() %}
+    $('#start_time').val('{{start_time}}');
+    $('#end_time').val('{{end_time}}');
+    $("#search_medium option[value='{{search_medium}}']").attr("selected","selected");  
+    $("#search_medium").trigger("chosen:updated");
+    {% endif %}
+});
+
+$(document).ready(function(){
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+    });
+})
+</script>
+{% endblock %}

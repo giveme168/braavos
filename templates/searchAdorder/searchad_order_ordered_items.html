@@ -1,0 +1,153 @@
+{% set ACTION_ACTIVE = 6 %}
+{% set ACTION_PAUSE = 7 %}
+
+{% macro button_by_action(order, action) -%}
+{% if order.can_action(g.user, action) %}
+  <button class="btn btn-sm btn-primary" type="submit" name="action" value="{{action}}">{{action | item_status_action_cn}}</button>
+{% endif %}
+{%- endmacro %}
+
+{% macro ordered_items(order)-%}
+<div>
+    <form action="{{url_for('order.items_status_update', order_id=order.id, step=4)}}" method="POST">
+      {{ items_order_content(order.items_info_by_status(4)) }}
+      <div class="col_change_state_button">
+        {{ button_by_action(order, ACTION_ACTIVE) }}
+        {{ button_by_action(order, ACTION_PAUSE) }}
+      </div>
+    </form>
+  </div>
+{%- endmacro %}
+
+{% macro items_order_content(items_info)-%}
+<div>
+  <table class="table table-bordered table-striped">
+   <thead>
+     <tr >
+       <td>售卖类型</td>
+       <td>
+         <input type="checkbox" class="checkbox_all"/>
+       </td>
+       <td>展示位置</td>
+       <td>开始时间</td>
+       <td>结束时间</td>
+       <td>目标展示数</td>
+       <td>已经展示数</td>
+       <td>点击数</td>
+       <td>CTR</td>
+       <td>进度</td>
+       <td>素材&投放控制</td>
+      </tr>
+   <thead>
+   <tbody class="table table-bordered table-striped">
+    {% for v, sale_type_cn, sale_type_items in items_info['items'] %}
+    {% for i in sale_type_items %}
+    <tr >
+      <td>{{sale_type_cn}}</td>
+      <td>
+        <input type="checkbox" class="checkbox_one" name="item_id" value="{{i.id}}"/>
+      </td>
+      {% if i.is_status_on() %}
+      <td>
+      {% else %}
+      <td style="background: #f2dede">
+      {% endif %}
+        <input type="button" id="{{i.id}}"  onclick="show_items_detail(this.id);" value="{{i.position.name}}"/>
+      </td>
+      <td>{{i.start_date}}</td>
+      <td>{{i.end_date}}</td>
+      <td>{{i.schedule_sum}}</td>
+      <td>{{i.get_monitor_num_all()}}</td>
+      <td>{{i.get_click_num_all()}}</td>
+      <td>{{i.get_ctr(None)}}</td>
+      <td>{{i.get_finshed_proper(None)}}</td>
+      <td><a href="{{url_for('order.item_materials', item_id=i.id)}}">素材&投放控制</a></td>
+    </tr>
+    {{  order_every_items_detail(i) }}
+    {% endfor %}
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+<script>
+  $(document).ready(function(){
+    $("#collapseOne").collapse('hide');
+    $("#collapseTwo").collapse('show');
+    window.show_items_detail = function(id){
+      var tab1=document.getElementById("items_thead"+id);
+      var tab2=document.getElementById("items_thead_content"+id);
+      var tab3=document.getElementById("material_thead"+id);
+      var tab4=document.getElementById("material_thead_content"+id);
+      tab1.style.display=(tab1.style.display=="none"?"":"none");
+      tab2.style.display=(tab2.style.display=="none"?"":"none");
+      tab3.style.display=(tab3.style.display=="none"?"":"none");
+      tab4.style.display=(tab4.style.display=="none"?"":"none");
+    };
+});
+</script>
+{%- endmacro %}
+
+{% macro order_every_items_detail(item)  -%}
+<div>
+  <tbody>
+    <thead id="items_thead{{item.id}}" style="display: none">
+      <tr>
+        <td rowspan="2">日期</td>
+        <td rowspan="2">状态</td>
+        <td rowspan="2">目标展示数</td>
+        <td rowspan="2">已经展示数</td>
+        <td rowspan="2">点击数</td>
+        <td rowspan="2">CTR</td>
+        <td rowspan="2">进度</td>
+      </tr>
+    </thead>
+    <thead id="items_thead_content{{item.id}}"style="display: none">
+      {% for t in item.schedule_sorted %}
+      <tr>
+        <td>{{t.date}}</td>
+        <td>{{item.item_state_cn}}</td>
+        <td>{{t.num}}</td>
+        <td>{{item.get_monitor_num(t.date)}}</td>
+        <td>{{item.get_click_num(t.date)}}</td>
+        <td>{{item.get_ctr(t.date)}}</td>
+        <td>{{item.get_finshed_proper(t.date)}}</td>
+      </tr>
+      {% endfor %}
+    </thead>
+    <thead id="material_thead{{item.id}}" style="display: none">
+      <tr>
+        <td rowspan="2">素材名称</td>
+        <td rowspan="2">广告类型</td>
+        <td>效果预览</td>
+        <td rowspan="2">状态</td>
+        <td rowspan="2">已展示数</td>
+        <td rowspan="2">点击数</td>
+        <td rowspan="2">CTR</td>
+      </tr>
+    </thead>
+    <thead id="material_thead_content{{item.id}}"style="display: none">
+    {%  for material in item.materials %}
+    <tr>	
+      <td>{{material.name}}</td>
+      <td>{{material.type_cn}}</td>
+      {%  if material.type != 0%}
+      <td>
+          <div style="position: relative; min-width: 100px; min-height: {{material.height*100.0/material.width}}px;">
+            <div style="position: absolute; left:0; top:0; transform-origin: 0 0; transform: scale({{100.0/material.width}});">
+              <iframe src="{{ material.preview_path }}" style="position: relative;" width="{{material.width}}px" height="{{material.height}}px"></iframe>
+            </div>
+          </div>
+      </td>
+      {% else %}
+      <td>原生广告无图片预览</td>
+      {% endif %}
+      <td>{{material.status_cn}}</td>
+      <td>{{material.get_monitor_num_all()}}</td>
+      <td>{{material.get_click_num_all()}}</td>
+      <td>{{material.get_ctr}}</td>
+    </tr>
+    {% endfor %}
+  </thead>
+</tbody>
+</div>
+{%- endmacro %}

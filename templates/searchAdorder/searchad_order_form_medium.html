@@ -1,0 +1,114 @@
+{% from 'form.html' import form_field %}
+
+{% macro order_medium_form(form, medium_order) -%}
+  {% if g.user.is_super_leader() %}
+    {{ order_medium_edited_form(form, medium_order) }}
+  {% elif medium_order.can_admin(g.user) and medium_order.contract_status in [0, 3, 6]%}
+    {{ order_medium_edited_form(form, medium_order) }}
+  {% else %}
+    {{ order_medium_table(medium_order) }}
+  {% endif %}
+{%- endmacro %}
+
+{% macro order_medium_table(order) -%}
+<div class="col-md-12">
+    <div class="col-md-6" style="margin-left: 20px;">
+        {% if g.user.is_operater()  or g.user.is_searchad_member() %}
+        <form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('searchAd_order.order_medium_edit_cpm', medium_id=order.id)}}">
+        {% endif %}
+        <table class="table table-bordered">
+          <tr>
+            <th>投放媒体 </th>
+            <td>{{order.medium.name}}</td>
+          </tr>
+          <tr>
+            <th>售卖金额</th>
+            <td>{{order.sale_money}} (元) 无利润未分成</td>
+          </tr>
+          <tr>
+            <th>媒体金额</th>
+            <td>{{order.medium_money2}} (元) 已利润未分成</td>
+         </tr>
+         <!--
+         <tr>
+            <th>分成金额</th>
+            {% if g.user.is_media() %}
+            <td><input type='text' value="{{order.medium_money or 0}}" class="form-control bra-form-control" name="medium_money" style="width:100px;"/>(元) 已利润已分成, 实际给媒体打款金额</td>
+            {% else %}
+            <td>{{order.medium_money}} </td>
+            {% endif %}
+          </tr>
+          -->
+          <tr>
+            <th>预估量 </th>
+            <td>{{order.sale_CPM or 0}} CPM</td>
+          </tr>
+           <tr>
+            <th>实际量 </th>
+            {% if g.user.is_operater() or g.user.is_searchad_member() %}
+              <td><input type='text' value="{{order.medium_CPM or 0}}" class="form-control bra-form-control" name="cpm" style="width:100px;"/>CPM</td>
+            {% else %}
+              <td>{{order.medium.medium_CPM or 0}} CPM</td>
+            {% endif %}
+          </tr>
+           <tr>
+            <th>执行人员 </th>
+            <td>{{order.operater_names}}</td>
+          </tr>
+           <tr>
+            <th>设计人员 </th>
+            <td>{{order.designers_names}}</td>
+          </tr>
+           <tr>
+            <th>策划人员 </th>
+            <td>{{order.planers_names}}</td>
+          </tr>
+        </table>
+        {% if g.user.is_operater %}
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+{%- endmacro %}
+
+{% macro new_order_medium_form(form, client_order) -%}
+    {{ order_medium_edited_form(form, medium_order=None, order=client_order) }}
+{%- endmacro %}
+
+{% macro order_medium_edited_form(form, medium_order=None, order=None) -%}
+{% if medium_order %}
+<form class="form form-horizontal" method="POST" action="{{medium_order.edit_path()}}">
+  <a style="color:red;" href="{{url_for('searchAd_order.medium_order_delete', order_id=medium_order.client_order.id, medium_id=medium_order.id)}}">删除媒体订单</a>
+{% else %}
+<form class="form form-horizontal" method="POST" action="{{url_for('searchAd_order.order_new_medium', order_id=order.id)}}">
+{% endif %}
+    {{form.csrf_token}}
+    {{ form_field(form.medium) }}
+    {{ form_field(form.sale_money) }}
+    {{ form_field(form.medium_money2) }}
+    {#
+    {{ form_field(form.medium_money) }}
+    #}
+    {{ form_field(form.sale_CPM) }}
+    {{ form_field(form.medium_CPM) }}
+    <div class="form-group">
+      <label for="medium_start" class="col-sm-2 control-label">执行开始 : </label>
+      <div class="col-sm-4">
+        <input type="text" id="medium_start" name="medium_start" value="{{form.medium_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="medium_end" class="col-sm-2 control-label">执行结束 : </label>
+      <div class="col-sm-4">
+        <input type="text" id="medium_end" name="medium_end" value="{{form.medium_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+      </div>
+    </div>
+    {{ form_field(form.operaters) }}
+    {{ form_field(form.designers) }}
+    {{ form_field(form.planers) }}
+    {{ form_field(form.discount) }}
+    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+</form>
+{%- endmacro %}

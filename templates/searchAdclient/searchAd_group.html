@@ -1,0 +1,28 @@
+{% extends "/searchAd_client_base.html" %}
+{% from 'form.html' import form_field %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>{{ title }}</h3>
+    <form class="form form-horizontal" method="POST">
+      {{ form.csrf_token }}
+      {{ form_field(form.name) }}
+      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+    </form>
+    {% if group %}
+    <h3>集团旗下代理公司</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>#id</th>
+            <th>代理公司</th>
+        </tr>
+        {% for a in group.agents %}
+        <tr>
+            <td>{{a.id}}</td>
+            <td><a href="{{url_for("searchAd_client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+{% endblock %}

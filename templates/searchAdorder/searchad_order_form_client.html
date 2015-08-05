@@ -1,0 +1,185 @@
+{% from 'form.html' import form_field %}
+
+{% macro order_client_form(form, client_order) -%}
+  {% if g.user.is_super_leader() %}
+    {{ order_client_edited_form(form, mediums=None) }}
+  {% elif client_order.can_admin(g.user) and client_order.contract_status in [0, 1, 3, 6] %}
+    {{ order_client_edited_form(form, mediums=None) }}
+  {% else %}
+    {{ order_client_table(client_order) }}
+  {% endif %}
+{%- endmacro %}
+
+{% macro order_client_table(client_order) -%}
+<div class="col-md-12">
+    <div class="col-md-6" style="margin-left: 20px;">
+        <table class="table table-bordered">
+          <tr>
+            <th>代理/直客(甲方全称) </th>
+            <td>{{client_order.agent.name}}</td>
+          </tr>
+          <tr>
+            <th>客户名称</th>
+            <td>{{client_order.client.name}}</td>
+          </tr>
+          <tr>
+            <th>Campaign名称</th>
+            <td>{{client_order.campaign}}</td>
+          </tr>
+          <tr>
+            <th>合同金额</th>
+            <td>{{client_order.money}} (元)</td>
+          </tr>
+          <tr>
+            <th>执行开始</th>
+            <td>{{client_order.start_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>执行结束</th>
+            <td>{{client_order.end_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>回款日期</th>
+            <td>{{client_order.reminde_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>销售</th>
+            <td>{{client_order.direct_sales_names}}</td>
+          </tr>
+          <!--
+          <tr>
+            <th>渠道销售</th>
+            <td>{{client_order.agent_sales_names}}</td>
+          </tr>
+          -->
+          <tr>
+            <th>合同模板类型</th>
+            <td>{{client_order.contract_type_cn}}</td>
+          </tr>
+          <tr>
+            <th>推广类型</th>
+            <td>{{client_order.resource_type_cn}}</td>
+          </tr>
+          <tr>
+            <th>代理/直客</th>
+            <td>{{client_order.sale_type_cn}}</td>
+          </tr>
+        </table>
+    </div>
+</div>
+
+{%- endmacro %}
+
+{% macro new_order_client_form(form, mediums) -%}
+    {{ order_client_edited_form(form, mediums) }}
+{%- endmacro %}
+
+{% macro order_client_edited_form(form, mediums=None) -%}
+<form class="form form-horizontal" method="POST">
+    <input class="hide" name="info_type" value="0"/>
+    {{form.csrf_token}}
+    {{ form_field(form.agent) }}
+    {{ form_field(form.client) }}
+    {{ form_field(form.campaign) }}
+    {{ form_field(form.money) }}
+    <div class="form-group">
+      <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
+      <div class="col-sm-4">
+        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
+      <div class="col-sm-4">
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="reminde_date" class="col-sm-2 control-label">回款日期 : </label>
+      <div class="col-sm-4">
+        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+      </div>
+    </div>
+    {{ form_field(form.direct_sales) }}
+    {{ form_field(form.contract_type) }}
+    {{ form_field(form.resource_type) }}
+    {{ form_field(form.sale_type) }}
+    {% if mediums %}
+    <hr/>
+    <div id="mediums">
+    </div>
+    <button class="btn btn-sm btn-default add-new-medium"><span class="glyphicon glyphicon-plus"></span>  投放媒体 </button>
+    {% endif %}
+    <hr/>
+    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+</form>
+
+{% if mediums %}
+<script type="txt/template" id="medium-tpl">
+ <div id="order-form">
+  <div class="form-group">
+    <label class="medium-control">投放媒体 : </label>
+    <select name="medium" type="text" class="form-control medium-control">
+      {% for m in mediums %}
+        <option value="{{m[0]}}">{{m[1]}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label class="medium-control">客户下单金额(元) : </label>
+    <input name="sale_money" type="text" class="form-control medium-control" placeholder="客户下单金额(元)" value="0"/>
+  </div>
+  <div class="form-group">
+    <label class="medium-control">给媒体/供应商下单金额(元) : </label>
+    <input name="medium_money2" type="text" class="form-control medium-control" placeholder="给媒体/供应商下单金额(元)" value="0"/>
+  </div>
+  <div class="form-group">
+    <label class="medium-control"></label>
+    <button class="btn btn-sm btn-default medium-remove"> 取消 </button>
+  </div>
+ </div>
+</script>
+<style>
+  .medium-control{margin-right: 10px; text-align: right; width:20%; display: inline-block;}
+</style>
+{% endif %}
+<script>
+Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+$(document).ready(function(){
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+      });
+    $(".add-new-medium").click(function(e){
+      e.preventDefault();
+      var medium_tpl = $("#medium-tpl").html();
+      $(this).parents("form").find("#mediums").append(medium_tpl);
+      $(".medium-remove").click(function(e){
+        e.preventDefault();
+        $(this).parents("#order-form").remove();
+      });
+    });
+    $("#client_end").change(function(e){
+      var endDate = new Date($('#client_end').val());
+      endDate.setDate(endDate.getDate() + 90); 
+      $('#reminde_date').val(endDate.Format("yyyy-MM-dd"))
+    });
+});
+</script>
+{%- endmacro %}
