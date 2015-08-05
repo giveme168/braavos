@@ -173,7 +173,8 @@ class User(db.Model, BaseModelMixin):
         return self.is_admin() or self.team.type == TEAM_TYPE_SUPER_LEADER
 
     def is_leader(self):
-        return self.is_admin() or self.team.type == TEAM_TYPE_LEADER or self.team.type == TEAM_TYPE_SUPER_LEADER
+        return self.is_admin() or self.team.type == TEAM_TYPE_LEADER or self.team.type == TEAM_TYPE_SUPER_LEADER or \
+            self.team.type == TEAM_TYPE_SEARCH_AD_LEADER
 
     def is_operater_leader(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_OPERATER_LEADER

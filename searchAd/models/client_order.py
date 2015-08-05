@@ -407,7 +407,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
 
     @property
     def resource_type_cn(self):
-        return RESOURCE_TYPE_CN.get(self.resource_type)
+        return AD_PROMOTION_TYPE_CN.get(self.resource_type)
 
     @property
     def sale_type_cn(self):
