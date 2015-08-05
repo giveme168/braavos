@@ -61,7 +61,8 @@
     {% endif %}
 
     <!-- 只有leader 销售 合同管理员才能看框架 -->
-    {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() %}
+    {% if (g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() or
+    g.user.is_media_leader()) and ((not g.user.is_searchad_member()) or g.user.is_admin())  %}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 框架</li>
     <a class="list-group-item" href="{{url_for('order.my_framework_orders')}}">
         <span class="glyphicon glyphicon-th-list"></span> 我的框架

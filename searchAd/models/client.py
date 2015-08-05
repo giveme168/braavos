@@ -153,6 +153,6 @@ class searchAdAgentRebate(db.Model, BaseModelMixin):
 
 
 def framework_generator(num):
-    code = "SearchAd-ZQC%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
+    code = "ZQSC%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
     code = code.upper()
     return code
