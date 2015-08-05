@@ -738,7 +738,7 @@ by %s\n
         return pre_month_money_data
 
     def is_executive_report(self):
-        return ClientOrderExecutiveReport.query.filter_by(client_order=self).count() > 0
+        return searchAdClientOrderExecutiveReport.query.filter_by(client_order=self).count() > 0
 
     def executive_report(self, user, now_year, monthes, sale_type):
         if sale_type == 'agent':
@@ -749,7 +749,7 @@ by %s\n
             count = len(set(self.agent_sales + self.direct_sales))
         if sale_type == 'normal':
             count = 1
-        pre_reports = ClientOrderExecutiveReport.query.filter_by(
+        pre_reports = searchAdClientOrderExecutiveReport.query.filter_by(
             client_order=self)
         moneys = []
         for j in monthes:
@@ -800,12 +800,12 @@ by %s\n
         return leaders
 
     def insert_reject_time(self):
-        client_order_reject = ClientOrderReject.query.filter_by(
+        client_order_reject = searchAdClientOrderReject.query.filter_by(
             client_order=self, reject_time=datetime.date.today()).first()
         if client_order_reject:
             client_order_reject.reject_time = datetime.date.today()
         else:
-            ClientOrderReject.add(
+            searchAdClientOrderReject.add(
                 client_order=self, reject_time=datetime.date.today())
 
     def zhixing_money(self, sale_type):
