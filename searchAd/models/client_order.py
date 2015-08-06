@@ -450,7 +450,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + [self.creator]
-        return user.is_contract() or user.is_media() or user in admin_users
+        return user.is_contract() or user.is_media() or user in admin_users or user.is_super_leader()
 
     def can_action(self, user, action):
         """是否拥有leader操作"""
@@ -869,7 +869,7 @@ class searchAdBackMoney(db.Model, BaseModelMixin):
     def create_time_cn(self):
         return self.create_time.strftime(DATE_FORMAT)
 
-
+# 客户返点发票
 class searchAdBackInvoiceRebate(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_client_order_back_invoice_rebate'
     id = db.Column(db.Integer, primary_key=True)

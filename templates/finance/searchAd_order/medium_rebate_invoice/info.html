@@ -1,0 +1,376 @@
+{% extends "/finance/searchAd_finance_base.html" %}
+{% from '/form.html' import form_field %}
+{% from '/saler/searchAd_order/medium_rebate_invoice/invoice_form.html' import invoice_form %}
+{% from 'comments.html' import comments_box %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>媒体返点发票情况</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>媒体返点总金额</th>
+            <th>已开发票总金额</th>
+            <th>未开发票总金额</th>
+            <th>正在申请发票总金额</th>
+            <th>申请通过个数</th>
+        </tr>
+        <tr>
+            <td>{{ order.mediums_rebate_money}} 元</td>
+            <td>{{ order.mediums_rebate_invoice_pass_sum}} 元</td>
+            <td>{{ order.mediums_rebate_money - order.mediums_rebate_invoice_pass_sum}} 元</td>
+            <td>{{ order.mediums_rebate_invoice_apply_sum}} 元</td>
+            <td>{{ order.get_medium_rebate_invoice_by_status(0)|length }}</td>
+        </tr>
+    </table>
+    {% if invoices_data.PASS|length > 0 %}
+    <div class="panel panel-default" id="non-invoice">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 申请通过的发票信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-0" class="panel-collapse collapse in">
+            <div class="panel-body">
+                {% for k in invoices_data.PASS %}
+                  {{ invoice_table(k.invoice) }}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% set invoices = invoices_data.APPLYPASS %}
+    {% if invoices|length > 0 %}
+    <div class="panel panel-default" id="non-invoice">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-3">待开发票</a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-3" class="panel-collapse collapse in">
+            <div class="panel-body">
+                {% for i in invoices %}
+                <h4>
+                    <input type="checkbox" name="invoice-id" class="invoice-id" value="{{i.invoice.id}}"/>
+                    {{ i.invoice.company }}-{{ i.invoice.medium.name }}-{{ i.invoice.money }}元
+                </h4>
+                {{ invoice_table(i.invoice) }}
+                {% endfor %}
+                {{ status_box(invoices[0]['invoice']) }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="panel panel-default" id="new-invoice" style="display:none;">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 申请发票信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-new" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <div class="well">
+                <div class="well">
+                  <form class="form form-horizontal" method="POST" action="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
+                  {{ new_invoice_form.csrf_token }}
+                  {{ form_field(new_invoice_form.client_order) }}
+                  {{ form_field(new_invoice_form.medium)}}
+                  {{ form_field(new_invoice_form.company) }}
+                  {{ form_field(new_invoice_form.tax_id) }}
+                  {{ form_field(new_invoice_form.address) }}
+                  {{ form_field(new_invoice_form.phone) }}
+                  {{ form_field(new_invoice_form.bank_id) }}
+                  {{ form_field(new_invoice_form.bank) }}
+                  {{ form_field(new_invoice_form.detail) }}
+                  {{ form_field(new_invoice_form.money) }}
+                  {{ form_field(new_invoice_form.invoice_type) }}
+                  <div class="form-group">
+                    <label for="client_start" class="col-sm-2 control-label">发票号 : </label>
+                    <div class="col-sm-4">
+                      <input type="text" id="new_invoice_num" name="new_invoice_num" value="{{new_invoice_num}}" class="form-control bra-form-control">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="client_start" class="col-sm-2 control-label">回款时间 : </label>
+                    <div class="col-sm-4">
+                      <input type="text" id="back_time" name="back_time" value="{{new_invoice_form.back_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+                    </div>
+                  </div>
+                  <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+                  </form>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+    <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 开发票</button>
+    <div>{{ comments_box(order, msg_channel=6) }}</div>
+</div>
+<script>
+  $(function(){
+    showInvoice = function(ele){
+      $(ele).hide();
+      $("#new-invoice").show();
+    };
+  });
+  function check_all(e){
+    $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));
+    $(e).parent().find(".invoice-id").trigger("change");
+  }
+  $(function(){
+    $(".invoice-id").change(function(e){
+      if($(this).prop("checked")){
+        if($("#form-invoice-"+$(this).val()).length < 1){
+          $(this).parents(".panel-collapse").find(".invoice-status-form")
+          .append('<input class="hide invoices" name="invoices" id="form-invoice-'+$(this).val()+'" value="'+$(this).val()+'"/>');
+        }
+      }else{
+        $(this).parents(".panel-collapse").find(".invoice-all").prop("checked", false);
+        if($("#form-invoice-"+$(this).val()).length > 0){
+          $("#form-invoice-"+$(this).val()).remove();
+        }
+      }
+    });
+    $(".invoice-btn").click(function(e){
+      var actionVal = $(this).val();
+      var email = $(this).parents('form').find("#contract-email").val();
+      var invoices = $(this).parents('form').find(".invoices");
+      var msg = $(this).parents('form').find("#msg").val();
+
+      if(invoices.length < 1){
+        alert("请勾选要申请的发票!");
+        e.preventDefault();
+      }
+      for(var i=0;i<invoices.length;i++){
+        if ($('#invoice_num_'+invoices[i].value).val()==''){
+            $('#invoice_num_'+invoices[i].value).focus()
+            alert("请填写发票号")
+            e.preventDefault();
+        }
+      }
+      if(actionVal == '2'){
+        if(msg == ""){
+            alert("请填写理由！");
+            e.preventDefault();
+         }
+      }
+    });
+  });
+  function checkform(obj){
+      if (obj.back_time.value == ""){
+        alert('请选择回款时间')
+        obj.back_time.focus()
+        return false
+      }
+      if (obj.new_invoice_num.value == ""){
+        alert('请输入发票号')
+        obj.new_invoice_num.focus()
+        return false
+      }
+      var now_date = new Date()
+      now_date.setMonth(now_date.getMonth() + 1)
+      var back_time = new Date(obj.back_time.value)
+      if (back_time > now_date){
+        alert('申请发票的回款时间超过了一个月')
+        return false
+      }else{
+        return true
+      }
+    }
+
+    $(document).ready(function(){
+        $('.datetimepicker').datetimepicker({
+            autoclose: true,
+            todayHighlight: true,
+            language: 'zh-CN',
+            minView: 2
+        });
+    })
+</script>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <form class="form form-horizontal outsource-status-form" method="POST" action="" id="edit_table_form">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">修改发票信息</h4>
+      </div>
+      <div class="modal-body">
+          <div class="col-md-12">
+              <div class="col-md-12">
+                  <input type="hidden" value="" id="edit_invoice_id">
+                  <table class="table table-bordered">
+                    <tr>
+                      <th>开票时间</th>
+                      <td id="edit_create_time"></td>
+                    </tr>
+                    <tr>
+                      <th>公司名称</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_company" name="edit_company" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>税号</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_tax_id" name="edit_tax_id" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>发票内容</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_detail" name="edit_detail" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>发票金额</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_money" name="edit_money" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>发票类型</th>
+                      <td>
+                        <select style="width:200px;" id="edit_invoice_type" name="invoice_type">
+                          <option value="0">一般纳税人增值税专用发票</option>
+                          <option value="1">一般纳税人增值税普通发票</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>发票号</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_invoice_num" name="edit_invoice_num" value=""></td>
+                    </tr>
+                  </table>
+              </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <input type="submit" class="btn btn-primary" value="提交"/>
+      </div>
+    </div>
+  </div>
+  </form>
+</div>
+{% endblock %}
+
+{% macro invoice_table(invoice)%}
+{% if invoice.invoice_status == 3 %}
+<form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.invoice_num', invoice_id=invoice.id)}}">
+{% endif %}
+<div class="col-md-12">
+    <div class="col-md-6" style="margin-left: 20px;" id="edit_invoice_{{invoice.id}}">
+        <table class="table table-bordered">
+          <tr>
+            <th>开票时间</th>
+            <td>{{invoice.create_time_cn}}</td>
+          </tr>
+          <tr>
+            <th>公司名称</th>
+            <td>{{invoice.company}}</td>
+          </tr>
+          <tr>
+            <th>税号</th>
+            <td>{{invoice.tax_id}}</td>
+          </tr>
+          <tr>
+            <th>公司地址</th>
+            <td>{{invoice.address}}</td>
+          </tr>
+          <tr>
+            <th>联系电话</th>
+            <td>{{invoice.phone}}</td>
+          </tr>
+          <tr>
+            <th>银行账号</th>
+            <td>{{invoice.bank_id}}</td>
+          </tr>
+          <tr>
+            <th>开户行</th>
+            <td>{{invoice.bank}}</td>
+          </tr>
+          <tr>
+            <th>发票内容</th>
+            <td>{{invoice.detail}}</td>
+          </tr>
+          <tr>
+            <th>发票金额</th>
+            <td>{{invoice.money}}元</td>
+          </tr>
+          <tr>
+            <th>发票类型</th>
+            <td>{{INVOICE_TYPE_CN[invoice.invoice_type]}}</td>
+          </tr>
+          {% if invoice.invoice_status == 3 %}
+          <tr>
+            <th>发票号</th>
+            <td><input class="form-control bra-form-control" type='text' id="invoice_num_{{invoice.id}}" name="invoice_num" value="{{invoice.invoice_num}}"></td>
+          </tr>
+          {% else %}
+          <tr>
+            <th>发票号</th>
+            <td>{{invoice.invoice_num}}</td>
+          </tr>
+          {% endif %}
+          <tr>
+            <th>回款时间</th>
+            <td>{{invoice.back_time_cn}}</td>
+          </tr>
+          <tr>
+            <th>申请人</th>
+            <td>{{invoice.creator.name}}</td>
+          </tr>
+          <tr>
+            <th>申请人区域</th>
+            <td>{{invoice.creator.team.location_cn}}</td>
+          </tr>
+          <tr>
+            <th>操作</th>
+            <th><a href="javascript:edit('{{invoice.id}}','{{invoice.create_time_cn}}','{{invoice.company}}','{{invoice.tax_id}}','{{invoice.detail}}','{{invoice.money}}','{{invoice.invoice_type}}','{{invoice.invoice_num}}');">修改</a></th>
+          </tr>
+        </table>
+    </div>
+</div>
+{% if invoice.invoice_status == 3 %}
+<input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+</form>
+{% endif %}
+<script>
+function edit(id, create_time, company, tax_id, detail ,money, invoice_type, invoice_num){
+  $('#edit_invoice_id').val(id)
+  $('#edit_create_time').html(create_time)
+  //$('#edit_invoice_'+id).hide()
+  $('#myModal').modal('show');
+  $('#edit_company').val(company)
+  $('#edit_tax_id').val(tax_id)
+  $('#edit_detail').val(detail)
+  $('#edit_money').val(money)
+  $('#edit_invoice_num').val(invoice_num)
+  $("#edit_invoice_type option[value='"+invoice_type+"']").attr("selected","selected");  
+  $("#edit_invoice_type").trigger("chosen:updated");
+  $('#edit_table_form').attr("action", '/finance/client_order/medium_rebate_invoice/'+id+'/update')
+}
+</script>
+{% endmacro %}
+{% macro status_box(invoice) -%}
+{% if invoice.invoice_status in [0, 3] %}
+    <input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
+{% endif %}
+    <form class="form form-horizontal invoice-status-form" id="status-form" method="POST" action="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.pass_invoice', invoice_id=invoice.id)}}">
+        <div class="form-group">
+            <label for="email" class="col-sm-2 control-label">邮箱 : </label>
+            <div class="col-sm-10">
+                <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+                    {% for u in reminder_emails %}
+                    <option value="{{u[1]}}">{{u[0]}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="msg" class="col-sm-2 control-label">留言 : </label>
+            <div class="col-sm-10">
+                <textarea class="form-control bra-form-control" id="msg"name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">操作 : </label>
+            <div class="col-sm-10">
+                <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="0">发票已开</button>
+                <!--<button class="btn btn-sm btn-info contract-submit" name="action" type="submit" value="10">留言</button>-->
+            </div>
+        </div>
+   </form>
+{%- endmacro %}

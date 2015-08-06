@@ -74,7 +74,7 @@ class searchAdInvoice(db.Model, BaseModelMixin):
         self.invoice_num = invoice_num
 
     def __repr__(self):
-        return '<Invoice %s>' % (self.id)
+        return '<searchAdInvoice %s>' % (self.id)
 
     @property
     def create_time_cn(self):
@@ -275,7 +275,7 @@ class searchAdMediumInvoice(db.Model, BaseModelMixin):
         self.invoice_num = invoice_num
 
     def __repr__(self):
-        return '<Invoice %s>' % (self.id)
+        return '<searchAdMediumInvoice %s>' % (self.id)
 
     @property
     def create_time_cn(self):
@@ -298,11 +298,11 @@ class searchAdMediumInvoice(db.Model, BaseModelMixin):
         return cls.query.filter_by(invoice_status=status)
 
     def get_invoice_pas_by_status(self, status):
-        return [k for k in MediumInvoicePay.query.filter_by(medium_invoice=self) if k.pay_status == status]
+        return [k for k in searchAdMediumInvoicePay.query.filter_by(medium_invoice=self) if k.pay_status == status]
 
     @property
     def get_pay_money(self):
-        return sum([k.money for k in MediumInvoicePay.query.filter_by(medium_invoice=self)
+        return sum([k.money for k in searchAdMediumInvoicePay.query.filter_by(medium_invoice=self)
                     if k.pay_status == MEDIUM_INVOICE_STATUS_PASS])
 
     @property
@@ -311,12 +311,12 @@ class searchAdMediumInvoice(db.Model, BaseModelMixin):
 
     @property
     def get_apply_pay_money(self):
-        return sum([k.money for k in MediumInvoicePay.query.filter_by(medium_invoice=self)
+        return sum([k.money for k in searchAdMediumInvoicePay.query.filter_by(medium_invoice=self)
                     if k.pay_status in [MEDIUM_INVOICE_STATUS_APPLY, MEDIUM_INVOICE_STATUS_AGREE]])
 
     @property
     def pay_invoice_money(self):
-        return sum([k.money for k in MediumInvoicePay.query.filter_by(medium_invoice=self)])
+        return sum([k.money for k in searchAdMediumInvoicePay.query.filter_by(medium_invoice=self)])
 
 
 # 客户订单-媒体发票
@@ -440,7 +440,7 @@ class searchAdAgentInvoice(db.Model, BaseModelMixin):
         self.invoice_num = invoice_num
 
     def __repr__(self):
-        return '<Invoice %s>' % (self.id)
+        return '<searchAdAgentInvoice %s>' % (self.id)
 
     @property
     def create_time_cn(self):
@@ -463,11 +463,11 @@ class searchAdAgentInvoice(db.Model, BaseModelMixin):
         return cls.query.filter_by(invoice_status=status)
 
     def get_invoice_pas_by_status(self, status):
-        return [k for k in AgentInvoicePay.query.filter_by(agent_invoice=self) if k.pay_status == status]
+        return [k for k in searchAdAgentInvoicePay.query.filter_by(agent_invoice=self) if k.pay_status == status]
 
     @property
     def get_pay_money(self):
-        return sum([k.money for k in AgentInvoicePay.query.filter_by(agent_invoice=self)
+        return sum([k.money for k in searchAdAgentInvoicePay.query.filter_by(agent_invoice=self)
                     if k.pay_status == AGENT_INVOICE_STATUS_PASS])
 
     @property
@@ -476,12 +476,12 @@ class searchAdAgentInvoice(db.Model, BaseModelMixin):
 
     @property
     def get_apply_pay_money(self):
-        return sum([k.money for k in AgentInvoicePay.query.filter_by(agent_invoice=self)
+        return sum([k.money for k in searchAdAgentInvoicePay.query.filter_by(agent_invoice=self)
                     if k.pay_status in [AGENT_INVOICE_STATUS_APPLY, AGENT_INVOICE_STATUS_AGREE]])
 
     @property
     def pay_invoice_money(self):
-        return sum([k.money for k in AgentInvoicePay.query.filter_by(agent_invoice=self)])
+        return sum([k.money for k in searchAdAgentInvoicePay.query.filter_by(agent_invoice=self)])
 
 
 # inad付款给代理/直客(甲方的全称)的金额
