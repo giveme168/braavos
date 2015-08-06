@@ -256,6 +256,14 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def douban_contract_apply_path(self):
         return url_for("contract.framework_douban_apply", order_id=self.id)
 
+    def can_edit_contract_time(self, now_date=None):
+        if not now_date:
+            now_date = datetime.date.today()
+        if self.client_start.month > now_date.month:
+            return True
+        else:
+            return False
+
 
 def contract_generator(group, num):
     code = "ZQF%s%03x-%03x" % (datetime.datetime.now().strftime('%Y%m'),
