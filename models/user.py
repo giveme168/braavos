@@ -574,6 +574,10 @@ class Out(db.Model, BaseModelMixin):
         else:
             return self.m_persion
 
+    @property
+    def is_meeting(self):
+        return int(self.create_time.strftime('%Y%m%d')) < int(datetime.datetime.now().strftime('%Y%m%d'))
+
 
 P_VERSION_ITEMS = [{'type': 1, 'name': u'2015上半年'}]
 P_VERSION_CN = {
