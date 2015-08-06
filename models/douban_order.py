@@ -646,6 +646,14 @@ by %s\n
     def back_invoice_rebate_money(self):
         return sum([k.money for k in self.douban_backinvoicerebates])
 
+    def can_edit_contract_time(self, now_date=None):
+        if not now_date:
+            now_date = datetime.date.today()
+        if self.client_start.month > now_date.month:
+            return True
+        else:
+            return False
+
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_douban_order_executive_report'
