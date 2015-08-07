@@ -52,36 +52,53 @@
     </tr>
         {% for i in k.orders %}
             <tr>
-                <td>{{i.order.client.name}}</td>
+                <td>{{i.order.client_name}}</td>
                 <td>{{i.order.contract}}</td>
-                <td>{{i.order.agent.name}}</td>
+                <td>{{i.order.agent_name}}</td>
                 <td>{{i.order.campaign}}</td>
-                <td>{{i.order.client.industry_cn}}</td>
-                <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                <td>{{i.order.zhixing_money(type)|format_price}}</td>
+                <td>{{i.order.industry_cn}}</td>
+                <td>{% for u in i.order.direct_sales %}{{u.name}}<br/>{% endfor %}</td>
+                <td>{% for u in i.order.agent_sales %}{{u.name}}<br/>{% endfor %}</td>
+                {% if type == 'agent' %}
+                    <td>{{i.order.zhixing_money[0]|format_price}}</td>
+                {% else %}
+                    <td>{{i.order.zhixing_money[1]|format_price}}</td>
+                {% endif %}
+                
                 <td>{{i.order.invoice_pass_sum|format_price}}</td>
-                <td>{{i.order.zhixing_medium_money2(type)|format_price}}</td>
+                {% if type == 'agent' %}
+                    <td>{{i.order.zhixing_medium_money2[0]|format_price}}</td>
+                {% else %}
+                    <td>{{i.order.zhixing_medium_money2[1]|format_price}}</td>
+                {% endif %}
                 <td> 
                     {% for mo in i.order.medium_orders %}  
-                    {{mo.medium.name}}<br/></br/></br/>
+                    {{mo.name}}<br/></br/></br/>
                     {% endfor %}
                 </td>
                 <td> 
                     {% for mo in i.order.medium_orders %}  
-                    {{mo.associated_douban_contract}}<br/></br/></br/>
+                    {{mo.contract}}<br/></br/></br/>
                     {% endfor %}
                 </td>
                 <td>
                     {% for mo in i.order.medium_orders %}  
-                    {{mo.zhixing_medium_money2(type)|format_price}}<br/></br/></br/>
+                        {% if type == 'agent' %}
+                        {{mo.zhixing_medium_money2[0]|format_price}}<br/></br/></br/>
+                        {% else %}
+                        {{mo.zhixing_medium_money2[1]|format_price}}<br/></br/></br/>
+                        {% endif %}
                     {% endfor %}
                 </td>
                 <td>
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money|format_price}}<br/></br/></br/>
+                                {% if type == 'agent' %}
+                                    {{mo.medium_money_by_month[0][0].sale_money|format_price}}<br/></br/></br/>
+                                {% else %}
+                                    {{mo.medium_money_by_month[0][1].sale_money|format_price}}<br/></br/></br/>
+                                {% endif %}
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -90,7 +107,11 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money|format_price}}<br/></br/></br/>
+                            {% if type == 'agent' %}
+                                {{mo.medium_money_by_month[1][0].sale_money|format_price}}<br/></br/></br/>
+                            {% else %}
+                                {{mo.medium_money_by_month[1][1].sale_money|format_price}}<br/></br/></br/>
+                            {% endif %}
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -99,7 +120,11 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).sale_money|format_price}}<br/></br/></br/>
+                            {% if type == 'agent' %}
+                                {{mo.medium_money_by_month[2][0].sale_money|format_price}}<br/></br/></br/>
+                            {% else %}
+                                {{mo.medium_money_by_month[2][1].sale_money|format_price}}<br/></br/></br/>
+                            {% endif %}
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -108,7 +133,11 @@
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2|format_price}}<br/></br/></br/>
+                                {% if type == 'agent' %}
+                                    {{mo.medium_money_by_month[0][0].medium_money2|format_price}}<br/></br/></br/>
+                                {% else %}
+                                    {{mo.medium_money_by_month[0][1].medium_money2|format_price}}<br/></br/></br/>
+                                {% endif %}
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -117,7 +146,11 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2|format_price}}<br/></br/></br/>
+                            {% if type == 'agent' %}
+                                {{mo.medium_money_by_month[1][0].medium_money2|format_price}}<br/></br/></br/>
+                            {% else %}
+                                {{mo.medium_money_by_month[1][1].medium_money2|format_price}}<br/></br/></br/>
+                            {% endif %}
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -126,7 +159,11 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.get_executive_report_medium_money_by_month(now_year, k, type).medium_money2|format_price}}<br/></br/></br/>
+                            {% if type == 'agent' %}
+                                {{mo.medium_money_by_month[2][0].medium_money2|format_price}}<br/></br/></br/>
+                            {% else %}
+                                {{mo.medium_money_by_month[2][1].medium_money2|format_price}}<br/></br/></br/>
+                            {% endif %}
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -135,7 +172,11 @@
                     {% for mo in i.order.medium_orders %} 
                         {% for k in Q_monthes %}
                             {% if loop.index == 1 %}
-                                {{mo.associated_douban_orders_pro_month_money(now_year, k, type)|format_price}}<br/><br/><br/>
+                                {% if type == 'agent' %}
+                                    {{mo.associated_douban_pro_month_money[0][0]|format_price}}<br/></br/></br/>
+                                {% else %}
+                                    {{mo.associated_douban_pro_month_money[0][1]|format_price}}<br/></br/></br/>
+                                {% endif %}
                             {% endif %}
                         {% endfor %} 
                     {% endfor %}
@@ -144,7 +185,11 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 2 %}
-                            {{mo.associated_douban_orders_pro_month_money(now_year, k, type)|format_price}}<br/></br/></br/>
+                            {% if type == 'agent' %}
+                                {{mo.associated_douban_pro_month_money[1][0]|format_price}}<br/></br/></br/>
+                            {% else %}
+                                {{mo.associated_douban_pro_month_money[1][1]|format_price}}<br/></br/></br/>
+                            {% endif %}
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -153,7 +198,11 @@
                     {% for mo in i.order.medium_orders %}  
                     {% for k in Q_monthes %}
                         {% if loop.index == 3 %}
-                            {{mo.associated_douban_orders_pro_month_money(now_year, k, type)|format_price}}<br/></br/></br/>
+                            {% if type == 'agent' %}
+                                {{mo.associated_douban_pro_month_money[2][0]|format_price}}<br/></br/></br/>
+                            {% else %}
+                                {{mo.associated_douban_pro_month_money[2][1]|format_price}}<br/></br/></br/>
+                            {% endif %}
                         {% endif %}
                     {% endfor %} 
                     {% endfor %}
@@ -211,7 +260,7 @@
 </table>
 {%- endmacro %}
 {% block main_box %}
-<div class="bra-main bra-box" style="width:2200px;">
+<div class="bra-main bra-box" style="width:4000px;">
     <h3>媒体订单周报</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>

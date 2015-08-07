@@ -398,11 +398,14 @@ class OutSourceExecutiveReport(db.Model, BaseModelMixin):
 
     @property
     def contract_status(self):
-        if self.otype == 1:
-            order = OutSource.get(self.outsource_id).medium_order
-        else:
-            order = DoubanOutSource.get(self.outsource_id).douban_order
-        return order.contract_status
+        try:
+            if self.otype == 1:
+                order = OutSource.get(self.outsource_id).medium_order
+            else:
+                order = DoubanOutSource.get(self.outsource_id).douban_order
+            return order.contract_status
+        except:
+            return 7
 
     @property
     def order(self):

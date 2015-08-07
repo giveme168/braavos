@@ -17,28 +17,65 @@ data_query_weekly_bp = Blueprint(
     'data_query_weekly', __name__, template_folder='../../templates/data_query')
 
 
+# 整理单个销售报表数据
+def _executive_report(order, user, now_year, monthes, sale_type):
+    if sale_type == 'agent':
+        count = len(order['agent_sales'])
+    else:
+        count = len(order['direct_sales'])
+    if user['location'] == 3:
+        count = len(order['agent_sales'] + order['direct_sales'])
+    if sale_type == 'normal':
+        count = 1
+    pre_reports = order['executive_report_data']
+    moneys = []
+    for j in monthes:
+        for r in pre_reports:
+            if r['month_day'].date() == datetime.datetime(int(now_year), int(j), 1).date():
+                pre_money = r['money']
+                break
+            else:
+                pre_money = 0
+        '''
+        try:
+            pre_report = pre_reports.filter_by(
+                month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
+        except:
+            pre_report = None
+        try:
+            pre_money = pre_report.money
+        except:
+            pre_money = 0
+        '''
+        try:
+            moneys.append(round(pre_money / count, 2))
+        except:
+            moneys.append(0)
+    return moneys
+
+
 def _get_report_by_user(user, client_orders, now_year, now_Q, Q_monthes, type='agent'):
     last_year, last_month = get_last_year_month_by_Q(now_year, now_Q)
     after_year, after_month = get_after_year_month_by_Q(now_year, now_Q)
     orders = []
     for order in client_orders:
         if type == 'agent':
-            if not order.order_agent_owner(user):
+            if user['id'] not in [k['id'] for k in order['agent_sales']]:
                 order = None
         else:
-            if user.team.location == 3:
-                if not order.order_direct_owner(user):
+            if user['location'] == 3:
+                if user['id'] not in [k['id'] for k in order['direct_sales']]:
                     order = None
             else:
-                if not (order.order_direct_owner(user) and len(order.agent_sales) == 0):
+                if not (user['id'] in [k['id'] for k in order['direct_sales']] and len(order['agent_sales']) == 0):
                     order = None
         if order:
-            moneys = order.executive_report(user, now_year, Q_monthes, type)
+            moneys = _executive_report(order, user, now_year, Q_monthes, type)
             now_Q_money = sum(moneys)
             last_Q_money = sum(
-                order.executive_report(user, last_year, last_month, type))
+                _executive_report(order, user, last_year, last_month, type))
             after_Q_money = sum(
-                order.executive_report(user, after_year, after_month, type))
+                _executive_report(order, user, after_year, after_month, type))
             orders.append({'order': order, 'moneys': moneys, 'now_Q_money': now_Q_money,
                            'after_Q_money': after_Q_money, 'last_Q_money': last_Q_money})
     return orders
@@ -48,21 +85,27 @@ def _get_salers_user_by_location(client_orders, location, type='agent'):
     salers = []
     for k in client_orders:
         if type == 'agent':
-            salers += [u for u in k.agent_sales if u.team.location == location]
+            salers += [u for u in k['agent_sales'] if u['location'] == location]
         else:
             if int(location) == 3:
-                salers += [u for u in k.direct_sales if u.team.location ==
+                salers += [u for u in k['direct_sales'] if u['location'] ==
                            location]
             else:
-                salers += [u for u in k.direct_sales if u.team.location ==
-                           location and len(k.agent_sales) == 0]
-    return list(set(salers))
+                salers += [u for u in k['direct_sales'] if u['location'] ==
+                           location and len(k['agent_sales']) == 0]
+    f = lambda x, y: x if y in x else x + [y]
+    set_orders = reduce(f, [[], ] + salers)
+    return set_orders
 
 
 def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order', saler_type='agent'):
     for k in saler_orders:
-        k['total_order_money'] = sum(
-            [order['order'].zhixing_money(saler_type) for order in k['orders']])
+        if saler_type == 'agent':
+            k['total_order_money'] = sum(
+                [order['order']['zhixing_money'][0] for order in k['orders']])
+        else:
+            k['total_order_money'] = sum(
+                [order['order']['zhixing_money'][1] for order in k['orders']])
         k['total_now_Q_money'] = sum(
             [order['now_Q_money'] for order in k['orders']])
         k['total_last_Q_money'] = sum(
@@ -77,9 +120,13 @@ def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order', sa
             [order['moneys'][2] for order in k['orders']])
         if type == 'client_order':
             k['total_order_invoice'] = sum(
-                [order['order'].invoice_pass_sum for order in k['orders']])
-            k['total_order_mediums_money2'] = sum(
-                [order['order'].zhixing_medium_money2(saler_type) for order in k['orders']])
+                [order['order']['invoice_pass_sum'] for order in k['orders']])
+            if saler_type == 'agent':
+                k['total_order_mediums_money2'] = sum(
+                    [order['order']['zhixing_medium_money2'][0] for order in k['orders']])
+            else:
+                k['total_order_mediums_money2'] = sum(
+                    [order['order']['zhixing_medium_money2'][1] for order in k['orders']])
             k['total_frist_medium_money2_by_month'] = 0
             k['total_second_medium_money2_by_month'] = 0
             k['total_third_medium_money2_by_month'] = 0
@@ -90,12 +137,20 @@ def _get_report_total(saler_orders, now_year, Q_monthes, type='client_order', sa
             k['total_second_douban_money_by_month'] = 0
             k['total_third_douban_money_by_month'] = 0
             for i in range(len(Q_monthes)):
-                total_medium_money2 = sum([order['order'].get_executive_report_medium_money_by_month(
-                    now_year, Q_monthes[i], saler_type)['medium_money2'] for order in k['orders']])
-                sale_money = sum([order['order'].get_executive_report_medium_money_by_month(
-                    now_year, Q_monthes[i], saler_type)['sale_money'] for order in k['orders']])
-                douban_money = sum([order['order'].associated_douban_orders_pro_month_money(
-                    now_year, Q_monthes[i], saler_type) for order in k['orders']])
+                if saler_type == 'agent':
+                    total_medium_money2 = sum([order['order']['medium_money_by_month'][i][
+                                              0]['medium_money2'] for order in k['orders']])
+                    sale_money = sum([order['order']['medium_money_by_month'][i][
+                                     0]['sale_money'] for order in k['orders']])
+                    douban_money = sum(
+                        [order['order']['associated_douban_pro_month_money'][i][0] for order in k['orders']])
+                else:
+                    total_medium_money2 = sum([order['order']['medium_money_by_month'][i][
+                                              1]['medium_money2'] for order in k['orders']])
+                    sale_money = sum([order['order']['medium_money_by_month'][i][
+                                     1]['sale_money'] for order in k['orders']])
+                    douban_money = sum(
+                        [order['order']['associated_douban_pro_month_money'][i][1] for order in k['orders']])
                 if i == 0:
                     k['total_frist_medium_money2_by_month'] += total_medium_money2
                     k['total_frist_saler_money_by_month'] += sale_money
@@ -131,7 +186,7 @@ def douban_index():
         DoubanOrderExecutiveReport.month_day >= start_Q_month, DoubanOrderExecutiveReport.month_day <= end_Q_month)
         if report.douban_order.status == 1]))
     douban_orders = [
-        k for k in douban_orders if k.contract_status not in [7, 8, 9]]
+        _douban_order_to_dict(k, now_year, Q_monthes) for k in douban_orders if k.contract_status not in [7, 8, 9]]
     if g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or \
             g.user.is_finance() or g.user.is_media_leader():
         douban_orders = douban_orders
@@ -222,6 +277,74 @@ def douban_index():
                Q_monthes=Q_monthes, mediums=Medium.all(), location_id=location_id)
 
 
+def _douban_order_to_dict(douban_order, now_year, Q_monthes):
+    dict_order = {}
+    dict_order['client_name'] = douban_order.client.name
+    dict_order['agent_name'] = douban_order.agent.name
+    dict_order['contract'] = douban_order.contract
+    dict_order['campaign'] = douban_order.campaign
+    dict_order['industry_cn'] = douban_order.client.industry_cn
+    dict_order['direct_sales'] = [
+        {'id': k.id, 'name': k.name, 'location': k.team.location}for k in douban_order.direct_sales]
+    dict_order['agent_sales'] = [
+        {'id': k.id, 'name': k.name, 'location': k.team.location}for k in douban_order.agent_sales]
+    dict_order['zhixing_money'] = [
+        douban_order.zhixing_money('agent'), douban_order.zhixing_money('direct')]
+    dict_order['resource_type_cn'] = douban_order.resource_type_cn
+    dict_order['operater_users'] = [
+        {'id': k.id, 'name': k.name}for k in douban_order.operater_users]
+    dict_order['client_start'] = douban_order.client_start
+    dict_order['client_end'] = douban_order.client_end
+    dict_order['executive_report_data'] = douban_order.executive_report_data()
+    return dict_order
+
+
+def _client_order_to_dict(client_order, now_year, Q_monthes):
+    dict_order = {}
+    dict_order['client_name'] = client_order.client.name
+    dict_order['agent_name'] = client_order.agent.name
+    dict_order['contract'] = client_order.contract
+    dict_order['campaign'] = client_order.campaign
+    dict_order['industry_cn'] = client_order.client.industry_cn
+    dict_order['direct_sales'] = [
+        {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.direct_sales]
+    dict_order['agent_sales'] = [
+        {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.agent_sales]
+    dict_order['zhixing_money'] = [
+        client_order.zhixing_money('agent'), client_order.zhixing_money('direct')]
+    dict_order['invoice_pass_sum'] = client_order.invoice_pass_sum
+    dict_order['zhixing_medium_money2'] = [client_order.zhixing_medium_money2(
+        'agent'), client_order.zhixing_medium_money2('direct')]
+    dict_order['medium_orders'] = [{'name': k.medium.name,
+                                    'contract': k.associated_douban_contract,
+                                    'medium_id': k.medium.id,
+                                    'zhixing_medium_money2': [k.zhixing_medium_money2('agent'),
+                                                              k.zhixing_medium_money2('direct')],
+                                    'medium_money_by_month': [
+                                        [k.get_executive_report_medium_money_by_month(now_year, m, 'agent'),
+                                         k.get_executive_report_medium_money_by_month(now_year, m, 'direct')]
+                                        for m in Q_monthes],
+                                    'associated_douban_pro_month_money': [
+                                        [k.associated_douban_orders_pro_month_money(now_year, m, 'agent'),
+                                         k.associated_douban_orders_pro_month_money(now_year, m, 'direct')]
+                                        for m in Q_monthes]
+                                    } for k in client_order.medium_orders]
+    dict_order['medium_money_by_month'] = [
+        [client_order.get_executive_report_medium_money_by_month(now_year, m, 'agent'),
+         client_order.get_executive_report_medium_money_by_month(now_year, m, 'direct')] for m in Q_monthes]
+    dict_order['associated_douban_pro_month_money'] = [
+        [client_order.associated_douban_orders_pro_month_money(now_year, m, 'agent'),
+         client_order.associated_douban_orders_pro_month_money(now_year, m, 'direct')] for m in Q_monthes]
+
+    dict_order['resource_type_cn'] = client_order.resource_type_cn
+    dict_order['operater_users'] = [
+        {'id': k.id, 'name': k.name}for k in client_order.operater_users]
+    dict_order['client_start'] = client_order.client_start
+    dict_order['client_end'] = client_order.client_end
+    dict_order['executive_report_data'] = client_order.executive_report_data()
+    return dict_order
+
+
 @data_query_weekly_bp.route('/', methods=['GET'])
 def index():
     now_year = request.values.get('year', '')
@@ -242,12 +365,17 @@ def index():
     client_orders = list(set([report.client_order for report in ClientOrderExecutiveReport.query.filter(
         ClientOrderExecutiveReport.month_day >= start_Q_month, ClientOrderExecutiveReport.month_day <= end_Q_month)
         if report.client_order.status == 1]))
+
+    # 获取未撤单的合同
     client_orders = [
-        k for k in client_orders if k.contract_status not in [7, 8, 9]]
+        _client_order_to_dict(k, now_year, Q_monthes) for k in client_orders if k.contract_status not in [7, 8, 9]]
+
+    # 根据媒体查询合同
     if medium_id:
         client_orders = [
-            order for order in client_orders if medium_id in [k.id for k in order.mediums]]
+            order for order in client_orders if medium_id in [o['medium_id'] for o in order['medium_orders']]]
 
+    # 个级别管理查看不同的合同
     if g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or \
             g.user.is_finance() or g.user.is_media_leader():
         client_orders = client_orders
@@ -258,6 +386,7 @@ def index():
         client_orders = [
             o for o in client_orders if (g.user in o.direct_sales + o.agent_sales) or
             (g.user in o.get_saler_leaders())]
+
     huabei_agent_salers = []
     huabei_direct_salers = []
     huanan_agent_salers = []

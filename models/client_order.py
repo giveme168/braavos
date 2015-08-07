@@ -733,6 +733,11 @@ by %s\n
     def is_executive_report(self):
         return ClientOrderExecutiveReport.query.filter_by(client_order=self).count() > 0
 
+    def executive_report_data(self):
+        pre_reports = ClientOrderExecutiveReport.query.filter_by(
+            client_order=self)
+        return [{'month_day': k.month_day, 'money': k.money} for k in pre_reports]
+
     def executive_report(self, user, now_year, monthes, sale_type):
         if sale_type == 'agent':
             count = len(self.agent_sales)
@@ -762,28 +767,32 @@ by %s\n
         return moneys
 
     def get_executive_report_medium_money_by_month(self, year, month, sale_type):
-        if sale_type == 'agent':
-            count = len(self.agent_sales)
-            user = self.agent_sales[0]
-        else:
-            count = len(self.direct_sales)
-            user = self.direct_sales[0]
-        if user.team.location == 3:
-            count = len(self.agent_sales + self.direct_sales)
-        if sale_type == 'normal':
-            count = 1
-        from models.order import MediumOrderExecutiveReport
-        day_month = datetime.datetime.strptime(year + '-' + month, '%Y-%m')
-        executive_reports = MediumOrderExecutiveReport.query.filter_by(
-            client_order=self, month_day=day_month)
-        if executive_reports:
-            medium_money = sum([k.medium_money for k in executive_reports])
-            medium_money2 = sum([k.medium_money2 for k in executive_reports])
-            sale_money = sum([k.sale_money for k in executive_reports])
-            return {'medium_money': medium_money / count,
-                    'medium_money2': medium_money2 / count,
-                    'sale_money': sale_money / count}
-        else:
+        try:
+            if sale_type == 'agent':
+                count = len(self.agent_sales)
+                user = self.agent_sales[0]
+            else:
+                count = len(self.direct_sales)
+                user = self.direct_sales[0]
+            if user.team.location == 3:
+                count = len(self.agent_sales + self.direct_sales)
+            if sale_type == 'normal':
+                count = 1
+            from models.order import MediumOrderExecutiveReport
+            day_month = datetime.datetime.strptime(year + '-' + month, '%Y-%m')
+            executive_reports = MediumOrderExecutiveReport.query.filter_by(
+                client_order=self, month_day=day_month)
+            if executive_reports:
+                medium_money = sum([k.medium_money for k in executive_reports])
+                medium_money2 = sum(
+                    [k.medium_money2 for k in executive_reports])
+                sale_money = sum([k.sale_money for k in executive_reports])
+                return {'medium_money': medium_money / count,
+                        'medium_money2': medium_money2 / count,
+                        'sale_money': sale_money / count}
+            else:
+                return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
+        except:
             return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
 
     def get_saler_leaders(self):
