@@ -92,6 +92,11 @@
                     {% endif %}
                 {% endif %}
                 {% endif %}
+                {% if g.user.is_OPS() %}
+                {% if title == '所有请假申请列表' %}
+                <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=0">取消请假</a><br/>
+                {% endif %}
+                {% endif %}
             </td>
         </tr>
         {% endfor %}
