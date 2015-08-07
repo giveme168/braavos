@@ -1,7 +1,7 @@
 {% extends "/data_query/data_query_base.html" %}
 {% block title %}媒体清单{% endblock %}
 {% block main_box %}
-<div class="bra-main bra-box" style="width:2200px;">
+<div class="bra-main bra-box" id="medium_box" style="width:1000px;">
     <h3>媒体清单&nbsp;&nbsp;<input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();"></h3>
     <br>
     <table class="table table-bordered">
@@ -440,6 +440,10 @@
 </div>
 
 <script>
+    $(function(){
+        var width = 100*parseInt('{{other_money.profit|length}}')
+        $("#medium_box").width(width)
+    })
     function download(){
          window.location.href = window.location.pathname + '?action=download';
     }

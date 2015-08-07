@@ -37,18 +37,22 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
         for k in salers:
             medium_orders_count = 0
             for i in k['orders']:
-                worksheet.write(th, 2, i['order'].client.name, align_left)
-                worksheet.write(th, 3, i['order'].contract, align_left)
-                worksheet.write(th, 4, i['order'].agent.name, align_left)
-                worksheet.write(th, 5, i['order'].campaign, align_left)
+                worksheet.write(th, 2, i['order']['client_name'], align_left)
+                worksheet.write(th, 3, i['order']['contract'], align_left)
+                worksheet.write(th, 4, i['order']['agent_name'], align_left)
+                worksheet.write(th, 5, i['order']['campaign'], align_left)
                 worksheet.write(
-                    th, 6, i['order'].client.industry_cn, align_left)
+                    th, 6, i['order']['industry_cn'], align_left)
                 worksheet.write(
-                    th, 7, ','.join([u.name for u in i['order'].direct_sales]), align_left)
+                    th, 7, ','.join([u['name'] for u in i['order']['direct_sales']]), align_left)
                 worksheet.write(
-                    th, 8, ','.join([u.name for u in i['order'].agent_sales]), align_left)
-                worksheet.write(
-                    th, 9, i['order'].zhixing_money(stype), align_left)
+                    th, 8, ','.join([u['name'] for u in i['order']['agent_sales']]), align_left)
+                if stype == 'agent':
+                    worksheet.write(
+                        th, 9, i['order']['zhixing_money'][0], align_left)
+                else:
+                    worksheet.write(
+                        th, 9, i['order']['zhixing_money'][1], align_left)
                 worksheet.write(th, 10, "", align_left)
                 worksheet.write(th, 11, i['now_Q_money'], align_left)
                 worksheet.write(th, 12, i['last_Q_money'], align_left)
@@ -56,19 +60,19 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                 for m in range(len(i['moneys'])):
                     worksheet.write(th, 14 + m, i['moneys'][m], align_left)
                 worksheet.write(
-                    th, 17, i['order'].resource_type_cn, align_left)
+                    th, 17, i['order']['resource_type_cn'], align_left)
                 worksheet.write(
-                    th, 18, ",".join([u.name for u in i['order'].operater_users]), align_left)
+                    th, 18, ",".join([u['name'] for u in i['order']['operater_users']]), align_left)
                 worksheet.write(
-                    th, 19, i['order'].client_start.strftime('%Y/%m/%d'), align_left)
+                    th, 19, i['order']['client_start'].strftime('%Y/%m/%d'), align_left)
                 worksheet.write(
-                    th, 20, i['order'].client_end.strftime('%Y/%m/%d'), align_left)
+                    th, 20, i['order']['client_end'].strftime('%Y/%m/%d'), align_left)
                 th += 1
             orders_count = len(k['orders'])
             worksheet.merge_range(
                 th - orders_count, 1, th - 1, 1, u'确认', align_left)
             worksheet.merge_range(
-                th - orders_count, 0, th + 1, 0, k['user'].name, align_left)
+                th - orders_count, 0, th + 1, 0, k['user']['name'], align_left)
             worksheet.merge_range(th, 1, th, 8, 'Tatol', align_left)
             worksheet.write(th, 9, k['total_order_money'], align_left)
             worksheet.write(th, 10, '', align_left)
@@ -102,27 +106,35 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
         for k in salers:
             medium_orders_count = 0
             for i in k['orders']:
-                medium_orders = i['order'].medium_orders
+                medium_orders = i['order']['medium_orders']
                 medium_orders_count += len(medium_orders)
                 if len(medium_orders) == 0:
                     medium_orders_count += 1
                 medium_order_count = len(medium_orders)
                 if medium_order_count == 0 or medium_order_count == 1:
-                    worksheet.write(th, 2, i['order'].client.name, align_left)
-                    worksheet.write(th, 3, i['order'].contract, align_left)
-                    worksheet.write(th, 4, i['order'].agent.name, align_left)
-                    worksheet.write(th, 5, i['order'].campaign, align_left)
                     worksheet.write(
-                        th, 6, i['order'].client.industry_cn, align_left)
+                        th, 2, i['order']['client_name'], align_left)
+                    worksheet.write(th, 3, i['order']['contract'], align_left)
+                    worksheet.write(th, 4, i['order']['agent_name'], align_left)
+                    worksheet.write(th, 5, i['order']['campaign'], align_left)
                     worksheet.write(
-                        th, 7, ','.join([u.name for u in i['order'].direct_sales]), align_left)
+                        th, 6, i['order']['industry_cn'], align_left)
                     worksheet.write(
-                        th, 8, ','.join([u.name for u in i['order'].agent_sales]), align_left)
-                    worksheet.write(th, 9, i['order'].zhixing_money(stype), align_left)
+                        th, 7, ','.join([u['name'] for u in i['order']['direct_sales']]), align_left)
                     worksheet.write(
-                        th, 10, i['order'].invoice_pass_sum, align_left)
+                        th, 8, ','.join([u['name'] for u in i['order']['agent_sales']]), align_left)
+                    if stype == 'agent':
+                        worksheet.write(
+                            th, 9, i['order']['zhixing_money'][0], align_left)
+                        worksheet.write(
+                            th, 11, i['order']['zhixing_medium_money2'][0], align_left)
+                    else:
+                        worksheet.write(
+                            th, 9, i['order']['zhixing_money'][1], align_left)
+                        worksheet.write(
+                            th, 11, i['order']['zhixing_medium_money2'][1], align_left)
                     worksheet.write(
-                        th, 11, i['order'].zhixing_medium_money2(stype), align_left)
+                        th, 10, i['order']['invoice_pass_sum'], align_left)
                     worksheet.write(th, 24, '', align_left)
                     worksheet.write(th, 25, i['now_Q_money'], align_left)
                     worksheet.write(th, 26, i['last_Q_money'], align_left)
@@ -130,34 +142,40 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                     for m in range(len(i['moneys'])):
                         worksheet.write(th, 28 + m, i['moneys'][m], align_left)
                     worksheet.write(
-                        th, 31, i['order'].resource_type_cn, align_left)
+                        th, 31, i['order']['resource_type_cn'], align_left)
                     worksheet.write(
-                        th, 32, ",".join([u.name for u in i['order'].operater_users]), align_left)
+                        th, 32, ",".join([u['name'] for u in i['order']['operater_users']]), align_left)
                     worksheet.write(
-                        th, 33, i['order'].client_start.strftime('%Y/%m/%d'), align_left)
+                        th, 33, i['order']['client_start'].strftime('%Y/%m/%d'), align_left)
                     worksheet.write(
-                        th, 34, i['order'].client_end.strftime('%Y/%m/%d'), align_left)
+                        th, 34, i['order']['client_end'].strftime('%Y/%m/%d'), align_left)
                 else:
                     worksheet.merge_range(
-                        th, 2, th + medium_order_count - 1, 2, i['order'].client.name, align_left)
+                        th, 2, th + medium_order_count - 1, 2, i['order']['client_name'], align_left)
                     worksheet.merge_range(
-                        th, 3, th + medium_order_count - 1, 3, i['order'].contract, align_left)
+                        th, 3, th + medium_order_count - 1, 3, i['order']['contract'], align_left)
                     worksheet.merge_range(
-                        th, 4, th + medium_order_count - 1, 4, i['order'].agent.name, align_left)
+                        th, 4, th + medium_order_count - 1, 4, i['order']['agent_name'], align_left)
                     worksheet.merge_range(
-                        th, 5, th + medium_order_count - 1, 5, i['order'].campaign, align_left)
+                        th, 5, th + medium_order_count - 1, 5, i['order']['campaign'], align_left)
                     worksheet.merge_range(
-                        th, 6, th + medium_order_count - 1, 6, i['order'].client.industry_cn, align_left)
+                        th, 6, th + medium_order_count - 1, 6, i['order']['industry_cn'], align_left)
                     worksheet.merge_range(th, 7, th + medium_order_count - 1, 7,
-                                          ','.join([u.name for u in i['order'].direct_sales]), align_left)
+                                          ','.join([u['name'] for u in i['order']['direct_sales']]), align_left)
                     worksheet.merge_range(th, 8, th + medium_order_count - 1, 8,
-                                          ','.join([u.name for u in i['order'].agent_sales]), align_left)
+                                          ','.join([u['name'] for u in i['order']['agent_sales']]), align_left)
+                    if stype == 'agent':
+                        worksheet.merge_range(
+                            th, 9, th + medium_order_count - 1, 9, i['order']['zhixing_money'][0], align_left)
+                        worksheet.merge_range(
+                            th, 11, th + medium_order_count - 1, 11, i['order']['zhixing_medium_money2'][0], align_left)
+                    else:
+                        worksheet.merge_range(
+                            th, 9, th + medium_order_count - 1, 9, i['order']['zhixing_money'][1], align_left)
+                        worksheet.merge_range(
+                            th, 11, th + medium_order_count - 1, 11, i['order']['zhixing_medium_money2'][1], align_left)
                     worksheet.merge_range(
-                        th, 9, th + medium_order_count - 1, 9, i['order'].money, align_left)
-                    worksheet.merge_range(
-                        th, 10, th + medium_order_count - 1, 10, i['order'].invoice_pass_sum, align_left)
-                    worksheet.merge_range(
-                        th, 11, th + medium_order_count - 1, 11, i['order'].zhixing_medium_money2(stype), align_left)
+                        th, 10, th + medium_order_count - 1, 10, i['order']['invoice_pass_sum'], align_left)
                     worksheet.merge_range(
                         th, 24, th + medium_order_count - 1, 24, '', align_left)
                     worksheet.merge_range(
@@ -170,33 +188,67 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
                         worksheet.merge_range(
                             th, 28 + m, th + medium_order_count - 1, 28 + m, i['moneys'][m], align_left)
                     worksheet.merge_range(
-                        th, 31, th + medium_order_count - 1, 31, i['order'].resource_type_cn, align_left)
+                        th, 31, th + medium_order_count - 1, 31, i['order']['resource_type_cn'], align_left)
                     worksheet.merge_range(th, 32, th + medium_order_count - 1,
-                                          32, ",".join([u.name for u in i['order'].operater_users]), align_left)
+                                          32, ",".join([u['name'] for u in i['order']['operater_users']]), align_left)
                     worksheet.merge_range(th, 33, th + medium_order_count - 1, 33,
-                                          i['order'].client_start.strftime('%Y/%m/%d'), align_left)
+                                          i['order']['client_start'].strftime('%Y/%m/%d'), align_left)
                     worksheet.merge_range(th, 34, th + medium_order_count - 1, 34,
-                                          i['order'].client_end.strftime('%Y/%m/%d'), align_left)
+                                          i['order']['client_end'].strftime('%Y/%m/%d'), align_left)
                 if medium_orders:
                     for j in range(len(medium_orders)):
                         worksheet.write(
-                            th, 12, medium_orders[j].name, align_left)
+                            th, 12, medium_orders[j]['name'], align_left)
                         worksheet.write(
-                            th, 13, medium_orders[j].associated_douban_contract, align_left)
-                        worksheet.write(
-                            th, 14, medium_orders[j].zhixing_medium_money2(stype), align_left)
-                        for m in range(len(Q_monthes)):
-                            worksheet.write(th, 15 + m, medium_orders[j].get_executive_report_medium_money_by_month(
-                                now_year, Q_monthes[m], stype)['sale_money'], align_left)
-                        for m in range(len(Q_monthes)):
-                            worksheet.write(th, 18 + m, medium_orders[j].get_executive_report_medium_money_by_month(
-                                now_year, Q_monthes[m], stype)['medium_money2'], align_left)
-                        for m in range(len(Q_monthes)):
+                            th, 13, medium_orders[j]['contract'], align_left)
+                        if stype == 'agent':
                             worksheet.write(
-                                th, 21 + m, medium_orders[j].associated_douban_orders_pro_month_money(now_year,
-                                                                                                      Q_monthes[m],
-                                                                                                      stype),
-                                align_left)
+                                th, 14, medium_orders[j]['zhixing_medium_money2'][0], align_left)
+                            for m in range(len(Q_monthes)):
+                                worksheet.write(
+                                    th,
+                                    15 + m,
+                                    medium_orders[j]['medium_money_by_month'][
+                                        m][0]['sale_money'],
+                                    align_left)
+                            for m in range(len(Q_monthes)):
+                                worksheet.write(
+                                    th,
+                                    18 + m,
+                                    medium_orders[j]['medium_money_by_month'][
+                                        m][0]['medium_money2'],
+                                    align_left)
+                            for m in range(len(Q_monthes)):
+                                worksheet.write(
+                                    th,
+                                    21 + m,
+                                    medium_orders[j][
+                                        'associated_douban_pro_month_money'][m][0],
+                                    align_left)
+                        else:
+                            worksheet.write(
+                                th, 14, medium_orders[j]['zhixing_medium_money2'][1], align_left)
+                            for m in range(len(Q_monthes)):
+                                worksheet.write(
+                                    th,
+                                    15 + m,
+                                    medium_orders[j]['medium_money_by_month'][
+                                        m][1]['sale_money'],
+                                    align_left)
+                            for m in range(len(Q_monthes)):
+                                worksheet.write(
+                                    th,
+                                    18 + m,
+                                    medium_orders[j]['medium_money_by_month'][
+                                        m][1]['medium_money2'],
+                                    align_left)
+                            for m in range(len(Q_monthes)):
+                                worksheet.write(
+                                    th,
+                                    21 + m,
+                                    medium_orders[j][
+                                        'associated_douban_pro_month_money'][m][1],
+                                    align_left)
                         th += 1
                 else:
                     worksheet.write(th, 12, '', align_left)
@@ -213,7 +265,7 @@ def _insert_excel(workbook, worksheet, salers, stype, location, now_year, Q, Q_m
             worksheet.merge_range(
                 th - medium_orders_count, 1, th - 1, 1, u'确认', align_left)
             worksheet.merge_range(
-                th - medium_orders_count, 0, th + 1, 0, k['user'].name, align_left)
+                th - medium_orders_count, 0, th + 1, 0, k['user']['name'], align_left)
             worksheet.merge_range(th, 1, th, 8, 'Tatol', align_left)
             worksheet.write(th, 9, k['total_order_money'], align_left)
             worksheet.write(th, 10, k['total_order_invoice'], align_left)

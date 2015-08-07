@@ -411,7 +411,8 @@ by %s\n
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales + [self.creator] + [k for k in self.operaters]
+        owner = self.direct_sales + self.agent_sales + \
+            [self.creator] + [k for k in self.operaters]
         return user.is_admin() or user in owner
 
     @classmethod
@@ -528,6 +529,11 @@ by %s\n
     def is_executive_report(self):
         return DoubanOrderExecutiveReport.query.filter_by(douban_order=self).count() > 0
 
+    def executive_report_data(self):
+        pre_reports = DoubanOrderExecutiveReport.query.filter_by(
+            douban_order=self)
+        return [{'month_day': k.month_day, 'money': k.money} for k in pre_reports]
+
     def executive_report(self, user, now_year, monthes, sale_type):
         if sale_type == 'agent':
             count = len(self.agent_sales)
@@ -537,11 +543,13 @@ by %s\n
             count = len(self.agent_sales + self.direct_sales)
         if sale_type == 'normal':
             count = 1
-        pre_reports = DoubanOrderExecutiveReport.query.filter_by(douban_order=self)
+        pre_reports = DoubanOrderExecutiveReport.query.filter_by(
+            douban_order=self)
         moneys = []
         for j in monthes:
             try:
-                pre_report = pre_reports.filter_by(month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
+                pre_report = pre_reports.filter_by(
+                    month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
             except:
                 pre_report = None
             if pre_report:
@@ -598,15 +606,18 @@ by %s\n
                 douban_order=self, reject_time=datetime.date.today())
 
     def zhixing_money(self, sale_type):
-        if sale_type == 'agent':
-            count = len(self.agent_sales)
-            user = self.agent_sales[0]
-        else:
-            count = len(self.direct_sales)
-            user = self.direct_sales[0]
-        if user.team.location == 3:
-            count = len(self.agent_sales + self.direct_sales)
-        return self.money / count
+        try:
+            if sale_type == 'agent':
+                count = len(self.agent_sales)
+                user = self.agent_sales[0]
+            else:
+                count = len(self.direct_sales)
+                user = self.direct_sales[0]
+            if user.team.location == 3:
+                count = len(self.agent_sales + self.direct_sales)
+            return self.money / count
+        except:
+            return 0
 
     @property
     def order_path(self):

@@ -38,14 +38,18 @@
     </tr>
         {% for i in k.orders %}
             <tr>
-                <td>{{i.order.client.name}}</td>
+                <td>{{i.order.client_name}}</td>
                 <td>{{i.order.contract}}</td>
-                <td>{{i.order.agent.name}}</td>
+                <td>{{i.order.agent_name}}</td>
                 <td>{{i.order.campaign}}</td>
-                <td>{{i.order.client.industry_cn}}</td>
-                <td>{% for u in i.order.direct_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                <td>{% for u in i.order.agent_sales %}{{u.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                <td>{{i.order.zhixing_money(type)|format_price}}</td>
+                <td>{{i.order.industry_cn}}</td>
+                <td>{% for u in i.order.direct_sales %}{{u.name}}<br/>{% endfor %}</td>
+                <td>{% for u in i.order.agent_sales %}{{u.name}}<br/>{% endfor %}</td>
+                {% if type == 'agent' %}
+                <td>{{i.order.zhixing_money[0]|format_price}}</td>
+                {% else %}
+                <td>{{i.order.zhixing_money[1]|format_price}}</td>
+                {% endif %}
                 <td></td>
                 <td>{{i.now_Q_money|format_price}}</td>
                 <td>{{i.last_Q_money|format_price}}</td>
