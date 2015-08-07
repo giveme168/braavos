@@ -63,6 +63,12 @@
         </div>
         <br/>
         <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="javascript:history.go(-1);">返回</a>
+        {% if out.status == 1 %}
+          {% if g.user in out.creator.team_leaders or g.user.is_super_admin() %}
+             <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_out.status', oid=out.id)}}?status=2">同意</a>
+             <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_out.status', oid=out.id)}}?status=11">不同意</a>
+          {% endif %}
+        {% endif %}
     </form>
 </div>
 {% endblock %}
