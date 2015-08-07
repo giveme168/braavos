@@ -450,9 +450,9 @@ def apply_leave(sender, leave):
             url_for('account_leave.index', user_id=leave.creator.id)
     to_users = leave.senders + leave.creator.team_leaders + \
         [leave.creator] + [g.user]
-    to_emails = list(set([k.email for k in to_users]))  # + ['admin@inad.com']
+    to_emails = list(set([k.email for k in to_users])) + ['admin@inad.com']
     if leave.is_long_leave():
-        to_emails  # += ['huangliang@inad.com']
+        to_emails += ['huangliang@inad.com']
 
     body = u"""
 Dear %s:
