@@ -550,39 +550,45 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return round(ex_monety * rebate / 100, 2)
 
     def get_executive_report_medium_money_by_month(self, year, month, sale_type):
-        if sale_type == 'agent':
-            count = len(self.agent_sales)
-            user = self.agent_sales[0]
-        elif sale_type == 'normal':
-            count = 1
-        else:
-            count = len(self.direct_sales)
-            user = self.direct_sales[0]
-        if sale_type != 'normal' and user.team.location == 3:
-            count = len(set(self.agent_sales + self.direct_sales))
-        day_month = datetime.datetime.strptime(
-            str(year) + '-' + str(month), '%Y-%m')
-        executive_report = MediumOrderExecutiveReport.query.filter_by(
-            order=self, month_day=day_month).first()
-        if executive_report:
-            return {'medium_money': round(executive_report.medium_money / count, 2),
-                    'medium_money2': round(executive_report.medium_money2 / count, 2),
-                    'sale_money': round(executive_report.sale_money / count, 2)}
-        else:
+        try:
+            if sale_type == 'agent':
+                count = len(self.agent_sales)
+                user = self.agent_sales[0]
+            elif sale_type == 'normal':
+                count = 1
+            else:
+                count = len(self.direct_sales)
+                user = self.direct_sales[0]
+            if sale_type != 'normal' and user.team.location == 3:
+                count = len(set(self.agent_sales + self.direct_sales))
+            day_month = datetime.datetime.strptime(
+                str(year) + '-' + str(month), '%Y-%m')
+            executive_report = MediumOrderExecutiveReport.query.filter_by(
+                order=self, month_day=day_month).first()
+            if executive_report:
+                return {'medium_money': round(executive_report.medium_money / count, 2),
+                        'medium_money2': round(executive_report.medium_money2 / count, 2),
+                        'sale_money': round(executive_report.sale_money / count, 2)}
+            else:
+                return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
+        except:
             return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
 
     def zhixing_medium_money2(self, sale_type):
-        if sale_type == 'agent':
-            count = len(self.agent_sales)
-            user = self.agent_sales[0]
-        else:
-            count = len(self.direct_sales)
-            user = self.direct_sales[0]
-        if user.team.location == 3:
-            count = len(set(self.agent_sales + self.direct_sales))
-        if self.medium_money2:
-            return self.medium_money2 / count
-        return 0
+        try:
+            if sale_type == 'agent':
+                count = len(self.agent_sales)
+                user = self.agent_sales[0]
+            else:
+                count = len(self.direct_sales)
+                user = self.direct_sales[0]
+            if user.team.location == 3:
+                count = len(set(self.agent_sales + self.direct_sales))
+            if self.medium_money2:
+                return self.medium_money2 / count
+            return 0
+        except:
+            return 0
 
     def get_medium_rebate_money(self):
         rebate = self.medium.rebate_by_year(year=self.start_date.year)
@@ -602,27 +608,30 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             return {}
 
     def associated_douban_orders_pro_month_money(self, year, month, sale_type):
-        if sale_type == 'agent':
-            count = len(self.agent_sales)
-            user = self.agent_sales[0]
-        else:
-            count = len(self.direct_sales)
-            user = self.direct_sales[0]
-        if user.team.location == 3:
-            count = len(set(self.agent_sales + self.direct_sales))
-        if self.associated_douban_orders.count():
-            pre_money = float(self.associated_douban_orders[0].money) / \
-                ((self.medium_end - self.medium_start).days + 1)
-            pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
-                                                  datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
-            pre_month_money_data = 0
-            search_pro_month = datetime.datetime.strptime(year + '-' + month, "%Y-%m")
-            for k in pre_month_days:
-                if k['month'] == search_pro_month:
-                    pre_month_money_data = round(pre_money * k['days'], 2)
-                    break
-            return pre_month_money_data / count
-        return 0
+        try:
+            if sale_type == 'agent':
+                count = len(self.agent_sales)
+                user = self.agent_sales[0]
+            else:
+                count = len(self.direct_sales)
+                user = self.direct_sales[0]
+            if user.team.location == 3:
+                count = len(set(self.agent_sales + self.direct_sales))
+            if self.associated_douban_orders.count():
+                pre_money = float(self.associated_douban_orders[0].money) / \
+                    ((self.medium_end - self.medium_start).days + 1)
+                pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
+                                                      datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
+                pre_month_money_data = 0
+                search_pro_month = datetime.datetime.strptime(year + '-' + month, "%Y-%m")
+                for k in pre_month_days:
+                    if k['month'] == search_pro_month:
+                        pre_month_money_data = round(pre_money * k['days'], 2)
+                        break
+                return pre_month_money_data / count
+            return 0
+        except:
+            return 0
 
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):

@@ -15,6 +15,18 @@
                     {% endfor %}
                 </select>
             </div>
+            
+            <div class="form-group">
+                <label for="">状态</label>
+                <select id="status" name="status" style="width:150px;">
+                    <option value="0">全部</value>
+                    {% if title=='下属的外出报备列表' %}
+                    <option value="1">外出报备申请中</value>
+                    {% endif %}
+                    <option value="2">外出报备申请通过</value>
+                    <option value="3">已填写会议纪要</value>
+                </select>
+            </div>
             <div class="form-group">
                 <label for="">开始时间</label>
                 <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:ii">
@@ -40,7 +52,7 @@
         </tr>
         {% for o in outs %}
         <tr>
-            <td>{{o.creator.name}}</td>
+            <td><a href="{{url_for('account_out.info', oid=o.id)}}">{{o.creator.name}}</a></td>
             <td>{{o.start_time_cn}}</td>
             <td>{{o.end_time_cn}}</td>
             <td>{{o.m_persion_cn}}</td>
@@ -48,7 +60,12 @@
             <td>{{o.reason}}</td>
             <td>{{o.status_cn}}</td>
             <td>
+                {% if o.status == 1 %}
+                <a href="{{url_for('account_out.status', oid=o.id)}}?status=2">同意</a><br/>
+                <a href="{{url_for('account_out.status', oid=o.id)}}?status=11">不同意</a>
+                {% else %}
                 <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

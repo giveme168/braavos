@@ -450,9 +450,9 @@ def apply_leave(sender, leave):
             url_for('account_leave.index', user_id=leave.creator.id)
     to_users = leave.senders + leave.creator.team_leaders + \
         [leave.creator] + [g.user]
-    to_emails = list(set([k.email for k in to_users])) + ['admin@inad.com']
+    to_emails = list(set([k.email for k in to_users]))  # + ['admin@inad.com']
     if leave.is_long_leave():
-        to_emails += ['huangliang@inad.com']
+        to_emails  # += ['huangliang@inad.com']
 
     body = u"""
 Dear %s:
@@ -556,10 +556,19 @@ Dear %s:
 def out_apply(sender, out, status):
     if status == 1:
         msg = u'外出报备申请'
+        to_name = ','.join([k.name for k in out.creator.team_leaders])
     elif status == 10:
         msg = u'外出报备撤销'
+        to_name = ','.join([k.name for k in out.creator.team_leaders])
+    elif status == 11:
+        msg = u'外出报备被驳回'
+        to_name = out.creator.name
     elif status == 2:
+        msg = u'外出报备申请通过'
+        to_name = out.creator.name
+    elif status == 3:
         msg = u'会议纪要填写完成'
+        to_name = ','.join([k.name for k in out.creator.team_leaders])
     title = u'【外出报备】' + '-' + out.creator.name
     url = mail.app.config['DOMAIN'] + url_for('account_out.info', oid=out.id)
     body = u"""
@@ -580,22 +589,22 @@ Dear %s:
 附注: 
     外出报备链接地址: %s
 
-    """ % (','.join([k.name for k in out.creator.team_leaders]), msg, out.start_time_cn,
+    """ % (to_name, msg, out.start_time_cn,
            out.end_time_cn, out.m_persion_cn, out.persions, out.address, out.reason, out.meeting_s, url)
 
     if out.creator_type == 1:
         to_users = [k.email for k in out.creator.team_leaders] + \
-            ['admin@inad.com'] + [g.user.email]
-        if status == 2:
-            to_users = [k.email for k in out.creator.team_leaders] + \
-                ['bus@inad.com'] + [g.user.email]
+            [g.user.email] + ['admin@inad.com']
+        if status == 3:
+            to_users == [k.email for k in out.creator.team_leaders] + \
+                [g.user.email] + ['bus@inad.com']
         send_simple_mail(title, to_users, body=body)
     else:
         to_users = [k.email for k in out.creator.team_leaders] + \
-            ['admin@inad.com'] + [g.user.email]
-        if status == 2:
-            to_users = [
-                k.email for k in out.creator.team_leaders] + [g.user.email]
+            [g.user.email] + ['admin@inad.com']
+        if status == 3:
+            to_users = [k.email for k in out.creator.team_leaders] + \
+                [g.user.email]
         send_simple_mail(title, to_users, body=body)
 
 

@@ -155,13 +155,6 @@
                 <span> {{g.user.name}}</span>
                 <span class="caret"></span>
               </a>
-              {% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_admin()) %}
-              <ul class="dropdown-menu" role="menu">
-                <li><a href="{{url_for('user.pwd_change')}}">密码修改</a></li>
-                <li><a href="https://cn.gravatar.com/" target="_blank">头像修改</a></li>
-                <li><a href="{{url_for('user.logout')}}">登出</a></li>
-              </ul>
-              {% else %}
               <ul class="dropdown-menu" role="menu">
                 <li><a href="{{url_for('account_kpi.index')}}">绩效考核</a></li>
                 <li><a href="{{url_for('account_out.index')}}">外出报备</a></li>
@@ -170,7 +163,6 @@
                 <li><a href="https://cn.gravatar.com/" target="_blank">头像修改</a></li>
                 <li><a href="{{url_for('user.logout')}}">登出</a></li>
               </ul>
-              {% endif %}
             </li>
           </ul>
         </div><!-- /.navbar-collapse -->

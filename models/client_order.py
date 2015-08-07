@@ -802,26 +802,32 @@ by %s\n
                 client_order=self, reject_time=datetime.date.today())
 
     def zhixing_money(self, sale_type):
-        if sale_type == 'agent':
-            count = len(self.agent_sales)
-            user = self.agent_sales[0]
-        else:
-            count = len(self.direct_sales)
-            user = self.direct_sales[0]
-        if user.team.location == 3:
-            count = len(self.agent_sales + self.direct_sales)
-        return self.money / count
+        try:
+            if sale_type == 'agent':
+                count = len(self.agent_sales)
+                user = self.agent_sales[0]
+            else:
+                count = len(self.direct_sales)
+                user = self.direct_sales[0]
+            if user.team.location == 3:
+                count = len(self.agent_sales + self.direct_sales)
+            return self.money / count
+        except:
+            return 0
 
     def zhixing_medium_money2(self, sale_type):
-        if sale_type == 'agent':
-            count = len(self.agent_sales)
-            user = self.agent_sales[0]
-        else:
-            count = len(self.direct_sales)
-            user = self.direct_sales[0]
-        if user.team.location == 3:
-            count = len(self.agent_sales + self.direct_sales)
-        return self.mediums_money2 / count
+        try:
+            if sale_type == 'agent':
+                count = len(self.agent_sales)
+                user = self.agent_sales[0]
+            else:
+                count = len(self.direct_sales)
+                user = self.direct_sales[0]
+            if user.team.location == 3:
+                count = len(self.agent_sales + self.direct_sales)
+            return self.mediums_money2 / count
+        except:
+            return 0
 
     @property
     def order_path(self):

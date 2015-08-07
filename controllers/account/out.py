@@ -3,7 +3,7 @@ import datetime
 from flask import Blueprint, request, redirect, url_for, g
 from flask import render_template as tpl, flash, current_app
 
-from models.user import User, Out, OUT_STATUS_APPLY, OUT_STATUS_MEETED
+from models.user import User, Out, OUT_STATUS_APPLY, OUT_STATUS_MEETED, OUT_STATUS_PASS
 from models.client import Client, Agent
 from models.medium import Medium
 from libs.signals import apply_out_signal
@@ -44,6 +44,7 @@ def _get_all_under_users(self_user_id):
 def underling():
     user_id = int(request.values.get('user_id', 0))
     page = int(request.values.get('p', 1))
+    status = int(request.values.get('status', 0))
     start = request.values.get('start', '')
     end = request.values.get('end', '')
 
@@ -53,45 +54,54 @@ def underling():
     else:
         underling_user_ids = list(set([k['uid'] for k in under_users]))
     outs = [k for k in Out.all() if k.creator.id in underling_user_ids and k.status in [
-        OUT_STATUS_APPLY, OUT_STATUS_MEETED]]
+        OUT_STATUS_APPLY, OUT_STATUS_PASS, OUT_STATUS_MEETED]]
 
     if start and end:
         start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
         end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
         outs = [k for k in outs if k.start_time >=
                 start_time and k.start_time < end_time]
+    if status:
+        outs = [k for k in outs if k.status == status]
     paginator = Paginator(outs, 50)
     try:
         outs = paginator.page(page)
     except:
         outs = paginator.page(paginator.num_pages)
     return tpl('/account/out/outs.html', outs=outs, user_id=user_id, start=start,
-               title=u'下属的外出报备列表', under_users=under_users,
-               params="&user_id=%s&start=%s&end=%s" % (user_id, start, end), end=end, page=page)
+               title=u'下属的外出报备列表', under_users=under_users, status=status,
+               params="&user_id=%s&start=%s&end=%s&status=%s" % (
+                   user_id, start, end, status),
+               end=end, page=page)
 
 
 @account_out_bp.route('/outs')
 def outs():
     user_id = int(request.values.get('user_id', 0))
     page = int(request.values.get('p', 1))
+    status = int(request.values.get('status', 0))
     start = request.values.get('start', '')
     end = request.values.get('end', '')
     outs = [
-        k for k in Out.all() if k.status in [OUT_STATUS_APPLY, OUT_STATUS_MEETED]]
+        k for k in Out.all() if k.status > 1]
 
     if start and end:
         start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
         end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
         outs = [k for k in outs if k.start_time >=
                 start_time and k.start_time < end_time]
+    if status:
+        outs = [k for k in outs if k.status == status]
     paginator = Paginator(outs, 50)
     try:
         outs = paginator.page(page)
     except:
         outs = paginator.page(paginator.num_pages)
     return tpl('/account/out/outs.html', outs=outs, user_id=user_id, start=start,
-               title=u'所有外出报备列表',
-               params="&user_id=%s&start=%s&end=%s" % (user_id, start, end), end=end, page=page)
+               title=u'所有外出报备列表', status=status,
+               params="&user_id=%s&start=%s&end=%s&status=%s" % (
+                   user_id, start, end, status),
+               end=end, page=page)
 
 
 @account_out_bp.route('/create', methods=['GET', 'POST'])
@@ -149,14 +159,23 @@ def status(oid):
     if status == 10:
         out.status = 0
         msg = u'外出报备撤回'
+    elif status == 11:
+        out.status = 0
+        msg = u'外出报备被驳回'
     elif status == 1:
         out.status = 1
         msg = u'外出报备，邮件已发出'
+    elif status == 2:
+        out.status = 2
+        msg = u'同意报备通过'
     out.save()
     flash(msg, 'success')
     apply_out_signal.send(
         current_app._get_current_object(), out=out, status=status)
-    return redirect(url_for('account_out.index'))
+    if g.user == out.creator:
+        return redirect(url_for('account_out.index'))
+    else:
+        return redirect(url_for('account_out.underling'))
 
 
 @account_out_bp.route('/<oid>/delete')
@@ -178,11 +197,11 @@ def meeting_s(oid):
     if request.method == 'POST':
         meeting_s = request.values.get('meeting_s', '')
         out.meeting_s = meeting_s
-        out.status = 2
+        out.status = 3
         out.save()
         flash(u'会议纪要填写完毕', 'success')
         apply_out_signal.send(
-            current_app._get_current_object(), out=out, status=2)
+            current_app._get_current_object(), out=out, status=3)
         return redirect(url_for('account_out.index'))
     return tpl('/account/out/meeting_s.html', out=out)
 
