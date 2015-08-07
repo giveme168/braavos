@@ -136,7 +136,7 @@ def create(user_id):
             apply_leave_signal.send(
                 current_app._get_current_object(), leave=leave)
         return redirect(url_for('account_leave.index', user_id=user_id))
-    days = [{'key': k, 'value': k} for k in range(1, 21)]
+    days = [{'key': k, 'value': k} for k in range(0, 21)]
     days += [{'key': k, 'value': k} for k in [30, 98, 113, 128]]
     return tpl('/account/leave/create.html', form=form, leave=None, days=days)
 
@@ -190,7 +190,7 @@ def update(user_id, lid):
     form.type.data = leave.type
     form.reason.data = leave.reason
     form.senders.data = [u.id for u in leave.senders]
-    days = [{'key': k, 'value': k} for k in range(1, 21)]
+    days = [{'key': k, 'value': k} for k in range(0, 21)]
     days += [{'key': k, 'value': k} for k in [30, 98, 113, 128]]
     return tpl('/account/leave/create.html', form=form, leave=leave, days=days)
 

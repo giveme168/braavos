@@ -218,9 +218,9 @@ def write_medium_money_excel(pre_monthes, douban_money,
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, other_money['profit'])
     # 合计
-    worksheet.merge_range(
-        66, 1, 66, len(pre_monthes) * 3 + 1, u'合计', align_center)
-    worksheet.write(66, len(pre_monthes) * 3 + 2, float(total), align_center)
+    worksheet.write(th, 1, u'合计', align_center)
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, total)
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
