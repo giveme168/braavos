@@ -433,15 +433,18 @@
         <td>{{ other_money.profit|sum()|format_price }}</td>
     </tr>
     <tr>
-        <td colspan='{{other_money.profit|length + 1}}'>合计</td>
-        <td>{{total|format_price}}</td>
+        <td>合计</td>
+        {% for k in total %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ total|sum()|format_price }}</td>
     </tr>
 </table>
 </div>
 
 <script>
     $(function(){
-        var width = 100*parseInt('{{other_money.profit|length}}')
+        var width = 100*(parseInt('{{other_money.profit|length}}')+3)
         $("#medium_box").width(width)
     })
     function download(){

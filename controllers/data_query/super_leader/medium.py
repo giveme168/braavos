@@ -135,17 +135,17 @@ def money():
     douban_money['profit'] = numpy.array(
         douban_money['in_money']) - numpy.array(douban_money['rebate'])
     # 结束豆瓣收入、服务费、返点、毛利为直签豆瓣+优力和无线总和
-    total = sum([i for k in douban_money.values() for i in k] +
-                [i for k in youli_money.values() for i in k] +
-                [i for k in momo_money.values() for i in k] +
-                [i for k in zhihu_money.values() for i in k] +
-                [i for k in xiachufang_money.values() for i in k] +
-                [i for k in xueqiu_money.values() for i in k] +
-                [i for k in huxiu_money.values() for i in k] +
-                [i for k in kecheng_money.values() for i in k] +
-                [i for k in midi_money.values() for i in k] +
-                [i for k in other_money.values() for i in k] +
-                [i for k in wuxian_money.values() for i in k])
+    total = numpy.array(douban_money['profit']) +\
+        numpy.array(youli_money['sale_money']) +\
+        numpy.array(wuxian_money['sale_money']) +\
+        numpy.array(momo_money['sale_money']) +\
+        numpy.array(zhihu_money['sale_money']) +\
+        numpy.array(xiachufang_money['sale_money']) +\
+        numpy.array(xueqiu_money['sale_money']) +\
+        numpy.array(huxiu_money['sale_money']) +\
+        numpy.array(kecheng_money['sale_money']) +\
+        numpy.array(midi_money['sale_money']) +\
+        numpy.array(other_money['sale_money'])
     if request.values.get('action', '') == 'download':
         response = write_medium_money_excel(pre_monthes=pre_monthes, douban_money=douban_money,
                                             youli_money=youli_money, wuxian_money=wuxian_money,
