@@ -74,6 +74,11 @@
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">财务管理<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
+
+                <li><a href="{{url_for('finance_client_order_invoice.index')}}">内部财务管理</a></li>
+                <li><a href="{{url_for('searchAd_finance_client_order_invoice.index')}}">搜索广告财务管理</a></li>
+
+                {#
                 <li role="presentation" class="dropdown-header">发票管理</li>
                 <li><a href="{{url_for('finance_client_order_invoice.index')}}">申请中的发票</a></li>
                 <li><a href="{{url_for('finance_client_order_invoice.index_pass')}}">所有客户发票信息</a></li>
@@ -90,6 +95,7 @@
                 <li role="presentation" class="dropdown-header">媒体返点发票管理</li>
                 <li><a href="{{url_for('finance_client_order_medium_rebate_invoice.index')}}">申请中的媒体返点发票</a></li>
                 <li><a href="{{url_for('finance_client_order_medium_rebate_invoice.index_pass')}}">所有媒体返点发票信息</a></li>
+                #}
               </ul>
             </li>
             {% endif %}
