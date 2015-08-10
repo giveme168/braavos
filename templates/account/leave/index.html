@@ -8,7 +8,7 @@
         border:1px solid #ffffff;
     }
 </style>
-<div class="bra-main bra-box">
+<div class="bra-main bra-box"  style="width:1300px;">
     <h3>我的请假列表
         <a class="btn btn-sm btn-default" href="{{url_for('account_leave.create',user_id = g.user.id)}}">申请请假</a>
     </h3>
@@ -20,9 +20,9 @@
             <th>请假时长</th>
             <th>抄送人</th>
             <th>leader</th>
-            <th>原因</th>
+            <th width="30%">原因</th>
             <th>状态</th>
-            <th width="15%">操作</th>
+            <th style="width:130px;">操作</th>
         </tr>
         {% for l in leaves %}
         <tr>
