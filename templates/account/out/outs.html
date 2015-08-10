@@ -20,9 +20,7 @@
                 <label for="">状态</label>
                 <select id="status" name="status" style="width:150px;">
                     <option value="0">全部</value>
-                    {% if title=='下属的外出报备列表' %}
                     <option value="1">外出报备申请中</value>
-                    {% endif %}
                     <option value="2">外出报备申请通过</value>
                     <option value="3">已填写会议纪要</value>
                 </select>
@@ -46,6 +44,7 @@
             <th>结束时间</th>
             <th>公司名称</th>
             <th>地点</th>
+            <th>参会人</th>
             <th>原因</th>
             <th>状态</th>
             <th width="15%">操作</th>
@@ -57,20 +56,23 @@
             <td>{{o.end_time_cn}}</td>
             <td>{{o.m_persion_cn}}</td>
             <td>{{o.address}}</td>
+            <td>{% for k in o.joiners %}{{k.name}}<br/>{% endfor %}</td>
             <td>{{o.reason}}</td>
             <td>{{o.status_cn}}</td>
             <td>
-                {% if o.status == 1 %}
-                <a href="{{url_for('account_out.status', oid=o.id)}}?status=2">同意</a><br/>
-                <a href="{{url_for('account_out.status', oid=o.id)}}?status=11">不同意</a><br/>
-                {% else %}
-                <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
-                {% endif %}
-                {% if g.user.is_OPS() %}
                 {% if title == '所有外出报备列表' %}
-                <a href="{{url_for('account_out.status', oid=o.id)}}?status=10">撤回</a>
+                    {% if g.user.is_OPS() %}
+                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=10">撤回</a>
+                    {% endif %}
+                {% else %}
+                    {% if o.status == 1 %}
+                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=2">同意</a><br/>
+                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=11">不同意</a><br/>
+                    {% else %}
+                    <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
+                    {% endif %}
                 {% endif %}
-                {% endif %}
+                
             </td>
         </tr>
         {% endfor %}
@@ -99,6 +101,8 @@ $(function(){
     //$("#type option[value='{{type}}']").attr("selected","selected");  
     $("#user_id").val("{{user_id}}")
     $("#user_id").trigger("chosen:updated");
+    $("#status").val("{{status}}")
+    $("#status").trigger("chosen:updated");
     $('#start').val('{{start}}')
     $('#end').val('{{end}}')
     $('.datetimepicker').datetimepicker({
