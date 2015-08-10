@@ -62,9 +62,14 @@
             <td>
                 {% if o.status == 1 %}
                 <a href="{{url_for('account_out.status', oid=o.id)}}?status=2">同意</a><br/>
-                <a href="{{url_for('account_out.status', oid=o.id)}}?status=11">不同意</a>
+                <a href="{{url_for('account_out.status', oid=o.id)}}?status=11">不同意</a><br/>
                 {% else %}
-                <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a>
+                <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
+                {% endif %}
+                {% if g.user.is_OPS() %}
+                {% if title == '所有外出报备列表' %}
+                <a href="{{url_for('account_out.status', oid=o.id)}}?status=10">撤回</a>
+                {% endif %}
                 {% endif %}
             </td>
         </tr>
