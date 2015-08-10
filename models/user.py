@@ -524,6 +524,14 @@ OUT_M_PERSION_TYPE_NORMAL = 1
 OUT_M_PERSION_TYPE_OTHER = 2
 
 
+out_joiners = db.Table('out_joiners',
+                       db.Column(
+                           'user_id', db.Integer, db.ForeignKey('user.id')),
+                       db.Column(
+                           'out_id', db.Integer, db.ForeignKey('user_out.id'))
+                       )
+
+
 class Out(db.Model, BaseModelMixin):
     __tablename__ = 'user_out'
     id = db.Column(db.Integer, primary_key=True)
@@ -541,10 +549,12 @@ class Out(db.Model, BaseModelMixin):
     creator = db.relationship(
         'User', backref=db.backref('creator_out', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    joiners = db.relationship('User', secondary=out_joiners)
     __mapper_args__ = {'order_by': id.desc()}
 
     def __init__(self, start_time, end_time, reason, m_persion, creator, m_persion_type,
-                 address, persions, meeting_s='', creator_type=1, status=1, create_time=None):
+                 address, persions, meeting_s='', creator_type=1, status=1,
+                 joiners=None, create_time=None):
         self.start_time = start_time
         self.end_time = end_time
         self.address = address
@@ -556,6 +566,7 @@ class Out(db.Model, BaseModelMixin):
         self.creator_type = creator_type
         self.status = status
         self.creator = creator
+        self.joiners = joiners or []
         self.create_time = create_time or datetime.date.today()
 
     @property

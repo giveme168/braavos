@@ -590,21 +590,22 @@ Dear %s:
 
     """ % (to_name, msg, out.start_time_cn,
            out.end_time_cn, out.m_persion_cn, out.persions, out.address, out.reason, out.meeting_s, url)
-
+    to_users = out.creator.team_leaders + [g.user] + out.joiners
+    joiners_leaders = []
+    for k in out.joiners:
+        joiners_leaders += k.team_leaders
+    to_users += joiners_leaders
+    flash(u'已发送邮件给 %s ' % (', '.join([k.name for k in to_users])), 'info')
     if out.creator_type == 1:
-        to_users = [k.email for k in out.creator.team_leaders] + \
-            [g.user.email] + ['admin@inad.com']
+        to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
         if status == 3:
-            to_users == [k.email for k in out.creator.team_leaders] + \
-                [g.user.email] + ['bus@inad.com']
-        send_simple_mail(title, to_users, body=body)
+            to_user_emails == [k.email for k in to_users] + ['bus@inad.com']
+        send_simple_mail(title, to_user_emails, body=body)
     else:
-        to_users = [k.email for k in out.creator.team_leaders] + \
-            [g.user.email] + ['admin@inad.com']
+        to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
         if status == 3:
-            to_users = [k.email for k in out.creator.team_leaders] + \
-                [g.user.email]
-        send_simple_mail(title, to_users, body=body)
+            to_user_emails = [k.email for k in to_users]
+        send_simple_mail(title, list(set(to_user_emails)), body=body)
 
 
 def init_signal(app):

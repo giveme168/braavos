@@ -2,6 +2,7 @@
 import datetime
 from flask import Blueprint, request, redirect, url_for, g
 from flask import render_template as tpl, flash, current_app
+from wtforms import SelectMultipleField
 
 from models.user import User, Out, OUT_STATUS_APPLY, OUT_STATUS_MEETED, OUT_STATUS_PASS
 from models.client import Client, Agent
@@ -9,8 +10,18 @@ from models.medium import Medium
 from libs.signals import apply_out_signal
 from libs.paginator import Paginator
 
+from libs.wtf import Form
+
 account_out_bp = Blueprint(
     'account_out', __name__, template_folder='../../templates/account/out/')
+
+
+class JoinersForm(Form):
+    joiners = SelectMultipleField(u'参会人（公司内部）', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(JoinersForm, self).__init__(*args, **kwargs)
+        self.joiners.choices = [(m.id, m.name) for m in User.all_active()]
 
 
 @account_out_bp.route('/')
@@ -83,7 +94,7 @@ def outs():
     start = request.values.get('start', '')
     end = request.values.get('end', '')
     outs = [
-        k for k in Out.all() if k.status > 1]
+        k for k in Out.all() if k.status > 0]
 
     if start and end:
         start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
@@ -92,6 +103,8 @@ def outs():
                 start_time and k.start_time < end_time]
     if status:
         outs = [k for k in outs if k.status == status]
+    if user_id:
+        outs = [k for k in outs if k.creator.id == user_id]
     paginator = Paginator(outs, 50)
     try:
         outs = paginator.page(page)
@@ -100,8 +113,8 @@ def outs():
     return tpl('/account/out/outs.html', outs=outs, user_id=user_id, start=start,
                title=u'所有外出报备列表', status=status,
                params="&user_id=%s&start=%s&end=%s&status=%s" % (
-                   user_id, start, end, status),
-               end=end, page=page)
+                   user_id, start, end, status), end=end, page=page,
+               under_users=[{'uid': k.id, 'name': k.name} for k in User.all()])
 
 
 @account_out_bp.route('/create', methods=['GET', 'POST'])
@@ -115,6 +128,7 @@ def create():
         m_persions += [{'key': '3' + '-' +
                         str(k.id) + '-' + k.name, 'name': k.name} for k in Medium.all()]
         m_persions.append({'key': 100, 'name': u'其他'})
+    joiners_form = JoinersForm(request.form)
     if request.method == 'POST':
         if g.user.is_out_saler:
             creator_type = 1
@@ -132,6 +146,7 @@ def create():
             start_time=datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M'),
             end_time=datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M'),
             reason=reason,
+            joiners=User.gets(request.values.getlist('joiners')),
             meeting_s='',
             persions=persions,
             address=address,
@@ -142,14 +157,14 @@ def create():
             creator=g.user,
             create_time=datetime.datetime.now()
         )
-        if int(int(request.values.get('action', 0))) == OUT_STATUS_APPLY:
+        if int(request.values.get('action', 0)) == OUT_STATUS_APPLY:
             flash(u'已发送申请', 'success')
             apply_out_signal.send(
                 current_app._get_current_object(), out=out, status=1)
         else:
             flash(u'添加成功，请及时申请外出报备', 'success')
         return redirect(url_for('account_out.index'))
-    return tpl('/account/out/create.html', m_persions=m_persions)
+    return tpl('/account/out/create.html', m_persions=m_persions, joiners_form=joiners_form)
 
 
 @account_out_bp.route('/<oid>/status')
@@ -209,6 +224,8 @@ def meeting_s(oid):
 @account_out_bp.route('/<oid>/update', methods=['POST', 'GET'])
 def update(oid):
     out = Out.get(oid)
+    joiners_form = JoinersForm(request.form)
+    joiners_form.joiners.data = [u.id for u in out.joiners]
     m_persions = []
     if g.user.is_out_saler:
         m_persions += [{'key': '1' + '-' +
@@ -235,6 +252,8 @@ def update(oid):
             start_time, '%Y-%m-%d %H:%M')
         out.end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M')
         out.reason = reason
+
+        out.joiners = User.gets(request.values.getlist('joiners'))
         out.persions = persions
         out.address = address
         out.m_persion = m_persion
@@ -250,4 +269,4 @@ def update(oid):
         else:
             flash(u'添加成功，请及时申请外出报备', 'success')
         return redirect(url_for('account_out.index'))
-    return tpl('/account/out/update.html', out=out, m_persions=m_persions)
+    return tpl('/account/out/update.html', out=out, m_persions=m_persions, joiners_form=joiners_form)

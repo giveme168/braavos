@@ -22,7 +22,7 @@
             <th colspan=2 rowspan=4 style="width:120px;">月份</th>
         </tr>
         <tr>
-            <th colspan=11 rowspan=2>合同信息</th>
+            <th colspan=7 rowspan=2>合同信息</th>
             <th colspan=7 >项目成本</th>
             <th colspan=7 >项目成本</th>
             <th colspan=7 >项目成本</th>
@@ -36,10 +36,6 @@
         <tr>
             <th>项目合同号</th>
             <th>项目名称</th>
-            <th>Q1执行额</th>
-            <th>Q2执行额</th>
-            <th>Q3执行额</th>
-            <th>Q4执行额</th>
             <th>项目金额</th>
             <th>大区</th>
             <th>应付小计</th>
@@ -63,7 +59,7 @@
         <tr>
             <th rowspan={{pre_month_orders['1']|length+1}}>1月</th>
             {% if not pre_month_orders['1'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -72,10 +68,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -89,7 +81,7 @@
         <tr>
             <th rowspan={{pre_month_orders['2']|length+1}}>2月</th>
             {% if not pre_month_orders['2'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -98,10 +90,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -116,7 +104,7 @@
         <tr>
             <th rowspan={{pre_month_orders['3']|length+1}}>3月</th>
             {% if not pre_month_orders['3'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -125,10 +113,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -140,7 +124,7 @@
         </tr>
         {% endfor %}
         <tr>
-            <th colspan=13>合计</th>
+            <th colspan=9>合计</th>
             {% for i in total_Q_data.first %}
             <td>{{i|format_price}}</td>
             {% endfor %}
@@ -151,7 +135,7 @@
         <tr>
             <th rowspan={{pre_month_orders['4']|length+1}}>4月</th>
             {% if not pre_month_orders['4'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -160,10 +144,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -177,7 +157,7 @@
         <tr>
             <th rowspan={{pre_month_orders['5']|length+1}}>5月</th>
             {% if not pre_month_orders['5'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -186,10 +166,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -203,7 +179,7 @@
         <tr>
             <th rowspan={{pre_month_orders['6']|length+1}}>6月</th>
             {% if not pre_month_orders['6'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -212,10 +188,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -227,7 +199,7 @@
         </tr>
         {% endfor %}
         <tr>
-            <th colspan=13>合计</th>
+            <th colspan=9>合计</th>
             {% for i in total_Q_data.second %}
             <td>{{i|format_price}}</td>
             {% endfor %}
@@ -238,7 +210,7 @@
         <tr>
             <th rowspan={{pre_month_orders['7']|length+1}}>7月</th>
             {% if not pre_month_orders['7'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -247,10 +219,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -264,7 +232,7 @@
         <tr>
             <th rowspan={{pre_month_orders['8']|length+1}}>8月</th>
             {% if not pre_month_orders['8'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -273,10 +241,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -291,7 +255,7 @@
         <tr>
             <th rowspan={{pre_month_orders['9']|length+1}}>9月</th>
             {% if not pre_month_orders['9'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -300,10 +264,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -315,7 +275,7 @@
         </tr>
         {% endfor %}
         <tr>
-            <th colspan=13>合计</th>
+            <th colspan=9>合计</th>
             {% for i in total_Q_data.third %}
             <td>{{i|format_price}}</td>
             {% endfor %}
@@ -326,7 +286,7 @@
         <tr>
             <th rowspan={{pre_month_orders['10']|length+1}}>10月</th>
             {% if not pre_month_orders['10'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -335,10 +295,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -352,7 +308,7 @@
         <tr>
             <th rowspan={{pre_month_orders['11']|length+1}}>11月</th>
             {% if not pre_month_orders['11'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -361,10 +317,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -378,7 +330,7 @@
         <tr>
             <th rowspan={{pre_month_orders['12']|length+1}}>12月</th>
             {% if not pre_month_orders['12'] %}
-            {% for k in range(39) %}
+            {% for k in range(35) %}
             <td></td>
             {% endfor %}
             {% endif %}
@@ -387,10 +339,6 @@
         <tr>
             <td>{{k.contract or "无合同号"}}</td>
             <td>{{k.campaign}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['01','02','03'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['04','05','06'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['09','08','07'], 'normal')|sum()|format_price}}</td>
-            <td>{{k.executive_report(g.user, now_year, ['10','11','12'], 'normal')|sum()|format_price}}</td>
             <td>{{k.money|format_price}}</td>
             <td>{{k.locations_cn}}</td>
             <td>{{k.outsources_sum|format_price}}</td>
@@ -402,7 +350,7 @@
         </tr>
         {% endfor %}
         <tr>
-            <th colspan=13>合计</th>
+            <th colspan=9>合计</th>
             {% for i in total_Q_data.forth %}
             <td>{{i|format_price}}</td>
             {% endfor %}

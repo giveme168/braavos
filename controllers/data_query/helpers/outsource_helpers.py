@@ -3,7 +3,7 @@ import StringIO
 import mimetypes
 import datetime
 
-from flask import Response, g
+from flask import Response
 from werkzeug.datastructures import Headers
 import xlsxwriter
 
@@ -100,27 +100,19 @@ def _insert_month_data(worksheet, align_center, data, now_year, month, th):
         for k in data:
             worksheet.write(th, 2, k.contract or u'无合同号', align_center)
             worksheet.write(th, 3, k.campaign, align_center)
-            worksheet.write(th, 4, sum(k.executive_report(
-                g.user, now_year, ['01', '02', '03'], 'normal')), align_center)
-            worksheet.write(th, 5, sum(k.executive_report(
-                g.user, now_year, ['04', '05', '06'], 'normal')), align_center)
-            worksheet.write(th, 6, sum(k.executive_report(
-                g.user, now_year, ['07', '08', '09'], 'normal')), align_center)
-            worksheet.write(th, 7, sum(k.executive_report(
-                g.user, now_year, ['10', '11', '12'], 'normal')), align_center)
-            worksheet.write(th, 8, k.money, align_center)
-            worksheet.write(th, 9, k.locations_cn, align_center)
-            worksheet.write(th, 10, float(k.outsources_sum), align_center)
+            worksheet.write(th, 4, k.money, align_center)
+            worksheet.write(th, 5, k.locations_cn, align_center)
+            worksheet.write(th, 6, float(k.outsources_sum), align_center)
             worksheet.write(
-                th, 11, str(float(k.outsources_percent)) + '%', align_center)
-            worksheet.write(th, 12, float(k.outsources_paied_sum), align_center)
+                th, 7, str(float(k.outsources_percent)) + '%', align_center)
+            worksheet.write(th, 8, float(k.outsources_paied_sum), align_center)
             o_money = k.o_money
             for i in range(len(o_money)):
-                worksheet.write(th, 13 + i, o_money[i], align_center)
+                worksheet.write(th, 9 + i, o_money[i], align_center)
             th += 1
     else:
         worksheet.write(th, 1, month + u'月', align_center)
-        for k in range(39):
+        for k in range(35):
             worksheet.write(th, 1 + k + 1, '', align_center)
         th += 1
     return th
@@ -132,9 +124,9 @@ def _insert_Q(worksheet, align_center, Q, start, end):
 
 
 def _insert_total_data(worksheet, align_center_color, data, th):
-    worksheet.merge_range(th, 0, th, 12, u'合计', align_center_color)
+    worksheet.merge_range(th, 0, th, 8, u'合计', align_center_color)
     for k in range(len(data)):
-        worksheet.write(th, k + 13, str(float(data[k])), align_center_color)
+        worksheet.write(th, k + 9, str(float(data[k])), align_center_color)
     th += 1
     return th
 
@@ -157,13 +149,12 @@ def write_outsource_info_excel(now_year, pre_month_orders, total_Q_data):
         worksheet.set_row(k, 25)
     worksheet.merge_range(0, 0, 2, 1, u'详情/月份', align_center_color)
 
-    worksheet.merge_range(0, 2, 1, 12, u'合同信息', align_center_color)
-    keys = [u'项目合同号', u'项目名称', u'Q1执行额', u'Q2执行额', u'Q3执行额',
-            u'Q4执行额', u'项目金额', u'大区', u'应付小计', u'所占比重', u'实付金额']
+    worksheet.merge_range(0, 2, 1, 8, u'合同信息', align_center_color)
+    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'应付小计', u'所占比重', u'实付金额']
     for k in range(len(keys)):
         worksheet.write(2, k + 2, keys[k], align_center_color)
 
-    start, end = 13, 19
+    start, end = 9, 15
     for k in range(4):
         worksheet.merge_range(0, start, 0, end, u'项目成本', align_center_color)
         worksheet.merge_range(
@@ -173,7 +164,7 @@ def write_outsource_info_excel(now_year, pre_month_orders, total_Q_data):
     keys = [u'奖品', u'Flash', u'劳务(KOL、线下活动等)', u'效果优化', u'其他(视频等)',
             u'flash&H5开发', u'H5开发']
 
-    td = 13
+    td = 9
     for i in range(4):
         for k in keys:
             worksheet.write(2, td, k, align_center_color)

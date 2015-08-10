@@ -1,5 +1,5 @@
 {% extends "/account/account_out_base.html" %}
-{% block title %}请假列表{% endblock %}
+{% block title %}我的外出报备列表{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box">
@@ -13,6 +13,7 @@
             <th>结束时间</th>
             <th>公司名称</th>
             <th>地点</th>
+            <th>参会人</th>
             <th>原因</th>
             <th>状态</th>
             <th width="15%">操作</th>
@@ -24,6 +25,7 @@
             <td>{{o.end_time_cn}}</td>
             <td>{{o.m_persion_cn}}</td>
             <td>{{o.address}}</td>
+            <td>{% for k in o.joiners %}{{k.name}}<br/>{% endfor %}</td>
             <td>{{o.reason}}</td>
             <td>{{o.status_cn}}</td>
             <td>
