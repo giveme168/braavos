@@ -23,7 +23,6 @@
                     <option value="5">产假</value>
                 </select>
             </div>
-            {% if title == '下属的请假申请列表' %}
             <div class="form-group">
                 <label for="">状态</label>
                 <select id="status" name="status" placeholder="状态" style="width:150px;">
@@ -32,7 +31,6 @@
                     <option value="3">通过申请</value>
                 </select>
             </div>
-            {% endif %}
             <div class="form-group">
                 <label for="">下属</label>
                 <select id="user_id" name="user_id" placeholder="下属" style="width:150px;">
@@ -79,23 +77,24 @@
             <td><pre>{{l.reason}}</pre></td>
             <td>{{l.status_cn}}</td>
             <td>
-                {% if l.status != 3 %}
-                {% if l.is_long_leave() %}
-                    {% if g.user.is_super_leader() %}
-                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
-                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
+                {% if title == '所有请假申请列表' %}
+                    {% if g.user.is_OPS() %}
+                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=0">取消请假</a><br/>
                     {% endif %}
                 {% else %}
-                    {% if g.user in l.creator.team_leaders or g.user.is_super_admin() %}
-                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
-                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
+                    {% if l.status != 3 %}
+                        {% if l.is_long_leave() %}
+                            {% if g.user.is_super_leader() %}
+                                <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
+                                <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
+                            {% endif %}
+                        {% else %}
+                            {% if g.user in l.creator.team_leaders or g.user.is_super_admin() %}
+                                <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
+                                <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
+                            {% endif %}
+                        {% endif %}
                     {% endif %}
-                {% endif %}
-                {% endif %}
-                {% if g.user.is_OPS() %}
-                {% if title == '所有请假申请列表' %}
-                <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=0">取消请假</a><br/>
-                {% endif %}
                 {% endif %}
             </td>
         </tr>
