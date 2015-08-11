@@ -9,11 +9,13 @@ from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.invoice import (MediumRebateInvoice, INVOICE_STATUS_CN,
                             INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
                             INVOICE_STATUS_APPLYPASS)
+from models.medium import Medium
+from forms.invoice import MediumRebateInvoiceForm
 from libs.signals import invoice_apply_signal
 from libs.paginator import Paginator
 from controllers.finance.helpers.invoice_helpers import write_medium_rebate_invoice_excel
 from controllers.tools import get_download_response
-from controllers.saler.client_order.medium_rebate_invoice import get_invoice_from, new_invoice as _new_invoice
+from controllers.saler.client_order.medium_rebate_invoice import get_invoice_from
 
 finance_client_order_medium_rebate_invoice_bp = Blueprint(
     'finance_client_order_medium_rebate_invoice', __name__, template_folder='../../templates/finance/client_order')
@@ -94,8 +96,42 @@ def info(order_id):
 
 
 @finance_client_order_medium_rebate_invoice_bp.route('/<order_id>/order/new', methods=['POST'])
-def new_invoice(order_id, redirect_epoint='finance_medium_rebate_invoice.info'):
-    return _new_invoice(order_id, redirect_epoint)
+def new_invoice(order_id, redirect_epoint='finance_client_order_medium_rebate_invoice.info'):
+    order = ClientOrder.get(order_id)
+    if not order:
+        abort(404)
+    form = MediumRebateInvoiceForm(request.form)
+    form.client_order.choices = [(order.id, order.client.name)]
+    form.medium.choices = [(medium.id, medium.name) for medium in order.mediums]
+    if request.method == 'POST' and form.validate():
+        medium = Medium.get(form.medium.data)
+        if float(form.money.data) > float(order.get_medium_rebate_money(medium) -
+                                          order.get_medium_rebate_invoice_apply_sum(medium) -
+                                          order.get_medium_rebate_invoice_pass_sum(medium)):
+            flash(u"新建发票失败，您申请的发票超过了媒体:%s 返点金额: %s" % (medium.name, order.get_medium_rebate_money(medium)), 'danger')
+            return redirect(url_for(redirect_epoint, order_id=order_id))
+        invoice = MediumRebateInvoice.add(client_order=order,
+                                          medium=Medium.get(form.medium.data),
+                                          company=form.company.data,
+                                          tax_id=form.tax_id.data,
+                                          address=form.address.data,
+                                          phone=form.phone.data,
+                                          bank_id=form.bank_id.data,
+                                          bank=form.bank.data,
+                                          detail=form.detail.data,
+                                          money=form.money.data,
+                                          invoice_type=form.invoice_type.data,
+                                          invoice_status=INVOICE_STATUS_PASS,
+                                          creator=g.user,
+                                          invoice_num=form.invoice_num.data,
+                                          back_time=form.back_time.data)
+        invoice.save()
+        order.add_comment(g.user, u"添加发票申请信息：%s" % (
+            u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=6)
+    else:
+        for k in form.errors:
+            flash(u"新建发票失败，%s" % (form.errors[k][0]), 'danger')
+    return redirect(url_for(redirect_epoint, order_id=order_id))
 
 
 @finance_client_order_medium_rebate_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
