@@ -600,12 +600,13 @@ Dear %s:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
         if status == 3:
             to_user_emails == [k.email for k in to_users] + ['bus@inad.com']
-        send_simple_mail(title, to_user_emails, body=body)
     else:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
         if status == 3:
             to_user_emails = [k.email for k in to_users]
-        send_simple_mail(title, list(set(to_user_emails)), body=body)
+    if out.creator.team.location == 2 and out.creator.team.type in [3,4,9]:
+        to_user_emails += ['shsales@inad.com']
+    send_simple_mail(title, list(set(to_user_emails)), body=body)
 
 
 def init_signal(app):

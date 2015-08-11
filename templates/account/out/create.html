@@ -67,7 +67,7 @@
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">默认收件人 : </label>
           <div class="col-sm-6">
-            <pre>{{g.user.team_leaders_cn}}，admin@inad.com</pre>
+            <pre>{{g.user.team_leaders_cn}}，admin@inad.com{% if g.user.team.location == 2 and g.user.team.type in [3,4,9] %}，shsales@inad.com{% endif %}</pre>
           </div>
         </div>
         <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_out.index')}}"/>返回</a>
