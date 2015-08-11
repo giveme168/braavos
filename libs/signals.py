@@ -568,6 +568,9 @@ def out_apply(sender, out, status):
     elif status == 3:
         msg = u'会议纪要填写完成'
         to_name = ','.join([k.name for k in out.creator.team_leaders])
+    elif status == 13:
+        msg = u'外出报备未审批-会议纪要填写完成'
+        to_name = ','.join([k.name for k in out.creator.team_leaders])
     elif status == 14:
         msg = u'外出报备申请通过-并完成会议纪要'
         to_name = out.creator.name

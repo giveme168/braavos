@@ -217,12 +217,18 @@ def meeting_s(oid):
         out.meeting_s = meeting_s
         if out.status == 1:
             out.status = 4
+            status = 13
         elif out.status == 2:
             out.status = 3
+            status = 4
+        elif out.status == 3:
+            status = 3
+        elif out.status == 4:
+            status = 13
         out.save()
         flash(u'会议纪要填写完毕', 'success')
         apply_out_signal.send(
-            current_app._get_current_object(), out=out, status=3)
+            current_app._get_current_object(), out=out, status=status)
         return redirect(url_for('account_out.index'))
     return tpl('/account/out/meeting_s.html', out=out)
 
