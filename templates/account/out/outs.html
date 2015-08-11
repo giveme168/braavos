@@ -40,6 +40,7 @@
     <table class="table table-bordered table-striped">
         <tr>
             <th>创建人</th>
+            <th>Leader</th>
             <th>开始时间</th>
             <th>结束时间</th>
             <th>公司名称</th>
@@ -52,6 +53,7 @@
         {% for o in outs %}
         <tr>
             <td><a href="{{url_for('account_out.info', oid=o.id)}}">{{o.creator.name}}</a></td>
+            <td>{% for k in o.creator.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
             <td>{{o.start_time_cn}}</td>
             <td>{{o.end_time_cn}}</td>
             <td>{{o.m_persion_cn}}</td>
@@ -62,12 +64,17 @@
             <td>
                 {% if title == '所有外出报备列表' %}
                     {% if g.user.is_OPS() %}
-                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=10">撤回</a>
+                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=10">撤回</a><br/>
                     {% endif %}
+                    <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a>
                 {% else %}
                     {% if o.status == 1 %}
                     <a href="{{url_for('account_out.status', oid=o.id)}}?status=2">同意</a><br/>
                     <a href="{{url_for('account_out.status', oid=o.id)}}?status=11">不同意</a><br/>
+                    <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
+                    {% elif o.status == 4 %}
+                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=14">同意</a><br/>
+                    <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
                     {% else %}
                     <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
                     {% endif %}
@@ -114,10 +121,8 @@ $(function(){
     $("#start").change(function(e){
         var end_date = $('#end').val()
         if (end_date == ''){
-            var endDate = new Date($('#start').val()+':00:00');
-            endDate.setDate(endDate.getDate()); 
-            $('#end').val(endDate.Format("yyyy-MM-dd hh:mm"))
-            $('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd hh:mm"));
+            $('#end').val($('#start').val())
+            $('#end').datetimepicker('setStartDate', $('#start').val());
         }
     });
 })

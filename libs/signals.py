@@ -568,6 +568,12 @@ def out_apply(sender, out, status):
     elif status == 3:
         msg = u'会议纪要填写完成'
         to_name = ','.join([k.name for k in out.creator.team_leaders])
+    elif status == 13:
+        msg = u'外出报备未审批-会议纪要填写完成'
+        to_name = ','.join([k.name for k in out.creator.team_leaders])
+    elif status == 14:
+        msg = u'外出报备申请通过-并完成会议纪要'
+        to_name = out.creator.name
     title = u'【外出报备】' + '-' + out.creator.name
     url = mail.app.config['DOMAIN'] + url_for('account_out.info', oid=out.id)
     body = u"""
@@ -600,14 +606,14 @@ Dear %s:
     flash(u'已发送邮件给 %s ' % (', '.join([k.name for k in to_users])), 'info')
     if out.creator_type == 1:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
-        if status == 3:
+        if status in [3, 4]:
             to_user_emails == [k.email for k in to_users] + ['bus@inad.com']
     else:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
         if status == 3:
             to_user_emails = [k.email for k in to_users]
     if out.creator.team.location == 2 and out.creator.team.type in [3, 4, 9]:
-        to_user_emails += ['shsales@inad.com']
+        to_user_emails += ['salessh@inad.com']
     send_simple_mail(title, list(set(to_user_emails)), body=body)
 
 

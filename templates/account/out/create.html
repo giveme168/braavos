@@ -15,58 +15,58 @@
         <input type="hidden" value="1" name="m_persion_type" id="m_persion_type">
         <div class="form-group">
           <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
-          <div class="col-sm-4">
+          <div class="col-sm-8">
             <input type="text" id="start_time" name="start_time" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:ii">
           </div>
         </div>
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
-          <div class="col-sm-4">
+          <div class="col-sm-8">
             <input type="text" id="end_time" name="end_time" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:ii">
           </div>
         </div>
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">公司名称 : </label>
-          <div class="col-sm-4" id="insert_m_person">
+          <div class="col-sm-8" id="insert_m_person">
             {% if g.user.is_out_saler %}
-            <select value='m_persion' id="m_persion" name="m_persion" class="form-control bra-form-control" onchange="check_m_persion(this)">
+            <select value='m_persion' id="m_persion" name="m_persion" class="form-control" onchange="check_m_persion(this)">
                 {% for k in m_persions %}
                 <option value='{{k.key}}'>{{k.name}}</option>
                 {% endfor %}
             </select>
             {% else %}
-            <input type="text" id="m_persion" name="m_persion" value="" class="form-control bra-form-control">
+            <input type="text" id="m_persion" name="m_persion" value="" class="form-control">
             {% endif %}
           </div>
         </div>
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">会见人 : </label>
-          <div class="col-sm-4">
-            <input type="text" id="persions" name="persions" class="form-control bra-form-control" />
+          <div class="col-sm-8">
+            <input type="text" id="persions" name="persions" class="form-control" />
           </div>
         </div>
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">地点 : </label>
-          <div class="col-sm-4">
-            <input type="text" id="address" name="address" class="form-control bra-form-control" />
+          <div class="col-sm-8">
+            <input type="text" id="address" name="address" class="form-control" />
           </div>
         </div>
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">外出原因 : </label>
-          <div class="col-sm-4">
-            <textarea type="text" id="reason" name="reason" class="form-control bra-form-control"></textarea>
+          <div class="col-sm-8">
+            <textarea type="text" id="reason" name="reason" class="form-control"></textarea>
           </div>
         </div>
         {{ form_field(joiners_form.joiners) }}
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">会议纪要 : </label>
-          <div class="col-sm-4">
-            <textarea type="text" readonly="readonly" placeholder="暂不用填写，请外出回来后及时填写"class="form-control bra-form-control"></textarea>
+          <div class="col-sm-8">
+            <textarea type="text" readonly="readonly" placeholder="暂不用填写，请外出回来后及时填写"class="form-control"></textarea>
           </div>
         </div>
         <div class="form-group">
           <label for="client_end" class="col-sm-2 control-label">默认收件人 : </label>
-          <div class="col-sm-6">
+          <div class="col-sm-8">
             <pre>{{g.user.team_leaders_cn}}，admin@inad.com{% if g.user.team.location == 2 and g.user.team.type in [3,4,9] %}，shsales@inad.com{% endif %}</pre>
           </div>
         </div>

@@ -4,7 +4,7 @@ from flask import Blueprint, request, redirect, url_for, g
 from flask import render_template as tpl, flash, current_app
 from wtforms import SelectMultipleField
 
-from models.user import User, Out, OUT_STATUS_APPLY, OUT_STATUS_MEETED, OUT_STATUS_PASS
+from models.user import User, Out, OUT_STATUS_APPLY, OUT_STATUS_MEETED, OUT_STATUS_PASS, OUT_STATUS_MEETED_NOT_PASS
 from models.client import Client, Agent
 from models.medium import Medium
 from libs.signals import apply_out_signal
@@ -65,11 +65,11 @@ def underling():
     else:
         underling_user_ids = list(set([k['uid'] for k in under_users]))
     outs = [k for k in Out.all() if k.creator.id in underling_user_ids and k.status in [
-        OUT_STATUS_APPLY, OUT_STATUS_PASS, OUT_STATUS_MEETED]]
+        OUT_STATUS_APPLY, OUT_STATUS_PASS, OUT_STATUS_MEETED, OUT_STATUS_MEETED_NOT_PASS]]
 
     if start and end:
-        start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
-        end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
+        start_time = datetime.datetime.strptime(start, "%Y-%m-%d %H:%M")
+        end_time = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M")
         outs = [k for k in outs if k.start_time >=
                 start_time and k.start_time < end_time]
     if status:
@@ -97,8 +97,8 @@ def outs():
         k for k in Out.all() if k.status > 0]
 
     if start and end:
-        start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
-        end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
+        start_time = datetime.datetime.strptime(start, "%Y-%m-%d %H:%M")
+        end_time = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M")
         outs = [k for k in outs if k.start_time >=
                 start_time and k.start_time < end_time]
     if status:
@@ -182,7 +182,10 @@ def status(oid):
         msg = u'外出报备，邮件已发出'
     elif status == 2:
         out.status = 2
-        msg = u'同意报备通过'
+        msg = u'外出报备通过'
+    elif status == 14:
+        out.status = 3
+        msg = u'外出报备通过-会议纪要填写完毕'
     out.save()
     flash(msg, 'success')
     apply_out_signal.send(
@@ -212,11 +215,20 @@ def meeting_s(oid):
     if request.method == 'POST':
         meeting_s = request.values.get('meeting_s', '')
         out.meeting_s = meeting_s
-        out.status = 3
+        if out.status == 1:
+            out.status = 4
+            status = 13
+        elif out.status == 2:
+            out.status = 3
+            status = 4
+        elif out.status == 3:
+            status = 3
+        elif out.status == 4:
+            status = 13
         out.save()
         flash(u'会议纪要填写完毕', 'success')
         apply_out_signal.send(
-            current_app._get_current_object(), out=out, status=3)
+            current_app._get_current_object(), out=out, status=status)
         return redirect(url_for('account_out.index'))
     return tpl('/account/out/meeting_s.html', out=out)
 
