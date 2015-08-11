@@ -580,6 +580,7 @@ Dear %s:
 公司名称：%s
 会见人：  %s
 地址：   %s
+参会人（公司内部）：%s
 外出原因：
 %s
 会议纪要：
@@ -588,8 +589,9 @@ Dear %s:
 附注: 
     外出报备链接地址: %s
 
-    """ % (to_name, msg, out.start_time_cn,
-           out.end_time_cn, out.m_persion_cn, out.persions, out.address, out.reason, out.meeting_s, url)
+    """ % (to_name, msg, out.start_time_cn, out.end_time_cn, out.m_persion_cn,
+           out.persions, out.address, ','.join([k.name for k in out.joiners]),
+           out.reason, out.meeting_s, url)
     to_users = out.creator.team_leaders + [g.user] + out.joiners
     joiners_leaders = []
     for k in out.joiners:
@@ -604,7 +606,7 @@ Dear %s:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
         if status == 3:
             to_user_emails = [k.email for k in to_users]
-    if out.creator.team.location == 2 and out.creator.team.type in [3,4,9]:
+    if out.creator.team.location == 2 and out.creator.team.type in [3, 4, 9]:
         to_user_emails += ['shsales@inad.com']
     send_simple_mail(title, list(set(to_user_emails)), body=body)
 
