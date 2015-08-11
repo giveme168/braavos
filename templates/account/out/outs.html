@@ -114,10 +114,8 @@ $(function(){
     $("#start").change(function(e){
         var end_date = $('#end').val()
         if (end_date == ''){
-            var endDate = new Date($('#start').val()+':00:00');
-            endDate.setDate(endDate.getDate()); 
-            $('#end').val(endDate.Format("yyyy-MM-dd hh:mm"))
-            $('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd hh:mm"));
+            $('#end').val($('#start').val())
+            $('#end').datetimepicker('setStartDate', $('#start').val());
         }
     });
 })
