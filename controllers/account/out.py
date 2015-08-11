@@ -68,8 +68,8 @@ def underling():
         OUT_STATUS_APPLY, OUT_STATUS_PASS, OUT_STATUS_MEETED]]
 
     if start and end:
-        start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
-        end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
+        start_time = datetime.datetime.strptime(start, "%Y-%m-%d %H:%M")
+        end_time = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M")
         outs = [k for k in outs if k.start_time >=
                 start_time and k.start_time < end_time]
     if status:
@@ -97,8 +97,8 @@ def outs():
         k for k in Out.all() if k.status > 0]
 
     if start and end:
-        start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
-        end_time = datetime.datetime.strptime(end, "%Y-%m-%d")
+        start_time = datetime.datetime.strptime(start, "%Y-%m-%d %H:%M")
+        end_time = datetime.datetime.strptime(end, "%Y-%m-%d %H:%M")
         outs = [k for k in outs if k.start_time >=
                 start_time and k.start_time < end_time]
     if status:
