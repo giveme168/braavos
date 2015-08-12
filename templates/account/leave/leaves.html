@@ -89,7 +89,7 @@
                                 <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
                             {% endif %}
                         {% else %}
-                            {% if g.user in l.creator.team_leaders or g.user.is_super_admin() %}
+                            {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}
                                 <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
                                 <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
                             {% endif %}

@@ -181,3 +181,27 @@ def new_invoice(order_id, redirect_endpoint='finance_client_order_agent_pay.info
 @finance_client_order_agent_pay_bp.route('/<invoice_id>/update', methods=['POST'])
 def update_invoice(invoice_id, redirect_endpoint='finance_client_order_agent_pay.info'):
     return _update_invoice(invoice_id, redirect_endpoint)
+
+
+@finance_client_order_agent_pay_bp.route('/<invoice_id>/invoice/pay/new', methods=['POST'])
+def new_invoice_pay(invoice_id):
+    money = float(request.values.get('money', 0))
+    pay_time = request.values.get('pay_time', '')
+    detail = request.values.get('detail', '')
+    mi = AgentInvoice.get(invoice_id)
+    if mi.pay_invoice_money + money > mi.money:
+        flash(u'付款金额大于发票金额，请重新填写!', 'danger')
+        return redirect(url_for('saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
+    pay = AgentInvoicePay.add(money=money,
+                              agent_invoice=mi,
+                              pay_time=pay_time,
+                              pay_status=AGENT_INVOICE_STATUS_PASS,
+                              detail=detail)
+    pay.save()
+    flash(u'付款成功!', 'success')
+    pay.agent_invoice.client_order.add_comment(g.user, u'代理订单款已打款,名称%s, 打款金额%s ' % (
+        pay.agent_invoice.client_order.name +
+        '-' + pay.agent_invoice.agent.name,
+        str(pay.money)),
+        msg_channel=5)
+    return redirect(url_for("finance_client_order_agent_pay.pay_info", invoice_id=invoice_id))

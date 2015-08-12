@@ -69,11 +69,15 @@
                     <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a>
                 {% else %}
                     {% if o.status == 1 %}
-                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=2">同意</a><br/>
-                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=11">不同意</a><br/>
+                        {% if g.user in o.creator.team_leaders or g.user.is_super_leader() %}
+                            <a href="{{url_for('account_out.status', oid=o.id)}}?status=2">同意</a><br/>
+                            <a href="{{url_for('account_out.status', oid=o.id)}}?status=11">不同意</a><br/>
+                        {% endif %}
                     <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
                     {% elif o.status == 4 %}
-                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=14">同意</a><br/>
+                        {% if g.user in o.creator.team_leaders or g.user.is_super_leader() %}
+                            <a href="{{url_for('account_out.status', oid=o.id)}}?status=14">同意</a><br/>
+                        {% endif %}
                     <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
                     {% else %}
                     <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
