@@ -614,6 +614,8 @@ Dear %s:
             to_user_emails = [k.email for k in to_users]
     if out.creator.team.location == 2 and out.creator.team.type in [3, 4, 9]:
         to_user_emails += ['salessh@inad.com']
+    if out.creator.team.location == 1 and out.creator.team.type in [3, 4, 9]:
+        to_user_emails += ['huawei@inad.com']
     send_simple_mail(title, list(set(to_user_emails)), body=body)
 
 
