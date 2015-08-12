@@ -174,10 +174,10 @@ def invoice_pass(invoice_id):
 
 
 @finance_client_order_medium_pay_bp.route('/<order_id>/order/new', methods=['POST'])
-def new_invoice(order_id, redirect_endpoint='finance_medium_pay.info'):
+def new_invoice(order_id, redirect_endpoint='finance_client_order_medium_pay.info'):
     return _new_invoice(order_id, redirect_endpoint)
 
 
 @finance_client_order_medium_pay_bp.route('/<invoice_id>/update', methods=['POST'])
-def update_invoice(invoice_id, redirect_endpoint='finance_medium_pay.info'):
+def update_invoice(invoice_id, redirect_endpoint='finance_client_order_medium_pay.info'):
     return _update_invoice(invoice_id, redirect_endpoint)
