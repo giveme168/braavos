@@ -199,4 +199,9 @@ def new_invoice_pay(invoice_id):
                               detail=detail)
     pay.save()
     flash(u'付款成功!', 'success')
+    pay.agent_invoice.client_order.add_comment(g.user, u'代理订单款已打款,名称%s, 打款金额%s ' % (
+        pay.agent_invoice.client_order.name +
+        '-' + pay.agent_invoice.agent.name,
+        str(pay.money)),
+        msg_channel=5)
     return redirect(url_for("finance_client_order_agent_pay.pay_info", invoice_id=invoice_id))
