@@ -76,13 +76,18 @@ def underling():
     start = request.values.get('start', '')
     end = request.values.get('end', '')
 
-    under_users = _get_all_under_users(g.user.id)
-    if user_id:
-        underling_user_ids = [user_id]
+    if g.user.is_super_leader():
+        leaves = [k for k in Leave.all() if k.status in [
+            LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS]]
+        under_users = [{'uid': k.id, 'name': k.name}for k in User.all()]
     else:
-        underling_user_ids = list(set([k['uid'] for k in under_users]))
-    leaves = [k for k in Leave.all() if k.creator.id in underling_user_ids and k.status in [
-        LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS]]
+        under_users = _get_all_under_users(g.user.id)
+        if user_id:
+            underling_user_ids = [user_id]
+        else:
+            underling_user_ids = list(set([k['uid'] for k in under_users]))
+        leaves = [k for k in Leave.all() if k.creator.id in underling_user_ids and k.status in [
+            LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS]]
 
     if start and end:
         start_time = datetime.datetime.strptime(start, "%Y-%m-%d")
