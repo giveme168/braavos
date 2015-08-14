@@ -97,14 +97,19 @@ class User(db.Model, BaseModelMixin):
     team_leaders = db.relationship('User', secondary=team_leaders, primaryjoin=id == team_leaders.c.user_id,
                                    secondaryjoin=id == team_leaders.c.leader_id,
                                    backref="user_ids")
+    birthday = db.Column(db.DateTime)
+    recruited_date = db.Column(db.DateTime)
 
-    def __init__(self, name, email, password, team, status=USER_STATUS_ON, team_leaders=[]):
+    def __init__(self, name, email, password, team, status=USER_STATUS_ON, team_leaders=[], birthday=None,
+                 recruited_date=None):
         self.name = name
         self.email = email.lower()
         self.set_password(password)
         self.team = team
         self.status = status
         self.team_leaders = team_leaders
+        self.birthday = birthday
+        self.recruited_date = recruited_date
 
     '''
     def __repr__(self):
@@ -326,6 +331,11 @@ class User(db.Model, BaseModelMixin):
     @property
     def team_leaders_cn(self):
         return ','.join([k.name for k in self.team_leaders])
+
+    @classmethod
+    def get_all_today_is_birthday(cls):
+        today = datetime.date.today()
+        return [user for user in User.all() if user.birthday.month == today.month and user.birthday.day == today.day]
 
 
 team_admins = db.Table('team_admin_users',

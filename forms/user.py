@@ -1,5 +1,5 @@
 #-*- coding: UTF-8 -*-
-from wtforms import TextField, validators, PasswordField, SelectField, SelectMultipleField, TextAreaField
+from wtforms import TextField, DateField, validators, PasswordField, SelectField, SelectMultipleField, TextAreaField
 
 from libs.wtf import Form
 from models.user import (User, Team,
@@ -57,6 +57,9 @@ class NewUserForm(Form):
     status = SelectField(u'状态', coerce=int, default=1)
     team = SelectField(u'团队', coerce=int)
     team_leaders = SelectMultipleField(u'直属领导', coerce=int)
+    birthday = DateField(u'生日日期')
+    recruited_date = DateField(u'入职日期')
+    
 
     def __init__(self, *args, **kwargs):
         super(NewUserForm, self).__init__(*args, **kwargs)

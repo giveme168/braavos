@@ -143,6 +143,8 @@ def user_detail(user_id):
                 user.team = Team.get(form.team.data)
                 user.status = form.status.data
                 user.team_leaders = User.gets(form.team_leaders.data)
+                user.birthday = form.birthday.data
+                user.recruited_date = form.recruited_date.data
             user.save()
             flash(u'保存成功!', 'success')
     else:
@@ -151,6 +153,8 @@ def user_detail(user_id):
         form.team.data = user.team_id
         form.status.data = user.status
         form.team_leaders.data = [u.id for u in user.team_leaders]
+        form.birthday.data = user.birthday
+        form.recruited_date.data = user.recruited_date
     if not g.user.team.is_admin():
         form.email.readonly = True
         form.team.readonly = True
