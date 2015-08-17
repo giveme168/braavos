@@ -196,10 +196,10 @@ def display_orders(orders, template, title, operaters):
     return tpl(template, title=title, orders=orders,
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
-               orderby=orderby, status=status,
+               orderby=orderby or 'create_time', status=status,
                search_info=search_info, page=page, operaters=operaters,
                params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
-                      (orderby, search_info, location_id, status_id))
+                      (orderby or 'create_time', search_info, location_id, status_id))
 
 
 @outsource_bp.route('/', methods=['GET'])
