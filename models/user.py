@@ -77,6 +77,7 @@ TEAM_LOCATION_CN = {
 }
 
 DEFAULT_BIRTHDAY = datetime.date(year=1970, month=1, day=1)
+DEFAULT_RECRUITED_DATE = datetime.date(year=1970, month=1, day=1)
 
 team_leaders = db.Table('team_leaders',
                         db.Column(
@@ -110,7 +111,7 @@ class User(db.Model, BaseModelMixin):
         self.status = status
         self.team_leaders = team_leaders
         self.birthday = birthday or DEFAULT_BIRTHDAY
-        self.recruited_date = recruited_date or datetime.date.today()
+        self.recruited_date = recruited_date or DEFAULT_RECRUITED_DATE
 
     '''
     def __repr__(self):
