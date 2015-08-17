@@ -140,8 +140,8 @@ def user_detail(user_id):
     form = NewUserForm(request.form)
     if request.method == 'POST':
         if form.validate(vali_email=False):
-            user.name = form.name.data
-            if g.user.team.is_admin():  # 只有管理员才有权限修改 email team status
+            if g.user.team.is_admin():  # 只有管理员才有权限修改 username email team status
+                user.name = form.name.data
                 user.email = form.email.data
                 user.team = Team.get(form.team.data)
                 user.status = form.status.data
@@ -162,6 +162,7 @@ def user_detail(user_id):
         form.birthday.data = user.birthday or DEFAULT_BIRTHDAY
         form.recruited_date.data = user.recruited_date or datetime.date.today()
     if not g.user.team.is_admin():
+        form.name.readonly = True
         form.email.readonly = True
         form.team.readonly = True
         form.status.readonly = True
