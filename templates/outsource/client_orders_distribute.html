@@ -112,7 +112,8 @@
     $(function(){
         rest_chose()
         $("#operater").chosen(); 
-        $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
+        //$("#orderby option[value='{{orderby}}']").attr("selected","selected"); 
+        $('#orderby').val('{{orderby}}');
         $("#orderby").trigger("chosen:updated");
     })
     function checkform(){

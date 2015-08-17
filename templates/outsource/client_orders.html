@@ -113,9 +113,11 @@
         }
     }
     $(function(){
-        $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
+        //$("#orderby option[value='{{orderby}}']").attr("selected","selected");  
+        $('#orderby').val('{{orderby}}')
         $("#orderby").trigger("chosen:updated");
-        $("#status option[value='{{status}}']").attr("selected","selected");  
+        $('#status').val('{{status}}')
+        //$("#status option[value='{{status}}']").attr("selected","selected");  
         $("#status").trigger("chosen:updated");
         
     })
