@@ -167,8 +167,9 @@ def user_detail(user_id):
         form.team.readonly = True
         form.status.readonly = True
         form.status.choices = [(user.status, USER_STATUS_CN[user.status])]
+        form.team_leaders.readonly = True
         form.team.choices = [(user.team_id, user.team.name)]
-        form.team_leaders.choices = [u.id for u in user.team_leaders]
+        form.team_leaders.choices = [(u.id, u.name) for u in user.team_leaders]
     return tpl('user_detail.html', user=user, form=form, DEFAULT_PASSWORD=DEFAULT_PASSWORD)
 
 
