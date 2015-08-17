@@ -581,6 +581,7 @@ Dear %s:
 
 %s
 
+报备人：%s
 开始时间：%s
 结束时间：%s
 公司名称：%s
@@ -595,7 +596,7 @@ Dear %s:
 附注: 
     外出报备链接地址: %s
 
-    """ % (to_name, msg, out.start_time_cn, out.end_time_cn, out.m_persion_cn,
+    """ % (to_name, msg, out.creator.name, out.start_time_cn, out.end_time_cn, out.m_persion_cn,
            out.persions, out.address, ','.join([k.name for k in out.joiners]),
            out.reason, out.meeting_s, url)
     to_users = out.creator.team_leaders + [g.user] + out.joiners
@@ -606,13 +607,13 @@ Dear %s:
     flash(u'已发送邮件给 %s ' % (', '.join([k.name for k in to_users])), 'info')
     if out.creator_type == 1:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
-        if status in [3, 4]:
-            to_user_emails == [k.email for k in to_users] + ['bus@inad.com']
+        if out.status in [3, 4]:
+            to_user_emails = [k.email for k in to_users] + ['bus@inad.com']
     else:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
-        if status == 3:
+        if out.status == 3:
             to_user_emails = [k.email for k in to_users]
-    if out.creator.team.location == 2 and out.creator.team.type in [3, 4, 9]:
+    if out.creator.team.location == 2:
         to_user_emails += ['salessh@inad.com']
     if out.creator.team.location == 1 and out.creator.team.type in [3, 4, 9]:
         to_user_emails += ['huawei@inad.com']
