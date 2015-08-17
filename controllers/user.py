@@ -152,6 +152,7 @@ def user_detail(user_id):
                 user.recruited_date = form.recruited_date.data
             user.save()
             flash(u'保存成功!', 'success')
+            return redirect(url_for('user.user_detail', user_id=user_id))
     else:
         form.name.data = user.name
         form.email.data = user.email
@@ -166,7 +167,7 @@ def user_detail(user_id):
         form.team.readonly = True
         form.status.readonly = True
         form.status.choices = [(user.status, USER_STATUS_CN[user.status])]
-        form.team_leaders.readonly = True
+        form.team_leaders.disabled = True
         form.team.choices = [(user.team_id, user.team.name)]
         form.team_leaders.choices = [(u.id, u.name) for u in user.team_leaders]
     return tpl('user_detail.html', user=user, form=form, DEFAULT_PASSWORD=DEFAULT_PASSWORD)

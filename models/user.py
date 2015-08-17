@@ -77,6 +77,7 @@ TEAM_LOCATION_CN = {
 }
 
 DEFAULT_BIRTHDAY = datetime.date(year=1970, month=1, day=1)
+DEFAULT_RECRUITED_DATE = datetime.date(year=1970, month=1, day=1)
 
 team_leaders = db.Table('team_leaders',
                         db.Column(
