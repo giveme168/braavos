@@ -1,7 +1,7 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
-    {% if g.user.is_admin() or g.user.is_HR_leader() %}
+    {% if g.user.is_admin() or g.user.is_HR_leader() or g.user.is_super_leader() %}
     <a class="list-group-item" href="{{url_for('user.users')}}">
         <span class="glyphicon glyphicon-user"></span> 用户
     </a>

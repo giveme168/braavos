@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import datetime
 from flask import Blueprint, request, redirect, url_for, abort, g
 from flask import render_template as tpl, flash, current_app
 from flask.ext.login import login_user, logout_user, current_user
 
 from . import admin_required
-from models.user import Team, User, USER_STATUS_CN, DEFAULT_BIRTHDAY
+from models.user import Team, User, USER_STATUS_CN, DEFAULT_BIRTHDAY, DEFAULT_RECRUITED_DATE
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
 from config import DEFAULT_PASSWORD
 from libs.signals import password_changed_signal
@@ -160,7 +159,7 @@ def user_detail(user_id):
         form.status.data = user.status
         form.team_leaders.data = [u.id for u in user.team_leaders]
         form.birthday.data = user.birthday or DEFAULT_BIRTHDAY
-        form.recruited_date.data = user.recruited_date or datetime.date.today()
+        form.recruited_date.data = user.recruited_date or DEFAULT_RECRUITED_DATE
     if not g.user.team.is_admin():
         form.name.readonly = True
         form.email.readonly = True

@@ -4,8 +4,8 @@ from wtforms import TextField, DateField, validators, PasswordField, SelectField
 
 from libs.wtf import Form
 from models.user import (User, Team,
-                         TEAM_TYPE_CN, TEAM_LOCATION_CN, USER_STATUS_CN,
-                         TEAM_TYPE_MEDIUM, TEAM_LOCATION_DEFAULT, LEAVE_TYPE_CN, DEFAULT_BIRTHDAY)
+                         TEAM_TYPE_CN, TEAM_LOCATION_CN, USER_STATUS_CN, TEAM_TYPE_MEDIUM,
+                         TEAM_LOCATION_DEFAULT, LEAVE_TYPE_CN, DEFAULT_BIRTHDAY, DEFAULT_RECRUITED_DATE)
 
 
 class LoginForm(Form):
@@ -59,7 +59,7 @@ class NewUserForm(Form):
     team = SelectField(u'团队', coerce=int)
     team_leaders = SelectMultipleField(u'直属领导', coerce=int)
     birthday = DateField(u'生日日期', default=DEFAULT_BIRTHDAY)
-    recruited_date = DateField(u'入职日期', default=datetime.date.today())
+    recruited_date = DateField(u'入职日期', default=DEFAULT_RECRUITED_DATE)
     
 
     def __init__(self, *args, **kwargs):
