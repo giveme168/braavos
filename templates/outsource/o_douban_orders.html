@@ -111,9 +111,11 @@
         }
     }
     $(function(){
-        $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
+        //$("#orderby option[value='{{orderby}}']").attr("selected","selected");  
+        $('#orderby').val()
         $("#orderby").trigger("chosen:updated");
-        $("#status option[value='{{status}}']").attr("selected","selected");  
+        //$("#status option[value='{{status}}']").attr("selected","selected"); 
+        $('#status').val()
         $("#status").trigger("chosen:updated");
     })
 </script>
