@@ -32,6 +32,10 @@ CLIENT_INDUSTRY_LIST = [
     u"酒精类",
     u"金融",
     u"运营商",
+    u'网服',
+    u'医疗',
+    u'工具',
+    u'电商',
 ]
 
 CLIENT_INDUSTRY_CN = dict(enumerate(CLIENT_INDUSTRY_LIST))

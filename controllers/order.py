@@ -272,7 +272,10 @@ def get_medium_form(order, user=None):
 def order_info(order_id, tab_id=1):
     order = ClientOrder.get(order_id)
     if not order or order.status == 0:
-        abort(404)
+        if g.user.is_super_admin():
+            pass
+        else:
+            abort(404)
     client_form = get_client_form(order)
     if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
@@ -1017,7 +1020,10 @@ def get_douban_form(order):
 def douban_order_info(order_id):
     order = DoubanOrder.get(order_id)
     if not order or order.status == 0:
-        abort(404)
+        if g.user.is_super_admin():
+            pass
+        else:
+            abort(404)
     form = get_douban_form(order)
 
     if request.method == 'POST':
