@@ -46,6 +46,19 @@ def send_simple_mail(subject, recipients, body=''):
 
 
 @async
+def send_html_mail(subject, recipients, body=''):
+    if not recipients:
+        return
+    body += u"""
+
+--------
+本邮件由系统代发, 请不要直接回复
+如有任何疑问, 请咨询 z@inad.com
+"""
+    with mail.app.app_context():
+        mail.send_message(subject, recipients=recipients, body=body, html=body)
+
+@async
 def send_attach_mail(subject, recipients, body='', file_paths=None):
     if not recipients:
         return
