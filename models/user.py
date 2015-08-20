@@ -111,7 +111,7 @@ class User(db.Model, BaseModelMixin):
         self.status = status
         self.team_leaders = team_leaders
         self.birthday = birthday or DEFAULT_BIRTHDAY
-        self.recruited_date = recruited_date or DEFAULT_RECRUITED_DATE
+        self.recruited_date = recruited_date or datetime.date.today()
 
     '''
     def __repr__(self):
@@ -411,7 +411,7 @@ LEAVE_TYPE_CN = {
     LEAVE_TYPE_MARRIAGE: u'婚假',
     LEAVE_TYPE_MATERNITY: u'产假',
     LEAVE_TYPE_FUNERA: u'丧假',
-    LEAVE_TYPE_OFF: u'调休',
+    LEAVE_TYPE_OFF: u'调休'
 }
 
 LEAVE_STATUS_BACK = 0
