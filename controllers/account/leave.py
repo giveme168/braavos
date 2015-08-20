@@ -8,6 +8,7 @@ from forms.user import UserLeaveForm
 
 from libs.signals import apply_leave_signal
 from libs.paginator import Paginator
+from controllers.account.helpers.leave_helpers import write_outs_excel
 
 account_leave_bp = Blueprint(
     'account_leave', __name__, template_folder='../../templates/account/leave/')
@@ -39,7 +40,8 @@ def leaves():
         leaves = [k for k in leaves if k.creator.id == user_id]
     if status != 100:
         leaves = [k for k in leaves if k.status == status]
-
+    if request.values.get('action') == 'excel':
+        return write_outs_excel(leaves)
     paginator = Paginator(leaves, 50)
     try:
         leaves = paginator.page(page)

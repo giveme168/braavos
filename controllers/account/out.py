@@ -9,6 +9,7 @@ from models.client import Client, Agent
 from models.medium import Medium
 from libs.signals import apply_out_signal
 from libs.paginator import Paginator
+from controllers.account.helpers.out_helpers import write_outs_excel
 
 from libs.wtf import Form
 
@@ -110,6 +111,8 @@ def outs():
         outs = [k for k in outs if k.status == status]
     if user_id:
         outs = [k for k in outs if k.creator.id == user_id]
+    if request.values.get('action') == 'excel':
+        return write_outs_excel(outs)
     paginator = Paginator(outs, 50)
     try:
         outs = paginator.page(page)
