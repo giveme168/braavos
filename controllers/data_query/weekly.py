@@ -192,12 +192,10 @@ def douban_index():
         douban_orders = douban_orders
     elif g.user.is_leader():
         douban_orders = [
-            o for o in douban_orders if g.user.location in o.locations]
+            o for o in douban_orders if g.user.location in o['locations']]
     else:
         douban_orders = [
-            o for o in douban_orders if (g.user in o.direct_sales + o.agent_sales) or
-            (g.user in o.get_saler_leaders())]
-
+            o for o in douban_orders if (g.user.id in o['salers_ids']) or (g.user.id in o['get_saler_leaders'])]
     huabei_agent_salers = []
     huabei_direct_salers = []
     huanan_agent_salers = []
@@ -284,10 +282,13 @@ def _douban_order_to_dict(douban_order, now_year, Q_monthes):
     dict_order['contract'] = douban_order.contract
     dict_order['campaign'] = douban_order.campaign
     dict_order['industry_cn'] = douban_order.client.industry_cn
+    dict_order['locations'] = douban_order.locations
     dict_order['direct_sales'] = [
         {'id': k.id, 'name': k.name, 'location': k.team.location}for k in douban_order.direct_sales]
     dict_order['agent_sales'] = [
         {'id': k.id, 'name': k.name, 'location': k.team.location}for k in douban_order.agent_sales]
+    dict_order['salers_ids'] = [k['id'] for k in (dict_order['direct_sales'] + dict_order['agent_sales'])]
+    dict_order['get_saler_leaders'] = [k.id for k in douban_order.get_saler_leaders()]
     dict_order['zhixing_money'] = [
         douban_order.zhixing_money('agent'), douban_order.zhixing_money('direct')]
     dict_order['resource_type_cn'] = douban_order.resource_type_cn
@@ -306,10 +307,13 @@ def _client_order_to_dict(client_order, now_year, Q_monthes):
     dict_order['contract'] = client_order.contract
     dict_order['campaign'] = client_order.campaign
     dict_order['industry_cn'] = client_order.client.industry_cn
+    dict_order['locations'] = client_order.locations
     dict_order['direct_sales'] = [
         {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.direct_sales]
     dict_order['agent_sales'] = [
         {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.agent_sales]
+    dict_order['salers_ids'] = [k['id'] for k in (dict_order['direct_sales'] + dict_order['agent_sales'])]
+    dict_order['get_saler_leaders'] = [k.id for k in client_order.get_saler_leaders()]
     dict_order['zhixing_money'] = [
         client_order.zhixing_money('agent'), client_order.zhixing_money('direct')]
     dict_order['invoice_pass_sum'] = client_order.invoice_pass_sum
@@ -381,11 +385,10 @@ def index():
         client_orders = client_orders
     elif g.user.is_leader():
         client_orders = [
-            o for o in client_orders if g.user.location in o.locations]
+            o for o in client_orders if g.user.location in o['locations']]
     else:
         client_orders = [
-            o for o in client_orders if (g.user in o.direct_sales + o.agent_sales) or
-            (g.user in o.get_saler_leaders())]
+            o for o in client_orders if (g.user.id in o['salers_ids']) or (g.user.id in o['get_saler_leaders'])]
 
     huabei_agent_salers = []
     huabei_direct_salers = []
