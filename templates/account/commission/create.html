@@ -1,0 +1,48 @@
+{% extends "/account/account_performance_base.html" %}
+{% from 'form.html' import form_field %}
+{% block title %}新建{{user.name}}的提成{% endblock %}
+
+{% block main_box %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+    }
+</style>
+<div class="bra-main bra-box">
+    <h4>新建{{user.name}}的提成</h4>
+    <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">年份 : </label>
+          <div class="col-sm-6">
+            <select id='year' name='year' class="form-control bra-form-control">
+                {% for k in range(2014, 2031) %}
+                <option value="{{k}}">{{k}}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">提成比例 : </label>
+          <div class="col-sm-6">
+            <input type="number" id="rate" name="rate" value="0" class="form-control bra-form-control">
+            <span class="tips" style="color:red;">%</span>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2"/>保存</button>
+        <a class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_commission.info', user_id=user.id)}}"/>返回</a>
+    </form>
+</div>
+<script>
+function checkform(obj){
+    var rate = obj.rate.value
+    
+    if (typeof(parseFloat(rate)) != typeof(0.0)){
+        alert('请输入正确的提成比例')
+        obj.rate.focus()
+        return false;
+    }
+    return true;
+}
+</script>
+{% endblock %}

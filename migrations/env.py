@@ -30,6 +30,7 @@ from models.delivery import Delivery
 from models.outsource import OutSourceTarget, OutSource
 from models.invoice import Invoice, AgentInvoice, AgentInvoicePay, \
     MediumInvoice, MediumInvoicePay, MediumRebateInvoice
+from models.account.saler import * 
 # target_metadata = mymodel.Base.metadata
 # models for searchAd
 from searchAd.models.client import searchAdClient, searchAdGroup, searchAdAgent, searchAdAgentRebate
