@@ -301,6 +301,7 @@ def order_info(order_id, tab_id=1):
                     order.save()
                     order.add_comment(g.user, u"更新了客户订单")
                     flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
+                    _insert_executive_report(order, 'reload')
         elif info_type == 2:
             if not g.user.is_contract():
                 flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
@@ -419,6 +420,7 @@ def medium_order(mo_id):
     mo.client_order.add_comment(
         g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money))
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
+    _insert_executive_report(mo, 'reload')
     return redirect(mo.info_path())
 
 
@@ -1054,6 +1056,7 @@ def douban_order_info(order_id):
                     order.save()
                     order.add_comment(g.user, u"更新了该订单信息")
                     flash(u'[豆瓣订单]%s 保存成功!' % order.name, 'success')
+                    _insert_executive_report(order, 'reload')
         elif info_type == 2:
             if not g.user.is_contract():
                 flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
