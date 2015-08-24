@@ -282,6 +282,7 @@ def _douban_order_to_dict(douban_order, now_year, Q_monthes):
     dict_order['contract'] = douban_order.contract
     dict_order['campaign'] = douban_order.campaign
     dict_order['industry_cn'] = douban_order.client.industry_cn
+    dict_order['locations'] = douban_order.locations
     dict_order['direct_sales'] = [
         {'id': k.id, 'name': k.name, 'location': k.team.location}for k in douban_order.direct_sales]
     dict_order['agent_sales'] = [
@@ -306,6 +307,7 @@ def _client_order_to_dict(client_order, now_year, Q_monthes):
     dict_order['contract'] = client_order.contract
     dict_order['campaign'] = client_order.campaign
     dict_order['industry_cn'] = client_order.client.industry_cn
+    dict_order['locations'] = client_order.locations
     dict_order['direct_sales'] = [
         {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.direct_sales]
     dict_order['agent_sales'] = [
