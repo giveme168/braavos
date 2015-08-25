@@ -608,7 +608,7 @@ Dear %s:
     if out.creator_type == 1:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
         if out.status in [3, 4]:
-            to_user_emails = [k.email for k in to_users] + ['bus@inad.com']
+            to_user_emails = [k.email for k in to_users] + ['sales@inad.com']
     else:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
         if out.status == 3:
