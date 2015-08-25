@@ -343,6 +343,10 @@ class User(db.Model, BaseModelMixin):
         today = datetime.date.today()
         return [user for user in User.all() if user.birthday.month == today.month and user.birthday.day == today.day]
 
+    @property
+    def lately_commission(self):
+        return self.commission_user.first()
+
 
 team_admins = db.Table('team_admin_users',
                        db.Column(
