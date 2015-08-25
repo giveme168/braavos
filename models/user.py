@@ -135,6 +135,10 @@ class User(db.Model, BaseModelMixin):
         return self.team.location
 
     @property
+    def location_cn(self):
+        return self.team.location_cn
+
+    @property
     def user_leaders(self):
         return self.team.admins or []
 

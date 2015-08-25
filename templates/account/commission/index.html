@@ -1,0 +1,48 @@
+{% extends "/account/account_performance_base.html" %}
+{% block title %}销售人员提成{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>销售人员提成</h3>
+    <br/>
+
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th width="10%">区域</th>
+            <th width="30%">姓名</th>
+            <th width="40%">Leader</th>
+            <th width="20%">操作</th>
+        </tr>
+    </table>
+    <table class="table table-bordered table-striped">
+        {% for k in huabei_users %}
+        <tr>
+            <td width="10%">{{k.location_cn}}</td>
+            <td width="30%">{{k.name}}</td>
+            <td width="40%">{{k.team_leaders_cn}}</td>
+            <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    <table class="table table-bordered table-striped">
+        {% for k in huadong_users %}
+        <tr>
+            <td width="10%">{{k.location_cn}}</td>
+            <td width="30%">{{k.name}}</td>
+            <td width="40%">{{k.team_leaders_cn}}</td>
+            <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    <table class="table table-bordered table-striped">
+        {% for k in huanan_users %}
+        <tr>
+            <td width="10%">{{k.location_cn}}</td>
+            <td width="30%">{{k.name}}</td>
+            <td width="40%">{{k.team_leaders_cn}}</td>
+            <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
