@@ -869,8 +869,6 @@ def my_framework_orders():
     elif g.user.is_leader():
         orders = [
             o for o in FrameworkOrder.all() if g.user.location in o.locations]
-        orders = [o for o in orders if (o.contract_status == CONTRACT_STATUS_APPLYCONTRACT and
-                                        g.user.location in o.locations)]
     else:
         orders = FrameworkOrder.get_order_by_user(g.user)
     return framework_display_orders(orders, u'我的框架订单')
