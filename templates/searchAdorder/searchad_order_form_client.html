@@ -15,6 +15,10 @@
     <div class="col-md-6" style="margin-left: 20px;">
         <table class="table table-bordered">
           <tr>
+            <th>所属框架</th>
+            <td>{{client_order.framework_order.name}}</td>
+          </tr>
+          <tr>
             <th>代理/直客(甲方全称) </th>
             <td>{{client_order.agent.name}}</td>
           </tr>
@@ -78,6 +82,7 @@
 <form class="form form-horizontal" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
+    {{ form_field(form.framework_order_id) }}
     {{ form_field(form.agent) }}
     {{ form_field(form.client) }}
     {{ form_field(form.campaign) }}

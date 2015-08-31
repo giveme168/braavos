@@ -271,8 +271,7 @@ class User(db.Model, BaseModelMixin):
     @classmethod
     def searchAd_sales(cls):
         return (cls.gets_by_team_type(TEAM_TYPE_SEARCH_AD_SELLER) +
-                cls.gets_by_team_type(TEAM_TYPE_SEARCH_AD_LEADER) +
-                cls.leaders())
+                cls.gets_by_team_type(TEAM_TYPE_SEARCH_AD_LEADER))
 
     @classmethod
     def contracts(cls):

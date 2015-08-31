@@ -120,9 +120,9 @@
       {% if order.can_admin(g.user) %}
       <li class=""><a href='{{url_for("searchAd_saler_client_order_invoice.index", order_id=order.id)}}'>客户发票</a></li>
       <li class=""><a href='{{url_for("searchAd_saler_client_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
-      <li class=""><a href='{{url_for("searchAd_saler_client_order_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
-      <li class="active"><a href='{{url_for("searchAd_saler_client_order_medium_rebate_invoice.index", order_id=order.id)}}'>媒体返点发票</a></li>
-      <li class=""><a href='{{url_for("searchAd_saler_client_order_agent_invoice.index", order_id=order.id)}}'>甲方发票与打款</a></li>
+      <!--<li class=""><a href='{{url_for("searchAd_saler_client_order_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
+      <li class="active"><a href='{{url_for("searchAd_saler_client_order_medium_rebate_invoice.index", order_id=order.id)}}'>媒体返点发票</a></li>-->
+      <li class=""><a href='{{url_for("searchAd_saler_client_order_agent_invoice.index", order_id=order.id)}}'>代理直客发票与打款</a></li>
       {% endif %}
     </ul>
     <div class="tab-content">

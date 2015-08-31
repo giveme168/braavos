@@ -40,15 +40,19 @@ def create(user_id):
     if request.method == 'POST':
         rate = float(request.values.get('rate', 0))
         year = int(request.values.get('year', datetime.datetime.now().year))
-        if not Commission.query.filter_by(user=user, year=year).first():
-            Commission.add(
+        try:
+            commission = Commission.add(
                 user=user,
                 creator=g.user,
                 rate=rate,
                 year=year)
-            flash(u'添加提成信息成功', 'success')
-            return redirect(url_for('account_commission.info', user_id=user_id))
-        else:
+            if commission:
+                flash(u'添加提成信息成功', 'success')
+                return redirect(url_for('account_commission.info', user_id=user_id))
+            else:
+                flash(u'该年度已存在返点信息', 'danger')
+                return redirect(url_for('account_commission.create', user_id=user_id))
+        except:
             flash(u'该年度已存在返点信息', 'danger')
     return tpl('/account/commission/create.html', user=user)
 
@@ -61,12 +65,15 @@ def update(user_id, mid):
     if request.method == 'POST':
         rate = float(request.values.get('rate', 0))
         year = int(request.values.get('year', datetime.datetime.now().year))
-        if commission.year != rate and Commission.query.filter_by(user=commission.user, year=year).count() == 0:
+        try:
             commission.year = year
             commission.rate = rate
             commission.save()
-        flash(u'修改提成信息成功', 'success')
-        return redirect(url_for('account_commission.info', user_id=user_id))
+            flash(u'修改提成信息成功', 'success')
+            return redirect(url_for('account_commission.info', user_id=user_id))
+        except:
+            flash(u'该年度已存在返点信息', 'danger')
+            return redirect(url_for('account_commission.update', user_id=user_id, mid=mid))
     return tpl('/account/commission/update.html', commission=commission)
 
 

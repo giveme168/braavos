@@ -439,7 +439,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + [self.creator]
-        return user.is_leader() or user.is_contract() or user.is_media() or user in admin_users
+        return user.is_leader() or user.is_contract() or user.is_media() or\
+            user.is_media_leader() or user in admin_users
 
     def can_action(self, user, action):
         """是否拥有leader操作"""
@@ -849,6 +850,13 @@ by %s\n
             return True
         else:
             return False
+
+    @property
+    def operaters(self):
+        operaters = []
+        for k in self.medium_orders:
+            operaters += k.operaters
+        return list(set(operaters))
 
 
 class BackMoney(db.Model, BaseModelMixin):

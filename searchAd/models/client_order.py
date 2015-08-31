@@ -1,19 +1,20 @@
 # -*- coding: UTF-8 -*-
 import datetime
 from flask import url_for, g
-from models import db, BaseModelMixin 
-from models.mixin.comment import CommentMixin 
-from models.mixin.attachment import AttachmentMixin 
+from models import db, BaseModelMixin
+from models.mixin.comment import CommentMixin
+from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from models.item import ITEM_STATUS_LEADER_ACTIONS
 from models.user import User, TEAM_LOCATION_CN
 from models.consts import DATE_FORMAT
+from ..models.framework_order import searchAdFrameworkOrder
 
 from libs.mail import mail
 from libs.date_helpers import get_monthes_pre_days
 
 from .invoice import searchAdInvoice, searchAdMediumInvoice, searchAdMediumInvoicePay, searchAdAgentInvoice, \
-                                                                    searchAdAgentInvoicePay, searchAdMediumRebateInvoice
+    searchAdAgentInvoicePay, searchAdMediumRebateInvoice
 
 
 CONTRACT_TYPE_NORMAL = 0
@@ -43,12 +44,12 @@ RESOURCE_TYPE_CN = {
 
 # for searchAd
 AD_PROMOTION_TYPE_CN = {
-        0: u'无线助手CPT',
-        1: u'无线助手CPC',
-        2: u'360搜索CPC',
-        3: u'360导航猜你喜欢',
-        4: u'360导航CPT',
-        }
+    0: u'无线助手CPT',
+    1: u'无线助手CPC',
+    2: u'360搜索CPC',
+    3: u'360导航猜你喜欢',
+    4: u'360导航CPT',
+}
 
 CONTRACT_STATUS_NEW = 0
 CONTRACT_STATUS_APPLYCONTRACT = 1
@@ -115,7 +116,10 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     __tablename__ = 'searchAd_bra_client_order'
 
     id = db.Column(db.Integer, primary_key=True)
-    agent_id = db.Column(db.Integer, db.ForeignKey('searchAd_agent.id'))  # 客户合同甲方
+    framework_order_id = db.Column(
+        db.Integer, server_default='0', nullable=False)  # 客户合同甲方
+    agent_id = db.Column(
+        db.Integer, db.ForeignKey('searchAd_agent.id'))  # 客户合同甲方
     agent = db.relationship(
         'searchAdAgent', backref=db.backref('client_orders', lazy='dynamic'))
     client_id = db.Column(db.Integer, db.ForeignKey('searchAd_client.id'))  # 客户
@@ -135,7 +139,8 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
 
-    medium_orders = db.relationship('searchAdOrder', secondary=table_medium_orders)
+    medium_orders = db.relationship(
+        'searchAdOrder', secondary=table_medium_orders)
     contract_status = db.Column(db.Integer)  # 合同审批状态
     status = db.Column(db.Integer)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -152,7 +157,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
                  back_money_status=BACK_MONEY_STATUS_NOW,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
-                 direct_sales=None, agent_sales=None,
+                 direct_sales=None, agent_sales=None, framework_order_id=0,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
         self.agent = agent
         self.client = client
@@ -177,6 +182,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
         self.create_time = create_time or datetime.datetime.now()
         self.contract_status = contract_status
         self.back_money_status = back_money_status
+        self.framework_order_id = framework_order_id
 
     @classmethod
     def get_all(cls):
@@ -280,7 +286,8 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
 
     @property
     def mediums_invoice_apply_sum(self):
-        invoices = searchAdMediumInvoice.query.filter_by(client_order_id=self.id)
+        invoices = searchAdMediumInvoice.query.filter_by(
+            client_order_id=self.id)
         return sum([k.money for k in searchAdMediumInvoicePay.all() if k.pay_status == 3 and k.medium_invoice in invoices])
 
     @property
@@ -290,7 +297,8 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
 
     @property
     def mediums_invoice_pass_sum(self):
-        invoices = searchAdMediumInvoice.query.filter_by(client_order_id=self.id)
+        invoices = searchAdMediumInvoice.query.filter_by(
+            client_order_id=self.id)
         return sum([k.money for k in searchAdMediumInvoicePay.all() if k.pay_status == 0 and k.medium_invoice in invoices])
 
     @property
@@ -366,7 +374,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
 
     def get_medium_rebate_invoice_apply_sum(self, medium):
         return sum([invoice.money for invoice in searchAdMediumRebateInvoice.query.filter_by(client_order_id=self.id,
-                                                                                     invoice_status=3, medium=medium)])
+                                                                                             invoice_status=3, medium=medium)])
 
     @property
     def invoice_pass_sum(self):
@@ -380,7 +388,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
 
     def get_medium_rebate_invoice_pass_sum(self, medium):
         return sum([invoice.money for invoice in searchAdMediumRebateInvoice.query.filter_by(client_order_id=self.id,
-                                                                                     invoice_status=0, medium=medium)])
+                                                                                             invoice_status=0, medium=medium)])
 
     @property
     def invoice_percent(self):
@@ -450,7 +458,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + [self.creator]
-        return user.is_contract() or user.is_media() or user in admin_users or user.is_super_leader()
+        return user.is_searchad_leader() or user.is_contract() or user.is_media() or user in admin_users or user.is_super_leader()
 
     def can_action(self, user, action):
         """是否拥有leader操作"""
@@ -842,6 +850,14 @@ by %s\n
         else:
             return False
 
+    @property
+    def framework_order(self):
+        try:
+            framework = searchAdFrameworkOrder.get(self.framework_order_id)
+            return {'id': framework.id, 'name': framework.name}
+        except:
+            return {'id': 0, 'name': u'无框架'}
+
 
 class searchAdBackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_client_order_back_money'
@@ -870,6 +886,8 @@ class searchAdBackMoney(db.Model, BaseModelMixin):
         return self.create_time.strftime(DATE_FORMAT)
 
 # 客户返点发票
+
+
 class searchAdBackInvoiceRebate(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_client_order_back_invoice_rebate'
     id = db.Column(db.Integer, primary_key=True)

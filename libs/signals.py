@@ -565,7 +565,7 @@ def out_apply(sender, out, status):
     elif status == 2:
         msg = u'外出报备申请通过'
         to_name = out.creator.name
-    elif status == 3:
+    elif status in [3, 4]:
         msg = u'会议纪要填写完成'
         to_name = ','.join([k.name for k in out.creator.team_leaders])
     elif status == 13:
@@ -604,10 +604,10 @@ Dear %s:
     for k in out.joiners:
         joiners_leaders += k.team_leaders
     to_users += joiners_leaders
-    flash(u'已发送邮件给 %s ' % (', '.join([k.name for k in to_users])), 'info')
     if out.creator_type == 1:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
         if out.status in [3, 4]:
+            title = u'【外出报备】-会议纪要'
             to_user_emails = [k.email for k in to_users] + ['sales@inad.com']
     else:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
@@ -617,6 +617,15 @@ Dear %s:
         to_user_emails += ['salessh@inad.com']
     if out.creator.team.location == 1 and out.creator.team.type in [3, 4, 9]:
         to_user_emails += ['huawei@inad.com']
+    
+    # 会议纪要申请通过只抄送相关人+admin,不抄送leader
+    if out.status == 2:
+        to_users = [g.user] + out.joiners
+        to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
+    # 会议纪要发送邮件标题改为"【外出报备】-会议纪要"
+    if out.status in [3, 4]:
+        title = u'【外出报备】-会议纪要'
+    flash(u'已发送邮件给 %s ' % (', '.join([k.name for k in to_users])), 'info')
     send_simple_mail(title, list(set(to_user_emails)), body=body)
 
 

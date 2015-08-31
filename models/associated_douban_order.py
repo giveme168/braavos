@@ -182,3 +182,7 @@ by %s\n
             self.start_date_cn, self.end_date_cn,
             self.money, mail.app.config['DOMAIN'] + self.info_path(), g.user.name)
         return body
+
+    @property
+    def operaters(self):
+        return self.medium_order.operaters
