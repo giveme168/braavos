@@ -23,6 +23,7 @@ merger_outsource_apply_signal = braavos_signals.signal('merger_outsource_apply')
 apply_leave_signal = braavos_signals.signal('apply_leave')
 kpi_apply_signal = braavos_signals.signal('kpi_apply')
 apply_out_signal = braavos_signals.signal('out_apply')
+back_money_apply_signal = braavos_signals.signal('back_money_apply')
 
 
 def password_changed(sender, user):
@@ -137,11 +138,11 @@ def medium_invoice_apply(sender, apply_context):
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if apply_context['send_type'] == "saler":
         url = mail.app.config[
-            'DOMAIN'] + '/saler/medium_invoice/%s/invoice' % (invoice.id)
+            'DOMAIN'] + '/saler/client_order/medium_invoice/%s/invoice' % (invoice.id)
         name = u'黄亮'
     else:
         url = mail.app.config[
-            'DOMAIN'] + '/finance/medium_pay/%s/info' % (invoice.client_order_id)
+            'DOMAIN'] + '/finance/client_order/medium_pay/%s/info' % (invoice.client_order_id)
         name = ', '.join([k.name for k in User.finances()])
     text = u"""%s
 
@@ -175,11 +176,11 @@ def agent_invoice_apply(sender, apply_context):
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if apply_context['send_type'] == "saler":
         url = mail.app.config[
-            'DOMAIN'] + '/saler/agent_invoice/%s/invoice' % (invoice.id)
+            'DOMAIN'] + '/saler/client_order/agent_invoice/%s/invoice' % (invoice.id)
         name = u'黄亮'
     else:
         url = mail.app.config[
-            'DOMAIN'] + '/finance/agent_pay/%s/info' % (invoice.client_order_id)
+            'DOMAIN'] + '/finance/client_order/agent_pay/%s/info' % (invoice.client_order_id)
         name = ', '.join([k.name for k in User.finances()])
     text = u"""%s
 
@@ -552,6 +553,41 @@ Dear %s:
     send_simple_mail(title, list(set(to_users)), body=body)
 
 
+def back_money_apply(sender, apply_context):
+    order = apply_context['order']
+    num = apply_context['num']
+    type = apply_context['type']
+    to_users = order.direct_sales + order.agent_sales + User.contracts()+\
+        [order.creator, g.user] + order.leaders + User.medias()
+    to_emails = list(set([x.email for x in to_users]))
+    flash(u'已发送邮件给 %s ' %
+          (', '.join([k.name for k in list(set(to_users))])), 'info')
+    if type == 'invoice':
+        s_title = u'返点发票信息'
+    elif type == 'end':
+        s_title = u'回款完成'
+    else:
+        s_title = u'回款信息'
+    url = mail.app.config['DOMAIN'] + order.info_path()
+    title = u'【项目回款】%s-%s' % (order.name, s_title)
+    body = u"""
+订单: %s
+链接地址: %s
+订单合同号: %s 
+
+回款详情:
+   本次回款金额: %s
+   已回款完成比例: %s %%
+
+订单信息:
+%s
+
+\n
+by %s
+""" % (order.name, url, order.contract, str(num), order.back_money_percent, order.email_info, g.user.name)
+    send_simple_mail(title, to_emails, body=body)
+
+
 def out_apply(sender, out, status):
     if status == 1:
         msg = u'外出报备申请'
@@ -617,7 +653,7 @@ Dear %s:
         to_user_emails += ['salessh@inad.com']
     if out.creator.team.location == 1 and out.creator.team.type in [3, 4, 9]:
         to_user_emails += ['huawei@inad.com']
-    
+
     # 会议纪要申请通过只抄送相关人+admin,不抄送leader
     if out.status == 2:
         to_users = [g.user] + out.joiners
@@ -648,3 +684,4 @@ def init_signal(app):
     apply_leave_signal.connect_via(app)(apply_leave)
     kpi_apply_signal.connect_via(app)(kpi_apply)
     apply_out_signal.connect_via(app)(out_apply)
+    back_money_apply_signal.connect_via(app)(back_money_apply)
