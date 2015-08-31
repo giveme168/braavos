@@ -101,6 +101,8 @@ def new_invoice_pay(invoice_id):
                                detail=detail)
     pay.save()
     flash(u'新建打款信息成功!', 'success')
+    mi.client_order.add_comment(g.user, u"新建打款信息  发票号：%s  打款金额：%s元  打款时间：%s" % (
+        mi.invoice_num, str(money), pay_time), msg_channel=3)
     return redirect(url_for('saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
 
 
@@ -217,7 +219,7 @@ def apply_pay(invoice_id):
                    invoice.medium_invoice.invoice_num, invoice.detail), 'success')
 
             invoice.medium_invoice.client_order.add_comment(g.user, u"%s,%s" % (
-                action_msg, u'[%s媒体申请打款，打款金额: %s, 发票号: %s]  %s ' %
+                action_msg, u' %s媒体申请打款，打款金额: %s, 发票号: %s  %s ' %
                 (invoice.medium_invoice.company, invoice.money,
                     invoice.medium_invoice.invoice_num, invoice.detail)), msg_channel=3)
         send_type = "saler"
@@ -227,12 +229,12 @@ def apply_pay(invoice_id):
         for invoice in invoice_pays:
             invoice.pay_status = MEDIUM_INVOICE_STATUS_AGREE
             invoice.save()
-            flash(u'[同意%s媒体订单打款申请，打款金额: %s, 发票号: %s]  %s ' %
+            flash(u' 同意%s媒体订单打款申请，打款金额: %s, 发票号: %s  %s ' %
                   (invoice.medium_invoice.company, invoice.money,
                    invoice.medium_invoice.invoice_num, invoice.detail), 'success')
 
             invoice.medium_invoice.client_order.add_comment(g.user, u"%s,%s" % (
-                action_msg, u'[%s媒体同意打款，打款金额: %s, 发票号: %s]  %s ' %
+                action_msg, u' %s媒体同意打款，打款金额: %s, 发票号: %s  %s ' %
                 (invoice.medium_invoice.company, invoice.money,
                     invoice.medium_invoice.invoice_num, invoice.detail)), msg_channel=3)
         send_type = "finance"
@@ -279,7 +281,7 @@ def apply_invoice(invoice_id):
         for invoice in invoices:
             invoice.invoice_status = invoice_status
             invoice.save()
-            flash(u'[%s 打款发票申请，发票金额: %s, 发票号: %s]  %s ' %
+            flash(u' %s 打款发票申请，发票金额: %s, 发票号: %s  %s ' %
                   (invoice.company, invoice.money, invoice.invoice_num, action_msg), 'success')
             invoice.client_order.add_comment(g.user, u"%s,%s" % (
                 action_msg, u'打款发票内容: %s; 发票金额: %s元; 发票号: %s' %

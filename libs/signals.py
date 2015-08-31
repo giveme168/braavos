@@ -137,11 +137,11 @@ def medium_invoice_apply(sender, apply_context):
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if apply_context['send_type'] == "saler":
         url = mail.app.config[
-            'DOMAIN'] + '/saler/medium_invoice/%s/invoice' % (invoice.id)
+            'DOMAIN'] + '/saler/client_order/medium_invoice/%s/invoice' % (invoice.id)
         name = u'黄亮'
     else:
         url = mail.app.config[
-            'DOMAIN'] + '/finance/medium_pay/%s/info' % (invoice.client_order_id)
+            'DOMAIN'] + '/finance/client_order/medium_pay/%s/info' % (invoice.client_order_id)
         name = ', '.join([k.name for k in User.finances()])
     text = u"""%s
 
@@ -175,11 +175,11 @@ def agent_invoice_apply(sender, apply_context):
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if apply_context['send_type'] == "saler":
         url = mail.app.config[
-            'DOMAIN'] + '/saler/agent_invoice/%s/invoice' % (invoice.id)
+            'DOMAIN'] + '/saler/client_order/agent_invoice/%s/invoice' % (invoice.id)
         name = u'黄亮'
     else:
         url = mail.app.config[
-            'DOMAIN'] + '/finance/agent_pay/%s/info' % (invoice.client_order_id)
+            'DOMAIN'] + '/finance/client_order/agent_pay/%s/info' % (invoice.client_order_id)
         name = ', '.join([k.name for k in User.finances()])
     text = u"""%s
 
