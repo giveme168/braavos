@@ -6,6 +6,7 @@ from models.order import Order
 from models.client_order import (ClientOrder, CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYREJECT,
                                  CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYCONTRACT)
 from models.framework_order import FrameworkOrder
+from searchAd.models.framework_order import searchAdFrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.user import User
@@ -108,6 +109,8 @@ def attachment_delete(order_id, aid):
         return redirect(url_for("files.associated_douban_order_files", order_id=order_id))
     elif target_type == 'FrameworkOrder':
         return redirect(url_for("files.framework_order_files", order_id=order_id))
+    elif target_type == 'searchAdFrameworkOrder':
+        return redirect(url_for("files.searchAd_framework_order_files", order_id=order_id))
     elif target_type == 'searchAdClientOrder':
         return redirect(url_for("files.searchAd_client_order_files", order_id=order_id))
     elif target_type == 'searchAdOrder':
@@ -249,6 +252,12 @@ def framework_order_files(order_id):
     return tpl("order_files.html", order=fo)
 
 
+@files_bp.route('/searchAdframework_order/<order_id>/all_files', methods=['get'])
+def searchAd_framework_order_files(order_id):
+    fo = searchAdFrameworkOrder.get(order_id)
+    return tpl("order_files.html", order=fo)
+
+
 @files_bp.route('/douban_order/<order_id>/all_files', methods=['get'])
 def douban_order_files(order_id):
     fo = DoubanOrder.get(order_id)
@@ -266,6 +275,7 @@ def contract_email(order, attachment):
                                             User.medias() +
                                             order.direct_sales +
                                             order.agent_sales +
+                                            order.operaters +
                                             [order.creator, g.user])]
     action_msg = u"%s文件更新" % (attachment.type_cn)
     msg = u"""

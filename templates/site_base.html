@@ -10,12 +10,58 @@
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">销售管理<span class="caret"></span></a>
+              {% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader())%}
+              <!--搜索部门-->
+              <ul class="dropdown-menu" role="menu">
+                <li role="presentation" class="dropdown-header">搜索部门订单管理</li>
+                  <li><a href="{{url_for('searchAd_order.my_framework_orders')}}">框架订单</a></li>
+                  <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}">普通订单</a></li>
+                  <li role="presentation" class="dropdown-header">搜索部门客户管理</li>
+                  <li><a href="{{url_for('searchAd_client.clients')}}">客户</a></li>
+                  <li><a href="{{url_for('searchAd_client.agents')}}">代理/直客</a></li>
+                  <li><a href="{{url_for('searchAd_client.groups')}}">代理集团</a></li>
+                  <li><a href="{{url_for('searchAd_client.mediums')}}">媒体</a></li>
+              </ul>
+              <!--搜索部门结束-->
+              {% else %}
+              <!--致趣订单-->
+              <ul class="dropdown-menu" role="menu">
+                <li role="presentation" class="dropdown-header">致趣订单管理</li>
+                <li><a href="{{url_for('order.my_orders')}}">新媒体订单</a></li>
+                <li><a href="{{url_for('order.my_douban_orders')}}">直签豆瓣订单</a></li>
+                <li><a href="{{url_for('order.my_framework_orders')}}">框架订单</a></li>
+                <li role="presentation" class="dropdown-header">致趣客户管理</li>
+                <li><a href="{{url_for('client.clients')}}">客户</a></li>
+                <li><a href="{{url_for('client.agents')}}">代理/直客</a></li>
+                <li><a href="{{url_for('client.groups')}}">代理集团</a></li>
+                <li><a href="{{url_for('client.mediums')}}">媒体</a></li>
+                <li role="separator" class="divider"></li>
+                {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() %}
+                <!--搜索部门-->
+                  <li role="presentation" class="dropdown-header">搜索部门订单管理</li>
+                    <li><a href="{{url_for('searchAd_order.my_framework_orders')}}">框架订单</a></li>
+                    <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}">普通订单</a></li>
+                    <li role="presentation" class="dropdown-header">搜索部门客户管理</li>
+                    <li><a href="{{url_for('searchAd_client.clients')}}">客户</a></li>
+                    <li><a href="{{url_for('searchAd_client.agents')}}">代理/直客</a></li>
+                    <li><a href="{{url_for('searchAd_client.groups')}}">代理集团</a></li>
+                    <li><a href="{{url_for('searchAd_client.mediums')}}">媒体</a></li>
+                <!--搜索部门结束-->
+                {% endif %}
+              </ul>
+              <!--致趣订单结束-->
+              {% endif %}
+            </li>
+            <!--
             {% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader())%}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">销售管理<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li role="presentation" class="dropdown-header">订单管理</li>
-                  <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}">搜索广告订单</a></li>
+                <li role="presentation" class="dropdown-header">搜索部门订单管理</li>
+                  <li><a href="{{url_for('searchAd_order.my_framework_orders')}}">框架订单</a></li>
+                  <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}">普通订单</a></li>
                   <li role="presentation" class="dropdown-header">搜索广告客户管理</li>
                   <li><a href="{{url_for('searchAd_client.clients')}}">客户</a></li>
                   <li><a href="{{url_for('searchAd_client.agents')}}">代理/直客</a></li>
@@ -27,19 +73,17 @@
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">销售管理<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-                <li role="presentation" class="dropdown-header">订单管理</li>
+                <li role="presentation" class="dropdown-header">致趣订单管理</li>
                   <li><a href="{{url_for('order.my_orders')}}">新媒体订单</a></li>
                   <li><a href="{{url_for('order.my_douban_orders')}}">直签豆瓣订单</a></li>
                   {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() or g.user.is_media_leader()%}
-                  {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() or g.user.is_media_leader()%}
-                  <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}">搜索广告订单</a></li>
-                  {% endif %}
                   <li><a href="{{url_for('order.my_framework_orders')}}">框架订单</a></li>
                   <li role="presentation" class="dropdown-header">客户管理</li>
                   <li><a href="{{url_for('client.clients')}}">客户</a></li>
                   <li><a href="{{url_for('client.agents')}}">代理/直客</a></li>
                   <li><a href="{{url_for('client.groups')}}">代理集团</a></li>
                   <li><a href="{{url_for('client.mediums')}}">媒体</a></li>
+                  
                   {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() or g.user.is_media_leader() %}
                   <li role="presentation" class="dropdown-header">搜索广告客户管理</li>
                   <li><a href="{{url_for('searchAd_client.clients')}}">客户</a></li>
@@ -54,13 +98,14 @@
                   <li><a href="{{url_for('client.groups')}}">代理集团</a></li>
                   <li><a href="{{url_for('client.mediums')}}">媒体</a></li>
                   {% endif %}
+
                   {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() or g.user.is_media_leader() %}
                   <li role="presentation" class="dropdown-header">数据报表</li>
                   <li><a href="{{url_for('data_query_order.index')}}">月度订单金额统计</a></li>
                   {% endif %}
               </ul>
             </li>
-            {% endif %}
+            {% endif %}-->
             {% if g.user.is_operater() or g.user.is_operater_leader() or g.user.is_super_leader() or (g.user.is_leader() and (not g.user.is_searchad_leader()))%}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">运营管理<span class="caret"></span></a>
@@ -75,8 +120,8 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">财务管理<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
 
-                <li><a href="{{url_for('finance_client_order_invoice.index')}}">内部财务管理</a></li>
-                <li><a href="{{url_for('searchAd_finance_client_order_invoice.index')}}">搜索广告财务管理</a></li>
+                <li><a href="{{url_for('finance_client_order_invoice.index')}}">致趣财务管理</a></li>
+                <li><a href="{{url_for('searchAd_finance_client_order_invoice.index')}}">搜索部门财务管理</a></li>
 
                 {#
                 <li role="presentation" class="dropdown-header">发票管理</li>

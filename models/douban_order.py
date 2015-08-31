@@ -268,7 +268,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + [self.creator]
-        return user.is_leader() or user.is_admin() or user in admin_users
+        return user.is_leader() or user.is_admin() or user.is_media_leader() or user in admin_users
 
     def path(self):
         return self.info_path()

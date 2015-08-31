@@ -1,0 +1,103 @@
+{% extends "/account/account_performance_base.html" %}
+{% from 'form.html' import form_field %}
+{% block title %}新建销售计划{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h4>{{performance.location_cn}}{{performance.year}}{{performance.q_month}}销售计划</h4>
+    <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
+        <div class="form-group">
+          <label for="client_start" class="col-sm-3 control-label">所属区域 : </label>
+          <div class="col-sm-6">
+            <label class="control-label">{{performance.location_cn}}</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_start" class="col-sm-3 control-label">执行年 : </label>
+          <div class="col-sm-6">
+            <select id='year' name='year' class="form-control bra-form-control">
+                {% for k in range(2014, 2031) %}
+                <option value="{{k}}">{{k}}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_start" class="col-sm-3 control-label">执行季度 : </label>
+          <div class="col-sm-6">
+            <select id='q_month' name='q_month' class="form-control bra-form-control">
+                <option value="Q1">Q1</option>
+                <option value="Q2">Q2</option>
+                <option value="Q3">Q3</option>
+                <option value="Q4">Q4</option>
+            </select>
+          </div>
+        </div>
+        <li role="presentation" class="dropdown-header">下属的销售目标</li>
+        <div id='location_users'>
+            {% for k in performance.performance_user_money %}
+            <div class="form-group">
+              <label for="client_end" class="col-sm-3 control-label">{{k.user.name}}的销售目标 : </label>
+              <div class="col-sm-6">
+                <input type="number" id="money_{{k.user.id}}" name="money_{{k.user.id}}" value="{{k.money}}" class="form-control bra-form-control">
+                <span class="tips" style="color:red;">万元</span>
+              </div>
+            </div>
+            {% endfor %}
+        </div>
+        <li role="presentation" class="dropdown-header">区域销售目标总计</li>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-3 control-label">销售目标总计 : </label>
+          <div class="col-sm-6">
+            <input type="number" id="t_money" name="t_money" value="0" class="form-control bra-form-control">
+            <span class="tips" style="color:red;">万元</span>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2"/>保存</button>
+        <a class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_performance.index')}}"/>返回</a>
+    </form>
+</div>
+<script>
+$(function(){
+    $('#location').val(parseInt('{{performance.location}}'));
+    $('#location').trigger("chosen:updated");
+    $('#year').val(parseInt('{{performance.year}}'));
+    $('#year').trigger("chosen:updated");
+    $('#q_month').val('{{performance.q_month}}');
+    $('#q_month').trigger("chosen:updated");
+    $('#t_money').val('{{performance.t_money}}');
+    check_locations()
+})
+function check_locations(){
+    var location = parseInt('{{performance.location}}')
+    $('#location_users').empty()
+    var user_html = ""
+    if (location == 1){
+        {% for k in huabei_users %}
+            user_html += '<div class="form-group"><label for="client_end" class="col-sm-3 control-label">{{k.name}}的销售目标 : </label><div class="col-sm-6"><input type="number" id="money_{{k.id}}" name="money_{{k.id}}" value="0" class="form-control bra-form-control"><span class="tips" style="color:red;">万元</span></div></div>'
+        {% endfor %}
+    }else if(location == 2){
+        {% for k in huadong_users %}
+            user_html += '<div class="form-group"><label for="client_end" class="col-sm-3 control-label">{{k.name}}的销售目标 : </label><div class="col-sm-6"><input type="number" id="money_{{k.id}}" name="money_{{k.id}}" value="0" class="form-control bra-form-control"><span class="tips" style="color:red;">万元</span></div></div>'
+        {% endfor %}
+    }else if(location == 3){
+        {% for k in huanan_users %}
+            user_html += '<div class="form-group"><label for="client_end" class="col-sm-3 control-label">{{k.name}}的销售目标 : </label><div class="col-sm-6"><input type="number" id="money_{{k.id}}" name="money_{{k.id}}" value="0" class="form-control bra-form-control"><span class="tips" style="color:red;">万元</span></div></div>'
+        {% endfor %}
+    }
+    $('#location_users').html(user_html)
+    {% for k in performance.performance_user_money %}
+        $('#money_{{k.user.id}}').val(parseFloat('{{k.money}}'))
+    {% endfor %}
+}
+function checkform(obj){
+    var t_money = $('#t_money').val()
+    if (t_money == '' | t_money==0){
+        alert('请输入正确的销售目标总计')
+        $('#t_money').focus();
+        return false;
+    }
+    return true;
+}
+</script>
+{% endblock %}

@@ -14,10 +14,14 @@ class BaseModelMixin(object):
 
     @classmethod
     def add(cls, *args, **kwargs):
-        _instance = cls(*args, **kwargs)
-        db.session.add(_instance)
-        db.session.commit()
-        return _instance
+        try:
+            _instance = cls(*args, **kwargs)
+            db.session.add(_instance)
+            db.session.commit()
+            return _instance
+        except Exception, e:
+            print e
+            return None
 
     def delete(self):
         db.session.delete(self)

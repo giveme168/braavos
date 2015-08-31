@@ -7,30 +7,31 @@ from flask import render_template as tpl, flash, current_app
 from models.user import User, TEAM_LOCATION_CN
 from models.excel import Excel
 from models.attachment import Attachment
-#from models.download import (download_excel_table_by_doubanorders,
+# from models.download import (download_excel_table_by_doubanorders,
 #                             download_excel_table_by_frameworkorders)
 
 from ..models.client import searchAdClient, searchAdGroup, searchAdAgent, searchAdAgentRebate
 from ..models.medium import searchAdMedium
 from ..models.order import searchAdOrder
 from ..models.client_order import searchAdClientOrder
+from ..models.framework_order import searchAdFrameworkOrder
 
 from ..models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
-                                 CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
-                                 CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
-                                 STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
-                                 CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS)
-from ..forms.order import ClientOrderForm, MediumOrderForm
+                                   CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
+                                   CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
+                                   STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
+                                   CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS)
+from ..forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm
 
 from libs.signals import contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
 from controllers.data_query.helpers.outsource_helpers import write_searchAd_client_excel
 
-searchAd_order_bp = Blueprint('searchAd_order', __name__, template_folder='../../templates/searchAdorder')
+searchAd_order_bp = Blueprint(
+    'searchAd_order', __name__, template_folder='../../templates/searchAdorder')
 
 ORDER_PAGE_NUM = 50
-
 
 
 @searchAd_order_bp.route('/', methods=['GET'])
@@ -47,19 +48,23 @@ def new_searchAd_order():
             flash(u'campaign名称已存在，请更换其他名称!', 'danger')
             return redirect(url_for("searchAd_order.new_searchAd_order"))
         order = searchAdClientOrder.add(agent=searchAdAgent.get(form.agent.data),
-                                client=searchAdClient.get(form.client.data),
-                                campaign=form.campaign.data,
-                                money=int(round(float(form.money.data or 0))),
-                                client_start=form.client_start.data,
-                                client_end=form.client_end.data,
-                                reminde_date=form.reminde_date.data,
-                                direct_sales=User.gets(form.direct_sales.data),
-                                agent_sales=[],
-                                contract_type=form.contract_type.data,
-                                resource_type=form.resource_type.data,
-                                sale_type=form.sale_type.data,
-                                creator=g.user,
-                                create_time=datetime.now())
+                                        framework_order_id=form.framework_order_id.data,
+                                        client=searchAdClient.get(
+                                            form.client.data),
+                                        campaign=form.campaign.data,
+                                        money=int(
+                                            round(float(form.money.data or 0))),
+                                        client_start=form.client_start.data,
+                                        client_end=form.client_end.data,
+                                        reminde_date=form.reminde_date.data,
+                                        direct_sales=User.gets(
+                                            form.direct_sales.data),
+                                        agent_sales=[],
+                                        contract_type=form.contract_type.data,
+                                        resource_type=form.resource_type.data,
+                                        sale_type=form.sale_type.data,
+                                        creator=g.user,
+                                        create_time=datetime.now())
         order.add_comment(g.user,
                           u"新建了客户订单:%s - %s - %s" % (
                               order.agent.name,
@@ -73,15 +78,15 @@ def new_searchAd_order():
             for x in range(len(medium_ids)):
                 medium = searchAdMedium.get(medium_ids[x])
                 mo = searchAdOrder.add(campaign=order.campaign,
-                               medium=medium,
-                               sale_money=int(
-                                   round(float(sale_moneys[x] or 0))),
-                               medium_money=0,
-                               medium_money2=int(
-                                   round(float(medium_money2s[x] or 0))),
-                               medium_start=order.client_start,
-                               medium_end=order.client_end,
-                               creator=g.user)
+                                       medium=medium,
+                                       sale_money=int(
+                                           round(float(sale_moneys[x] or 0))),
+                                       medium_money=0,
+                                       medium_money2=int(
+                                           round(float(medium_money2s[x] or 0))),
+                                       medium_start=order.client_start,
+                                       medium_end=order.client_end,
+                                       creator=g.user)
                 order.medium_orders = order.medium_orders + [mo]
                 order.add_comment(g.user, u"新建了媒体订单: %s %s元" %
                                   (medium.name, mo.sale_money))
@@ -117,6 +122,7 @@ def order_info(order_id, tab_id=1):
                 client_form = ClientOrderForm(request.form)
                 if client_form.validate():
                     order.agent = searchAdAgent.get(client_form.agent.data)
+                    order.framework_order_id = client_form.framework_order_id.data,
                     order.client = searchAdClient.get(client_form.client.data)
                     order.campaign = client_form.campaign.data
                     order.money = int(round(float(client_form.money.data or 0)))
@@ -154,7 +160,8 @@ def order_info(order_id, tab_id=1):
                     order.agent.name, order.contract)
                 for mo in order.medium_orders:
                     msg = msg + \
-                        u"致趣-%s: %s\n\n" % (mo.medium.name, mo.medium_contract or "")
+                        u"致趣-%s: %s\n\n" % (mo.medium.name,
+                                            mo.medium_contract or "")
 #                for o in order.associated_douban_orders:
 #                    msg = msg + \
 #                        u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name, o.contract or "")
@@ -179,7 +186,7 @@ def order_info(order_id, tab_id=1):
     new_medium_form.discount.hidden = True
 
     #new_associated_douban_form = AssociatedDoubanOrderForm()
-    #new_associated_douban_form.medium_order.choices = [(mo.id, "%s-%s" % (mo.name, mo.start_date_cn))
+    # new_associated_douban_form.medium_order.choices = [(mo.id, "%s-%s" % (mo.name, mo.start_date_cn))
     #                                                   for mo in order.medium_orders]
     #new_associated_douban_form.campaign.data = order.campaign
 
@@ -187,7 +194,8 @@ def order_info(order_id, tab_id=1):
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
                'medium_forms': [(get_medium_form(mo, g.user), mo) for mo in order.medium_orders],
-               'new_associated_douban_form': None, # new_associated_douban_form,
+               # new_associated_douban_form,
+               'new_associated_douban_form': None,
                'order': order,
                'reminder_emails': reminder_emails,
                'now_date': datetime.now(),
@@ -203,21 +211,22 @@ def order_new_medium(order_id):
     form = MediumOrderForm(request.form)
     if request.method == 'POST':
         mo = searchAdOrder.add(campaign=co.campaign,
-                       medium=searchAdMedium.get(form.medium.data),
-                       medium_money=int(
-                           round(float(form.medium_money.data or 0))),
-                       medium_money2=int(
-                           round(float(form.medium_money2.data or 0))),
-                       sale_money=int(round(float(form.sale_money.data or 0))),
-                       medium_CPM=form.medium_CPM.data,
-                       sale_CPM=form.sale_CPM.data,
-                       medium_start=form.medium_start.data,
-                       medium_end=form.medium_end.data,
-                       operaters=User.gets(form.operaters.data),
-                       designers=User.gets(form.designers.data),
-                       planers=User.gets(form.planers.data),
-                       discount=form.discount.data,
-                       creator=g.user)
+                               medium=searchAdMedium.get(form.medium.data),
+                               medium_money=int(
+                                   round(float(form.medium_money.data or 0))),
+                               medium_money2=int(
+                                   round(float(form.medium_money2.data or 0))),
+                               sale_money=int(
+                                   round(float(form.sale_money.data or 0))),
+                               medium_CPM=form.medium_CPM.data,
+                               sale_CPM=form.sale_CPM.data,
+                               medium_start=form.medium_start.data,
+                               medium_end=form.medium_end.data,
+                               operaters=User.gets(form.operaters.data),
+                               designers=User.gets(form.designers.data),
+                               planers=User.gets(form.planers.data),
+                               discount=form.discount.data,
+                               creator=g.user)
         co.medium_orders = co.medium_orders + [mo]
         co.save()
         co.add_comment(g.user, u"新建了媒体订单: %s %s %s" %
@@ -282,9 +291,9 @@ def order_medium_edit_cpm(medium_id):
 @searchAd_order_bp.route('/order/<order_id>/medium_order/<medium_id>/delete', methods=['GET'])
 def medium_order_delete(order_id, medium_id):
     order = searchAdOrder.get(medium_id)
-    #searchAdMediumOrderExecutiveReport.query.filter_by(order=order).delete()
+    # searchAdMediumOrderExecutiveReport.query.filter_by(order=order).delete()
     order.delete()
-    return redirect(order.info_path()) 
+    return redirect(order.info_path())
 
 
 @searchAd_order_bp.route('/client_order/<order_id>/contract', methods=['POST'])
@@ -305,7 +314,11 @@ def client_order_contract(order_id):
 def contract_status_change(order, action, emails, msg):
     action_msg = ''
     #  发送邮件
-    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+    if order.__tablename__ == 'bra_searchAd_framework_order':
+        to_users = order.sales + [order.creator, g.user]
+    else:
+        to_users = order.direct_sales + \
+            order.agent_sales + [order.creator, g.user]
     if action == 1:
         order.contract_status = CONTRACT_STATUS_MEDIA
         action_msg = u"申请利润分配"
@@ -461,6 +474,7 @@ def display_orders(orders, title, status_id=-1):
                    start_time=start_time, end_time=end_time, search_medium=search_medium,
                    params=params)
 
+
 @searchAd_order_bp.route('/order/<order_id>/recovery', methods=['GET'])
 def order_recovery(order_id):
     order = searchAdClientOrder.get(order_id)
@@ -511,7 +525,6 @@ def medium_attach_status(order_id, attachment_id, status):
     return redirect(order.info_path())
 
 
-
 def attachment_status_change(order, attachment_id, status):
     attachment = Attachment.get(attachment_id)
     attachment.attachment_status = status
@@ -522,7 +535,8 @@ def attachment_status_change(order, attachment_id, status):
 def attachment_status_email(order, attachment):
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     to_emails = list(set([x.email for x in to_users]))
-    action_msg = u"%s文件:%s-%s" % (attachment.type_cn, attachment.filename, attachment.status_cn)
+    action_msg = u"%s文件:%s-%s" % (attachment.type_cn,
+                                  attachment.filename, attachment.status_cn)
     msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (
         attachment.filename, attachment.status_cn)
     apply_context = {"sender": g.user,
@@ -536,6 +550,7 @@ def attachment_status_email(order, attachment):
 
 def get_client_form(order):
     client_form = ClientOrderForm()
+    client_form.framework_order_id.data = order.framework_order_id
     client_form.agent.data = order.agent.id
     client_form.client.data = order.client.id
     client_form.campaign.data = order.campaign
@@ -550,6 +565,7 @@ def get_client_form(order):
     client_form.sale_type.data = order.sale_type
     client_form.agent_sales.hidden = True
     return client_form
+
 
 def get_medium_form(order, user=None):
     medium_form = MediumOrderForm()
@@ -573,3 +589,199 @@ def get_medium_form(order, user=None):
     medium_form.discount.hidden = True
     medium_form.medium_money.hidden = True
     return medium_form
+
+
+######################
+# framework order
+######################
+@searchAd_order_bp.route('/new_framework_order', methods=['GET', 'POST'])
+def new_framework_order():
+    form = FrameworkOrderForm(request.form)
+    if request.method == 'POST' and form.validate():
+        order = searchAdFrameworkOrder.add(agent=searchAdAgent.get(form.agent.data),
+                                           description=form.description.data,
+                                           money=int(
+            round(float(form.money.data or 0))),
+            client_start=form.client_start.data,
+            client_end=form.client_end.data,
+            reminde_date=form.reminde_date.data,
+            sales=User.gets(form.sales.data),
+            contract_type=form.contract_type.data,
+            creator=g.user,
+            rebate=form.rebate.data,
+            create_time=datetime.now())
+        order.add_comment(g.user, u"新建了框架订单")
+        flash(u'新建框架订单成功, 请上传合同!', 'success')
+        return redirect(url_for("searchAd_order.framework_order_info", order_id=order.id))
+    else:
+        form.client_start.data = datetime.now().date()
+        form.client_end.data = datetime.now().date()
+        form.reminde_date.data = datetime.now().date()
+    return tpl('/searchAdorder/searchad_new_framework_order.html', form=form)
+
+
+@searchAd_order_bp.route('/framework_order/<order_id>/delete', methods=['GET'])
+def framework_delete(order_id):
+    order = searchAdFrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"框架订单: %s 已删除" % (order.agent.name), 'danger')
+    order.status = STATUS_DEL
+    order.save()
+    return redirect(url_for("searchAd_order.my_framework_orders"))
+
+
+@searchAd_order_bp.route('/framework_order/<order_id>/recovery', methods=['GET'])
+def framework_recovery(order_id):
+    order = searchAdFrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"框架订单: %s 已恢复" % (order.agent.name), 'success')
+    order.status = STATUS_ON
+    order.save()
+    return redirect(url_for("searchAd_order.framework_delete_orders"))
+
+
+def get_framework_form(order):
+    framework_form = FrameworkOrderForm()
+    framework_form.agent.data = [(order.agent.id, order.agent.name)]
+    framework_form.description.data = order.description
+    framework_form.money.data = order.money
+    framework_form.client_start.data = order.client_start
+    framework_form.client_end.data = order.client_end
+    framework_form.reminde_date.data = order.reminde_date
+    framework_form.sales.data = [u.id for u in order.sales]
+    framework_form.contract_type.data = order.contract_type
+    framework_form.rebate.data = order.rebate or 0.0
+    return framework_form
+
+
+@searchAd_order_bp.route('/framework_order/<order_id>/info', methods=['GET', 'POST'])
+def framework_order_info(order_id):
+    order = searchAdFrameworkOrder.get(order_id)
+    if not order or order.status == 0:
+        abort(404)
+    framework_form = get_framework_form(order)
+
+    if request.method == 'POST':
+        info_type = int(request.values.get('info_type', '0'))
+        if info_type == 0:
+            if not order.can_admin(g.user) and not g.user.is_contract():
+                flash(u'您没有编辑权限! 请联系该框架的创建者或者销售同事!', 'danger')
+            else:
+                framework_form = FrameworkOrderForm(request.form)
+                agent = searchAdAgent.get(framework_form.agent.data)
+                if framework_form.validate():
+                    order.agent = agent
+                    order.description = framework_form.description.data
+                    order.money = framework_form.money.data
+                    order.client_start = framework_form.client_start.data
+                    order.client_end = framework_form.client_end.data
+                    order.reminde_date = framework_form.reminde_date.data
+                    order.sales = User.gets(framework_form.sales.data)
+                    order.contract_type = framework_form.contract_type.data
+                    order.rebate = framework_form.rebate.data
+                    order.save()
+                    order.add_comment(g.user, u"更新了该框架订单")
+                    flash(u'[框架订单]%s 保存成功!' % order.name, 'success')
+        elif info_type == 2:
+            if not g.user.is_contract():
+                flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
+            else:
+                order.contract = request.values.get("base_contract", "")
+                order.save()
+                flash(u'[%s]合同号保存成功!' % order.name, 'success')
+
+                action_msg = u"合同号更新"
+                msg = u"新合同号如下:\n\n%s-致趣: %s" % (
+                    order.agent.name, order.contract)
+                to_users = order.sales + [order.creator, g.user]
+                to_emails = [x.email for x in set(to_users)]
+                apply_context = {"sender": g.user,
+                                 "to": to_emails,
+                                 "action_msg": action_msg,
+                                 "msg": msg,
+                                 "order": order}
+                contract_apply_signal.send(
+                    current_app._get_current_object(), apply_context=apply_context)
+                flash(u'[%s] 已发送邮件给 %s ' %
+                      (order.name, ', '.join(to_emails)), 'info')
+                order.add_comment(g.user, u"更新合同号, %s" % msg)
+
+    reminder_emails = [(u.name, u.email) for u in User.all_active()]
+    context = {'framework_form': framework_form,
+               'order': order,
+               'now_date': datetime.now(),
+               'reminder_emails': reminder_emails}
+    return tpl('searchad_framework_detail_info.html', **context)
+
+
+@searchAd_order_bp.route('/my_framework_orders', methods=['GET'])
+def my_framework_orders():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader():
+        orders = searchAdFrameworkOrder.all()
+        if g.user.is_admin():
+            pass
+        elif g.user.is_super_leader():
+            orders = [o for o in orders if o.contract_status ==
+                      CONTRACT_STATUS_APPLYCONTRACT]
+        elif g.user.is_contract():
+            orders = [o for o in orders if o.contract_status in [
+                CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+        elif g.user.is_media() or g.user.is_media_leader():
+            orders = [
+                o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
+    elif g.user.is_leader():
+        orders = [
+            o for o in searchAdFrameworkOrder.all() if g.user.location in o.locations]
+    else:
+        orders = searchAdFrameworkOrder.get_order_by_user(g.user)
+    return framework_display_orders(orders, u'我的框架订单')
+
+
+@searchAd_order_bp.route('/framework_orders', methods=['GET'])
+def framework_orders():
+    orders = searchAdFrameworkOrder.all()
+    return framework_display_orders(orders, u'框架订单列表')
+
+
+@searchAd_order_bp.route('/framework_delete_orders', methods=['GET'])
+def framework_delete_orders():
+    orders = searchAdFrameworkOrder.delete_all()
+    return framework_display_orders(orders, u'已删除的框架订单列表')
+
+
+def framework_display_orders(orders, title):
+    page = int(request.args.get('p', 1))
+    if 'download' == request.args.get('action', ''):
+        filename = (
+            "%s-%s.xls" % (u"框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+        xls = Excel().write_excle(
+            download_excel_table_by_frameworkorders(orders))
+        response = get_download_response(xls, filename)
+        return response
+    else:
+        paginator = Paginator(orders, ORDER_PAGE_NUM)
+        try:
+            orders = paginator.page(page)
+        except:
+            orders = paginator.page(paginator.num_pages)
+        return tpl('searchad_frameworks.html', title=title, orders=orders, page=page)
+
+
+@searchAd_order_bp.route('/framework_order/<order_id>/contract', methods=['POST'])
+def framework_order_contract(order_id):
+    order = searchAdFrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    action = int(request.values.get('action'))
+    emails = request.values.getlist('email')
+    msg = request.values.get('msg', '')
+    contract_status_change(order, action, emails, msg)
+    if order.contract_status == CONTRACT_STATUS_DELETEPASS:
+        return redirect(url_for('searchAd_order.framework_orders'))
+    return redirect(url_for("searchAd_order.framework_order_info", order_id=order.id))
