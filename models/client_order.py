@@ -371,6 +371,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return sum([invoice.money for invoice in MediumRebateInvoice.query.filter_by(client_order_id=self.id,
                                                                                      invoice_status=0, medium=medium)])
 
+    def get_medium_rebate_invoice_pass_money(self):
+        return sum([invoice.money for invoice in MediumRebateInvoice.query.filter_by(client_order_id=self.id,
+                                                                                     invoice_status=0)])
+
     @property
     def invoice_percent(self):
         return "%.1f" % (self.invoice_pass_sum * 100 / float(self.money)) if self.money else "0"
