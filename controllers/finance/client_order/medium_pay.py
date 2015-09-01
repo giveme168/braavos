@@ -20,6 +20,50 @@ finance_client_order_medium_pay_bp = Blueprint(
 ORDER_PAGE_NUM = 50
 
 
+@finance_client_order_medium_pay_bp.route('/apply', methods=['GET'])
+def apply():
+    if not g.user.is_finance():
+        abort(404)
+    orders = list(set([k.medium_invoice.client_order for k in MediumInvoicePay.query.filter_by(pay_status=3)]))
+    if request.args.get('selected_status'):
+        status_id = int(request.args.get('selected_status'))
+    else:
+        status_id = -1
+
+    orderby = request.args.get('orderby', '')
+    search_info = request.args.get('searchinfo', '')
+    location_id = int(request.args.get('selected_location', '-1'))
+    page = int(request.args.get('p', 1))
+    # page = max(1, page)
+    # start = (page - 1) * ORDER_PAGE_NUM
+    if location_id >= 0:
+        orders = [o for o in orders if location_id in o.locations]
+    if status_id >= 0:
+        orders = [o for o in orders if o.contract_status == status_id]
+    if search_info != '':
+        orders = [
+            o for o in orders if search_info.lower() in o.search_info.lower()]
+    if orderby and len(orders):
+        orders = sorted(
+            orders, key=lambda x: getattr(x, orderby), reverse=True)
+    select_locations = TEAM_LOCATION_CN.items()
+    select_locations.insert(0, (-1, u'全部区域'))
+    select_statuses = CONTRACT_STATUS_CN.items()
+    select_statuses.insert(0, (-1, u'全部合同状态'))
+    paginator = Paginator(orders, ORDER_PAGE_NUM)
+    try:
+        orders = paginator.page(page)
+    except:
+        orders = paginator.page(paginator.num_pages)
+    return tpl('/finance/client_order/medium_pay/index.html', orders=orders, title=u'申请中的媒体打款',
+               locations=select_locations, location_id=location_id,
+               statuses=select_statuses, status_id=status_id,
+               orderby=orderby, now_date=datetime.date.today(),
+               search_info=search_info, page=page,
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
+                      (orderby, search_info, location_id, status_id))
+
+
 @finance_client_order_medium_pay_bp.route('/', methods=['GET'])
 def index():
     if not g.user.is_finance():
@@ -136,9 +180,7 @@ def invoice_pass(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
 
-    to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
-        [invoice.client_order.creator, g.user] + \
-        User.operater_leaders() + User.medias()
+    to_users = [g.user] + User.medias() + User.media_leaders() + User.super_leaders()
     to_emails = list(set(emails + [x.email for x in to_users]))
 
     if action != 10:
@@ -164,7 +206,7 @@ def invoice_pass(invoice_id):
                      "to": to_emails,
                      "action_msg": action_msg,
                      "msg": msg,
-                     "send_type": "saler",
+                     "send_type": "media",
                      "invoice": invoice,
                      "invoice_pays": invoices_pay}
     medium_invoice_apply_signal.send(
