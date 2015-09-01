@@ -10,7 +10,7 @@
     {% if g.user.is_finance()%}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 客户发票管理</li>
     <a class="list-group-item" href="{{url_for('finance_client_order_invoice.index')}}">申请中的客户发票</a>
-    <a class="list-group-item" href="{{url_for('finance_client_order_invoice.index_pass')}}">所有客户发票信息</a>
+    <a class="list-group-item" href="{{url_for('finance_client_order_invoice.index_pass')}}">所有客户发票</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 收款管理</li>
     <a class="list-group-item" href="{{url_for('finance_client_order_back_money.index')}}">客户订单收款</a>
     <a class="list-group-item" href="{{url_for('finance_douban_order_back_money.index')}}">豆瓣订单收款</a>
@@ -18,7 +18,8 @@
     <a class="list-group-item" href="{{url_for('finance_outsource_pay.index')}}">新媒体订单</a>
     <a class="list-group-item" href="{{url_for('finance_outsource_pay.douban_index')}}">直签豆瓣订单</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 媒体付款管理</li>
-    <a class="list-group-item" href="{{url_for('finance_client_order_medium_pay.index')}}">媒体付款信息</a>
+    <a class="list-group-item" href="{{url_for('finance_client_order_medium_pay.apply')}}">申请中媒体付款</a>
+    <a class="list-group-item" href="{{url_for('finance_client_order_medium_pay.index')}}">媒体付款</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 客户付款管理</li>
     <a class="list-group-item" href="{{url_for('finance_client_order_agent_pay.index')}}">客户付款信息</a>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>媒体返点发票管理</li>

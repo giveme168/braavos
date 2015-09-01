@@ -64,7 +64,7 @@ class MediumInvoiceForm(Form):
     add_time = DateField(u'开具发票时间')  
     pay_time = DateField(u'打款时间')  
     bool_pay = SelectField(u'是否打款',default=False)  # 是否已打款
-    bool_invoice = SelectField(u'是否开发票',default=True)   # 是否开具发票
+    bool_invoice = SelectField(u'是否收发票',default=True)   # 是否开具发票
 
     def __init__(self, *args, **kwargs):
         super(MediumInvoiceForm, self).__init__(*args, **kwargs)
