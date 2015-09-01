@@ -136,9 +136,7 @@ def invoice_pass(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
 
-    to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
-        [invoice.client_order.creator, g.user] + \
-        User.operater_leaders() + User.medias()
+    to_users = [g.user] + User.medias() + User.media_leaders() + User.super_leaders()
     to_emails = list(set(emails + [x.email for x in to_users]))
 
     if action != 10:
@@ -164,7 +162,7 @@ def invoice_pass(invoice_id):
                      "to": to_emails,
                      "action_msg": action_msg,
                      "msg": msg,
-                     "send_type": "saler",
+                     "send_type": "media",
                      "invoice": invoice,
                      "invoice_pays": invoices_pay}
     medium_invoice_apply_signal.send(

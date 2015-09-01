@@ -205,9 +205,7 @@ def apply_pay(invoice_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
-    to_users = medium_invoice.client_order.direct_sales + medium_invoice.client_order.agent_sales + \
-        [medium_invoice.client_order.creator, g.user] + \
-        medium_invoice.client_order.leaders + User.medias()
+    to_users = [g.user] + User.medias() + User.media_leaders() + User.super_leaders()
     to_emails = list(set(emails + [x.email for x in to_users]))
     if action == 2:
         action_msg = u'媒体订单打款申请'
@@ -268,9 +266,7 @@ def apply_invoice(invoice_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
-    to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
-        [invoice.client_order.creator, g.user] + \
-        invoice.client_order.leaders
+    to_users = [g.user] + User.medias() + User.media_leaders() + User.super_leaders()
     to_emails = list(set(emails + [x.email for x in to_users]))
 
     send_type = "saler"

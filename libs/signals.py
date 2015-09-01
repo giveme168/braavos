@@ -140,6 +140,11 @@ def medium_invoice_apply(sender, apply_context):
         url = mail.app.config[
             'DOMAIN'] + '/saler/client_order/medium_invoice/%s/invoice' % (invoice.id)
         name = u'黄亮'
+    elif apply_context['send_type'] == "media":
+        url = mail.app.config[
+            'DOMAIN'] + '/saler/client_order/medium_invoice/%s/invoice' % (invoice.id)
+        name = name = ', '.join(
+            [k.name for k in User.medias() + User.media_leaders()])
     else:
         url = mail.app.config[
             'DOMAIN'] + '/finance/client_order/medium_pay/%s/info' % (invoice.client_order_id)
@@ -557,7 +562,7 @@ def back_money_apply(sender, apply_context):
     order = apply_context['order']
     num = apply_context['num']
     type = apply_context['type']
-    to_users = order.direct_sales + order.agent_sales + User.contracts()+\
+    to_users = order.direct_sales + order.agent_sales + User.contracts() +\
         [order.creator, g.user] + order.leaders + User.medias()
     to_emails = list(set([x.email for x in to_users]))
     flash(u'已发送邮件给 %s ' %

@@ -5,7 +5,9 @@
 
 {% block main_box%}
 <div class="bra-main bra-box">
-    <h3>{{ invoice.client_order.agent.name }}-{{invoice.client_order.name}} 客户订单发票信息</h3>
+    <h3>{{ invoice.company}} 订单发票信息</h3>
+    <br/>
+    <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=invoice.client_order.id)}}">客户订单收款详情</a>
     <table class="table table-bordered">
           <tr>
             <th>公司名称</th>
@@ -76,7 +78,7 @@
     </table>
     <div class="well" id="invoice_from" style="display:none;">
         <h4>
-            {{invoice.client_order.name}}-{{ invoice.medium.name }}-{{ invoice.money }}元
+            {{invoice.company}}-{{ invoice.money }}元
         </h4>
         {% if g.user.is_super_leader() or invoice.client_order.can_admin(g.user) or g.user.is_finance() %}
         <form class="form form-horizontal" method="POST" action="{{url_for('finance_client_order_medium_pay.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
@@ -151,7 +153,7 @@
                 {% for invoice in invoices_data_apply %}
                 <h4>
                     <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
-                    {{ invoice.medium_invoice.client_order.agent.name }}-{{invoice.medium_invoice.client_order.name}}-{{ invoice.money }}元
+                    {{ invoice.medium_invoice.company }}-{{ invoice.money }}元
                 </h4>
                 <div class="col-md-12">
                     <div class="col-md-6" style="margin-left: 20px;">

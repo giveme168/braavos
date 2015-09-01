@@ -282,6 +282,10 @@ class User(db.Model, BaseModelMixin):
         return cls.gets_by_team_type(TEAM_TYPE_MEDIA)
 
     @classmethod
+    def media_leaders(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_MEDIA_LEADER)
+
+    @classmethod
     def douban_contracts(cls):
         return [x for x in cls.all() if x.team.type == TEAM_TYPE_DOUBAN_CONTRACT]
 
