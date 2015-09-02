@@ -4,7 +4,7 @@
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3> 代理公司
-        <a class="btn btn-default btn-sm" href="{{url_for('client.new_agent')}}">新建</a>
+        {% if g.user.is_contract() %}<a class="btn btn-default btn-sm" href="{{url_for('client.new_agent')}}">新建</a>{% endif %}
     </h3>
     <table class="table table-bordered table-striped">
         <tr>

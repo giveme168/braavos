@@ -35,6 +35,8 @@ def new_client():
 
 @client_bp.route('/new_group', methods=['GET', 'POST'])
 def new_group():
+    if not g.user.is_contract():
+        abort(403)
     form = NewGroupForm(request.form)
     if request.method == 'POST' and form.validate():
         db_group_name = Group.name_exist(form.name.data)
@@ -53,6 +55,8 @@ def new_group():
 
 @client_bp.route('/new_agent', methods=['GET', 'POST'])
 def new_agent():
+    if not g.user.is_contract():
+        abort(403)
     form = NewAgentForm(request.form)
     if request.method == 'POST' and form.validate():
         db_agent_name = Agent.name_exist(form.name.data)
@@ -72,6 +76,8 @@ def new_agent():
 
 @client_bp.route('/new_medium', methods=['GET', 'POST'])
 def new_medium():
+    if not g.user.is_media_leader():
+        abort(403)
     form = NewMediumForm(request.form)
     if request.method == 'POST' and form.validate():
         db_medium_name = Medium.name_exist(form.name.data)
@@ -120,6 +126,8 @@ def agent_delete(agent_id):
 
 @client_bp.route('/agent/<agent_id>', methods=['GET', 'POST'])
 def agent_detail(agent_id):
+    if not g.user.is_contract():
+        abort(403)
     agent = Agent.get(agent_id)
     if not agent:
         abort(404)
@@ -156,6 +164,8 @@ def group_delete(group_id):
 
 @client_bp.route('/group/<group_id>', methods=['GET', 'POST'])
 def group_detail(group_id):
+    if not g.user.is_contract():
+        abort(403)
     group = Group.get(group_id)
     if not group:
         abort(404)
@@ -174,6 +184,8 @@ def group_detail(group_id):
 
 @client_bp.route('/medium/<medium_id>', methods=['GET', 'POST'])
 def medium_detail(medium_id):
+    if not g.user.is_media_leader():
+        abort(403)
     medium = Medium.get(medium_id)
     if not medium:
         abort(404)
