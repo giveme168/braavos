@@ -4,6 +4,8 @@ from datetime import datetime
 from flask import Blueprint, request, redirect, abort, url_for, g
 from flask import render_template as tpl, flash, current_app
 
+from wtforms import SelectMultipleField
+from libs.wtf import Form
 from forms.order import (ClientOrderForm, MediumOrderForm,
                          FrameworkOrderForm, DoubanOrderForm,
                          AssociatedDoubanOrderForm)
@@ -15,7 +17,8 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
                                  STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
-                                 CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS)
+                                 CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS,
+                                 CONTRACT_STATUS_FINISH)
 from models.client_order import ClientOrder, ClientOrderExecutiveReport
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder, DoubanOrderExecutiveReport
@@ -35,6 +38,15 @@ order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
 
 ORDER_PAGE_NUM = 50
+
+
+class ReplaceSalersForm(Form):
+    replace_salers = SelectMultipleField(u'替代销售', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(ReplaceSalersForm, self).__init__(*args, **kwargs)
+        self.replace_salers.choices = [
+            (m.id, m.name) for m in User.all_active()]
 
 
 @order_bp.route('/', methods=['GET'])
@@ -66,7 +78,8 @@ def new_order():
                                 resource_type=form.resource_type.data,
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
-                                create_time=datetime.now())
+                                create_time=datetime.now(),
+                                finish_time=datetime.now())
         order.add_comment(g.user,
                           u"新建了客户订单:%s - %s - %s" % (
                               order.agent.name,
@@ -277,6 +290,8 @@ def order_info(order_id, tab_id=1):
         else:
             abort(404)
     client_form = get_client_form(order)
+    replace_saler_form = ReplaceSalersForm()
+    replace_saler_form.replace_salers.data = [k.id for k in order.replace_sales]
     if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
         if info_type == 0:
@@ -284,6 +299,7 @@ def order_info(order_id, tab_id=1):
                 flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
             else:
                 client_form = ClientOrderForm(request.form)
+                replace_saler_form = ReplaceSalersForm(request.form)
                 if client_form.validate():
                     order.agent = Agent.get(client_form.agent.data)
                     order.client = Client.get(client_form.client.data)
@@ -298,6 +314,9 @@ def order_info(order_id, tab_id=1):
                     order.contract_type = client_form.contract_type.data
                     order.resource_type = client_form.resource_type.data
                     order.sale_type = client_form.sale_type.data
+                    if g.user.is_super_admin():
+                        order.replace_sales = User.gets(
+                            replace_saler_form.replace_salers.data)
                     order.save()
                     order.add_comment(g.user, u"更新了客户订单")
                     flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
@@ -361,7 +380,8 @@ def order_info(order_id, tab_id=1):
                'order': order,
                'reminder_emails': reminder_emails,
                'now_date': datetime.now(),
-               'tab_id': int(tab_id)}
+               'tab_id': int(tab_id),
+               'replace_saler_form': replace_saler_form}
     return tpl('order_detail_info.html', **context)
 
 
@@ -403,6 +423,8 @@ def medium_order(mo_id):
     if not mo:
         abort(404)
     form = MediumOrderForm(request.form)
+    last_status = mo.finish_status
+    finish_status = int(request.values.get('finish_status', 1))
     if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader():
         mo.medium = Medium.get(form.medium.data)
     mo.medium_money = int(round(float(form.medium_money.data or 0)))
@@ -416,9 +438,13 @@ def medium_order(mo_id):
     mo.designers = User.gets(form.designers.data)
     mo.planers = User.gets(form.planers.data)
     mo.discount = form.discount.data
+    mo.finish_status = finish_status
+    mo.finish_time = datetime.now()
     mo.save()
     mo.client_order.add_comment(
         g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money))
+    if finish_status == 0 and last_status != 0:
+        mo.client_order.add_comment(g.user, u"%s 媒体订单已归档" % (mo.medium.name))
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
     _insert_executive_report(mo, 'reload')
     return redirect(mo.info_path())
@@ -443,6 +469,12 @@ def order_medium_edit_cpm(medium_id):
             mo.client_order.add_comment(
                 g.user, u"更新了媒体订单: %s 的分成金额%s " % (mo.medium.name, medium_money))
         mo.medium_money = medium_money
+    finish_status = int(request.values.get('finish_status', 1))
+    last_status = mo.finish_status
+    mo.finish_status = finish_status
+    mo.finish_time = datetime.now()
+    if finish_status == 0 and last_status != 0:
+        mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.medium.name))
     mo.save()
     if medium_money != '':
         _insert_executive_report(mo, 'reload')
@@ -543,6 +575,11 @@ def contract_status_change(order, action, emails, msg):
         if order.__tablename__ == 'bra_douban_order' and order.contract:
             to_users += User.douban_contracts()
         _delete_executive_report(order)
+    elif action == 20:
+        action_msg = u"项目已归档"
+        order.contract_status = CONTRACT_STATUS_FINISH
+        order.finish_time = datetime.now()
+        to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
         order.insert_reject_time()
@@ -643,7 +680,10 @@ def display_orders(orders, title, status_id=-1):
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
-        orders = [o for o in orders if o.contract_status == status_id]
+        if status_id == 30:
+            orders = [o for o in orders if o.medium_status == 0]
+        else:
+            orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower().strip() in o.search_info.lower()]
@@ -943,7 +983,8 @@ def new_douban_order():
                                 resource_type=form.resource_type.data,
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
-                                create_time=datetime.now())
+                                create_time=datetime.now(),
+                                finish_time=datetime.now())
         order.add_comment(g.user, u"新建了该直签豆瓣订单")
         flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
         return redirect(url_for("order.douban_order_info", order_id=order.id))
@@ -1025,7 +1066,8 @@ def douban_order_info(order_id):
         else:
             abort(404)
     form = get_douban_form(order)
-
+    replace_saler_form = ReplaceSalersForm()
+    replace_saler_form.replace_salers.data = [k.id for k in order.replace_sales]
     if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
         if info_type == 0:
@@ -1033,6 +1075,7 @@ def douban_order_info(order_id):
                 flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
             else:
                 form = DoubanOrderForm(request.form)
+                replace_saler_form = ReplaceSalersForm(request.form)
                 if form.validate():
                     order.client = Client.get(form.client.data)
                     order.agent = Agent.get(form.agent.data)
@@ -1051,6 +1094,9 @@ def douban_order_info(order_id):
                     order.contract_type = form.contract_type.data
                     order.resource_type = form.resource_type.data
                     order.sale_type = form.sale_type.data
+                    if g.user.is_super_admin():
+                        order.replace_sales = User.gets(
+                            replace_saler_form.replace_salers.data)
                     order.save()
                     order.add_comment(g.user, u"更新了该订单信息")
                     flash(u'[豆瓣订单]%s 保存成功!' % order.name, 'success')
@@ -1085,7 +1131,8 @@ def douban_order_info(order_id):
     context = {'douban_form': form,
                'order': order,
                'now_date': datetime.now(),
-               'reminder_emails': reminder_emails}
+               'reminder_emails': reminder_emails,
+               'replace_saler_form': replace_saler_form}
     return tpl('douban_detail_info.html', **context)
 
 

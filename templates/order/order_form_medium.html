@@ -12,8 +12,8 @@
 
 {% macro order_medium_table(order) -%}
 <div class="col-md-12">
-    <div class="col-md-6" style="margin-left: 20px;">
-        {% if g.user.is_operater %}
+    <div class="col-md-8" style="margin-left: 20px;">
+        {% if g.user.is_operater() or g.user.is_media() or g.user.is_media_leader() %}
         <form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('order.order_medium_edit_cpm', medium_id=order.id)}}">
         {% endif %}
         <table class="table table-bordered">
@@ -41,7 +41,7 @@
             <th>预估量 </th>
             <td>{{order.sale_CPM or 0}} CPM</td>
           </tr>
-           <tr>
+          <tr>
             <th>实际量 </th>
             {% if g.user.is_operater() %}
               <td><input type='text' value="{{order.medium_CPM or 0}}" class="form-control bra-form-control" name="cpm" style="width:100px;"/>CPM</td>
@@ -49,26 +49,46 @@
               <td>{{order.medium.medium_CPM or 0}} CPM</td>
             {% endif %}
           </tr>
-           <tr>
+          <tr>
             <th>执行人员 </th>
             <td>{{order.operater_names}}</td>
           </tr>
-           <tr>
+          <tr>
             <th>设计人员 </th>
             <td>{{order.designers_names}}</td>
           </tr>
-           <tr>
+          <tr>
             <th>策划人员 </th>
             <td>{{order.planers_names}}</td>
           </tr>
+          {% if g.user.is_media() or g.user.is_media_leader() %} 
+          <tr>
+            <th>合同是否归档</th>
+            <td>
+              <select id="finish_status" name="finish_status" style="width:120px;">
+                <option value='1'>未归档</option>
+                <option value='0'>已归档</option>
+              </select>
+            </td>
+          </tr>
+          {% endif %}
         </table>
-        {% if g.user.is_operater %}
-        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        {% if g.user.is_operater() or g.user.is_media() or g.user.is_media_leader() %}
+        <tbody> 
+          <tr>
+            <td><input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/></td>
+          </tr>
+        </tbody>
         </form>
         {% endif %}
     </div>
 </div>
-
+<script>
+  $(function(){
+     $('#finish_status').val(parseInt('{{order.finish_status}}'))
+     $('#finish_status').trigger("chosen:updated");
+  })
+</script>
 {%- endmacro %}
 
 {% macro new_order_medium_form(form, client_order) -%}
@@ -105,6 +125,23 @@
     {{ form_field(form.designers) }}
     {{ form_field(form.planers) }}
     {{ form_field(form.discount) }}
+    {% if g.user.is_super_admin() %}
+      <div class="form-group">
+      <label for="medium_end" class="col-sm-2 control-label">合同是否已归档 : </label>
+      <div class="col-sm-4">
+        <select id="finish_status_{{medium_order.id}}" name="finish_status" class="form-control bra-form-control">
+          <option value='1'>未归档</option>
+          <option value='0'>已归档</option>
+        </select>
+      </div>
+    </div>
+    {% endif %}
     <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
 </form>
+<script>
+  $(function(){
+     $('#finish_status_{{medium_order.id}}').val(parseInt('{{medium_order.finish_status}}'))
+     $('#finish_status_{{medium_order.id}}').trigger("chosen:updated");
+  })
+</script>
 {%- endmacro %}

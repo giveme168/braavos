@@ -87,6 +87,13 @@ agent_sales = db.Table('douban_order_agent_sales',
                            'douban_order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
                        )
 
+replace_sales = db.Table('douban_order_replace_sales',
+                         db.Column(
+                             'replace_sale_id', db.Integer, db.ForeignKey('user.id')),
+                         db.Column(
+                             'douban_order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
+                         )
+
 operater_users = db.Table('douban_order_users_operater',
                           db.Column(
                               'user_id', db.Integer, db.ForeignKey('user.id')),
@@ -130,6 +137,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
+    replace_sales = db.relationship('User', secondary=replace_sales)
 
     operaters = db.relationship('User', secondary=operater_users)
     designers = db.relationship('User', secondary=designer_users)
@@ -145,6 +153,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator = db.relationship(
         'User', backref=db.backref('created_douban_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    finish_time = db.Column(db.DateTime)   # 合同归档时间
     back_money_status = db.Column(db.Integer)
 
     contract_generate = False
@@ -154,10 +163,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def __init__(self, agent, client, campaign, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
-                 medium_CPM=0, sale_CPM=0,
+                 medium_CPM=0, sale_CPM=0, finish_time=None,
                  back_money_status=BACK_MONEY_STATUS_NOW,
                  client_start=None, client_end=None, reminde_date=None,
-                 direct_sales=None, agent_sales=None,
+                 direct_sales=None, agent_sales=None, replace_sales=[],
                  operaters=None, designers=None, planers=None,
                  resource_type=RESOURCE_TYPE_AD, sale_type=SALE_TYPE_AGENT,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
@@ -177,6 +186,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.direct_sales = direct_sales or []
         self.agent_sales = agent_sales or []
+        self.replace_sales = replace_sales
 
         self.operaters = operaters or []
         self.designers = designers or []
@@ -187,6 +197,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
+        self.finish_time = finish_time or datetime.datetime.now()
         self.contract_status = contract_status
         self.status = status
         self.back_money_status = back_money_status
@@ -245,6 +256,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.agent_sales])
 
     @property
+    def replace_sales_names(self):
+        return ",".join([u.name for u in self.replace_sales])
+
+    @property
     def operater_names(self):
         return ",".join([u.name for u in self.operaters])
 
@@ -258,7 +273,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def leaders(self):
-        return list(set([l for u in self.direct_sales + self.agent_sales
+        return list(set([l for u in self.direct_sales + self.agent_sales + self.replace_sales
                          for l in u.user_leaders] + User.super_leaders()))
 
     @property
@@ -267,7 +282,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        admin_users = self.direct_sales + self.agent_sales + [self.creator]
+        admin_users = self.direct_sales + self.agent_sales + [self.creator] + self.replace_sales
         return user.is_leader() or user.is_admin() or user.is_media_leader() or user in admin_users
 
     def path(self):
@@ -411,7 +426,7 @@ by %s\n
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales + \
+        owner = self.direct_sales + self.agent_sales + self.replace_sales +\
             [self.creator] + [k for k in self.operaters]
         return user.is_admin() or user in owner
 
@@ -664,6 +679,16 @@ by %s\n
             return True
         else:
             return False
+
+    @property
+    def finish_time_cn(self):
+        if self.contract_status == 20:
+            try:
+                return self.finish_time.date()
+            except:
+                return u'无'
+        else:
+            return u'无'
 
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):

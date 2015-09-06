@@ -171,11 +171,15 @@
             {% if order.contract_status == 4 and g.user.is_contract() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="6">打印完毕</button>
             {% endif %}
+            {% if order.contract_status == 5 and g.user.is_contract() %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="20">项目归档</button>
+            {% endif %}
             {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 9]%}
               {% if order.can_edit_contract_time() %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">申请撤单</button>
+              {% else %}
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">申请撤单</button>
               {% endif %}
-              <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">申请撤单</button>
             {% endif %}
             {% if order.contract_status == 7 %}
               {%if order.can_admin(g.user) %}
