@@ -153,6 +153,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator = db.relationship(
         'User', backref=db.backref('created_douban_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    finish_time = db.Column(db.DateTime)   # 合同归档时间
     back_money_status = db.Column(db.Integer)
 
     contract_generate = False
@@ -162,7 +163,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def __init__(self, agent, client, campaign, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
-                 medium_CPM=0, sale_CPM=0,
+                 medium_CPM=0, sale_CPM=0, finish_time=None,
                  back_money_status=BACK_MONEY_STATUS_NOW,
                  client_start=None, client_end=None, reminde_date=None,
                  direct_sales=None, agent_sales=None, replace_sales=[],
@@ -196,6 +197,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
+        self.finish_time = finish_time or datetime.datetime.now()
         self.contract_status = contract_status
         self.status = status
         self.back_money_status = back_money_status
@@ -677,6 +679,16 @@ by %s\n
             return True
         else:
             return False
+
+    @property
+    def finish_time_cn(self):
+        if self.contract_status == 20:
+            try:
+                return self.finish_time.date()
+            except:
+                return u'无'
+        else:
+            return u'无'
 
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):

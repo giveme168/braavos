@@ -138,6 +138,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator = db.relationship(
         'User', backref=db.backref('created_client_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    finish_time = db.Column(db.DateTime)   # 合同归档时间
     back_money_status = db.Column(db.Integer)
     contract_generate = True
     media_apply = True
@@ -148,7 +149,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                  back_money_status=BACK_MONEY_STATUS_NOW,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
-                 direct_sales=None, agent_sales=None, replace_sales=[],
+                 direct_sales=None, agent_sales=None, replace_sales=[], finish_time=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
         self.agent = agent
         self.client = client
@@ -172,6 +173,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.creator = creator
         self.status = status
         self.create_time = create_time or datetime.datetime.now()
+        self.finish_time = finish_time or datetime.datetime.now()
         self.contract_status = contract_status
         self.back_money_status = back_money_status
 
@@ -874,6 +876,23 @@ by %s\n
         for k in self.medium_orders:
             operaters += k.operaters
         return list(set(operaters))
+
+    @property
+    def finish_time_cn(self):
+        if self.contract_status == 20:
+            try:
+                return self.finish_time.date()
+            except:
+                return u'无'
+        else:
+            return u'无'
+
+    @property
+    def medium_status(self):
+        if 0 in [k.finish_status for k in self.medium_orders]:
+            return 0
+        else:
+            return 1
 
 
 class BackMoney(db.Model, BaseModelMixin):

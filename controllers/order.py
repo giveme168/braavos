@@ -78,7 +78,8 @@ def new_order():
                                 resource_type=form.resource_type.data,
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
-                                create_time=datetime.now())
+                                create_time=datetime.now(),
+                                finish_time=datetime.now())
         order.add_comment(g.user,
                           u"新建了客户订单:%s - %s - %s" % (
                               order.agent.name,
@@ -438,6 +439,7 @@ def medium_order(mo_id):
     mo.planers = User.gets(form.planers.data)
     mo.discount = form.discount.data
     mo.finish_status = finish_status
+    mo.finish_time = datetime.now()
     mo.save()
     mo.client_order.add_comment(
         g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money))
@@ -470,6 +472,7 @@ def order_medium_edit_cpm(medium_id):
     finish_status = int(request.values.get('finish_status', 1))
     last_status = mo.finish_status
     mo.finish_status = finish_status
+    mo.finish_time = datetime.now()
     if finish_status == 0 and last_status != 0:
         mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.medium.name))
     mo.save()
@@ -575,6 +578,7 @@ def contract_status_change(order, action, emails, msg):
     elif action == 20:
         action_msg = u"项目已归档"
         order.contract_status = CONTRACT_STATUS_FINISH
+        order.finish_time = datetime.now()
         to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
@@ -676,7 +680,10 @@ def display_orders(orders, title, status_id=-1):
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
-        orders = [o for o in orders if o.contract_status == status_id]
+        if status_id == 30:
+            orders = [o for o in orders if o.medium_status == 0]
+        else:
+            orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower().strip() in o.search_info.lower()]
@@ -976,7 +983,8 @@ def new_douban_order():
                                 resource_type=form.resource_type.data,
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
-                                create_time=datetime.now())
+                                create_time=datetime.now(),
+                                finish_time=datetime.now())
         order.add_comment(g.user, u"新建了该直签豆瓣订单")
         flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
         return redirect(url_for("order.douban_order_info", order_id=order.id))
