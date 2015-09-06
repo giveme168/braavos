@@ -240,7 +240,7 @@ class User(db.Model, BaseModelMixin):
 
     @classmethod
     def gets_by_team_type(cls, team_type):
-        return [x for x in cls.all_active() if x.team.type == team_type]
+        return [x for x in cls.all() if x.team.type == team_type]
 
     @classmethod
     def super_leaders(cls):

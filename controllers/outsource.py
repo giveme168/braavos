@@ -86,7 +86,9 @@ def client_orders_distribute():
                 k.operaters = operater_users
                 k.save()
         else:
-            order.operaters = []
+            for k in order.medium_orders:
+                k.operaters = []
+                k.save()
             to_emails = []
         if to_emails:
             apply_context = {"sender": g.user,

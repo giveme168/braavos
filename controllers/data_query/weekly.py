@@ -63,12 +63,16 @@ def _get_report_by_user(user, client_orders, now_year, now_Q, Q_monthes, type='a
             if user['id'] not in [k['id'] for k in order['agent_sales']]:
                 order = None
         else:
-            if user['location'] == 3:
+            if len(order['locations']) > 1:
                 if user['id'] not in [k['id'] for k in order['direct_sales']]:
                     order = None
             else:
-                if not (user['id'] in [k['id'] for k in order['direct_sales']] and len(order['agent_sales']) == 0):
-                    order = None
+                if user['location'] == 3:
+                    if user['id'] not in [k['id'] for k in order['direct_sales']]:
+                        order = None
+                else:
+                    if not (user['id'] in [k['id'] for k in order['direct_sales']] and len(order['agent_sales']) == 0):
+                        order = None
         if order:
             moneys = _executive_report(order, user, now_year, Q_monthes, type)
             now_Q_money = sum(moneys)
@@ -87,12 +91,16 @@ def _get_salers_user_by_location(client_orders, location, type='agent'):
         if type == 'agent':
             salers += [u for u in k['agent_sales'] if u['location'] == location]
         else:
-            if int(location) == 3:
-                salers += [u for u in k['direct_sales'] if u['location'] ==
-                           location]
+            if len(k['locations']) > 1:
+                salers += [u for u in k['direct_sales']
+                           if u['location'] == location]
             else:
-                salers += [u for u in k['direct_sales'] if u['location'] ==
-                           location and len(k['agent_sales']) == 0]
+                if int(location) == 3:
+                    salers += [u for u in k['direct_sales'] if u['location'] ==
+                               location]
+                else:
+                    salers += [u for u in k['direct_sales'] if u['location'] ==
+                               location and len(k['agent_sales']) == 0]
     f = lambda x, y: x if y in x else x + [y]
     set_orders = reduce(f, [[], ] + salers)
     return set_orders
@@ -287,8 +295,10 @@ def _douban_order_to_dict(douban_order, now_year, Q_monthes):
         {'id': k.id, 'name': k.name, 'location': k.team.location}for k in douban_order.direct_sales]
     dict_order['agent_sales'] = [
         {'id': k.id, 'name': k.name, 'location': k.team.location}for k in douban_order.agent_sales]
-    dict_order['salers_ids'] = [k['id'] for k in (dict_order['direct_sales'] + dict_order['agent_sales'])]
-    dict_order['get_saler_leaders'] = [k.id for k in douban_order.get_saler_leaders()]
+    dict_order['salers_ids'] = [k['id']
+                                for k in (dict_order['direct_sales'] + dict_order['agent_sales'])]
+    dict_order['get_saler_leaders'] = [
+        k.id for k in douban_order.get_saler_leaders()]
     dict_order['zhixing_money'] = [
         douban_order.zhixing_money('agent'), douban_order.zhixing_money('direct')]
     dict_order['resource_type_cn'] = douban_order.resource_type_cn
@@ -312,8 +322,10 @@ def _client_order_to_dict(client_order, now_year, Q_monthes):
         {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.direct_sales]
     dict_order['agent_sales'] = [
         {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.agent_sales]
-    dict_order['salers_ids'] = [k['id'] for k in (dict_order['direct_sales'] + dict_order['agent_sales'])]
-    dict_order['get_saler_leaders'] = [k.id for k in client_order.get_saler_leaders()]
+    dict_order['salers_ids'] = [k['id']
+                                for k in (dict_order['direct_sales'] + dict_order['agent_sales'])]
+    dict_order['get_saler_leaders'] = [
+        k.id for k in client_order.get_saler_leaders()]
     dict_order['zhixing_money'] = [
         client_order.zhixing_money('agent'), client_order.zhixing_money('direct')]
     dict_order['invoice_pass_sum'] = client_order.invoice_pass_sum

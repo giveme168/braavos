@@ -92,6 +92,12 @@ agent_sales = db.Table('client_order_agent_sales',
                        db.Column(
                            'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
                        )
+replace_sales = db.Table('client_order_replace_sales',
+                         db.Column(
+                             'replace_sale_id', db.Integer, db.ForeignKey('user.id')),
+                         db.Column(
+                             'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
+                         )
 table_medium_orders = db.Table('client_order_medium_orders',
                                db.Column(
                                    'order_id', db.Integer, db.ForeignKey('bra_order.id')),
@@ -123,6 +129,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
+    replace_sales = db.relationship('User', secondary=replace_sales)
 
     medium_orders = db.relationship('Order', secondary=table_medium_orders)
     contract_status = db.Column(db.Integer)  # 合同审批状态
@@ -141,7 +148,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                  back_money_status=BACK_MONEY_STATUS_NOW,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
-                 direct_sales=None, agent_sales=None,
+                 direct_sales=None, agent_sales=None, replace_sales=[],
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
         self.agent = agent
         self.client = client
@@ -160,6 +167,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.direct_sales = direct_sales or []
         self.agent_sales = agent_sales or []
+        self.replace_sales = replace_sales
 
         self.creator = creator
         self.status = status
@@ -415,6 +423,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.agent_sales])
 
     @property
+    def replace_sales_names(self):
+        return ",".join([u.name for u in self.replace_sales])
+
+    @property
     def operater_names(self):
         if self.medium_orders:
             return ",".join([u.name for u in self.medium_orders[0].operaters])
@@ -437,12 +449,13 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def leaders(self):
-        return list(set([l for u in self.direct_sales + self.agent_sales
+        return list(set([l for u in self.direct_sales + self.agent_sales + self.replace_sales
                          for l in u.user_leaders] + User.super_leaders()))
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        admin_users = self.direct_sales + self.agent_sales + [self.creator]
+        admin_users = self.direct_sales + self.agent_sales + \
+            [self.creator] + self.replace_sales
         return user.is_leader() or user.is_contract() or user.is_media() or\
             user.is_media_leader() or user in admin_users
 
@@ -460,7 +473,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def have_owner(self, user):
         """是否可以查看该订单"""
         owner = self.direct_sales + self.agent_sales +\
-            [self.creator] + self.operater_users
+            [self.creator] + self.operater_users + self.replace_sales
         return user.is_admin() or user in owner
 
     def order_agent_owner(self, user):

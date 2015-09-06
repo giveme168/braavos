@@ -74,6 +74,14 @@ planer_users = db.Table('order_users_planer',
                         )
 
 
+FINISH_STATUS_F = 1
+FINISH_STATUS_T = 0
+FINISH_STATUS_CN = {
+    FINISH_STATUS_F: u'未归档',
+    FINISH_STATUS_T: u'已归档'
+}
+
+
 class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'bra_order'
 
@@ -105,13 +113,13 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator = db.relationship(
         'User', backref=db.backref('created_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
-
+    finish_status = db.Column(db.Integer)  # 是否回收
     contract_generate = True
     kind = "medium-order"
 
     def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
                  medium_contract="", medium_money=0, sale_money=0, medium_money2=0,
-                 medium_CPM=0, sale_CPM=0,
+                 medium_CPM=0, sale_CPM=0, finish_status=1,
                  discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
                  operaters=None, designers=None, planers=None,
                  creator=None, create_time=None):
@@ -126,6 +134,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.medium_CPM = medium_CPM
         self.sale_CPM = sale_CPM
         self.discount = discount
+        self.finish_status = finish_status
         self.medium_start = medium_start or datetime.date.today()
         self.medium_end = medium_end or datetime.date.today()
 
@@ -138,6 +147,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def __repr__(self):
         return '<Order %s>' % (self.id)
+
+    @property
+    def finish_status_cn(self):
+        return FINISH_STATUS_CN[self.finish_status]
 
     @property
     def sale_ECPM(self):

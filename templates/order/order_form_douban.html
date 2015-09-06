@@ -1,5 +1,5 @@
 {% from 'form.html' import form_field %}
-{% macro order_douban_form(form, douban_order=None) -%}
+{% macro order_douban_form(form, douban_order=None, replace_saler_form=None) -%}
 {% if form and not douban_order %}
 <form class="form form-horizontal" method="POST">
     <input class="hide" name="info_type" value="0"/>
@@ -74,6 +74,7 @@
     {{ form_field(form.contract_type) }}
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}
+    {{ form_field(replace_saler_form.replace_salers) }}
     <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
 </form>
 {% elif douban_order and douban_order.can_admin(g.user) and douban_order.contract_status in [0, 1]%}
@@ -191,6 +192,10 @@
           <tr>
             <th>代理/直客</th>
             <td>{{douban_order.sale_type_cn}}</td>
+          </tr>
+          <tr>
+            <th>替代销售</th>
+            <td>{{douban_order.replace_sales_names}}</td>
           </tr>
         </table>
         {% if g.user.is_operater %}
