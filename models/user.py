@@ -350,6 +350,22 @@ class User(db.Model, BaseModelMixin):
     def lately_commission(self):
         return self.commission_user.first()
 
+    def commission(self, year):
+        commission = self.commission_user.filter_by(year=int(year)).first()
+        if commission:
+            return commission.rate / 100
+        return 0
+
+    def performance(self, year, Q):
+        performance = self.performance_user.filter_by(
+            year=int(year), q_month=Q).first()
+        if performance:
+            return performance.money * 10000
+            if performance.status == 0:
+                return performance.money * 10000
+            return 0
+        return 0
+
 
 team_admins = db.Table('team_admin_users',
                        db.Column(
