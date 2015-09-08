@@ -639,8 +639,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         last_month_day = datetime.datetime.strptime(
             str(year) + '-' + Q_monthes[-1] + '-' + str(d[1]) + ' 23:59', '%Y-%m-%d %H:%M')
 
-        back_moneys = self.backmoneys.filter(
-            BackMoney.back_time <= last_month_day)
+        back_moneys = self.backmoneys
         t_b_moneys = sum([k.money for k in back_moneys])
 
         if sale_type == 'agent':
@@ -650,23 +649,68 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         if user.team.location == 3:
             count = len(self.agent_sales + self.direct_sales)
 
-        pre_reports = ClientOrderExecutiveReport.query.filter(
+        # 当前季度之前所有执行额
+        before_pre_reports = ClientOrderExecutiveReport.query.filter(
             ClientOrderExecutiveReport.client_order == self,
             ClientOrderExecutiveReport.month_day < start_month_day)
-        last_pre_reports = sum([k.money for k in pre_reports])
-        if t_b_moneys <= last_pre_reports:
+        before_pre_reports_money = sum([k.money for k in before_pre_reports])
+
+        # 当前季度之后所有执行额
+        last_pre_reports = ClientOrderExecutiveReport.query.filter(
+            ClientOrderExecutiveReport.client_order == self,
+            ClientOrderExecutiveReport.month_day > last_month_day)
+        last_pre_reports_money = sum([k.money for k in last_pre_reports])
+
+        if t_b_moneys <= before_pre_reports_money:
             return 0
-        return (t_b_moneys - last_pre_reports) / count
+        elif t_b_moneys > before_pre_reports_money and t_b_moneys <= \
+                (self.money - before_pre_reports_money - last_pre_reports_money):
+            return (t_b_moneys - before_pre_reports_money) / count
+        elif t_b_moneys > before_pre_reports_money and t_b_moneys > \
+                (self.money - before_pre_reports_money - last_pre_reports_money):
+            return (self.money - before_pre_reports_money - last_pre_reports_money) / count
+        return 0
 
     def last_back_moneys_time_by_Q(self, year, Q_monthes):
-        d = cal.monthrange(int(year), int(Q_monthes[-1]))
-        last_month_day = datetime.datetime.strptime(
-            str(year) + '-' + Q_monthes[-1] + '-' + str(d[1]) + ' 23:59', '%Y-%m-%d %H:%M')
-        last_back_time = self.backmoneys.filter(
-            BackMoney.back_time <= last_month_day).first()
+        last_back_time = self.backmoneys.first()
         if last_back_time:
             return last_back_time.back_time_cn
         return u'无'
+
+    def last_rebate_agent_time(self):
+        # 获取返点发票信息
+        back_invoice_rebate = self.backinvoicerebates.first()
+        # 获取甲方打款发票信息
+        agent_invoice = self.agentinvoices
+        agent_invoice_pays = []
+        for k in agent_invoice:
+            agent_invoice_pays += k.agent_invoice_pays
+        agent_invoice_pays = [k.pay_time_cn for k in agent_invoice_pays]
+        if back_invoice_rebate:
+            agent_invoice_pays.append(back_invoice_rebate.back_time_cn)
+        agent_invoice_pays.reverse()
+        if agent_invoice_pays:
+            return agent_invoice_pays[0]
+        return u'无'
+
+    def last_rebate_agent_money(self, user, sale_type):
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+        else:
+            count = len(self.direct_sales)
+        if user.team.location == 3:
+            count = len(self.agent_sales + self.direct_sales)
+
+        # 获取返点发票信息
+        back_invoice_rebate_money = sum(
+            [k.money for k in self.backinvoicerebates])
+        # 获取甲方打款发票信息
+        agent_invoice = self.agentinvoices
+        agent_invoice_pays = []
+        for k in agent_invoice:
+            agent_invoice_pays += k.agent_invoice_pays
+        agent_invoice_pay_money = sum([k.money for k in agent_invoice_pays])
+        return (back_invoice_rebate_money + agent_invoice_pay_money) / count
 
     @property
     def back_money_status_cn(self):

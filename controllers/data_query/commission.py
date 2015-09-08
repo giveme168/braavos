@@ -73,6 +73,8 @@ def _client_order_to_dict(client_order, now_year, Q_monthes, now_Q):
         'location_cn': k.team.location_cn,
         'commission': k.commission(now_year),
         'performance': k.performance(now_year, now_Q),
+        'last_rebate_agent_time': client_order.last_rebate_agent_time(),
+        'last_rebate_agent_money': client_order.last_rebate_agent_money(k, 'direct'),
         'zhixing_money': _executive_report(client_order, k, now_year, Q_monthes, 'direct'),
         'back_moneys_by_Q': client_order.back_moneys_by_Q(k, now_year, Q_monthes, 'direct'),
     }for k in client_order.direct_sales]
@@ -83,6 +85,8 @@ def _client_order_to_dict(client_order, now_year, Q_monthes, now_Q):
         'location_cn': k.team.location_cn,
         'commission': k.commission(now_year),
         'performance': k.performance(now_year, now_Q),
+        'last_rebate_agent_time': client_order.last_rebate_agent_time(),
+        'last_rebate_agent_money': client_order.last_rebate_agent_money(k, 'agent'),
         'zhixing_money': _executive_report(client_order, k, now_year, Q_monthes, 'agent'),
         'back_moneys_by_Q': client_order.back_moneys_by_Q(k, now_year, Q_monthes, 'agent'),
     }for k in client_order.agent_sales]
@@ -128,6 +132,8 @@ def _douban_order_to_dict(douban_order, now_year, Q_monthes, now_Q):
         'location_cn': k.team.location_cn,
         'commission': k.commission(now_year),
         'performance': k.performance(now_year, now_Q),
+        'last_rebate_agent_time': douban_order.last_rebate_agent_time(),
+        'last_rebate_agent_money': douban_order.last_rebate_agent_money(k, 'direct'),
         'zhixing_money': _executive_report(douban_order, k, now_year, Q_monthes, 'direct'),
         'back_moneys_by_Q': douban_order.back_moneys_by_Q(k, now_year, Q_monthes, 'direct'),
     }for k in douban_order.direct_sales]
@@ -138,6 +144,8 @@ def _douban_order_to_dict(douban_order, now_year, Q_monthes, now_Q):
         'location_cn': k.team.location_cn,
         'commission': k.commission(now_year),
         'performance': k.performance(now_year, now_Q),
+        'last_rebate_agent_time': douban_order.last_rebate_agent_time(),
+        'last_rebate_agent_money': douban_order.last_rebate_agent_money(k, 'agent'),
         'zhixing_money': _executive_report(douban_order, k, now_year, Q_monthes, 'agent'),
         'back_moneys_by_Q': douban_order.back_moneys_by_Q(k, now_year, Q_monthes, 'agent'),
     }for k in douban_order.agent_sales]
@@ -193,19 +201,27 @@ def index():
     sales_data = []
     for k in client_orders + douban_orders:
         if k.contract_status not in [7, 8, 9]:
-            # 格式化合同
-            if k.__tablename__ == 'bra_client_order':
-                dict_order = _client_order_to_dict(
-                    k, now_year, Q_monthes, now_Q)
+            # 按区域匹配
+            if location_id == 0:
+                can_order = True
+            elif location_id in k.locations:
+                can_order = True
             else:
-                dict_order = _douban_order_to_dict(
-                    k, now_year, Q_monthes, now_Q)
-            # 获取所有销售
-            sales += dict_order['direct_sales'] + dict_order['agent_sales']
-            # 获取所有销售数据（包含任务、提成比例）
-            sales_data += dict_order['direct_sales_data'] + \
-                dict_order['agent_sales_data']
-            orders.append(dict_order)
+                can_order = False
+            if can_order:
+                # 格式化合同
+                if k.__tablename__ == 'bra_client_order':
+                    dict_order = _client_order_to_dict(
+                        k, now_year, Q_monthes, now_Q)
+                else:
+                    dict_order = _douban_order_to_dict(
+                        k, now_year, Q_monthes, now_Q)
+                # 获取所有销售
+                sales += dict_order['direct_sales'] + dict_order['agent_sales']
+                # 获取所有销售数据（包含任务、提成比例）
+                sales_data += dict_order['direct_sales_data'] + \
+                    dict_order['agent_sales_data']
+                orders.append(dict_order)
     # 去重销售
     sales = [i for n, i in enumerate(sales) if i not in sales[n + 1:]]
     # 初始化销售完成金额为0
@@ -228,7 +244,7 @@ def index():
                 s['final_rate'] = 1
             else:
                 s['final_rate'] = final_rate
-            s['commission_money'] = "%.2f" % (
+            s['commission_money'] = "%.1f" % (
                 s['final_rate'] * s['commission'] * s['back_moneys_by_Q'])
     return tpl('/data_query/commission/index.html',
                orders=orders,
