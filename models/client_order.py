@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
+import calendar as cal
 from flask import url_for, g
 
 from . import db, BaseModelMixin
@@ -631,6 +632,42 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def client_back_moneys(self):
         return sum([k.money for k in self.backmoneys])
 
+    def back_moneys_by_Q(self, user, year, Q_monthes, sale_type):
+        d = cal.monthrange(int(year), int(Q_monthes[-1]))
+        start_month_day = datetime.datetime.strptime(
+            str(year) + '-' + Q_monthes[0], '%Y-%m')
+        last_month_day = datetime.datetime.strptime(
+            str(year) + '-' + Q_monthes[-1] + '-' + str(d[1]) + ' 23:59', '%Y-%m-%d %H:%M')
+
+        back_moneys = self.backmoneys.filter(
+            BackMoney.back_time <= last_month_day)
+        t_b_moneys = sum([k.money for k in back_moneys])
+
+        if sale_type == 'agent':
+            count = len(self.agent_sales)
+        else:
+            count = len(self.direct_sales)
+        if user.team.location == 3:
+            count = len(self.agent_sales + self.direct_sales)
+
+        pre_reports = ClientOrderExecutiveReport.query.filter(
+            ClientOrderExecutiveReport.client_order == self,
+            ClientOrderExecutiveReport.month_day < start_month_day)
+        last_pre_reports = sum([k.money for k in pre_reports])
+        if t_b_moneys <= last_pre_reports:
+            return 0
+        return (t_b_moneys - last_pre_reports) / count
+
+    def last_back_moneys_time_by_Q(self, year, Q_monthes):
+        d = cal.monthrange(int(year), int(Q_monthes[-1]))
+        last_month_day = datetime.datetime.strptime(
+            str(year) + '-' + Q_monthes[-1] + '-' + str(d[1]) + ' 23:59', '%Y-%m-%d %H:%M')
+        last_back_time = self.backmoneys.filter(
+            BackMoney.back_time <= last_month_day).first()
+        if last_back_time:
+            return last_back_time.back_time_cn
+        return u'无'
+
     @property
     def back_money_status_cn(self):
         if self.back_money_status == 0:
@@ -905,7 +942,7 @@ class BackMoney(db.Model, BaseModelMixin):
     money = db.Column(db.Float())
     back_time = db.Column(db.DateTime)
     create_time = db.Column(db.DateTime)
-    __mapper_args__ = {'order_by': create_time.desc()}
+    __mapper_args__ = {'order_by': back_time.desc()}
 
     def __init__(self, client_order, money=0.0, create_time=None, back_time=None):
         self.client_order = client_order
@@ -933,7 +970,7 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
     money = db.Column(db.Float())
     back_time = db.Column(db.DateTime)
     create_time = db.Column(db.DateTime)
-    __mapper_args__ = {'order_by': create_time.desc()}
+    __mapper_args__ = {'order_by': back_time.desc()}
 
     def __init__(self, client_order, num='', money=0.0, create_time=None, back_time=None):
         self.client_order = client_order

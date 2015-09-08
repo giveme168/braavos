@@ -98,3 +98,7 @@ class PerformanceUser(db.Model, BaseModelMixin):
         self.q_month = q_month
         self.money = money
         self.create_time = create_time or datetime.date.today()
+
+    @property
+    def status(self):
+        return self.performance.status
