@@ -1,7 +1,7 @@
 {% extends "/data_query/data_query_base.html" %}
 {% block title %}销售提成{% endblock %}
 {% block main_box %}
-<div class="bra-main bra-box" style="width:4000px;">
+<div class="bra-main bra-box" style="width:2500px;">
     <h3>销售提成</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
@@ -38,16 +38,13 @@
             <th>合同编号</th>
             <th>合同金额</th>
             <th>项目所属时间</th>
-            <th>区域</th>
-            <th>销售</th>
-            <th>本季度执行额</th>
-            <th>业绩金额</th>
-            <th>回款时间</th>
-            <th>回款金额</th>
             <th>返点时间</th>
             <th>返点金额</th>
-            <th>提成比例</th>
-            <th>当季度完成率</th>
+            <th>回款时间</th>
+            <th>回款金额</th>
+            <th>区域</th>
+            <th>销售</th>
+            <th>计算公式（说明：完成率* 项目提成 * 回款金额 = 提成）</th>
             <th>提成金额</th>
         </tr>
         {% for k in orders %}
@@ -56,21 +53,18 @@
             <td rowspan="{{k.salers_ids|length + 1}}">{{k.campaign}}</td>
             <td rowspan="{{k.salers_ids|length + 1}}">{{k.contract}}</td>
             <td rowspan="{{k.salers_ids|length + 1}}">{{k.money|format_price}}</td>
-            <td rowspan="{{k.salers_ids|length + 1}}">{{now_year}}.{{Q}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.belong_time.belong_time}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.last_rebate_agent_time}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.last_rebate_agent_money|format_price}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.back_money_obj.last_time}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.back_money_obj.now_Q_back_moneys|format_price}}</td>
         </tr>
-            {% for s in k.agent_sales_data+k.direct_sales_data %}
+            {% for s in k.agent_sales+k.direct_sales %}
             <tr>
                 <td>{{s.location_cn}}</td>
                 <td>{{s.name}}</td>
-                <td>{{s.zhixing_money|sum|format_price}}</td>
-                <td>{{s.performance|format_price}}</td>
-                <td>{{k.last_back_moneys_time}}</td>
-                <td>{{s.back_moneys_by_Q|format_price}}</td>
-                <td>{{s.last_rebate_agent_time}}</td>
-                <td>{{s.last_rebate_agent_money|format_price}}</td>
-                <td>{{s.commission*100}}%</td>
-                <td>{{s.final_rate*100}}%</td>
-                <td>{{s.commission_money}}</td>
+                <td>{{s.str_formula|safe}}</td>
+                <td>{{s.commission_money|format_price}}</td>
             </tr>
             {% endfor %}
         {% endfor %}

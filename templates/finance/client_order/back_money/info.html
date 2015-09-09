@@ -51,6 +51,10 @@
                             <td><a href="{{url_for('finance_client_order_back_money.delete',order_id=order.id,bid=back.id)}}">删除</a></td>
                           </tr>
                           {% endfor %}
+                          <tr>
+                                  <td>合计</td>
+                                  <td>{{order.back_money_list|sum(attribute='money')}}</td>
+                                </tr>
                         </table>
                     </div>
                 </div>
@@ -83,6 +87,10 @@
                             <td><a href="{{url_for('finance_client_order_back_money.delete_invoice',order_id=order.id,bid=back.id)}}">删除</a></td>
                           </tr>
                           {% endfor %}
+                          <tr>
+                                  <td>合计</td>
+                                  <td>{{order.back_invoice_rebate_list|sum(attribute='money')}}</td>
+                                </tr>
                         </table>
                     </div>
                 </div>

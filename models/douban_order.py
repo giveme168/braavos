@@ -10,7 +10,7 @@ from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from consts import DATE_FORMAT
 from libs.mail import mail
-from libs.date_helpers import get_monthes_pre_days
+from libs.date_helpers import get_monthes_pre_days, check_Q_get_monthes, check_month_get_Q
 
 
 CONTRACT_TYPE_NORMAL = 0
@@ -648,50 +648,90 @@ by %s\n
     def client_back_moneys(self):
         return sum([k.money for k in self.douban_backmoneys])
 
-    def back_moneys_by_Q(self, user, year, Q_monthes, sale_type):
-        d = cal.monthrange(int(year), int(Q_monthes[-1]))
-        start_month_day = datetime.datetime.strptime(
-            str(year) + '-' + Q_monthes[0], '%Y-%m')
-        last_month_day = datetime.datetime.strptime(
-            str(year) + '-' + Q_monthes[-1] + '-' + str(d[1]) + ' 23:59', '%Y-%m-%d %H:%M')
-
+    # 销售提成-获取项目回款信息
+    def back_moneys_by_Q(self, now_year, Q_monthes):
+        start_Q_month = datetime.datetime(int(now_year), int(Q_monthes[0]), 1)
+        # 获取下季度的第一天为结束时间
+        d = cal.monthrange(int(now_year), int(Q_monthes[-1]))
+        end_Q_month = datetime.datetime(
+            int(now_year), int(Q_monthes[-1]), d[1]) + datetime.timedelta(days=1)
+        # 该合同所有回款
         back_moneys = self.douban_backmoneys
-        t_b_moneys = sum([k.money for k in back_moneys])
-
-        if sale_type == 'agent':
-            count = len(self.agent_sales)
+        # 获取本季度回款金额
+        now_Q_back_money_obj = back_moneys.filter(
+            BackMoney.back_time >= start_Q_month, BackMoney.back_time < end_Q_month)
+        now_Q_back_moneys = sum([k.money for k in now_Q_back_money_obj])
+        if now_Q_back_money_obj.first():
+            now_Q_back_money_last_time = now_Q_back_money_obj.first(
+            ).back_time_cn
         else:
-            count = len(self.direct_sales)
-        if user.team.location == 3:
-            count = len(self.agent_sales + self.direct_sales)
+            now_Q_back_money_last_time = u'无'
+        # 获取本季度之前的所有回款
+        before_Q_back_money_obj = back_moneys.filter(
+            BackMoney.back_time < start_Q_month)
+        before_Q_back_moneys = sum([k.money for k in before_Q_back_money_obj])
+        return {'last_time': now_Q_back_money_last_time,
+                'now_Q_back_moneys': now_Q_back_moneys,
+                'before_Q_back_moneys': before_Q_back_moneys}
 
-        # 当前季度之前所有执行额
-        before_pre_reports = DoubanOrderExecutiveReport.query.filter(
-            DoubanOrderExecutiveReport.douban_order == self,
-            DoubanOrderExecutiveReport.month_day < start_month_day)
-        before_pre_reports_money = sum([k.money for k in before_pre_reports])
+    # 销售提成-根据返点获取合同所在执行时间
+    def belong_time_by_back_money(self, back_money_obj):
+        report_money = self.douban_executive_reports.order_by('month_day')
+        now_Q_back_moneys = back_money_obj['now_Q_back_moneys']
+        before_Q_back_moneys = back_money_obj['before_Q_back_moneys']
+        t_report_money = 0
+        report_times = []
+        for k in report_money:
+            t_report_money += k.money
+            if k.money >= now_Q_back_moneys:
+                report_times.append((k.month_day, now_Q_back_moneys))
+                break
+            elif t_report_money > before_Q_back_moneys and t_report_money <= before_Q_back_moneys + now_Q_back_moneys:
+                report_times.append((k.month_day, k.money))
+            elif t_report_money - before_Q_back_moneys - now_Q_back_moneys > 0:
+                report_times.append(
+                    (k.month_day, t_report_money - before_Q_back_moneys - now_Q_back_moneys))
+                break
+        if report_times:
+            if len(report_times) > 1:
+                start = report_times[0][0].strftime(
+                    '%Y') + '.' + check_month_get_Q(report_times[0][0].strftime('%m'))
+                end = report_times[-1][0].strftime('%Y') + '.' + check_month_get_Q(
+                    report_times[-1][0].strftime('%m'))
+                return {'back_moneys': report_times, 'belong_time': start + u' 至 ' + end}
+            start = report_times[0][0].strftime(
+                '%Y') + '.' + check_month_get_Q(report_times[0][0].strftime('%m'))
+            return {'back_moneys': report_times, 'belong_time': start}
+        return {'back_moneys': report_times, 'belong_time': u'无'}
 
-        # 当前季度之后所有执行额
-        last_pre_reports = DoubanOrderExecutiveReport.query.filter(
-            DoubanOrderExecutiveReport.douban_order == self,
-            DoubanOrderExecutiveReport.month_day > last_month_day)
-        last_pre_reports_money = sum([k.money for k in last_pre_reports])
+    # 销售提成 - 获取销售业绩的完成率
+    def get_performance_rate(self, performance, user, sale_type):
+        performance_rate = {}
+        for k, v in performance.items():
+            q_monthes = check_Q_get_monthes(k[-2:])
+            start_time = datetime.datetime.strptime(
+                k[:-2] + '-' + q_monthes[0], '%Y-%m')
+            end_time = datetime.datetime.strptime(
+                k[:-2] + '-' + q_monthes[-1], '%Y-%m')
+            order_report = DoubanOrderExecutiveReport.query.filter(
+                DoubanOrderExecutiveReport.month_day >= start_time, end_time <= end_time)
+            if sale_type == 'direct':
+                order_moneys = sum([o.get_money_by_user(
+                    user, sale_type) for o in order_report if user in o.douban_order.direct_sales])
+            else:
+                order_moneys = sum([o.get_money_by_user(
+                    user, sale_type) for o in order_report if user in o.douban_order.agent_sales])
 
-        if t_b_moneys <= before_pre_reports_money:
-            return 0
-        elif t_b_moneys > before_pre_reports_money and t_b_moneys <= \
-                (self.money - before_pre_reports_money - last_pre_reports_money):
-            return (t_b_moneys - before_pre_reports_money) / count
-        elif t_b_moneys > before_pre_reports_money and t_b_moneys > \
-                (self.money - before_pre_reports_money - last_pre_reports_money):
-            return (self.money - before_pre_reports_money - last_pre_reports_money) / count
-        return 0
-
-    def last_back_moneys_time_by_Q(self, year, Q_monthes):
-        last_back_time = self.douban_backmoneys.first()
-        if last_back_time:
-            return last_back_time.back_time_cn
-        return u'无'
+            order_moneys = order_moneys
+            if v:
+                rate = order_moneys / v
+                if rate > 1:
+                    performance_rate[k + 'rate'] = (1, order_moneys, v)
+                else:
+                    performance_rate[k + 'rate'] = (rate, order_moneys, v)
+            else:
+                performance_rate[k + 'rate'] = (0, order_moneys, v)
+        return performance_rate
 
     def last_rebate_agent_time(self):
         # 获取返点发票信息
@@ -700,17 +740,11 @@ by %s\n
             return back_invoice_rebate.back_time_cn
         return u'无'
 
-    def last_rebate_agent_money(self, user, sale_type):
-        if sale_type == 'agent':
-            count = len(self.agent_sales)
-        else:
-            count = len(self.direct_sales)
-        if user.team.location == 3:
-            count = len(self.agent_sales + self.direct_sales)
+    def last_rebate_agent_money(self):
         # 获取返点发票信息
         back_invoice_rebate_money = sum(
             [k.money for k in self.douban_backinvoicerebates])
-        return back_invoice_rebate_money / count
+        return back_invoice_rebate_money
 
     @property
     def back_money_status_cn(self):
@@ -790,6 +824,16 @@ class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     @property
     def status(self):
         return self.douban_order.status
+
+    def get_money_by_user(self, user, sale_type):
+        if sale_type == 'agent':
+            count = len(self.douban_order.agent_sales)
+        else:
+            count = len(self.douban_order.direct_sales)
+        if user.team.location == 3:
+            count = len(
+                self.douban_order.agent_sales + self.douban_order.direct_sales)
+        return self.money / count
 
 
 class DoubanOrderReject(db.Model, BaseModelMixin):
