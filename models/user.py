@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for, json
 
 from . import db, BaseModelMixin
+from libs.date_helpers import check_month_get_Q
 
 USER_STATUS_ON = 1         # 有效
 USER_STATUS_OFF = 0        # 停用
@@ -360,11 +361,27 @@ class User(db.Model, BaseModelMixin):
         performance = self.performance_user.filter_by(
             year=int(year), q_month=Q).first()
         if performance:
-            return performance.money * 10000
             if performance.status == 0:
                 return performance.money * 10000
             return 0
         return 0
+
+    # 销售提成 - 获取销售业绩（跨季度有可能是多个）
+    def get_performance(self, belong_time):
+        performance_obj = {}
+        back_moneys = belong_time['back_moneys']
+        for k in back_moneys:
+            Q = check_month_get_Q(k[0].strftime('%m'))
+            performance_obj[str(k[0].year) + Q] = self.performance(k[0].year, Q)
+        return performance_obj
+
+    # 销售提成 - 获取销售提成（跨年度有可能是多个）
+    def get_commission(self, belong_time):
+        commission_obj = {}
+        back_moneys = belong_time['back_moneys']
+        for k in back_moneys:
+            commission_obj[str(k[0].year)] = self.commission(k[0].year)
+        return commission_obj
 
 
 team_admins = db.Table('team_admin_users',

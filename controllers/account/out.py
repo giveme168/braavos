@@ -135,7 +135,7 @@ def create():
                         str(k.id) + '-' + k.name, 'name': k.name} for k in Agent.all()]
         m_persions += [{'key': '3' + '-' +
                         str(k.id) + '-' + k.name, 'name': k.name} for k in Medium.all()]
-        m_persions.append({'key': 100, 'name': u'其他'})
+        m_persions.insert(1, {'key': 100, 'name': u'其他'})
     joiners_form = JoinersForm(request.form)
     if request.method == 'POST':
         if g.user.is_out_saler:

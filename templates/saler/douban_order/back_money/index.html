@@ -66,6 +66,10 @@
                           {% endif %}
                         </tr>
                       {% endfor %}
+                      <tr>
+                        <td>合计</td>
+                        <td>{{order.back_money_list|sum(attribute='money')}}</td>
+                      </tr>
                     </table>
                   </div>
                 </div>
@@ -102,6 +106,10 @@
                                   {% endif %}
                                 </tr>
                                 {% endfor %}
+                                <tr>
+                                  <td>合计</td>
+                                  <td>{{order.back_invoice_rebate_list|sum(attribute='money')}}</td>
+                                </tr>
                               </table>
                           </div>
                       </div>
