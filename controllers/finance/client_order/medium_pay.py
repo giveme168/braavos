@@ -24,7 +24,8 @@ ORDER_PAGE_NUM = 50
 def apply():
     if not g.user.is_finance():
         abort(404)
-    orders = list(set([k.medium_invoice.client_order for k in MediumInvoicePay.query.filter_by(pay_status=3)]))
+    orders = list(set(
+        [k.medium_invoice.client_order for k in MediumInvoicePay.query.filter_by(pay_status=3)]))
     if request.args.get('selected_status'):
         status_id = int(request.args.get('selected_status'))
     else:
@@ -136,6 +137,25 @@ def info(order_id):
                MEDIUM_INVOICE_STATUS_CN=MEDIUM_INVOICE_STATUS_CN, INVOICE_TYPE_CN=INVOICE_TYPE_CN)
 
 
+@finance_client_order_medium_pay_bp.route('/<order_id>/<invoice_id>/delete', methods=['GET'])
+def delete(order_id, invoice_id):
+    if not g.user.is_finance():
+        abort(404)
+    order = ClientOrder.get(order_id)
+    if not order:
+        abort(404)
+    invoice = MediumInvoice.get(invoice_id)
+    pays = invoice.medium_invoice_pays
+    if pays.count() > 0:
+        flash(u'暂时不能删除，已有付款信息', 'danger')
+        return redirect(url_for('finance_client_order_medium_pay.info', order_id=order_id))
+    client_order = invoice.client_order
+    client_order.add_comment(g.user, u"删除打款发票申请信息：%s" % (
+        u'发票内容: %s; 发票金额: %s元; 发票号: %s' % (invoice.detail, str(invoice.money), invoice.invoice_num)), msg_channel=3)
+    invoice.delete()
+    return redirect(url_for('finance_client_order_medium_pay.info', order_id=order_id))
+
+
 @finance_client_order_medium_pay_bp.route('/<invoice_id>/pay_info', methods=['GET'])
 def pay_info(invoice_id):
     if not g.user.is_finance():
@@ -180,7 +200,8 @@ def invoice_pass(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
 
-    to_users = [g.user] + User.medias() + User.media_leaders() + User.super_leaders()
+    to_users = [g.user] + \
+        User.medias() + User.media_leaders() + User.super_leaders()
     to_emails = list(set(emails + [x.email for x in to_users]))
 
     if action != 10:

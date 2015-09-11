@@ -16,6 +16,7 @@ framework_douban_contract_apply_signal = braavos_signals.signal(
     'framework_douban_contract_apply')
 outsource_apply_signal = braavos_signals.signal('outsource_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
+medium_rebate_invoice_apply_signal = braavos_signals.signal('medium_rebate_invoice_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
 agent_invoice_apply_signal = braavos_signals.signal('agent_invoice_apply')
 outsource_distribute_signal = braavos_signals.signal('outsource_distribute')
@@ -226,6 +227,35 @@ def invoice_apply(sender, apply_context):
 \n
 by %s
 """ % (apply_context['action_msg'], order.name, order.contract, order.money, url, invoice_info, apply_context['msg'], g.user.name)
+    send_simple_mail(
+        apply_context['title'], recipients=apply_context['to'], body=text)
+
+
+def medium_rebate_invoice_apply(sender, apply_context):
+    order = apply_context['order']
+    invoices = apply_context['invoices']
+    invoice_info = "\n".join(
+        [u'发票信息: ' + o.detail + u'; 发票金额' + str(o.money) for o in invoices])
+    url = mail.app.config['DOMAIN'] + apply_context['url']
+    if apply_context['send_type'] == "saler":
+        to_name = u'黄亮'
+    else:
+        to_name = u'财务'
+    text = u"""
+Dear: %s
+
+    %s
+订单: %s
+合同号: %s
+合同金额: %s
+链接地址: %s
+发票信息:
+%s
+留言如下:
+    %s
+\n
+by %s
+""" % (to_name, apply_context['action_msg'], order.name, order.contract, order.money, url, invoice_info, apply_context['msg'], g.user.name)
     send_simple_mail(
         apply_context['title'], recipients=apply_context['to'], body=text)
 
@@ -682,6 +712,7 @@ def init_signal(app):
         app)(framework_douban_contract_apply)
     outsource_apply_signal.connect_via(app)(outsource_apply)
     invoice_apply_signal.connect_via(app)(invoice_apply)
+    medium_rebate_invoice_apply_signal.connect_via(app)(medium_rebate_invoice_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
     agent_invoice_apply_signal.connect_via(app)(agent_invoice_apply)
     outsource_distribute_signal.connect_via(app)(outsource_distribute)

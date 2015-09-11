@@ -1,6 +1,5 @@
 # -*- coding: UTF-8 -*-
 import datetime
-import calendar as cal
 from flask import url_for, g
 
 from . import db, BaseModelMixin
@@ -12,7 +11,7 @@ from models.user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
 from invoice import Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice, AgentInvoicePay, MediumRebateInvoice
 from libs.mail import mail
-from libs.date_helpers import get_monthes_pre_days, check_Q_get_monthes, check_month_get_Q
+from libs.date_helpers import get_monthes_pre_days
 
 
 CONTRACT_TYPE_NORMAL = 0
@@ -632,92 +631,6 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def client_back_moneys(self):
         return sum([k.money for k in self.backmoneys])
 
-    # 销售提成-获取项目回款信息
-    def back_moneys_by_Q(self, now_year, Q_monthes):
-        start_Q_month = datetime.datetime(int(now_year), int(Q_monthes[0]), 1)
-        # 获取下季度的第一天为结束时间
-        d = cal.monthrange(int(now_year), int(Q_monthes[-1]))
-        end_Q_month = datetime.datetime(
-            int(now_year), int(Q_monthes[-1]), d[1]) + datetime.timedelta(days=1)
-        # 该合同所有回款
-        back_moneys = self.backmoneys
-        # 获取本季度回款金额
-        now_Q_back_money_obj = back_moneys.filter(
-            BackMoney.back_time >= start_Q_month, BackMoney.back_time < end_Q_month)
-        now_Q_back_moneys = sum([k.money for k in now_Q_back_money_obj])
-        if now_Q_back_money_obj.first():
-            now_Q_back_money_last_time = now_Q_back_money_obj.first(
-            ).back_time_cn
-        else:
-            now_Q_back_money_last_time = u'无'
-        # 获取本季度之前的所有回款
-        before_Q_back_money_obj = back_moneys.filter(
-            BackMoney.back_time < start_Q_month)
-        before_Q_back_moneys = sum([k.money for k in before_Q_back_money_obj])
-        return {'last_time': now_Q_back_money_last_time,
-                'now_Q_back_moneys': now_Q_back_moneys,
-                'before_Q_back_moneys': before_Q_back_moneys}
-
-    # 销售提成-根据返点获取合同所在执行时间
-    def belong_time_by_back_money(self, back_money_obj):
-        report_money = self.executive_reports.order_by('month_day')
-        # print [(k.month_day, k.money, k.client_order.id)for k in report_money]
-        now_Q_back_moneys = back_money_obj['now_Q_back_moneys']
-        before_Q_back_moneys = back_money_obj['before_Q_back_moneys']
-        t_report_money = 0
-        report_times = []
-        for k in report_money:
-            t_report_money += k.money
-            if k.money >= now_Q_back_moneys:
-                report_times.append((k.month_day, now_Q_back_moneys))
-                break
-            elif t_report_money > before_Q_back_moneys and t_report_money <= before_Q_back_moneys + now_Q_back_moneys:
-                report_times.append((k.month_day, k.money))
-            elif t_report_money - before_Q_back_moneys - now_Q_back_moneys > 0:
-                report_times.append(
-                    (k.month_day, t_report_money - before_Q_back_moneys - now_Q_back_moneys))
-                break
-        if report_times:
-            if len(report_times) > 1:
-                start = report_times[0][0].strftime(
-                    '%Y') + '.' + check_month_get_Q(report_times[0][0].strftime('%m'))
-                end = report_times[-1][0].strftime('%Y') + '.' + check_month_get_Q(
-                    report_times[-1][0].strftime('%m'))
-                return {'back_moneys': report_times, 'belong_time': start + u' 至 ' + end}
-            start = report_times[0][0].strftime(
-                '%Y') + '.' + check_month_get_Q(report_times[0][0].strftime('%m'))
-            return {'back_moneys': report_times, 'belong_time': start}
-        return {'back_moneys': report_times, 'belong_time': u'无'}
-
-    # 销售提成 - 获取销售业绩的完成率
-    def get_performance_rate(self, performance, user, sale_type):
-        performance_rate = {}
-        for k, v in performance.items():
-            q_monthes = check_Q_get_monthes(k[-2:])
-            start_time = datetime.datetime.strptime(
-                k[:-2] + '-' + q_monthes[0], '%Y-%m')
-            end_time = datetime.datetime.strptime(
-                k[:-2] + '-' + q_monthes[-1], '%Y-%m')
-            order_report = ClientOrderExecutiveReport.query.filter(
-                ClientOrderExecutiveReport.month_day >= start_time, end_time <= end_time)
-            if sale_type == 'direct':
-                order_moneys = sum([o.get_money_by_user(
-                    user, sale_type) for o in order_report if user in o.client_order.direct_sales])
-            else:
-                order_moneys = sum([o.get_money_by_user(
-                    user, sale_type) for o in order_report if user in o.client_order.agent_sales])
-
-            order_moneys = order_moneys
-            if v:
-                rate = order_moneys / v
-                if rate > 1:
-                    performance_rate[k + 'rate'] = (1, order_moneys, v)
-                else:
-                    performance_rate[k + 'rate'] = (rate, order_moneys, v)
-            else:
-                performance_rate[k + 'rate'] = (0, order_moneys, v)
-        return performance_rate
-
     def last_rebate_agent_time(self):
         # 获取返点发票信息
         back_invoice_rebate = self.backinvoicerebates.first()
@@ -1035,6 +948,10 @@ class BackMoney(db.Model, BaseModelMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime(DATE_FORMAT)
+
+    @property
+    def order(self):
+        return self.client_order
 
 
 class BackInvoiceRebate(db.Model, BaseModelMixin):
