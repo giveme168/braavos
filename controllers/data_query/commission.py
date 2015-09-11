@@ -269,7 +269,6 @@ def _dict_back_money(back_money):
 
 @data_query_commission_bp.route('/', methods=['GET'])
 def index():
-    logging_now_time = datetime.datetime.now()
     now_year = request.values.get('year', '')
     now_Q = request.values.get('Q', '')
     location_id = int(request.values.get('location_id', 0))
@@ -290,6 +289,7 @@ def index():
         k) for k in BackMoney.query.filter(BackMoney.back_time < end_Q_month)]
     douban_back_moneys = [_dict_back_money(
         k) for k in DoubanBackMoney.query.filter(BackMoney.back_time < end_Q_month)]
+    # ####################获取相关订单执行额，用于计算销售季度完成率##################
     client_continue_time = []
     for k in client_back_moneys:
         client_continue_time += [k['order_start'], k['order_end']]
@@ -317,30 +317,23 @@ def index():
             DoubanOrderExecutiveReport.month_day <= douban_countinue_end))
     else:
         douban_report = []
+    # ####################获取相关订单执行额，用于计算销售季度完成率##################
 
     # 获取当前季度所有回款
     now_Q_client_back_moneys = [
         k for k in client_back_moneys if k['back_time'] >= start_Q_month]
     now_Q_douban_back_moneys = [
         k for k in douban_back_moneys if k['back_time'] >= start_Q_month]
-    print (datetime.datetime.now() -
-           logging_now_time).total_seconds(), u'获取所有回款'
 
     # 回去当季度回款的所有合同
     client_orders = list(set([k['order'] for k in now_Q_client_back_moneys]))
     douban_orders = list(set([k['order'] for k in now_Q_douban_back_moneys]))
-    print (datetime.datetime.now() -
-           logging_now_time).total_seconds(), u'获取当季度回款合同'
 
     orders = [_order_to_dict(k, start_Q_month, client_back_moneys, now_Q_client_back_moneys, client_report)
               for k in client_orders if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
 
-    print (datetime.datetime.now() -
-           logging_now_time).total_seconds(), u'格式化直签合同'
     orders += [_order_to_dict(k, start_Q_month, douban_back_moneys, now_Q_douban_back_moneys, douban_report)
                for k in douban_orders if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
-    print (datetime.datetime.now() -
-           logging_now_time).total_seconds(), u'格式化豆瓣合同'
 
     if g.user.is_super_leader():
         orders = orders
