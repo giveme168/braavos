@@ -791,7 +791,9 @@ by %s\n
             count = len(self.agent_sales)
         else:
             count = len(self.direct_sales)
-        if user.team.location == 3:
+        if user.team.location == 3 and len(self.locations) > 1:
+            count = len(self.direct_sales)
+        elif user.team.location == 3 and len(self.locations) == 1:
             count = len(self.agent_sales + self.direct_sales)
         if sale_type == 'normal':
             count = 1
@@ -822,7 +824,9 @@ by %s\n
             else:
                 count = len(self.direct_sales)
                 user = self.direct_sales[0]
-            if user.team.location == 3:
+            if user.team.location == 3 and len(self.locations) > 1:
+                count = len(self.direct_sales)
+            elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
             if sale_type == 'normal':
                 count = 1
@@ -866,7 +870,9 @@ by %s\n
             else:
                 count = len(self.direct_sales)
                 user = self.direct_sales[0]
-            if user.team.location == 3:
+            if user.team.location == 3 and len(self.locations) > 1:
+                count = len(self.direct_sales)
+            elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
             return self.money / count
         except:
@@ -880,7 +886,9 @@ by %s\n
             else:
                 count = len(self.direct_sales)
                 user = self.direct_sales[0]
-            if user.team.location == 3:
+            if user.team.location == 3 and len(self.locations) > 1:
+                count = len(self.direct_sales)
+            elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
             return self.mediums_money2 / count
         except:
@@ -1014,9 +1022,10 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
             count = len(self.client_order.agent_sales)
         else:
             count = len(self.client_order.direct_sales)
-        if user.team.location == 3:
-            count = len(
-                self.client_order.agent_sales + self.client_order.direct_sales)
+        if user.team.location == 3 and len(self.client_order.locations) > 1:
+            count = len(self.client_order.agent_sales)
+        elif user.team.location == 3 and len(self.client_order.locations) == 1:
+            count = len(self.client_order.agent_sales + self.client_order.direct_sales)
         return self.money / count
 
 

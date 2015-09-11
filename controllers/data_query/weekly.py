@@ -23,7 +23,9 @@ def _executive_report(order, user, now_year, monthes, sale_type):
         count = len(order['agent_sales'])
     else:
         count = len(order['direct_sales'])
-    if user['location'] == 3:
+    if user['location'] == 3 and len(order['locations']) > 1:
+        count = len(order['direct_sales'])
+    elif user['location'] == 3 and len(order['locations']) == 1:
         count = len(order['agent_sales'] + order['direct_sales'])
     if sale_type == 'normal':
         count = 1

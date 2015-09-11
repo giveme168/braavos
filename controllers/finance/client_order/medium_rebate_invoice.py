@@ -204,7 +204,7 @@ def pass_invoice(invoice_id):
     to_emails = list(set(emails + [x.email for x in to_users]))
     if action != 10:
         invoice_status = INVOICE_STATUS_PASS
-        action_msg = u'发票已开'
+        action_msg = u'媒体返点发票已开'
         for invoice in invoices:
             invoice.invoice_status = invoice_status
             invoice.create_time = datetime.date.today()

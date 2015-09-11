@@ -193,7 +193,7 @@ def apply_invoice(invoice_id):
 
     apply_context = {"sender": g.user,
                      "to": to_emails,
-                     "title": u'客户发票-%s' % (action_msg),
+                     "title": u'媒体返点发票-%s' % (action_msg),
                      "action_msg": action_msg,
                      "msg": msg,
                      "order": invoice.client_order,
