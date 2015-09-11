@@ -24,13 +24,13 @@
             <td>{{ target.card }}</td>
             <td>{{ target.alipay }}</td>
             <td>{{ target.contract }}</td> 
-            {% if target.merger_douban_order_outsources_by_status(2)|length > 0 %}
-                <td><a  style="color:red;" href="{{url_for('finance_outsource_pay.douban_info',target_id=target.id)}}">{{ target.merger_douban_order_outsources_by_status(2)|length }}</a></td>
+            {% if target.unpay > 0 %}
+                <td><a  style="color:red;" href="{{url_for('finance_outsource_pay.douban_info',target_id=target.id)}}">{{ target.unpay }}</a></td>
             {% else %}
                 <td>0</td>
             {% endif %}
             
-            <td>{{ target.merger_douban_order_outsources_by_status(0)|length }}</td>
+            <td>{{ target.pay }}</td>
             <td><a href="{{url_for('finance_outsource_pay.douban_info',target_id=target.id)}}">查看</a></td>     
         {% endfor %}
     </table>
@@ -55,13 +55,13 @@
             <td>{{ target.card }}</td>
             <td>{{ target.alipay }}</td>
             <td>{{ target.contract }}</td> 
-            {% if target.merger_douban_order_outsources_by_status(2)|length > 0 %}
-                <td><a style="color:red;" href="{{url_for('finance_outsource_pay.douban_info',target_id=target.id)}}">{{ target.merger_douban_order_outsources_by_status(2)|length }}</a></td>
+            {% if target.unpay > 0 %}
+                <td><a style="color:red;" href="{{url_for('finance_outsource_pay.douban_info',target_id=target.id)}}">{{ target.unpay }}</a></td>
             {% else %}
                 <td>0</td>
             {% endif %}
             
-            <td>{{ target.merger_douban_order_outsources_by_status(0)|length }}</td>
+            <td>{{ target.pay }}</td>
             <td><a href="{{url_for('finance_outsource_pay.douban_info',target_id=target.id)}}">查看</a></td>     
         {% endfor %}
     </table>

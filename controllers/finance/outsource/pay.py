@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import operator
 
 from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
 from flask import render_template as tpl
@@ -23,8 +24,24 @@ finance_outsource_pay_bp = Blueprint(
 def index():
     if not g.user.is_finance():
         abort(404)
-    targets = [k for k in OutSourceTarget.all() if k.otype in [1, None]]
-    personal_targets = [k for k in OutSourceTarget.all() if k.otype == 2]
+    targets = [{
+        'id': k.id,
+        'name': k.name, 'type_cn': k.type_cn, 'bank': k.bank,
+        'card': k.card, 'alipay': k.alipay, 'contract': k.contract,
+        'unpay': len(k.merger_client_order_outsources_by_status(2)),
+        'pay': len(k.merger_client_order_outsources_by_status(0))}
+        for k in OutSourceTarget.all() if k.otype in [1, None]]
+    personal_targets = [{
+        'id': k.id,
+        'name': k.name, 'type_cn': k.type_cn, 'bank': k.bank,
+        'card': k.card, 'alipay': k.alipay, 'contract': k.contract,
+        'unpay': len(k.merger_client_order_outsources_by_status(2)),
+        'pay': len(k.merger_client_order_outsources_by_status(0))}
+        for k in OutSourceTarget.all() if k.otype == 2]
+
+    targets = sorted(targets, key=operator.itemgetter('unpay'), reverse=True)
+    personal_targets = sorted(
+        personal_targets, key=operator.itemgetter('unpay'), reverse=True)
     return tpl('/finance/outsource/pay/index.html', targets=targets, personal_targets=personal_targets)
 
 
@@ -33,7 +50,8 @@ def info(target_id):
     if not g.user.is_finance():
         abort(404)
     target = OutSourceTarget.get(target_id)
-    apply_money_merger_outsources = target.merger_client_order_outsources_by_status(2)
+    apply_money_merger_outsources = target.merger_client_order_outsources_by_status(
+        2)
     paid_merger_outsources = target.merger_client_order_outsources_by_status(0)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     return tpl('/finance/outsource/pay/info.html', target=target, reminder_emails=reminder_emails,
@@ -50,7 +68,8 @@ def merget_client_target_paid(target_id):
     merger_clients = MergerOutSource.gets(outsource_ids)
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
-    pay_time = request.values.get('pay_time', datetime.datetime.now().strftime('%Y-%m-%d'))
+    pay_time = request.values.get(
+        'pay_time', datetime.datetime.now().strftime('%Y-%m-%d'))
     if action == 0:
         sub_title = u"外包已打款"
         for k in merger_clients:
@@ -82,7 +101,8 @@ def merget_douban_target_paid(target_id):
     merger_clients = MergerDoubanOutSource.gets(outsource_ids)
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
-    pay_time = request.values.get('pay_time', datetime.datetime.now().strftime('%Y-%m-%d'))
+    pay_time = request.values.get(
+        'pay_time', datetime.datetime.now().strftime('%Y-%m-%d'))
     if action == 0:
         sub_title = u"外包已打款"
         for k in merger_clients:
@@ -152,8 +172,23 @@ def merger_outsources_pass(merger_id):
 def douban_index():
     if not g.user.is_finance():
         abort(404)
-    targets = [k for k in OutSourceTarget.all() if k.otype in [1, None]]
-    personal_targets = [k for k in OutSourceTarget.all() if k.otype == 2]
+    targets = [{
+        'id': k.id,
+        'name': k.name, 'type_cn': k.type_cn, 'bank': k.bank,
+        'card': k.card, 'alipay': k.alipay, 'contract': k.contract,
+        'unpay': len(k.merger_douban_order_outsources_by_status(2)),
+        'pay': len(k.merger_douban_order_outsources_by_status(0))}
+        for k in OutSourceTarget.all() if k.otype in [1, None]]
+    personal_targets = [{
+        'id': k.id,
+        'name': k.name, 'type_cn': k.type_cn, 'bank': k.bank,
+        'card': k.card, 'alipay': k.alipay, 'contract': k.contract,
+        'unpay': len(k.merger_douban_order_outsources_by_status(2)),
+        'pay': len(k.merger_douban_order_outsources_by_status(0))}
+        for k in OutSourceTarget.all() if k.otype == 2]
+    targets = sorted(targets, key=operator.itemgetter('unpay'), reverse=True)
+    personal_targets = sorted(
+        personal_targets, key=operator.itemgetter('unpay'), reverse=True)
     return tpl('/finance/outsource/pay/douban_index.html', targets=targets, personal_targets=personal_targets)
 
 

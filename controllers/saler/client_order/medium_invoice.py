@@ -44,9 +44,9 @@ def new_invoice(order_id, redirect_endpoint='saler_client_order_medium_invoice.i
     form.client_order.choices = [(order.id, order.client.name)]
     form.medium.choices = [(order.id, order.client.name) for k in order.mediums]
     form.bool_invoice.choices = MEDIUM_INVOICE_BOOL_INVOICE_CN.items()
-    if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
-        flash(u'新建打款发票失败，发票超过媒体总金额!', 'danger')
-        return redirect(url_for(redirect_endpoint, order_id=order_id))
+    # if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
+    #     flash(u'新建打款发票失败，发票超过媒体总金额!', 'danger')
+    #     return redirect(url_for(redirect_endpoint, order_id=order_id))
     if request.method == 'POST':
         invoice = MediumInvoice.add(client_order=order,
                                     medium=Medium.get(form.medium.data),
@@ -157,10 +157,10 @@ def update_invoice(invoice_id, redirect_endpoint='saler_client_order_medium_invo
         (invoice.client_order.id, invoice.client_order.name)]
     form.medium.choices = [(invoice.medium.id, invoice.medium.name)]
     form.bool_invoice.bool_invoice = MEDIUM_INVOICE_BOOL_INVOICE_CN.items()
-    order = invoice.client_order
-    if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
-        flash(u'修改打款发票失败, 超过媒体总金额', 'danger')
-        return redirect(url_for(redirect_endpoint, order_id=order.id))
+    # order = invoice.client_order
+    # if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
+    #     flash(u'修改打款发票失败, 超过媒体总金额', 'danger')
+    #     return redirect(url_for(redirect_endpoint, order_id=order.id))
     if request.method == 'POST':
         if not form.invoice_num.data:
             flash(u"修改打款发票失败，发票号不能为空", 'danger')

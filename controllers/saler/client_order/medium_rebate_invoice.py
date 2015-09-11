@@ -11,7 +11,7 @@ from models.invoice import (MediumRebateInvoice, INVOICE_STATUS_CN, INVOICE_TYPE
                             INVOICE_STATUS_FAIL)
 from models.user import User
 from forms.invoice import MediumRebateInvoiceForm
-from libs.signals import invoice_apply_signal
+from libs.signals import medium_rebate_invoice_apply_signal
 
 
 saler_client_order_medium_rebate_invoice_bp = Blueprint(
@@ -84,11 +84,11 @@ def new_invoice(order_id, redirect_epoint='saler_client_order_medium_rebate_invo
     form.medium.choices = [(medium.id, medium.name) for medium in order.mediums]
     if request.method == 'POST' and form.validate():
         medium = Medium.get(form.medium.data)
-        if float(form.money.data) > float(order.get_medium_rebate_money(medium) -
-                                          order.get_medium_rebate_invoice_apply_sum(medium) -
-                                          order.get_medium_rebate_invoice_pass_sum(medium)):
-            flash(u"新建发票失败，您申请的发票超过了媒体:%s 返点金额: %s" % (medium.name, order.get_medium_rebate_money(medium)), 'danger')
-            return redirect(url_for(redirect_epoint, order_id=order_id))
+        # if float(form.money.data) > float(order.get_medium_rebate_money(medium) -
+        #                                   order.get_medium_rebate_invoice_apply_sum(medium) -
+        #                                   order.get_medium_rebate_invoice_pass_sum(medium)):
+        #     flash(u"新建发票失败，您申请的发票超过了媒体:%s 返点金额: %s" % (medium.name, order.get_medium_rebate_money(medium)), 'danger')
+        #     return redirect(url_for(redirect_epoint, order_id=order_id))
         invoice = MediumRebateInvoice.add(client_order=order,
                                           medium=Medium.get(form.medium.data),
                                           company=form.company.data,
@@ -165,9 +165,7 @@ def apply_invoice(invoice_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
-    to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
-        [invoice.client_order.creator, g.user] + \
-        invoice.client_order.leaders
+    to_users = User.medias() + User.media_leaders() + User.super_leaders()
     to_emails = list(set(emails + [x.email for x in to_users]))
     send_type = "saler"
     if action == 2:
@@ -203,7 +201,7 @@ def apply_invoice(invoice_id):
                      "invoices": invoices,
                      "url": invoice.client_order.saler_medium_rebate_invoice_path(),
                      }
-    invoice_apply_signal.send(
+    medium_rebate_invoice_apply_signal.send(
         current_app._get_current_object(), apply_context=apply_context)
     flash(u'[%s 发票开具申请] 已发送邮件给 %s ' %
           (invoice.client_order, ', '.join(to_emails)), 'info')
