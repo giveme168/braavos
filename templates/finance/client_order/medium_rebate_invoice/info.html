@@ -215,6 +215,22 @@
                       <td><input class="form-control bra-form-control" type='text' id="edit_tax_id" name="edit_tax_id" value=""></td>
                     </tr>
                     <tr>
+                      <th>公司地址 :</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_address" name="edit_address" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>联系电话 :</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_phone" name="edit_phone" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>银行账号 :</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_bank_id" name="edit_bank_id" value=""></td>
+                    </tr>
+                    <tr>
+                      <th>开户行 :</th>
+                      <td><input class="form-control bra-form-control" type='text' id="edit_bank" name="edit_bank" value=""></td>
+                    </tr>
+                    <tr>
                       <th>发票内容</th>
                       <td><input class="form-control bra-form-control" type='text' id="edit_detail" name="edit_detail" value=""></td>
                     </tr>
@@ -321,7 +337,7 @@
           </tr>
           <tr>
             <th>操作</th>
-            <th><a href="javascript:edit('{{invoice.id}}','{{invoice.create_time_cn}}','{{invoice.company}}','{{invoice.tax_id}}','{{invoice.detail}}','{{invoice.money}}','{{invoice.invoice_type}}','{{invoice.invoice_num}}');">修改</a></th>
+            <th><a href="javascript:edit('{{invoice.id}}','{{invoice.create_time_cn}}','{{invoice.company}}','{{invoice.tax_id}}','{{invoice.detail}}','{{invoice.money}}','{{invoice.invoice_type}}','{{invoice.invoice_num}}','{{invoice.phone}}','{{invoice.bank}}','{{invoice.bank_id}}','{{invoice.address}}' );">修改</a></th>
           </tr>
         </table>
     </div>
@@ -331,13 +347,17 @@
 </form>
 {% endif %}
 <script>
-function edit(id, create_time, company, tax_id, detail ,money, invoice_type, invoice_num){
+function edit(id, create_time, company, tax_id, detail ,money, invoice_type, invoice_num, phone, bank, bank_id, address){
   $('#edit_invoice_id').val(id)
   $('#edit_create_time').html(create_time)
   //$('#edit_invoice_'+id).hide()
   $('#myModal').modal('show');
   $('#edit_company').val(company)
   $('#edit_tax_id').val(tax_id)
+  $('#edit_address').val(address)
+  $('#edit_bank_id').val(bank_id)
+  $('#edit_bank').val(bank)
+  $('#edit_phone').val(phone)
   $('#edit_detail').val(detail)
   $('#edit_money').val(money)
   $('#edit_invoice_num').val(invoice_num)
