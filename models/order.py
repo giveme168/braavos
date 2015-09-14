@@ -170,6 +170,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             return 0
 
     @property
+    def locations(self):
+        return self.client_orders[0].locations
+
+    @property
     def name(self):
         return self.medium.name
 
@@ -219,17 +223,11 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def direct_sales(self):
-        direct_sales = []
-        for k in self.client_orders:
-            direct_sales += k.direct_sales
-        return direct_sales
+        return self.client_orders[0].direct_sales
 
     @property
     def agent_sales(self):
-        agent_sales = []
-        for k in self.client_orders:
-            agent_sales += k.agent_sales
-        return agent_sales
+        return self.client_orders[0].agent_sales
 
     def can_admin(self, user):
         """是否可以修改该订单"""
@@ -650,22 +648,22 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                     count = len(self.direct_sales)
             elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
-            if self.associated_douban_orders.count():
-                pre_money = float(self.associated_douban_orders[0].money) / \
-                    ((self.medium_end - self.medium_start).days + 1)
-                pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
-                                                      datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
-                pre_month_money_data = 0
-                search_pro_month = datetime.datetime.strptime(
-                    year + '-' + month, "%Y-%m")
-                for k in pre_month_days:
-                    if k['month'] == search_pro_month:
-                        pre_month_money_data = round(pre_money * k['days'], 2)
-                        break
-                return pre_month_money_data / count
-            return 0
         except:
             return 0
+        if self.associated_douban_orders.count():
+            pre_money = float(self.associated_douban_orders[0].money) / \
+                ((self.medium_end - self.medium_start).days + 1)
+            pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
+                                                  datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
+            pre_month_money_data = 0
+            search_pro_month = datetime.datetime.strptime(
+                year + '-' + month, "%Y-%m")
+            for k in pre_month_days:
+                if k['month'] == search_pro_month:
+                    pre_month_money_data = round(pre_money * k['days'], 2)
+                    break
+            return pre_month_money_data / count
+        return 0
 
     @property
     def finish_time_cn(self):

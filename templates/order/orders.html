@@ -130,7 +130,7 @@
                 {% endif %}
             {% endif %}
             {% if g.user.is_media() or g.user.is_contract() or g.user.is_super_admin() %}
-                {% if o.contract_status in [2,4,5] and o.contract %}
+                {% if o.contract_status in [2,4,5,20] and o.contract %}
                     {% if o.is_executive_report() %}
                         <a href="{{url_for('order.executive_report', order_id=o.id)}}?rtype=reload">重新生成周报报表</a>
                     {% else %}
