@@ -572,13 +572,18 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             if sale_type == 'agent':
                 count = len(self.agent_sales)
                 user = self.agent_sales[0]
-            elif sale_type == 'normal':
-                count = 1
             else:
                 count = len(self.direct_sales)
                 user = self.direct_sales[0]
-            if sale_type != 'normal' and user.team.location == 3:
+            if user.team.location == 3 and len(self.locations) > 1:
+                if sale_type == 'agent':
+                    count = len(self.agent_sales)
+                else:
+                    count = len(self.direct_sales)
+            elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
+            if sale_type == 'normal':
+                count = 1
             day_month = datetime.datetime.strptime(
                 str(year) + '-' + str(month), '%Y-%m')
             executive_report = MediumOrderExecutiveReport.query.filter_by(
@@ -600,7 +605,12 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             else:
                 count = len(self.direct_sales)
                 user = self.direct_sales[0]
-            if user.team.location == 3:
+            if user.team.location == 3 and len(self.locations) > 1:
+                if sale_type == 'agent':
+                    count = len(self.agent_sales)
+                else:
+                    count = len(self.direct_sales)
+            elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
             if self.medium_money2:
                 return self.medium_money2 / count
@@ -633,7 +643,12 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             else:
                 count = len(self.direct_sales)
                 user = self.direct_sales[0]
-            if user.team.location == 3:
+            if user.team.location == 3 and len(self.locations) > 1:
+                if sale_type == 'agent':
+                    count = len(self.agent_sales)
+                else:
+                    count = len(self.direct_sales)
+            elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
             if self.associated_douban_orders.count():
                 pre_money = float(self.associated_douban_orders[0].money) / \
