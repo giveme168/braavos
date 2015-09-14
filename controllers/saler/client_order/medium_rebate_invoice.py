@@ -64,12 +64,14 @@ def get_invoice_from(client_order, invoice=None):
     else:
         invoice_form.client_order.choices = [(client_order.id, client_order.client.name)]
         invoice_form.medium.choices = [(medium.id, medium.name) for medium in client_order.mediums]
+        '''
         invoice_form.company.data = u'上海致趣广告有限公司'
         invoice_form.bank.data = u'招商银行股份有限公司上海丽园支行'
         invoice_form.bank_id.data = u'308290003425'
         invoice_form.address.data = u'上海市嘉定区嘉定镇沪宜公路3638号3幢1156室'
         invoice_form.phone.data = u'021-60513176'
         invoice_form.tax_id.data = u'310114301420674'
+        '''
         invoice_form.back_time.data = datetime.date.today()
     return invoice_form
 

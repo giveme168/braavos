@@ -143,6 +143,10 @@ def update_invoice(invoice_id):
         company = request.values.get('edit_company', '')
         tax_id = request.values.get('edit_tax_id', '')
         detail = request.values.get('edit_detail', '')
+        address = request.values.get('edit_address', '')
+        bank = request.values.get('edit_bank', '')
+        bank_id = request.values.get('edit_bank_id', '')
+        phone = request.values.get('edit_phone')
         money = request.values.get('edit_money', 0)
         invoice_num = request.values.get('edit_invoice_num', '')
         invoice_type = request.values.get('invoice_type', 0)
@@ -163,6 +167,10 @@ def update_invoice(invoice_id):
             invoice.invoice_num = invoice_num
             invoice.money = money
             invoice.invoice_type = invoice_type
+            invoice.address = address
+            invoice.bank = bank
+            invoice.bank_id = bank_id
+            invoice.phone = phone
             invoice.save()
             flash(u'修改发票(%s)成功!' % company, 'success')
             invoice.client_order.add_comment(g.user, u"修改发票信息,%s" % (
