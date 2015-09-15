@@ -368,7 +368,9 @@ def order_info(order_id, tab_id=1):
     new_medium_form.discount.hidden = True
 
     new_associated_douban_form = AssociatedDoubanOrderForm()
-    new_associated_douban_form.medium_order.choices = [(mo.id, "%s-%s" % (mo.name, mo.start_date_cn))
+    new_associated_douban_form.medium_order.choices = [(mo.id, "%s (%s)" % (mo.name,
+                                                                            mo.start_date_cn + '-' +
+                                                                            str(mo.sale_money)))
                                                        for mo in order.medium_orders]
     new_associated_douban_form.campaign.data = order.campaign
 

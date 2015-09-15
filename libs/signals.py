@@ -406,6 +406,12 @@ def merger_outsource_apply(sender, apply_context):
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
+        elif merger_outsource.__tablename__ == 'merger_personal_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_client_target_personal_info')
+        elif merger_outsource.__tablename__ == 'merger_douban_personal_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_douban_target_personal_info')
         else:
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
@@ -418,6 +424,12 @@ def merger_outsource_apply(sender, apply_context):
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
+        elif merger_outsource.__tablename__ == 'merger_personal_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_client_target_personal_info')
+        elif merger_outsource.__tablename__ == 'merger_douban_personal_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_douban_target_personal_info')
         else:
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
@@ -429,6 +441,12 @@ def merger_outsource_apply(sender, apply_context):
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('finance_outsource_pay.info', target_id=merger_outsource.target.id)
+        elif merger_outsource.__tablename__ == 'merger_personal_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('finance_outsource_pay.info', target_id=0)
+        elif merger_outsource.__tablename__ == 'merger_douban_personal_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('finance_outsource_pay.douban_info', target_id=0)
         else:
             url = mail.app.config[
                 'DOMAIN'] + url_for('finance_outsource_pay.douban_info', target_id=merger_outsource.target.id)
@@ -441,6 +459,12 @@ def merger_outsource_apply(sender, apply_context):
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
+        elif merger_outsource.__tablename__ == 'merger_personal_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_client_target_personal_info')
+        elif merger_outsource.__tablename__ == 'merger_douban_personal_out_source':
+            url = mail.app.config[
+                'DOMAIN'] + url_for('outsource.merget_douban_target_personal_info')
         else:
             url = mail.app.config[
                 'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)

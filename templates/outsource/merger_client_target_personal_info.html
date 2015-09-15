@@ -22,7 +22,8 @@
                             <th>是否有发票</th>
                             <th>发票信息</th>
                             <th>申请时间</th>
-                            <th>客户名称</t>
+                            <th>收款方</th>
+                            <th>订单名称</t>
                             <th>客户合同号</th>
                             <th>媒体订单</th>
                             <th>媒体合同号</th>
@@ -39,6 +40,7 @@
                         </tr>
                           {% for o in t.outsources %}
                           <tr>
+                              <td>{{o.target.name}}</td>
                               <td>{{o.medium_order.client_order.name}}</td>
                               <td>{{o.medium_order.client_order.contract}}</td>
                               <td>{{o.medium_order.name}}</td>
@@ -50,7 +52,7 @@
                         {% endfor %}
                     </table>
                     <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
-                    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.merget_client_target_apply', target_id=target.id)}}">
+                    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.merget_client_target_apply', target_id=0)}}">
                        <div class="form-group">
                           <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
                           <div class="col-sm-10">
@@ -110,7 +112,8 @@
                             {% if OUTSOURCE_STATUS_PASS == status%}
                             <th>选择</th>
                             {% endif %}
-                            <th>客户名称</t>
+                            <th>收款方</th>
+                            <th>订单名称</t>
                             <th>客户合同号</th>
                             <th>媒体订单</th>
                             <th>媒体合同号</th>
@@ -133,6 +136,7 @@
                             {% if OUTSOURCE_STATUS_PASS == status%}
                             <td><input type="checkbox" name="outsource-id" class="outsource-id" value="{{t.id}}"/></td>
                             {% endif %}
+                            <td>{{t.target.name}}</td>
                             <td>{{t.medium_order.client_order.name}}</td>
                             <td>{{t.medium_order.client_order.contract or '无合同号'}}</td>
                             <td>{{t.medium_order.name}}</td>
@@ -155,14 +159,14 @@
                         <tr>
                           <td>合计</td>
                           {% if OUTSOURCE_STATUS_PASS == status%}
-                          <td colspan=5></td>
+                          <td colspan=6></td>
                           {% else %}
-                          <td colspan=4></td>
+                          <td colspan=5></td>
                           {% endif %}
                           <td>{{outsources|sum(attribute='num')}}</td>
                           <td></td>
                           <td>{{outsources|sum(attribute='pay_num')}}</td>
-                          <td colspan=4></td>
+                          <td colspan=5></td>
                         </tr>
                     </table>
                     {% if OUTSOURCE_STATUS_PASS == status and outsources %}
@@ -189,11 +193,7 @@
                           <label class="col-sm-2 control-label">操作 : </label>
                           <div class="col-sm-10">
                             {% if g.user.is_operater_leader() %}
-                            {% if outsources[0].target.otype == 2 %}
-                              <!--<button class="btn btn-sm btn-primary outsource-per-btn" name="action" type="submit" value="2">申请审批</button>-->
-                            {% else %}
                               <button class="btn btn-sm btn-primary outsource-btn" name="action" type="button" value="1">合并付款</button>
-                            {% endif %}
                             {% endif %}
                           </div>
                        </div>
@@ -230,29 +230,6 @@
 {%- endmacro %}
 {% block main_box%}
 <div class="bra-main bra-box">
-    <h3>{{target.name}}的信息</h3>
-    <table class="table table-bordered">
-        <tr>
-            <th>类型</th>
-            <th>开户行</th>
-            <th>卡号</th>
-            <th>支付宝</th>
-            <th>联系方式</th>
-            <th>已打款个数</th>
-            <th>正在打款个数</th>
-            <th>待申请打款个数</th>
-        </tr>
-        <tr>
-            <td>{{target.type_cn}}</td>
-            <td>{{target.bank}}</td>
-            <td>{{target.card}}</td>
-            <td>{{target.alipay}}</td>
-            <td>{{target.contract}}</td>
-            <td>{{target.client_outsources_by_status(OUTSOURCE_STATUS_PAIED) | length }}</td>
-            <td>{{target.client_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY) | length }}</td>
-            <td>{{target.client_outsources_by_status(OUTSOURCE_STATUS_PASS) | length }}</td>
-        </tr>
-    </table>
     <!--申请中的打款信息开始-->
     {% if apply_merger_outsources.count() > 0 %}
       {{ merger_table(apply_merger_outsources, 1, target) }}
@@ -276,7 +253,7 @@
 </div>
 <!-- Modal -->
 <div class="modal fade" id="update_Modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.update_pay_num')}}">
+  <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.update_personal_pay_num')}}">
   <input type="hidden" id="outsource_id" name="outsource_id">
   <div class="modal-dialog">
     <div class="modal-content">

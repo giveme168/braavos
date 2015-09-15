@@ -155,6 +155,10 @@ def _order_to_dict(order, start_Q_month, back_moneys, now_Q_back_moneys, t_repor
         d_saler['performance_rate'] = _get_performance_rate_by_user(
             order.__tablename__, d_saler['performance'], saler, 'direct', t_report)
         # 判断销售是否有平分金额
+        if len(set(order.locations)) > 1:
+            l_count = len(set(order.locations))
+        else:
+            l_count = 1
         count = len(order.direct_sales)
         if saler.team.location == 3 and len(order.locations) > 1:
             count = len(order.direct_sales)
@@ -164,7 +168,7 @@ def _order_to_dict(order, start_Q_month, back_moneys, now_Q_back_moneys, t_repor
         d_saler['str_formula'] = ""
         commission_money = 0
         for b_money_obj in dict_order['belong_time']['back_moneys']:
-            b_money = float('%.2f' % (b_money_obj[1] / count))
+            b_money = float('%.2f' % (b_money_obj[1] / count / l_count))
             day = b_money_obj[0]
             Q = check_month_get_Q(day.strftime('%m'))
 
@@ -207,6 +211,10 @@ def _order_to_dict(order, start_Q_month, back_moneys, now_Q_back_moneys, t_repor
         d_saler['performance_rate'] = _get_performance_rate_by_user(
             order.__tablename__, d_saler['performance'], saler, 'agent', t_report)
         # 判断销售是否有平分金额
+        if len(set(order.locations)) > 1:
+            l_count = len(set(order.locations))
+        else:
+            l_count = 1
         count = len(order.agent_sales)
         if saler.team.location == 3 and len(order.locations) > 1:
             count = len(order.agent_sales)
@@ -216,7 +224,7 @@ def _order_to_dict(order, start_Q_month, back_moneys, now_Q_back_moneys, t_repor
         d_saler['str_formula'] = ""
         commission_money = 0
         for b_money_obj in dict_order['belong_time']['back_moneys']:
-            b_money = float('%.2f' % (b_money_obj[1] / count))
+            b_money = float('%.2f' % (b_money_obj[1] / count / l_count))
             day = b_money_obj[0]
             Q = check_month_get_Q(day.strftime('%m'))
 

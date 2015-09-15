@@ -195,7 +195,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def contract_status(self):
-        return self.client_order.contract_status
+        return self.client_orders[0].contract_status
 
     @property
     def contract(self):
@@ -567,6 +567,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def get_executive_report_medium_money_by_month(self, year, month, sale_type):
         try:
+            if len(set(self.locations)) > 1:
+                l_count = len(set(self.locations))
+            else:
+                l_count = 1
             if sale_type == 'agent':
                 count = len(self.agent_sales)
                 user = self.agent_sales[0]
@@ -587,9 +591,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             executive_report = MediumOrderExecutiveReport.query.filter_by(
                 order=self, month_day=day_month).first()
             if executive_report:
-                return {'medium_money': round(executive_report.medium_money / count, 2),
-                        'medium_money2': round(executive_report.medium_money2 / count, 2),
-                        'sale_money': round(executive_report.sale_money / count, 2)}
+                return {'medium_money': round(executive_report.medium_money / count / l_count, 2),
+                        'medium_money2': round(executive_report.medium_money2 / count / l_count, 2),
+                        'sale_money': round(executive_report.sale_money / count / l_count, 2)}
             else:
                 return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
         except:
@@ -597,6 +601,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def zhixing_medium_money2(self, sale_type):
         try:
+            if len(set(self.locations)) > 1:
+                l_count = len(set(self.locations))
+            else:
+                l_count = 1
             if sale_type == 'agent':
                 count = len(self.agent_sales)
                 user = self.agent_sales[0]
@@ -611,7 +619,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
             if self.medium_money2:
-                return self.medium_money2 / count
+                return self.medium_money2 / count / l_count
             return 0
         except:
             return 0
@@ -635,6 +643,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def associated_douban_orders_pro_month_money(self, year, month, sale_type):
         try:
+            if len(set(self.locations)) > 1:
+                l_count = len(set(self.locations))
+            else:
+                l_count = 1
             if sale_type == 'agent':
                 count = len(self.agent_sales)
                 user = self.agent_sales[0]
@@ -662,7 +674,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                 if k['month'] == search_pro_month:
                     pre_month_money_data = round(pre_money * k['days'], 2)
                     break
-            return pre_month_money_data / count
+            return pre_month_money_data / count / l_count
         return 0
 
     @property

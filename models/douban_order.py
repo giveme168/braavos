@@ -551,6 +551,10 @@ by %s\n
         return [{'month_day': k.month_day, 'money': k.money} for k in pre_reports]
 
     def executive_report(self, user, now_year, monthes, sale_type):
+        if len(set(self.locations)) > 1:
+            l_count = len(set(self.locations))
+        else:
+            l_count = 1
         if sale_type == 'agent':
             count = len(self.agent_sales)
         else:
@@ -578,7 +582,7 @@ by %s\n
             else:
                 pre_money = 0
             try:
-                moneys.append(round(pre_money / count, 2))
+                moneys.append(round(pre_money / count / l_count, 2))
             except:
                 moneys.append(0)
         return moneys
@@ -628,6 +632,10 @@ by %s\n
 
     def zhixing_money(self, sale_type):
         try:
+            if len(set(self.locations)) > 1:
+                l_count = len(set(self.locations))
+            else:
+                l_count = 1
             if sale_type == 'agent':
                 count = len(self.agent_sales)
                 user = self.agent_sales[0]
@@ -641,7 +649,7 @@ by %s\n
                     count = len(self.direct_sales)
             elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
-            return self.money / count
+            return self.money / count / l_count
         except:
             return 0
 
@@ -750,6 +758,10 @@ class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
         return self.douban_order.status
 
     def get_money_by_user(self, user, sale_type):
+        if len(set(self.douban_order.locations)) > 1:
+            l_count = len(set(self.douban_order.locations))
+        else:
+            l_count = 1
         if sale_type == 'agent':
             count = len(self.douban_order.agent_sales)
         else:
@@ -761,7 +773,7 @@ class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
                 count = len(self.douban_order.direct_sales)
         elif user.team.location == 3 and len(self.locations) == 1:
             count = len(self.douban_order.agent_sales + self.douban_order.direct_sales)
-        return self.money / count
+        return self.money / count / l_count
 
 
 class DoubanOrderReject(db.Model, BaseModelMixin):

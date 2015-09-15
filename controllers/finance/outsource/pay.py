@@ -8,6 +8,7 @@ from flask import render_template as tpl
 from models.outsource import (
     OutSource, OUTSOURCE_STATUS_APPLY_MONEY, OUTSOURCE_STATUS_PAIED, MergerDoubanOutSource,
     INVOICE_RATE, DoubanOutSource, MergerOutSource, MERGER_OUTSOURCE_STATUS_PAIED,
+    MergerDoubanPersonalOutSource, MergerPersonalOutSource,
     OutSourceTarget)
 from models.user import User
 from libs.signals import outsource_apply_signal, merger_outsource_apply_signal
@@ -31,17 +32,10 @@ def index():
         'unpay': len(k.merger_client_order_outsources_by_status(2)),
         'pay': len(k.merger_client_order_outsources_by_status(0))}
         for k in OutSourceTarget.all() if k.otype in [1, None]]
-    personal_targets = [{
-        'id': k.id,
-        'name': k.name, 'type_cn': k.type_cn, 'bank': k.bank,
-        'card': k.card, 'alipay': k.alipay, 'contract': k.contract,
-        'unpay': len(k.merger_client_order_outsources_by_status(2)),
-        'pay': len(k.merger_client_order_outsources_by_status(0))}
-        for k in OutSourceTarget.all() if k.otype == 2]
+    personal_targets = {'unpay': MergerPersonalOutSource.query.filter_by(status=2).count(),
+                        'pay': MergerPersonalOutSource.query.filter_by(status=0).count()}
 
     targets = sorted(targets, key=operator.itemgetter('unpay'), reverse=True)
-    personal_targets = sorted(
-        personal_targets, key=operator.itemgetter('unpay'), reverse=True)
     return tpl('/finance/outsource/pay/index.html', targets=targets, personal_targets=personal_targets)
 
 
@@ -49,10 +43,18 @@ def index():
 def info(target_id):
     if not g.user.is_finance():
         abort(404)
-    target = OutSourceTarget.get(target_id)
-    apply_money_merger_outsources = target.merger_client_order_outsources_by_status(
-        2)
-    paid_merger_outsources = target.merger_client_order_outsources_by_status(0)
+    if int(target_id) == 0:
+        target = None
+        apply_money_merger_outsources = list(
+            MergerPersonalOutSource.query.filter_by(status=2))
+        paid_merger_outsources = list(
+            MergerPersonalOutSource.query.filter_by(status=0))
+    else:
+        target = OutSourceTarget.get(target_id)
+        apply_money_merger_outsources = target.merger_client_order_outsources_by_status(
+            2)
+        paid_merger_outsources = target.merger_client_order_outsources_by_status(
+            0)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     return tpl('/finance/outsource/pay/info.html', target=target, reminder_emails=reminder_emails,
                apply_money_merger_outsources=apply_money_merger_outsources,
@@ -65,7 +67,10 @@ def merget_client_target_paid(target_id):
         abort(404)
     action = int(request.values.get('action', 1))
     outsource_ids = request.values.getlist('outsources')
-    merger_clients = MergerOutSource.gets(outsource_ids)
+    if int(target_id) == 0:
+        merger_clients = MergerPersonalOutSource.gets(outsource_ids)
+    else:
+        merger_clients = MergerOutSource.gets(outsource_ids)
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     pay_time = request.values.get(
@@ -98,7 +103,10 @@ def merget_douban_target_paid(target_id):
         abort(404)
     action = int(request.values.get('action', 1))
     outsource_ids = request.values.getlist('outsources')
-    merger_clients = MergerDoubanOutSource.gets(outsource_ids)
+    if int(target_id) == 0:
+        merger_clients = MergerDoubanPersonalOutSource.gets(outsource_ids)
+    else:
+        merger_clients = MergerDoubanOutSource.gets(outsource_ids)
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     pay_time = request.values.get(
@@ -179,16 +187,9 @@ def douban_index():
         'unpay': len(k.merger_douban_order_outsources_by_status(2)),
         'pay': len(k.merger_douban_order_outsources_by_status(0))}
         for k in OutSourceTarget.all() if k.otype in [1, None]]
-    personal_targets = [{
-        'id': k.id,
-        'name': k.name, 'type_cn': k.type_cn, 'bank': k.bank,
-        'card': k.card, 'alipay': k.alipay, 'contract': k.contract,
-        'unpay': len(k.merger_douban_order_outsources_by_status(2)),
-        'pay': len(k.merger_douban_order_outsources_by_status(0))}
-        for k in OutSourceTarget.all() if k.otype == 2]
+    personal_targets = {'unpay': MergerDoubanPersonalOutSource.query.filter_by(status=2).count(),
+                        'pay': MergerDoubanPersonalOutSource.query.filter_by(status=0).count()}
     targets = sorted(targets, key=operator.itemgetter('unpay'), reverse=True)
-    personal_targets = sorted(
-        personal_targets, key=operator.itemgetter('unpay'), reverse=True)
     return tpl('/finance/outsource/pay/douban_index.html', targets=targets, personal_targets=personal_targets)
 
 
@@ -210,10 +211,18 @@ def index_pass():
 def douban_info(target_id):
     if not g.user.is_finance():
         abort(404)
-    target = OutSourceTarget.get(target_id)
-    apply_money_merger_outsources = target.merger_douban_order_outsources_by_status(
-        2)
-    paid_merger_outsources = target.merger_douban_order_outsources_by_status(0)
+    if int(target_id) == 0:
+        target = None
+        apply_money_merger_outsources = list(
+            MergerDoubanPersonalOutSource.query.filter_by(status=2))
+        paid_merger_outsources = list(
+            MergerDoubanPersonalOutSource.query.filter_by(status=0))
+    else:
+        target = OutSourceTarget.get(target_id)
+        apply_money_merger_outsources = target.merger_douban_order_outsources_by_status(
+            2)
+        paid_merger_outsources = target.merger_douban_order_outsources_by_status(
+            0)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     return tpl('/finance/outsource/pay/douban_info.html', target=target, reminder_emails=reminder_emails,
                apply_money_merger_outsources=apply_money_merger_outsources,

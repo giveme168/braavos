@@ -3,8 +3,9 @@ import datetime
 from flask import Blueprint, request, redirect, abort, url_for, json
 from flask import render_template as tpl, flash, g, current_app
 
-from models.outsource import (OutSourceTarget, OutSource, DoubanOutSource,
-                              MergerOutSource, MergerDoubanOutSource, OutSourceExecutiveReport)
+from models.outsource import (OutSourceTarget, OutSource, DoubanOutSource, MergerPersonalOutSource,
+                              MergerOutSource, MergerDoubanOutSource, OutSourceExecutiveReport,
+                              MergerDoubanPersonalOutSource)
 from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.order import Order
 from models.douban_order import DoubanOrder
@@ -162,7 +163,8 @@ def display_orders(orders, template, title, operaters):
         location_id = TEAM_LOCATION_HUANAN
 
     if isinstance(location_id, list):
-        orders = [o for o in orders if len(set(location_id) & set(o.locations)) > 0]
+        orders = [o for o in orders if len(
+            set(location_id) & set(o.locations)) > 0]
     elif location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
 
@@ -619,6 +621,24 @@ def merger_douban_target():
                OUTSOURCE_STATUS_PASS=OUTSOURCE_STATUS_PASS)
 
 
+@outsource_bp.route('/update_personal_pay_num', methods=['POST'])
+def update_personal_pay_num():
+    type = request.values.get('type', '')
+    outsource_id = request.values.get('outsource_id')
+    pay_num = request.values.get('update_pay_num', 0)
+    if type == 'douban':
+        outsource = DoubanOutSource.get(outsource_id)
+    else:
+        outsource = OutSource.get(outsource_id)
+    outsource.pay_num = pay_num
+    outsource.save()
+    flash(u'修改实际付款金额:%s 成功' % (str(pay_num)), 'success')
+    if type == 'douban':
+        return redirect(url_for("outsource.merget_douban_target_personal_info"))
+    else:
+        return redirect(url_for("outsource.merget_client_target_personal_info"))
+
+
 @outsource_bp.route('/update_pay_num', methods=['POST'])
 def update_pay_num():
     type = request.values.get('type', '')
@@ -643,7 +663,10 @@ def update_pay_num():
 def merget_client_target_apply(target_id):
     action = int(request.values.get('action', 1))
     outsource_ids = request.values.getlist('outsources')
-    merger_clients = MergerOutSource.gets(outsource_ids)
+    if int(target_id) == 0:
+        merger_clients = MergerPersonalOutSource.gets(outsource_ids)
+    else:
+        merger_clients = MergerOutSource.gets(outsource_ids)
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     if action == 1:
@@ -673,7 +696,125 @@ def merget_client_target_apply(target_id):
         if action == -1:
             k.delete()
     flash(sub_title, 'success')
+    if int(target_id) == 0:
+        return redirect(url_for("outsource.merget_client_target_personal_info"))
     return redirect(url_for("outsource.merget_client_target_info", target_id=target_id))
+
+
+@outsource_bp.route('/merger_douban_target/personal/info', methods=['GET', 'POST'])
+def merget_douban_target_personal_info():
+    if request.method == 'POST':
+        outsource_ids = request.values.getlist('outsources')
+        outsources = DoubanOutSource.gets(outsource_ids)
+        emails = request.values.getlist('email')
+        msg = request.values.get('msg', '')
+        merger_outsources = []
+        for o in outsources:
+            o.status = OUTSOURCE_STATUS_APPLY_MONEY
+            o.create_time = datetime.date.today()
+            o.save()
+        merger_outsource = MergerDoubanPersonalOutSource.add(outsources=outsources,
+                                                             invoice=request.values.get(
+                                                                 'invoice', ''),
+                                                             pay_num=request.values.get(
+                                                                 'pay_num', 0),
+                                                             num=request.values.get(
+                                                                 'num', 0),
+                                                             remark=request.values.get(
+                                                                 'remark', ''),
+                                                             status=1)
+        merger_outsource.save()
+        merger_outsources.append(merger_outsource)
+        flash(u'合并付款申请成功', 'success')
+        title = u'【费用报备】%s' % (u'合并付款申请审批')
+        for k in merger_outsources:
+            apply_context = {"sender": g.user,
+                             "to": emails,
+                             "msg": msg,
+                             "title": title,
+                             "action": -1,
+                             "merger_outsource": k}
+            merger_outsource_apply_signal.send(
+                current_app._get_current_object(), apply_context=apply_context)
+        return redirect(url_for("outsource.merget_douban_target_personal_info"))
+    apply_outsources = DoubanOutSource.get_personal_outsources(2)
+    # 审核中的合并付款
+    apply_merger_outsources = MergerDoubanPersonalOutSource.get_outsource_by_status(
+        MERGER_OUTSOURCE_STATUS_APPLY)
+    m_outsources = []
+    for k in apply_merger_outsources:
+        m_outsources += k.outsources
+    apply_money_outsources = [
+        k for k in DoubanOutSource.get_personal_outsources(3) if k not in m_outsources]
+
+    reminder_emails = [(u.name, u.email) for u in User.all_active()]
+    form = MergerOutSourceForm(request.form)
+    return tpl('merger_douban_target_personal_info.html',
+               apply_outsources=apply_outsources, reminder_emails=reminder_emails,
+               apply_merger_outsources=apply_merger_outsources,
+               apply_money_outsources=apply_money_outsources,
+               OUTSOURCE_STATUS_APPLY_MONEY=OUTSOURCE_STATUS_APPLY_MONEY,
+               OUTSOURCE_STATUS_PAIED=OUTSOURCE_STATUS_PAIED,
+               OUTSOURCE_STATUS_PASS=OUTSOURCE_STATUS_PASS,
+               form=form, INVOICE_RATE=INVOICE_RATE)
+
+
+@outsource_bp.route('/merger_client_target/personal/info', methods=['GET', 'POST'])
+def merget_client_target_personal_info():
+    if request.method == 'POST':
+        outsource_ids = request.values.getlist('outsources')
+        outsources = OutSource.gets(outsource_ids)
+        emails = request.values.getlist('email')
+        msg = request.values.get('msg', '')
+        merger_outsources = []
+        for o in outsources:
+            o.status = OUTSOURCE_STATUS_APPLY_MONEY
+            o.create_time = datetime.date.today()
+            o.save()
+        merger_outsource = MergerPersonalOutSource.add(outsources=outsources,
+                                                       invoice=request.values.get(
+                                                           'invoice', ''),
+                                                       pay_num=request.values.get(
+                                                           'pay_num', 0),
+                                                       num=request.values.get(
+                                                           'num', 0),
+                                                       remark=request.values.get(
+                                                           'remark', ''),
+                                                       status=1)
+        merger_outsource.save()
+        merger_outsources.append(merger_outsource)
+        flash(u'合并付款申请成功', 'success')
+        title = u'【费用报备】%s' % (u'合并付款申请审批')
+        for k in merger_outsources:
+            apply_context = {"sender": g.user,
+                             "to": emails,
+                             "msg": msg,
+                             "title": title,
+                             "action": -1,
+                             "merger_outsource": k}
+            merger_outsource_apply_signal.send(
+                current_app._get_current_object(), apply_context=apply_context)
+        return redirect(url_for("outsource.merget_client_target_personal_info"))
+    apply_outsources = OutSource.get_personal_outsources(2)
+    # 审核中的合并付款
+    apply_merger_outsources = MergerPersonalOutSource.get_outsource_by_status(
+        MERGER_OUTSOURCE_STATUS_APPLY)
+    m_outsources = []
+    for k in apply_merger_outsources:
+        m_outsources += k.outsources
+    apply_money_outsources = [
+        k for k in OutSource.get_personal_outsources(3) if k not in m_outsources]
+
+    reminder_emails = [(u.name, u.email) for u in User.all_active()]
+    form = MergerOutSourceForm(request.form)
+    return tpl('merger_client_target_personal_info.html',
+               apply_outsources=apply_outsources, reminder_emails=reminder_emails,
+               apply_merger_outsources=apply_merger_outsources,
+               apply_money_outsources=apply_money_outsources,
+               OUTSOURCE_STATUS_APPLY_MONEY=OUTSOURCE_STATUS_APPLY_MONEY,
+               OUTSOURCE_STATUS_PAIED=OUTSOURCE_STATUS_PAIED,
+               OUTSOURCE_STATUS_PASS=OUTSOURCE_STATUS_PASS,
+               form=form, INVOICE_RATE=INVOICE_RATE)
 
 
 @outsource_bp.route('/merger_client_target/<target_id>/info', methods=['GET', 'POST'])
@@ -756,7 +897,10 @@ def merget_client_target_info(target_id):
 def merget_douban_target_apply(target_id):
     action = int(request.values.get('action', 1))
     outsource_ids = request.values.getlist('outsources')
-    merger_clients = MergerDoubanOutSource.gets(outsource_ids)
+    if int(target_id) == 0:
+        merger_clients = MergerDoubanPersonalOutSource.gets(outsource_ids)
+    else:
+        merger_clients = MergerDoubanOutSource.gets(outsource_ids)
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     if action == 1:
@@ -785,6 +929,8 @@ def merget_douban_target_apply(target_id):
         if action == -1:
             k.delete()
     flash(sub_title, 'success')
+    if int(target_id) == 0:
+        return redirect(url_for("outsource.merget_douban_target_personal_info"))
     return redirect(url_for("outsource.merget_douban_target_info", target_id=target_id))
 
 
