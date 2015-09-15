@@ -61,7 +61,8 @@ class OutSourceTarget(db.Model, BaseModelMixin):
         return TARGET_OTYPE_CN[self.otype or 1]
 
     def client_outsources_by_status(self, status):
-        outsources = list(OutSource.query.filter_by(target_id=self.id, status=status))
+        outsources = list(
+            OutSource.query.filter_by(target_id=self.id, status=status))
         return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and k.medium_order.status == 1]
 
     def client_outsources_by_paied(self):
@@ -92,6 +93,12 @@ class OutSourceTarget(db.Model, BaseModelMixin):
 
     def merger_douban_order_outsources_by_status(self, status):
         return list(MergerDoubanOutSource.query.filter_by(target_id=self.id, status=status))
+
+    def merger_douban_personal_outsources_by_status(self, status):
+        return list(DoubanOutSource.query.filter_by(target_id=self.id, status=status))
+
+    def merger_client_personal_outsources_by_status(self, status):
+        return list(OutSource.query.filter_by(target_id=self.id, status=status))
 
 
 OUTSOURCE_TYPE_GIFT = 1
@@ -288,6 +295,12 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
             cls.query.filter_by(target_id=target_id, status=status))
         return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and k.medium_order.status == 1]
 
+    @classmethod
+    def get_personal_outsources(cls, status):
+        outsources = list(cls.query.filter_by(status=status))
+        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and
+                k.medium_order.status == 1 and k.target.otype == 2]
+
     @property
     def create_time_cn(self):
         if self.create_time:
@@ -342,16 +355,6 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
                  'pay_num': '%.2f' % (pay_num * k['days']),
                  'month': k['month'], 'days': k['days']})
         return pre_month_money_data
-
-
-table_merger_douban_outsources = db.Table('merget_douban_outsources',
-                                          db.Column(
-                                              'mergerdoubanoutsource_id', db.Integer,
-                                              db.ForeignKey('merger_douban_out_source.id')),
-                                          db.Column(
-                                              'doubanoutsource_id', db.Integer,
-                                              db.ForeignKey('douban_out_source.id'))
-                                          )
 
 
 class OutSourceExecutiveReport(db.Model, BaseModelMixin):
@@ -422,6 +425,16 @@ class OutSourceExecutiveReport(db.Model, BaseModelMixin):
         else:
             order = DoubanOutSource.get(self.outsource_id).douban_order
         return order.status
+
+
+table_merger_douban_outsources = db.Table('merget_douban_outsources',
+                                          db.Column(
+                                              'mergerdoubanoutsource_id', db.Integer,
+                                              db.ForeignKey('merger_douban_out_source.id')),
+                                          db.Column(
+                                              'doubanoutsource_id', db.Integer,
+                                              db.ForeignKey('douban_out_source.id'))
+                                          )
 
 
 class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
@@ -534,6 +547,12 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
             cls.query.filter_by(target_id=target_id, status=status))
         return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9] and k.douban_order.status == 1]
 
+    @classmethod
+    def get_personal_outsources(cls, status):
+        outsources = list(cls.query.filter_by(status=status))
+        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9] and
+                k.douban_order.status == 1 and k.target.otype == 2]
+
     @property
     def create_time_cn(self):
         if self.create_time:
@@ -601,6 +620,16 @@ MERGER_OUTSOURCE_STATUS_CN = {
 }
 
 
+table_merger_personal_outsources = db.Table('merget_client_personal_outsources',
+                                            db.Column(
+                                                'mergerpersonalouttsource_id', db.Integer,
+                                                db.ForeignKey('merger_personal_out_source.id')),
+                                            db.Column(
+                                                'doubanoutsource_id', db.Integer,
+                                                db.ForeignKey('out_source.id'))
+                                            )
+
+
 class MergerOutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'merger_out_source'
 
@@ -628,6 +657,10 @@ class MergerOutSource(db.Model, BaseModelMixin, CommentMixin):
         self.status = status
         self.create_time = datetime.date.today()
 
+    @property
+    def otype(self):
+        return self.target.otype
+
     @classmethod
     def get_outsources_by_status(cls, status, target_id):
         return cls.query.filter_by(status=status, target_id=target_id)
@@ -639,6 +672,53 @@ class MergerOutSource(db.Model, BaseModelMixin, CommentMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
+
+
+class MergerPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
+    __tablename__ = 'merger_personal_out_source'
+
+    id = db.Column(db.Integer, primary_key=True)
+    outsources = db.relationship(
+        'OutSource', secondary=table_merger_personal_outsources)
+    invoice = db.Column(db.Boolean)  # 发票
+    pay_num = db.Column(db.Float)    # 打款金额
+    num = db.Column(db.Float)        # 原始金额
+    remark = db.Column(db.String(1000))  # 发票信息
+    status = db.Column(db.Integer)      # 状态
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, outsources, num, pay_num=0,
+                 invoice=False, remark="", status=0):
+        self.outsources = outsources or []
+        self.num = num
+        self.pay_num = pay_num
+        self.invoice = invoice
+        self.remark = remark or ""
+        self.status = status
+        self.create_time = datetime.date.today()
+
+    @property
+    def media_info(self):
+        return '<br/>'.join([k.outsource_info for k in self.outsources])
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime('%Y-%m-%d')
+
+    @classmethod
+    def get_outsource_by_status(cls, status):
+        return cls.query.filter_by(status=status)
+
+
+table_merger_douban_personal_outsources = db.Table('merget_douban_personal_outsources',
+                                                   db.Column(
+                                                       'mergerdoubanoupersonaltsource_id', db.Integer,
+                                                       db.ForeignKey('merger_douban_personal_out_source.id')),
+                                                   db.Column(
+                                                       'doubanoutsource_id', db.Integer,
+                                                       db.ForeignKey('douban_out_source.id'))
+                                                   )
 
 
 class MergerDoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
@@ -680,3 +760,40 @@ class MergerDoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
+
+
+class MergerDoubanPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
+    __tablename__ = 'merger_douban_personal_out_source'
+
+    id = db.Column(db.Integer, primary_key=True)
+    outsources = db.relationship(
+        'DoubanOutSource', secondary=table_merger_douban_personal_outsources)
+    invoice = db.Column(db.Boolean)  # 发票
+    pay_num = db.Column(db.Float)    # 打款金额
+    num = db.Column(db.Float)        # 原始金额
+    remark = db.Column(db.String(1000))  # 发票信息
+    status = db.Column(db.Integer)      # 状态
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, outsources, num, pay_num=0,
+                 invoice=False, remark="", status=0):
+        self.outsources = outsources or []
+        self.num = num
+        self.pay_num = pay_num
+        self.invoice = invoice
+        self.remark = remark or ""
+        self.status = status
+        self.create_time = datetime.date.today()
+
+    @property
+    def media_info(self):
+        return '<br/>'.join([k.outsource_info for k in self.outsources])
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime('%Y-%m-%d')
+
+    @classmethod
+    def get_outsource_by_status(cls, status):
+        return cls.query.filter_by(status=status)

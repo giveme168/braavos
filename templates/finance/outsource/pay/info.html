@@ -32,8 +32,12 @@
                             {% else %}
                             <th>打款时间</th>
                             {% endif %}
-                            <th>客户订单</th>
-                            <th>客户合同号</th>
+                            <th>收款方</th>
+                            <th>开户行</th>    
+                            <th>卡号</th>
+                            <th>支付宝</th>
+                            <th>订单名称</th>
+                            <th>订单合同号</th>
                             <th>媒体订单</th>
                             <th>媒体合同号</th>
                             <th>外包单项金额</th>
@@ -52,6 +56,10 @@
                           {% for o in t.outsources %}
                           <tr>
                               <td>{% if status == 2 %}{{t.create_time_cn}}{% else %}{{o.create_time_cn}}{% endif %}</td>
+                              <td>{{ o.target.name }}</td>
+                              <td>{{ o.target.bank }}</td>
+                              <td>{{ o.target.card }}</td>
+                              <td>{{ o.target.alipay }}</td>
                               <td>{{o.medium_order.client_order.name}}</td>
                               <td>{{o.medium_order.client_order.contract}}</td>
                               <td>{{o.medium_order.name}}</td>
@@ -64,7 +72,11 @@
                     </table>
                     {% if status == 2 %}
                     <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
+                    {% if target %}
                     <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('finance_outsource_pay.merget_client_target_paid', target_id=target.id)}}">
+                    {% else %}
+                    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('finance_outsource_pay.merget_client_target_paid', target_id=0)}}">
+                    {% endif %}
                        <div class="form-group">
                           <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
                           <div class="col-sm-10">
@@ -103,7 +115,8 @@
         </div>
     </div>
 {%- endmacro %}
-<div class="bra-main bra-box">
+<div class="bra-main bra-box" style="width:1600px;">
+    {% if target %}
     <h3>外包收款方信息</h3>
     <table class="table table-bordered table-striped">
         <tr>
@@ -123,16 +136,19 @@
             <td>{{ target.contract }}</td> 
         </tr>
     </table>
-    <!--已打款的外包信息-->
-    {% if paid_merger_outsources|length > 0 %}
-      {{ merger_table(paid_merger_outsources, 0, target) }}
+    {% else %}
+    <h3>个人外包收款方合并打款</h3>
     {% endif %}
-    <!---->
     <!--申请中的打款信息开始-->
     {% if apply_money_merger_outsources|length > 0 %}
       {{ merger_table(apply_money_merger_outsources, 2, target) }}
     {% endif %}
     <!--申请中的打款信息结束-->
+    <!--已打款的外包信息-->
+    {% if paid_merger_outsources|length > 0 %}
+      {{ merger_table(paid_merger_outsources, 0, target) }}
+    {% endif %}
+    <!---->
 </div>
 <script>
 Date.prototype.Format = function (fmt) { //author: meizz 

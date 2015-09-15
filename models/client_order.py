@@ -787,6 +787,10 @@ by %s\n
         return [{'month_day': k.month_day, 'money': k.money} for k in pre_reports]
 
     def executive_report(self, user, now_year, monthes, sale_type):
+        if len(set(self.locations)) > 1:
+            l_count = len(set(self.locations))
+        else:
+            l_count = 1
         if sale_type == 'agent':
             count = len(self.agent_sales)
         else:
@@ -814,13 +818,17 @@ by %s\n
             except:
                 pre_money = 0
             try:
-                moneys.append(round(pre_money / count, 2))
+                moneys.append(round(pre_money / count / l_count, 2))
             except:
                 moneys.append(0)
         return moneys
 
     def get_executive_report_medium_money_by_month(self, year, month, sale_type):
         try:
+            if len(set(self.locations)) > 1:
+                l_count = len(set(self.locations))
+            else:
+                l_count = 1
             if sale_type == 'agent':
                 count = len(self.agent_sales)
                 user = self.agent_sales[0]
@@ -845,9 +853,9 @@ by %s\n
                 medium_money2 = sum(
                     [k.medium_money2 for k in executive_reports])
                 sale_money = sum([k.sale_money for k in executive_reports])
-                return {'medium_money': medium_money / count,
-                        'medium_money2': medium_money2 / count,
-                        'sale_money': sale_money / count}
+                return {'medium_money': medium_money / count / l_count,
+                        'medium_money2': medium_money2 / count / l_count,
+                        'sale_money': sale_money / count / l_count}
             else:
                 return {'medium_money': 0, 'medium_money2': 0, 'sale_money': 0}
         except:
@@ -870,6 +878,10 @@ by %s\n
 
     def zhixing_money(self, sale_type):
         try:
+            if len(set(self.locations)) > 1:
+                l_count = len(set(self.locations))
+            else:
+                l_count = 1
             if sale_type == 'agent':
                 count = len(self.agent_sales)
                 user = self.agent_sales[0]
@@ -883,12 +895,16 @@ by %s\n
                     count = len(self.direct_sales)
             elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
-            return self.money / count
+            return self.money / count / l_count
         except:
             return 0
 
     def zhixing_medium_money2(self, sale_type):
         try:
+            if len(set(self.locations)) > 1:
+                l_count = len(set(self.locations))
+            else:
+                l_count = 1
             if sale_type == 'agent':
                 count = len(self.agent_sales)
                 user = self.agent_sales[0]
@@ -902,7 +918,7 @@ by %s\n
                     count = len(self.direct_sales)
             elif user.team.location == 3 and len(self.locations) == 1:
                 count = len(self.agent_sales + self.direct_sales)
-            return self.mediums_money2 / count
+            return self.mediums_money2 / count / l_count
         except:
             return 0
 
@@ -1030,6 +1046,10 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
         return self.month_day.strftime('%Y-%m') + u'月'
 
     def get_money_by_user(self, user, sale_type):
+        if len(set(self.client_order.locations)) > 1:
+            l_count = len(set(self.client_order.locations))
+        else:
+            l_count = 1
         if sale_type == 'agent':
             count = len(self.client_order.agent_sales)
         else:
@@ -1041,7 +1061,7 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
                 count = len(self.client_order.direct_sales)
         elif user.team.location == 3 and len(self.client_order.locations) == 1:
             count = len(self.client_order.agent_sales + self.client_order.direct_sales)
-        return self.money / count
+        return self.money / count / l_count
 
 
 class ClientOrderReject(db.Model, BaseModelMixin):

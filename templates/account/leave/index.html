@@ -32,7 +32,7 @@
             <td>{{l.rate_day_cn}}</td>
             <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
             <td>{% for k in l.creator.team_leaders %}{{k.name}}</br>{% endfor %}</td>
-            <td><pre>{{l.reason}}</pre></td>
+            <td><pre title="{{l.reason}}">{{l.reason|truncate_html(30)}}</pre></td>
             <td>{{l.status_cn}}</td>
             <td>
                 {% if l.status in [0, 1] %}

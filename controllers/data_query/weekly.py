@@ -19,6 +19,10 @@ data_query_weekly_bp = Blueprint(
 
 # 整理单个销售报表数据
 def _executive_report(order, user, now_year, monthes, sale_type):
+    if len(set(order['locations'])) > 1:
+        l_count = len(set(order['locations']))
+    else:
+        l_count = 1
     if sale_type == 'agent':
         count = len(order['agent_sales'])
     else:
@@ -53,7 +57,7 @@ def _executive_report(order, user, now_year, monthes, sale_type):
             pre_money = 0
         '''
         try:
-            moneys.append(round(pre_money / count, 2))
+            moneys.append(round(pre_money / count / l_count, 2))
         except:
             moneys.append(0)
     return moneys

@@ -2,6 +2,12 @@
 {% block title %}我的外出报备列表{% endblock %}
 
 {% block main_box %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+    }
+</style>
 <div class="bra-main bra-box" style="width:1500px;">
     <h3>我的外出报备列表
         <a class="btn btn-sm btn-default" href="{{url_for('account_out.create')}}">填写外出报备</a>
@@ -28,7 +34,7 @@
             <td>{{o.m_persion_cn}}</td>
             <td>{{o.address}}</td>
             <td>{% for k in o.joiners %}{{k.name}}<br/>{% endfor %}</td>
-            <td>{{o.reason}}</td>
+            <td><pre title="{{o.reason}}">{{o.reason|truncate_html(30)}}</td>
             <td>{{o.status_cn}}</td>
             <td>
                {% if o.status == 0 %}
