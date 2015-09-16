@@ -76,7 +76,7 @@
             <td>{{l.end_time_cn}}</td>
             <td>{{l.rate_day_cn}}</td>
             <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
-            <td>{% for k in l.creator.team_leaders %}{{k.name}}</br>{% endfor %}</td>
+            <td>{% if l.is_long_leave() %}黄亮{% else %}{% for k in l.creator.team_leaders %}{{k.name}}</br>{% endfor %}{% endif %}</td>
             <td><pre title="{{l.reason}}">{{l.reason|truncate_html(30)}}</pre></td>
             <td>{{l.status_cn}}</td>
             <td>

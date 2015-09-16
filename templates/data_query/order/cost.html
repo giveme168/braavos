@@ -1,0 +1,133 @@
+{% extends "/data_query/data_query_base.html" %}
+{% block title %}媒体订单成本{% endblock %}
+
+{% macro all_items(orders) -%}
+<table class="table table-bordered">
+    <tr>
+        <th>代理/直客</th>
+        <th>客户</th>
+        <th>Campaign</th>
+        <th>直客销售</th>
+        <th>渠道销售</th>
+        <th>区域</th>
+        <th>合同号</th>
+        <th>媒体名称</th>
+        <th>执行开始时间</th>
+        <th>执行结束时间</th>
+        <th>客户合同金额</th>
+        <th>客户已开发票金额</th>
+        <th>客户回款金额</th>
+        <th>客户付返点发票金额</th>
+        <th>已开客户返点发票金额</th>
+        <th>已打款客户返点金额</th>
+        <th>媒体合同金额</th>
+        <th>已收媒体发票金额</th>
+        <th>付款给媒体金额</th>
+        <th>已开媒体返点发票金额</th>
+    </tr>
+    {% for o in orders %}
+    <tr>
+        <td>{{o.agent.name}}</td>
+        <td>{{o.client.name}}</td>
+        <td>{{o.campaign}}</td>
+        <td>{{o.direct_sales_names}}</td>
+        <td>{{o.agent_sales_names}}</td>
+        <td>{{o.locations_cn}}</td>
+        <td>{{o.contract}}</td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.medium.name}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>{{o.start_date_cn}}</td>
+        <td>{{o.end_date_cn}}</td>
+        <td>{{o.money|format_price}}</td>
+        <td>{{o.invoice_pass_sum|format_price}}</td>
+        <td>{{o.client_back_moneys|format_price}}</td>
+        <td>{{o.client_back_moneys_invoices|format_price}}</td>
+        <td>{{o.agents_invoice_sum|format_price}}</td>
+        <td>{{o.agents_invoice_pass_sum|format_price}}</td>
+        <td>{{o.mediums_money2|format_price}}</td>
+        <td>{{o.mediums_invoice_sum|format_price}}</td>
+        <td>{{o.mediums_invoice_pass_sum|format_price}}</td>
+        <td>{{o.get_medium_rebate_invoice_pass_money()|format_price}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{%- endmacro %}
+
+{% block main_box %}
+<div class="bra-main bra-box" style="width:2600px;">
+    <h3> {{title}}</h3>
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="exampleInputName2">关键字</label>
+            <input class="form-control bra-form-control" type="text" id="info" name="info" value="{{info}}" placeholder="客户/代理/媒体/合同号/Campaign" style="width:250px;">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputName2">所属区域</label>
+            <select class="form-control bra-form-control" id="location" name="location" placeholder="所属区域" style="width:100px;">
+                <option value="0">全国</option>
+                <option value="1">华北</option>
+                <option value="2">华东</option>
+                <option value="3">华南</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputName2">执行时间</label>
+            <select class="form-control bra-form-control" id="year" name="year" placeholder="" style="width:100px;">
+                {% for k in range(10) %}
+                <option value="{{2014+k}}">{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputName2"></label>
+            <select class="form-control bra-form-control" id="month" name="month" placeholder=""  style="width:100px;">
+                {% for k in range(1, 13) %}
+                    {% if k|string|length == 1 %}
+                        <option value="0{{k}}">0{{k}}月</option>
+                    {% else %}
+                        <option value="{{k}}">{{k}}月</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <input type="submit" name="search" value="搜索" class="btn btn-sm btn-info">
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+    </form>
+    <br>
+    {{ all_items(orders) }}
+</div>
+<script>
+function download(){
+    var params = '?info=' + encodeURIComponent($('#info').val()) +
+                 '&location=' + ($('#location').val()) +
+                 '&action=download';
+    params += '&year='+$('#year').val()+
+              '&month='+$('#month').val()
+    window.location.href = window.location.pathname + params;
+      
+}
+$(function(){
+    $('#location').val('{{location}}')
+    $("#location").trigger("chosen:updated");
+    $('#year').val('{{year}}')
+    $("#year").trigger("chosen:updated");
+    $('#month').val('{{month}}')
+    $("#month").trigger("chosen:updated");
+    $('#start_time').val('{{start_time}}');
+    $('#end_time').val('{{end_time}}');
+});
+
+$(document).ready(function(){
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+    });
+})
+</script>
+{% endblock %}
