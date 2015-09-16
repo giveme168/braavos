@@ -161,6 +161,7 @@
                   {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_media_leader() %}
                   <li><a href="{{url_for('data_query_profit.client_order')}}">媒体订单执行成本</a></li>
                   <li><a href="{{url_for('data_query_profit.douban_order')}}">豆瓣订单执行成本</a></li>
+                  <li><a href="{{url_for('data_query_order.cost')}}">媒体订单发票与款项</a></li>
                   {% endif %}
                   {% if g.user.is_super_leader() %}
                   <li><a href="{{url_for('data_query_super_leader_medium.money')}}">媒体清单</a></li>

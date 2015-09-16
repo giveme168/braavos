@@ -1,6 +1,13 @@
 # -*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
+import StringIO
+import mimetypes
 import datetime
 import xlwt
+import xlsxwriter
+
+from flask import Response
+from werkzeug.datastructures import Headers
 
 
 ############################################
@@ -12,7 +19,8 @@ def get_monthes_pre_days(pre_month, start, end):
     while True:
         targetmonth = count + pre_month.month
         try:
-            p_month_date = pre_month.replace(year=pre_month.year + int(targetmonth / 12), month=(targetmonth % 12))
+            p_month_date = pre_month.replace(
+                year=pre_month.year + int(targetmonth / 12), month=(targetmonth % 12))
         except:
             p_month_date = pre_month.replace(year=pre_month.year + int((targetmonth + 1) / 12),
                                              month=((targetmonth + 1) % 12), day = 1)
@@ -100,3 +108,70 @@ def write_excel(orders, type, th_obj):
             for m in range(len(order_pre_money)):
                 sheet.write(k + 1, 5 + m + 1, order_pre_money[m]['money'])
     return xls
+
+
+def write_order_excel(orders):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1})
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    keys = [u'代理/直客', u'客户', u'Campaign', u'直客销售', u'渠道销售', u'区域', u'合同号',
+            u'媒体名称', u'执行开始时间', u'执行结束时间', u'客户合同金额', u'客户已开发票金额',
+            u'客户回款金额', u'客户付返点发票金额', u'已开客户返点发票金额', u'已打款客户返点金额',
+            u'媒体合同金额', u'已收媒体发票金额', u'付款给媒体金额', u'已开媒体返点发票金额']
+    for k in range(len(keys)):
+        worksheet.write(0, 0 + k, keys[k], align_center)
+    # 设置宽度为30
+    worksheet.set_column(len(keys), 0, 20)
+    # 设置高度
+    for k in range(len(orders) + 1):
+        worksheet.set_row(k, 30)
+    th = 1
+    for k in range(len(orders)):
+        worksheet.write(th, 0, orders[k].agent.name, align_left)
+        worksheet.write(th, 1, orders[k].client.name, align_left)
+        worksheet.write(th, 2, orders[k].campaign, align_left)
+        worksheet.write(th, 3, orders[k].direct_sales_names, align_left)
+        worksheet.write(th, 4, orders[k].agent_sales_names, align_left)
+        worksheet.write(th, 5, orders[k].locations_cn, align_left)
+        worksheet.write(th, 6, orders[k].contract, align_left)
+        worksheet.write(
+            th, 7, ','.join([m.name for m in orders[k].medium_orders]), align_left)
+        worksheet.write(th, 8, orders[k].start_date_cn, align_left)
+        worksheet.write(th, 9, orders[k].end_date_cn, align_left)
+        worksheet.write(th, 10, orders[k].money, align_left)
+        worksheet.write(th, 11, orders[k].invoice_pass_sum, align_left)
+        worksheet.write(th, 12, orders[k].client_back_moneys, align_left)
+        worksheet.write(
+            th, 13, orders[k].client_back_moneys_invoices, align_left)
+        worksheet.write(th, 14, orders[k].agents_invoice_sum, align_left)
+        worksheet.write(th, 15, orders[k].agents_invoice_pass_sum, align_left)
+        worksheet.write(th, 16, orders[k].mediums_money2, align_left)
+        worksheet.write(th, 17, orders[k].mediums_invoice_sum, align_left)
+        worksheet.write(th, 18, orders[k].mediums_invoice_pass_sum, align_left)
+        worksheet.write(
+            th, 19, orders[k].get_medium_rebate_invoice_pass_money(), align_left)
+        th += 1
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                (u"Cost", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response

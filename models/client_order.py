@@ -631,6 +631,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def client_back_moneys(self):
         return sum([k.money for k in self.backmoneys])
 
+    @property
+    def client_back_moneys_invoices(self):
+        return sum([k.money for k in self.back_invoice_rebate_list])
+
     def last_rebate_agent_time(self):
         # 获取返点发票信息
         back_invoice_rebate = self.backinvoicerebates.first()

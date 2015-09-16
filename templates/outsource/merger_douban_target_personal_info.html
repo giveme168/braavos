@@ -221,7 +221,7 @@
     </div>
 {%- endmacro %}
 {% block main_box%}
-<div class="bra-main bra-box">
+<div class="bra-main bra-box" style="width:1300px;">
     <!--申请中的打款信息开始-->
     {% if apply_merger_outsources.count() > 0 %}
       {{ merger_table(apply_merger_outsources, 1, target) }}

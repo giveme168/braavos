@@ -7,14 +7,36 @@ from flask import Blueprint, request, Response
 from flask import render_template as tpl
 
 from models.order import Order
-from models.client_order import ClientOrder, ECPM_CONTRACT_STATUS_LIST
+from models.client_order import ClientOrder, ClientOrderExecutiveReport, ECPM_CONTRACT_STATUS_LIST
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.douban_order import DoubanOrder
-from controllers.data_query.helpers.order_helpers import get_monthes_pre_days, write_excel
+from controllers.data_query.helpers.order_helpers import get_monthes_pre_days, write_excel, write_order_excel
 
 ORDER_PAGE_NUM = 50
 data_query_order_bp = Blueprint(
     'data_query_order', __name__, template_folder='../../templates/data_query/order')
+
+
+@data_query_order_bp.route('/cost', methods=['GET'])
+def cost():
+    now_date = datetime.datetime.now()
+    info = request.values.get('info', '').strip()
+    location = int(request.values.get('location', 0))
+    year = request.values.get('year', now_date.strftime('%Y'))
+    month = request.values.get('month', now_date.strftime('%m'))
+    search_date = datetime.datetime.strptime(
+        str(year) + '-' + str(month), '%Y-%m')
+    orders = set([k.client_order for k in ClientOrderExecutiveReport.query.filter_by(
+        month_day=search_date)])
+    if location != 0:
+        orders = [k for k in orders if location in k.locations]
+    if info:
+        orders = [k for k in orders if info in k.search_info]
+    if request.values.get('action', '') == 'download':
+        response = write_order_excel(orders)
+        return response
+    return tpl('cost.html', orders=orders, location=location,
+               year=year, month=month, info=info)
 
 
 @data_query_order_bp.route('/', methods=['GET'])
@@ -70,13 +92,17 @@ def index():
             th_count = len(monthes_pre_days)
     if 'excel' == request.args.get('extype', ''):
         if query_type == 1:
-            filename = ("%s-%s.xls" % (u"月度客户订单金额", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+            filename = (
+                "%s-%s.xls" % (u"月度客户订单金额", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
         elif query_type == 2:
-            filename = ("%s-%s.xls" % (u"月度媒体订单金额", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+            filename = (
+                "%s-%s.xls" % (u"月度媒体订单金额", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
         elif query_type == 3:
-            filename = ("%s-%s.xls" % (u"月度关联豆瓣订单金额", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+            filename = ("%s-%s.xls" % (u"月度关联豆瓣订单金额",
+                                       datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
         else:
-            filename = ("%s-%s.xls" % (u"月度直签豆瓣订单金额", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+            filename = ("%s-%s.xls" % (u"月度直签豆瓣订单金额",
+                                       datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
         xls = write_excel(orders, query_type, th_obj)
         response = get_download_response(xls, filename)
         return response

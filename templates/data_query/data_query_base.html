@@ -32,6 +32,9 @@
     <a class="list-group-item" href="{{url_for('data_query_profit.douban_order')}}">
       <span class="glyphicon glyphicon-th-list"></span> 豆瓣订单执行成本
     </a>
+    <a class="list-group-item" href="{{url_for('data_query_order.cost')}}">
+      <span class="glyphicon glyphicon-th-list"></span> 媒体订单发票与款项
+    </a>
     {% endif %}
     {% if g.user.is_super_leader() %}
     <a class="list-group-item" href="{{url_for('data_query_super_leader_medium.money')}}">
