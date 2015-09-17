@@ -121,7 +121,7 @@ def write_order_excel(orders):
     align_center = workbook.add_format(
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
     keys = [u'代理/直客', u'客户', u'Campaign', u'直客销售', u'渠道销售', u'区域', u'合同号',
-            u'媒体名称', u'执行开始时间', u'执行结束时间', u'客户合同金额', u'客户已开发票金额',
+            u'媒体名称', u'执行开始时间', u'执行结束时间', u'客户合同金额', u'已开客户发票金额',
             u'客户回款金额', u'客户付返点发票金额', u'已开客户返点发票金额', u'已打款客户返点金额',
             u'媒体合同金额', u'已收媒体发票金额', u'付款给媒体金额', u'已开媒体返点发票金额']
     for k in range(len(keys)):

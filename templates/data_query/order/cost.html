@@ -1,5 +1,5 @@
 {% extends "/data_query/data_query_base.html" %}
-{% block title %}媒体订单成本{% endblock %}
+{% block title %}媒体订单发票与款项{% endblock %}
 
 {% macro all_items(orders) -%}
 <table class="table table-bordered">
@@ -9,13 +9,13 @@
         <th>Campaign</th>
         <th>直客销售</th>
         <th>渠道销售</th>
-        <th>区域</th>
-        <th>合同号</th>
-        <th>媒体名称</th>
+        <th style="width:50px;">区域</th>
+        <th style="width:170px;">合同号</th>
+        <th style="width:100px;">媒体名称</th>
         <th>执行开始时间</th>
         <th>执行结束时间</th>
         <th>客户合同金额</th>
-        <th>客户已开发票金额</th>
+        <th>已开客户发票金额</th>
         <th>客户回款金额</th>
         <th>客户付返点发票金额</th>
         <th>已开客户返点发票金额</th>
@@ -85,6 +85,7 @@
         <div class="form-group">
             <label for="exampleInputName2"></label>
             <select class="form-control bra-form-control" id="month" name="month" placeholder=""  style="width:100px;">
+                <option value="00">全部</option>
                 {% for k in range(1, 13) %}
                     {% if k|string|length == 1 %}
                         <option value="0{{k}}">0{{k}}月</option>
