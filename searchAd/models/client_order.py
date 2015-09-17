@@ -787,9 +787,9 @@ by %s\n
             count = len(set(self.agent_sales + self.direct_sales))
         if sale_type == 'normal':
             count = 1
-        from .order import MediumOrderExecutiveReport
+        from .order import searchAdMediumOrderExecutiveReport
         day_month = datetime.datetime.strptime(year + '-' + month, '%Y-%m')
-        executive_reports = MediumOrderExecutiveReport.query.filter_by(
+        executive_reports = searchAdMediumOrderExecutiveReport.query.filter_by(
             client_order=self, month_day=day_month)
         if executive_reports:
             medium_money = sum([k.medium_money for k in executive_reports])

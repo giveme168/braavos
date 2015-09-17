@@ -498,13 +498,6 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                 ((self.medium_end - self.medium_start).days + 1)
         else:
             pre_medium_money2 = 0
-
-        if self.medium_money:
-            pre_medium_money = float(self.medium_money) / \
-                ((self.medium_end - self.medium_start).days + 1)
-        else:
-            pre_medium_money = 0
-
         if self.sale_money:
             pre_sale_money = float(self.sale_money) / \
                 ((self.medium_end - self.medium_start).days + 1)
@@ -516,7 +509,7 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         pre_month_money_data = []
         for k in pre_month_days:
             pre_month_money_data.append(
-                {'medium_money': '%.2f' % (pre_medium_money * k['days']),
+                {'medium_money': 0,
                  'medium_money2': '%.2f' % (pre_medium_money2 * k['days']),
                  'sale_money': '%.2f' % (pre_sale_money * k['days']),
                  'month': k['month'], 'days': k['days']})
@@ -565,7 +558,7 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         executive_report = searchAdMediumOrderExecutiveReport.query.filter_by(
             order=self, month_day=day_month).first()
         if executive_report:
-            return {'medium_money': round(executive_report.medium_money / count, 2),
+            return {'medium_money': 0,
                     'medium_money2': round(executive_report.medium_money2 / count, 2),
                     'sale_money': round(executive_report.sale_money / count, 2)}
         else:
