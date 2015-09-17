@@ -12,8 +12,8 @@ from models.attachment import Attachment
 
 from ..models.client import searchAdClient, searchAdGroup, searchAdAgent, searchAdAgentRebate
 from ..models.medium import searchAdMedium
-from ..models.order import searchAdOrder
-from ..models.client_order import searchAdClientOrder
+from ..models.order import searchAdOrder, searchAdMediumOrderExecutiveReport
+from ..models.client_order import searchAdClientOrder, searchAdClientOrderExecutiveReport
 from ..models.framework_order import searchAdFrameworkOrder
 
 from ..models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
@@ -32,6 +32,90 @@ searchAd_order_bp = Blueprint(
     'searchAd_order', __name__, template_folder='../../templates/searchAdorder')
 
 ORDER_PAGE_NUM = 50
+
+
+def _delete_executive_report(order):
+    if order.__tablename__ == 'searchAd_bra_client_order':
+        searchAdClientOrderExecutiveReport.query.filter_by(
+            client_order=order).delete()
+        searchAdMediumOrderExecutiveReport.query.filter_by(
+            client_order=order).delete()
+    return
+
+
+def _insert_executive_report(order, rtype):
+    if order.contract_status not in [2, 4, 5, 20]:
+        return False
+    if order.__tablename__ == 'searchAd_bra_client_order':
+        if rtype:
+            searchAdClientOrderExecutiveReport.query.filter_by(
+                client_order=order).delete()
+            searchAdMediumOrderExecutiveReport.query.filter_by(
+                client_order=order).delete()
+        for k in order.pre_month_money():
+            if not searchAdClientOrderExecutiveReport.query.filter_by(client_order=order, month_day=k['month']).first():
+                er = searchAdClientOrderExecutiveReport.add(client_order=order,
+                                                            money=k['money'],
+                                                            month_day=k[
+                                                                'month'],
+                                                            days=k['days'],
+                                                            create_time=None)
+                er.save()
+        for k in order.medium_orders:
+            for i in k.pre_month_medium_orders_money():
+                if not searchAdMediumOrderExecutiveReport.query.filter_by(client_order=order,
+                                                                          order=k, month_day=i['month']).first():
+                    er = searchAdMediumOrderExecutiveReport.add(client_order=order,
+                                                                order=k,
+                                                                medium_money=0,
+                                                                medium_money2=i[
+                                                                    'medium_money2'],
+                                                                sale_money=i[
+                                                                    'sale_money'],
+                                                                month_day=i[
+                                                                    'month'],
+                                                                days=i['days'],
+                                                                create_time=None)
+                    er.save()
+    elif order.__tablename__ == 'searchAd_bra_order':
+        if rtype:
+            searchAdMediumOrderExecutiveReport.query.filter_by(
+                order=order).delete()
+        for i in order.pre_month_medium_orders_money():
+            if not searchAdMediumOrderExecutiveReport.query.filter_by(client_order=order.client_order,
+                                                                      order=order, month_day=i['month']).first():
+                er = searchAdMediumOrderExecutiveReport.add(client_order=order.client_order,
+                                                            order=order,
+                                                            medium_money=0,
+                                                            medium_money2=i[
+                                                                'medium_money2'],
+                                                            sale_money=i[
+                                                                'sale_money'],
+                                                            month_day=i[
+                                                                'month'],
+                                                            days=i['days'],
+                                                            create_time=None)
+                er.save()
+    return True
+
+
+@searchAd_order_bp.route('/order/<order_id>/executive_report', methods=['GET'])
+def executive_report(order_id):
+    rtype = request.values.get('rtype', '')
+    otype = request.values.get('otype', 'ClientOrder')
+    if otype == 'DoubanOrder':
+        order = DoubanOrder.get(order_id)
+    else:
+        order = ClientOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin() or not g.user.is_media() or not g.user.is_contract() or not g.user.is_media_leader():
+        abort(402)
+    _insert_executive_report(order, rtype)
+    if order.__tablename__ == 'bra_douban_order':
+        return redirect(url_for("order.my_douban_orders"))
+    else:
+        return redirect(url_for("order.my_orders"))
 
 
 @searchAd_order_bp.route('/', methods=['GET'])
@@ -98,6 +182,8 @@ def new_searchAd_order():
                                   (medium.name, mo.sale_money))
         order.save()
         flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
+        if g.user.is_super_admin():
+             _insert_executive_report(order, 'reload')
         return redirect(order.info_path())
     else:
         form.client_start.data = datetime.now().date()
@@ -144,13 +230,14 @@ def order_info(order_id, tab_id=1):
                     order.save()
                     order.add_comment(g.user, u"更新了客户订单")
                     flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
+                    _insert_executive_report(order, 'reload')
         elif info_type == 2:
             if not g.user.is_contract():
                 flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
             else:
                 order.contract = request.values.get("base_contract", "")
                 order.save()
-#                _insert_executive_report(order, '')
+                _insert_executive_report(order, '')
                 for mo in order.medium_orders:
                     mo.medium_contract = request.values.get(
                         "medium_contract_%s" % mo.id, "")
@@ -265,6 +352,7 @@ def medium_order(mo_id):
     mo.client_order.add_comment(
         g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money))
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
+    _insert_executive_report(mo, 'reload')
     return redirect(mo.info_path())
 
 
@@ -288,8 +376,8 @@ def order_medium_edit_cpm(medium_id):
 #                g.user, u"更新了媒体订单: %s 的分成金额%s " % (mo.medium.name, medium_money))
 #        mo.medium_money = medium_money
     mo.save()
-#    if medium_money != '':
-#        _insert_executive_report(mo, 'reload')
+    if medium_money != '':
+        _insert_executive_report(mo, 'reload')
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
     return redirect(mo.info_path())
 
@@ -337,7 +425,7 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_APPLYPASS
         action_msg = u"审批通过"
         to_users = to_users + order.leaders + User.contracts()
-        #_insert_executive_report(order, '')
+        _insert_executive_report(order, '')
     elif action == 4:
         order.contract_status = CONTRACT_STATUS_APPLYREJECT
         action_msg = u"审批未被通过"
@@ -364,12 +452,12 @@ def contract_status_change(order, action, emails, msg):
         to_users = to_users + order.leaders + User.medias() + User.contracts()
         if order.__tablename__ == 'bra_douban_order' and order.contract:
             to_users += User.douban_contracts()
-        #_delete_executive_report(order)
+        _delete_executive_report(order)
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
         order.insert_reject_time()
         action_msg = u"合同被驳回，请从新提交审核"
-        #_delete_executive_report(order)
+        _delete_executive_report(order)
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     to_emails = list(set(emails + [x.email for x in to_users]))
@@ -602,8 +690,6 @@ def get_medium_form(order, user=None):
 ######################
 @searchAd_order_bp.route('/new_framework_order', methods=['GET', 'POST'])
 def new_framework_order():
-    for k in searchAdFrameworkOrder.all():
-        print k.contract_status
     form = FrameworkOrderForm(request.form)
     if request.method == 'POST' and form.validate():
         # 超级管理员新建合同直接为审批通过
