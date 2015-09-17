@@ -101,21 +101,14 @@ def _insert_executive_report(order, rtype):
 
 @searchAd_order_bp.route('/order/<order_id>/executive_report', methods=['GET'])
 def executive_report(order_id):
-    rtype = request.values.get('rtype', '')
-    otype = request.values.get('otype', 'ClientOrder')
-    if otype == 'DoubanOrder':
-        order = DoubanOrder.get(order_id)
-    else:
-        order = ClientOrder.get(order_id)
+    rtype = request.values.get('rtype', '')    
+    order = searchAdClientOrder.get(order_id)
     if not order:
         abort(404)
-    if not g.user.is_super_admin() or not g.user.is_media() or not g.user.is_contract() or not g.user.is_media_leader():
+    if not g.user.is_super_admin():
         abort(402)
     _insert_executive_report(order, rtype)
-    if order.__tablename__ == 'bra_douban_order':
-        return redirect(url_for("order.my_douban_orders"))
-    else:
-        return redirect(url_for("order.my_orders"))
+    return redirect(url_for("searchAd_order.searchAd_orders"))
 
 
 @searchAd_order_bp.route('/', methods=['GET'])
