@@ -403,13 +403,6 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
         return ",".join([TEAM_LOCATION_CN[l] for l in self.locations])
 
     @property
-    def associated_douban_orders(self):
-        return [ao for mo in self.medium_orders for ao in mo.associated_douban_orders]
-
-    def associated_douban_orders_pro_month_money(self, year, month, saler_type):
-        return sum([k.associated_douban_orders_pro_month_money(year, month, saler_type) for k in self.medium_orders])
-
-    @property
     def contract_type_cn(self):
         return CONTRACT_TYPE_CN[self.contract_type]
 
@@ -499,8 +492,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     def search_info(self):
         return (self.client.name + self.agent.name +
                 self.campaign + self.contract +
-                "".join([mo.medium.name + mo.medium_contract for mo in self.medium_orders]) +
-                "".join([ado.contract for ado in self.associated_douban_orders]))
+                "".join([mo.medium.name + mo.medium_contract for mo in self.medium_orders]))
 
     @property
     def email_info(self):
