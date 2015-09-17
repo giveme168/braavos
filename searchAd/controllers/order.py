@@ -47,6 +47,11 @@ def new_searchAd_order():
         if searchAdClientOrder.query.filter_by(campaign=form.campaign.data).count() > 0:
             flash(u'campaign名称已存在，请更换其他名称!', 'danger')
             return redirect(url_for("searchAd_order.new_searchAd_order"))
+        # 超级管理员新建合同直接为审批通过
+        if g.user.is_super_admin():
+            contract_status = 2
+        else:
+            contract_status = 0
         order = searchAdClientOrder.add(agent=searchAdAgent.get(form.agent.data),
                                         framework_order_id=form.framework_order_id.data,
                                         client=searchAdClient.get(
@@ -60,6 +65,7 @@ def new_searchAd_order():
                                         direct_sales=User.gets(
                                             form.direct_sales.data),
                                         agent_sales=[],
+                                        contract_status=contract_status,
                                         contract_type=form.contract_type.data,
                                         resource_type=form.resource_type.data,
                                         sale_type=form.sale_type.data,
@@ -596,8 +602,15 @@ def get_medium_form(order, user=None):
 ######################
 @searchAd_order_bp.route('/new_framework_order', methods=['GET', 'POST'])
 def new_framework_order():
+    for k in searchAdFrameworkOrder.all():
+        print k.contract_status
     form = FrameworkOrderForm(request.form)
     if request.method == 'POST' and form.validate():
+        # 超级管理员新建合同直接为审批通过
+        if g.user.is_super_admin():
+            contract_status = 2
+        else:
+            contract_status = 0
         order = searchAdFrameworkOrder.add(agent=searchAdAgent.get(form.agent.data),
                                            description=form.description.data,
                                            money=int(
@@ -609,6 +622,7 @@ def new_framework_order():
             contract_type=form.contract_type.data,
             creator=g.user,
             rebate=form.rebate.data,
+            contract_status=contract_status,
             create_time=datetime.now())
         order.add_comment(g.user, u"新建了框架订单")
         flash(u'新建框架订单成功, 请上传合同!', 'success')

@@ -24,16 +24,22 @@ def cost():
     location = int(request.values.get('location', 0))
     year = request.values.get('year', now_date.strftime('%Y'))
     month = request.values.get('month', now_date.strftime('%m'))
-    search_date = datetime.datetime.strptime(
-        str(year) + '-' + str(month), '%Y-%m')
-    orders = set([k.client_order for k in ClientOrderExecutiveReport.query.filter_by(
-        month_day=search_date)])
+
+    if month != '00':
+        search_date = datetime.datetime.strptime(
+            str(year) + '-' + str(month), '%Y-%m')
+        orders = set([k.client_order for k in ClientOrderExecutiveReport.query.filter_by(
+            month_day=search_date) if k.client_order.status == 1])
+    else:
+        orders = [k for k in ClientOrder.all() if k.client_start.year == int(
+            year) or k.client_end.year == int(year)]
     if location != 0:
         orders = [k for k in orders if location in k.locations]
     if info:
         orders = [k for k in orders if info in k.search_info]
+    orders = sorted(list(orders), key=lambda x: x.client_start, reverse=False)
     if request.values.get('action', '') == 'download':
-        response = write_order_excel(orders)
+        response = write_order_excel(list(orders))
         return response
     return tpl('cost.html', orders=orders, location=location,
                year=year, month=month, info=info)
