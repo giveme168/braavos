@@ -271,6 +271,7 @@
 {% endif %}
 <div class="col-md-12">
     <div class="col-md-6" style="margin-left: 20px;" id="edit_invoice_{{invoice.id}}">
+        <a href="{{url_for('finance_client_order_medium_rebate_invoice.delete_invoice', invoice_id=invoice.id)}}" style="color:red;">删除发票</a>
         <table class="table table-bordered">
           <tr>
             <th>开票时间</th>
