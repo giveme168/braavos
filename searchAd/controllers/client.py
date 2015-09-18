@@ -119,6 +119,13 @@ def agent_delete(agent_id):
     return redirect(url_for('searchAd_client.agents'))
 
 
+@searchAd_client_bp.route('/medium/<medium_id>/delete', methods=['GET', 'POST'])
+def medium_delete(medium_id):
+    searchAdMedium.get(medium_id).delete()
+    flash(u'删除成功', 'success')
+    return redirect(url_for('searchAd_client.mediums'))
+
+
 @searchAd_client_bp.route('/agent/<agent_id>', methods=['GET', 'POST'])
 def agent_detail(agent_id):
     agent = searchAdAgent.get(agent_id)

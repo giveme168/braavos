@@ -134,6 +134,20 @@ def new_invoice(order_id, redirect_epoint='finance_client_order_medium_rebate_in
     return redirect(url_for(redirect_epoint, order_id=order_id))
 
 
+@finance_client_order_medium_rebate_invoice_bp.route('/<invoice_id>/delete', methods=['GET'])
+def delete_invoice(invoice_id):
+    if not g.user.is_finance():
+        abort(404)
+    invoice = MediumRebateInvoice.get(invoice_id)
+    order_id = invoice.client_order.id
+    invoice.client_order.add_comment(g.user, u"删除发票：%s" % (
+        u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=6)
+    invoice.delete()
+    flash(u"删除成功", 'danger')
+
+    return redirect(url_for("finance_client_order_medium_rebate_invoice.info", order_id=order_id))
+
+
 @finance_client_order_medium_rebate_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
 def update_invoice(invoice_id):
     invoice = MediumRebateInvoice.get(invoice_id)
