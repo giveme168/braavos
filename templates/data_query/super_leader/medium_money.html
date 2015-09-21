@@ -132,44 +132,6 @@
         <td colspan=36 style="height:30px;"></td>
     </tr>
     <tr>
-        <td style="background-color:#FF0088;">搜索部门收入</td>
-        {% for k in searchAD_money.sale_money %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ searchAD_money.sale_money|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td style="background-color:#FF0088;">搜索部门执行金额</td>
-        {% for k in searchAD_money.money2 %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ searchAD_money.money2|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td style="background-color:#FF0088;">搜索部门净成本</td> 
-        {% for k in searchAD_money.m_ex_money %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ searchAD_money.m_ex_money|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td style="background-color:#FF0088;">搜索部门代理成本</td> 
-        {% for k in searchAD_money.a_rebate %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ searchAD_money.a_rebate|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td style="background-color:#FF0088;">搜索部门毛利</td> 
-        {% for k in searchAD_money.profit %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ searchAD_money.profit|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
-    <tr>
         <td style="background-color:#33CCFF;">陌陌收入</td>
         {% for k in momo_money.sale_money %}
         <td>{{k|format_price}}</td>
@@ -469,6 +431,44 @@
         <td>{{k|format_price}}</td>
         {% endfor %}
         <td>{{ other_money.profit|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF0088;">搜索部门收入</td>
+        {% for k in searchAD_money.sale_money %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ searchAD_money.sale_money|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF0088;">搜索部门执行金额</td>
+        {% for k in searchAD_money.money2 %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ searchAD_money.money2|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF0088;">搜索部门净成本</td> 
+        {% for k in searchAD_money.m_ex_money %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ searchAD_money.m_ex_money|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF0088;">搜索部门代理成本</td> 
+        {% for k in searchAD_money.a_rebate %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ searchAD_money.a_rebate|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF0088;">搜索部门毛利</td> 
+        {% for k in searchAD_money.profit %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ searchAD_money.profit|sum()|format_price }}</td>
     </tr>
     <tr>
         <td>合计</td>
