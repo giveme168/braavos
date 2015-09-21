@@ -94,6 +94,12 @@
                       <input type="text" id="back_time" name="back_time" value="{{new_invoice_form.back_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
                     </div>
                   </div>
+                  <div class="form-group">
+                    <label for="client_start" class="col-sm-2 control-label">开票时间 : </label>
+                    <div class="col-sm-4">
+                      <input type="text" id="create_time" name="create_time" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+                    </div>
+                  </div>
                   <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
                   </form>
                 </div>
@@ -105,6 +111,21 @@
     <div>{{ comments_box(order, msg_channel=1) }}</div>
 </div>
 <script>
+  Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
   $(function(){
     showInvoice = function(ele){
       $(ele).hide();
@@ -177,6 +198,7 @@
     }
 
     $(document).ready(function(){
+        $('#create_time').val(new Date().Format("yyyy-MM-dd"))
         $('.datetimepicker').datetimepicker({
             autoclose: true,
             todayHighlight: true,
@@ -200,7 +222,7 @@
                   <table class="table table-bordered">
                     <tr>
                       <th>开票时间</th>
-                      <td id="edit_create_time"></td>
+                      <td><input class="datetimepicker form-control bra-form-control" type='text' id="edit_create_time" name="edit_create_time" data-date-format="yyyy-mm-dd" ></td>
                     </tr>
                     <tr>
                       <th>公司名称</th>
@@ -251,6 +273,7 @@
 {% endif %}
 <div class="col-md-12">
     <div class="col-md-6" style="margin-left: 20px;" id="edit_invoice_{{invoice.id}}">
+        <a href="{{url_for('finance_client_order_invoice.delete_invoice', invoice_id=invoice.id)}}" style="color:red;">删除发票</a>
         <table class="table table-bordered">
           <tr>
             <th>开票时间</th>
@@ -329,7 +352,7 @@
 <script>
 function edit(id, create_time, company, tax_id, detail ,money, invoice_type, invoice_num){
   $('#edit_invoice_id').val(id)
-  $('#edit_create_time').html(create_time)
+  $('#edit_create_time').val(create_time)
   //$('#edit_invoice_'+id).hide()
   $('#myModal').modal('show');
   $('#edit_company').val(company)
@@ -341,6 +364,12 @@ function edit(id, create_time, company, tax_id, detail ,money, invoice_type, inv
   $("#edit_invoice_type").trigger("chosen:updated");
   $('#edit_table_form').attr("action", '/finance/client_order/invoice/'+id+'/update')
 }
+$('.datetimepicker').datetimepicker({
+    autoclose: true,
+    todayHighlight: true,
+    language: 'zh-CN',
+    minView: 2
+});
 </script>
 {% endmacro %}
 {% macro status_box(invoice) -%}

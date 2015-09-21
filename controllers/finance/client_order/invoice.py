@@ -127,7 +127,9 @@ def new_invoice(order_id):
                               invoice_status=0,
                               invoice_num=request.values.get(
                                   'new_invoice_num', ''),
-                              back_time=form.back_time.data)
+                              back_time=form.back_time.data,
+                              create_time=request.values.get('create_time',
+                                                             datetime.datetime.now().strftime('%Y-%m-%d')))
         invoice.save()
         flash(u'开发票(%s)成功!' % form.company.data, 'success')
         order.add_comment(g.user, u"已开发票信息：%s" % (
@@ -136,6 +138,19 @@ def new_invoice(order_id):
         for k in form.errors:
             flash(u"新建发票失败，%s" % (form.errors[k][0]), 'danger')
     return redirect(url_for("finance_client_order_invoice.info", order_id=order.id))
+
+
+@finance_client_order_invoice_bp.route('/<invoice_id>/delete', methods=['GET'])
+def delete_invoice(invoice_id):
+    if not g.user.is_finance():
+        abort(404)
+    invoice = Invoice.get(invoice_id)
+    order_id = invoice.client_order.id
+    invoice.client_order.add_comment(g.user, u"删除发票信息：%s" % (
+        u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=1)
+    invoice.delete()
+    flash(u"删除成功", 'danger')
+    return redirect(url_for("finance_client_order_medium_rebate_invoice.info", order_id=order_id))
 
 
 @finance_client_order_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
@@ -150,6 +165,8 @@ def update_invoice(invoice_id):
         money = request.values.get('edit_money', 0)
         invoice_num = request.values.get('edit_invoice_num', '')
         invoice_type = request.values.get('invoice_type', 0)
+        create_time = request.values.get(
+            'edit_create_time', datetime.datetime.now().strftime('%Y-%m-%d'))
         if not tax_id:
             flash(u"修改发票失败，公司名称不能为空", 'danger')
         elif not detail:
@@ -165,6 +182,7 @@ def update_invoice(invoice_id):
             invoice.invoice_num = invoice_num
             invoice.money = money
             invoice.invoice_type = invoice_type
+            invoice.create_time = create_time
             invoice.save()
             flash(u'修改发票(%s)成功!' % company, 'success')
             invoice.client_order.add_comment(g.user, u"修改发票信息,%s" % (
