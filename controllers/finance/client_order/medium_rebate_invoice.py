@@ -124,6 +124,8 @@ def new_invoice(order_id, redirect_epoint='finance_client_order_medium_rebate_in
                                           invoice_status=INVOICE_STATUS_PASS,
                                           creator=g.user,
                                           invoice_num=form.invoice_num.data,
+                                          create_time=request.values.get(
+                                              'create_time', datetime.datetime.now().strftime('%Y-%m-%d')),
                                           back_time=form.back_time.data)
         invoice.save()
         order.add_comment(g.user, u"添加发票申请信息：%s" % (
@@ -164,6 +166,8 @@ def update_invoice(invoice_id):
         money = request.values.get('edit_money', 0)
         invoice_num = request.values.get('edit_invoice_num', '')
         invoice_type = request.values.get('invoice_type', 0)
+        create_time = request.values.get(
+            'edit_create_time', datetime.datetime.now().strftime('%Y-%m-%d'))
         if not tax_id:
             flash(u"修改发票失败，税号不能为空", 'danger')
         elif not company:
@@ -185,6 +189,7 @@ def update_invoice(invoice_id):
             invoice.bank = bank
             invoice.bank_id = bank_id
             invoice.phone = phone
+            invoice.create_time = create_time
             invoice.save()
             flash(u'修改发票(%s)成功!' % company, 'success')
             invoice.client_order.add_comment(g.user, u"修改发票信息,%s" % (

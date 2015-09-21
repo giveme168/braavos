@@ -127,7 +127,9 @@ def new_invoice(order_id):
                               invoice_status=0,
                               invoice_num=request.values.get(
                                   'new_invoice_num', ''),
-                              back_time=form.back_time.data)
+                              back_time=form.back_time.data,
+                              create_time=request.values.get('create_time',
+                                                             datetime.datetime.now().strftime('%Y-%m-%d')))
         invoice.save()
         flash(u'开发票(%s)成功!' % form.company.data, 'success')
         order.add_comment(g.user, u"已开发票信息：%s" % (
@@ -150,6 +152,8 @@ def update_invoice(invoice_id):
         money = request.values.get('edit_money', 0)
         invoice_num = request.values.get('edit_invoice_num', '')
         invoice_type = request.values.get('invoice_type', 0)
+        create_time = request.values.get(
+            'edit_create_time', datetime.datetime.now().strftime('%Y-%m-%d'))
         if not tax_id:
             flash(u"修改发票失败，公司名称不能为空", 'danger')
         elif not detail:
@@ -165,6 +169,7 @@ def update_invoice(invoice_id):
             invoice.invoice_num = invoice_num
             invoice.money = money
             invoice.invoice_type = invoice_type
+            invoice.create_time = create_time
             invoice.save()
             flash(u'修改发票(%s)成功!' % company, 'success')
             invoice.client_order.add_comment(g.user, u"修改发票信息,%s" % (
