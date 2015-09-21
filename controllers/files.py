@@ -297,7 +297,7 @@ def contract_email(order, attachment):
                                                 User.medias() +
                                                 order.sales +
                                                 [order.creator, g.user])]
-    if order.__tablename__ == 'searchAd_bra_client_order':
+    elif order.__tablename__ == 'searchAd_bra_client_order':
         contract_emails = [m.email for m in set(User.contracts() +
                                                 User.medias() +
                                                 order.agent_sales +

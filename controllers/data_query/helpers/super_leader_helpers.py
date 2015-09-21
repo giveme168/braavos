@@ -60,8 +60,6 @@ def write_medium_money_excel(pre_monthes, douban_money,
     keys = [{'CCFF99': [u'豆瓣执行收入', u'豆瓣服务费收入计提', u'豆瓣返点成本', u'豆瓣毛利', '',
                         u'豆瓣收入(优力互动)', u'豆瓣媒体合同金额(优力互动)', u'豆瓣媒体净成本(优力互动)', u'豆瓣代理成本(优力互动)', u'致趣豆瓣毛利(优力互动)', '',
                         u'豆瓣收入(无线互联)', u'豆瓣媒体合同金额(无线互联)', u'豆瓣媒体净成本(无线互联)', u'豆瓣代理成本(无线互联)', u'致趣豆瓣毛利(无线互联)', '']},
-            {'FF0088': [
-                u'搜索部门收入', u'搜索部门执行金额', u'搜索部门净成本', u'搜索部门代理成本', u'搜索部门毛利', '']},
             {'33CCFF': [
                 u'陌陌收入', u'陌陌媒体执行金额', u'陌陌媒体净成本', u'陌陌代理成本', u'陌陌毛利', '']},
             {'0066FF': [
@@ -76,7 +74,10 @@ def write_medium_money_excel(pre_monthes, douban_money,
                 u'课程格子收入', u'课程格子媒体执行金额', u'课程格子媒体净成本', u'课程格子代理成本', u'课程格子毛利', '']},
             {'FFBB00': [
                 u'迷笛收入', u'迷笛媒体执行金额', u'迷笛媒体净成本', u'迷笛代理成本', u'迷笛毛利', '']},
-            {'AAAAAA': [u'其他收入', u'其他媒体执行金额', u'其他媒体净成本', u'其他代理成本', u'其他毛利']}]
+            {'AAAAAA': [
+                u'其他收入', u'其他媒体执行金额', u'其他媒体净成本', u'其他代理成本', u'其他毛利', '']},
+            {'FF0088': [
+                u'搜索部门收入', u'搜索部门执行金额', u'搜索部门净成本', u'搜索部门代理成本', u'搜索部门毛利']}]
     th = 2
     for k in keys:
         for i in k[k.keys()[0]]:
@@ -124,18 +125,6 @@ def write_medium_money_excel(pre_monthes, douban_money,
         worksheet, align_center, pre_monthes, th, wuxian_money['a_rebate'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, wuxian_money['profit'])
-    th += 1
-    # 搜索部门
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, searchAD_money['sale_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, searchAD_money['money2'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, searchAD_money['m_ex_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, searchAD_money['a_rebate'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, searchAD_money['profit'])
     th += 1
     # 陌陌
     th = _write_money_in_excel(
@@ -232,6 +221,18 @@ def write_medium_money_excel(pre_monthes, douban_money,
         worksheet, align_center, pre_monthes, th, other_money['a_rebate'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, other_money['profit'])
+    th += 1
+    # 搜索部门
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, searchAD_money['sale_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, searchAD_money['money2'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, searchAD_money['m_ex_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, searchAD_money['a_rebate'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, searchAD_money['profit'])
     # 合计
     worksheet.write(th, 1, u'合计', align_center)
     th = _write_money_in_excel(

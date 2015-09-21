@@ -86,6 +86,7 @@ class Attachment(db.Model, BaseModelMixin):
         # add for searchAd team
         from searchAd.models.order import searchAdOrder
         from searchAd.models.client_order import searchAdClientOrder
+        from searchAd.models.framework_order import searchAdFrameworkOrder
 
         TARGET_DICT = {
             'Order': Order,
@@ -94,7 +95,8 @@ class Attachment(db.Model, BaseModelMixin):
             'DoubanOrder': DoubanOrder,
             'AssociatedDoubanOrder': AssociatedDoubanOrder,
             'searchAdOrder': searchAdOrder,
-            'searchAdClientOrder': searchAdClientOrder
+            'searchAdClientOrder': searchAdClientOrder,
+            'searchAdFrameworkOrder': searchAdFrameworkOrder
         }
 
         return TARGET_DICT[self.target_type].get(self.target_id)
