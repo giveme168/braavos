@@ -105,17 +105,9 @@ $(function(){
 {%- endmacro %}
 
 {% macro framework_order_attachment(order) -%}
-    {{ base_order_attachment(order, url_for('files.framework_contract_upload'), url_for('files.framework_schedule_upload'), url_for('files.framework_others_upload')) }}
+    {{ base_order_attachment(order, url_for('files.searchAd_framework_contract_upload'), url_for('files.searchAd_framework_schedule_upload'), url_for('files.searchAd_framework_others_upload')) }}
     {{ base_attachment_script() }}
 {%- endmacro %}
 
-{% macro douban_order_attachment(order) -%}
-    {{ base_order_attachment(order, url_for('files.douban_contract_upload'), url_for('files.douban_schedule_upload')) }}
-    {{ base_attachment_script() }}
-{%- endmacro %}
-
-{% macro associated_douban_attachment(order) -%}
-    {{ base_order_attachment(order, url_for('files.associated_douban_contract_upload'), url_for('files.associated_douban_schedule_upload')) }}
-{%- endmacro %}
 
 

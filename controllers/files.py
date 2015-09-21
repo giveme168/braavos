@@ -173,6 +173,27 @@ def framework_schedule_upload():
     return attachment_upload(order, FILE_TYPE_SCHEDULE)
 
 
+@files_bp.route('/searchAd_framework/contract/upload', methods=['POST'])
+def searchAd_framework_contract_upload():
+    order_id = request.values.get('order')
+    order = searchAdFrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
+
+
+@files_bp.route('/searchAd_framework/schedule/upload', methods=['POST'])
+def searchAd_framework_schedule_upload():
+    order_id = request.values.get('order')
+    order = searchAdFrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
+
+
+@files_bp.route('/searchAd_framework/others/upload', methods=['POST'])
+def searchAd_framework_others_upload():
+    order_id = request.values.get('order')
+    order = searchAdFrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_OTHERS)
+
+
 @files_bp.route('/framework/others/upload', methods=['POST'])
 def framework_others_upload():
     order_id = request.values.get('order')
@@ -271,12 +292,25 @@ def associated_douban_order_files(order_id):
 
 
 def contract_email(order, attachment):
-    contract_emails = [m.email for m in set(User.contracts() +
-                                            User.medias() +
-                                            order.direct_sales +
-                                            order.agent_sales +
-                                            order.operaters +
-                                            [order.creator, g.user])]
+    if order.__tablename__ == 'bra_searchAd_framework_order':
+        contract_emails = [m.email for m in set(User.contracts() +
+                                                User.medias() +
+                                                order.sales +
+                                                [order.creator, g.user])]
+    if order.__tablename__ == 'searchAd_bra_client_order':
+        contract_emails = [m.email for m in set(User.contracts() +
+                                                User.medias() +
+                                                order.agent_sales +
+                                                order.direct_sales +
+                                                [order.creator, g.user])]
+    else:
+        contract_emails = [m.email for m in set(User.contracts() +
+                                                User.medias() +
+                                                order.direct_sales +
+                                                order.agent_sales +
+                                                order.operaters +
+                                                [order.creator, g.user])]
+
     action_msg = u"%s文件更新" % (attachment.type_cn)
     msg = u"""
     文件名:%s

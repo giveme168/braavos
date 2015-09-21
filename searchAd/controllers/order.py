@@ -611,6 +611,12 @@ def medium_attach_status(order_id, attachment_id, status):
     attachment_status_change(order.client_order, attachment_id, status)
     return redirect(order.info_path())
 
+@searchAd_order_bp.route('/framework_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def framework_attach_status(order_id, attachment_id, status):
+    order = searchAdFrameworkOrder.get(order_id)
+    attachment_status_change(order, attachment_id, status)
+    return redirect(order.info_path())
+
 
 def attachment_status_change(order, attachment_id, status):
     attachment = Attachment.get(attachment_id)
@@ -620,7 +626,10 @@ def attachment_status_change(order, attachment_id, status):
 
 
 def attachment_status_email(order, attachment):
-    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+    if order.__tablename__ == 'bra_searchAd_framework_order':
+        to_users = order.sales + [order.creator, g.user]
+    else:
+        to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
     to_emails = list(set([x.email for x in to_users]))
     action_msg = u"%s文件:%s-%s" % (attachment.type_cn,
                                   attachment.filename, attachment.status_cn)
