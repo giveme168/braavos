@@ -1,0 +1,23 @@
+{% extends "/finance/finance_base.html" %}
+{% block main_box%}
+<div class="bra-main bra-box">
+  <h4></h4>
+  <div>
+    <ul class="nav nav-tabs">
+      <li class=""><a class="list-group-item" href="{{url_for('finance_client_order_data_query.agent_invoice')}}">已开客户发票</a></li>
+      <li class=""><a class="list-group-item" href="#">客户回款金额</a></li>
+      <li class=""><a class="list-group-item" href="#">已收客户返点发票</a></li>
+      <li class=""><a class="list-group-item" href="#">已开客户返点发票</a></li>
+      <li class=""><a class="list-group-item" href="#">已打款客户返点金额</a></li>
+      <li class=""><a class="list-group-item" href="#">已收媒体发票金额</a></li>
+      <li class=""><a class="list-group-item" href="#">付款给媒体金额</a></li>
+      <li class=""><a class="list-group-item" href="#">已开媒体返点发票</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab-1">
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
