@@ -1,0 +1,177 @@
+{% extends "/finance/finance_base.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block main_box%}
+<div class="bra-main bra-box" style="width:1200px;">
+  <h4>{{title}}</h4>
+  <div>
+    <ul class="nav nav-tabs">
+      <li id="_agent_invoice_" class=""><a href="{{url_for('finance_client_order_data_query.agent_invoice')}}">已开客户发票</a></li>
+      <li id="_back_money_" class=""><a href="{{url_for('finance_client_order_data_query.back_money')}}">客户回款金额</a></li>
+      <li id="_back_invoice_" class=""><a href="{{url_for('finance_client_order_data_query.back_invoice')}}">已收客户返点发票</a></li>
+      <li id="_rebate_agent_invoice_" class=""><a href="{{url_for('finance_client_order_data_query.rebate_agent_invoice')}}">已开客户返点发票</a></li>
+      <li id="_pay_rebate_agent_invoice_" class=""><a href="{{url_for('finance_client_order_data_query.pay_rebate_agent_invoice')}}">已打款客户返点金额</a></li>
+      <li id="_medium_invoice_" class=""><a href="{{url_for('finance_client_order_data_query.medium_invoice')}}">已收媒体发票金额</a></li>
+      <li id="_pay_medium_invoice_" class=""><a href="{{url_for('finance_client_order_data_query.pay_medium_invoice')}}">付款给媒体金额</a></li>
+      <li id="_medium_rebate_invoice_" class=""><a href="{{url_for('finance_client_order_data_query.medium_rebate_invoice')}}">已开媒体返点发票</a></li>
+    </ul>
+    <br/>
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="exampleInputName2">关键字</label>
+            <input class="form-control bra-form-control" type="text" id="info" name="info" value="{{info}}" placeholder="客户/代理/媒体/合同号/Campaign" style="width:250px;">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputName2">所属区域</label>
+            <select class="form-control bra-form-control" id="location" name="location" placeholder="所属区域" style="width:100px;">
+                <option value="0">全国</option>
+                <option value="1">华北</option>
+                <option value="2">华东</option>
+                <option value="3">华南</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputName2">执行时间</label>
+            <select class="form-control bra-form-control" id="year" name="year" placeholder="" style="width:100px;">
+                {% for k in range(10) %}
+                <option value="{{2014+k}}">{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputName2"></label>
+            <select class="form-control bra-form-control" id="month" name="month" placeholder=""  style="width:100px;">
+                <option value="00">全部</option>
+                {% for k in range(1, 13) %}
+                    {% if k|string|length == 1 %}
+                        <option value="0{{k}}">0{{k}}月</option>
+                    {% else %}
+                        <option value="{{k}}">{{k}}月</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <input type="submit" name="search" value="搜索" class="btn btn-sm btn-info">
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+    </form>
+    <br>
+    <table class="table table-bordered">
+    <tr>
+        <th>代理/直客</th>
+        <th>客户</th>
+        <th>Campaign</th>
+        <th>直客销售</th>
+        <th>渠道销售</th>
+        <th style="width:50px;">区域</th>
+        <th style="width:170px;">合同号</th>
+        <th style="width:100px;">媒体名称</th>
+        <th>执行开始时间</th>
+        <th>执行结束时间</th>
+        <th>客户合同金额</th>
+        {% if t_type == 'agent_invoice' %}
+        <th>开票金额</th>
+        <th>开票时间</th>
+        {% elif t_type == 'back_money' %}
+        <th>回款金额</th>
+        <th>回款时间</th>
+        {% elif t_type == 'back_invoice' %}
+        <th>返点发票金额</th>
+        <th>返点发票时间</th>
+        {% elif t_type == 'rebate_agent_invoice' %}
+        <th>返点发票金额</th>
+        <th>返点发票时间</th>
+        {% elif t_type == 'pay_rebate_agent_invoice' %}
+        <th>打款金额</th>
+        <th>打款时间</th>
+        {% elif t_type == 'medium_invoice' %}
+        <th>发票金额</th>
+        <th>开票时间</th>
+        {% elif t_type == 'pay_medium_invoice' %}
+        <th>打款金额</th>
+        <th>打款时间</th>
+        {% elif t_type == 'medium_rebate_invoice' %}
+        <th>开票金额</th>
+        <th>开票时间</th>
+        {% endif %}
+    </tr>
+    {% for o in orders %}
+    <tr>
+        <td>{{o.client_order.agent.name}}</td>
+        <td>{{o.client_order.client.name}}</td>
+        <td>{{o.client_order.campaign}}</td>
+        <td>{{o.client_order.direct_sales_names}}</td>
+        <td>{{o.client_order.agent_sales_names}}</td>
+        <td>{{o.client_order.locations_cn}}</td>
+        <td>{{o.client_order.contract}}</td>
+        <td>
+            {% for mo in o.client_order.medium_orders %}    
+            {{mo.medium.name}}
+            <br><br>
+            {% endfor %}
+        </td>
+        <td>{{o.client_order.start_date_cn}}</td>
+        <td>{{o.client_order.end_date_cn}}</td>
+        <td>{{o.client_order.money|format_price}}</td>
+        {% if t_type == 'agent_invoice' %}
+        <td>{{o.money|format_price}}</td>
+        <td>{{o.create_time_cn}}</td>
+        {% elif t_type == 'back_money' %}
+        <td>{{o.money|format_price}}</td>
+        <td>{{o.back_time_cn}}</td>
+        {% elif t_type == 'back_invoice' %}
+        <td>{{o.money|format_price}}</td>
+        <td>{{o.back_time_cn}}</td>
+        {% elif t_type == 'rebate_agent_invoice' %}
+        <td>{{o.money|format_price}}</td>
+        <td>{{o.add_time_cn}}</td>
+        {% elif t_type == 'pay_rebate_agent_invoice' %}
+        <td>{{o.money|format_price}}</td>
+        <td>{{o.pay_time_cn}}</td>
+        {% elif t_type == 'medium_invoice' %}
+        <td>{{o.money|format_price}}</td>
+        <td>{{o.add_time_cn}}</td>
+        {% elif t_type == 'pay_medium_invoice' %}
+        <td>{{o.money|format_price}}</td>
+        <td>{{o.pay_time_cn}}</td>
+        {% elif t_type == 'medium_rebate_invoice' %}
+        <td>{{o.money|format_price}}</td>
+        <td>{{o.create_time_cn}}</td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+  </div>
+</div>
+<script>
+  function download(){
+    var params = '?info=' + encodeURIComponent($('#info').val()) +
+                 '&location=' + ($('#location').val()) +
+                 '&action=download';
+    params += '&year='+$('#year').val()+
+              '&month='+$('#month').val()
+    window.location.href = window.location.pathname + params;
+      
+  }
+  $(function(){
+    $('#location').val('{{location}}')
+    $("#location").trigger("chosen:updated");
+    $('#year').val('{{year}}')
+    $("#year").trigger("chosen:updated");
+    $('#month').val('{{month}}')
+    $("#month").trigger("chosen:updated");
+    $('#start_time').val('{{start_time}}');
+    $('#end_time').val('{{end_time}}');
+  });
+
+  $(document).ready(function(){
+    var pathname = window.location.pathname;
+    var path_name = pathname.split("/")
+    $("#_" + path_name[4]+'_').addClass("active");
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+    });
+})
+</script>
+{% endblock %}
