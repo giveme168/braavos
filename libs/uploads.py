@@ -25,7 +25,7 @@ TEXT = ('txt',)
 #: This contains various office document formats (.rtf, .odf, .ods, .gnumeric,
 #: .abw, .doc, .docx, .xls, and .xlsx). Note that the macro-enabled versions
 #: of Microsoft Office 2007 files are not included.
-DOCUMENTS = tuple('rtf odf ods gnumeric abw doc docx xls xlsx csv pdf'.split())
+DOCUMENTS = tuple('rtf odf ods gnumeric abw doc docx xls xlsx csv pdf ppt pptx'.split())
 
 #: This contains basic image types that are viewable from most browsers (.jpg,
 #: .jpe, .jpeg, .png, .gif, .svg, and .bmp).
@@ -53,7 +53,7 @@ ARCHIVES = tuple('gz bz2 zip tar tgz txz 7z'.split())
 EXECUTABLES = tuple('so exe dll'.split())
 
 #: The default allowed extensions - `TEXT`, `DOCUMENTS`, `DATA`, and `IMAGES`.
-DEFAULTS = TEXT + DOCUMENTS + IMAGES + DATA
+DEFAULTS = TEXT + DOCUMENTS + IMAGES + DATA + ARCHIVES
 
 
 def secure_filename(s):

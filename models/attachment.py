@@ -4,7 +4,7 @@ import datetime
 from flask import current_app as app
 
 from . import db, BaseModelMixin
-from libs.files import get_attachment_path
+from libs.files import get_attachment_path, get_medium_path
 
 ATTACHMENT_STATUS_NEW = 0
 ATTACHMENT_STATUS_PASSED = 1
@@ -20,13 +20,21 @@ ATTACHMENT_TYPE_SCHEDULE = 1
 ATTACHMENT_TYPE_FRAMEWORK = 2
 ATTACHMENT_TYPE_OUTSOURCE = 3
 ATTACHMENT_TYPE_OTHERS = 4
+ATTACHMENT_TYPE_MEDIUM_INTRODUCE = 5
+ATTACHMENT_TYPE_MEDIUM_PRODUCT = 6
+ATTACHMENT_TYPE_MEDIUM_DATA = 7
+ATTACHMENT_TYPE_MEDIUM_NEW_PRODUCT = 8
 
 ATTACHMENT_TYPE = {
     ATTACHMENT_TYPE_CONTRACT: u"合同",
     ATTACHMENT_TYPE_SCHEDULE: u"排期",
     ATTACHMENT_TYPE_FRAMEWORK: u"框架",
     ATTACHMENT_TYPE_OUTSOURCE: u"外包资料",
-    ATTACHMENT_TYPE_OTHERS: u"其他资料"
+    ATTACHMENT_TYPE_OTHERS: u"其他资料",
+    ATTACHMENT_TYPE_MEDIUM_INTRODUCE: u"媒体介绍",
+    ATTACHMENT_TYPE_MEDIUM_PRODUCT: u"媒体刊列",
+    ATTACHMENT_TYPE_MEDIUM_DATA: u"媒体数据",
+    ATTACHMENT_TYPE_MEDIUM_NEW_PRODUCT: u"媒体新资源",
 }
 
 
@@ -51,6 +59,10 @@ class Attachment(db.Model, BaseModelMixin):
         self.attachment_status = ATTACHMENT_STATUS_NEW
         self.creator = creator
         self.create_time = create_time
+
+    @property
+    def medium_path(self):
+        return get_medium_path(self.filename)
 
     @property
     def path(self):

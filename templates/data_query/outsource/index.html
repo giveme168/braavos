@@ -1,7 +1,7 @@
 {% extends "/data_query/data_query_base.html" %}
 {% block title %}外包执行额{% endblock %}
 {% block main_box %}
-<div class="bra-main bra-box" style="width:1500px;">
+<div class="bra-main bra-box" style="width:2000px;">
     <h3>外包执行额</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
@@ -13,6 +13,7 @@
         </div>
         <div class="form-group">
             <select class="form-control" name="Q" id="Q" style="width:80px;" placeholder="选择执行月">
+                <option value='00'>全部</option>
                 {% for k in range(1,5) %}
                     <option value='Q{{k}}'>Q{{k}}</option>
                 {% endfor %}

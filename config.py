@@ -23,6 +23,8 @@ class Config(object):
     UPLOADED_FILES_URL = '/files/'
     UPLOADED_ATTACHMENT_DEST = '/tmp/attachment/'
     UPLOADED_ATTACHMENT_URL = '/files/attachment/'
+    UPLOADED_MEDIUMS_DEST = '/tmp/mediums/'
+    UPLOADED_MEDIUMS_URL = '/files/mediums/'
 
     REDIS_URL = "redis://@localhost:6379/0"
 

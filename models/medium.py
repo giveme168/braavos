@@ -10,6 +10,9 @@ from .consts import STATUS_CN, DATE_FORMAT
 from models.mixin.delivery import DeliveryMixin
 from models.item import OCCUPY_RESOURCE_STATUS, ITEM_STATUS_ORDER
 from models.order import Order, MediumOrderExecutiveReport
+from models.mixin.attachment import AttachmentMixin
+from models.mixin.comment import CommentMixin
+
 
 TARGET_TOP = 1
 TARGET_BLANK = 0
@@ -71,7 +74,7 @@ ad_position_unit_table = db.Table('ad_position_unit',
                                   )
 
 
-class Medium(db.Model, BaseModelMixin):
+class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'medium'
 
     id = db.Column(db.Integer, primary_key=True)
