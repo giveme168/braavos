@@ -15,6 +15,19 @@ data_query_outsource_bp = Blueprint(
     'data_query_outsource', __name__, template_folder='../../templates/data_query')
 
 
+def outsource_to_dict(outsource):
+    dict_outsource = {}
+    try:
+        dict_outsource['pay_num'] = outsource.pay_num
+        dict_outsource['month_day'] = outsource.month_day
+        dict_outsource['type'] = outsource.type
+        dict_outsource['locations'] = outsource.locations
+        dict_outsource['order_status'] = outsource.order.status
+    except:
+        dict_outsource['order_status'] = 0
+    return dict_outsource
+
+
 @data_query_outsource_bp.route('/', methods=['GET'])
 def index():
     now_year = request.values.get('year', '')
@@ -30,10 +43,12 @@ def index():
     end_month_day = datetime.datetime.strptime(
         now_year + '-' + str(Q_monthes[-1]), '%Y-%m')
 
-    outsources = [k for k in OutSourceExecutiveReport.query.filter(
+    outsources = [outsource_to_dict(k) for k in OutSourceExecutiveReport.query.filter(
         OutSourceExecutiveReport.month_day >= start_month_day,
-        OutSourceExecutiveReport.month_day <= end_month_day)
-        if k.contract_status not in [7, 8, 9] and k.order_status == 1]
+        OutSourceExecutiveReport.month_day <= end_month_day)]
+    # 踢掉删除的合同
+    outsources = [k for k in outsources if k['order_status'] == 1]
+
     # 所有外包分类
     types = [1, 2, 3, 4, 5, 6, 7]
 
@@ -49,12 +64,12 @@ def index():
         t_huanan_num = 0
         for i in types:
             num_data = {}
-            num_data['huabei'] = sum(
-                [j.pay_num for j in outsources if j.month_day == month_day and j.type == i and j.is_location(1)])
-            num_data['huadong'] = sum(
-                [j.pay_num for j in outsources if j.month_day == month_day and j.type == i and j.is_location(2)])
-            num_data['huanan'] = sum(
-                [j.pay_num for j in outsources if j.month_day == month_day and j.type == i and j.is_location(3)])
+            num_data['huabei'] = sum([j['pay_num'] for j in outsources
+                                      if j['month_day'] == month_day and j['type'] == i and 1 in j['locations']])
+            num_data['huadong'] = sum([j['pay_num'] for j in outsources
+                                       if j['month_day'] == month_day and j['type'] == i and 2 in j['locations']])
+            num_data['huanan'] = sum([j['pay_num'] for j in outsources
+                                      if j['month_day'] == month_day and j['type'] == i and 3 in j['locations']])
             t_huabei_num += num_data['huabei']
             t_huadong_num += num_data['huadong']
             t_huanan_num += num_data['huanan']

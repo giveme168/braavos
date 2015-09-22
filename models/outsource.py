@@ -400,6 +400,14 @@ class OutSourceExecutiveReport(db.Model, BaseModelMixin):
         return location in locations
 
     @property
+    def locations(self):
+        if self.otype == 1:
+            order = OutSource.get(self.outsource_id).medium_order.client_order
+        else:
+            order = DoubanOutSource.get(self.outsource_id).douban_order
+        return order.locations
+
+    @property
     def contract_status(self):
         try:
             if self.otype == 1:
