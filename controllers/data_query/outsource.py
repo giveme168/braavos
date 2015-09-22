@@ -29,6 +29,7 @@ def index():
         now_year + '-' + str(Q_monthes[0]), '%Y-%m')
     end_month_day = datetime.datetime.strptime(
         now_year + '-' + str(Q_monthes[-1]), '%Y-%m')
+
     outsources = [k for k in OutSourceExecutiveReport.query.filter(
         OutSourceExecutiveReport.month_day >= start_month_day,
         OutSourceExecutiveReport.month_day <= end_month_day)

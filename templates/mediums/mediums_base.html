@@ -7,8 +7,9 @@
 }
 </style>
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 媒体产品管理</li>
+    <a class="list-group-item" href="{{url_for('mediums_files.index')}}">媒体资料</a>
     {% if g.user.is_media() or g.user.is_planner() %}
-    <a class="list-group-item" href="{{url_for('mediums_product.index', mtype='pc')}}">媒体产品</a>
-    <a class="list-group-item" href="{{url_for('mediums_resource.index')}}">媒体资源</a>
+    <!--<a class="list-group-item" href="{{url_for('mediums_product.index', mtype='pc')}}">媒体产品</a>
+    <a class="list-group-item" href="{{url_for('mediums_resource.index')}}">媒体资源</a>-->
     {% endif %}
 {% endblock %}

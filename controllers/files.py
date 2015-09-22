@@ -41,6 +41,15 @@ def attachment(filename):
     return send_from_directory(config.destination, filename.encode('utf-8'))
 
 
+@files_bp.route('/mediums/<filename>', methods=['GET'])
+def mediums(filename):
+    config = app.upload_set_config.get('mediums')
+    print config.destination
+    if config is None:
+        abort(404)
+    return send_from_directory(config.destination, filename.encode('utf-8'))
+
+
 @files_bp.route('/upload', methods=['POST'])
 def upload():
     if 'file' in request.files:

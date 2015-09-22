@@ -1,0 +1,25 @@
+{% extends "/mediums/mediums_base.html" %}
+{% block title %}媒体产品{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <div>
+        <table class="table table-bordered">
+            <tr>
+                <th>媒体名称</th>
+                <th>最后更新时间</td>
+                <th>操作</th>
+            </tr>
+            {% for k in mediums %}
+            <tr id="tr_{{k.id}}">
+                <td><a href="{{url_for('mediums_files.info', mid=k.id)}}">{{k.name}}</a></td>
+                <td>{{k.update_time}}</td>
+                <td><a href="{{url_for('mediums_files.info', mid=k.id)}}">查看</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+<script>
+</script>
+{% endblock %}

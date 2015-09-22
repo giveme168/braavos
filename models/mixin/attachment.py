@@ -15,10 +15,29 @@ class AttachmentMixin():
         for a in self.get_attachments():
             a.delete()
 
+    def add_medium_files(self, user, filename, type):
+        Attachment.add(self.target_type, self.target_id, filename,
+                       type, user, datetime.datetime.now())
+        return self.get_last_medium(type)
+
     def add_contract_attachment(self, user, filename):
         Attachment.add(self.target_type, self.target_id, filename,
                        ATTACHMENT_TYPE_CONTRACT, user, datetime.datetime.now())
         return self.get_last_contract()
+
+    def get_medium_files(self):
+        return Attachment.query.filter_by(target_type=self.target_type,
+                                          target_id=self.target_id
+                                          ).order_by(Attachment.create_time.desc())
+
+    def get_medium_files_by_type(self, type):
+        return Attachment.query.filter_by(target_type=self.target_type,
+                                          target_id=self.target_id,
+                                          attachment_type=type
+                                          ).order_by(Attachment.create_time.desc())
+
+    def get_last_medium(self, type):
+        return self.get_medium_files_by_type(type).first()
 
     def get_contract_attachments(self):
         return Attachment.query.filter_by(target_type=self.target_type,
