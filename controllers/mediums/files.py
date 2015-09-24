@@ -17,13 +17,6 @@ mediums_files_bp = Blueprint(
 @mediums_files_bp.route('/index', methods=['GET'])
 def index():
     mediums = Medium.all()
-    for k in mediums:
-        all_files = list(k.get_medium_files())
-        if all_files:
-            k.update_time = all_files[
-                0].create_time.strftime('%Y-%m-%d %H:%M:%S')
-        else:
-            k.update_time = u'无更新'
     return tpl('/mediums/files/index.html', mediums=mediums)
 
 
