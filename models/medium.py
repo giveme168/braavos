@@ -979,3 +979,88 @@ def order_info(order, position, date):
         position) else u"否"
     order_info_dic["creator"] = order.creator.name
     return order_info_dic
+
+
+# 案例标签
+class Tag(db.Model, BaseModelMixin):
+    __tablename__ = 'tag'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+
+    def __init__(self, name):
+        self.name = name
+
+
+# 案列标签关联表
+class TagCase(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_tag_case'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
+    tag = db.relationship(
+        'Tag', backref=db.backref('tag_case', lazy='dynamic'))
+    case_id = db.Column(db.Integer, db.ForeignKey('bra_case.id'))
+    case = db.relationship(
+        'Case', backref=db.backref('case_tag', lazy='dynamic'))
+
+CASE_TYPE_CASE = 1
+CASE_TYPE_PACKING = 2
+CASE_TYPE_CLOSE = 3
+
+CASE_TYPE_CN = {
+    CASE_TYPE_CASE: u"策划案",
+    CASE_TYPE_PACKING: u"包装案列",
+    CASE_TYPE_CLOSE: u"结案报告",
+}
+
+
+# 策划案例
+class Case(db.Model, BaseModelMixin, CommentMixin):
+    __tablename__ = 'bra_case'
+
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.Integer, default=1)
+    name = db.Column(db.String(100))
+    url = db.Column(db.String(300))  # 网盘链接
+    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
+    medium = db.relationship(
+        'Medium', backref=db.backref('case_medium', lazy='dynamic'))
+    brand = db.Column(db.String(100))  # 品牌
+    industry = db.Column(db.String(100))  # 行业
+    create_time = db.Column(db.DateTime)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('case_user', lazy='dynamic'))
+    desc = db.Column(db.String(300))
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, name, url, type, medium, brand, industry, creator, desc, create_time=None):
+        self.name = name
+        self.url = url
+        self.type = type
+        self.medium = medium
+        self.brand = brand
+        self.industry = industry
+        self.creator = creator
+        self.desc = desc
+        self.create_time = create_time or datetime.datetime.now()
+
+    @property
+    def type_cn(self):
+        return CASE_TYPE_CN[self.type]
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime('%Y-%m-%d')
+
+    @property
+    def info(self):
+        return '%s%s%s%s' % (self.name, self.brand, self.industry, self.desc)
+
+    @property
+    def tag_ids(self):
+        return [k.tag_id for k in self.case_tag]
+
+    @property
+    def tags(self):
+        return ','.join([k.tag.name for k in self.case_tag])

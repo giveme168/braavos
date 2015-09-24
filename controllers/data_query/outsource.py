@@ -18,11 +18,11 @@ data_query_outsource_bp = Blueprint(
 def outsource_to_dict(outsource):
     dict_outsource = {}
     try:
-        dict_outsource['pay_num'] = outsource.pay_num
         dict_outsource['month_day'] = outsource.month_day
         dict_outsource['type'] = outsource.type
         dict_outsource['locations'] = outsource.locations
         dict_outsource['order_status'] = outsource.order.status
+        dict_outsource['pay_num'] = outsource.pay_num / len(outsource.locations)
     except:
         dict_outsource['order_status'] = 0
     return dict_outsource

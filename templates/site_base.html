@@ -171,9 +171,11 @@
             </li>
             {% endif %}
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">媒体产品<span style=""class="label label-danger">New</span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">资料查询<span style=""class="label label-danger">New</span></a>
               <ul class="dropdown-menu" role="menu">
                   <li><a href="{{url_for('mediums_files.index')}}">媒体资料</a></li>
+                  <li><a href="{{url_for('mediums_planning.index', type=1)}}">策划案例</a></li>
+
                   <!--
                   <li><a href="{{url_for('mediums_product.index', mtype='pc')}}">媒体产品管理</a></li>
                   -->

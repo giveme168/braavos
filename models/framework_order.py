@@ -147,6 +147,8 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def name(self):
+        if self.agents:
+            return u"框架-%s-%s" % (self.group.name, self.agents[0].name)
         return u"框架-%s" % (self.group.name)
 
     @property
