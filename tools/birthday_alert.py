@@ -23,7 +23,7 @@ def get_all_today_is_birthday(name, email):
 
     <br/><br/>
     """%(name)
-    to_emails = [email]
+    to_emails = [email, 'admin@inad.com']
     try:
         send_html_mail(u'生日快乐！', recipients=to_emails, body=text)
     except:
