@@ -14,14 +14,14 @@
   <form class="form-inline">
         <div class="form-group">
             <label for="exampleInputName2">关键字</label>
-            <input class="form-control bra-form-control" type="text" id="info" name="info" value="{{info}}" placeholder="品牌/行业" style="width:250px;">
+            <input class="form-control bra-form-control" type="text" id="info" name="info" value="{{info}}" placeholder="名称/品牌" style="width:250px;">
         </div>&nbsp;&nbsp;&nbsp;
         <div class="form-group">
-            <label for="exampleInputName2">按标签</label>
-            <select name='tag' id='tag'  class="form-control bra-form-control" style="width:100px;">
-              <option value='0'>全部</option>
-              {% for k in tags %}
-              <option value='{{k.id}}'>{{k.name}}</option>
+            <label for="exampleInputName2">行业</label>
+            <select name='industry' id='industry'  class="form-control bra-form-control" style="width:100px;">
+              <option value=''>全部</option>
+              {% for k in INDUSTRY %}
+              <option value='{{k}}'>{{k}}</option>
               {% endfor %}
             </select>
         </div>&nbsp;&nbsp;&nbsp;
@@ -34,11 +34,11 @@
                 {% endfor %}
             </select>
         </div>
-        <input type="submit" name="search" value="搜索" class="btn btn-sm btn-info col-md-offset-1" />
+        <input type="submit" name="search" value="搜索" class="btn btn-sm btn-info" style="width:100px;"/>
         {% if g.user.is_planner() and type != '3' %}
-        &nbsp;&nbsp;<a href="{{url_for('mediums_planning.create', type=type)}}" class="btn btn-sm btn-info col-md-offset-1">添加</a>
+        &nbsp;&nbsp;<a href="{{url_for('mediums_planning.create', type=type)}}" class="btn btn-default col-md-offset-1" style="width:100px;">添加</a>
         {% elif g.user.is_operater() and type == '3' %}
-        &nbsp;&nbsp;<a href="{{url_for('mediums_planning.create', type=type)}}" class="btn btn-sm btn-info col-md-offset-1">添加</a>
+        &nbsp;&nbsp;<a href="{{url_for('mediums_planning.create', type=type)}}" class="btn btn-default col-md-offset-1" style="width:100px;">添加</a>
         {% endif %}
     </form>
     <br/>
@@ -48,17 +48,17 @@
           <th>所属媒体</th>
           <th>品牌</th>
           <th>行业</th>
-          <th>标签</th>
+          <!--<th>标签</th>-->
           <th>修改时间</th>
           <th>操作</th>
       </tr>
       {% for c in cases.object_list %}
       <tr>
           <td><a href="{{url_for('mediums_planning.info', type=type, cid=c.id)}}">{{c.name}}</a></td>
-          <td>{{c.medium.name}}</td>
+          <td>{{c.mediums_name}}</td>
           <td>{{c.brand}}</td>
           <td>{{c.industry}}</td>
-          <td>{{c.tags}}</td>
+          <!--<td>{{c.tags}}</td>-->
           <td>{{c.create_time_cn}}</td>
           <td>
             <a href="{{c.url}}" target="_blank">下载</a></br>
@@ -80,8 +80,8 @@
 $(document).ready(function(){
     $('#medium').val('{{medium}}');
     $("#medium").trigger("chosen:updated");
-    $('#tag').val('{{tag}}');
-    $("#tag").trigger("chosen:updated");
+    $('#industry').val('{{industry}}');
+    $("#industry").trigger("chosen:updated");
 
     var pathname = window.location.pathname;
     var path_name = pathname.split("/")
@@ -94,8 +94,4 @@ function delete_case(url, name){
     }
 }
 </script>
-<!--
-<link rel="stylesheet" href="/static/css/bootstrap-tagsinput.css" type="text/css">
-<input type="text" value="Amsterdam,Washington,Sydney,Beijing,Cairo" data-role="tagsinput"/>
-<script src="/static/js/bootstrap-tagsinput.min.js"></script>-->
 {% endblock %}

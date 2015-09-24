@@ -159,6 +159,16 @@ class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             return rebate[0].rebate
         return 0
 
+    @property
+    def files_update_time(self):
+        all_files = list(self.get_medium_files())
+        if all_files:
+            update_time = all_files[
+                0].create_time.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            update_time = ''
+        return update_time
+
 
 class MediumRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_rebate'
@@ -1014,17 +1024,25 @@ CASE_TYPE_CN = {
 }
 
 
+case_mediums = db.Table('case_mediums',
+                        db.Column(
+                            'medium_id', db.Integer, db.ForeignKey('medium.id')),
+                        db.Column(
+                            'case_id', db.Integer, db.ForeignKey('bra_case.id'))
+                        )
+
+
 # 策划案例
 class Case(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'bra_case'
-
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer, default=1)
     name = db.Column(db.String(100))
     url = db.Column(db.String(300))  # 网盘链接
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
     medium = db.relationship(
-        'Medium', backref=db.backref('case_medium', lazy='dynamic'))
+        'Medium', backref=db.backref('case_medium', lazy='dynamic'))  # 这个字段已经废掉了
+    mediums = db.relationship('Medium', secondary=case_mediums)
     brand = db.Column(db.String(100))  # 品牌
     industry = db.Column(db.String(100))  # 行业
     create_time = db.Column(db.DateTime)
@@ -1034,11 +1052,12 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
     desc = db.Column(db.String(300))
     __mapper_args__ = {'order_by': create_time.desc()}
 
-    def __init__(self, name, url, type, medium, brand, industry, creator, desc, create_time=None):
+    def __init__(self, name, url, type, medium, brand, industry, creator, desc, mediums, create_time=None):
         self.name = name
         self.url = url
         self.type = type
         self.medium = medium
+        self.mediums = mediums or []
         self.brand = brand
         self.industry = industry
         self.creator = creator
@@ -1055,7 +1074,7 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def info(self):
-        return '%s%s%s%s' % (self.name, self.brand, self.industry, self.desc)
+        return '%s%s%s' % (self.name, self.brand, self.desc)
 
     @property
     def tag_ids(self):
@@ -1064,3 +1083,11 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
     @property
     def tags(self):
         return ','.join([k.tag.name for k in self.case_tag])
+
+    @property
+    def mediums_name(self):
+        return ','.join([k.name for k in self.mediums])
+
+    @property
+    def mediums_id(self):
+        return [k.id for k in self.mediums]
