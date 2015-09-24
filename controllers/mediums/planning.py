@@ -65,12 +65,10 @@ def create(type):
         if Case.query.filter_by(name=name, type=type).count() > 0:
             flash(u'名称已存在', 'danger')
             return redirect(url_for('mediums_planning.create', type=type))
-        print Medium.gets(request.values.getlist('mediums'))
         case = Case.add(name=name, url=url, medium=Medium.get(1),
                         mediums=Medium.gets(request.values.getlist('mediums')),
                         brand=brand, industry=industry, desc=desc,
-                        creator=g.user, type=type, INDUSTRY=INDUSTRY)
-        print case
+                        creator=g.user, type=type)
         case = Case.get(case.id)
         for k in tags:
             if k:
