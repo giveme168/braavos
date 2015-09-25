@@ -40,6 +40,8 @@ def leaves():
         leaves = [k for k in leaves if k.creator.id == user_id]
     if status != 100:
         leaves = [k for k in leaves if k.status == status]
+
+    leaves = sorted(leaves, key=lambda x: x.start_time, reverse=True)
     if request.values.get('action') == 'excel':
         return write_outs_excel(leaves)
     paginator = Paginator(leaves, 50)
@@ -100,7 +102,7 @@ def underling():
         leaves = [k for k in leaves if k.type == int(type)]
     if status != 100:
         leaves = [k for k in leaves if k.status == status]
-
+    leaves = sorted(leaves, key=lambda x: x.start_time, reverse=True)
     paginator = Paginator(leaves, 50)
     try:
         leaves = paginator.page(page)

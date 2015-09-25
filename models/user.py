@@ -361,9 +361,7 @@ class User(db.Model, BaseModelMixin):
         performance = self.performance_user.filter_by(
             year=int(year), q_month=Q).first()
         if performance:
-            if performance.status == 0:
-                return performance.money * 10000
-            return 0
+            return performance.money * 10000
         return 0
 
     # 销售提成 - 获取销售业绩（跨季度有可能是多个）
