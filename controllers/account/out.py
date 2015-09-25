@@ -80,6 +80,7 @@ def underling():
                 start_time and k.start_time < end_time]
     if status:
         outs = [k for k in outs if k.status == status]
+    outs = sorted(outs, key=lambda x: x.start_time, reverse=True)
     paginator = Paginator(outs, 50)
     try:
         outs = paginator.page(page)
@@ -111,6 +112,7 @@ def outs():
         outs = [k for k in outs if k.status == status]
     if user_id:
         outs = [k for k in outs if k.creator.id == user_id]
+    outs = sorted(outs, key=lambda x: x.start_time, reverse=True)
     if request.values.get('action') == 'excel':
         return write_outs_excel(outs)
     paginator = Paginator(outs, 50)
