@@ -1,6 +1,7 @@
 #-*- coding: UTF-8 -*-
 import os
 import mimetypes
+import smtplib
 from threading import Thread
 from flask_mail import Mail, Message
 
@@ -71,3 +72,15 @@ def send_attach_mail(subject, recipients, body='', file_paths=None):
                         ctype = 'application/octet-stream'
                     msg.attach(os.path.basename(f.name).encode('gb2312'), ctype, f.read(), 'attachment')
         mail.send(msg)
+
+def check_auth_by_mail(username, password):
+    host="smtp.exmail.qq.com"
+    smtp=smtplib.SMTP(host)
+    try:
+        ret = smtp.login(username,password)
+        smtp.close()
+        if ret[0] == 235:
+            return True
+    except Exception,e:
+        print e
+    return False

@@ -42,7 +42,7 @@ def write_order_excel(orders, t_type):
     # 设置宽度为30
     worksheet.set_column(len(keys), 0, 20)
     # 设置高度
-    for k in range(len(orders) + 1):
+    for k in range(len(orders) + 2):
         worksheet.set_row(k, 30)
     th = 1
     for k in range(len(orders)):
@@ -83,6 +83,8 @@ def write_order_excel(orders, t_type):
             worksheet.write(th, 11, orders[k].money, align_left)
             worksheet.write(th, 12, orders[k].create_time_cn, align_left)
         th += 1
+    worksheet.merge_range(th, 0, th, 10, u'总计', align_center)
+    worksheet.merge_range(th, 11, th, 12, sum([k.money for k in orders]), align_left)
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %

@@ -496,7 +496,7 @@ def outsource_status(order_id):
         [order.creator, g.user] + order.operater_users
     try:
         outsource_apply_user = User.outsource_leaders_email(
-            order.agent_sales[0])
+            (order.agent_sales + order.direct_sales)[0])
     except:
         outsource_apply_user = []
     outsources_ids = set(outsource_ids) | set(

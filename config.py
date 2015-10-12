@@ -20,7 +20,7 @@ class Config(object):
     SENTRY_DSN = ''
     DOMAIN = 'http://z.inad.com'
     UPLOADED_FILES_DEST = '/tmp/braavos/'
-    UPLOADED_FILES_URL = '/files/'
+    UPLOADED_FILES_URL = '/files/files/'
     UPLOADED_ATTACHMENT_DEST = '/tmp/attachment/'
     UPLOADED_ATTACHMENT_URL = '/files/attachment/'
     UPLOADED_MEDIUMS_DEST = '/tmp/mediums/'

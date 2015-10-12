@@ -138,6 +138,10 @@
         {% endif %}
     </tr>
     {% endfor %}
+    <tr>
+        <td colspan=11 style="text-align: center;">总计</td>
+        <td colspan=2 style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>
+    </tr>
 </table>
   </div>
 </div>

@@ -237,10 +237,10 @@ def pay_medium_invoice():
             search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
         orders = [k for k in MediumInvoicePay.query.filter(MediumInvoicePay.pay_time >= search_date,
                                                            MediumInvoicePay.pay_time < end_search_date)
-                  if k.client_order.status == 1]
+                  if k.client_order.status == 1 and k.pay_status == 0]
     else:
         orders = [k for k in MediumInvoicePay.all() if k.pay_time.year == int(
-            year) and k.client_order.status == 1]
+            year) and k.client_order.status == 1 and k.pay_status == 0]
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
