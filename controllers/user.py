@@ -8,6 +8,7 @@ from models.user import Team, User, USER_STATUS_CN, DEFAULT_BIRTHDAY, DEFAULT_RE
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
 from config import DEFAULT_PASSWORD
 from libs.signals import password_changed_signal
+from libs.mail import check_auth_by_mail
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
 page_num = 50
@@ -22,13 +23,22 @@ def index():
 def login():
     form = LoginForm(request.form)
     if request.method == 'POST':
-        user = form.validate()
+        if request.values.get('is_pwd', ''):
+            username = request.values.get('email', '')
+            password = request.values.get('password', '')
+            if check_auth_by_mail(username, password):
+                user = User.query.filter_by(email=username).first()
+            else:
+                flash(u'密码不正确', 'danger')
+        else:
+            user = form.validate()
         if user:
             login_user(user)
             if user.check_password(DEFAULT_PASSWORD):
                 flash(u'您还在使用默认密码, 请及时<a href="%s">修改您的密码!</a>' %
                       url_for('user.pwd_change'), 'danger')
             return redirect(request.args.get("next", "/"))
+        flash(u'密码不正确', 'danger')
     return tpl('login.html', form=form)
 
 

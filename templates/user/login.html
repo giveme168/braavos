@@ -1,30 +1,126 @@
-{% extends "base.html" %}
-{% block title %}登录{% endblock %}
-
-{% block content %}
-<div class="form-unit">
-  <a href="/" class="brand text-center">
-    <h1>InAD 广告平台</h1>
-  </a>
-  <h3>请使用您的InAD帐号</h3>
-  <form class="auth-form form-horizontal" method="POST">
-    {{ form.csrf_token() }}
-    {% if form.email.errors %} 
-    <div class="errors">
-      {{ ','.join(form.email.errors) }}
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>致趣联媒</title>
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css"  type="text/css">
+  <link rel="stylesheet" href="/static/css/login_style.css"  type="text/css">
+  <link rel="stylesheet" href="/static/css/slippry.css"  type="text/css">
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+</head>
+<body class="">
+  <div class="bar"></div>
+  <div class="sy-box">
+    <div class="sy-slides-wrap">
+      <div class="sy-slides-crop">
+        <ul id="slider" style="list-style: none; width: 100%; height: 100%; padding: 0; margin: 0;" class="hde sy-list">    
+          <li class="sy-slide kenburns useCSS" style="transition-duration: 5000ms; opacity: 0; animation-duration: 19000ms;">
+            <img src="/static/imgs/slide1.jpg">
+          </li>
+          <li class="sy-slide kenburns useCSS" style="transition-duration: 5000ms; opacity: 0; animation-duration: 19000ms;">
+            <img src="/static/imgs/slide2.jpg">
+          </li>
+          <li class="sy-slide kenburns useCSS sy-ken sy-active" style="transition-duration: 5000ms; opacity: 1; animation-duration: 19000ms;">
+            <img src="/static/imgs/slide3.jpg">
+          </li>
+        </ul>
+      </div>
+      <div class="sy-caption-wrap">
+        <div class="sy-caption" style="display: none;"></div>
+      </div>
+      <div class="sy-filler ready" style="padding-top: 66.6667%;"></div>
     </div>
-    {% endif %}
-    <div class="form-field">
-      {{ form.email(class_='form-control', placeholder=form.email.label.text) }}
+  </div>
+  <!-- header panel -->
+  <!-- bar loader -->
+  <div class="container-fluid prx-b" id="header" style="bottom: 0px;">
+    <div class="row">
+      <div class="col-sm-4">
+        <a href="#cd-nav" class="cd-nav-trigger">Menu 
+          <span class="cd-nav-icon"></span>
+        </a>
+      
+        <div id="cd-nav" class="cd-nav index bgcover">
+          <div class="cd-navigation-wrapper bg-xs">
+            <div class="cd-half-block">
+              <h2>Menu</h2>
+              <nav>
+                <ul class="cd-primary-nav">
+                  <li><a href="#" class="selected">About</a></li>
+                        
+                </ul>
+              </nav>
+            </div><!-- .cd-half-block -->
+            <div class="cd-half-block">
+              <address>
+                <ul class="cd-contact-info">
+                    <li><a href="mailto:z@inad.com">z@inad.com</a></li>
+                    <!--<li>18601113045</li>-->
+                    <li>
+                        <span>产品开发部门</span>
+                    </li>
+                </ul>
+              </address>
+            </div> <!-- .cd-half-block -->
+          </div> <!-- .cd-navigation-wrapper -->
+        </div> <!-- .cd-nav -->
+      </div>
+             
+      <div class="col-sm-4 z1">
+        <img alt="logo JDC Design Studio" src="http://www.inad.com/images/logo_2x.png">
+      </div>
     </div>
-    <div class="form-field">
-      {{ form.password(class_='form-control', placeholder=form.password.label.text) }}
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="caption">
+          <h1 class="element">致趣联媒</h1>
+          <span>兴趣营销, 移动营销, 场景营销<br><!--development and digital media.--></span>
+          <p class="m-button">
+            <button type="button" class="ghost-button" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Login</button>
+            <a href="#" class="" data-target="#exampleModal" data-whatever="@mdo"></a> <!--&nbsp; 
+            <a href="#" class="ghost-button">Portfolio</a>-->
+          </p>
+        </div>
+      </div>
     </div>
-    <input type="submit" class="btn btn-primary btn-large" value="登录"/>
-  </form>
-</div>
-{% endblock %}
-
-{% block extra_head %}
-<link rel="stylesheet" href="/static/css/login.css" type="text/css">
-{% endblock %}
+  </div>
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document" style="margin:100px auto">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="exampleModalLabel">登陆</h4>
+        </div>
+        <form method="POST">
+          <div class="modal-body">
+            {{ form.csrf_token() }}
+            {% if form.email.errors %} 
+            <div class="errors">
+              {{ ','.join(form.email.errors) }}
+            </div>
+            {% endif %}
+            <div class="form-group">
+              <label for="recipient-name" class="control-label">邮箱:</label>
+              <input type="text" class="form-control" id="email" value="@inad.com" name="email"/>
+            </div>
+            <div class="form-group">
+              <label for="message-text" class="control-label">密码:</label>
+              <input type="password" class="form-control" id="password" name="password"/>
+            </div>
+            <div class="checkbox">
+              <label>
+                <input type="checkbox" name="is_pwd" id="is_pwd"/>使用公司邮箱密码登陆
+              </label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">登陆</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<!-- Resource jQuery -->
+<script src="/static/js/login_main.js"></script>
+</body>
+</html>

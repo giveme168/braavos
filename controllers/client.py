@@ -6,6 +6,7 @@ from flask import render_template as tpl, flash
 
 from models.client import Client, Group, Agent, AgentRebate
 from models.medium import Medium, MediumRebate
+from models.attachment import Attachment
 from forms.client import NewClientForm, NewGroupForm, NewAgentForm
 from forms.medium import NewMediumForm
 from models.user import Team
@@ -67,10 +68,11 @@ def new_agent():
             flash(u'新建代理/直客(%s)成功!' % agent.name, 'success')
         else:
             flash(u'新建代理/直客(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
-            return tpl('/client/agent/info.html', form=form, title=u"新建代理公司")
+            return tpl('/client/agent/info.html', form=form, title=u"新建代理公司", status='news')
         return redirect(url_for("client.agents"))
     return tpl('/client/agent/info.html',
                form=form,
+               status='news',
                title=u"新建代理/直客")
 
 
@@ -152,6 +154,8 @@ def agent_detail(agent_id):
         form.bank_num.data = agent.bank_num
     return tpl('/client/agent/info.html',
                form=form,
+               agent=agent,
+               status='update',
                title=u"代理/直客-" + agent.name)
 
 
@@ -291,6 +295,14 @@ def groups():
 def agents():
     agents = Agent.all()
     return tpl('/client/agent/index.html', agents=agents)
+
+
+@client_bp.route('/<agent_id>/files/<aid>/delete', methods=['GET'])
+def agent_files_delete(agent_id, aid):
+    attachment = Attachment.get(aid)
+    attachment.delete()
+    flash(u'删除成功!', 'success')
+    return redirect(url_for("client.agent_detail", agent_id=agent_id))
 
 
 @client_bp.route('/agent/<agent_id>/rebate')

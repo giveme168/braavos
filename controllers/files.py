@@ -15,6 +15,7 @@ from libs.signals import contract_apply_signal
 from models.attachment import Attachment
 from searchAd.models.client_order import searchAdClientOrder
 from searchAd.models.order import searchAdOrder
+from models.client import Agent
 
 
 files_bp = Blueprint('files', __name__, template_folder='../templates/files')
@@ -23,6 +24,7 @@ FILE_TYPE_CONTRACT = 0
 FILE_TYPE_SCHEDULE = 1
 FILE_TYPE_OUTSOURCE = 3
 FILE_TYPE_OTHERS = 4
+FILE_TYPE_AGENT = 9
 
 
 @files_bp.route('/files/<filename>', methods=['GET'])
@@ -44,7 +46,6 @@ def attachment(filename):
 @files_bp.route('/mediums/<filename>', methods=['GET'])
 def mediums(filename):
     config = app.upload_set_config.get('mediums')
-    print config.destination
     if config is None:
         abort(404)
     return send_from_directory(config.destination, filename.encode('utf-8'))
@@ -66,7 +67,10 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
             flash(u'文件名中包含非正常字符，请使用标准字符', 'danger')
             return redirect("%s" % (order.info_path()))
 
-        filename = attachment_set.save(request.files['file'])
+        if file_type == FILE_TYPE_AGENT:
+            filename = files_set.save(request.files['file'])
+        else:
+            filename = attachment_set.save(request.files['file'])
         if file_type == FILE_TYPE_CONTRACT:
             attachment = order.add_contract_attachment(g.user, filename)
             flash(u'合同文件上传成功!', 'success')
@@ -77,6 +81,10 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
             flash(u'资料上传成功', 'success')
             order.add_outsource_attachment(g.user, filename)
             return redirect(order.outsource_path())
+        elif file_type == FILE_TYPE_AGENT:
+            flash(u'资料上传成功', 'success')
+            order.add_agent_attachment(g.user, filename)
+            return redirect(order.agent_path())
         elif file_type == FILE_TYPE_OTHERS:
             flash(u'其他资料上传成功', 'success')
             attachment = order.add_other_attachment(g.user, filename)
@@ -243,6 +251,13 @@ def outsource_client_order_upload():
     order_id = request.values.get('order')
     order = ClientOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_OUTSOURCE)
+
+
+@files_bp.route('/client/agent/upload', methods=['POST'])
+def client_agent_upload():
+    agent_id = request.values.get('agent')
+    agent = Agent.get(agent_id)
+    return attachment_upload(agent, FILE_TYPE_AGENT)
 
 
 @files_bp.route('/outsource/douban_order/upload', methods=['POST'])

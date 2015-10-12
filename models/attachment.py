@@ -4,7 +4,7 @@ import datetime
 from flask import current_app as app
 
 from . import db, BaseModelMixin
-from libs.files import get_attachment_path, get_medium_path
+from libs.files import get_attachment_path, get_medium_path, get_full_path
 
 ATTACHMENT_STATUS_NEW = 0
 ATTACHMENT_STATUS_PASSED = 1
@@ -24,6 +24,7 @@ ATTACHMENT_TYPE_MEDIUM_INTRODUCE = 5
 ATTACHMENT_TYPE_MEDIUM_PRODUCT = 6
 ATTACHMENT_TYPE_MEDIUM_DATA = 7
 ATTACHMENT_TYPE_MEDIUM_NEW_PRODUCT = 8
+ATTACHMENT_TYPE_AGENT = 9
 
 ATTACHMENT_TYPE = {
     ATTACHMENT_TYPE_CONTRACT: u"合同",
@@ -35,6 +36,7 @@ ATTACHMENT_TYPE = {
     ATTACHMENT_TYPE_MEDIUM_PRODUCT: u"媒体刊列",
     ATTACHMENT_TYPE_MEDIUM_DATA: u"媒体数据",
     ATTACHMENT_TYPE_MEDIUM_NEW_PRODUCT: u"媒体新资源",
+    ATTACHMENT_TYPE_AGENT: u'代理/甲方资料'
 }
 
 
@@ -63,6 +65,10 @@ class Attachment(db.Model, BaseModelMixin):
     @property
     def medium_path(self):
         return get_medium_path(self.filename)
+
+    @property
+    def agent_path(self):
+        return get_full_path(self.filename)
 
     @property
     def path(self):
@@ -94,6 +100,7 @@ class Attachment(db.Model, BaseModelMixin):
         from .framework_order import FrameworkOrder
         from .douban_order import DoubanOrder
         from .associated_douban_order import AssociatedDoubanOrder
+        from .client import Agent
 
         # add for searchAd team
         from searchAd.models.order import searchAdOrder
@@ -108,7 +115,8 @@ class Attachment(db.Model, BaseModelMixin):
             'AssociatedDoubanOrder': AssociatedDoubanOrder,
             'searchAdOrder': searchAdOrder,
             'searchAdClientOrder': searchAdClientOrder,
-            'searchAdFrameworkOrder': searchAdFrameworkOrder
+            'searchAdFrameworkOrder': searchAdFrameworkOrder,
+            'Agent': Agent
         }
 
         return TARGET_DICT[self.target_type].get(self.target_id)

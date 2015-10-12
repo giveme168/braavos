@@ -343,7 +343,7 @@ def index():
     orders += [_order_to_dict(k, start_Q_month, douban_back_moneys, now_Q_douban_back_moneys, douban_report)
                for k in douban_orders if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
 
-    if g.user.is_super_leader():
+    if g.user.is_super_leader() or g.user.is_finance():
         orders = orders
     elif g.user.is_leader():
         orders = [k for k in orders if g.user.location in k['locations']]

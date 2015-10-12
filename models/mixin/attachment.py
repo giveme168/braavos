@@ -1,7 +1,7 @@
 import datetime
 
 from models.attachment import (Attachment, ATTACHMENT_TYPE_CONTRACT, ATTACHMENT_TYPE_SCHEDULE,
-                               ATTACHMENT_TYPE_OUTSOURCE, ATTACHMENT_TYPE_OTHERS)
+                               ATTACHMENT_TYPE_OUTSOURCE, ATTACHMENT_TYPE_OTHERS, ATTACHMENT_TYPE_AGENT)
 
 
 class AttachmentMixin():
@@ -57,6 +57,17 @@ class AttachmentMixin():
         Attachment.add(self.target_type, self.target_id, filename,
                        ATTACHMENT_TYPE_OUTSOURCE, user, datetime.datetime.now())
         return self.get_last_schedule()
+
+    def add_agent_attachment(self, user, filename):
+        Attachment.add(self.target_type, self.target_id, filename,
+                       ATTACHMENT_TYPE_AGENT, user, datetime.datetime.now())
+        return self.get_last_schedule()
+
+    def get_agent_attachments(self):
+        return Attachment.query.filter_by(target_type=self.target_type,
+                                          target_id=self.target_id,
+                                          attachment_type=ATTACHMENT_TYPE_AGENT
+                                          ).order_by(Attachment.create_time.desc())
 
     def get_schedule_attachments(self):
         return Attachment.query.filter_by(target_type=self.target_type,

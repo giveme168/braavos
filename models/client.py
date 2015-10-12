@@ -1,7 +1,9 @@
 # -*- coding: UTF-8 -*-
 import datetime
+from flask import url_for
 
 from . import db, BaseModelMixin
+from models.mixin.attachment import AttachmentMixin
 from models.client_order import ClientOrder
 from models.douban_order import DoubanOrder
 from models.framework_order import FrameworkOrder
@@ -51,7 +53,7 @@ class Group(db.Model, BaseModelMixin):
         return is_exist
 
 
-class Agent(db.Model, BaseModelMixin):
+class Agent(db.Model, BaseModelMixin, AttachmentMixin):
     __tablename__ = 'agent'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -116,6 +118,9 @@ class Agent(db.Model, BaseModelMixin):
 
     def get_agent_invoice_count(self):
         return AgentInvoice.query.filter_by(agent_id=self.id).count()
+
+    def agent_path(self):
+        return url_for('client.agent_detail', agent_id=self.id)
 
 
 class AgentRebate(db.Model, BaseModelMixin):
