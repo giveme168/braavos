@@ -5,7 +5,7 @@
     <h4> {{ order.name }} 回款情况</h4>
     <ul class="nav nav-tabs">
       <li class=""><a href='{{url_for("order.douban_order_info", order_id=order.id)}}'>合同流程</a></li>
-      {% if order.can_admin(g.user) or g.user.is_contract() %}
+      {% if order.can_admin(g.user) or g.user.is_contract() or g.user.is_finance()%}
       <li class="active"><a href='{{url_for("saler_douban_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
       {% endif %}
     </ul>
@@ -212,7 +212,7 @@
             </div>
         </div>
     </div>
-    {% if g.user.is_contract() %}
+    {% if g.user.is_contract() or g.user.is_finance() %}
     <button onclick="showInvoice(this,'new-back-money');" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span>新建回款信息</button>
     <button onclick="showInvoice(this,'new-back-invoice');" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span>新建返点发票信息</button>
     {% endif %}

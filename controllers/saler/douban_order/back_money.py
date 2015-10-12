@@ -21,7 +21,7 @@ def index(order_id):
 
 @saler_douban_order_back_money_bp.route('/order/<order_id>/back_money', methods=['GET', 'POST'])
 def back_money(order_id):
-    if not g.user.is_contract():
+    if not (g.user.is_contract() or g.user.is_finance()):
         abort(404)
     order = DoubanOrder.get(order_id)
     if not order:
@@ -67,7 +67,7 @@ def back_money(order_id):
 
 @saler_douban_order_back_money_bp.route('/order/<order_id>/back_invoice', methods=['GET', 'POST'])
 def back_invoice(order_id):
-    if not g.user.is_contract():
+    if not (g.user.is_contract() or g.user.is_finance()):
         abort(404)
     order = DoubanOrder.get(order_id)
     if not order:
