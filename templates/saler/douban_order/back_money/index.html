@@ -53,7 +53,7 @@
                       <tr>
                         <th>回款时间</th>
                         <th>金额</th>
-                        {% if g.user.is_contract() %}
+                        {% if g.user.is_contract() or g.user.is_finance() %}
                         <th>操作</th>
                         {% endif %}
                       </tr>
@@ -61,7 +61,7 @@
                         <tr>
                           <td>{{back.back_time_cn}}</td>
                           <td>{{back.money}}</td>
-                          {% if g.user.is_contract() %}
+                          {% if g.user.is_contract() or g.user.is_finance() %}
                           <td><a href="{{url_for('saler_douban_order_back_money.delete',order_id=order.id,bid=back.id)}}">删除</a></td>
                           {% endif %}
                         </tr>
@@ -69,6 +69,7 @@
                       <tr>
                         <td>合计</td>
                         <td>{{order.back_money_list|sum(attribute='money')}}</td>
+                        <td></td>
                       </tr>
                     </table>
                   </div>
@@ -92,7 +93,7 @@
                                   <th>开票时间</th>
                                   <th>发票金额</th>
                                   <th>发票号</th>
-                                  {% if g.user.is_contract() %}
+                                  {% if g.user.is_contract() or g.user.is_finance() %}
                                   <th>操作</th>
                                   {% endif %}
                                 </tr>
@@ -101,7 +102,7 @@
                                   <td>{{back.back_time_cn}}</td>
                                   <td>{{back.money}}</td>
                                   <td>{{back.num}}</td>
-                                  {% if g.user.is_contract() %}
+                                  {% if g.user.is_contract() or g.user.is_finance() %}
                                   <td><a href="{{url_for('saler_douban_order_back_money.delete_invoice',order_id=order.id,bid=back.id)}}">删除</a></td>
                                   {% endif %}
                                 </tr>
@@ -109,6 +110,7 @@
                                 <tr>
                                   <td>合计</td>
                                   <td>{{order.back_invoice_rebate_list|sum(attribute='money')}}</td>
+                                  <td colspan=2></td>
                                 </tr>
                               </table>
                           </div>
@@ -141,7 +143,7 @@
                                 <span class="errors"></span>
                                 <span class="tips"></span>
                             </div>
-                            {% if g.user.is_contract() %}
+                            {% if g.user.is_contract() or g.user.is_finance() %}
                             <div class="col-sm-2"><input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/></div>
                             {% endif %}
                         </div>

@@ -6,6 +6,8 @@
     margin-left:15px;
 }
 </style>
+<div class="bra-left bra-box">
+    <div class="list-group" id="left-list">
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 媒体产品管理</li>
     <a class="list-group-item" href="{{url_for('mediums_files.index')}}">媒体资料</a>
     <a class="list-group-item" href="{{url_for('mediums_planning.index', type=1)}}">策划案列</a>
@@ -13,4 +15,10 @@
     <!--<a class="list-group-item" href="{{url_for('mediums_product.index', mtype='pc')}}">媒体产品</a>
     <a class="list-group-item" href="{{url_for('mediums_resource.index')}}">媒体资源</a>-->
     {% endif %}
+    </div>
+    <div class="left-btn">
+        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
+        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    </div>
+</div>
 {% endblock %}

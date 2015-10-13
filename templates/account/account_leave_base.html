@@ -1,6 +1,8 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
+<div class="bra-left bra-box">
+    <div class="list-group" id="left-list">
     <a class="list-group-item" href="{{url_for('account_leave.index',user_id = g.user.id)}}">
         <span class="glyphicon glyphicon-user"></span> 我的请假申请
     </a>
@@ -14,4 +16,10 @@
         <span class="glyphicon glyphicon-user"></span> 所有请假列表
     </a>
     {% endif %}
+    </div>
+    <div class="left-btn">
+        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
+        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    </div>
+</div>
 {% endblock %}

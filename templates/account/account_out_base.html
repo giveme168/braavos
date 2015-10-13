@@ -1,6 +1,8 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
+<div class="bra-left bra-box">
+    <div class="list-group" id="left-list">
     <a class="list-group-item" href="{{url_for('account_out.index')}}">
         <span class="glyphicon glyphicon-user"></span> 我的外出报备
     </a>
@@ -14,4 +16,10 @@
         <span class="glyphicon glyphicon-user"></span> 所有外出报备列表
     </a>
     {% endif %}
+    </div>
+    <div class="left-btn">
+        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
+        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    </div>
+</div>
 {% endblock %}
