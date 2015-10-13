@@ -6,6 +6,14 @@
     margin-left:15px;
 }
 </style>
+<div class="bra-left bra-box">
+    <div class="list-group" id="left-list">
     <a class="list-group-item" href="{{url_for('util_insert_orders.index')}}">导入合同</a>
     <a class="list-group-item" href="{{url_for('util_insert_douban_orders.index')}}">导入豆瓣合同</a>
+    </div>
+    <div class="left-btn">
+        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
+        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    </div>
+</div>
 {% endblock %}

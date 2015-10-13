@@ -54,58 +54,6 @@
               <!--致趣订单结束-->
               {% endif %}
             </li>
-            <!--
-            {% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader())%}
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">销售管理<span class="caret"></span></a>
-              <ul class="dropdown-menu" role="menu">
-                <li role="presentation" class="dropdown-header">搜索部门订单管理</li>
-                  <li><a href="{{url_for('searchAd_order.my_framework_orders')}}">框架订单</a></li>
-                  <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}">普通订单</a></li>
-                  <li role="presentation" class="dropdown-header">搜索广告客户管理</li>
-                  <li><a href="{{url_for('searchAd_client.clients')}}">客户</a></li>
-                  <li><a href="{{url_for('searchAd_client.agents')}}">代理/直客</a></li>
-                  <li><a href="{{url_for('searchAd_client.groups')}}">代理集团</a></li>
-                  <li><a href="{{url_for('searchAd_client.mediums')}}">媒体</a></li>
-              </ul>
-            </li>
-            {% else %}
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">销售管理<span class="caret"></span></a>
-              <ul class="dropdown-menu" role="menu">
-                <li role="presentation" class="dropdown-header">致趣订单管理</li>
-                  <li><a href="{{url_for('order.my_orders')}}">新媒体订单</a></li>
-                  <li><a href="{{url_for('order.my_douban_orders')}}">直签豆瓣订单</a></li>
-                  {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() or g.user.is_media_leader()%}
-                  <li><a href="{{url_for('order.my_framework_orders')}}">框架订单</a></li>
-                  <li role="presentation" class="dropdown-header">客户管理</li>
-                  <li><a href="{{url_for('client.clients')}}">客户</a></li>
-                  <li><a href="{{url_for('client.agents')}}">代理/直客</a></li>
-                  <li><a href="{{url_for('client.groups')}}">代理集团</a></li>
-                  <li><a href="{{url_for('client.mediums')}}">媒体</a></li>
-                  
-                  {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() or g.user.is_media_leader() %}
-                  <li role="presentation" class="dropdown-header">搜索广告客户管理</li>
-                  <li><a href="{{url_for('searchAd_client.clients')}}">客户</a></li>
-                  <li><a href="{{url_for('searchAd_client.agents')}}">代理/直客</a></li>
-                  <li><a href="{{url_for('searchAd_client.groups')}}">代理集团</a></li>
-                  <li><a href="{{url_for('searchAd_client.mediums')}}">媒体</a></li>
-                  {% endif %}
-                  {% else %}
-                  <li role="presentation" class="dropdown-header">客户管理</li>
-                  <li><a href="{{url_for('client.clients')}}">客户</a></li>
-                  <li><a href="{{url_for('client.agents')}}">代理/直客</a></li>
-                  <li><a href="{{url_for('client.groups')}}">代理集团</a></li>
-                  <li><a href="{{url_for('client.mediums')}}">媒体</a></li>
-                  {% endif %}
-
-                  {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_admin() or g.user.is_media_leader() %}
-                  <li role="presentation" class="dropdown-header">数据报表</li>
-                  <li><a href="{{url_for('data_query_order.index')}}">月度订单金额统计</a></li>
-                  {% endif %}
-              </ul>
-            </li>
-            {% endif %}-->
             {% if g.user.is_operater() or g.user.is_operater_leader() or g.user.is_super_leader() or (g.user.is_leader() and (not g.user.is_searchad_leader()))%}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">运营管理<span class="caret"></span></a>
@@ -119,28 +67,8 @@
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">财务管理<span class="caret"></span></a>
               <ul class="dropdown-menu" role="menu">
-
                 <li><a href="{{url_for('finance_client_order_invoice.index')}}">致趣财务管理</a></li>
                 <li><a href="{{url_for('searchAd_finance_client_order_invoice.index')}}">搜索部门财务管理</a></li>
-
-                {#
-                <li role="presentation" class="dropdown-header">发票管理</li>
-                <li><a href="{{url_for('finance_client_order_invoice.index')}}">申请中的发票</a></li>
-                <li><a href="{{url_for('finance_client_order_invoice.index_pass')}}">所有客户发票信息</a></li>
-                <li role="presentation" class="dropdown-header">外包打款管理</li>
-                <li><a href="{{url_for('finance_outsource_pay.index')}}">媒体订单</a></li>
-                <li><a href="{{url_for('finance_outsource_pay.douban_index')}}">直签豆瓣订单</a></li>
-                <li role="presentation" class="dropdown-header">媒体打款管理</li>
-                <li><a href="{{url_for('finance_client_order_medium_pay.index')}}">媒体打款信息</a></li>
-                <li role="presentation" class="dropdown-header">甲方打款管理</li>
-                <li><a href="{{url_for('finance_client_order_agent_pay.index')}}">甲方打款信息</a></li>
-                <li role="presentation" class="dropdown-header">回款管理</li>
-                <li><a href="{{url_for('finance_client_order_back_money.index')}}">新媒体订单回款</a></li>
-                <li><a href="{{url_for('finance_douban_order_back_money.index')}}">豆瓣订单回款</a></li>
-                <li role="presentation" class="dropdown-header">媒体返点发票管理</li>
-                <li><a href="{{url_for('finance_client_order_medium_rebate_invoice.index')}}">申请中的媒体返点发票</a></li>
-                <li><a href="{{url_for('finance_client_order_medium_rebate_invoice.index_pass')}}">所有媒体返点发票信息</a></li>
-                #}
               </ul>
             </li>
             {% endif %}
@@ -175,7 +103,6 @@
               <ul class="dropdown-menu" role="menu">
                   <li><a href="{{url_for('mediums_files.index')}}">媒体资料</a></li>
                   <li><a href="{{url_for('mediums_planning.index', type=1)}}">策划案例</a></li>
-
                   <!--
                   <li><a href="{{url_for('mediums_product.index', mtype='pc')}}">媒体产品管理</a></li>
                   -->
@@ -247,15 +174,7 @@
     {% endwith %}
     <div class="wrapper-box">
         <div class="content-box">
-          <div class="bra-left bra-box">
-            <div class="list-group" id="left-list">
-              {% block left_box %}{% endblock %}
-            </div>
-            <div class="left-btn">
-                <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
-                <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
-            </div>
-          </div>
+          {% block left_box %}{% endblock %}
           {% block main_box %}{% endblock %}
         </div>
         <hr>

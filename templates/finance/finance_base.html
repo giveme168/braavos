@@ -6,6 +6,8 @@
     margin-left:15px;
 }
 </style>
+<div class="bra-left bra-box">
+    <div class="list-group" id="left-list">
     <h4>致趣财务管理</h4>
     {% if g.user.is_finance()%}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 客户发票管理</li>
@@ -28,4 +30,10 @@
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>数据查询</li>
     <a class="list-group-item" href="{{url_for('finance_client_order_data_query.agent_invoice')}}">数据查询</a>
     {% endif %}
+    </div>
+    <div class="left-btn">
+        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
+        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    </div>
+</div>
 {% endblock %}

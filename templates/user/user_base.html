@@ -1,6 +1,8 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
+<div class="bra-left bra-box">
+    <div class="list-group" id="left-list">
     {% if g.user.is_admin() or g.user.is_HR_leader() or g.user.is_super_leader() %}
     <a class="list-group-item" href="{{url_for('user.users')}}">
         <span class="glyphicon glyphicon-user"></span> 用户
@@ -9,4 +11,10 @@
         <span class="glyphicon glyphicon-stats"></span> 团队
     </a>
     {% endif %}
+    </div>
+    <div class="left-btn">
+        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
+        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    </div>
+</div>
 {% endblock %}

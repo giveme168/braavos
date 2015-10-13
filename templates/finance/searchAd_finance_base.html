@@ -6,6 +6,8 @@
     margin-left:15px;
 }
 </style>
+<div class="bra-left bra-box">
+    <div class="list-group" id="left-list">
     <h4>搜索部门财务管理</h4>
     {% if g.user.is_finance()%}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>客户发票管理</li>
@@ -23,4 +25,10 @@
     <a class="list-group-item" href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index_pass')}}">所有媒体返点发票信息</a>
     -->
     {% endif %}
+    </div>
+    <div class="left-btn">
+        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
+        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    </div>
+</div>
 {% endblock %}

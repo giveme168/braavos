@@ -1,6 +1,8 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
+<div class="bra-left bra-box">
+    <div class="list-group" id="left-list">
     {% if g.user.is_admin() or g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or g.user.is_finance()%}
     <a class="list-group-item" href="{{url_for('data_query_order.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 月度订单金额
@@ -44,4 +46,10 @@
     <a class="list-group-item" href="{{url_for('data_query_commission.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 销售人员提成
     </a>
+    </div>
+    <div class="left-btn">
+        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
+        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    </div>
+</div>
 {% endblock %}
