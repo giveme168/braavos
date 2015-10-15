@@ -44,16 +44,16 @@
         </form>
     </div>
     <br/>
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered">
         <tr>
-            <th>创建人</th>
+            <th style="width: 60px;">创建人</th>
             <th>Leader</th>
             <th>开始时间</th>
             <th>结束时间</th>
             <th>公司名称</th>
             <th>地点</th>
-            <th>参会人</th>
-            <th width="30%">原因</th>
+            <th style="width: 60px;">参会人</th>
+            <th>原因</th>
             <th>状态</th>
             <th style="width:130px;">操作</th>
         </tr>
@@ -64,9 +64,9 @@
             <td>{{o.start_time_cn}}</td>
             <td>{{o.end_time_cn}}</td>
             <td>{{o.m_persion_cn}}</td>
-            <td>{{o.address}}</td>
+            <td>{{o.address|truncate_html(15)}}</td>
             <td>{% for k in o.joiners %}{{k.name}}<br/>{% endfor %}</td>
-            <td><pre title="{{o.reason}}">{{o.reason|truncate_html(30)}}</td>
+            <td><pre title="{{o.reason}}">{{o.reason|truncate_html(20)}}</td>
             <td>{{o.status_cn}}</td>
             <td>
                 {% if title == '所有外出报备列表' %}
