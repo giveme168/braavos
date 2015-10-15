@@ -576,8 +576,8 @@ OUT_STATUS_MEETED = 3
 OUT_STATUS_MEETED_NOT_PASS = 4
 OUT_STATUS_CN = {
     OUT_STATUS_NEW: u'新添加',
-    OUT_STATUS_APPLY: u'外出报备申请中',
-    OUT_STATUS_PASS: u'外出报备申请通过',
+    OUT_STATUS_APPLY: u'申请中',
+    OUT_STATUS_PASS: u'申请通过',
     OUT_STATUS_MEETED: u'会议纪要填写完毕',
     OUT_STATUS_MEETED_NOT_PASS: u'未审批-会议纪要填写完毕',
 }
