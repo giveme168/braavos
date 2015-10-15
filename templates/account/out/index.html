@@ -39,11 +39,11 @@
             <td>
                {% if o.status == 0 %}
                <a href="{{url_for('account_out.update', oid=o.id)}}">修改</a></br>
-               <a href="{{url_for('account_out.status', oid=o.id)}}?status=1">发送报备申请</a></br>
+               <a href="{{url_for('account_out.status', oid=o.id)}}?status=1">发送申请</a></br>
                <a href="{{url_for('account_out.delete', oid=o.id)}}">删除</a>
                {% elif o.status == 1 %}
                <a href="{{url_for('account_out.meeting_s', oid=o.id)}}">填写会议纪要</a><br/>
-               <a href="{{url_for('account_out.status', oid=o.id)}}?status=1">再次发送报备申请</a></br>
+               <a href="{{url_for('account_out.status', oid=o.id)}}?status=1">再次发送申请</a></br>
                <a href="{{url_for('account_out.status', oid=o.id)}}?status=10">撤回</a>
                {% elif o.status == 2 %}
                <a href="{{url_for('account_out.meeting_s', oid=o.id)}}">填写会议纪要</a>{% if o.is_meeting %}<span title="请及时填写会议纪要" style="color:red;"class="glyphicon glyphicon-star-empty"></span>{% endif %}<br/>
@@ -52,7 +52,7 @@
                <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a>
                {% elif o.status == 4 %}
                <a href="{{url_for('account_out.meeting_s', oid=o.id)}}">修改会议纪要</a><br/>
-               <a href="{{url_for('account_out.status', oid=o.id)}}?status=1">再次发送报备申请</a></br>
+               <a href="{{url_for('account_out.status', oid=o.id)}}?status=1">再次发送申请</a></br>
                <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a>
                {% endif %} 
             </td>
