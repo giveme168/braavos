@@ -3,16 +3,16 @@
 {% block left_box%}
 <div class="bra-left bra-box">
     <div class="list-group" id="left-list">
-    <a class="list-group-item" href="{{url_for('client.clients')}}">
+    <a id="_clients_" class="list-group-item" href="{{url_for('client.clients')}}">
         <span class="glyphicon glyphicon-stats"></span> 客户
     </a>
-    <a class="list-group-item" href="{{url_for('client.agents')}}">
+    <a id="_agents_" class="list-group-item" href="{{url_for('client.agents')}}">
         <span class="glyphicon glyphicon-stats"></span> 代理/直客
     </a>
-    <a class="list-group-item" href="{{url_for('client.groups')}}">
+    <a id="_groups_" class="list-group-item" href="{{url_for('client.groups')}}">
         <span class="glyphicon glyphicon-stats"></span> 代理集团
     </a>
-    <a class="list-group-item" href="{{url_for('client.mediums')}}">
+    <a id="_mediums_" class="list-group-item" href="{{url_for('client.mediums')}}">
         <span class="glyphicon glyphicon-stats"></span> 媒体 
     </a>
     </div>
@@ -21,4 +21,28 @@
         <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
     </div>
 </div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[2].indexOf('s')>0){
+            $('#_'+p_pathname[2]+'_').addClass("active");
+        }else{
+            $('#_'+p_pathname[2]+'s_').addClass("active");
+        }
+        if (p_pathname[2] == 'new_client'){
+            $('#_clients_').addClass("active");
+        }
+        if (p_pathname[2] == 'new_agent'){
+            $('#_agents_').addClass("active");
+        }
+        if (p_pathname[2] == 'new_group'){
+            $('#_groups_').addClass("active");
+        }
+        if (p_pathname[2] == 'new_medium'){
+            $('#_mediums_').addClass("active");
+        }
+
+    })
+</script>
 {% endblock %}

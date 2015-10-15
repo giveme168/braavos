@@ -4,46 +4,46 @@
 <div class="bra-left bra-box">
     <div class="list-group" id="left-list">
     {% if g.user.is_admin() or g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or g.user.is_finance()%}
-    <a class="list-group-item" href="{{url_for('data_query_order.index')}}">
+    <a id="_order_" class="list-group-item" href="{{url_for('data_query_order.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 月度订单金额
     </a>
     {% endif %}
-    <a class="list-group-item" href="{{url_for('data_query_weekly.index')}}">
+    <a id="_weekly_" class="list-group-item" href="{{url_for('data_query_weekly.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 媒体订单周报
     </a>
-    <a class="list-group-item" href="{{url_for('data_query_weekly.douban_index')}}">
+    <a id="_weeklydouban_"class="list-group-item" href="{{url_for('data_query_weekly.douban_index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 直签豆瓣订单周报
     </a>
     {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
-    <a class="list-group-item" href="{{url_for('data_query_medium.index')}}">
+    <a id="_medium_" class="list-group-item" href="{{url_for('data_query_medium.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 媒体执行额
     </a>
     {% endif %}
     {% if g.user.is_operater_leader() or g.user.is_super_leader() %}
-    <a class="list-group-item" href="{{url_for('data_query_outsource.index')}}">
+    <a id="_outsource_" class="list-group-item" href="{{url_for('data_query_outsource.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 外包成本
     </a>
-    <a class="list-group-item" href="{{url_for('data_query_outsource.info')}}">
+    <a id="_outsourceinfo_" class="list-group-item" href="{{url_for('data_query_outsource.info')}}">
       <span class="glyphicon glyphicon-th-list"></span> 外包成本详情
     </a>
     {% endif %}
     {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_media_leader() %}
-    <a class="list-group-item" href="{{url_for('data_query_profit.client_order')}}">
+    <a id="_profitclient_order_" class="list-group-item" href="{{url_for('data_query_profit.client_order')}}">
       <span class="glyphicon glyphicon-th-list"></span> 媒体订单执行成本
     </a>
-    <a class="list-group-item" href="{{url_for('data_query_profit.douban_order')}}">
+    <a id="_profitdouban_order_" class="list-group-item" href="{{url_for('data_query_profit.douban_order')}}">
       <span class="glyphicon glyphicon-th-list"></span> 豆瓣订单执行成本
     </a>
-    <a class="list-group-item" href="{{url_for('data_query_order.cost')}}">
+    <a id="_ordercost_" class="list-group-item" href="{{url_for('data_query_order.cost')}}">
       <span class="glyphicon glyphicon-th-list"></span> 媒体订单发票与款项
     </a>
     {% endif %}
     {% if g.user.is_super_leader() %}
-    <a class="list-group-item" href="{{url_for('data_query_super_leader_medium.money')}}">
+    <a id="_super_leadermedium_" class="list-group-item" href="{{url_for('data_query_super_leader_medium.money')}}">
       <span class="glyphicon glyphicon-th-list"></span> 媒体清单
     </a>
     {% endif %}
-    <a class="list-group-item" href="{{url_for('data_query_commission.index')}}">
+    <a id="_commission_" class="list-group-item" href="{{url_for('data_query_commission.index')}}">
       <span class="glyphicon glyphicon-th-list"></span> 销售人员提成
     </a>
     </div>
@@ -52,4 +52,11 @@
         <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
     </div>
 </div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass("active");
+    })
+</script>
 {% endblock %}

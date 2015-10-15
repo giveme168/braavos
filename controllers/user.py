@@ -29,7 +29,7 @@ def login():
             if check_auth_by_mail(username, password):
                 user = User.query.filter_by(email=username).first()
             else:
-                flash(u'密码不正确', 'danger')
+                return tpl('login.html', form=form, msg=u"用户名或者密码错误.")
         else:
             user = form.validate()
         if user:
@@ -38,7 +38,7 @@ def login():
                 flash(u'您还在使用默认密码, 请及时<a href="%s">修改您的密码!</a>' %
                       url_for('user.pwd_change'), 'danger')
             return redirect(request.args.get("next", "/"))
-        flash(u'密码不正确', 'danger')
+        return tpl('login.html', form=form, msg=u"用户名或者密码错误.")
     return tpl('login.html', form=form)
 
 

@@ -17,7 +17,7 @@ body{
     max-width: 95%;
 }
 .navbar {
-    min-height: 40px;
+    min-height: 45px;
     width: 100%;
 }
 .nav > li > a {

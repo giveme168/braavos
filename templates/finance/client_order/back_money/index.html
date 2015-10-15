@@ -11,6 +11,7 @@
         <th>预计回款日期</th>
         <th>回款状态</th>
         <th>回款比例</th>
+        <th>已开客户发票</th>
         <th>合同号</th>
         <th>直客销售</th>
         <th>渠道销售</th>
@@ -24,12 +25,13 @@
         {% endif %}
             <td>{{o.agent.name}}</td>
             <td><a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.id)}}">{{o.name}}</a></td>
-            <td>{{o.money}}元</td>
-            <td>{{o.back_moneys}}元</td>
-            <td>{{o.money-o.back_moneys}}元</td>
+            <td>{{o.money|format_price}}元</td>
+            <td>{{o.back_moneys|format_price}}元</td>
+            <td>{{(o.money-o.back_moneys)|format_price}}元</td>
             <td>{{o.reminde_date_cn}}</td>
             <td>{{o.back_money_status_cn}}</td>
             <td>{{o.back_money_percent}}%</td>
+            <td>{{o.invoice_pass_sum|format_price}}元</td>
             <td>{{o.contract or "无合同号"}}</td>
             <td>{{o.direct_sales_names}}</td>
             <td>{{o.agent_sales_names}}</td>
@@ -39,7 +41,7 @@
 </table>
 {%- endmacro %}
 {% block main_box %}
-    <div class="bra-main bra-box" style="">
+    <div class="bra-main bra-box" style="width:1200px;">
         <h3>新媒体订单列表</h3>
         <div class="search">
             <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">

@@ -9,8 +9,8 @@
 <div class="bra-left bra-box">
     <div class="list-group" id="left-list">
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 媒体产品管理</li>
-    <a class="list-group-item" href="{{url_for('mediums_files.index')}}">媒体资料</a>
-    <a class="list-group-item" href="{{url_for('mediums_planning.index', type=1)}}">策划案列</a>
+    <a id="_files_" class="list-group-item" href="{{url_for('mediums_files.index')}}">媒体资料</a>
+    <a id="_planning_" class="list-group-item" href="{{url_for('mediums_planning.index', type=1)}}">策划案列</a>
     {% if g.user.is_media() or g.user.is_planner() %}
     <!--<a class="list-group-item" href="{{url_for('mediums_product.index', mtype='pc')}}">媒体产品</a>
     <a class="list-group-item" href="{{url_for('mediums_resource.index')}}">媒体资源</a>-->
@@ -21,4 +21,11 @@
         <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
     </div>
 </div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[2]+'_').addClass("active");
+    })
+</script>
 {% endblock %}

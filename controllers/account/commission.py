@@ -15,7 +15,10 @@ account_commission_bp = Blueprint(
 def index():
     if not g.user.is_super_leader():
         return abort(404)
-    users = [u for u in User.all() if u.is_out_saler and u.is_active()]
+    if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()):
+        users = [u for u in User.all() if u.is_search_saler and u.is_active()]
+    else:
+        users = [u for u in User.all() if u.is_out_saler and u.is_active()]
     huabei_users = [u for u in users if u.location == TEAM_LOCATION_HUABEI]
     huadong_users = [u for u in users if u.location == TEAM_LOCATION_HUADONG]
     huanan_users = [u for u in users if u.location == TEAM_LOCATION_HUANAN]

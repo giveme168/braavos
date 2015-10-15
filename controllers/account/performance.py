@@ -42,7 +42,10 @@ def index():
 
 @account_performance_bp.route('/create', methods=['GET', 'POST'])
 def create():
-    users = [u for u in User.all() if u.is_out_saler and u.is_active()]
+    if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()):
+        users = [u for u in User.all() if u.is_search_saler and u.is_active()]
+    else:
+        users = [u for u in User.all() if u.is_out_saler and u.is_active()]
     huabei_users = [u for u in users if u.location == TEAM_LOCATION_HUABEI]
     huadong_users = [u for u in users if u.location == TEAM_LOCATION_HUADONG]
     huanan_users = [u for u in users if u.location == TEAM_LOCATION_HUANAN]
@@ -97,7 +100,10 @@ def create():
 @account_performance_bp.route('/<pid>/update', methods=['GET', 'POST'])
 def update(pid):
     performance = Performance.get(pid)
-    users = [u for u in User.all() if u.is_out_saler and u.is_active()]
+    if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()):
+        users = [u for u in User.all() if u.is_search_saler and u.is_active()]
+    else:
+        users = [u for u in User.all() if u.is_out_saler and u.is_active()]
     huabei_users = [u for u in users if u.location == TEAM_LOCATION_HUABEI]
     huadong_users = [u for u in users if u.location == TEAM_LOCATION_HUADONG]
     huanan_users = [u for u in users if u.location == TEAM_LOCATION_HUANAN]

@@ -67,7 +67,7 @@
       </div>
              
       <div class="col-sm-4 z1">
-        <img alt="logo JDC Design Studio" src="http://www.inad.com/images/logo_2x.png">
+        <img alt="logo" src="http://www.inad.com/images/logo_2x.png">
       </div>
     </div>
     <div class="row">
@@ -94,11 +94,7 @@
         <form method="POST">
           <div class="modal-body">
             {{ form.csrf_token() }}
-            {% if form.email.errors %} 
-            <div class="errors">
-              {{ ','.join(form.email.errors) }}
-            </div>
-            {% endif %}
+            <div class="errors" style="display:none;"></div>
             <div class="form-group">
               <label for="recipient-name" class="control-label">邮箱:</label>
               <input type="text" class="form-control" id="email" value="@inad.com" name="email"/>
@@ -122,5 +118,16 @@
   </div>
 <!-- Resource jQuery -->
 <script src="/static/js/login_main.js"></script>
+<script>
+  $('#exampleModal').on('hidden.bs.modal', function (e) {
+    $('.errors').hide()
+    $('.errors').html('')
+  })
+  {% if msg %}
+    $('#exampleModal').modal()
+    $('.errors').show()
+    $('.errors').html('{{msg}}')
+  {% endif %}
+</script>
 </body>
 </html>
