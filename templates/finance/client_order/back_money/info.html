@@ -9,16 +9,22 @@
             <th>订单总金额</th>
             <th>已回款金额</th>
             <th>未回款金额</th>
+            <th>已开客户发票</th>
+            <th>渠道销售</th>
+            <th>直客销售</th>
             <th>是否完成回款</th>
         </tr>
         <tr>
-            <td>{{order.money}} 元</td>
-            <td>{{order.back_moneys}} 元</td>
-            <td>{{order.money-order.back_moneys}} 元</td>
+            <td>{{order.money|format_price}} 元</td>
+            <td>{{order.back_moneys|format_price}} 元</td>
+            <td>{{(order.money-order.back_moneys)|format_price}} 元</td>
+            <td>{{order.invoice_pass_sum|format_price}} 元</td>
+            <td>{{order.direct_sales_names}}</td>
+            <td>{{order.agent_sales_names}}</td>
             <td>{{order.back_money_status_cn}}</td>
         </tr>
         <tr>
-            <td colspan="4">
+            <td colspan="7">
                 <div class="progress">
                     <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{order.back_money_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{order.back_money_percent}}%;">
                         {{order.back_money_percent}}%

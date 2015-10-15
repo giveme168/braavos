@@ -82,5 +82,5 @@ def check_auth_by_mail(username, password):
         if ret[0] == 235:
             return True
     except Exception,e:
-        print e
+        pass
     return False

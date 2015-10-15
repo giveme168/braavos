@@ -6,17 +6,17 @@
     {% if g.user.is_searchad_member()  %}
     <!-- 增加搜索广告订单 -->
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 搜索部门订单管理</li>
-    <a class="list-group-item" href="{{url_for('searchAd_order.my_framework_orders')}}">
+    <a id="_my_framework_orders_" class="list-group-item" href="{{url_for('searchAd_order.my_framework_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的框架订单
     </a>
-    <a class="list-group-item" href="{{url_for('searchAd_order.new_framework_order')}}">
+    <a id="_new_framework_order_" class="list-group-item" href="{{url_for('searchAd_order.new_framework_order')}}">
         <span class="glyphicon glyphicon-plus"></span> 新建框架订单
     </a>
 
-    <a class="list-group-item" href="{{url_for('searchAd_order.my_searchAd_orders')}}">
+    <a id="_my_orders_" class="list-group-item" href="{{url_for('searchAd_order.my_searchAd_orders')}}">
       <span class="glyphicon glyphicon-th-list"></span> 我的普通订单
     </a>
-    <a class="list-group-item" href="{{url_for('searchAd_order.new_searchAd_order')}}">
+    <a id="_new_order_" class="list-group-item" href="{{url_for('searchAd_order.new_searchAd_order')}}">
         <span class="glyphicon glyphicon-plus"></span> 新建普通订单
     </a>
     {% endif %}
@@ -26,4 +26,18 @@
         <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
     </div>
 </div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[2]+'_').addClass("active");
+        if(['order', 'searchAd_order'].indexOf(p_pathname[2]) >= 0 ){
+            $('#_my_orders_').addClass("active");
+        }
+        if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
+            $('#_my_framework_orders_').addClass("active");
+        }
+    })
+
+</script>
 {% endblock %}

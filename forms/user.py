@@ -23,6 +23,9 @@ class LoginForm(Form):
             self.email.errors.append(u"用户名或者密码错误.")
             return False
 
+    def error_msg(self, msg):
+        self.email.errors.append(msg)
+
 
 class PwdChangeForm(Form):
     old_password = PasswordField(u'原密码', [validators.Required(u"请输入原密码.")])

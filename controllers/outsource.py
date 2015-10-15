@@ -541,10 +541,10 @@ def outsource_status(order_id):
         to_users_name = ','.join([k.name for k in User.operater_leaders()])
     elif action == 100:
         if outsource_percent >= 0.02:
-            action_msg = u'外包款超过2%，申请审批'
+            action_msg = u'外包款超过2%，修改并申请审批'
             next_status = OUTSOURCE_STATUS_EXCEED
         else:
-            action_msg = u'申请审批'
+            action_msg = u'修改并申请审批'
             next_status = OUTSOURCE_STATUS_APPLY_LEADER
         to_users_name = ','.join(
             [k.name for k in outsource_apply_user] + [k.name for k in order.operater_users])

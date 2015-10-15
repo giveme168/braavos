@@ -339,6 +339,10 @@ class User(db.Model, BaseModelMixin):
         return self.team.type in [TEAM_TYPE_AGENT_SELLER, TEAM_TYPE_DIRECT_SELLER, TEAM_TYPE_LEADER]
 
     @property
+    def is_search_saler(self):
+        return self.team.type in [TEAM_TYPE_SEARCH_AD_SELLER, TEAM_TYPE_SEARCH_AD_LEADER]
+
+    @property
     def team_leaders_cn(self):
         return ','.join([k.name for k in self.team_leaders])
 

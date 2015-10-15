@@ -1,0 +1,141 @@
+{% extends "/finance/finance_base.html" %}
+{% from '/order/order_form_attachment.html' import framework_order_attachment %}
+{% from 'comments.html' import comments_box %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h4> {{ order.name }} </h4>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 框架订单 </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="form form-horizontal">
+                        <input class="hide" name="info_type" value="0"/>
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">代理集团 : </label>
+                            <div class="col-sm-10">
+                              <label style="height: 34px; padding: 6px 12px;">{{order.group.name}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">代理/直客 : </label>
+                            <div class="col-sm-10">
+                              <label style="height: 34px; padding: 6px 12px;">{% for agent in order.agents %}{{agent.name}} <br>{% endfor %}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">备注 : </label>
+                            <div class="col-sm-10">
+                              <label style="height: 34px; padding: 6px 12px;">{{order.description}}</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
+                          <div class="col-sm-10">
+                            <label style="height: 34px; padding: 6px 12px;">{{order.client_start_cn}}</label>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
+                          <div class="col-sm-10">
+                            <label style="height: 34px; padding: 6px 12px;">{{order.client_end_cn}}</label>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="reminde_date" class="col-sm-2 control-label">回款日期 : </label>
+                          <div class="col-sm-10">
+                            <label style="height: 34px; padding: 6px 12px;">{{order.reminde_date_cn}}</label>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="reminde_date" class="col-sm-2 control-label">直客销售 : </label>
+                          <div class="col-sm-10">
+                            <label style="height: 34px; padding: 6px 12px;">{{order.direct_sales_names}}</label>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="reminde_date" class="col-sm-2 control-label">渠道销售 : </label>
+                          <div class="col-sm-10">
+                            <label style="height: 34px; padding: 6px 12px;">{{order.agent_sales_names}}</label>
+                          </div>
+                        </div>
+                    </div>
+                    <br><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    <div enctype="multipart/form-data">
+                      <div class="file-widget-btn btn btn-sm btn-primary"><span>致趣合同</span></div>
+                      {% set contract = order.get_last_contract() %}
+                      {% if contract %}
+                      <a href="{{contract.path}}">
+                        {{contract.filename}}
+                        {{contract.status_cn}}
+                      </a>
+                        <a href="{{contract.path}}" class="btn btn-sm btn-default">下载</a>
+                        {% if g.user.is_contract() %}
+                        {% endif %}
+                      {% endif %}<br/><br/>
+                      <div class="file-widget-btn btn btn-sm btn-primary"><span>豆瓣合同</span></div>
+                      {% set schedule = order.get_last_schedule() %}
+                      {% if schedule %}
+                      <a href="{{schedule.path}}">
+                        {{schedule.filename}}
+                        {{schedule.status_cn}}
+                      </a>
+                        <a href="{{schedule.path}}" class="btn btn-sm btn-default">下载</a>
+                        {% if g.user.is_contract() %}
+                        {% endif %}
+                      {% endif %}</br><br/>
+                      <div class="file-widget-btn btn btn-sm btn-primary"><span>其他合同</span></div>
+                      {% set others = order.get_last_others() %}
+                      {% if others %}
+                      <a href="{{others.path}}">
+                        {{others.filename}}
+                        {{others.status_cn}}
+                      </a>
+                        <a href="{{others.path}}" class="btn btn-sm btn-default">下载</a>
+                      {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 合同状态 </a>
+                </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="form form-horizontal">
+                        <div class="form-group">
+                          <label for="name" class="col-sm-4 control-label">豆瓣合同号 : </label>
+                          <div class="col-sm-8">
+                            <label style="height: 34px; padding: 6px 12px;">{{order.douban_contract or ''}}</lable>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="name" class="col-sm-4 control-label">合同号申请状态 : </label>
+                          <div class="col-sm-8">
+                              <label style="height: 34px; padding: 6px 12px;">{{order.contract_status_cn}}</label>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="name" class="col-sm-4 control-label">订单合同号 : </label>
+                          <div class="col-sm-8">
+                              <label style="height: 34px; padding: 6px 12px;">{{order.contract}}</label>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>{{ comments_box(order) }}</div>
+</div>
+{% endblock %}
