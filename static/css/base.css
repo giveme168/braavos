@@ -21,7 +21,7 @@ body{
     width: 100%;
 }
 .nav > li > a {
-    padding: 10px 15px;
+    /**padding: 10px 15px;**/
 }
 .navbar-brand {
     padding: 10px 15px;
