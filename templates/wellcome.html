@@ -221,7 +221,7 @@
             </div>
           </p>
         </div><!-- /.col-lg-4 -->
-        {% if g.user.is_leader() or g.user.is_super_leader() or g.user.is_HR_leader() %}
+        {% if g.user.is_leader() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
         <div class="col-xs-6 col-lg-4">
           <h2>人员管理</h2>
           <p>用户及权限设置、销售人员体层及目标设置</p>
@@ -230,7 +230,7 @@
                 <button class="btn btn-info dropdown-toggle" style="width:100px;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">选择<span class="caret"></span></button>
                 <!--搜索部门-->
                 <ul class="dropdown-menu" role="menu">
-                    {% if g.user.is_admin() or g.user.is_super_leader() or g.user.is_HR_leader() %}
+                    {% if g.user.is_admin() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
                     <li><a href="{{url_for('user.index')}}" target="_blank">用户管理</a></li>
                     <li><a href="{{url_for('user.index')}}" target="_blank">团队管理</a></li>
                     {% endif %}

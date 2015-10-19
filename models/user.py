@@ -102,9 +102,11 @@ class User(db.Model, BaseModelMixin):
                                    backref="user_ids")
     birthday = db.Column(db.DateTime)
     recruited_date = db.Column(db.DateTime)
+    quit_date = db.Column(db.DateTime)
+    cellphone = db.Column(db.String(20))
 
     def __init__(self, name, email, password, team, status=USER_STATUS_ON, team_leaders=[], birthday=None,
-                 recruited_date=None):
+                 recruited_date=None, quit_date=None, cellphone=''):
         self.name = name
         self.email = email.lower()
         self.set_password(password)
@@ -113,6 +115,8 @@ class User(db.Model, BaseModelMixin):
         self.team_leaders = team_leaders
         self.birthday = birthday or DEFAULT_BIRTHDAY
         self.recruited_date = recruited_date or datetime.date.today()
+        self.quit_date = quit_date or datetime.date.today()
+        self.cellphone = cellphone or ''
 
     '''
     def __repr__(self):
@@ -199,6 +203,9 @@ class User(db.Model, BaseModelMixin):
 
     def is_HR_leader(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_HR_LEADER
+
+    def is_HR(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_HR
 
     def is_contract(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_CONTRACT
@@ -384,6 +391,10 @@ class User(db.Model, BaseModelMixin):
         for k in back_moneys:
             commission_obj[str(k[0].year)] = self.commission(k[0].year)
         return commission_obj
+
+    @property
+    def cellphone_cn(self):
+        return self.cellphone or ''
 
 
 team_admins = db.Table('team_admin_users',

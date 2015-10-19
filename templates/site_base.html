@@ -10,7 +10,8 @@
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/">首页</a></li>
+            <li id="index"><a href="/">首页</a></li>
+            <!--<li id="contact" class=""><a href="{{url_for('user.contact')}}">通讯录</a></li>-->
           </ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a target="_blank" href="http://mail.inad.com/">致趣邮箱</a></li>
@@ -89,9 +90,16 @@
     $(function(){
       $("#list-show").hide();
       var pathname = window.location.pathname;
+      var p_pathname = pathname.split('/')
       if (pathname != '/'){
-          $(".content-box").css("width", 280+$(".bra-main").width()+"px");
+        $(".content-box").css("width", 280+$(".bra-main").width()+"px");
+        if (p_pathname[2] == 'contact'){
+          $("#contact").addClass("active");
+        }
+      }else{
+        $("#index").addClass("active");
       }
+
       $(".left-btn").click(function(e){
         $(".left-btn").css('height', $(".left-btn").height()+'px')
         $("#left-list").toggle();

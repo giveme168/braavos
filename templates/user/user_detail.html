@@ -5,9 +5,9 @@
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3>用户 - {{user.name}}</h3>
-    {% if g.user.team.is_admin() or g.user==user or g.user.is_HR_leader() %}
+    {% if g.user.team.is_admin() or g.user==user or g.user.is_HR_leader() or g.user.is_HR() %}
         {{ form_tpl(form) }}
-        {% if g.user.team.is_admin() %}
+        {% if g.user.team.is_admin() or g.user.is_HR() or g.user.is_HR_leader() %}
         <div style="margin-top: 30px;">
             * 重设密码统一设置为 {{DEFAULT_PASSWORD}}
             <a href="{{url_for('user.pwd_reset', user_id=user.id)}}" class="btn btn-danger btn-sm"> 重设为默认密码</a>
@@ -43,15 +43,25 @@ $(document).ready(function(){
         todayHighlight: true,
         language: 'zh-CN',
         minView: 2,
-        format: 'yyyy-mm-dd'
-      });
+        format: 'yyyy-mm-dd',
+        todayBtn: true
+    });
     $('#recruited_date').datetimepicker({
         autoclose: true,
         todayHighlight: true,
         language: 'zh-CN',
         minView: 2,
-        format: 'yyyy-mm-dd'
-      });
+        format: 'yyyy-mm-dd',
+        todayBtn: true
+    });
+    $('#quit_date').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2,
+        format: 'yyyy-mm-dd',
+        todayBtn: true
+    });
 
 });
 </script>
