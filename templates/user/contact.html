@@ -8,18 +8,16 @@
     <table class="table">
       <thead>
         <tr>
-          <th>#</th>
           <th>姓名</th>
-          <th>部门</th>
+          <th>区域</th>
           <th>联系方式</th>
         </tr>
       </thead>
       <tbody>
         {% for user in users %}
         <tr>
-          <th scope="row">{{user.id}}</th>
           <td>{{user.name}}</td>
-          <td>{{user.team.name}}</td>
+          <td>{{user.team.location_cn}}</td>
           <td>{{user.cellphone_cn}}</td>
         </tr>
         {% endfor %}
