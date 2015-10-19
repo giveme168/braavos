@@ -2,7 +2,7 @@
 {% block title %}我的客户订单{% endblock %}
 
 {% block main_box %}
-<div class="bra-main bra-box">
+<div class="bra-main bra-box" style="width:1200px;">
     <h3>{{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
@@ -41,6 +41,7 @@
     <table class="table table-bordered table-striped">
         <tr>
             <th>客户名称</th>
+            <th>合同号</th>
             <th>媒体总金额</th>
             <th>收到发票总金额</th>
             <th>已打款发票金额</th>
@@ -53,6 +54,7 @@
         {% for order in orders %}
         <tr>
             <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
+            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.contract}}</a></td>
             <td>{{order.mediums_money2}} 元</td>
             <td>{{order.mediums_invoice_sum}} 元</td>
             <td>{{order.mediums_invoice_pass_sum}} 元</td>
