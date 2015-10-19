@@ -133,7 +133,8 @@ def new_user():
                                 team_leaders=User.gets(form.team_leaders.data),
                                 birthday=form.birthday.data,
                                 recruited_date=form.recruited_date.data,
-                                quit_date=form.quit_date.data)
+                                quit_date=form.quit_date.data,
+                                cellphone=form.cellphone.data)
                 flash(u'新建用户(%s)成功!' % user.name, 'success')
             else:
                 flash(u'新建用户(%s)失败，用户名已经存在!' % form.name.data, 'danger')

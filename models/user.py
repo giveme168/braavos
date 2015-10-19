@@ -394,7 +394,7 @@ class User(db.Model, BaseModelMixin):
 
     @property
     def cellphone_cn(self):
-        return self.cellphone or ''
+        return self.cellphone or u'无'
 
 
 team_admins = db.Table('team_admin_users',
