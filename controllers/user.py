@@ -132,7 +132,8 @@ def new_user():
                                 Team.get(form.team.data), form.status.data,
                                 team_leaders=User.gets(form.team_leaders.data),
                                 birthday=form.birthday.data,
-                                recruited_date=form.recruited_date.data)
+                                recruited_date=form.recruited_date.data,
+                                quit_date=form.quit_date.data)
                 flash(u'新建用户(%s)成功!' % user.name, 'success')
             else:
                 flash(u'新建用户(%s)失败，用户名已经存在!' % form.name.data, 'danger')
@@ -157,9 +158,12 @@ def user_detail(user_id):
                 user.team_leaders = User.gets(form.team_leaders.data)
                 user.birthday = form.birthday.data
                 user.recruited_date = form.recruited_date.data
+                user.quit_date = form.quit_date.data
+                user.cellphone = form.cellphone.data
             elif g.user.id == user.id:
                 user.birthday = form.birthday.data
                 user.recruited_date = form.recruited_date.data
+                user.cellphone = form.cellphone.data
             user.save()
             flash(u'保存成功!', 'success')
             return redirect(url_for('user.user_detail', user_id=user_id))
@@ -168,10 +172,12 @@ def user_detail(user_id):
         form.email.data = user.email
         form.team.data = user.team_id
         form.status.data = user.status
+        form.cellphone.data = user.cellphone
         form.team_leaders.data = [u.id for u in user.team_leaders]
         form.birthday.data = user.birthday or DEFAULT_BIRTHDAY
         form.recruited_date.data = user.recruited_date or DEFAULT_RECRUITED_DATE
-    if not g.user.team.is_admin():
+        form.quit_date.data = user.quit_date or DEFAULT_RECRUITED_DATE
+    if not (g.user.team.is_admin() or g.user.is_HR() or g.user.is_HR_leader()):
         form.name.readonly = True
         form.email.readonly = True
         form.team.readonly = True
@@ -186,6 +192,12 @@ def user_detail(user_id):
 @user_bp.route('/mine')
 def mine():
     return redirect(url_for('user.user_detail', user_id=g.user.id))
+
+
+@user_bp.route('/contact')
+def contact():
+    users = User.all_active()
+    return tpl('contact.html', users=users)
 
 
 @user_bp.route('/pwd_reset/<user_id>')

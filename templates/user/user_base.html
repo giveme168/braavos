@@ -3,7 +3,7 @@
 {% block left_box%}
 <div class="bra-left bra-box">
     <div class="list-group" id="left-list">
-    {% if g.user.is_admin() or g.user.is_HR_leader() or g.user.is_super_leader() %}
+    {% if g.user.is_admin() or g.user.is_HR_leader() or g.user.is_super_leader() or g.user.is_HR() %}
     <a class="list-group-item" href="{{url_for('user.users')}}">
         <span class="glyphicon glyphicon-user"></span> 用户
     </a>
