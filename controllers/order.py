@@ -18,7 +18,7 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
                                  STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
                                  CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS,
-                                 CONTRACT_STATUS_FINISH)
+                                 CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH)
 from models.client_order import ClientOrder, ClientOrderExecutiveReport
 from models.framework_order import FrameworkOrder
 from models.douban_order import DoubanOrder, DoubanOrderExecutiveReport
@@ -577,10 +577,19 @@ def contract_status_change(order, action, emails, msg):
         if order.__tablename__ == 'bra_douban_order' and order.contract:
             to_users += User.douban_contracts()
         _delete_executive_report(order)
+    elif action == 19:
+        msg = request.values.get('finish_msg', '')
+        finish_time = request.values.get('finish_time', datetime.now())
+        action_msg = u"项目归档(预)"
+        order.contract_status = CONTRACT_STATUS_PRE_FINISH
+        order.finish_time = finish_time
+        to_users = to_users + order.leaders + User.contracts()
     elif action == 20:
-        action_msg = u"项目已归档"
+        msg = request.values.get('finish_msg', '')
+        finish_time = request.values.get('finish_time', datetime.now())
+        action_msg = u"项目归档（确认）"
         order.contract_status = CONTRACT_STATUS_FINISH
-        order.finish_time = datetime.now()
+        order.finish_time = finish_time
         to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
@@ -738,6 +747,7 @@ def new_framework_order():
                                    creator=g.user,
                                    inad_rebate=form.inad_rebate.data,
                                    douban_rebate=form.douban_rebate.data,
+                                   finish_time=datetime.now(),
                                    create_time=datetime.now())
         order.add_comment(g.user, u"新建了该框架订单")
         flash(u'新建框架订单成功, 请上传合同!', 'success')
