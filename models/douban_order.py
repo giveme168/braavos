@@ -46,6 +46,7 @@ CONTRACT_STATUS_PRINTED = 5
 CONTRACT_STATUS_DELETEAPPLY = 7
 CONTRACT_STATUS_DELETEAGREE = 8
 CONTRACT_STATUS_DELETEPASS = 9
+CONTRACT_STATUS_PRE_FINISH = 19
 CONTRACT_STATUS_FINISH = 20
 CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_NEW: u"新建",
@@ -57,7 +58,8 @@ CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_DELETEAPPLY: u'撤单申请中...',
     CONTRACT_STATUS_DELETEAGREE: u'确认撤单',
     CONTRACT_STATUS_DELETEPASS: u'同意撤单',
-    CONTRACT_STATUS_FINISH: u'项目归档'
+    CONTRACT_STATUS_PRE_FINISH: u'项目归档（预）',
+    CONTRACT_STATUS_FINISH: u'项目归档（确认）'
 }
 
 STATUS_DEL = 0
@@ -714,13 +716,10 @@ by %s\n
 
     @property
     def finish_time_cn(self):
-        if self.contract_status == 20:
-            try:
-                return self.finish_time.date()
-            except:
-                return u'无'
-        else:
-            return u'无'
+        try:
+            return self.finish_time.date()
+        except:
+            return ''
 
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
