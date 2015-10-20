@@ -618,6 +618,8 @@ def back_money_apply(sender, apply_context):
     type = apply_context['type']
     to_users = order.direct_sales + order.agent_sales + User.contracts() +\
         [order.creator, g.user] + order.leaders + User.medias()
+    if 3 in order.locations:
+        to_users += [k for k in User.all() if k.email.find('chenjingjing') >= 0]
     to_emails = list(set([x.email for x in to_users]))
     flash(u'已发送邮件给 %s ' %
           (', '.join([k.name for k in list(set(to_users))])), 'info')
