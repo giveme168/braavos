@@ -747,6 +747,7 @@ def new_framework_order():
                                    creator=g.user,
                                    inad_rebate=form.inad_rebate.data,
                                    douban_rebate=form.douban_rebate.data,
+                                   finish_time=datetime.now(),
                                    create_time=datetime.now())
         order.add_comment(g.user, u"新建了该框架订单")
         flash(u'新建框架订单成功, 请上传合同!', 'success')

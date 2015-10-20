@@ -99,6 +99,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     creator = db.relationship(
         'User', backref=db.backref('created_framework_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    finish_time = db.Column(db.DateTime)   # 合同归档时间
     inad_rebate = db.Column(db.Float)
     douban_rebate = db.Column(db.Float)
     contract_generate = True
@@ -109,7 +110,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def __init__(self, group, agents=None, description=None, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None,
-                 direct_sales=None, agent_sales=None,
+                 direct_sales=None, agent_sales=None, finish_time=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW,
                  inad_rebate=0.0, douban_rebate=0.0):
         self.group = group
@@ -129,6 +130,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
+        self.finish_time = finish_time or datetime.datetime.now()
         self.contract_status = contract_status
         self.status = status
         self.inad_rebate = inad_rebate
@@ -267,6 +269,13 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             return True
         else:
             return False
+
+    @property
+    def finish_time_cn(self):
+        try:
+            return self.finish_time.date()
+        except:
+            return ''
 
 
 def contract_generator(group, num):
