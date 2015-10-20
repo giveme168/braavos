@@ -567,25 +567,27 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def get_executive_report_medium_money_by_month(self, year, month, sale_type):
         try:
-            if len(set(self.locations)) > 1:
-                l_count = len(set(self.locations))
-            else:
-                l_count = 1
-            if sale_type == 'agent':
-                count = len(self.agent_sales)
-                user = self.agent_sales[0]
-            else:
-                count = len(self.direct_sales)
-                user = self.direct_sales[0]
-            if user.team.location == 3 and len(self.locations) > 1:
-                if sale_type == 'agent':
-                    count = len(self.agent_sales)
-                else:
-                    count = len(self.direct_sales)
-            elif user.team.location == 3 and len(self.locations) == 1:
-                count = len(self.agent_sales + self.direct_sales)
             if sale_type == 'normal':
                 count = 1
+                l_count = 1
+            else:
+                if len(set(self.locations)) > 1:
+                    l_count = len(set(self.locations))
+                else:
+                    l_count = 1
+                if sale_type == 'agent':
+                    count = len(self.agent_sales)
+                    user = self.agent_sales[0]
+                else:
+                    count = len(self.direct_sales)
+                    user = self.direct_sales[0]
+                if user.team.location == 3 and len(self.locations) > 1:
+                    if sale_type == 'agent':
+                        count = len(self.agent_sales)
+                    else:
+                        count = len(self.direct_sales)
+                elif user.team.location == 3 and len(self.locations) == 1:
+                    count = len(self.agent_sales + self.direct_sales)
             day_month = datetime.datetime.strptime(
                 str(year) + '-' + str(month), '%Y-%m')
             executive_report = MediumOrderExecutiveReport.query.filter_by(
