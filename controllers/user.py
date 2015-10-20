@@ -151,11 +151,12 @@ def user_detail(user_id):
     form = NewUserForm(request.form)
     if request.method == 'POST':
         c_user = User.get_by_email(email=form.email.data.lower())
-        if c_user:
+        if c_user and form.email.data.lower() != user.email:
             flash(u'保存保存失败，该邮箱已存在!', 'danger')
             return redirect(url_for('user.user_detail', user_id=user_id))
         if form.validate(vali_email=False):
-            if g.user.team.is_admin():  # 只有管理员才有权限修改 username email team status
+            if g.user.team.is_admin() or g.user.is_HR() or g.user.is_HR_leader():
+                # 只有管理员才有权限修改 username email team status
                 user.name = form.name.data
                 user.email = form.email.data
                 user.team = Team.get(form.team.data)

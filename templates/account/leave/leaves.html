@@ -82,7 +82,7 @@
             <td>
                 {% if title == '所有请假申请列表' %}
                     {% if g.user.is_OPS() %}
-                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=0">取消请假</a><br/>
+                        <a href="javascript:back('{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=0','{{l.creator.name}}')">取消请假</a><br/>
                     {% endif %}
                 {% else %}
                     {% if l.status != 3 %}
@@ -147,5 +147,11 @@ $(function(){
         }
     });
 })
+function back(url, name){
+    var flag=confirm("确定要取消:"+name+"的请假吗?");
+    if(flag){
+        window.location.href=url
+    }
+}
 </script>
 {% endblock %}

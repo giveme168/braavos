@@ -71,7 +71,7 @@
             <td>
                 {% if title == '所有外出报备列表' %}
                     {% if g.user.is_OPS() %}
-                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=10">撤回</a><br/>
+                    <a href="javascript:back('{{url_for('account_out.status', oid=o.id)}}?status=10', '{{o.creator.name}}')">撤回</a><br/>
                     {% endif %}
                     <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a>
                 {% else %}
@@ -137,5 +137,11 @@ $(function(){
         }
     });
 })
+function back(url, name){
+    var flag=confirm("确定要撤销:"+name+"的外出报备吗?");
+    if(flag){
+        window.location.href=url
+    }
+}
 </script>
 {% endblock %}
