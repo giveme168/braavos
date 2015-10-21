@@ -1019,7 +1019,7 @@ CASE_TYPE_CLOSE = 3
 
 CASE_TYPE_CN = {
     CASE_TYPE_CASE: u"策划案",
-    CASE_TYPE_PACKING: u"包装案列",
+    CASE_TYPE_PACKING: u"包装案例",
     CASE_TYPE_CLOSE: u"结案报告",
 }
 
