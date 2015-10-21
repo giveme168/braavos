@@ -1,7 +1,10 @@
 {% extends "/site_base.html" %}
 
 {% block left_box%}
+<div class="bra-left bra-box">
+    <div class="list-group" id="left-list">
     <a class="list-group-item" href="{{url_for('storage.storage')}}">
         <span class="glyphicon glyphicon-stats"></span> 库存信息 
     </a>
+</div>
 {% endblock %}

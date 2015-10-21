@@ -62,13 +62,14 @@ def create(type):
         industry = request.values.get('industry', '')
         desc = request.values.get('desc', '')
         tags = request.values.get('tags', '').split(',')
+        is_win = int(request.values.get('is_win', 0))
         if Case.query.filter_by(name=name, type=type).count() > 0:
             flash(u'名称已存在', 'danger')
             return redirect(url_for('mediums_planning.create', type=type))
         case = Case.add(name=name, url=url, medium=Medium.get(1),
                         mediums=Medium.gets(request.values.getlist('mediums')),
                         brand=brand, industry=industry, desc=desc,
-                        creator=g.user, type=type)
+                        creator=g.user, type=type, is_win=is_win)
         case = Case.get(case.id)
         for k in tags:
             if k:
@@ -100,6 +101,7 @@ def update(type, cid):
         industry = request.values.get('industry', '')
         desc = request.values.get('desc', '')
         tags = request.values.get('tags', '').split(',')
+        is_win = int(request.values.get('is_win', 0))
         case.name = name
         case.url = url
         case.medium = Medium.get(1)
@@ -107,6 +109,7 @@ def update(type, cid):
         case.brand = brand
         case.industry = industry
         case.desc = desc
+        case.is_win = is_win
         case.creator = g.user
         case.create_time = datetime.datetime.now()
         case.save()

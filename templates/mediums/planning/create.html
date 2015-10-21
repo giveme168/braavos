@@ -13,6 +13,15 @@
         <input type="text" id="name" name="name" class="form-control bra-form-control">
       </div>
     </div>
+    <div class="form-group" {% if type != '2' %} style="display:none;" {% endif %}>
+      <label for="client_start" class="col-sm-2 control-label">是否获奖 : </label>
+      <div class="col-sm-8">
+        <select id="is_win" name="is_win" class="form-control bra-form-control">
+           <option value='0'>未获奖</option>
+           <option value='1'>获奖</option>
+        </select>
+      </div>
+    </div>
     <div class="form-group">
       <label for="client_start" class="col-sm-2 control-label">网盘地址 : </label>
       <div class="col-sm-8">

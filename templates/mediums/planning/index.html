@@ -1,6 +1,11 @@
 {% extends "/mediums/mediums_base.html" %}
 {% block title %}策划案例{% endblock %}
 {% block main_box %}
+<style>
+  .glyphicon-plus {
+    color: #FF9900;
+  }
+</style>
 <div class="bra-main bra-box" style="width:1200px;">
   <!--<h4>{{title}}</h4>-->
   <div>
@@ -54,7 +59,7 @@
       </tr>
       {% for c in cases.object_list %}
       <tr>
-          <td><a href="{{url_for('mediums_planning.info', type=type, cid=c.id)}}">{{c.name}}</a></td>
+          <td><a href="{{url_for('mediums_planning.info', type=type, cid=c.id)}}">{{c.name}}</a>{% if type == '2' and c.is_win == 1 %}&nbsp;<span class="glyphicon glyphicon-thumbs-up glyphicon-plus" aria-hidden="true"></span>{% endif %}</td>
           <td>{{c.mediums_name}}</td>
           <td>{{c.brand}}</td>
           <td>{{c.industry}}</td>
