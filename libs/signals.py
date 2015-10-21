@@ -627,6 +627,8 @@ def back_money_apply(sender, apply_context):
         s_title = u'返点发票信息'
     elif type == 'end':
         s_title = u'回款完成'
+    elif type == 'no_end':
+        s_title = u'回款状态变为未完成'
     else:
         s_title = u'回款信息'
     url = mail.app.config['DOMAIN'] + order.info_path()

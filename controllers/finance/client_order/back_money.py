@@ -89,6 +89,19 @@ def back_money(order_id):
                 flash(u'更新了回款状态，回款已完成!', 'success')
                 order.add_comment(
                     g.user, u"更新了回款状态，回款已完成;", msg_channel=4)
+            else:
+                order.back_money_status = int(back_money_status)
+                order.save()
+                apply_context = {
+                    'order': order,
+                    'num': 0,
+                    'type': 'no_end',
+                }
+                back_money_apply_signal.send(
+                    current_app._get_current_object(), apply_context=apply_context)
+                flash(u'更新了回款状态，回款未完成!', 'success')
+                order.add_comment(
+                    g.user, u"更新了回款状态，回款未完成;", msg_channel=4)
         else:
             bm = BackMoney.add(
                 client_order=order,
