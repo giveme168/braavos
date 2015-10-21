@@ -150,7 +150,7 @@ def delete_invoice(invoice_id):
         u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=1)
     invoice.delete()
     flash(u"删除成功", 'danger')
-    return redirect(url_for("finance_client_order_medium_rebate_invoice.info", order_id=order_id))
+    return redirect(url_for("finance_client_order_invoice.info", order_id=order_id))
 
 
 @finance_client_order_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
