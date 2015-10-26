@@ -237,7 +237,7 @@
                     {% if (g.user.location == bref.creator.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
                       <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="103">再分配</button>
                     {% endif %}
-                    {% if g.user.id == bref.follow_id or g.user.is_super_admin() %}
+                    {% if g.user.id == bref.to_id or g.user.is_super_admin() %}
                       <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="100">完成</button>
                     {% endif %}
                   {% elif bref.status == 10 %}
@@ -245,7 +245,7 @@
                     <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请</button>
                     {% endif %}
                   {% elif bref.status == 0 %}
-                    {% if g.user.id == bref.follow_id or g.user.is_super_admin() %}
+                    {% if g.user.id == bref.to_id or g.user.is_super_admin() %}
                       <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="100">修改策划单地址</button>
                     {% endif %}
                   {% endif %}
