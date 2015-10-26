@@ -782,7 +782,7 @@ def planning_bref(sender, apply_context):
 Dear %s: 
 
 %s-%s
-
+%s
 基本信息:
 名称  %s
 代理/直客   %s
@@ -807,18 +807,18 @@ Dear %s:
 建议  %s
 备注  
 %s
-%s
+
 
 留言信息:
 %s
 
 附注: 
-    外出报备链接地址: %s
+    策划单链接地址: %s
 
-    """ % (to_name, title, status_cn, bref.title, bref.agent, bref.brand, bref.product, bref.target, bref.background,
+    """ % (to_name, title, status_cn, finish_text, bref.title, bref.agent, bref.brand, bref.product, bref.target, bref.background,
            bref.push_target, bref.push_theme, bref.push_time, bref.budget_cn, bref.is_temp_cn, bref.agent_type_cn,
            bref.use_type_cn, bref.level_cn, bref.get_time_cn, bref.intent_medium, bref.suggest, bref.desc,
-           finish_text, apply_context['msg'], url)
+           apply_context['msg'], url)
     send_simple_mail(title, list(set(to_emails)), body=body)
 
 

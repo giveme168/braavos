@@ -21,6 +21,7 @@
   <h4>发票详情</h4>
   <table class="table table-bordered table-striped">
     <tr>
+      <th>所属媒体</th>
       <th>公司名称</th>
       <th>税号</th>
       <th>发票金额</th>
@@ -35,6 +36,7 @@
     </tr>
     {% for invoice in invoices %}
     <tr>
+      <td>{{invoice.medium.name}}</td>
       <td>{{invoice.company}}</td>
       <td>{{invoice.tax_id}}</td>
       <td>{{invoice.money}}元</td>
