@@ -195,9 +195,17 @@ class Bref(db.Model, BaseModelMixin, CommentMixin):
     def info(self):
         return '%s%s%s' % (self.title, self.brand, self.product)
 
+    @property
+    def url_cn(self):
+        return self.url or u'未完成'
+
     # 策划单紧急状况
     @property
     def level_status(self):
         if (self.get_time - self.create_time).days < self.level:
             return 1
         return 0
+
+    @property
+    def name(self):
+        return self.title
