@@ -60,6 +60,6 @@ class Comment(db.Model, BaseModelMixin):
             'searchAdOrder': searchAdOrder,
             'searchAdClientOrder': searchAdClientOrder,
             'Medium': Medium,
-            'Bref': Bref,
+            'Bref': Bref
         }
         return TARGET_DICT[self.target_type].get(self.target_id)

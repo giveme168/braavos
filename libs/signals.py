@@ -742,19 +742,24 @@ def planning_bref(sender, apply_context):
     operater_admins = [k for k in User.all_active(
     ) if k.location == c_loction and k.team.type == 15]
     if action == 2:
-        title = u'【策划单】下单申请-%s' % (bref.title)
+        title = u'【策划单】-%s' % (bref.title)
         to_name = ','.join([k.name for k in planning_team_admins])
+        status_cn = u'下单申请'
     elif action == 10:
-        title = u'【策划单】已取消-%s' % (bref.title)
+        title = u'【策划单】-%s' % (bref.title)
+        status_cn = u'已取消'
         to_name = bref.creator.name
     elif action == 1:
-        title = u'【策划单】已打回-%s' % (bref.title)
+        title = u'【策划单】-%s' % (bref.title)
+        status_cn = u'已打回'
         to_name = bref.creator.name
     elif action == 3:
-        title = u'【策划单】已分配-%s' % (bref.title)
+        title = u'【策划单】-%s' % (bref.title)
+        status_cn = u'已分配'
         to_name = bref.creator.name + ',' + bref.toer.name
     elif action == 0:
-        title = u'【策划单】已完成-%s' % (bref.title)
+        title = u'【策划单】-%s' % (bref.title)
+        status_cn = u'已完成'
         to_name = bref.creator.name
     url = mail.app.config['DOMAIN'] + \
         url_for('planning_bref.info', bid=bref.id)
@@ -776,7 +781,7 @@ def planning_bref(sender, apply_context):
     body = u"""
 Dear %s: 
 
-%s
+%s-%s
 
 基本信息:
 名称  %s
@@ -810,7 +815,7 @@ Dear %s:
 附注: 
     外出报备链接地址: %s
 
-    """ % (to_name, title, bref.title, bref.agent, bref.brand, bref.product, bref.target, bref.background,
+    """ % (to_name, title, status_cn, bref.title, bref.agent, bref.brand, bref.product, bref.target, bref.background,
            bref.push_target, bref.push_theme, bref.push_time, bref.budget_cn, bref.is_temp_cn, bref.agent_type_cn,
            bref.use_type_cn, bref.level_cn, bref.get_time_cn, bref.intent_medium, bref.suggest, bref.desc,
            finish_text, apply_context['msg'], url)
