@@ -1,6 +1,11 @@
 {% extends "/site_base.html" %}
 {% block title %}致趣联媒{% endblock %}
 {% block main_box %}
+<style>
+  .label-plus {
+    font-size: 35%;
+  }
+</style>
 <link href="/static/css/carousel.css" rel="stylesheet">
     <!-- Carousel
     ================================================== -->
@@ -251,9 +256,15 @@
           <p><div class="dropdown"><a class="btn btn-info" href="{{url_for('account_kpi.index')}}" role="button" style="width:100px;">进入 &raquo;</a></div></p>
         </div><!-- /.col-lg-4 -->
         <div class="col-xs-6 col-lg-4">
-          <h2>策划管理</h2>
-          <p>（预留）</p>
-          <p><button class="btn btn-default" href="#" role="button" disabled="disabled">预留 &raquo;</button></p>
+          <h2>策划管理<span class="label label-danger label-plus">New</span></h2>
+          <p>下策划单</p>
+          <p>
+            <div class="dropdown">
+                <button class="btn btn-info dropdown-toggle" style="width:100px;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">选择<span class="caret"></span></button>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a href="{{url_for('planning_bref.index')}}" target="_blank">下策划单</a></li>
+            </div>
+          </p>
         </div><!-- /.col-lg-4 -->
         <div class="col-xs-6 col-lg-4">
           <h2>媒介管理</h2>

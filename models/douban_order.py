@@ -570,6 +570,7 @@ by %s\n
             count = len(self.agent_sales + self.direct_sales)
         if sale_type == 'normal':
             count = 1
+            l_count = 1
         pre_reports = DoubanOrderExecutiveReport.query.filter_by(
             douban_order=self)
         moneys = []

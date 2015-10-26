@@ -221,6 +221,9 @@ def targets():
 def new_target():
     form = OutSourceTargetForm(request.form)
     if request.method == 'POST' and form.validate():
+        if OutSourceTarget.query.filter_by(name=form.name.data).first():
+            flash(u'新建外包收款方(%s)失败，已存在该收款方!' % form.name.data, 'danger')
+            return redirect(url_for("outsource.new_target"))
         target = OutSourceTarget.add(name=form.name.data,
                                      bank=form.bank.data,
                                      card=form.card.data,
@@ -241,6 +244,9 @@ def target_detail(target_id):
         abort(404)
     form = OutSourceTargetForm(request.form)
     if request.method == 'POST' and form.validate():
+        if OutSourceTarget.query.filter_by(name=form.name.data).first() and target.name != form.name.data:
+            flash(u'修改失败，已存在该收款方!', 'danger')
+            return redirect(url_for("outsource.target_detail", target_id=target_id))
         target.name = form.name.data
         target.bank = form.bank.data
         target.card = form.card.data

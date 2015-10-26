@@ -810,6 +810,7 @@ by %s\n
             count = len(self.agent_sales + self.direct_sales)
         if sale_type == 'normal':
             count = 1
+            l_count = 1
         pre_reports = ClientOrderExecutiveReport.query.filter_by(
             client_order=self)
         moneys = []
@@ -850,6 +851,7 @@ by %s\n
                 count = len(self.agent_sales + self.direct_sales)
             if sale_type == 'normal':
                 count = 1
+                l_count = 1
             from models.order import MediumOrderExecutiveReport
             day_month = datetime.datetime.strptime(year + '-' + month, '%Y-%m')
             executive_reports = MediumOrderExecutiveReport.query.filter_by(

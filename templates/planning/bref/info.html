@@ -1,0 +1,339 @@
+{% extends "/planning/base.html" %}
+{% from 'form.html' import form_field %}
+{% from 'comments.html' import comments_box %}
+{% block title %}策划单-{{bref.title}}{% endblock %}
+{% block main_box %}
+{% macro edit_bref_form(form, data) -%}
+<form class="form form-horizontal" method="POST" action="{{url_for('planning_bref.update', bid=data.id)}}">
+  {{ form.csrf_token }} 
+  <h4 class="page-header">基本信息</h4>
+  {{ form_field(form.title) }}
+  {{ form_field(form.agent) }}
+  {{ form_field(form.brand) }}
+  {{ form_field(form.product) }}
+  {{ form_field(form.target) }}
+  {{ form_field(form.background) }}
+  {{ form_field(form.push_target) }}
+  {{ form_field(form.push_theme) }}
+  {{ form_field(form.push_time) }}
+  {{ form_field(form.budget) }}
+  {{ form_field(form.is_temp) }}
+  <h4 class="page-header">项目说明</h4>
+  {{ form_field(form.agent_type) }}
+  {{ form_field(form.use_type) }}
+  {{ form_field(form.level) }}
+  <div class="form-group">
+    <label for="client_end" class="col-sm-2 control-label">完成时间 : </label>
+    <div class="col-sm-4">
+      <input type="text" id="get_time" name="get_time" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh">
+    </div>
+  </div>
+  <h4 class="page-header">补充说明</h4>
+  {{ form_field(form.intent_medium) }}
+  {{ form_field(form.suggest) }}
+  {{ form_field(form.desc) }}
+  <button type="submit" class="btn btn-primary btn-sm col-md-offset-4" name="status" value="1"/>保存</button>
+</form>
+<br/>
+<script>
+  $(function(){
+    $('#get_time').val('{{data.get_time_cn}}');
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 1,
+        todayBtn: true
+    });
+    $('#get_time').datetimepicker('setHoursDisabled', [0,1,2,3,4,5,6,7,8,9,20,21,22,23,24]);
+  })
+</script>
+{%- endmacro %}
+{% macro show_bref_form(data) -%}
+<table class="table table-bordered">
+  <tr>
+    <th colspan="2" style="text-align: center;">基本信息</th>
+  </tr>
+  <tr>
+    <th>名称</th>
+    <td>{{data.title}}</td>
+  </tr>
+  <tr>
+    <th>代理/直客</th>
+    <td>{{data.agent}}</td>
+  </tr>
+  <tr>
+    <th>品牌</th>
+    <td>{{data.brand}}</td>
+  </tr>
+  <tr>
+    <th>产品</th>
+    <td>{{data.product}}</td>
+  </tr>
+  <tr>
+    <th>目标受众</th>
+    <td>{{data.target}}</td>
+  </tr>
+  <tr>
+    <th>背景</th>
+    <td>{{data.background}}</td>
+  </tr>
+  <tr>
+    <th>推广目的</th>
+    <td>{{data.push_target}}</td>
+  </tr>
+  <tr>
+    <th>推广主题</th>
+    <td>{{data.push_theme}}</td>
+  </tr>
+  <tr>
+    <th>推广周期</th>
+    <td>{{data.push_time}}</td>
+  </tr>
+  <tr>
+    <th>推广预算</th>
+    <td>{{data.budget_cn}}</td>
+  </tr>
+  <tr>
+    <th>是否有模板</th>
+    <td>{{data.is_temp_cn}}</td>
+  </tr>
+  <tr>
+    <th colspan="2" style="text-align: center;">项目说明</th>
+  </tr>
+  <tr>
+    <th>下单需求方</th>
+    <td>{{data.agent_type_cn}}</td>
+  </tr>
+  <tr>
+    <th>应用场景</th>
+    <td>{{data.use_type_cn}}</td>
+  </tr>
+  <tr>
+    <th>应用等级</th>
+    <td>{{data.level_cn}}</td>
+  </tr>
+  <tr>
+    <th>完成时间</th>
+    <td>{{data.get_time_cn}}</td>
+  </tr>
+  <tr>
+    <th colspan="2" style="text-align: center;">补充说明</th>
+  </tr>
+  <tr>
+    <th>品牌意向媒体</th>
+    <td>{{data.intent_medium}}</td>
+  </tr>
+  <tr>
+    <th>建议</th>
+    <td>{{data.suggest}}</td>
+  </tr>
+  <tr>
+    <th>备注</th>
+    <td><pre>{{data.desc}}</pre></td>
+  </tr>
+  {% if data.status in [0, 3] %}
+  <tr>
+    <th colspan="2" style="text-align: center;">完成情况</th>
+  </tr>
+  <tr>
+    <th>分配给</th>
+    <td>{{data.toer.name}}</td>
+  </tr>
+  <tr>
+    <th>分配人</th>
+    <td>{{data.follower.name}}</td>
+  </tr>
+  <tr>
+    <th>策划单地址</th>
+    <td>{% if data.url %}<a href="{{data.url}}" target="_blank">下载</a>{% else %}未完成{% endif %}</td>
+  </tr>
+  {% endif %}
+</table>
+{%- endmacro %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+        width:250px;
+    }
+</style>
+<div class="bra-main bra-box">
+  <h4>策划单-{{bref.title}}</h4>
+  <div class="panel-group" id="accordion">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 策划单详情 </a>
+        </h4>
+      </div>
+      <div id="collapseOne" class="panel-collapse collapse in">
+        <div class="panel-body">
+          <div class="col-md-12">
+            <div class="col-md-10" style="margin-left: 20px;">
+              {% if bref.status in [10, 1] %}
+                {{edit_bref_form(form, bref)}}
+              {% else %}
+                {{show_bref_form(bref)}}
+              {% endif %}
+            </div>
+          </div>
+          <hr><div style="color:#999;">创建者: {{bref.creator.name}} 最后更新时间: {{bref.update_time_cn}}点</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-group" id="accordion">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 策划单状态 </a>
+        </h4>
+      </div>
+      <div id="collapse3" class="panel-collapse collapse in">
+        <div class="panel-body">
+          <div class="col-md-8">
+            <form class="form form-horizontal" id="contract-form" method="POST" action="{{url_for('planning_bref.status' ,bid=bref.id)}}">
+              <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">状态 : </label>
+                <div class="col-sm-10">
+                  <p class="form-control-static">{{bref.status_cn}}</p>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">邮箱 : </label>
+                <div class="col-sm-10">
+                  <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要通知人员的邮箱">
+                        {% for u in reminder_emails %}
+                        <option value="{{u[1]}}">{{u[0]}}</option>
+                        {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="msg" class="col-sm-2 control-label">留言 : </label>
+                <div class="col-sm-10">
+                  <textarea class="form-control bra-form-control" id="msg"
+                      name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">操作 : </label>
+                <div class="col-sm-6">
+                  {% if bref.status == 1 %}
+                    {% if g.user == bref.creator or g.user.is_super_admin() %}
+                    <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请</button>
+                    {% endif %}
+                  {% elif bref.status == 2 %}
+                    {% if g.user == bref.creator or g.user.is_super_admin() %}
+                    <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="10">取消</button>
+                    {% endif %}
+                    {% if (g.user.location == bref.creator.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
+                    <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="103">分配</button>
+                    <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="10">取消</button>
+                    <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="1">打回</button>
+                    {% endif %}
+                  {% elif bref.status == 3 %}
+                    {% if (g.user.location == bref.creator.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
+                      <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="103">再分配</button>
+                    {% endif %}
+                    {% if g.user.id == bref.follow_id or g.user.is_super_admin() %}
+                      <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="100">完成</button>
+                    {% endif %}
+                  {% elif bref.status == 10 %}
+                    {% if g.user == bref.creator or g.user.is_super_admin() %}
+                    <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请</button>
+                    {% endif %}
+                  {% elif bref.status == 0 %}
+                    {% if g.user.id == bref.follow_id or g.user.is_super_admin() %}
+                      <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="100">修改策划单地址</button>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+              <!--分配策划模块开始-->
+                <div class="modal fade" id="planning_form_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="planning_model_title">分配策划</h4>
+                      </div>
+                      <div class="modal-body">
+                        <div class="row">
+                            <div class="form-group" id="planning_url" style="display:none;">
+                              <label for="client_start" class="col-sm-4 control-label">策划案地址 : </label>
+                              <div class="col-sm-4">
+                                <input type="text" id="url" name="url" class="form-control bra-form-control"/>
+                              </div>
+                            </div>
+                            <div class="form-group" id="planning_toer" style="display:none;">
+                              <label for="client_start" class="col-sm-4 control-label">选择策划 : </label>
+                              <div class="col-sm-4">
+                                <select class="form-control bra-form-control" id="toer"name="toer" placeholder="">
+                                  <option value='0'>请选择</option>
+                                  {% for u in planner_emails %}
+                                    <option value="{{u[1]}}">{{u[0]}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" id="action" value="3">确认</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <!--分配策划模块结束-->
+            </from>
+          </div>  
+        </div>
+      </div>
+    </div>
+  </div>
+  <div>{{ comments_box(bref, msg_channel=7) }}</div>
+</div>
+<script>
+$(".contract-submit").click(function(e){
+   var actionVal = $(this).val();
+   var msg = $("#msg").val();
+   if (actionVal == '1'){
+      if(! confirm("确认要打回这条策划单吗？")){ 
+        e.preventDefault();
+      }
+   }else if (actionVal == '10'){
+      if(! confirm("确认要取消这条策划单吗？")){ 
+        e.preventDefault();
+      }
+   }else if(actionVal == '103'){
+      $('#planning_form_model').modal();
+      $('#planning_url').hide();
+      $('#planning_toer').show();
+      $('#planning_model_title').html('分配策划');
+      $('#action').val(3)
+      e.preventDefault();
+   }else if(actionVal == '3'){
+      var toer = $('#toer').val()
+      if(parseInt(toer) == 0){
+        alert('请选择分配者')
+        e.preventDefault();
+      }
+   }else if(actionVal == '100'){
+      $('#planning_form_model').modal();
+      $('#planning_toer').hide();
+      $('#planning_url').show();
+      $('#planning_model_title').html('提交策划案网盘地址');
+      $('#action').val(0)
+      e.preventDefault();
+   }
+});
+$(function(){
+  $('#toer').val('{{bref.to_id}}');
+  $('#toer').trigger("chosen:updated");
+  $('#url').val('{{bref.url}}')
+})
+</script>
+{% endblock %}
