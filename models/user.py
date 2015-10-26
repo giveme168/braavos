@@ -396,6 +396,9 @@ class User(db.Model, BaseModelMixin):
     def cellphone_cn(self):
         return self.cellphone or u'无'
 
+    def is_team_admin(self):
+        return self in self.team.admins
+
 
 team_admins = db.Table('team_admin_users',
                        db.Column(

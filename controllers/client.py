@@ -294,7 +294,10 @@ def groups():
 @client_bp.route('/agents', methods=['GET'])
 def agents():
     agents = Agent.all()
-    return tpl('/client/agent/index.html', agents=agents)
+    info = request.values.get('info', '')
+    if info:
+        agents = [k for k in agents if info in k.name]
+    return tpl('/client/agent/index.html', agents=agents, info=info)
 
 
 @client_bp.route('/<agent_id>/files/<aid>/delete', methods=['GET'])

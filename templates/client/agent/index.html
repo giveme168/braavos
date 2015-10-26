@@ -4,8 +4,17 @@
 {% block main_box %}
 <div class="bra-main bra-box">
     <h3> 代理公司
-        {% if g.user.is_contract() %}<a class="btn btn-default btn-sm" href="{{url_for('client.new_agent')}}">新建</a>{% endif %}
+        
     </h3>
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="exampleInputName2">关键字</label>
+            <input class="form-control bra-form-control" type="text" id="info" name="info" value="{{info}}" placeholder="名称" style="width:250px;">
+        </div>&nbsp;&nbsp;&nbsp;
+        <input type="submit" value="搜索" class="btn btn-sm btn-info" style="width:100px;"/>
+        {% if g.user.is_contract() %}<a class="btn btn-default col-md-offset-1" href="{{url_for('client.new_agent')}}">新建</a>{% endif %}
+    </form>
+    <br/>
     <table class="table table-bordered table-striped">
         <tr>
             <th>#id</th>

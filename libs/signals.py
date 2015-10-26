@@ -25,6 +25,7 @@ apply_leave_signal = braavos_signals.signal('apply_leave')
 kpi_apply_signal = braavos_signals.signal('kpi_apply')
 apply_out_signal = braavos_signals.signal('out_apply')
 back_money_apply_signal = braavos_signals.signal('back_money_apply')
+planning_bref_signal = braavos_signals.signal('planning_bref')
 
 
 def password_changed(sender, user):
@@ -728,6 +729,94 @@ Dear %s:
     send_simple_mail(title, list(set(to_user_emails)), body=body)
 
 
+def planning_bref(sender, apply_context):
+    bref = apply_context['bref']
+    action = apply_context['status']
+    # 获取某区域策划负责人
+    c_loction = bref.creator.location
+    planning_team_admins = [k for k in User.all_active(
+    ) if k.location == c_loction and k.team.type == 6][0].team.admins
+    # 获取某区域销售负责人
+    sale_admins = bref.creator.team.admins
+    # 获取某区域执行负责人
+    operater_admins = [k for k in User.all_active(
+    ) if k.location == c_loction and k.team.type == 15]
+    if action == 2:
+        title = u'【策划单】下单申请-%s' % (bref.title)
+        to_name = ','.join([k.name for k in planning_team_admins])
+    elif action == 10:
+        title = u'【策划单】已取消-%s' % (bref.title)
+        to_name = bref.creator.name
+    elif action == 1:
+        title = u'【策划单】已打回-%s' % (bref.title)
+        to_name = bref.creator.name
+    elif action == 3:
+        title = u'【策划单】已分配-%s' % (bref.title)
+        to_name = bref.creator.name + ',' + bref.toer.name
+    elif action == 0:
+        title = u'【策划单】已完成-%s' % (bref.title)
+        to_name = bref.creator.name
+    url = mail.app.config['DOMAIN'] + \
+        url_for('planning_bref.info', bid=bref.id)
+    # 邮件发送人
+    to_emails = apply_context['to']
+    to_emails += [u.email for u in operater_admins +
+                  planning_team_admins + [bref.creator] + bref.creator.team_leaders]
+    flash(u'已发送邮件给:' + ','.join(to_emails), 'info')
+    if action in [0, 3]:
+        finish_text = u"""
+完成情况
+分配给 %s
+分配人 %s
+策划单地址   %s
+        """ % (bref.toer.name, bref.follower.name, bref.url)
+    else:
+        finish_text = ''
+
+    body = u"""
+Dear %s: 
+
+%s
+
+基本信息:
+名称  %s
+代理/直客   %s
+品牌  %s
+产品  %s
+目标受众    %s
+背景  %s
+推广目的    %s
+推广主题    %s
+推广周期    %s
+推广预算    %s
+是否有模板   %s
+
+项目说明:
+下单需求方   %s
+应用场景    %s
+应用等级    %s
+完成时间    %s
+
+补充说明:
+品牌意向媒体  %s
+建议  %s
+备注  
+%s
+%s
+
+留言信息:
+%s
+
+附注: 
+    外出报备链接地址: %s
+
+    """ % (to_name, title, bref.title, bref.agent, bref.brand, bref.product, bref.target, bref.background,
+           bref.push_target, bref.push_theme, bref.push_time, bref.budget_cn, bref.is_temp_cn, bref.agent_type_cn,
+           bref.use_type_cn, bref.level_cn, bref.get_time_cn, bref.intent_medium, bref.suggest, bref.desc,
+           finish_text, apply_context['msg'], url)
+    send_simple_mail(title, list(set(to_emails)), body=body)
+
+
 def init_signal(app):
     """注册信号的接收器"""
     password_changed_signal.connect_via(app)(password_changed)
@@ -749,3 +838,4 @@ def init_signal(app):
     kpi_apply_signal.connect_via(app)(kpi_apply)
     apply_out_signal.connect_via(app)(out_apply)
     back_money_apply_signal.connect_via(app)(back_money_apply)
+    planning_bref_signal.connect_via(app)(planning_bref)
