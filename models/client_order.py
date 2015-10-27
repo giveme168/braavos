@@ -994,6 +994,10 @@ class BackMoney(db.Model, BaseModelMixin):
     def order(self):
         return self.client_order
 
+    @property
+    def real_back_money_diff_time(self):
+        return (self.back_time.date() - self.client_order.reminde_date).days
+
 
 class BackInvoiceRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_back_invoice_rebate'
