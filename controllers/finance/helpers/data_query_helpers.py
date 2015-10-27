@@ -65,7 +65,7 @@ def write_order_excel(orders, t_type):
         elif t_type == 'back_money':
             worksheet.write(th, 12, orders[k].money, align_left)
             worksheet.write(th, 13, orders[k].back_time_cn, align_left)
-            worksheet.write(th, 14, str(orders[k].real_back_money_diff_time)+u'天', align_left)
+            worksheet.write(th, 14, str(orders[k].real_back_money_diff_time) + u'天', align_left)
         elif t_type == 'back_invoice':
             worksheet.write(th, 12, orders[k].money, align_left)
             worksheet.write(th, 13, orders[k].back_time_cn, align_left)
