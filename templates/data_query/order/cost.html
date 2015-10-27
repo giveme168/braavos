@@ -43,15 +43,15 @@
         <td>{{o.start_date_cn}}</td>
         <td>{{o.end_date_cn}}</td>
         <td>{{o.money|format_price}}</td>
-        <td>{{o.invoice_pass_sum|format_price}}</td>
-        <td>{{o.client_back_moneys|format_price}}</td>
-        <td>{{o.client_back_moneys_invoices|format_price}}</td>
-        <td>{{o.agents_invoice_sum|format_price}}</td>
-        <td>{{o.agents_invoice_pass_sum|format_price}}</td>
+        <td>{{o.pass_invoice_sum|format_price}}</td>
+        <td>{{o.back_money_sum|format_price}}</td>
+        <td>{{o.back_money_rebate_sum|format_price}}</td>
+        <td>{{o.agent_invoice_sum|format_price}}</td>
+        <td>{{o.agent_invoice_pay_sum|format_price}}</td>
         <td>{{o.mediums_money2|format_price}}</td>
-        <td>{{o.mediums_invoice_sum|format_price}}</td>
-        <td>{{o.mediums_invoice_pass_sum|format_price}}</td>
-        <td>{{o.get_medium_rebate_invoice_pass_money()|format_price}}</td>
+        <td>{{o.medium_invoice_sum|format_price}}</td>
+        <td>{{o.medium_invoice_pay_sum|format_price}}</td>
+        <td>{{o.medium_invoice_rebate_invoice_sum|format_price}}</td>
     </tr>
     {% endfor %}
 </table>
