@@ -7,18 +7,40 @@ from flask import Blueprint, request, Response
 from flask import render_template as tpl
 
 from models.order import Order
-from models.client_order import ClientOrder, ClientOrderExecutiveReport, ECPM_CONTRACT_STATUS_LIST
+from models.client_order import (ClientOrder, ClientOrderExecutiveReport, ECPM_CONTRACT_STATUS_LIST,
+                                 BackMoney, BackInvoiceRebate)
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.douban_order import DoubanOrder
+from models.invoice import Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice, AgentInvoicePay, MediumRebateInvoice
 from controllers.data_query.helpers.order_helpers import get_monthes_pre_days, write_excel, write_order_excel
 
 ORDER_PAGE_NUM = 50
 data_query_order_bp = Blueprint(
     'data_query_order', __name__, template_folder='../../templates/data_query/order')
 
+'''
+Invoice        # 客户发票
+MediumInvoice  # 媒体发票
+MediumInvoicePay  # 媒体发票打款
+AgentInvoice    # 甲方返点发票
+AgentInvoicePay # 甲方返点发票打款
+BackMoney       # 回款回款
+BackInvoiceRebate   #  返点发票
+MediumRebateInvoice   # 媒体返点发票
+'''
+
 
 @data_query_order_bp.route('/cost', methods=['GET'])
 def cost():
+    client_invoices = list(Invoice.all())
+    medium_invoices = list(MediumInvoice.all())
+    medium_invoice_pays = list(MediumInvoicePay.all())
+    medium_invoice_rebate_invoice = list(MediumRebateInvoice.all())
+    agent_invoices = list(AgentInvoice.all())
+    agent_invoice_pays = list(AgentInvoicePay.all())
+    back_moneys = list(BackMoney.all())
+    back_money_rebates = list(BackInvoiceRebate.all())
+
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
     location = int(request.values.get('location', 0))
@@ -37,7 +59,31 @@ def cost():
         orders = [k for k in orders if location in k.locations]
     if info:
         orders = [k for k in orders if info in k.search_info]
+
     orders = sorted(list(orders), key=lambda x: x.client_start, reverse=False)
+    for order in orders:
+        order.pass_invoice_sum = sum(
+            [k.money for k in client_invoices if k.invoice_status == 0 and k.client_order == order])
+        order.back_money_sum = sum(
+            [k.money for k in back_moneys if k.client_order == order])
+        order.back_money_rebate_sum = sum(
+            [k.money for k in back_money_rebates if k.client_order == order])
+        order.agent_invoice_sum = sum(
+            [k.money for k in agent_invoices if k.client_order == order])
+
+        agent_invoice_pay_sum = 0.0
+        invoices = [k for k in agent_invoices if k.client_order == order]
+        for invoice in invoices:
+            agent_invoice_pay_sum += sum(
+                [k.money for k in agent_invoice_pays if k.pay_status == 0 and k.agent_invoice == invoice])
+        order.agent_invoice_pay_sum = agent_invoice_pay_sum
+        order.medium_invoice_sum = sum(
+            [k.money for k in medium_invoices if k.client_order == order])
+        invoices = [k for k in medium_invoices if k.client_order == order]
+        order.medium_invoice_pay_sum = sum(
+            [k.money for k in medium_invoice_pays if k.pay_status == 0 and k.medium_invoice in invoices])
+        order.medium_invoice_rebate_invoice_sum = sum(
+            [k.money for k in medium_invoice_rebate_invoice if k.client_order == order and k.invoice_status == 0])
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders))
         return response
