@@ -49,6 +49,10 @@ AD_PROMOTION_TYPE_CN = {
     2: u'360搜索CPC',
     3: u'360导航猜你喜欢',
     4: u'360导航CPT',
+    5: 'CPA',
+    6: 'CPT',  
+    7: 'CPC',
+    8: 'CPD',
 }
 
 CONTRACT_STATUS_NEW = 0

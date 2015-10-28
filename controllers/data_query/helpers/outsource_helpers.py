@@ -250,7 +250,14 @@ def write_client_excel(orders):
         worksheet.write(0, 0 + k, keys[k], align_left)
         worksheet.set_column(0, 0 + k, 15)
     th = 1
+    now_date = datetime.datetime.now().date()
     for k in range(len(orders)):
+        if now_date > orders[k].reminde_date and orders[k].back_money_percent != 100:
+            align_left = workbook.add_format(
+                {'align': 'left', 'valign': 'vcenter', 'border': 1, 'fg_color': 'FF8888'})
+        else:
+            align_left = workbook.add_format(
+                {'align': 'left', 'valign': 'vcenter', 'border': 1})
         mediums = orders[k].medium_orders
         if len(mediums) > 1:
             worksheet.merge_range(
@@ -285,7 +292,8 @@ def write_client_excel(orders):
                 th, 14, th + len(orders[k].medium_orders) - 1, 14, orders[k].sale_type_cn, align_left)
             for i in range(len(mediums)):
                 worksheet.write(th, 15, mediums[i].medium.name, align_left)
-                worksheet.write(th, 16, mediums[i].finish_status_cn, align_left)
+                worksheet.write(
+                    th, 16, mediums[i].finish_status_cn, align_left)
                 worksheet.write(th, 17, mediums[i].medium_contract, align_left)
                 worksheet.write(th, 18, mediums[i].sale_money, align_left)
                 worksheet.write(th, 19, mediums[i].medium_money2, align_left)
@@ -298,10 +306,14 @@ def write_client_excel(orders):
                 worksheet.write(th, 26, mediums[i].end_date_cn, align_left)
                 worksheet.write(th, 27, mediums[i].operater_names, align_left)
                 if mediums[i].associated_douban_order:
-                    worksheet.write(th, 28, mediums[i].associated_douban_order.name, align_left)
-                    worksheet.write(th, 29, mediums[i].associated_douban_order.contract, align_left)
-                    worksheet.write(th, 30, mediums[i].associated_douban_order.campaign, align_left)
-                    worksheet.write(th, 31, mediums[i].associated_douban_order.money, align_left)
+                    worksheet.write(
+                        th, 28, mediums[i].associated_douban_order.name, align_left)
+                    worksheet.write(
+                        th, 29, mediums[i].associated_douban_order.contract, align_left)
+                    worksheet.write(
+                        th, 30, mediums[i].associated_douban_order.campaign, align_left)
+                    worksheet.write(
+                        th, 31, mediums[i].associated_douban_order.money, align_left)
                 else:
                     worksheet.write(th, 28, '', align_left)
                     worksheet.write(th, 29, '', align_left)
@@ -429,7 +441,8 @@ def write_searchAd_client_excel(orders):
             worksheet.merge_range(
                 th, 9, th + len(orders[k].medium_orders) - 1, 9, orders[k].direct_sales_names, align_left)
 #            worksheet.merge_range(
-#                th, 10, th + len(orders[k].medium_orders) - 1, 10, orders[k].agent_sales_names, align_left)
+# th, 10, th + len(orders[k].medium_orders) - 1, 10,
+# orders[k].agent_sales_names, align_left)
             worksheet.merge_range(
                 th, 10, th + len(orders[k].medium_orders) - 1, 10, orders[k].locations_cn, align_left)
             worksheet.merge_range(
@@ -488,7 +501,7 @@ def write_searchAd_client_excel(orders):
                 worksheet.write(
                     th, 17, orders[k].medium_orders[0].medium_money2, align_left)
 #                worksheet.write(
-#                    th, 18, orders[k].medium_orders[0].medium_money, align_left)
+# th, 18, orders[k].medium_orders[0].medium_money, align_left)
                 worksheet.write(
                     th, 18, '', align_left)
                 worksheet.write(

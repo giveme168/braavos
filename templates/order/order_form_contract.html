@@ -174,7 +174,7 @@
             {% if order.contract_status == 5 and order.can_admin(g.user) %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="119">项目归档（预）</button>
             {% endif %}
-            {% if order.contract_status == 19 and g.user.is_contract() %}
+            {% if order.contract_status in [5, 19] and g.user.is_contract() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="120">项目归档（确认）</button>
             {% endif %}
             {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 9]%}
