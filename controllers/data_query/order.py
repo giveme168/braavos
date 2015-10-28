@@ -77,6 +77,7 @@ def cost():
             agent_invoice_pay_sum += sum(
                 [k.money for k in agent_invoice_pays if k.pay_status == 0 and k.agent_invoice == invoice])
         order.agent_invoice_pay_sum = agent_invoice_pay_sum
+
         order.medium_invoice_sum = sum(
             [k.money for k in medium_invoices if k.client_order == order])
         invoices = [k for k in medium_invoices if k.client_order == order]
@@ -84,6 +85,16 @@ def cost():
             [k.money for k in medium_invoice_pays if k.pay_status == 0 and k.medium_invoice in invoices])
         order.medium_invoice_rebate_invoice_sum = sum(
             [k.money for k in medium_invoice_rebate_invoice if k.client_order == order and k.invoice_status == 0])
+        for m in order.medium_orders:
+            m.medium_invoice_sum = sum(
+                [k.money for k in medium_invoices if k.client_order == order and k.medium == m.medium])
+            m_invoices = [
+                k for k in medium_invoices if k.client_order == order and k.medium == m.medium]
+            m.medium_invoice_pay_sum = sum(
+                [k.money for k in medium_invoice_pays if k.pay_status == 0 and k.medium_invoice in m_invoices])
+            m.medium_invoice_rebate_invoice_sum = sum(
+                [k.money for k in medium_invoice_rebate_invoice if k.client_order == order and
+                 k.invoice_status == 0 and k.medium == m.medium])
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders))
         return response

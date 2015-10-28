@@ -240,7 +240,7 @@ def write_client_excel(orders):
     align_left = workbook.add_format(
         {'align': 'left', 'valign': 'vcenter', 'border': 1})
 
-    keys = [u'代理/直客(甲方全称)', u'客户合同号', u'客户名称', u'Campaign名称', u'合同金额(元)',
+    keys = [u'代理/直客(甲方全称)', u'客户合同号', u'客户名称', u'Campaign名称', u'客户合同金额(元)',
             u'执行开始', u'执行结束', u'回款日期', u'回款金额', u'直客销售', u'渠道销售', u'区域', u'合同模板类型',
             u'售卖类型', u'代理/直客', u'投放媒体', u'媒体订单状态', u'媒体合同号', u'售卖金额(元)', u'媒体金额(元)', u'分成金额(元)',
             u'是否给媒体打款', u'是否收到媒体发票',
@@ -260,6 +260,7 @@ def write_client_excel(orders):
                 {'align': 'left', 'valign': 'vcenter', 'border': 1})
         mediums = orders[k].medium_orders
         if len(mediums) > 1:
+            '''
             worksheet.merge_range(
                 th, 0, th + len(orders[k].medium_orders) - 1, 0, orders[k].agent.name, align_left)
             worksheet.merge_range(
@@ -290,7 +291,23 @@ def write_client_excel(orders):
                 th, 13, th + len(orders[k].medium_orders) - 1, 13, orders[k].resource_type_cn, align_left)
             worksheet.merge_range(
                 th, 14, th + len(orders[k].medium_orders) - 1, 14, orders[k].sale_type_cn, align_left)
+            '''
             for i in range(len(mediums)):
+                worksheet.write(th, 0, orders[k].agent.name, align_left)
+                worksheet.write(th, 1, orders[k].contract, align_left)
+                worksheet.write(th, 2, orders[k].client.name, align_left)
+                worksheet.write(th, 3, orders[k].campaign, align_left)
+                worksheet.write(th, 4, orders[k].money, align_left)
+                worksheet.write(th, 5, orders[k].start_date_cn, align_left)
+                worksheet.write(th, 6, orders[k].end_date_cn, align_left)
+                worksheet.write(th, 7, orders[k].reminde_date_cn, align_left)
+                worksheet.write(th, 8, orders[k].client_back_moneys, align_left)
+                worksheet.write(th, 9, orders[k].direct_sales_names, align_left)
+                worksheet.write(th, 10, orders[k].agent_sales_names, align_left)
+                worksheet.write(th, 11, orders[k].locations_cn, align_left)
+                worksheet.write(th, 12, orders[k].contract_type_cn, align_left)
+                worksheet.write(th, 13, orders[k].resource_type_cn, align_left)
+                worksheet.write(th, 14, orders[k].sale_type_cn, align_left)
                 worksheet.write(th, 15, mediums[i].medium.name, align_left)
                 worksheet.write(
                     th, 16, mediums[i].finish_status_cn, align_left)
