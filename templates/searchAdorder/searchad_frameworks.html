@@ -33,7 +33,9 @@
                     {% if o.is_client_order|length == 0 %}
                     <a href="{{url_for('searchAd_order.framework_delete', order_id=o.id)}}" style="color:red;">删除</a>
                     {% else %}
+                    <div style="display:none;">
                     {% for k in o.is_client_order %}{{k}},{% endfor %}
+                    </dibv>
                     {% endif %}
                 {% endif %}
             {% endif %}

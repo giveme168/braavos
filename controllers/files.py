@@ -25,6 +25,7 @@ FILE_TYPE_SCHEDULE = 1
 FILE_TYPE_OUTSOURCE = 3
 FILE_TYPE_OTHERS = 4
 FILE_TYPE_AGENT = 9
+FILE_TYPE_FINISH = 10
 
 
 @files_bp.route('/files/<filename>', methods=['GET'])
@@ -74,6 +75,9 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
         if file_type == FILE_TYPE_CONTRACT:
             attachment = order.add_contract_attachment(g.user, filename)
             flash(u'合同文件上传成功!', 'success')
+        elif file_type == FILE_TYPE_FINISH:
+            attachment = order.add_finish_attachment(g.user, filename)
+            flash(u'合同扫描件上传成功!', 'success')
         elif file_type == FILE_TYPE_SCHEDULE:
             attachment = order.add_schedule_attachment(g.user, filename)
             flash(u'文件上传成功!', 'success')
@@ -348,3 +352,31 @@ def contract_email(order, attachment):
     contract_apply_signal.send(
         app._get_current_object(), apply_context=apply_context)
     flash(u'已发送提醒邮件给 %s' % ', '.join(contract_emails), "info")
+
+
+@files_bp.route('/finish/client_order/upload', methods=['POST'])
+def finish_client_order_upload():
+    order_id = request.values.get('order')
+    order = ClientOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/finish/douban_order/upload', methods=['POST'])
+def finish_douban_order_upload():
+    order_id = request.values.get('order')
+    order = DoubanOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/finish/medium_order/upload', methods=['POST'])
+def finish_medium_order_upload():
+    order_id = request.values.get('order')
+    order = Order.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/finish/associated_douban/upload', methods=['POST'])
+def finish_associated_douban_upload():
+    order_id = request.values.get('order')
+    order = AssociatedDoubanOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)

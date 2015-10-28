@@ -128,11 +128,38 @@ def write_order_excel(orders):
         worksheet.write(0, 0 + k, keys[k], align_center)
     # 设置宽度为30
     worksheet.set_column(len(keys), 0, 20)
-    # 设置高度
-    for k in range(len(orders) + 1):
-        worksheet.set_row(k, 30)
+
     th = 1
     for k in range(len(orders)):
+        mediums = orders[k].medium_orders
+        for i in range(len(mediums)):
+            worksheet.set_row(th, 30)    # 设置高度
+            worksheet.write(th, 0, orders[k].agent.name, align_left)
+            worksheet.write(th, 1, orders[k].client.name, align_left)
+            worksheet.write(th, 2, orders[k].campaign, align_left)
+            worksheet.write(th, 3, orders[k].direct_sales_names, align_left)
+            worksheet.write(th, 4, orders[k].agent_sales_names, align_left)
+            worksheet.write(th, 5, orders[k].locations_cn, align_left)
+            worksheet.write(th, 6, orders[k].contract, align_left)
+            worksheet.write(th, 7, mediums[i].name, align_left)
+            worksheet.write(th, 8, orders[k].start_date_cn, align_left)
+            worksheet.write(th, 9, orders[k].end_date_cn, align_left)
+            worksheet.write(th, 10, orders[k].money, align_left)
+            worksheet.write(th, 11, orders[k].pass_invoice_sum, align_left)
+            worksheet.write(th, 12, orders[k].back_money_sum, align_left)
+            worksheet.write(
+                th, 13, orders[k].back_money_rebate_sum, align_left)
+            worksheet.write(th, 14, orders[k].agent_invoice_sum, align_left)
+            worksheet.write(th, 15, orders[k].agent_invoice_pay_sum, align_left)
+            worksheet.write(th, 16, orders[k].mediums_money2, align_left)
+
+            worksheet.write(th, 17, orders[k].medium_invoice_sum, align_left)
+            worksheet.write(th, 18, orders[k].medium_invoice_pay_sum, align_left)
+            worksheet.write(
+                th, 19, orders[k].medium_invoice_rebate_invoice_sum, align_left)
+            th += 1
+
+        '''
         worksheet.write(th, 0, orders[k].agent.name, align_left)
         worksheet.write(th, 1, orders[k].client.name, align_left)
         worksheet.write(th, 2, orders[k].campaign, align_left)
@@ -156,7 +183,7 @@ def write_order_excel(orders):
         worksheet.write(th, 18, orders[k].medium_invoice_pay_sum, align_left)
         worksheet.write(
             th, 19, orders[k].medium_invoice_rebate_invoice_sum, align_left)
-        th += 1
+        th += 1'''
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
