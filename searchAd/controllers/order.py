@@ -750,7 +750,7 @@ def framework_recovery(order_id):
 
 def get_framework_form(order):
     framework_form = FrameworkOrderForm()
-    framework_form.agent.data = [(order.agent.id, order.agent.name)]
+    framework_form.agent.data = order.agent.id
     framework_form.description.data = order.description
     framework_form.money.data = order.money
     framework_form.client_start.data = order.client_start

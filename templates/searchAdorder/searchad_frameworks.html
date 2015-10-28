@@ -30,7 +30,11 @@
                 {% if o.status == 0 %}
                     <a href="{{url_for('searchAd_order.framework_recovery', order_id=o.id)}}" style="color:red;">恢复</a>
                 {% else %}
+                    {% if o.is_client_order|length == 0 %}
                     <a href="{{url_for('searchAd_order.framework_delete', order_id=o.id)}}" style="color:red;">删除</a>
+                    {% else %}
+                    {% for k in o.is_client_order %}{{k}},{% endfor %}
+                    {% endif %}
                 {% endif %}
             {% endif %}
         </td>
