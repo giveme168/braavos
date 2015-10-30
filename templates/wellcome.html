@@ -267,9 +267,19 @@
           </p>
         </div><!-- /.col-lg-4 -->
         <div class="col-xs-6 col-lg-4">
-          <h2>媒介管理</h2>
-          <p>（预留）</p>
-          <p><button class="btn btn-default" href="#" role="button" disabled="disabled">预留 &raquo;</button></p>
+          <h2>媒介管理<span class="label label-danger label-plus">New</span></h2>
+          <p>媒体打款及发票详情</p>
+          <p>
+            <div class="dropdown">
+                <button class="btn btn-info dropdown-toggle" style="width:100px;" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">选择<span class="caret"></span></button>
+                <!--搜索部门-->
+                <ul class="dropdown-menu" role="menu">
+                    {% if g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %}
+                    <li><a href="{{url_for('media_client_order_data_query.medium_invoice')}}" target="_blank">数据查询</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+          </p>
         </div><!-- /.col-lg-4 -->
         <div class="col-xs-6 col-lg-4">
           <h2>资源预定</h2>

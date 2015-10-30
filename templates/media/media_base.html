@@ -1,0 +1,29 @@
+{% extends "/site_base.html" %}
+
+{% block left_box%}
+<style>
+.list-group-item {
+    margin-left:15px;
+}
+</style>
+<div class="bra-left bra-box">
+    <div class="list-group" id="left-list">
+    <h4>媒介管理</h4>
+    {% if g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %}
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>数据查询</li>
+    <a id="_client_orderdata_query_" class="list-group-item" href="{{url_for('media_client_order_data_query.medium_invoice')}}">数据查询</a>
+    {% endif %}
+    </div>
+    <div class="left-btn">
+        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
+        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass("active");
+    })
+</script>
+{% endblock %}

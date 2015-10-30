@@ -378,7 +378,7 @@ def order_medium_edit_cpm(medium_id):
 @searchAd_order_bp.route('/order/<order_id>/medium_order/<medium_id>/delete', methods=['GET'])
 def medium_order_delete(order_id, medium_id):
     order = searchAdOrder.get(medium_id)
-    # searchAdMediumOrderExecutiveReport.query.filter_by(order=order).delete()
+    searchAdMediumOrderExecutiveReport.query.filter_by(order=order).delete()
     order.delete()
     return redirect(order.info_path())
 

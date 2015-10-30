@@ -7,7 +7,7 @@ from models.outsource import (OutSourceTarget, TARGET_TYPE_CN, OUTSOURCE_TYPE_CN
 
 
 class OutSourceTargetForm(Form):
-    name = TextField(u'名称', [validators.Required(u"请输入名字.")])
+    name = TextField(u'名称', [validators.Required(u"请输入名字.")], description=u"请先在现有收款人列表中搜索确认。避免重复增加")
     type = SelectField(u'类型', coerce=int, default=1)
     otype = SelectField(u'外包性质', coerce=int, default=1)
     bank = TextField(u'开户行')
