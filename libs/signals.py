@@ -674,7 +674,7 @@ def out_apply(sender, out, status):
     elif status == 14:
         msg = u'外出报备申请通过-并完成会议纪要'
         to_name = out.creator.name
-    title = u'【外出报备】' + '-' + out.creator.name
+    title = u'【外出报备】' + '-' + out.m_persion_cn +'-' +out.creator.name
     url = mail.app.config['DOMAIN'] + url_for('account_out.info', oid=out.id)
     body = u"""
 Dear %s: 
