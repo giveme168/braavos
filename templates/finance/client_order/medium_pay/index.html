@@ -1,5 +1,5 @@
 {% extends "/finance/finance_base.html" %}
-{% block title %}我的客户订单{% endblock %}
+{% block title %}申请中的媒体打款{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box" style="width:1200px;">
@@ -18,9 +18,10 @@
             </select>
         </div>
         <div class="col-md-2" style="padding:0;margin-right:5px;">
-            <select class="col-md-12" id="search_status" name="status" placeholder="合同状态">
-                {% for v, m in statuses %}
-                    {% if v == status_id|int %}
+            <select class="col-md-12" id="medium_id" name="medium_id" placeholder="媒体">
+                <option value='0'>全部</option>
+                {% for v, m in mediums %}
+                    {% if v == medium_id|int %}
                         <option selected="" value="{{v}}">{{m}}</option>
                     {% else %}
                         <option value="{{v}}">{{m}}</option>
@@ -28,23 +29,16 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-2" style="padding:0;margin-right:5px;">
-            <select class="col-md-12" id="orderby" name="orderby" placeholder="排序方式">
-                <option value="create_time">按添加时间排序</option>
-                <option value="reminde_date">按回款时间排序</option>
-                <option value="contract">按合同号排序</option>
-            </select>
-        </div>
         <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
     </div>
     <br>
-    <table class="table table-bordered table-striped">
+    <table class="table table-bordered">
         <tr>
             <th>客户名称</th>
             <th>合同号</th>
             <th>媒体总金额</th>
-            <th>收到发票总金额</th>
-            <th>已打款发票金额</th>
+            <th>收到发票金额</th>
+            <th>发票已打款金额</th>
             <th>申请中的打款金额</th>
             <th>投放媒体</th>
             <th>请款中</th>
@@ -53,60 +47,40 @@
         </tr>
         {% for order in orders %}
         <tr>
-            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
-            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.contract}}</a></td>
-            <td>{{order.mediums_money2}} 元</td>
-            <td>{{order.mediums_invoice_sum}} 元</td>
-            <td>{{order.mediums_invoice_pass_sum}} 元</td>
-            <td>{{order.mediums_invoice_apply_sum}} 元</td>
-            <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
-            {% if order.get_medium_invoice_pay_by_status(3) | length %}
-            <td style="color:red;">{{order.get_medium_invoice_pay_by_status(3) | length}}</td>
+            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.medium_invoice.client_order.name}}</a></td>
+            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.medium_invoice.client_order.contract}}</a></td>
+            <td>{{order.medium_invoice.client_order.mediums_money2|format_price}} 元</td>
+            <td>{{order.medium_invoice.money|format_price}} 元</td>
+            <td>{{order.medium_invoice.get_pay_money|format_price}} 元</td>
+            <td>{{order.money|format_price}} 元</td>
+            <td>{{order.medium_invoice.medium.name}}</td>
+            {% if order.medium_invoice.client_order.get_medium_invoice_pay_by_status(3) | length %}
+            <td style="color:red;">{{order.medium_invoice.client_order.get_medium_invoice_pay_by_status(3) | length}}</td>
             {% else %}
             <td>0</td>
             {% endif %}
-            <td>{{order.get_medium_invoice_pay_by_status(0) | length}}</td>
-            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">查看</a></td>
+            <td>{{order.medium_invoice.client_order.get_medium_invoice_pay_by_status(0) | length}}</td>
+            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">查看</a></td>
         </tr>
         {% endfor %}
+        <tr>
+            <td colspan=2 style="text-align: center;">总计</td>
+            <td>{{orders|sum(attribute='medium_invoice.client_order.mediums_money2')|format_price}}元</td>
+            <td>{{orders|sum(attribute='medium_invoice.money')|format_price}}元</td>
+            <td>{{orders|sum(attribute='medium_invoice.get_pay_money')|format_price}}元</td>
+            <td>{{orders|sum(attribute='money')|format_price}}元</td>
+            <td colspan=4></td>
+        </tr>
     </table>
     {% set pages = orders %}
     {% include "pagination.html" %}
 </div>
 <script>
-    function sort(value) {
-        var orderby = '{{orderby}}',
-            sortby = '{{sortby}}';
-        if (value == sortby) {
-            if (orderby == 'desc') {
-                orderby = 'asc'
-            } else {
-                orderby = 'desc'
-            }
-        } else {
-            sortby = value
-            orderby = 'desc'
-        }
-        window.location.href = window.location.pathname + '?sortby=' + sortby + '&orderby=' + orderby +
-            '&searchinfo=' + encodeURIComponent($('#search_info').val()) +
-            '&selected_location=' + encodeURIComponent($('#search_location').val()) +
-            '&selected_status=' + encodeURIComponent($('#search_status').val());
-    }
-
     function search() {
         window.location.href = window.location.pathname +
             '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
             '&selected_location=' + ($('#search_location').val()) +
-            '&selected_status=' + ($('#search_status').val())+
-            '&orderby=' + ($('#orderby').val());
-    }
-
-    function download() {
-        window.location.href = window.location.pathname +
-            '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
-            '&selected_location=' + ($('#search_location').val()) +
-            '&selected_status=' + ($('#search_status').val()) +
-            '&action=download';
+            '&medium_id=' + $('#medium_id').val();
     }
 
     function enter_search() {
@@ -116,12 +90,8 @@
         }
     }
     $(function() {
-        {% if g.user.is_super_leader() or g.user.is_finance() %} 
-        {% else %}
-            $("#search-area").hide() 
-        {% endif %}
-        $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
-        $("#orderby").trigger("chosen:updated");
+        $('#medium_id').val('{{medium_id}}')
+        $("#medium_id").trigger("chosen:updated");
     });
     </script>
 {% endblock %}
