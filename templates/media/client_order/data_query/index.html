@@ -7,6 +7,7 @@
     <ul class="nav nav-tabs">
       <li id="_medium_invoice_" class=""><a href="{{url_for('media_client_order_data_query.medium_invoice')}}">已收媒体发票金额</a></li>
       <li id="_pay_medium_invoice_" class=""><a href="{{url_for('media_client_order_data_query.pay_medium_invoice')}}">付款给媒体金额</a></li>
+      <li id="_apply_pay_medium_invoice_" class=""><a href="{{url_for('media_client_order_data_query.apply_pay_medium_invoice')}}">申请中的媒体付款</a></li>
       <li id="_medium_rebate_invoice_" class=""><a href="{{url_for('media_client_order_data_query.medium_rebate_invoice')}}">已开媒体返点发票</a></li>
     </ul>
     <br/>
@@ -98,7 +99,7 @@
         <td>{{o.client_order.direct_sales_names}}</td>
         <td>{{o.client_order.agent_sales_names}}</td>
         <td>{{o.client_order.locations_cn}}</td>
-        <td>{{o.client_order.contract}}</td>
+        <td><a href="{{o.client_order.info_path()}}">{{o.client_order.contract}}</a></td>
         <td>
             {% for mo in o.client_order.medium_orders %}    
             {{mo.medium.name}}

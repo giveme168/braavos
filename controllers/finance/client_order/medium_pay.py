@@ -37,7 +37,7 @@ def apply():
         orders = [
             o for o in orders if search_info.lower() in o.medium_invoice.client_order.search_info.lower()]
     if medium_id:
-        orders = [o for o in orders if medium_id in o.medium_invoice.medium_id]
+        orders = [o for o in orders if medium_id == o.medium_invoice.medium_id]
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     paginator = Paginator(orders, ORDER_PAGE_NUM)
