@@ -9,6 +9,7 @@ from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_STATU
                             MediumInvoicePay)
 from forms.invoice import MediumInvoiceForm
 from models.user import User
+from models.medium import Medium
 from libs.signals import medium_invoice_apply_signal
 from libs.paginator import Paginator
 from controllers.saler.client_order.medium_invoice import (new_invoice as _new_invoice,
@@ -24,33 +25,21 @@ ORDER_PAGE_NUM = 50
 def apply():
     if not g.user.is_finance():
         abort(404)
-    orders = list(set(
-        [k.medium_invoice.client_order for k in MediumInvoicePay.query.filter_by(pay_status=3)]))
-    if request.args.get('selected_status'):
-        status_id = int(request.args.get('selected_status'))
-    else:
-        status_id = -1
-
-    orderby = request.args.get('orderby', '')
+    medium_id = int(request.args.get('medium_id', 0))
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
-    # page = max(1, page)
-    # start = (page - 1) * ORDER_PAGE_NUM
+
+    orders = list(MediumInvoicePay.query.filter_by(pay_status=3))
     if location_id >= 0:
-        orders = [o for o in orders if location_id in o.locations]
-    if status_id >= 0:
-        orders = [o for o in orders if o.contract_status == status_id]
+        orders = [o for o in orders if location_id in o.medium_invoice.client_order.locations]
     if search_info != '':
         orders = [
-            o for o in orders if search_info.lower() in o.search_info.lower()]
-    if orderby and len(orders):
-        orders = sorted(
-            orders, key=lambda x: getattr(x, orderby), reverse=True)
+            o for o in orders if search_info.lower() in o.medium_invoice.client_order.search_info.lower()]
+    if medium_id:
+        orders = [o for o in orders if medium_id in o.medium_invoice.medium_id]
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
-    select_statuses = CONTRACT_STATUS_CN.items()
-    select_statuses.insert(0, (-1, u'全部合同状态'))
     paginator = Paginator(orders, ORDER_PAGE_NUM)
     try:
         orders = paginator.page(page)
@@ -58,11 +47,11 @@ def apply():
         orders = paginator.page(paginator.num_pages)
     return tpl('/finance/client_order/medium_pay/index.html', orders=orders, title=u'申请中的媒体打款',
                locations=select_locations, location_id=location_id,
-               statuses=select_statuses, status_id=status_id,
-               orderby=orderby, now_date=datetime.date.today(),
+               now_date=datetime.date.today(),
                search_info=search_info, page=page,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
-                      (orderby, search_info, location_id, status_id))
+               mediums=[(k.id, k.name) for k in Medium.all()], medium_id=medium_id,
+               params='&searchinfo=%s&selected_location=%s&medium_id=%s' %
+                      (search_info, location_id, str(medium_id)))
 
 
 @finance_client_order_medium_pay_bp.route('/', methods=['GET'])
