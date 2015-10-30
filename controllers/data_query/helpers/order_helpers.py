@@ -153,10 +153,10 @@ def write_order_excel(orders):
             worksheet.write(th, 15, orders[k].agent_invoice_pay_sum, align_left)
             worksheet.write(th, 16, orders[k].mediums_money2, align_left)
 
-            worksheet.write(th, 17, orders[k].medium_invoice_sum, align_left)
-            worksheet.write(th, 18, orders[k].medium_invoice_pay_sum, align_left)
+            worksheet.write(th, 17, mediums[i].medium_invoice_sum, align_left)
+            worksheet.write(th, 18, mediums[i].medium_invoice_pay_sum, align_left)
             worksheet.write(
-                th, 19, orders[k].medium_invoice_rebate_invoice_sum, align_left)
+                th, 19, mediums[i].medium_invoice_rebate_invoice_sum, align_left)
             th += 1
 
         '''

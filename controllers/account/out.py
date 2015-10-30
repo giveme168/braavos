@@ -63,7 +63,7 @@ def underling():
     if g.user.is_super_leader():
         outs = [k for k in Out.all() if k.status in [
             OUT_STATUS_APPLY, OUT_STATUS_PASS, OUT_STATUS_MEETED, OUT_STATUS_MEETED_NOT_PASS]]
-        under_users = [{'uid': k.id, 'name': k.name}for k in User.all()]
+        under_users = [{'uid': k.id, 'name': k.name} for k in User.all()]
     else:
         under_users = _get_all_under_users(g.user.id)
         if user_id:
