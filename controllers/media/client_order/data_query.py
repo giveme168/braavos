@@ -76,7 +76,7 @@ def apply_pay_medium_invoice():
     return tpl('/media/client_order/data_query/index.html',
                orders=orders, location=location,
                year=year, month=month, info=info,
-               title=u"付款给媒体金额", t_type='pay_medium_invoice')
+               title=u"申请中的媒体付款", t_type='pay_medium_invoice')
 
 
 @media_client_order_data_query_bp.route('/pay_medium_invoice', methods=['GET'])

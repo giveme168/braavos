@@ -59,12 +59,13 @@ class NewUserForm(Form):
     email = TextField(u'邮箱', [validators.Required(u"请输入邮箱."),
                                   validators.Email(u"请输入正确的邮箱地址.")])
     status = SelectField(u'状态', coerce=int, default=1)
-    team = SelectField(u'团队', coerce=int)
+    team = SelectField(u'角色', coerce=int)
     team_leaders = SelectMultipleField(u'直属领导', coerce=int)
     birthday = DateField(u'生日日期', default=DEFAULT_BIRTHDAY)
     recruited_date = DateField(u'入职日期', default=DEFAULT_RECRUITED_DATE)
     quit_date = DateField(u'离职日期', default=DEFAULT_RECRUITED_DATE)
     cellphone = TextField(u'手机号', default='')
+    position = TextField(u'职位', default='')
 
     def __init__(self, *args, **kwargs):
         super(NewUserForm, self).__init__(*args, **kwargs)
