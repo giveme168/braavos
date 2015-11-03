@@ -104,9 +104,10 @@ class User(db.Model, BaseModelMixin):
     recruited_date = db.Column(db.DateTime)
     quit_date = db.Column(db.DateTime)
     cellphone = db.Column(db.String(20))
+    position = db.Column(db.String(100))
 
     def __init__(self, name, email, password, team, status=USER_STATUS_ON, team_leaders=[], birthday=None,
-                 recruited_date=None, quit_date=None, cellphone=''):
+                 position='', recruited_date=None, quit_date=None, cellphone=''):
         self.name = name
         self.email = email.lower()
         self.set_password(password)
@@ -117,6 +118,7 @@ class User(db.Model, BaseModelMixin):
         self.recruited_date = recruited_date or datetime.date.today()
         self.quit_date = quit_date or datetime.date.today()
         self.cellphone = cellphone or ''
+        self.position = position or ''
 
     '''
     def __repr__(self):

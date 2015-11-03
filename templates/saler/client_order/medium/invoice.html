@@ -272,7 +272,7 @@ $(function() {
     <label class="col-sm-2 control-label">操作 : </label>
     <div class="col-sm-4">
       {% if invoice_pay.pay_status == 1 and invoice.client_order.can_admin(g.user) %}
-        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">申请发票打款</button>
+        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">申请打款</button>
       {% endif %}
       {% if invoice_pay.pay_status == 2 and invoice.client_order.can_admin(g.user) %}
         <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">再次申请打款</button>

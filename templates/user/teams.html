@@ -1,9 +1,9 @@
 {% extends "/user_base.html" %}
-{% block title %}团队{% endblock %}
+{% block title %}角色{% endblock %}
 
 {% block main_box %}
 <div class="bra-main bra-box">
-    <h3>团队列表
+    <h3>角色列表
         <a class="btn btn-sm btn-default" href="{{url_for('user.new_team')}}">新建</a>
     </h3>
     <table class="table table-bordered table-striped">
@@ -11,7 +11,7 @@
             <th>#id</th>
             <th>姓名</th>
             <th>区域</th>
-            <th>团队管理员</th>
+            <th>金额色管理员</th>
             <th>类型</th>
         </tr>
         {% for t in teams %}

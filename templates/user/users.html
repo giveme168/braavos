@@ -2,7 +2,7 @@
 {% block title %}用户列表{% endblock %}
 
 {% block main_box %}
-<div class="bra-main bra-box">
+<div class="bra-main bra-box" style="width:1200px;">
     <h3>用户列表
         <a class="btn btn-sm btn-default" href="{{url_for('user.new_user')}}">新建</a>
     </h3>
@@ -11,7 +11,8 @@
             <th>#id</th>
             <th>名称</th>
             <th>邮箱</th>
-            <th>团队</th>
+            <th>角色</th>
+            <th>职位</th>
             <th>状态</th>
             <th>Leader</th>
         </tr>
@@ -21,6 +22,7 @@
             <td><a href="{{url_for('user.user_detail', user_id=u.id)}}">{{u.name}}</a></td>
             <td>{{u.email}}</td>
             <td><a href="{{url_for('user.team_detail', team_id=u.team.id)}}">{{u.team.name}}</a></td>
+            <td>{{u.position or ''}}</td>
             <td>{{'有效' if u.status else '暂停'}}</td>
             <td>{% for k in u.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
         </tr>

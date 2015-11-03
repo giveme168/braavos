@@ -10,6 +10,7 @@
         <tr>
           <th>姓名</th>
           <th>区域</th>
+          <th>职位</th>
           <th>联系方式</th>
         </tr>
       </thead>
@@ -18,6 +19,7 @@
         <tr>
           <td>{{user.name}}</td>
           <td>{{user.team.location_cn}}</td>
+          <td>{{user.position or ''}}</td>
           <td>{{user.cellphone_cn}}</td>
         </tr>
         {% endfor %}

@@ -237,7 +237,7 @@
                 <ul class="dropdown-menu" role="menu">
                     {% if g.user.is_admin() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
                     <li><a href="{{url_for('user.index')}}" target="_blank">用户管理</a></li>
-                    <li><a href="{{url_for('user.index')}}" target="_blank">团队管理</a></li>
+                    <li><a href="{{url_for('user.index')}}" target="_blank">角色管理</a></li>
                     {% endif %}
                     {% if g.user.is_leader() or g.user.is_super_leader() %}
                     <li><a href="{{url_for('account_performance.index')}}" target="_blank">团队销售指标</a></li>

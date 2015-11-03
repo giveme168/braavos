@@ -47,8 +47,8 @@
         </tr>
         {% for order in orders %}
         <tr>
-            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.medium_invoice.client_order.name}}</a></td>
-            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.medium_invoice.client_order.contract}}</a></td>
+            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">{{order.medium_invoice.client_order.name}}</a></td>
+            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">{{order.medium_invoice.client_order.contract}}</a></td>
             <td>{{order.medium_invoice.client_order.mediums_money2|format_price}} 元</td>
             <td>{{order.medium_invoice.money|format_price}} 元</td>
             <td>{{order.medium_invoice.get_pay_money|format_price}} 元</td>
