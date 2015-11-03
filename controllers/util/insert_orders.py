@@ -23,7 +23,7 @@ util_insert_orders_bp = Blueprint(
 @util_insert_orders_bp.route('/', methods=['GET', 'POST'])
 def index():
     if not g.user.is_super_admin():
-        abort(402)
+        abort(403)
     form = ClientOrderForm(request.form)
     mediums = [(m.id, m.name) for m in Medium.all()]
     if request.method == 'POST' and form.validate():

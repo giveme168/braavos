@@ -17,7 +17,7 @@ util_insert_framework_orders_bp = Blueprint(
 @util_insert_framework_orders_bp.route('/', methods=['GET', 'POST'])
 def index():
     if not g.user.is_super_admin():
-        abort(402)
+        abort(403)
     form = FrameworkOrderForm(request.form)
     if request.method == 'POST' and form.validate():
         order = FrameworkOrder.add(group=Group.get(form.group.data),

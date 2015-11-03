@@ -20,7 +20,7 @@ p = Pinyin()
 @util_upload_orders_bp.route('/', methods=['GET', 'POST'])
 def index():
     if not g.user.is_super_admin():
-        abort(402)
+        abort(403)
     if request.method == 'POST':
         f = request.files['upload_file']
         xls_orders = '/tmp/uploads/' + f.filename.encode('utf8')
