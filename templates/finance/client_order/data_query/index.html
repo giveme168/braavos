@@ -103,7 +103,26 @@
         <td>{{o.client_order.direct_sales_names}}</td>
         <td>{{o.client_order.agent_sales_names}}</td>
         <td>{{o.client_order.locations_cn}}</td>
-        <td>{{o.client_order.contract}}</td>
+        <td>
+            {% if t_type == 'agent_invoice' %}
+                <a href="{{url_for('finance_client_order_invoice.info', order_id=o.client_order.id)}}">
+            {% elif t_type == 'back_money' %}
+                <a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.client_order.id)}}">
+            {% elif t_type == 'back_invoice' %}
+                <a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.client_order.id)}}">
+            {% elif t_type == 'rebate_agent_invoice' %}
+                <a href="{{url_for('finance_client_order_agent_pay.info', order_id=o.client_order.id)}}" >
+            {% elif t_type == 'pay_rebate_agent_invoice' %}
+                <a href="{{url_for('finance_client_order_agent_pay.pay_info', invoice_id=o.id)}}">
+            {% elif t_type == 'medium_invoice' %}
+                <a href="{{url_for('finance_client_order_medium_pay.info',order_id=o.client_order.id)}}">
+            {% elif t_type == 'pay_medium_invoice' %}
+                <a href="{{url_for('finance_client_order_medium_pay.pay_info', invoice_id=o.id)}}">
+            {% elif t_type == 'medium_rebate_invoice' %}
+                <a href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=o.client_order.id)}}">
+            {% endif %}
+            {{o.client_order.contract}}</a>
+        </td>
         <td>
             {% for mo in o.client_order.medium_orders %}    
             {{mo.medium.name}}

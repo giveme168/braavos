@@ -18,7 +18,7 @@ util_insert_douban_orders_bp = Blueprint(
 @util_insert_douban_orders_bp.route('/', methods=['GET', 'POST'])
 def index():
     if not g.user.is_super_admin():
-        abort(402)
+        abort(403)
     form = DoubanOrderForm(request.form)
     if request.method == 'POST' and form.validate():
         if DoubanOrder.query.filter_by(contract=request.values.get('contract')).count() > 0:
