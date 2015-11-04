@@ -80,6 +80,7 @@ def merget_client_target_paid(target_id):
         for k in merger_clients:
             for o in k.outsources:
                 o.status = OUTSOURCE_STATUS_PAIED
+                o.invoice = k.invoice
                 o.create_time = datetime.datetime.strptime(pay_time, '%Y-%m-%d')
                 o.save()
             k.status = MERGER_OUTSOURCE_STATUS_PAIED
@@ -116,6 +117,7 @@ def merget_douban_target_paid(target_id):
         for k in merger_clients:
             for o in k.outsources:
                 o.status = OUTSOURCE_STATUS_PAIED
+                o.invoice = k.invoice
                 o.create_time = datetime.datetime.strptime(pay_time, '%Y-%m-%d')
                 o.save()
             k.status = MERGER_OUTSOURCE_STATUS_PAIED
@@ -146,6 +148,7 @@ def merger_outsources_pass(merger_id):
     merger.create_time = datetime.date.today()
     for k in merger.outsources:
         k.status = OUTSOURCE_STATUS_PAIED
+        k.invoice = merger.invoice
         k.create_time = datetime.date.today()
         k.save()
     merger.save()

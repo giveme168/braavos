@@ -140,11 +140,15 @@
           </tr>
           <tr>
             <th>预估量 </th>
+            {% if g.user.is_media() %}
+            <td><input type='text' value="{{douban_order.sale_CPM or 0}}" class="form-control bra-form-control" name="sale_CPM" style="width:100px;"/>CPM</td>
+            {% else %}
             <td>{{douban_order.sale_CPM or 0}} CPM</td>
+            {% endif %}
           </tr>
           <tr>
             <th>实际量 </th>
-            {% if g.user.is_operater %}
+            {% if g.user.is_operater() %}
               <td><input type='text' value="{{douban_order.medium_CPM or 0}}" class="form-control bra-form-control" name="cpm" style="width:100px;"/>CPM</td>
             {% else %}
               <td>{{douban_order.medium_CPM or 0}} CPM</td>
