@@ -39,7 +39,11 @@
           </tr>
           <tr>
             <th>预估量 </th>
+            {% if g.user.is_media() %}
+            <td><input type='text' value="{{order.sale_CPM or 0}}" class="form-control bra-form-control" name="sale_CPM" style="width:100px;"/> CPM</td>
+            {% else %}
             <td>{{order.sale_CPM or 0}} CPM</td>
+            {% endif %}
           </tr>
           <tr>
             <th>实际量 </th>

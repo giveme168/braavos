@@ -350,7 +350,7 @@ def new_outsource():
                               type=form.type.data,
                               subtype=form.subtype.data,
                               remark=form.remark.data,
-                              invoice=True,
+                              invoice=False,
                               pay_num=form.num.data,)
     flash(u'新建外包成功!', 'success')
     outsource.client_order.add_comment(g.user,
@@ -374,7 +374,7 @@ def new_douban_outsource():
                                     type=form.type.data,
                                     subtype=form.subtype.data,
                                     remark=form.remark.data,
-                                    invoice=True,
+                                    invoice=False,
                                     pay_num=form.num.data)
     flash(u'新建外包成功!', 'success')
     outsource.douban_order.add_comment(g.user,

@@ -97,7 +97,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     medium_contract = db.Column(db.String(100))  # 媒体合同号
     medium_money = db.Column(db.Integer)  # 下单金额
-    medium_money2 = db.Column(db.Integer)  # 未分成金额
+    medium_money2 = db.Column(db.Integer)  # 媒体金额
     sale_money = db.Column(db.Integer)  # 售卖金额
     medium_CPM = db.Column(db.Integer)  # 实际CPM
     sale_CPM = db.Column(db.Integer)  # 下单CPM

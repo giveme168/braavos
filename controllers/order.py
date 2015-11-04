@@ -459,12 +459,18 @@ def order_medium_edit_cpm(medium_id):
         abort(404)
     cpm = request.values.get('cpm', '')
     medium_money = request.values.get('medium_money', '')
+    sale_CPM = int(request.values.get('sale_CPM', 0))
     if cpm != '':
         cpm = int(round(float(cpm)))
         if mo.medium_CPM != cpm:
             mo.client_order.add_comment(
                 g.user, u"更新了媒体订单: %s 的实际量%s CPM" % (mo.medium.name, cpm))
         mo.medium_CPM = cpm
+    if sale_CPM != 0:
+        if mo.sale_CPM != sale_CPM:
+            mo.client_order.add_comment(
+                g.user, u"更新了媒体订单: %s 的预估量%s CPM" % (mo.medium.name, sale_CPM))
+        mo.sale_CPM = sale_CPM
     if medium_money != '':
         medium_money = int(round(float(medium_money)))
         if mo.medium_money != medium_money:
@@ -1039,10 +1045,17 @@ def douban_order_edit_cpm(order_id):
     if not order:
         abort(404)
     cpm = int(round(float(request.values.get('cpm', 0))))
-    order.medium_CPM = cpm
+    sale_CPM = int(request.values.get('sale_CPM', 0))
+    if cpm != 0:
+        order.medium_CPM = cpm
+        order.add_comment(
+            g.user, u"更新了直签豆瓣订单: %s 的实际量%s CPM" % (order.name, order.medium_CPM))
+    if sale_CPM != 0:
+        if order.sale_CPM != sale_CPM:
+            order.sale_CPM = sale_CPM
+            order.add_comment(
+                g.user, u"更新了直签豆瓣订单: %s 的预估量%s CPM" % (order.name, order.sale_CPM))
     order.save()
-    order.add_comment(
-        g.user, u"更新了直签豆瓣订单: %s 的实际量%s CPM" % (order.name, order.medium_CPM))
     flash(u'[直签豆瓣订单]%s 更新成功!' % order.name, 'success')
     return redirect(url_for("order.douban_order_info", order_id=order.id))
 
