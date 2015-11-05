@@ -649,7 +649,7 @@ def back_money_apply(sender, apply_context):
 \n
 by %s
 """ % (order.name, url, order.contract, str(num), order.back_money_percent, order.email_info, g.user.name)
-    send_simple_mail(title, to_emails, body=body)
+    # send_simple_mail(title, to_emails, body=body)
 
 
 def out_apply(sender, out, status):
@@ -724,7 +724,7 @@ Dear %s:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
     # 会议纪要发送邮件标题改为"【外出报备】-会议纪要"
     if out.status in [3, 4]:
-        title = u'【外出报备】-会议纪要'
+        title = u'【外出报备】-会议纪要' + '-' + out.m_persion_cn +'-' +out.creator.name
     flash(u'已发送邮件给 %s ' % (', '.join([k.name for k in to_users])), 'info')
     send_simple_mail(title, list(set(to_user_emails)), body=body)
 

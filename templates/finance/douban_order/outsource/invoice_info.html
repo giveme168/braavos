@@ -1,0 +1,178 @@
+{% extends "/finance/finance_base.html" %}
+{% from 'comments.html' import comments_box %}
+
+{% block main_box%}
+<div class="bra-main bra-box">
+    <h3>{{order.agent.name}}-{{order.name}}外包发票情况</h3>
+    <table class="table table-bordered">
+        <tr>
+            <th>订单总金额</th>
+            <th>已打款外包金额</th>
+            <th>已收外包发票金额</th>
+        </tr>
+        <tr>
+            <td>{{order.money|format_price}} 元</td>
+            <td>{{outsources|sum(attribute='pay_num')}}</td>
+            <td>{{invoices|sum(attribute='ex_money')}}</td>
+        </tr>
+    </table>
+    <div class="panel panel-default" id="non-invoice">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 已打款外包金额 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-0" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="col-md-12">
+                    <div class="col-md-21" style="">
+                        <table class="table table-bordered">
+                          <tr>
+                            <th>外包供应商</th>
+                            <th>外包类型</th>
+                            <th>金额</th>
+                          </tr>
+                          {% for outsource in outsources %}
+                            <tr>
+                              <td>{{outsource.target.name}}</td>
+                              <td>{{outsource.type_cn}}</td>
+                              <td>{{outsource.pay_num}}</td>
+                            </tr>
+                          {% endfor %}
+                          <tr>
+                            <td colspan=2 style="text-align: center;">合计</td>
+                            <td>{{outsources|sum(attribute='pay_num')}}</td>
+                          </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" id="non-invoice">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 发票信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-0" class="panel-collapse collapse in">
+            <div class="panel-body">
+                
+                <div class="col-md-12">
+                    <div class="col-md-21" style="">
+                        <table class="table table-bordered">
+                          <tr>
+                            <th>公司名称</th>
+                            <th>开票时间</th>
+                            <th>发票号</th>
+                            <th>发票金额</th>
+                            <th>拆分金额</th>
+                            <th>操作</th>
+                          </tr>
+                          {% for invoice in invoices %}
+                          <tr>
+                            <td>{{invoice.company}}</td>
+                            <td>{{invoice.add_time_cn}}</td>
+                            <td>{{invoice.invoice_num}}</td>
+                            <td>{{invoice.money}}</td>
+                            <td>{{invoice.ex_money}}</td>
+                            <td><a href="{{url_for('finance_douban_order_outsource_invoice.delete', order_id=order.id, invoice_id=invoice.id)}}">删除</a></td>
+                          </tr>
+                          {% endfor %}
+                          <tr>
+                              <td colspan=3 style="text-align: center;">合计</td>
+                              <td>{{invoices|sum(attribute='money')}}</td>
+                              <td>{{invoices|sum(attribute='ex_money')}}</td>
+                              <td></td>
+                          </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" id="new-back-invoice" style="display:none;">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写返点发票信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-new" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="well">
+                    <form class="form form-horizontal" method="POST" action="" onsubmit="return checkform(this)">
+                        <input type="hidden" value="{{order.id}}" name="order_id">
+                        <div class="form-group">
+                            <label for="client_start" class="col-sm-2 control-label">公司名称 : </label>
+                            <div class="col-sm-4">
+                                <input type="text" id="company" name="company" value="" class="form-control bra-form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="client_start" class="col-sm-2 control-label">发票金额 : </label>
+                            <div class="col-sm-4">
+                                <input type="text" id="money" name="money" value="" class="form-control bra-form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="client_start" class="col-sm-2 control-label">拆分金额 : </label>
+                            <div class="col-sm-4">
+                                <input type="text" id="ex_money" name="ex_money" value="" class="form-control bra-form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="client_start" class="col-sm-2 control-label">发票号码 : </label>
+                            <div class="col-sm-4">
+                                <input type="text" id="invoice_num" name="invoice_num" value="" class="form-control bra-form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="client_start" class="col-sm-2 control-label">开票时间 : </label>
+                            <div class="col-sm-4">
+                                <input type="text" id="add_time" name="add_time" value="{{now_date}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd" readonly>
+                            </div>
+                        </div>
+                        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button onclick="showInvoice(this,'new-back-invoice');" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span>新建发票信息</button>
+</div>
+<script>
+    function checkform(obj, type){
+        if (obj.company.value == ""){
+            alert('公司名称不能为空')
+            obj.company.focus()
+            return false
+        }else if(obj.money.value == ""){
+            alert('请输入发票金额')
+            obj.money.focus()
+            return false
+        }else if(obj.ex_money.value == ""){
+            alert('请输入拆分金额')
+            obj.ex_money.focus()
+            return false
+        }else if(obj.invoice_num.value == ""){
+            alert('请输入发票号码')
+            obj.invoice_num.focus()
+            return false
+        }
+        return true
+        
+    }
+    function showInvoice(ele, id){
+        $(ele).hide();
+        $("#"+id).show();
+    };
+    $(document).ready(function(){
+        $('.datetimepicker').datetimepicker({
+            autoclose: true,
+            todayHighlight: true,
+            language: 'zh-CN',
+            minView: 2
+        });
+    })
+</script>
+{% endblock %}

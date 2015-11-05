@@ -1,0 +1,18 @@
+<ul class="nav nav-tabs">
+    <li id="_order_" class=""><a href='{{url_for("order.douban_order_info", order_id=order.id)}}'>合同流程</a></li>
+    {% if order.can_admin(g.user) or g.user.is_contract() or g.user.is_finance()%}
+    <li id="_back_money_" class=""><a href='{{url_for("saler_douban_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
+    <li id="_outsource_"class=""><a href='{{url_for("saler_douban_order_outsource.index", order_id=order.id)}}'>外包成本</a></li>
+    {% endif %}
+</ul>
+<script>
+    $(document).ready(function(){
+    var pathname = window.location.pathname;
+    var path_name = pathname.split("/")
+    if (path_name[1] == 'orders'){
+        $("#_order_").addClass("active");
+    }else{
+        $("#_" + path_name[3]+'_').addClass("active");
+    }
+  })
+</script>

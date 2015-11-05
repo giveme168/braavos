@@ -523,3 +523,67 @@ class AgentInvoicePay(db.Model, BaseModelMixin):
     @property
     def client_order(self):
         return self.agent_invoice.client_order
+
+
+class OutsourceInvoice(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_outsource_invoice'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'ClientOrder', backref=db.backref('client_order_outsource_invoice', lazy='dynamic'))
+    company = db.Column(db.String(100))  # 公司名称
+    money = db.Column(db.Float)  # 发票金额
+    ex_money = db.Column(db.Float)  # 拆分金额
+    invoice_num = db.Column(db.String(100))  # 发票号
+    add_time = db.Column(db.DateTime)  # 开具发票时间
+    create_time = db.Column(db.DateTime)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('outsource_invoice_creator', lazy='dynamic'))
+
+    def __init__(self, client_order, company, money, ex_money, invoice_num, creator, add_time=None, create_time=None):
+        self.client_order = client_order
+        self.company = company
+        self.money = money
+        self.ex_money = ex_money
+        self.invoice_num = invoice_num
+        self.creator = creator
+        self.add_time = add_time or datetime.date.today()
+        self.create_time = create_time or datetime.date.today()
+
+    @property
+    def add_time_cn(self):
+        return self.add_time.strftime('%Y-%m-%d')
+
+
+class DoubanOutsourceInvoice(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_douban_outsource_invoice'
+    id = db.Column(db.Integer, primary_key=True)
+    douban_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_douban_order.id'))  # 客户合同
+    douban_order = db.relationship(
+        'DoubanOrder', backref=db.backref('douban_order_outsource_invoice', lazy='dynamic'))
+    company = db.Column(db.String(100))  # 公司名称
+    money = db.Column(db.Float)  # 发票金额
+    ex_money = db.Column(db.Float)  # 拆分金额
+    invoice_num = db.Column(db.String(100))  # 发票号
+    add_time = db.Column(db.DateTime)  # 开具发票时间
+    create_time = db.Column(db.DateTime)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('douban_order_outsource_invoice_creator', lazy='dynamic'))
+
+    def __init__(self, douban_order, company, money, ex_money, invoice_num, creator, add_time=None, create_time=None):
+        self.douban_order = douban_order
+        self.company = company
+        self.money = money
+        self.ex_money = ex_money
+        self.invoice_num = invoice_num
+        self.creator = creator
+        self.add_time = add_time or datetime.date.today()
+        self.create_time = create_time or datetime.date.today()
+
+    @property
+    def add_time_cn(self):
+        return self.add_time.strftime('%Y-%m-%d')
