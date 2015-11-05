@@ -7,12 +7,7 @@
 {% block main_box%}
 <div class="bra-main bra-box">
     <h4> {{ order.name }} </h4>
-    <ul class="nav nav-tabs">
-      <li class="active"><a href='{{url_for("order.douban_order_info", order_id=order.id)}}'>合同流程</a></li>
-      {% if order.can_admin(g.user) or g.user.is_contract() or g.user.is_finance() %}
-      <li class=""><a href='{{url_for("saler_douban_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
-      {% endif %}
-    </ul>
+    {% include "saler/douban_order/nav_base.html" %}
     <br/>
     <div class="panel-group" id="accordion">
         <div class="panel panel-default">

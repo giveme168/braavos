@@ -1,0 +1,103 @@
+{% extends "/order_base.html" %}
+{% from 'comments.html' import comments_box %}
+{% block main_box%}
+  <div class="bra-main bra-box">
+    <h4> {{ order.name }} 外包情况</h4>
+    {% include "saler/client_order/nav_base.html" %}
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab-2">
+        <div class="bra-main bra-box" style="width:100%;">
+          <table class="table table-bordered">
+              <tr>
+                  <th>客户订单总金额</th>
+                  <th>外包应付总金额</th>
+                  <th>外包占比</th>
+                  <th>收到发票总金额</th>
+              </tr>
+              <tr>
+                  <td>{{order.money}} 元</td>
+                  <td>{{order.outsources_sum}} 元</td>
+                  <td>{{order.outsources_percent}} %</td>
+                  <td>{{invoices|sum(attribute='ex_money')}}元</td>
+              </tr>
+          </table>
+          <div class="panel panel-default" id="non-invoice">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 外包费用信息 </a>
+              </h4>
+            </div>
+            <div id="collapse-invoice-0" class="panel-collapse collapse in">
+              <div class="panel-body">
+                
+                <div class="col-md-12">
+                  <div class="col-md-21" style="">
+                    <table class="table table-bordered">
+                      <tr>
+                        <th>外包供应商</th>
+                        <th>外包类型</th>
+                        <th>金额</th>
+                      </tr>
+                      {% for outsource in outsources %}
+                        <tr>
+                          <td>{{outsource.target.name}}</td>
+                          <td>{{outsource.type_cn}}</td>
+                          <td>{{outsource.pay_num}}</td>
+                        </tr>
+                      {% endfor %}
+                      <tr>
+                        <td colspan=2 style="text-align: center;">合计</td>
+                        <td>{{outsources|sum(attribute='pay_num')}}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default" id="non-invoice">
+              <div class="panel-heading">
+                  <h4 class="panel-title">
+                      <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 外包发票信息 </a>
+                  </h4>
+              </div>
+              <div id="collapse-invoice-0" class="panel-collapse collapse in">
+                  <div class="panel-body">
+                      
+                      <div class="col-md-12">
+                          <div class="col-md-21" style="">
+                              <table class="table table-bordered">
+                                <tr>
+                                  <th>公司名称</th>
+                                  <th>开票时间</th>
+                                  <th>发票号</th>
+                                  <th>发票金额</th>
+                                  <th>拆分金额</th>
+                                </tr>
+                                {% for invoice in invoices %}
+                                <tr>
+                                  <td>{{invoice.company}}</td>
+                                  <td>{{invoice.add_time_cn}}</td>
+                                  <td>{{invoice.invoice_num}}</td>
+                                  <td>{{invoice.money}}</td>
+                                  <td>{{invoice.ex_money}}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td colspan=3 style="text-align: center;">合计</td>
+                                    <td>{{invoices|sum(attribute='money')}}</td>
+                                    <td>{{invoices|sum(attribute='ex_money')}}</td>
+                                </tr>
+                              </table>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div>{{ comments_box(order, msg_channel=2, text=False) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
