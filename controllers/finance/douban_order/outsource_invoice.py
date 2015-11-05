@@ -47,6 +47,10 @@ def index():
         k.ex_money = sum(
             [i.ex_money for i in DoubanOutsourceInvoice.query.filter_by(douban_order=k)])
         k.pay_num = sum([i.pay_num for i in k.get_outsources_by_status(4)])
+        apply_outsources = []
+        for i in [1, 2, 3, 5]:
+            apply_outsources += k.get_outsources_by_status(i)
+        k.apply_money = sum([j.pay_num for j in apply_outsources])
     return tpl('/finance/douban_order/outsource/invoice.html', orders=orders, locations=select_locations,
                location_id=location_id, statuses=select_statuses, orderby=orderby,
                now_date=datetime.date.today(), search_info=search_info, page=page,
@@ -60,6 +64,9 @@ def info(order_id):
         abort(404)
     order = DoubanOrder.get(order_id)
     outsources = order.get_outsources_by_status(4)
+    apply_outsources = []
+    for k in [1, 2, 3, 5]:
+        apply_outsources += order.get_outsources_by_status(k)
     now_date = datetime.datetime.now().strftime('%Y-%m-%d')
     invoices = DoubanOutsourceInvoice.query.filter_by(douban_order=order)
     if request.method == 'POST':
@@ -75,7 +82,7 @@ def info(order_id):
         )
         return redirect(url_for('finance_douban_order_outsource_invoice.info', order_id=order.id))
     return tpl('/finance/douban_order/outsource/invoice_info.html', order=order, outsources=outsources,
-               now_date=now_date, invoices=invoices)
+               now_date=now_date, invoices=invoices, apply_outsources=apply_outsources)
 
 
 @finance_douban_order_outsource_invoice_bp.route('<order_id>/invoice/<invoice_id>/delete', methods=['GET', 'POST'])

@@ -8,12 +8,14 @@
         <tr>
             <th>订单总金额</th>
             <th>已打款外包金额</th>
+            <th>申请通过的外包金额(未打款)</th>
             <th>已收外包发票金额</th>
         </tr>
         <tr>
             <td>{{order.money|format_price}} 元</td>
-            <td>{{outsources|sum(attribute='pay_num')}}</td>
-            <td>{{invoices|sum(attribute='ex_money')}}</td>
+            <td>{{outsources|sum(attribute='pay_num')|format_price}}</td>
+            <td>{{outsources|sum(attribute='pay_num')|format_price}}</td>
+            <td>{{invoices|sum(attribute='ex_money')|format_price}}</td>
         </tr>
     </table>
     <div class="panel panel-default" id="non-invoice">
@@ -36,12 +38,45 @@
                             <tr>
                               <td>{{outsource.target.name}}</td>
                               <td>{{outsource.type_cn}}</td>
-                              <td>{{outsource.pay_num}}</td>
+                              <td>{{outsource.pay_num|format_price}}</td>
                             </tr>
                           {% endfor %}
                           <tr>
                             <td colspan=2 style="text-align: center;">合计</td>
-                            <td>{{outsources|sum(attribute='pay_num')}}</td>
+                            <td>{{outsources|sum(attribute='pay_num')|format_price}}</td>
+                          </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default" id="non-invoice">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 申请通过的外包项目（未打款） </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-0" class="panel-collapse collapse in">
+            <div class="panel-body">
+                <div class="col-md-12">
+                    <div class="col-md-21" style="">
+                        <table class="table table-bordered">
+                          <tr>
+                            <th>外包供应商</th>
+                            <th>外包类型</th>
+                            <th>金额</th>
+                          </tr>
+                          {% for outsource in apply_outsources %}
+                            <tr>
+                              <td>{{outsource.target.name}}</td>
+                              <td>{{outsource.type_cn}}</td>
+                              <td>{{outsource.pay_num|format_price}}</td>
+                            </tr>
+                          {% endfor %}
+                          <tr>
+                            <td colspan=2 style="text-align: center;">合计</td>
+                            <td>{{apply_outsources|sum(attribute='pay_num')|format_price}}</td>
                           </tr>
                         </table>
                     </div>
@@ -74,15 +109,15 @@
                             <td>{{invoice.company}}</td>
                             <td>{{invoice.add_time_cn}}</td>
                             <td>{{invoice.invoice_num}}</td>
-                            <td>{{invoice.money}}</td>
-                            <td>{{invoice.ex_money}}</td>
+                            <td>{{invoice.money|format_price}}</td>
+                            <td>{{invoice.ex_money|format_price}}</td>
                             <td><a href="{{url_for('finance_douban_order_outsource_invoice.delete', order_id=order.id, invoice_id=invoice.id)}}">删除</a></td>
                           </tr>
                           {% endfor %}
                           <tr>
                               <td colspan=3 style="text-align: center;">合计</td>
-                              <td>{{invoices|sum(attribute='money')}}</td>
-                              <td>{{invoices|sum(attribute='ex_money')}}</td>
+                              <td>{{invoices|sum(attribute='money')|format_price}}</td>
+                              <td>{{invoices|sum(attribute='ex_money')|format_price}}</td>
                               <td></td>
                           </tr>
                         </table>
