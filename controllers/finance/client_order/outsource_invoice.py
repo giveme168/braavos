@@ -87,5 +87,7 @@ def info(order_id):
 
 @finance_client_order_outsource_invoice_bp.route('<order_id>/invoice/<invoice_id>/delete', methods=['GET', 'POST'])
 def delete(order_id, invoice_id):
+    if not g.user.is_finance():
+        abort(404)
     OutsourceInvoice.get(invoice_id).delete()
     return redirect(url_for('finance_client_order_outsource_invoice.info', order_id=order_id))
