@@ -14,7 +14,7 @@
         <tr>
             <td>{{order.money|format_price}} 元</td>
             <td>{{outsources|sum(attribute='pay_num')|format_price}}</td>
-            <td>{{outsources|sum(attribute='pay_num')|format_price}}</td>
+            <td>{{apply_outsources|sum(attribute='pay_num')|format_price}}</td>
             <td>{{invoices|sum(attribute='ex_money')|format_price}}</td>
         </tr>
     </table>
@@ -129,7 +129,7 @@
     <div class="panel panel-default" id="new-back-invoice" style="display:none;">
         <div class="panel-heading">
             <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写返点发票信息 </a>
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 填写外包发票信息 </a>
             </h4>
         </div>
         <div id="collapse-invoice-new" class="panel-collapse collapse in">
