@@ -1,0 +1,17 @@
+{% extends "/site_base.html" %}
+{% from 'form.html' import form_tpl %}
+{% block title %}员工手册{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>员工手册</h3>
+    
+</div>
+<script>
+    $(function(){
+        $(".content-box").css("margin-left", "auto");
+        $(".content-box").css("margin-right", "auto");
+        document.oncontextmenu = function(){return false;};     
+    })
+</script>
+{% endblock %}
