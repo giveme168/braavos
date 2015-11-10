@@ -450,7 +450,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     @property
     def leaders(self):
         return list(set([l for u in self.direct_sales + self.agent_sales
-                         for l in u.user_leaders] + User.super_leaders()))
+                         for l in u.user_leaders]))
 
     def can_admin(self, user):
         """是否可以修改该订单"""
