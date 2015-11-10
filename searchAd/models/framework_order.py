@@ -132,7 +132,7 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
 
     @property
     def leaders(self):
-        return list(set([l for u in self.sales for l in u.user_leaders] + User.super_leaders()))
+        return list(set([l for u in self.sales for l in u.user_leaders]))
 
     @property
     def email_info(self):
