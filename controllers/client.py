@@ -188,7 +188,7 @@ def group_detail(group_id):
 
 @client_bp.route('/medium/<medium_id>', methods=['GET', 'POST'])
 def medium_detail(medium_id):
-    if not (g.user.is_media_leader() or g.user.is_super_leader()):
+    if not (g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_media()):
         abort(403)
     medium = Medium.get(medium_id)
     if not medium:

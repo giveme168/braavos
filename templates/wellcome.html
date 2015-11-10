@@ -557,9 +557,24 @@
         </div>
        </div>
         <ul class="down-menu">
-          {% if g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %}
-              <li><a href="{{url_for('media_client_order_data_query.medium_invoice')}}" target="_blank">数据查询</a></li>
+          <li><a href="{{url_for('data_query_weekly.index')}}" target="_blank">媒体订单周报</a></li>
+          <li><a href="{{url_for('data_query_weekly.douban_index')}}" target="_blank">直签豆瓣订单周报</a></li>
+          {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_contract() %}
+          <li><a href="{{url_for('data_query_medium.index')}}" target="_blank">媒体执行额</a></li>
           {% endif %}
+          {% if g.user.is_operater_leader() or g.user.is_super_leader() %}
+          <li><a href="{{url_for('data_query_outsource.index')}}" target="_blank">外包成本</a></li>
+          <li><a href="{{url_for('data_query_outsource.info')}}" target="_blank">外包成本详情</a></li>
+          {% endif %}
+          {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_media_leader() %}
+          <li><a href="{{url_for('data_query_profit.client_order')}}" target="_blank">媒体订单执行成本</a></li>
+          <li><a href="{{url_for('data_query_profit.douban_order')}}" target="_blank">豆瓣订单执行成本</a></li>
+          <li><a href="{{url_for('data_query_order.cost')}}" target="_blank">媒体订单发票款项</a></li>
+          {% endif %}
+          {% if g.user.is_super_leader() %}
+          <li><a href="{{url_for('data_query_super_leader_medium.money')}}" target="_blank">媒体清单</a></li>
+          {% endif %}
+          <li><a href="{{url_for('data_query_commission.index')}}" target="_blank">销售人员提成</a></li>
         </ul>
       </div>
     </div>
