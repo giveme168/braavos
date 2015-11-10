@@ -409,7 +409,7 @@ def contract_status_change(order, action, emails, msg):
     if action == 1:
         order.contract_status = CONTRACT_STATUS_MEDIA
         action_msg = u"申请利润分配"
-        to_users = to_users + order.leaders + User.medias()
+        to_users = to_users + order.leaders
     elif action == 2:
         order.contract_status = CONTRACT_STATUS_APPLYCONTRACT
         action_msg = u"申请审批"
@@ -422,7 +422,7 @@ def contract_status_change(order, action, emails, msg):
     elif action == 4:
         order.contract_status = CONTRACT_STATUS_APPLYREJECT
         action_msg = u"审批未被通过"
-        to_users = to_users + User.medias()
+        to_users = to_users
     elif action == 5:
         order.contract_status = CONTRACT_STATUS_APPLYPRINT
         action_msg = u"申请打印合同"
@@ -433,16 +433,16 @@ def contract_status_change(order, action, emails, msg):
     elif action == 7:
         action_msg = u"撤单申请，请部门leader确认"
         order.contract_status = CONTRACT_STATUS_DELETEAPPLY
-        to_users = to_users + order.leaders + User.medias() + User.contracts()
+        to_users = to_users + order.leaders + User.contracts()
     elif action == 8:
         action_msg = u"确认撤单，请super_leader同意"
         order.contract_status = CONTRACT_STATUS_DELETEAGREE
-        to_users = to_users + order.leaders + User.medias() + User.contracts()
+        to_users = to_users + order.leaders + User.contracts()
     elif action == 9:
         action_msg = u"同意撤单"
         order.contract_status = CONTRACT_STATUS_DELETEPASS
         order.status = STATUS_DEL
-        to_users = to_users + order.leaders + User.medias() + User.contracts()
+        to_users = to_users + order.leaders + User.contracts()
         if order.__tablename__ == 'bra_douban_order' and order.contract:
             to_users += User.douban_contracts()
         _delete_executive_report(order)
