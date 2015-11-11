@@ -35,7 +35,7 @@ def apply():
         orders = [o for o in orders if location_id in o.medium_invoice.client_order.locations]
     if search_info != '':
         orders = [
-            o for o in orders if search_info.lower() in o.medium_invoice.client_order.search_info.lower()]
+            o for o in orders if search_info.lower() in o.medium_invoice.client_order.search_invoice_info.lower()]
     if medium_id:
         orders = [o for o in orders if medium_id == o.medium_invoice.medium_id]
     select_locations = TEAM_LOCATION_CN.items()
@@ -76,7 +76,7 @@ def index():
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [
-            o for o in orders if search_info.lower() in o.search_info.lower()]
+            o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)

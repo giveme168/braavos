@@ -13,6 +13,8 @@
       <li id="_medium_invoice_" class=""><a href="{{url_for('finance_client_order_data_query.medium_invoice')}}">已收媒体发票金额</a></li>
       <li id="_pay_medium_invoice_" class=""><a href="{{url_for('finance_client_order_data_query.pay_medium_invoice')}}">付款给媒体金额</a></li>
       <li id="_medium_rebate_invoice_" class=""><a href="{{url_for('finance_client_order_data_query.medium_rebate_invoice')}}">已开媒体返点发票</a></li>
+      <li id="_personal_outsource_" class=""><a href="{{url_for('finance_client_order_data_query.personal_outsource')}}">个人外包打款</a></li>
+      <li id="_outsource_" class=""><a href="{{url_for('finance_client_order_data_query.outsource')}}">对公外包打款</a></li>
     </ul>
     <br/>
     <form class="form-inline">
@@ -54,119 +56,167 @@
         <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
     </form>
     <br>
+    {% if t_type in ['personal_outsource', 'outsource'] %}
     <table class="table table-bordered">
-    <tr>
-        <th>代理/直客</th>
-        <th>客户</th>
-        <th>Campaign</th>
-        <th>直客销售</th>
-        <th>渠道销售</th>
-        <th style="width:50px;">区域</th>
-        <th style="width:170px;">合同号</th>
-        <th style="width:100px;">媒体名称</th>
-        <th>执行开始时间</th>
-        <th>执行结束时间</th>
-        <th>合同回款时间</th>
-        <th>客户合同金额</th>
-        {% if t_type == 'agent_invoice' %}
-        <th>开票金额</th>
-        <th>开票时间</th>
-        {% elif t_type == 'back_money' %}
-        <th>回款金额</th>
-        <th>回款时间</th>
-        <th>回款时间差</td>
-        {% elif t_type == 'back_invoice' %}
-        <th>返点发票金额</th>
-        <th>返点发票时间</th>
-        {% elif t_type == 'rebate_agent_invoice' %}
-        <th>返点发票金额</th>
-        <th>返点发票时间</th>
-        {% elif t_type == 'pay_rebate_agent_invoice' %}
-        <th>打款金额</th>
-        <th>打款时间</th>
-        {% elif t_type == 'medium_invoice' %}
-        <th>发票金额</th>
-        <th>开票时间</th>
-        {% elif t_type == 'pay_medium_invoice' %}
-        <th>打款金额</th>
-        <th>打款时间</th>
-        {% elif t_type == 'medium_rebate_invoice' %}
-        <th>开票金额</th>
-        <th>开票时间</th>
-        {% endif %}
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td>{{o.client_order.agent.name}}</td>
-        <td>{{o.client_order.client.name}}</td>
-        <td>{{o.client_order.campaign}}</td>
-        <td>{{o.client_order.direct_sales_names}}</td>
-        <td>{{o.client_order.agent_sales_names}}</td>
-        <td>{{o.client_order.locations_cn}}</td>
-        <td>
+        <tr>
+            <th>打款时间</th>
+            <th>是否有发票</th>
+            <th>发票信息</th>
+            <th>申请打款总金额</th>
+            <th>收款方</th>
+            <th>开户行</th>    
+            <th>卡号</th>
+            <th>支付宝</th>
+            <th>订单名称</th>
+            <th>订单合同号</th>
+            <th>成本金额</th>
+            <th>打款金额</th>
+            <th>备注</th>
+        </tr>
+        {% for t in orders %}
+        <tr>
+            <td rowspan="{{t.outsources|length + 1}}">{{ t.create_time_cn}}</td>
+            <td rowspan="{{t.outsources|length + 1}}">{% if t.invoice %}有{%else%}无{%endif%}</td>
+            <td rowspan="{{t.outsources|length + 1}}">{{ t.remark }}</td>
+            <td rowspan="{{t.outsources|length + 1}}" style="text-align: center;">{{t.pay_num|format_price}}</td>
+        </tr>
+          {% for o in t.outsources %}
+          <tr>
+              <td>{{ o.target.name }}</td>
+              <td>{{ o.target.bank }}</td>
+              <td>{{ o.target.card }}</td>
+              <td>{{ o.target.alipay }}</td>
+              <td>{{o.order.name}}</td>
+              <td>{{o.order.contract}}</td>
+              <td style="text-align: center;">{{o.pay_num|format_price}}</td>
+              <td style="text-align: center;">{% if t.invoice %}{{o.pay_num|format_price}}{% else %}{{o.pay_num*0.95|format_price }}{% endif %}</td>
+              <td>{{o.remark}}</td>
+          </tr>
+          {% endfor %}
+        {% endfor %}
+          <tr>
+            <td colspan=3 style="text-align: center;">总计</td>
+            <td style="text-align: center;">{{orders|sum(attribute='pay_num')|format_price}}</td>
+            <td colspan=6></td>
+            <td style="text-align: center;">{{orders|sum(attribute='re_pay_num')|format_price}}</td>
+            <td style="text-align: center;">{{orders|sum(attribute='ex_pay_num')|format_price}}</td>
+            <td></td>
+          </tr>
+    </table>
+    {% else %}
+    <table class="table table-bordered">
+        <tr>
+            <th>代理/直客</th>
+            <th>客户</th>
+            <th>Campaign</th>
+            <th>直客销售</th>
+            <th>渠道销售</th>
+            <th style="width:50px;">区域</th>
+            <th style="width:170px;">合同号</th>
+            <th style="width:100px;">媒体名称</th>
+            <th>执行开始时间</th>
+            <th>执行结束时间</th>
+            <th>合同回款时间</th>
+            <th>客户合同金额</th>
             {% if t_type == 'agent_invoice' %}
-                <a href="{{url_for('finance_client_order_invoice.info', order_id=o.client_order.id)}}">
+            <th>开票金额</th>
+            <th>开票时间</th>
             {% elif t_type == 'back_money' %}
-                <a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.client_order.id)}}">
+            <th>回款金额</th>
+            <th>回款时间</th>
+            <th>回款时间差</td>
             {% elif t_type == 'back_invoice' %}
-                <a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.client_order.id)}}">
+            <th>返点发票金额</th>
+            <th>返点发票时间</th>
             {% elif t_type == 'rebate_agent_invoice' %}
-                <a href="{{url_for('finance_client_order_agent_pay.info', order_id=o.client_order.id)}}" >
+            <th>返点发票金额</th>
+            <th>返点发票时间</th>
             {% elif t_type == 'pay_rebate_agent_invoice' %}
-                <a href="{{url_for('finance_client_order_agent_pay.pay_info', invoice_id=o.id)}}">
+            <th>打款金额</th>
+            <th>打款时间</th>
             {% elif t_type == 'medium_invoice' %}
-                <a href="{{url_for('finance_client_order_medium_pay.info',order_id=o.client_order.id)}}">
+            <th>发票金额</th>
+            <th>开票时间</th>
             {% elif t_type == 'pay_medium_invoice' %}
-                <a href="{{url_for('finance_client_order_medium_pay.pay_info', invoice_id=o.id)}}">
+            <th>打款金额</th>
+            <th>打款时间</th>
             {% elif t_type == 'medium_rebate_invoice' %}
-                <a href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=o.client_order.id)}}">
+            <th>开票金额</th>
+            <th>开票时间</th>
             {% endif %}
-            {{o.client_order.contract}}</a>
-        </td>
-        <td>
-            {% for mo in o.client_order.medium_orders %}    
-            {{mo.medium.name}}
-            <br><br>
-            {% endfor %}
-        </td>
-        <td>{{o.client_order.start_date_cn}}</td>
-        <td>{{o.client_order.end_date_cn}}</td>
-        <td>{{o.client_order.reminde_date_cn}}</td>
-        <td>{{o.client_order.money|format_price}}</td>
-        {% if t_type == 'agent_invoice' %}
-        <td>{{o.money|format_price}}</td>
-        <td>{{o.create_time_cn}}</td>
-        {% elif t_type == 'back_money' %}
-        <td>{{o.money|format_price}}</td>
-        <td>{{o.back_time_cn}}</td>
-        <td>{{o.real_back_money_diff_time}}天</td>
-        {% elif t_type == 'back_invoice' %}
-        <td>{{o.money|format_price}}</td>
-        <td>{{o.back_time_cn}}</td>
-        {% elif t_type == 'rebate_agent_invoice' %}
-        <td>{{o.money|format_price}}</td>
-        <td>{{o.add_time_cn}}</td>
-        {% elif t_type == 'pay_rebate_agent_invoice' %}
-        <td>{{o.money|format_price}}</td>
-        <td>{{o.pay_time_cn}}</td>
-        {% elif t_type == 'medium_invoice' %}
-        <td>{{o.money|format_price}}</td>
-        <td>{{o.add_time_cn}}</td>
-        {% elif t_type == 'pay_medium_invoice' %}
-        <td>{{o.money|format_price}}</td>
-        <td>{{o.pay_time_cn}}</td>
-        {% elif t_type == 'medium_rebate_invoice' %}
-        <td>{{o.money|format_price}}</td>
-        <td>{{o.create_time_cn}}</td>
-        {% endif %}
-    </tr>
-    {% endfor %}
-    <tr>
-        <td colspan=12 style="text-align: center;">总计</td>
-
-        <td {% if t_type == 'back_money' %} colspan=3 {% else %} colspan=2 {% endif %}style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>
-    </tr>
-</table>
+        </tr>
+        {% for o in orders %}
+        <tr>
+            <td>{{o.client_order.agent.name}}</td>
+            <td>{{o.client_order.client.name}}</td>
+            <td>{{o.client_order.campaign}}</td>
+            <td>{{o.client_order.direct_sales_names}}</td>
+            <td>{{o.client_order.agent_sales_names}}</td>
+            <td>{{o.client_order.locations_cn}}</td>
+            <td>
+                {% if t_type == 'agent_invoice' %}
+                    <a href="{{url_for('finance_client_order_invoice.info', order_id=o.client_order.id)}}">
+                {% elif t_type == 'back_money' %}
+                    <a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.client_order.id)}}">
+                {% elif t_type == 'back_invoice' %}
+                    <a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.client_order.id)}}">
+                {% elif t_type == 'rebate_agent_invoice' %}
+                    <a href="{{url_for('finance_client_order_agent_pay.info', order_id=o.client_order.id)}}" >
+                {% elif t_type == 'pay_rebate_agent_invoice' %}
+                    <a href="{{url_for('finance_client_order_agent_pay.pay_info', invoice_id=o.id)}}">
+                {% elif t_type == 'medium_invoice' %}
+                    <a href="{{url_for('finance_client_order_medium_pay.info',order_id=o.client_order.id)}}">
+                {% elif t_type == 'pay_medium_invoice' %}
+                    <a href="{{url_for('finance_client_order_medium_pay.pay_info', invoice_id=o.id)}}">
+                {% elif t_type == 'medium_rebate_invoice' %}
+                    <a href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=o.client_order.id)}}">
+                {% endif %}
+                {{o.client_order.contract}}</a>
+            </td>
+            <td>
+                {% for mo in o.client_order.medium_orders %}    
+                {{mo.medium.name}}
+                <br><br>
+                {% endfor %}
+            </td>
+            <td>{{o.client_order.start_date_cn}}</td>
+            <td>{{o.client_order.end_date_cn}}</td>
+            <td>{{o.client_order.reminde_date_cn}}</td>
+            <td>{{o.client_order.money|format_price}}</td>
+            {% if t_type == 'agent_invoice' %}
+            <td>{{o.money|format_price}}</td>
+            <td>{{o.create_time_cn}}</td>
+            {% elif t_type == 'back_money' %}
+            <td>{{o.money|format_price}}</td>
+            <td>{{o.back_time_cn}}</td>
+            <td>{{o.real_back_money_diff_time}}天</td>
+            {% elif t_type == 'back_invoice' %}
+            <td>{{o.money|format_price}}</td>
+            <td>{{o.back_time_cn}}</td>
+            {% elif t_type == 'rebate_agent_invoice' %}
+            <td>{{o.money|format_price}}</td>
+            <td>{{o.add_time_cn}}</td>
+            {% elif t_type == 'pay_rebate_agent_invoice' %}
+            <td>{{o.money|format_price}}</td>
+            <td>{{o.pay_time_cn}}</td>
+            {% elif t_type == 'medium_invoice' %}
+            <td>{{o.money|format_price}}</td>
+            <td>{{o.add_time_cn}}</td>
+            {% elif t_type == 'pay_medium_invoice' %}
+            <td>{{o.money|format_price}}</td>
+            <td>{{o.pay_time_cn}}</td>
+            {% elif t_type == 'medium_rebate_invoice' %}
+            <td>{{o.money|format_price}}</td>
+            <td>{{o.create_time_cn}}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan=12 style="text-align: center;">总计</td>
+            <td {% if t_type == 'back_money' %} colspan=3 {% else %} colspan=2 {% endif %}style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>
+        </tr>
+    </table>
+    {% endif %}
   </div>
 </div>
 <script>

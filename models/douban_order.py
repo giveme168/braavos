@@ -336,6 +336,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return (self.client.name + self.agent.name +
                 self.campaign + self.contract)
 
+    @property
+    def search_invoice_info(self):
+        return self.search_info
+
     def attachment_path(self):
         return url_for('files.douban_order_files', order_id=self.id)
 

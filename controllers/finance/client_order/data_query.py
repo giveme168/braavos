@@ -3,8 +3,11 @@ import datetime
 from flask import Blueprint, request, g, abort
 from flask import render_template as tpl
 
-from models.invoice import Invoice, AgentInvoice, AgentInvoicePay, MediumInvoice, MediumInvoicePay, MediumRebateInvoice
+from models.invoice import (Invoice, AgentInvoice, AgentInvoicePay, MediumInvoice,
+                            MediumInvoicePay, MediumRebateInvoice)
 from models.client_order import BackMoney, BackInvoiceRebate
+from models.outsource import (MergerOutSource, MergerPersonalOutSource,
+                              MergerDoubanOutSource, MergerDoubanPersonalOutSource)
 from controllers.finance.helpers.data_query_helpers import write_order_excel
 finance_client_order_data_query_bp = Blueprint(
     'finance_client_order_data_query', __name__, template_folder='../../templates/finance/data_query')
@@ -34,7 +37,7 @@ def agent_invoice():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_info]
+        orders = [k for k in orders if info in k.client_order.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.create_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'agent_invoice')
@@ -69,7 +72,7 @@ def back_money():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_info]
+        orders = [k for k in orders if info in k.client_order.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.back_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'back_money')
@@ -104,7 +107,7 @@ def back_invoice():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_info]
+        orders = [k for k in orders if info in k.client_order.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.back_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'back_invoice')
@@ -139,7 +142,7 @@ def rebate_agent_invoice():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_info]
+        orders = [k for k in orders if info in k.client_order.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.add_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'rebate_agent_invoice')
@@ -174,7 +177,7 @@ def pay_rebate_agent_invoice():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_info]
+        orders = [k for k in orders if info in k.client_order.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.pay_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'pay_rebate_agent_invoice')
@@ -209,7 +212,7 @@ def medium_invoice():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_info]
+        orders = [k for k in orders if info in k.client_order.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.add_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'medium_invoice')
@@ -244,7 +247,7 @@ def pay_medium_invoice():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_info]
+        orders = [k for k in orders if info in k.client_order.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.pay_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'pay_medium_invoice')
@@ -280,7 +283,7 @@ def medium_rebate_invoice():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_info]
+        orders = [k for k in orders if info in k.client_order.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.create_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'medium_rebate_invoice')
@@ -289,3 +292,82 @@ def medium_rebate_invoice():
                orders=orders, location=location,
                year=year, month=month, info=info,
                title=u"已开媒体返点发票", t_type='medium_rebate_invoice')
+
+
+@finance_client_order_data_query_bp.route('/personal_outsource', methods=['GET'])
+def personal_outsource():
+    now_date = datetime.datetime.now()
+    info = request.values.get('info', '').strip()
+    location = int(request.values.get('location', 0))
+    year = request.values.get('year', now_date.strftime('%Y'))
+    month = request.values.get('month', now_date.strftime('%m'))
+
+    if month != '00':
+        search_date = datetime.datetime.strptime(
+            str(year) + '-' + str(month), '%Y-%m')
+        end_search_date = (
+            search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+
+        orders = [k for k in MergerPersonalOutSource.query.filter(
+            MergerPersonalOutSource.create_time >= search_date,
+            MergerPersonalOutSource.create_time < end_search_date,
+            MergerPersonalOutSource.status == 0)]
+        orders += [k for k in MergerDoubanPersonalOutSource.query.filter(
+            MergerDoubanPersonalOutSource.create_time >= search_date,
+            MergerDoubanPersonalOutSource.create_time < end_search_date,
+            MergerDoubanPersonalOutSource.status == 0)]
+    else:
+        orders = [k for k in MergerPersonalOutSource.all(
+        ) if k.create_time.year == int(year) and k.status == 0]
+        orders += [k for k in MergerDoubanPersonalOutSource.all()
+                   if k.create_time.year == int(year) and k.status == 0]
+    if location != 0:
+        orders = [k for k in orders if location in k.locations]
+    if info:
+        orders = [k for k in orders if info in k.search_invoice_info]
+    orders = sorted(list(orders), key=lambda x: x.create_time, reverse=False)
+    if request.values.get('action', '') == 'download':
+        response = write_order_excel(list(orders), 'personal_outsource')
+        return response
+    return tpl('/finance/client_order/data_query/index.html',
+               orders=orders, location=location,
+               year=year, month=month, info=info,
+               title=u"个人外包打款", t_type='personal_outsource')
+
+
+@finance_client_order_data_query_bp.route('/outsource', methods=['GET'])
+def outsource():
+    now_date = datetime.datetime.now()
+    info = request.values.get('info', '').strip()
+    location = int(request.values.get('location', 0))
+    year = request.values.get('year', now_date.strftime('%Y'))
+    month = request.values.get('month', now_date.strftime('%m'))
+    if month != '00':
+        search_date = datetime.datetime.strptime(
+            str(year) + '-' + str(month), '%Y-%m')
+        end_search_date = (
+            search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+
+        orders = [k for k in MergerOutSource.query.filter(MergerOutSource.create_time >= search_date,
+                                                          MergerOutSource.create_time < end_search_date,
+                                                          MergerOutSource.status == 0)]
+        orders += [k for k in MergerDoubanOutSource.query.filter(MergerDoubanOutSource.create_time >= search_date,
+                                                                 MergerDoubanOutSource.create_time < end_search_date,
+                                                                 MergerDoubanOutSource.status == 0)]
+    else:
+        orders = [k for k in MergerPersonalOutSource.all(
+        ) if k.create_time.year == int(year) and k.status == 0]
+        orders += [k for k in MergerDoubanPersonalOutSource.all()
+                   if k.create_time.year == int(year) and k.status == 0]
+    if location != 0:
+        orders = [k for k in orders if location in k.locations]
+    if info:
+        orders = [k for k in orders if info in k.search_invoice_info]
+    orders = sorted(list(orders), key=lambda x: x.create_time, reverse=False)
+    if request.values.get('action', '') == 'download':
+        response = write_order_excel(list(orders), 'outsource')
+        return response
+    return tpl('/finance/client_order/data_query/index.html',
+               orders=orders, location=location,
+               year=year, month=month, info=info,
+               title=u"对公外包打款", t_type='outsource')
