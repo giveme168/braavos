@@ -38,7 +38,7 @@ def index():
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
         orders = [
-            o for o in orders if search_info.lower() in o.search_info.lower()]
+            o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)

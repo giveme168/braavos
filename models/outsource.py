@@ -356,6 +356,10 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
                  'month': k['month'], 'days': k['days']})
         return pre_month_money_data
 
+    @property
+    def order(self):
+        return self.medium_order.client_order
+
 
 class OutSourceExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_outsource_executive_report'
@@ -616,6 +620,10 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
                  'month': k['month'], 'days': k['days']})
         return pre_month_money_data
 
+    @property
+    def order(self):
+        return self.douban_order
+
 
 MERGER_OUTSOURCE_STATUS_PAIED = 0
 MERGER_OUTSOURCE_STATUS_APPLY = 1
@@ -645,7 +653,8 @@ class MergerOutSource(db.Model, BaseModelMixin, CommentMixin):
     target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
     target = db.relationship('OutSourceTarget', backref=db.backref(
         'merger_outsources_target', lazy='dynamic'))
-    outsources = db.relationship('OutSource', secondary=table_merger_outsources)
+    outsources = db.relationship(
+        'OutSource', secondary=table_merger_outsources)
     invoice = db.Column(db.Boolean)  # 发票
     pay_num = db.Column(db.Float)    # 打款金额
     num = db.Column(db.Float)        # 原始金额
@@ -680,6 +689,29 @@ class MergerOutSource(db.Model, BaseModelMixin, CommentMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
+
+    # 打款外包单项成本总和
+    @property
+    def re_pay_num(self):
+        return sum([k.pay_num for k in self.outsources])
+
+    # 打款外包单项总和
+    @property
+    def ex_pay_num(self):
+        if self.invoice:
+            return self.re_pay_num
+        return self.re_pay_num * 0.95
+
+    @property
+    def locations(self):
+        locations = []
+        for k in self.outsources:
+            locations += k.order.locations
+        return list(set(locations))
+
+    @property
+    def search_invoice_info(self):
+        return ''.join([k.order.search_invoice_info for k in self.outsources])
 
 
 class MergerPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
@@ -717,6 +749,29 @@ class MergerPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     @classmethod
     def get_outsource_by_status(cls, status):
         return cls.query.filter_by(status=status)
+
+    # 打款外包单项成本总和
+    @property
+    def re_pay_num(self):
+        return sum([k.pay_num for k in self.outsources])
+
+    # 打款外包单项总和
+    @property
+    def ex_pay_num(self):
+        if self.invoice:
+            return self.re_pay_num
+        return self.re_pay_num * 0.95
+
+    @property
+    def locations(self):
+        locations = []
+        for k in self.outsources:
+            locations += k.order.locations
+        return list(set(locations))
+
+    @property
+    def search_invoice_info(self):
+        return ''.join([k.order.search_invoice_info for k in self.outsources])
 
 
 table_merger_douban_personal_outsources = db.Table('merget_douban_personal_outsources',
@@ -769,6 +824,29 @@ class MergerDoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
 
+    # 打款外包单项成本总和
+    @property
+    def re_pay_num(self):
+        return sum([k.pay_num for k in self.outsources])
+
+    # 打款外包单项总和
+    @property
+    def ex_pay_num(self):
+        if self.invoice:
+            return self.re_pay_num
+        return self.re_pay_num * 0.95
+
+    @property
+    def locations(self):
+        locations = []
+        for k in self.outsources:
+            locations += k.order.locations
+        return list(set(locations))
+
+    @property
+    def search_invoice_info(self):
+        return ''.join([k.order.search_invoice_info for k in self.outsources])
+
 
 class MergerDoubanPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'merger_douban_personal_out_source'
@@ -805,3 +883,26 @@ class MergerDoubanPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     @classmethod
     def get_outsource_by_status(cls, status):
         return cls.query.filter_by(status=status)
+
+    # 打款外包单项成本总和
+    @property
+    def re_pay_num(self):
+        return sum([k.pay_num for k in self.outsources])
+
+    # 打款外包单项总和
+    @property
+    def ex_pay_num(self):
+        if self.invoice:
+            return self.re_pay_num
+        return self.re_pay_num * 0.95
+
+    @property
+    def locations(self):
+        locations = []
+        for k in self.outsources:
+            locations += k.order.locations
+        return list(set(locations))
+
+    @property
+    def search_invoice_info(self):
+        return ''.join([k.order.search_invoice_info for k in self.outsources])

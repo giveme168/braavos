@@ -9,7 +9,8 @@ from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from .item import ITEM_STATUS_LEADER_ACTIONS
 from models.user import User, TEAM_LOCATION_CN
 from consts import DATE_FORMAT
-from invoice import Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice, AgentInvoicePay, MediumRebateInvoice
+from invoice import (Invoice, MediumInvoice, MediumInvoicePay, AgentInvoice,
+                     AgentInvoicePay, MediumRebateInvoice, OutsourceInvoice)
 from libs.mail import mail
 from libs.date_helpers import get_monthes_pre_days
 
@@ -504,6 +505,17 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                 self.campaign + self.contract +
                 "".join([mo.medium.name + mo.medium_contract for mo in self.medium_orders]) +
                 "".join([ado.contract for ado in self.associated_douban_orders]))
+
+    @property
+    def search_invoice_info(self):
+        search_info = self.search_info
+        search_info += ''.join(
+            [k.invoice_num for k in Invoice.query.filter_by(client_order=self)])
+        search_info += ''.join([k.invoice_num for k in MediumRebateInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join([k.invoice_num for k in MediumInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join([k.invoice_num for k in AgentInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join([k.invoice_num for k in OutsourceInvoice.query.filter_by(client_order=self)])
+        return search_info
 
     @property
     def email_info(self):
