@@ -89,7 +89,8 @@
               <td>{{o.order.name}}</td>
               <td>{{o.order.contract}}</td>
               <td style="text-align: center;">{{o.pay_num|format_price}}</td>
-              <td style="text-align: center;">{% if t.invoice %}{{o.pay_num|format_price}}{% else %}{{o.pay_num*0.95|format_price }}{% endif %}</td>
+              {% set ex_pay = o.pay_num*0.95 %}
+              <td style="text-align: center;">{% if t.invoice %}{{o.pay_num|format_price}}{% else %}{{ ex_pay|format_price }}{% endif %}</td>
               <td>{{o.remark}}</td>
           </tr>
           {% endfor %}
