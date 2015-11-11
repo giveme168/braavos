@@ -38,7 +38,8 @@
                             <th>支付宝</th>
                             <th>订单名称</th>
                             <th>订单合同号</th>
-                            <th>金额</th>
+                            <th>成本金额</th>
+                            <th>打款金额</th>
                             <th>备注</th>
                         </tr>
                         {% for t in merger_outsources %}
@@ -60,6 +61,7 @@
                               <td>{{o.douban_order.name}}</td>
                               <td>{{o.douban_order.contract}}</td>
                               <td>{{o.pay_num}}</td>
+                              <td>{% if t.invoice %}{{o.pay_num}}{% else %}{{o.pay_num*0.95 }}{% endif %}</td>
                               <td>{{o.remark}}</td>
                           </tr>
                           {% endfor %}

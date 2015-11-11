@@ -250,7 +250,7 @@ class User(db.Model, BaseModelMixin):
 
     @classmethod
     def gets_by_team_type(cls, team_type):
-        return [x for x in cls.all() if x.team.type == team_type and x.status == 1]
+        return [x for x in cls.all() if x.team.type == team_type and x.status != 0]
 
     @classmethod
     def super_leaders(cls):
