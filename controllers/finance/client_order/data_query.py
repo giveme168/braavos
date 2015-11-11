@@ -355,9 +355,9 @@ def outsource():
                                                                  MergerDoubanOutSource.create_time < end_search_date,
                                                                  MergerDoubanOutSource.status == 0)]
     else:
-        orders = [k for k in MergerPersonalOutSource.all(
+        orders = [k for k in MergerOutSource.all(
         ) if k.create_time.year == int(year) and k.status == 0]
-        orders += [k for k in MergerDoubanPersonalOutSource.all()
+        orders += [k for k in MergerDoubanOutSource.all()
                    if k.create_time.year == int(year) and k.status == 0]
     if location != 0:
         orders = [k for k in orders if location in k.locations]
