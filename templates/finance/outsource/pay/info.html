@@ -40,7 +40,8 @@
                             <th>订单合同号</th>
                             <th>媒体订单</th>
                             <th>媒体合同号</th>
-                            <th>外包单项金额</th>
+                            <th>成本金额</th>
+                            <th>打款金额</th>
                             <th>备注</th>
                         </tr>
                         {% for t in merger_outsources %}
@@ -65,6 +66,7 @@
                               <td>{{o.medium_order.name}}</td>
                               <td>{{o.medium_order.medium_contract}}</td>
                               <td>{{o.pay_num}}</td>
+                              <td>{% if t.invoice %}{{o.pay_num}}{% else %}{{o.pay_num*0.95 }}{% endif %}</td>
                               <td>{{o.remark}}</td>
                           </tr>
                           {% endfor %}

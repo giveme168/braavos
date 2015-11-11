@@ -236,7 +236,11 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
             {% if order.contract_status == 5 and order.can_admin(g.user) %}
-            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="19">项目归档（预）</button>
+              {% if g.user.is_contract() %}
+                <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="20">项目归档（确认）</button>
+              {% else %}
+                <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="19">项目归档（预）</button>
+              {% endif %}
             {% endif %}
             {% if order.contract_status == 19 and g.user.is_contract() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="20">项目归档（确认）</button>
