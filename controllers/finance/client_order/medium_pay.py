@@ -18,7 +18,7 @@ from controllers.saler.client_order.medium_invoice import (new_invoice as _new_i
 
 finance_client_order_medium_pay_bp = Blueprint(
     'finance_client_order_medium_pay', __name__, template_folder='../../templates/finance/client_order')
-ORDER_PAGE_NUM = 50
+ORDER_PAGE_NUM = 20
 
 
 @finance_client_order_medium_pay_bp.route('/apply', methods=['GET'])

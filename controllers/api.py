@@ -2,9 +2,10 @@
 import random
 import itertools
 from datetime import datetime
-from flask import Blueprint, request, abort, Response
+from flask import Blueprint, request, abort, Response, jsonify
 
-from models.medium import AdPosition
+from models.medium import Medium, AdPosition
+from models.client import Client
 from models.consts import DATE_FORMAT
 
 api_bp = Blueprint('api', __name__)
@@ -23,7 +24,20 @@ def ad_by_position(position_id):
     items = [x for x in position.order_items if x.schedule_by_date(_date)]
     if not items:
         abort(404)
-    material = random.choice(list(itertools.chain(*[x.materials for x in items])))
+    material = random.choice(
+        list(itertools.chain(*[x.materials for x in items])))
     response = Response()
     response.set_data(material.html)
     return response
+
+
+@api_bp.route('/mediums', methods=['GET'])
+def mediums():
+    mediums = [{'id': k.id, 'name': k.name} for k in Medium.all()]
+    return jsonify({'date': mediums})
+
+
+@api_bp.route('/clients', methods=['GET'])
+def clients():
+    clients = [{'id': k.id, 'name': k.name} for k in Client.all()]
+    return jsonify({'date': clients})
