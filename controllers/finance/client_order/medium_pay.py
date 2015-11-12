@@ -45,6 +45,9 @@ def apply():
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
+    for k in orders.object_list:
+        k.apply_num = len(k.medium_invoice.client_order.get_medium_invoice_pay_by_status(3))
+        k.pay_num = len(k.medium_invoice.client_order.get_medium_invoice_pay_by_status(0))
     return tpl('/finance/client_order/medium_pay/index.html', orders=orders, title=u'申请中的媒体打款',
                locations=select_locations, location_id=location_id,
                now_date=datetime.date.today(),
@@ -89,6 +92,9 @@ def index():
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
+    for k in orders.object_list:
+        k.apply_num = len(k.get_medium_invoice_pay_by_status(3))
+        k.pay_num = len(k.get_medium_invoice_pay_by_status(0))
     return tpl('/finance/client_order/medium_pay/index_pass.html', orders=orders, title=u'申请中的媒体打款',
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
