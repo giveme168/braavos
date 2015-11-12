@@ -610,6 +610,21 @@ out_joiners = db.Table('out_joiners',
                        )
 
 
+class UserHandBook(db.Model, BaseModelMixin):
+    __tablename__ = 'user_hand_book'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship(
+        'User', backref=db.backref('user_hand_book', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+    __table_args__ = (db.UniqueConstraint(
+        'user_id', name='_user_hand_book_user_id'),)
+
+    def __init__(self, user, create_time):
+        self.user = user
+        self.create_time = create_time
+
+
 class Out(db.Model, BaseModelMixin):
     __tablename__ = 'user_out'
     id = db.Column(db.Integer, primary_key=True)
