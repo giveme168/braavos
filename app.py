@@ -10,7 +10,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from models.user import UserHandBook
 
 app = create_app(config_object)
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 
 login_manager = LoginManager()
 login_manager.login_message = None
@@ -41,8 +41,8 @@ def load_user(userid):
 def request_user():
     if current_user and current_user.is_authenticated():
         g.user = current_user
-    elif url_for('user.login') != request.path and \
-            not request.path.startswith(u'/static/'):
+    elif url_for('user.login') != request.path and not request.path.startswith(u'/static/') \
+        and not request.path.startswith('/api/'):
         return login_manager.unauthorized()
 
 
