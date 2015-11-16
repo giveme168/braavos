@@ -541,8 +541,8 @@
     </div>
     <div class="bussess">
       <div class="manage">
-        <h2>工作规范</h2>
-        <p style="width: 127px;line-height:54px;text-align: center;">员工手册、部门规定</p>
+        <h2>公司管理</h2>
+        <p style="width: 127px;line-height:54px;text-align: center;"></p>
       </div>
       <div class="menu-all">
        <div class="drown-click">
@@ -551,7 +551,10 @@
         </div>
        </div>
         <ul class="down-menu">
-          <li><a target="_blank" href="{{url_for('account_data.handbook')}}">员工手册</a></li>
+          {% if g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
+          <li><a target="_blank" href="{{url_for('account_data.notice_index')}}">通知</a></li>
+          {% endif %}
+          <!--<li><a target="_blank" href="{{url_for('account_data.handbook')}}">员工手册</a></li>-->
         </ul>
       </div>
     </div>

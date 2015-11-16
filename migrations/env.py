@@ -40,6 +40,7 @@ from searchAd.models.order import searchAdOrder
 from searchAd.models.invoice import searchAdInvoice, searchAdAgentInvoice, searchAdAgentInvoicePay, \
     searchAdMediumInvoice, searchAdMediumInvoicePay, searchAdMediumRebateInvoice
 from searchAd.models.framework_order import *
+from models.account.data import *
 
 from flask import current_app
 config.set_main_option('sqlalchemy.url', current_app.config.get('SQLALCHEMY_DATABASE_URI'))

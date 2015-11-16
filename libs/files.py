@@ -1,8 +1,8 @@
 from flask import current_app as app
-from .uploads import UploadSet, IMAGES, DOCUMENTS, DEFAULTS, configure_uploads
+from .uploads import UploadSet, IMAGES, DOCUMENTS, DEFAULTS, ARCHIVES, configure_uploads
 
 files_set = UploadSet('files', DEFAULTS)
-attachment_set = UploadSet('attachment', DOCUMENTS)
+attachment_set = UploadSet('attachment', DOCUMENTS+ARCHIVES)
 all_files_set = UploadSet(name='mediums', extensions=DEFAULTS)
 
 
