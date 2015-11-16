@@ -48,8 +48,8 @@ def request_user():
 
 @app.route('/')
 def index():
-    if not UserHandBook.query.filter_by(user = g.user).first():
-        return redirect(url_for('account_data.handbook'))
+    #if not UserHandBook.query.filter_by(user = g.user).first():
+    #    return redirect(url_for('account_data.handbook'))
     return render_template("wellcome.html")
     # if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()):
     #     return redirect(url_for('searchAd_order.index'))
