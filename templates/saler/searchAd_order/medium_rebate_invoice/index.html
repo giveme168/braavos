@@ -115,16 +115,7 @@
 <div class="bra-main bra-box">
   <h4> {{ order.name }} </h4>
   <div>
-    <ul class="nav nav-tabs">
-      <li class=""><a href='{{url_for("searchAd_order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
-      {% if order.can_admin(g.user) %}
-      <li class=""><a href='{{url_for("searchAd_saler_client_order_invoice.index", order_id=order.id)}}'>客户发票</a></li>
-      <li class=""><a href='{{url_for("searchAd_saler_client_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
-      <!--<li class=""><a href='{{url_for("searchAd_saler_client_order_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
-      <li class="active"><a href='{{url_for("searchAd_saler_client_order_medium_rebate_invoice.index", order_id=order.id)}}'>媒体返点发票</a></li>-->
-      <li class=""><a href='{{url_for("searchAd_saler_client_order_agent_invoice.index", order_id=order.id)}}'>代理直客发票与打款</a></li>
-      {% endif %}
-    </ul>
+    {% include "saler/searchAd_order/nav_base.html" %}
     <div class="tab-content">
       <div class="tab-pane active" id="tab-2">
         {{ contract_box(order) }}

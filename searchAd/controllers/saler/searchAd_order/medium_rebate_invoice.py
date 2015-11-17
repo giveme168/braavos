@@ -85,11 +85,11 @@ def new_invoice(order_id, redirect_epoint='searchAd_saler_client_order_medium_re
     form.medium.choices = [(medium.id, medium.name) for medium in order.mediums]
     if request.method == 'POST' and form.validate():
         medium = searchAdMedium.get(form.medium.data)
-        if float(form.money.data) > float(order.get_medium_rebate_money(medium) -
-                                          order.get_medium_rebate_invoice_apply_sum(medium) -
-                                          order.get_medium_rebate_invoice_pass_sum(medium)):
-            flash(u"新建发票失败，您申请的发票超过了媒体:%s 返点金额: %s" % (medium.name, order.get_medium_rebate_money(medium)), 'danger')
-            return redirect(url_for(redirect_epoint, order_id=order_id))
+        # if float(form.money.data) > float(order.get_medium_rebate_money(medium) -
+        #                                   order.get_medium_rebate_invoice_apply_sum(medium) -
+        #                                   order.get_medium_rebate_invoice_pass_sum(medium)):
+        #     flash(u"新建发票失败，您申请的发票超过了媒体:%s 返点金额: %s" % (medium.name, order.get_medium_rebate_money(medium)), 'danger')
+        #     return redirect(url_for(redirect_epoint, order_id=order_id))
         invoice = searchAdMediumRebateInvoice.add(client_order=order,
                                           medium=searchAdMedium.get(form.medium.data),
                                           company=form.company.data,

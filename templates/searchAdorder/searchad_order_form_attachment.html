@@ -109,5 +109,10 @@ $(function(){
     {{ base_attachment_script() }}
 {%- endmacro %}
 
+{% macro rebate_order_attachment(order) -%}
+    {{ base_order_attachment(order, url_for('files.searchAd_rebate_contract_upload'), url_for('files.searchAd_rebate_schedule_upload')) }}
+    {{ base_attachment_script() }}
+{%- endmacro %}
+
 
 

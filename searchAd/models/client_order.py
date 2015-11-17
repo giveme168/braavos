@@ -333,6 +333,10 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
         return [k for k in searchAdAgentInvoicePay.all()
                 if isinstance(k.pay_status, int) and k.agent_invoice in self.agentinvoices]
 
+    def get_medium_rebate_invoice_pass_money(self):
+        return sum([invoice.money for invoice in searchAdMediumRebateInvoice.query.filter_by(client_order_id=self.id,
+                                                                                     invoice_status=0)])
+        
     @property
     def medium_ids(self):
         return [x.medium.id for x in self.medium_orders]

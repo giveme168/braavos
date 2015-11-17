@@ -3,16 +3,20 @@ from datetime import datetime
 
 from flask import Blueprint, request, redirect, abort, url_for, g
 from flask import render_template as tpl, flash, current_app
+from wtforms import SelectMultipleField
+from libs.wtf import Form
 
 from models.user import User, TEAM_LOCATION_CN
 from models.excel import Excel
 from models.attachment import Attachment
+
 # from models.download import (download_excel_table_by_doubanorders,
 #                             download_excel_table_by_frameworkorders)
 
 from ..models.client import searchAdClient, searchAdGroup, searchAdAgent, searchAdAgentRebate
 from ..models.medium import searchAdMedium
 from ..models.order import searchAdOrder, searchAdMediumOrderExecutiveReport
+from searchAd.models.rebate_order import searchAdRebateOrder, searchAdRebateOrderExecutiveReport
 from ..models.client_order import searchAdClientOrder, searchAdClientOrderExecutiveReport
 from ..models.framework_order import searchAdFrameworkOrder
 
@@ -21,7 +25,7 @@ from ..models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATU
                                    CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
                                    STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
                                    CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS)
-from ..forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm
+from ..forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm, RebateOrderForm
 
 from libs.signals import contract_apply_signal
 from libs.paginator import Paginator
@@ -35,7 +39,9 @@ ORDER_PAGE_NUM = 50
 
 
 def _delete_executive_report(order):
-    if order.__tablename__ == 'searchAd_bra_client_order':
+    if order.__tablename__ == 'searchad_bra_rebate_order':
+        searchAdRebateOrderExecutiveReport.query.filter_by(rebate_order=order).delete()
+    elif order.__tablename__ == 'searchAd_bra_client_order':
         searchAdClientOrderExecutiveReport.query.filter_by(
             client_order=order).delete()
         searchAdMediumOrderExecutiveReport.query.filter_by(
@@ -46,7 +52,19 @@ def _delete_executive_report(order):
 def _insert_executive_report(order, rtype):
     if order.contract_status not in [2, 4, 5, 20]:
         return False
-    if order.__tablename__ == 'searchAd_bra_client_order':
+    if order.__tablename__ == 'searchad_bra_rebate_order':
+        if rtype:
+            searchAdRebateOrderExecutiveReport.query.filter_by(
+                rebate_order=order).delete()
+        for k in order.pre_month_money():
+            if not searchAdRebateOrderExecutiveReport.query.filter_by(rebate_order=order, month_day=k['month']).first():
+                er = searchAdRebateOrderExecutiveReport.add(rebate_order=order,
+                                                    money=k['money'],
+                                                    month_day=k['month'],
+                                                    days=k['days'],
+                                                    create_time=None)
+                er.save()
+    elif order.__tablename__ == 'searchAd_bra_client_order':
         if rtype:
             searchAdClientOrderExecutiveReport.query.filter_by(
                 client_order=order).delete()
@@ -108,7 +126,10 @@ def executive_report(order_id):
     if not g.user.is_super_admin():
         abort(402)
     _insert_executive_report(order, rtype)
-    return redirect(url_for("searchAd_order.searchAd_orders"))
+    if order.__tablename__ == 'searchad_bra_rebate_order':
+        return redirect(url_for("searchAd_order.rebate_orders"))
+    else:
+        return redirect(url_for("searchAd_order.searchAd_orders"))
 
 
 @searchAd_order_bp.route('/', methods=['GET'])
@@ -235,10 +256,6 @@ def order_info(order_id, tab_id=1):
                     mo.medium_contract = request.values.get(
                         "medium_contract_%s" % mo.id, "")
                     mo.save()
-#                for o in order.associated_douban_orders:
-#                    o.contract = request.values.get(
-#                        "douban_contract_%s" % o.id, "")
-#                    o.save()
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
@@ -248,9 +265,6 @@ def order_info(order_id, tab_id=1):
                     msg = msg + \
                         u"致趣-%s: %s\n\n" % (mo.medium.name,
                                             mo.medium_contract or "")
-#                for o in order.associated_douban_orders:
-#                    msg = msg + \
-#                        u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name, o.contract or "")
                 to_users = order.direct_sales + \
                     order.agent_sales + [order.creator, g.user]
                 to_emails = [x.email for x in set(to_users)]
@@ -271,17 +285,10 @@ def order_info(order_id, tab_id=1):
     new_medium_form.medium_end.data = order.client_end
     new_medium_form.discount.hidden = True
 
-    #new_associated_douban_form = AssociatedDoubanOrderForm()
-    # new_associated_douban_form.medium_order.choices = [(mo.id, "%s-%s" % (mo.name, mo.start_date_cn))
-    #                                                   for mo in order.medium_orders]
-    #new_associated_douban_form.campaign.data = order.campaign
-
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
                'medium_forms': [(get_medium_form(mo, g.user), mo) for mo in order.medium_orders],
-               # new_associated_douban_form,
-               'new_associated_douban_form': None,
                'order': order,
                'reminder_emails': reminder_emails,
                'now_date': datetime.now(),
@@ -401,7 +408,7 @@ def client_order_contract(order_id):
 def contract_status_change(order, action, emails, msg):
     action_msg = ''
     #  发送邮件
-    if order.__tablename__ == 'bra_searchAd_framework_order':
+    if order.__tablename__ in ['bra_searchAd_framework_order', 'searchad_bra_rebate_order']:
         to_users = order.sales + [order.creator, g.user]
     else:
         to_users = order.direct_sales + \
@@ -443,8 +450,6 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_DELETEPASS
         order.status = STATUS_DEL
         to_users = to_users + order.leaders + User.contracts()
-        if order.__tablename__ == 'bra_douban_order' and order.contract:
-            to_users += User.douban_contracts()
         _delete_executive_report(order)
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
@@ -454,14 +459,6 @@ def contract_status_change(order, action, emails, msg):
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     to_emails = list(set(emails + [x.email for x in to_users]))
-    if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
-        to_emails = list(
-            set([k.email for k in User.douban_contracts()] + to_emails))
-# 关联豆瓣订单 申请打印 不发送豆瓣管理员
-#    elif (order.__tablename__ == 'bra_client_order'
-#          and order.associated_douban_orders and order.contract_status == 4 and action == 5):
-#        to_emails = list(
-#            set([k.email for k in User.douban_contracts()] + to_emails))
     apply_context = {"sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,
@@ -605,6 +602,13 @@ def client_attach_status(order_id, attachment_id, status):
     return redirect(order.info_path())
 
 
+@searchAd_order_bp.route('/rebate_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def rebate_attach_status(order_id, attachment_id, status):
+    order = searchAdRebateOrder.get(order_id)
+    attachment_status_change(order, attachment_id, status)
+    return redirect(order.info_path())
+
+
 @searchAd_order_bp.route('/medium_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
 def medium_attach_status(order_id, attachment_id, status):
     order = searchAdOrder.get(order_id)
@@ -626,7 +630,7 @@ def attachment_status_change(order, attachment_id, status):
 
 
 def attachment_status_email(order, attachment):
-    if order.__tablename__ == 'bra_searchAd_framework_order':
+    if order.__tablename__ in ['bra_searchAd_framework_order', 'searchad_bra_rebate_order']:
         to_users = order.sales + [order.creator, g.user]
     else:
         to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
@@ -887,3 +891,301 @@ def framework_order_contract(order_id):
     if order.contract_status == CONTRACT_STATUS_DELETEPASS:
         return redirect(url_for('searchAd_order.framework_orders'))
     return redirect(url_for("searchAd_order.framework_order_info", order_id=order.id))
+
+
+######################
+#  rebate order
+######################
+@searchAd_order_bp.route('/new_rebate_order', methods=['GET', 'POST'])
+def new_rebate_order():
+    form = RebateOrderForm(request.form)
+    if request.method == 'POST' and form.validate():
+        order = searchAdRebateOrder.add(client=searchAdClient.get(form.client.data),
+                                agent=searchAdAgent.get(form.agent.data),
+                                campaign=form.campaign.data,
+                                money=int(round(float(form.money.data or 0))),
+                                medium_CPM=form.medium_CPM.data,
+                                sale_CPM=form.sale_CPM.data,
+                                client_start=form.client_start.data,
+                                client_end=form.client_end.data,
+                                reminde_date=form.reminde_date.data,
+                                sales=User.gets(form.sales.data),
+                                operaters=User.gets(form.operaters.data),
+                                designers=User.gets(form.designers.data),
+                                planers=User.gets(form.planers.data),
+                                contract_type=form.contract_type.data,
+                                resource_type=form.resource_type.data,
+                                sale_type=form.sale_type.data,
+                                creator=g.user,
+                                create_time=datetime.now(),
+                                finish_time=datetime.now())
+        order.add_comment(g.user, u"新建了该返点订单")
+        flash(u'新建返点订单成功, 请上传合同!', 'success')
+        return redirect(url_for("searchAd_order.rebate_order_info", order_id=order.id))
+    else:
+        form.client_start.data = datetime.now().date()
+        form.client_end.data = datetime.now().date()
+        form.reminde_date.data = datetime.now().date()
+    return tpl('/searchAdorder/searchad_new_rebate_order.html', form=form)
+
+
+@searchAd_order_bp.route('/rebate_order/<order_id>/delete', methods=['GET'])
+def rebate_order_delete(order_id):
+    order = searchAdRebateOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"返点订单: %s-%s 已删除" % (order.client.name, order.campaign), 'danger')
+    order.status = STATUS_DEL
+    order.save()
+    return redirect(url_for("searchAd_order.my_rebate_orders"))
+
+
+@searchAd_order_bp.route('/rebate_order/<order_id>/recovery', methods=['GET'])
+def rebate_order_recovery(order_id):
+    order = searchAdRebateOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"返点订单: %s-%s 已恢复" % (order.client.name, order.campaign), 'success')
+    order.status = STATUS_ON
+    order.save()
+    return redirect(url_for("searchAd_order.rebate_delete_orders"))
+
+
+@searchAd_order_bp.route('/rebate_order/<order_id>/edit_cpm', methods=['POST'])
+def rebate_order_edit_cpm(order_id):
+    order = searchAdRebateOrder.get(order_id)
+    if not order:
+        abort(404)
+    cpm = int(round(float(request.values.get('cpm', 0))))
+    sale_CPM = int(request.values.get('sale_CPM', 0))
+    if cpm != 0:
+        order.medium_CPM = cpm
+        order.add_comment(
+            g.user, u"更新了单点订单: %s 的实际量%s CPM" % (order.name, order.medium_CPM))
+    if sale_CPM != 0:
+        if order.sale_CPM != sale_CPM:
+            order.sale_CPM = sale_CPM
+            order.add_comment(
+                g.user, u"更新了返点订单: %s 的预估量%s CPM" % (order.name, order.sale_CPM))
+    order.save()
+    flash(u'[返点订单]%s 更新成功!' % order.name, 'success')
+    return redirect(url_for("searchAd_order.rebate_order_info", order_id=order.id))
+
+
+def get_rebate_form(order):
+    form = RebateOrderForm()
+    form.client.data = order.client.id
+    form.agent.data = order.agent.id
+    form.campaign.data = order.campaign
+    form.money.data = order.money
+    form.medium_CPM.data = order.medium_CPM
+    form.sale_CPM.data = order.sale_CPM
+    form.client_start.data = order.client_start
+    form.client_end.data = order.client_end
+    form.reminde_date.data = order.reminde_date
+    form.sales.data = [u.id for u in order.sales]
+    form.operaters.data = [u.id for u in order.operaters]
+    form.designers.data = [u.id for u in order.designers]
+    form.planers.data = [u.id for u in order.planers]
+    form.contract_type.data = order.contract_type
+    form.resource_type.data = order.resource_type
+    form.sale_type.data = order.sale_type
+    return form
+
+
+class ReplaceSalersForm(Form):
+    replace_salers = SelectMultipleField(u'替代销售', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(ReplaceSalersForm, self).__init__(*args, **kwargs)
+        self.replace_salers.choices = [
+            (m.id, m.name) for m in User.all_active()]
+
+
+@searchAd_order_bp.route('/rebate_order/<order_id>/info', methods=['GET', 'POST'])
+def rebate_order_info(order_id):
+    order = searchAdRebateOrder.get(order_id)
+    if not order or order.status == 0:
+        if g.user.is_super_admin():
+            pass
+        else:
+            abort(404)
+    form = get_rebate_form(order)
+    replace_saler_form = ReplaceSalersForm()
+    replace_saler_form.replace_salers.data = [k.id for k in order.replace_sales]
+    if request.method == 'POST':
+        info_type = int(request.values.get('info_type', '0'))
+        if info_type == 0:
+            if not order.can_admin(g.user):
+                flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
+            else:
+                form = RebateOrderForm(request.form)
+                replace_saler_form = ReplaceSalersForm(request.form)
+                if form.validate():
+                    order.client = searchAdClient.get(form.client.data)
+                    order.agent = searchAdAgent.get(form.agent.data)
+                    order.campaign = form.campaign.data
+                    order.money = int(round(float(form.money.data or 0)))
+                    order.sale_CPM = form.sale_CPM.data
+                    order.medium_CPM = form.medium_CPM.data
+                    order.client_start = form.client_start.data
+                    order.client_end = form.client_end.data
+                    order.reminde_date = form.reminde_date.data
+                    order.sales = User.gets(form.sales.data)
+                    order.operaters = User.gets(form.operaters.data)
+                    order.designers = User.gets(form.designers.data)
+                    order.planers = User.gets(form.planers.data)
+                    order.contract_type = form.contract_type.data
+                    order.resource_type = form.resource_type.data
+                    order.sale_type = form.sale_type.data
+                    if g.user.is_super_admin():
+                        order.replace_sales = User.gets(
+                            replace_saler_form.replace_salers.data)
+                    order.save()
+                    order.add_comment(g.user, u"更新了该订单信息")
+                    flash(u'[返点订单]%s 保存成功!' % order.name, 'success')
+                    _insert_executive_report(order, 'reload')
+        elif info_type == 2:
+            if not g.user.is_contract():
+                flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
+            else:
+                order.contract = request.values.get("base_contract", "")
+                order.save()
+                _insert_executive_report(order, '')
+                flash(u'[%s]合同号保存成功!' % order.name, 'success')
+
+                action_msg = u"合同号更新"
+                msg = u"新合同号如下:\n\n%s-: %s\n\n" % (
+                    order.agent.name, order.contract)
+                to_users = order.sales + [order.creator, g.user]
+                to_emails = [x.email for x in set(to_users)]
+                apply_context = {"sender": g.user,
+                                 "to": to_emails,
+                                 "action_msg": action_msg,
+                                 "msg": msg,
+                                 "order": order}
+                contract_apply_signal.send(
+                    current_app._get_current_object(), apply_context=apply_context)
+                flash(u'[%s] 已发送邮件给 %s ' %
+                      (order.name, ', '.join(to_emails)), 'info')
+                order.add_comment(g.user, u"更新了合同号, %s" % msg)
+
+    reminder_emails = [(u.name, u.email) for u in User.all_active()]
+    context = {'rebate_form': form,
+               'order': order,
+               'now_date': datetime.now(),
+               'reminder_emails': reminder_emails,
+               'replace_saler_form': replace_saler_form}
+    return tpl('/searchAdorder/searchad_rebate_detail_info.html', **context)
+
+
+@searchAd_order_bp.route('/my_rebate_orders', methods=['GET'])
+def my_rebate_orders():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader():
+        orders = searchAdRebateOrder.all()
+    elif g.user.is_leader():
+        orders = [
+            o for o in searchAdRebateOrder.all() if g.user.location in o.locations]
+    else:
+        orders = searchAdRebateOrder.get_order_by_user(g.user)
+
+    if not request.args.get('selected_status'):
+        if g.user.is_admin():
+            status_id = -1
+        elif g.user.is_super_leader():
+            status_id = -1
+        elif g.user.is_leader():
+            orders = [o for o in orders if g.user.location in o.locations]
+            status_id = -1
+        elif g.user.is_contract():
+            orders = [o for o in orders if o.contract_status in [
+                CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
+            status_id = CONTRACT_STATUS_APPLYPASS
+        elif g.user.is_media() or g.user.is_media_leader():
+            orders = [
+                o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
+            status_id = CONTRACT_STATUS_MEDIA
+        else:
+            status_id = -1
+    else:
+        status_id = int(request.args.get('selected_status'))
+    return rebate_display_orders(orders, u'我的返点订单', status_id)
+
+
+@searchAd_order_bp.route('/rebate_orders', methods=['GET'])
+def rebate_orders():
+    orders = searchAdRebateOrder.all()
+    status_id = int(request.args.get('selected_status', -1))
+    return rebate_display_orders(orders, u'全部返点订单', status_id)
+
+
+@searchAd_order_bp.route('/rebate_delete_orders', methods=['GET'])
+def rebate_delete_orders():
+    orders = searchAdRebateOrder.delete_all()
+    status_id = int(request.args.get('selected_status', -1))
+    return rebate_display_orders(orders, u'已删除的返点订单', status_id)
+
+
+def rebate_display_orders(orders, title, status_id=-1):
+    orderby = request.args.get('orderby', '')
+    search_info = request.args.get('searchinfo', '')
+    location_id = int(request.args.get('selected_location', '-1'))
+    page = int(request.args.get('p', 1))
+    # page = max(1, page)
+    # start = (page - 1) * ORDER_PAGE_NUM
+    if location_id >= 0:
+        orders = [o for o in orders if location_id in o.locations]
+    if status_id >= 0:
+        orders = [o for o in orders if o.contract_status == status_id]
+    if search_info != '':
+        orders = [
+            o for o in orders if search_info.lower() in o.search_info.lower()]
+    if orderby and len(orders):
+        orders = sorted(
+            orders, key=lambda x: getattr(x, orderby), reverse=True)
+
+    select_locations = TEAM_LOCATION_CN.items()
+    select_locations.insert(0, (-1, u'全部区域'))
+    select_statuses = CONTRACT_STATUS_CN.items()
+    select_statuses.insert(0, (-1, u'全部合同状态'))
+    if 'download' == request.args.get('action', ''):
+        filename = (
+            "%s-%s.xls" % (u"返点订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+        '''
+        xls = Excel().write_excle(
+            download_excel_table_by_doubanorders(orders))
+        '''
+        response = get_download_response(xls, filename)
+        return response
+    else:
+        paginator = Paginator(orders, ORDER_PAGE_NUM)
+        try:
+            orders = paginator.page(page)
+        except:
+            orders = paginator.page(paginator.num_pages)
+        return tpl('/searchAdorder/searchad_rebate_orders.html', title=title, orders=orders,
+                   locations=select_locations, location_id=location_id,
+                   statuses=select_statuses, status_id=status_id,
+                   orderby=orderby, now_date=datetime.now().date(),
+                   search_info=search_info, page=page,
+                   params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
+                   (orderby, search_info, location_id, status_id))
+
+
+@searchAd_order_bp.route('/rebate_order/<order_id>/contract', methods=['POST'])
+def rebate_order_contract(order_id):
+    order = searchAdRebateOrder.get(order_id)
+    if not order:
+        abort(404)
+    action = int(request.values.get('action'))
+    emails = request.values.getlist('email')
+    msg = request.values.get('msg', '')
+    contract_status_change(order, action, emails, msg)
+    order = searchAdRebateOrder.get(order_id)
+    if order.contract_status == CONTRACT_STATUS_DELETEPASS:
+        return redirect(url_for('searchAd_order.rebate_orders'))
+    return redirect(url_for("searchAd_order.rebate_order_info", order_id=order.id))

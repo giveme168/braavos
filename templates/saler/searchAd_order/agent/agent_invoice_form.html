@@ -155,8 +155,8 @@
     function check_agent(e){
       $.ajax({
         type: 'POST',
-        url: "/saler/agent_invoice/"+e.value+"/tax_info",
-        data: {'id':e.value} ,
+        url: "/saler/searchAd_order/agent_invoice/"+e.value+"/tax_info",
+        data: {} ,
         dataType: 'json',
         success:function(data) {
             $(e).closest("form").find('#tax_id').val(data['tax_num'])
