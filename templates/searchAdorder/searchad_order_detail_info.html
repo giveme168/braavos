@@ -2,18 +2,9 @@
 {% from 'searchad_order_form_client.html' import order_client_form %}
 {% from 'searchad_order_form_medium.html' import order_medium_form %}
 {% from 'searchad_order_form_medium.html' import new_order_medium_form %}
-{#
-{% from 'searchad_order_form_associated_douban.html' import order_associated_douban_form %}
-#}
 {% from 'searchad_order_form_contract.html' import order_contract_form %}
-{#
-{% from 'searchad_order_form_attachment.html' import client_order_attachment, medium_order_attachment, associated_douban_attachment %}
-#}
 {% from 'searchad_order_form_attachment.html' import client_order_attachment, medium_order_attachment %}
 {% from 'comments.html' import comments_box %}
-{#
-{% macro contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, reminder_emails) -%}
-#}
 {% macro contract_box(order, client_form, new_medium_form, medium_forms, reminder_emails) -%}
     <div class="panel-group" id="accordion">
         <div class="panel panel-default">
@@ -120,21 +111,9 @@
 <div class="bra-main bra-box">
   <h4> {{ order.name }} </h4>
   <div>
-    <ul class="nav nav-tabs">
-      <li class="active"><a href='{{url_for("searchAd_order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a></li>
-      {% if order.can_admin(g.user) %}
-      <li class=""><a href='{{url_for("searchAd_saler_client_order_invoice.index", order_id=order.id)}}'>客户发票</a></li>
-      <li class=""><a href='{{url_for("searchAd_saler_client_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
-      <!--<li class=""><a href='{{url_for("searchAd_saler_client_order_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a></li>
-      <li class=""><a href='{{url_for("searchAd_saler_client_order_medium_rebate_invoice.index", order_id=order.id)}}'>媒体返点发票</a></li>-->
-      <li class=""><a href='{{url_for("searchAd_saler_client_order_agent_invoice.index", order_id=order.id)}}'>代理/直客发票与打款</a></li>
-      {% endif %}
-    </ul>
+    {% include "saler/searchAd_order/nav_base.html" %}
     <div class="tab-content">
       <div class="tab-pane active" id="tab-1">
-          {#
-        {{ contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, reminder_emails) }}
-        #}
         {{ contract_box(order, client_form, new_medium_form, medium_forms, reminder_emails) }}
       </div>
     </div>

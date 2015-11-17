@@ -34,10 +34,10 @@ def ad_by_position(position_id):
 @api_bp.route('/mediums', methods=['GET'])
 def mediums():
     mediums = [{'id': k.id, 'name': k.name} for k in Medium.all()]
-    return jsonify({'date': mediums})
+    return jsonify({'data': mediums})
 
 
 @api_bp.route('/clients', methods=['GET'])
 def clients():
     clients = [{'id': k.id, 'name': k.name} for k in Client.all()]
-    return jsonify({'date': clients})
+    return jsonify({'data': clients})

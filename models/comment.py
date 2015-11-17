@@ -48,6 +48,7 @@ class Comment(db.Model, BaseModelMixin):
         from .material import Material
         from searchAd.models.order import searchAdOrder
         from searchAd.models.client_order import searchAdClientOrder
+        from searchAd.models.rebate_order import searchAdRebateOrder
         from models.medium import Medium
         from models.planning import Bref
         TARGET_DICT = {
@@ -59,6 +60,7 @@ class Comment(db.Model, BaseModelMixin):
             'Material': Material,
             'searchAdOrder': searchAdOrder,
             'searchAdClientOrder': searchAdClientOrder,
+            'searchAdRebateOrder': searchAdRebateOrder,
             'Medium': Medium,
             'Bref': Bref
         }

@@ -83,7 +83,7 @@ def new_invoice(order_id):
     if request.method == 'POST' and form.validate():
         if int(form.money.data) > (int(order.money) - int(order.invoice_apply_sum) - int(order.invoice_pass_sum)):
             flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
-            return redirect(url_for("searchAd_saler_client_order_invoice.index", order_id=order_id))
+            return redirect(url_for("saler_client_order_invoice.index", order_id=order_id))
         invoice = searchAdInvoice.add(client_order=order,
                               company=form.company.data,
                               tax_id=form.tax_id.data,

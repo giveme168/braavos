@@ -15,6 +15,7 @@ from libs.signals import contract_apply_signal
 from models.attachment import Attachment
 from searchAd.models.client_order import searchAdClientOrder
 from searchAd.models.order import searchAdOrder
+from searchAd.models.rebate_order import searchAdRebateOrder
 from models.client import Agent
 
 
@@ -215,6 +216,20 @@ def searchAd_framework_others_upload():
     return attachment_upload(order, FILE_TYPE_OTHERS)
 
 
+@files_bp.route('/searchAd_rebate/contract/upload', methods=['POST'])
+def searchAd_rebate_contract_upload():
+    order_id = request.values.get('order')
+    order = searchAdRebateOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
+
+
+@files_bp.route('/searchAd_rebate/schedule/upload', methods=['POST'])
+def searchAd_rebate_schedule_upload():
+    order_id = request.values.get('order')
+    order = searchAdRebateOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
+
+
 @files_bp.route('/framework/others/upload', methods=['POST'])
 def framework_others_upload():
     order_id = request.values.get('order')
@@ -310,6 +325,12 @@ def searchAd_framework_order_files(order_id):
 @files_bp.route('/douban_order/<order_id>/all_files', methods=['get'])
 def douban_order_files(order_id):
     fo = DoubanOrder.get(order_id)
+    return tpl("order_files.html", order=fo)
+
+
+@files_bp.route('/rebate_order/<order_id>/all_files', methods=['get'])
+def rebate_order_files(order_id):
+    fo = searchAdRebateOrder.get(order_id)
     return tpl("order_files.html", order=fo)
 
 

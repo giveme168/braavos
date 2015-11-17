@@ -44,9 +44,9 @@ def new_invoice(order_id, redirect_endpoint='searchAd_saler_client_order_medium_
     form.client_order.choices = [(order.id, order.client.name)]
     form.medium.choices = [(order.id, order.client.name) for k in order.mediums]
     form.bool_invoice.choices = MEDIUM_INVOICE_BOOL_INVOICE_CN.items()
-    if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
-        flash(u'新建打款发票失败，发票超过媒体总金额!', 'danger')
-        return redirect(url_for(redirect_endpoint, order_id=order_id))
+    # if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
+    #     flash(u'新建打款发票失败，发票超过媒体总金额!', 'danger')
+    #     return redirect(url_for(redirect_endpoint, order_id=order_id))
     if request.method == 'POST':
         invoice = searchAdMediumInvoice.add(client_order=order,
                                     medium=searchAdMedium.get(form.medium.data),
@@ -101,6 +101,8 @@ def new_invoice_pay(invoice_id):
                                detail=detail)
     pay.save()
     flash(u'新建打款信息成功!', 'success')
+    mi.client_order.add_comment(g.user, u"新建打款信息  发票号：%s  打款金额：%s元  打款时间：%s" % (
+        mi.invoice_num, str(money), pay_time), msg_channel=3)
     return redirect(url_for('searchAd_saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
 
 
@@ -155,10 +157,10 @@ def update_invoice(invoice_id, redirect_endpoint='searchAd_saler_client_order_me
         (invoice.client_order.id, invoice.client_order.name)]
     form.medium.choices = [(invoice.medium.id, invoice.medium.name)]
     form.bool_invoice.bool_invoice = MEDIUM_INVOICE_BOOL_INVOICE_CN.items()
-    order = invoice.client_order
-    if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
-        flash(u'修改打款发票失败, 超过媒体总金额', 'danger')
-        return redirect(url_for(redirect_endpoint, order_id=order.id))
+    # order = invoice.client_order
+    # if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
+    #     flash(u'修改打款发票失败, 超过媒体总金额', 'danger')
+    #     return redirect(url_for(redirect_endpoint, order_id=order.id))
     if request.method == 'POST':
         if not form.invoice_num.data:
             flash(u"修改打款发票失败，发票号不能为空", 'danger')
@@ -203,9 +205,7 @@ def apply_pay(invoice_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
-    to_users = medium_invoice.client_order.direct_sales + medium_invoice.client_order.agent_sales + \
-        [medium_invoice.client_order.creator, g.user] + \
-        medium_invoice.client_order.leaders + User.medias()
+    to_users = [g.user] + User.medias() + User.media_leaders() + User.super_leaders()
     to_emails = list(set(emails + [x.email for x in to_users]))
     if action == 2:
         action_msg = u'媒体订单打款申请'
@@ -217,7 +217,7 @@ def apply_pay(invoice_id):
                    invoice.medium_invoice.invoice_num, invoice.detail), 'success')
 
             invoice.medium_invoice.client_order.add_comment(g.user, u"%s,%s" % (
-                action_msg, u'[%s媒体申请打款，打款金额: %s, 发票号: %s]  %s ' %
+                action_msg, u' %s媒体申请打款，打款金额: %s, 发票号: %s  %s ' %
                 (invoice.medium_invoice.company, invoice.money,
                     invoice.medium_invoice.invoice_num, invoice.detail)), msg_channel=3)
         send_type = "saler"
@@ -227,12 +227,12 @@ def apply_pay(invoice_id):
         for invoice in invoice_pays:
             invoice.pay_status = MEDIUM_INVOICE_STATUS_AGREE
             invoice.save()
-            flash(u'[同意%s媒体订单打款申请，打款金额: %s, 发票号: %s]  %s ' %
+            flash(u' 同意%s媒体订单打款申请，打款金额: %s, 发票号: %s  %s ' %
                   (invoice.medium_invoice.company, invoice.money,
                    invoice.medium_invoice.invoice_num, invoice.detail), 'success')
 
             invoice.medium_invoice.client_order.add_comment(g.user, u"%s,%s" % (
-                action_msg, u'[%s媒体同意打款，打款金额: %s, 发票号: %s]  %s ' %
+                action_msg, u' %s媒体同意打款，打款金额: %s, 发票号: %s  %s ' %
                 (invoice.medium_invoice.company, invoice.money,
                     invoice.medium_invoice.invoice_num, invoice.detail)), msg_channel=3)
         send_type = "finance"
@@ -266,9 +266,7 @@ def apply_invoice(invoice_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
-    to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
-        [invoice.client_order.creator, g.user] + \
-        invoice.client_order.leaders
+    to_users = [g.user] + User.medias() + User.media_leaders() + User.super_leaders()
     to_emails = list(set(emails + [x.email for x in to_users]))
 
     send_type = "saler"
@@ -279,7 +277,7 @@ def apply_invoice(invoice_id):
         for invoice in invoices:
             invoice.invoice_status = invoice_status
             invoice.save()
-            flash(u'[%s 打款发票申请，发票金额: %s, 发票号: %s]  %s ' %
+            flash(u' %s 打款发票申请，发票金额: %s, 发票号: %s  %s ' %
                   (invoice.company, invoice.money, invoice.invoice_num, action_msg), 'success')
             invoice.client_order.add_comment(g.user, u"%s,%s" % (
                 action_msg, u'打款发票内容: %s; 发票金额: %s元; 发票号: %s' %

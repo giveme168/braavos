@@ -108,3 +108,45 @@ class ClientOrderBackMoneyForm(Form):
 
     def __init__(self, *args, **kwargs):
         super(DoubanOrderForm, self).__init__(*args, **kwargs)
+
+
+class RebateOrderForm(Form):
+    agent = SelectField(u'代理/直客(甲方全称)', coerce=int)
+    client = SelectField(u'客户名称', coerce=int)
+    campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
+    money = FloatField(u'合同金额(元)', default=0)
+    sale_CPM = IntegerField(u'预估量(CPM)', default=0)
+    medium_CPM = IntegerField(u'实际量(CPM)', default=0, description=u"结项后由执行填写")
+    client_start = DateField(u'执行开始')
+    client_end = DateField(u'执行结束')
+    reminde_date = DateField(u'最迟回款日期')
+    sales = SelectMultipleField(u'销售', coerce=int)
+    operaters = SelectMultipleField(u'执行人员', coerce=int)
+    designers = SelectMultipleField(u'设计人员', coerce=int)
+    planers = SelectMultipleField(u'策划人员', coerce=int)
+    contract_type = SelectField(u'合同模板类型', coerce=int)
+    resource_type = SelectField(u'售卖类型', coerce=int)
+    sale_type = SelectField(u'代理/直客', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(RebateOrderForm, self).__init__(*args, **kwargs)
+        self.agent.choices = [(m.id, m.name) for m in searchAdAgent.all()]
+        self.client.choices = [(c.id, c.name) for c in searchAdClient.all()]
+        
+        self.sales.choices = [(m.id, m.name) for m in User.searchAd_sales()]
+        operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
+        self.operaters.choices = [(m.id, m.name) for m in operaters]
+        self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
+        self.planers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_PLANNER)]
+        self.contract_type.choices = CONTRACT_TYPE_CN.items()
+        self.resource_type.choices = RESOURCE_TYPE_CN.items()
+        self.sale_type.choices = SALE_TYPE_CN.items()
+
+    def validate(self):
+        if Form.validate(self):
+            if any(self.sales.data):
+                return True
+            else:
+                self.sales.errors.append(u"销售不能全为空")
+                return False
+        return False
