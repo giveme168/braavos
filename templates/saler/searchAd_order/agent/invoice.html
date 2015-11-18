@@ -86,11 +86,17 @@
                       <th>打款时间</th>
                       <th>打款金额</th>
                       <th>备注</th>
+                      {% if g.user.is_searchad_leader() %}
+                      <th>操作</th>
+                      {% endif %}
                     </tr>
                     <tr>
                       <td>{{i.pay_time_cn}}</td>
                       <td>{{i.money}}元</td>
                       <td>{{i.detail}}</td>
+                      {% if g.user.is_searchad_leader() %}
+                      <td><a href="{{url_for('searchAd_saler_client_order_agent_invoice.delete_invoice_pay', invoice_id=invoice.id, invoice_pay_id=i.id)}}">删除</a></td>
+                      {% endif %}
                     </tr>
                   </table>
                {% else %}
@@ -163,7 +169,9 @@
       </div>
     </div>
   </div>
-  <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 申请打款</button>
+  {% if g.user.is_searchad_leader() %}
+  <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span>填写已打款信息</button>
+  {% endif %}
 </div>
 <script>
 $(document).ready(function(){
@@ -267,7 +275,7 @@ $(function() {
       {% if invoice_pay.pay_status == 2 and invoice.client_order.can_admin(g.user) %}
         <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">再次申请打款</button>
       {% endif %}
-      {% if invoice_pay.pay_status == 2 and g.user.is_super_leader() %}
+      {% if invoice_pay.pay_status == 2 and g.user.is_searchad_leader() %}
         <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="3">同意打款</button>
       {% endif %}
       {% if invoice_pay.pay_status == 3 and invoice.client_order.can_admin(g.user) %}

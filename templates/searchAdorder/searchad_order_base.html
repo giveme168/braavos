@@ -24,6 +24,10 @@
     <a id="_new_rebate_order_" class="list-group-item" href="{{url_for('searchAd_order.new_rebate_order')}}">
         <span class="glyphicon glyphicon-plus"></span> 新建返点订单
     </a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 数据查询</li>
+    <a id="_data_query_" class="list-group-item" href="{{url_for('searchAd_saler_client_order_data_query.agent_invoice')}}">
+        <span class="glyphicon glyphicon-th-list"></span> 普通订单
+    </a>
     {% endif %}
     </div>
     <div class="left-btn">
@@ -35,13 +39,18 @@
     $(function(){
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
-        $('#_'+p_pathname[2]+'_').addClass("active");
-        if(['order', 'searchAd_order'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_my_orders_').addClass("active");
+        if (p_pathname[3] == 'data_query'){
+            $('#_'+p_pathname[3]+'_').addClass("active");
+        }else{
+            $('#_'+p_pathname[2]+'_').addClass("active");
+            if(['order', 'searchAd_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_orders_').addClass("active");
+            }
+            if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_framework_orders_').addClass("active");
+            }
         }
-        if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_my_framework_orders_').addClass("active");
-        }
+        
     })
 
 </script>

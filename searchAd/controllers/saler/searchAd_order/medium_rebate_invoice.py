@@ -193,10 +193,9 @@ def apply_invoice(invoice_id):
                 action_msg, u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=6)
     else:
         action_msg = u'消息提醒'
-
     apply_context = {"sender": g.user,
                      "to": to_emails,
-                     "title": u'客户发票-%s' % (action_msg),
+                     "title": u'【搜索部门】媒体返点发票-%s' % (action_msg),
                      "action_msg": action_msg,
                      "msg": msg,
                      "order": invoice.client_order,

@@ -92,17 +92,30 @@ def new_invoice_pay(invoice_id):
     pay_time = request.values.get('pay_time', '')
     detail = request.values.get('detail', '')
     mi = searchAdMediumInvoice.get(invoice_id)
-    if mi.pay_invoice_money + money > mi.money:
-        flash(u'付款金额大于发票金额，请重新填写!', 'danger')
-        return redirect(url_for('searchAd_saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
+    # if mi.pay_invoice_money + money > mi.money:
+    #     flash(u'付款金额大于发票金额，请重新填写!', 'danger')
+    #     return redirect(url_for('searchAd_saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
     pay = searchAdMediumInvoicePay.add(money=money,
                                medium_invoice=mi,
                                pay_time=pay_time,
+                               pay_status=0,
                                detail=detail)
     pay.save()
-    flash(u'新建打款信息成功!', 'success')
-    mi.client_order.add_comment(g.user, u"新建打款信息  发票号：%s  打款金额：%s元  打款时间：%s" % (
+    flash(u'添加已打款信息成功!', 'success')
+    mi.client_order.add_comment(g.user, u"添加已打款信息  发票号：%s  打款金额：%s元  打款时间：%s" % (
         mi.invoice_num, str(money), pay_time), msg_channel=3)
+    return redirect(url_for('searchAd_saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
+
+
+@searchAd_saler_client_order_medium_invoice_bp.route('/<invoice_id>/invoice/pay/<invoice_pay_id>/delete', methods=['GET'])
+def delete_invoice_pay(invoice_id, invoice_pay_id):
+    pay = searchAdMediumInvoicePay.get(invoice_pay_id)
+    money = pay.money
+    pay.delete()
+    mi = searchAdMediumInvoice.get(invoice_id)
+    mi.client_order.add_comment(g.user, u"删除已打款信息  发票号：%s  打款金额：%s元" % (
+        mi.invoice_num, str(money)), msg_channel=3)
+    flash(u'删除已打款信息成功!', 'success')
     return redirect(url_for('searchAd_saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
 
 
@@ -113,9 +126,9 @@ def update_invoice_pay(invoice_id, invoice_pay_id):
     detail = request.values.get('detail', '')
     pay = searchAdMediumInvoicePay.get(invoice_pay_id)
     mi = searchAdMediumInvoice.get(invoice_id)
-    if mi.pay_invoice_money - pay.money + money > mi.money:
-        flash(u'付款金额大于发票金额，请重新填写!', 'danger')
-        return redirect(url_for('searchAd_saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
+    # if mi.pay_invoice_money - pay.money + money > mi.money:
+    #     flash(u'付款金额大于发票金额，请重新填写!', 'danger')
+    #     return redirect(url_for('searchAd_saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
     pay.money = money
     pay.pay_time = pay_time
     pay.detail = detail

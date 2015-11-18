@@ -21,7 +21,7 @@ def index(order_id):
 
 @searchAd_saler_client_order_back_money_bp.route('/order/<order_id>/back_money', methods=['GET', 'POST'])
 def back_money(order_id):
-    if not (g.user.is_contract() or g.user.is_finance()):
+    if not (g.user.is_searchad_leader() or g.user.is_finance()):
         abort(404)
     order = searchAdClientOrder.get(order_id)
     if not order:
@@ -67,7 +67,7 @@ def back_money(order_id):
 
 @searchAd_saler_client_order_back_money_bp.route('/order/<order_id>/back_invoice', methods=['GET', 'POST'])
 def back_invoice(order_id):
-    if not (g.user.is_contract() or g.user.is_finance()):
+    if not (g.user.is_searchad_leader() or g.user.is_finance()):
         abort(404)
     order = searchAdClientOrder.get(order_id)
     if not order:

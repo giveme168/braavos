@@ -11,19 +11,15 @@
     <h4>搜索部门财务管理</h4>
     {% if g.user.is_finance()%}
     <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>客户发票管理</li>
-    <a class="list-group-item" href="{{url_for('searchAd_finance_client_order_invoice.index')}}">申请中的发票</a>
-    <a class="list-group-item" href="{{url_for('searchAd_finance_client_order_invoice.index_pass')}}">所有客户发票信息</a>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 回款管理</li>
-    <a class="list-group-item" href="{{url_for('searchAd_finance_client_order_back_money.index')}}">订单回款</a>
-    <!--
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 搜索广告-媒体打款管理</li>
-    <a class="list-group-item" href="{{url_for('searchAd_finance_client_order_medium_pay.index')}}">媒体打款信息</a>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 搜索广告-甲方打款管理</li>
-    <a class="list-group-item" href="{{url_for('searchAd_finance_client_order_agent_pay.index')}}">甲方打款信息</a>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 搜索广告-媒体返点发票管理</li>
-    <a class="list-group-item" href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index')}}">申请中的媒体返点发票</a>
-    <a class="list-group-item" href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index_pass')}}">所有媒体返点发票信息</a>
-    -->
+    <a id="_client_orderinvoice_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_invoice.index')}}">普通订单申请中的发票</a>
+    <a id="_client_orderinvoicepass_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_invoice.index_pass')}}">普通订单所有发票信息</a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 收款管理</li>
+    <a id="_client_orderback_money_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_back_money.index')}}">普通订单收款</a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>媒体返点发票管理</li>
+    <a id="_client_ordermedium_rebate_invoice_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index')}}">普通订单申请中的发票</a>
+    <a id="_client_ordermedium_rebate_invoicepass_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index_pass')}}">普通订单所有发票信息</a>
+    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>数据查询</li>
+    <a id="_client_orderdata_query_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}">普通订单数据查询</a>
     {% endif %}
     </div>
     <div class="left-btn">
@@ -31,4 +27,19 @@
         <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
     </div>
 </div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[2]+p_pathname[3]+p_pathname[4] == 'client_orderinvoicepass'){
+            $('#_client_orderinvoicepass_').addClass("active");
+        }else if(p_pathname[2]+p_pathname[3]+p_pathname[4] == 'client_ordermedium_payapply'){
+            $('#_client_ordermedium_payapply_').addClass("active");
+        }else if(p_pathname[2]+p_pathname[3]+p_pathname[4] == 'client_ordermedium_rebate_invoicepass'){
+            $('#_client_ordermedium_rebate_invoicepass_').addClass("active");
+        }else{
+            $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass("active");
+        }
+    })
+</script>
 {% endblock %}
