@@ -92,15 +92,18 @@ def new_invoice_pay(invoice_id):
     pay_time = request.values.get('pay_time', '')
     detail = request.values.get('detail', '')
     mi = searchAdAgentInvoice.get(invoice_id)
-    if mi.pay_invoice_money + money > mi.money:
-        flash(u'付款金额大于发票金额，请重新填写!', 'danger')
-        return redirect(url_for('searchAd_saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
+    # if mi.pay_invoice_money + money > mi.money:
+    #     flash(u'付款金额大于发票金额，请重新填写!', 'danger')
+    #     return redirect(url_for('searchAd_saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
     pay = searchAdAgentInvoicePay.add(money=money,
                               agent_invoice=mi,
                               pay_time=pay_time,
+                              pay_status=0,
                               detail=detail)
     pay.save()
-    flash(u'新建打款信息成功!', 'success')
+    flash(u'添加已打款信息成功!', 'success')
+    mi.client_order.add_comment(g.user, u"添加已打款信息  发票号：%s  打款金额：%s元  打款时间：%s" % (
+        mi.invoice_num, str(money), pay_time), msg_channel=5)
     return redirect(url_for('searchAd_saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
 
 
@@ -111,13 +114,25 @@ def update_invoice_pay(invoice_id, invoice_pay_id):
     detail = request.values.get('detail', '')
     pay = searchAdAgentInvoicePay.get(invoice_pay_id)
     mi = searchAdAgentInvoice.get(invoice_id)
-    if mi.pay_invoice_money - pay.money + money > mi.money:
-        flash(u'付款金额大于发票金额，请重新填写!', 'danger')
-        return redirect(url_for('searchAd_saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
+    # if mi.pay_invoice_money - pay.money + money > mi.money:
+    #     flash(u'付款金额大于发票金额，请重新填写!', 'danger')
+    #     return redirect(url_for('searchAd_saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
     pay.money = money
     pay.pay_time = pay_time
     pay.detail = detail
     pay.save()
+    return redirect(url_for('searchAd_saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
+
+
+@searchAd_saler_client_order_agent_invoice_bp.route('/<invoice_id>/invoice/pay/<invoice_pay_id>/delete', methods=['GET'])
+def delete_invoice_pay(invoice_id, invoice_pay_id):
+    pay = searchAdAgentInvoicePay.get(invoice_pay_id)
+    money = pay.money
+    mi = searchAdAgentInvoice.get(invoice_id)
+    pay.delete()
+    mi.client_order.add_comment(g.user, u"删除已打款信息  发票号：%s  打款金额：%s元" % (
+        mi.invoice_num, str(money)), msg_channel=5)
+    flash(u'删除已打款信息成功!', 'success')
     return redirect(url_for('searchAd_saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
 
 
@@ -209,7 +224,7 @@ def apply_pay(invoice_id):
     action = int(request.values.get('action', 0))
     to_users = agent_invoice.client_order.direct_sales + agent_invoice.client_order.agent_sales + \
         [agent_invoice.client_order.creator, g.user] + \
-        agent_invoice.client_order.leaders + User.medias()
+        agent_invoice.client_order.leaders
     to_emails = list(set(emails + [x.email for x in to_users]))
     if action == 2:
         action_msg = u'代理打款申请'

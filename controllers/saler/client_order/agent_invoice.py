@@ -92,9 +92,9 @@ def new_invoice_pay(invoice_id):
     pay_time = request.values.get('pay_time', '')
     detail = request.values.get('detail', '')
     mi = AgentInvoice.get(invoice_id)
-    if mi.pay_invoice_money + money > mi.money:
-        flash(u'付款金额大于发票金额，请重新填写!', 'danger')
-        return redirect(url_for('saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
+    # if mi.pay_invoice_money + money > mi.money:
+    #     flash(u'付款金额大于发票金额，请重新填写!', 'danger')
+    #     return redirect(url_for('saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
     pay = AgentInvoicePay.add(money=money,
                               agent_invoice=mi,
                               pay_time=pay_time,
@@ -110,10 +110,10 @@ def update_invoice_pay(invoice_id, invoice_pay_id):
     pay_time = request.values.get('pay_time', '')
     detail = request.values.get('detail', '')
     pay = AgentInvoicePay.get(invoice_pay_id)
-    mi = AgentInvoice.get(invoice_id)
-    if mi.pay_invoice_money - pay.money + money > mi.money:
-        flash(u'付款金额大于发票金额，请重新填写!', 'danger')
-        return redirect(url_for('saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
+    # mi = AgentInvoice.get(invoice_id)
+    # if mi.pay_invoice_money - pay.money + money > mi.money:
+    #     flash(u'付款金额大于发票金额，请重新填写!', 'danger')
+    #     return redirect(url_for('saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
     pay.money = money
     pay.pay_time = pay_time
     pay.detail = detail

@@ -1,7 +1,7 @@
 {% extends "/order_base.html" %}
 {% from 'order_form_framework.html' import order_framework_form %}
 {% from 'order_form_contract.html' import order_contract_form %}
-{% from 'order_form_attachment.html' import framework_order_attachment %}
+{% from 'order_form_attachment.html' import framework_order_attachment, finish_framework_order_attachment %}
 {% from 'comments.html' import comments_box %}
 
 {% block main_box%}
@@ -18,10 +18,11 @@
                 <div class="panel-body">
                     {{ order_framework_form(framework_form) }}
                     <br><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {{ framework_order_attachment(order) }}
                     {% if order.contract_status == 20 %}
                     <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {{ finish_framework_order_attachment(order) }}
                     {% endif %}
-                    {{ framework_order_attachment(order) }}
                 </div>
             </div>
         </div>

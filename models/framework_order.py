@@ -183,7 +183,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + [self.creator]
-        return user.is_admin() or user in admin_users
+        return user.is_admin() or user.is_contract() or user in admin_users
 
     def have_owner(self, user):
         """是否可以查看该订单"""

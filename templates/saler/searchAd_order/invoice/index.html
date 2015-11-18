@@ -156,7 +156,7 @@
             {% if order.can_admin(g.user) %}
             <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">再次发票开具申请</button>
             {% endif %}
-            {% if g.user.is_leader() %}
+            {% if g.user.is_searchad_leader() %}
             <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="3">批准开发票</button>
             <button class="btn btn-sm btn-warning contract-submit" name="action" type="submit" value="4">拒绝申请</button>
             {% endif %}

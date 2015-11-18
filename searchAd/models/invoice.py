@@ -350,6 +350,10 @@ class searchAdMediumInvoicePay(db.Model, BaseModelMixin):
     def get_medium_invoices_status(cls, status):
         return cls.query.filter_by(pay_status=status)
 
+    @property
+    def client_order(self):
+        return self.medium_invoice.client_order
+
 AGENT_INVOICE_BOOL_INVOICE_FALSE = 'False'
 AGENT_INVOICE_BOOL_INVOICE_TRUE = 'True'
 AGENT_INVOICE_BOOL_INVOICE_CN = {
@@ -514,3 +518,7 @@ class searchAdAgentInvoicePay(db.Model, BaseModelMixin):
     @classmethod
     def get_agent_invoices_status(cls, status):
         return cls.query.filter_by(pay_status=status)
+
+    @property
+    def client_order(self):
+        return self.agent_invoice.client_order

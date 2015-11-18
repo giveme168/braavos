@@ -155,3 +155,7 @@ $(function(){
     {{ finish_attachment(order, url_for('files.finish_associated_douban_upload')) }}
 {%- endmacro %}
 
+{% macro finish_framework_order_attachment(order) %}
+    {{ finish_attachment(order, url_for('files.finish_framework_order_upload')) }}
+{%- endmacro %}
+

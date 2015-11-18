@@ -352,6 +352,11 @@ def contract_email(order, attachment):
                                                 order.agent_sales +
                                                 order.direct_sales +
                                                 [order.creator, g.user])]
+    elif order.__tablename__ == 'bra_framework_order':
+        contract_emails = [m.email for m in set(User.contracts() +
+                                                order.agent_sales +
+                                                order.direct_sales +
+                                                [order.creator, g.user])]
     else:
         contract_emails = [m.email for m in set(User.contracts() +
                                                 User.medias() +
@@ -386,6 +391,13 @@ def finish_client_order_upload():
 def finish_douban_order_upload():
     order_id = request.values.get('order')
     order = DoubanOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/finish/framework_order/upload', methods=['POST'])
+def finish_framework_order_upload():
+    order_id = request.values.get('order')
+    order = FrameworkOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_FINISH)
 
 

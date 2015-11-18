@@ -563,14 +563,8 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     def contract_path(self):
         return url_for("searchAd_order.client_order_contract", order_id=self.id)
 
-    def outsource_path(self):
-        return url_for("outsource.client_outsources", order_id=self.id)
-
-    def finance_outsource_path(self):
-        return url_for("finance_client_order_pay.info", order_id=self.id)
-
     def saler_invoice_path(self):
-        return url_for("saler_client_order_invoice.index", order_id=self.id)
+        return url_for("searchAd_saler_client_order_invoice.index", order_id=self.id)
 
     def finance_invoice_path(self):
         return url_for("finance_client_order_invoice.info", order_id=self.id)
@@ -588,19 +582,19 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
                        status=ATTACHMENT_STATUS_REJECT)
 
     def saler_medium_invoice_path(self):
-        return url_for("saler_client_order_medium_invoice.index", order_id=self.id)
+        return url_for("searchAd_saler_client_order_medium_invoice.index", order_id=self.id)
 
     def finance_medium_invoice_path(self):
         return url_for("finance_client_order_medium_pay.info", order_id=self.id)
 
     def saler_agent_invoice_path(self):
-        return url_for("saler_client_order_agent_invoice.index", order_id=self.id)
+        return url_for("searchAd_saler_client_order_agent_invoice.index", order_id=self.id)
 
     def finance_agent_invoice_path(self):
         return url_for("finance_client_order_agent_pay.info", order_id=self.id)
 
     def saler_medium_rebate_invoice_path(self):
-        return url_for("saler_client_order_medium_rebate_invoice.index", order_id=self.id)
+        return url_for("searchAd_saler_client_order_medium_rebate_invoice.index", order_id=self.id)
 
     @classmethod
     def contract_exist(cls, contract):
@@ -885,9 +879,12 @@ class searchAdBackMoney(db.Model, BaseModelMixin):
     def create_time_cn(self):
         return self.create_time.strftime(DATE_FORMAT)
 
+    @property
+    def real_back_money_diff_time(self):
+        return (self.back_time.date() - self.client_order.reminde_date).days
+
+
 # 客户返点发票
-
-
 class searchAdBackInvoiceRebate(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_client_order_back_invoice_rebate'
     id = db.Column(db.Integer, primary_key=True)

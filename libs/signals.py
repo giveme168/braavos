@@ -182,12 +182,21 @@ def agent_invoice_apply(sender, apply_context):
     invoice_pay_info = "\n".join(
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if apply_context['send_type'] == "saler":
-        url = mail.app.config[
-            'DOMAIN'] + '/saler/client_order/agent_invoice/%s/invoice' % (invoice.id)
-        name = u'黄亮'
+        if order.__tablename__ == 'searchAd_bra_client_order':
+            url = mail.app.config[
+                'DOMAIN'] + '/saler/searchAd_order/agent_invoice/%s/invoice' % (invoice.id)
+            name = u'盖新'
+        else:
+            url = mail.app.config[
+                'DOMAIN'] + '/saler/client_order/agent_invoice/%s/invoice' % (invoice.id)
+            name = u'黄亮'
     else:
-        url = mail.app.config[
-            'DOMAIN'] + '/finance/client_order/agent_pay/%s/info' % (invoice.client_order_id)
+        if order.__tablename__ == 'searchAd_bra_client_order':
+            url = mail.app.config[
+                'DOMAIN'] + '/finance/searchAd_order/agent_pay/%s/info' % (invoice.client_order_id)
+        else:
+            url = mail.app.config[
+                'DOMAIN'] + '/finance/client_order/agent_pay/%s/info' % (invoice.client_order_id)
         name = ', '.join([k.name for k in User.finances()])
     text = u"""%s
 
@@ -617,13 +626,6 @@ def back_money_apply(sender, apply_context):
     order = apply_context['order']
     num = apply_context['num']
     type = apply_context['type']
-    to_users = order.direct_sales + order.agent_sales + User.contracts() +\
-        [order.creator, g.user] + order.leaders + User.medias()
-    if 3 in order.locations:
-        to_users += [k for k in User.all() if k.email.find('chenjingjing') >= 0]
-    to_emails = list(set([x.email for x in to_users]))
-    flash(u'已发送邮件给 %s ' %
-          (', '.join([k.name for k in list(set(to_users))])), 'info')
     if type == 'invoice':
         s_title = u'返点发票信息'
     elif type == 'end':
@@ -632,8 +634,23 @@ def back_money_apply(sender, apply_context):
         s_title = u'回款状态变为未完成'
     else:
         s_title = u'回款信息'
+
+    if order.__tablename__ == 'searchAd_bra_client_order':
+        to_users = order.direct_sales + order.agent_sales +\
+            [order.creator, g.user] + order.leaders
+        title = u'【搜索部门-项目回款】%s-%s' % (order.name, s_title)
+    else:
+        to_users = order.direct_sales + order.agent_sales + User.contracts() +\
+            [order.creator, g.user] + order.leaders + User.medias()
+        if 3 in order.locations:
+            to_users += [k for k in User.all() if k.email.find('chenjingjing') >= 0]
+        title = u'【项目回款】%s-%s' % (order.name, s_title)
+    to_emails = list(set([x.email for x in to_users]))
+    flash(u'已发送邮件给 %s ' %
+          (', '.join([k.name for k in list(set(to_users))])), 'info')
+    
     url = mail.app.config['DOMAIN'] + order.info_path()
-    title = u'【项目回款】%s-%s' % (order.name, s_title)
+    
     body = u"""
 订单: %s
 链接地址: %s
@@ -649,7 +666,7 @@ def back_money_apply(sender, apply_context):
 \n
 by %s
 """ % (order.name, url, order.contract, str(num), order.back_money_percent, order.email_info, g.user.name)
-    # send_simple_mail(title, to_emails, body=body)
+    send_simple_mail(title, to_emails, body=body)
 
 
 def out_apply(sender, out, status):
