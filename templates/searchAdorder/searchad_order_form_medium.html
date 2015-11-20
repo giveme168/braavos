@@ -1,7 +1,7 @@
 {% from 'form.html' import form_field %}
 
 {% macro order_medium_form(form, medium_order) -%}
-  {% if g.user.is_super_leader() %}
+  {% if g.user.is_super_leader() or g.user.is_searchad_leader() %}
     {{ order_medium_edited_form(form, medium_order) }}
   {% elif medium_order.can_admin(g.user) and medium_order.contract_status in [0, 3, 6]%}
     {{ order_medium_edited_form(form, medium_order) }}
@@ -80,7 +80,7 @@
 {% macro order_medium_edited_form(form, medium_order=None, order=None) -%}
 {% if medium_order %}
 <form class="form form-horizontal" method="POST" action="{{medium_order.edit_path()}}">
-  {% if g.user.is_super_leader() %}
+  {% if g.user.is_super_leader() or g.user.is_searchad_leader() %}
   <a style="color:red;" href="{{url_for('searchAd_order.medium_order_delete', order_id=medium_order.client_order.id, medium_id=medium_order.id)}}">删除媒体订单</a>
   {% endif %}
 {% else %}

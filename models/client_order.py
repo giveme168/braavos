@@ -976,7 +976,7 @@ by %s\n
             return 1
 
     def real_rebate_agent_money_by_month(self, year, month):
-        pre_rebate_money = self.agent_invoice_pass_sum / \
+        pre_rebate_money = (self.agent_invoice_pass_sum + self.back_invoice_rebate_money) / \
             ((self.client_end - self.client_start).days + 1)
         pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
                                               datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))

@@ -1207,7 +1207,7 @@ def douban_delete_orders():
 
 def douban_display_orders(orders, title, status_id=-1):
     orderby = request.args.get('orderby', '')
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
     # page = max(1, page)
