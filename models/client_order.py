@@ -975,6 +975,37 @@ by %s\n
         else:
             return 1
 
+    def real_rebate_agent_money_by_month(self, year, month):
+        pre_rebate_money = self.agent_invoice_pass_sum / \
+            ((self.client_end - self.client_start).days + 1)
+        pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
+                                              datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
+        real_date = datetime.datetime.strptime(
+            str(year) + '-' + str(month), '%Y-%m')
+
+        for k in pre_month_days:
+            if k['month'] == real_date:
+                return k['days'] * pre_rebate_money
+        return 0
+
+    def real_rebate_mediums_money_by_month(self, year, month):
+        pre_rebate_money = self.mediums_rebate_invoice_pass_sum / \
+            ((self.client_end - self.client_start).days + 1)
+        pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
+                                              datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
+        real_date = datetime.datetime.strptime(
+            str(year) + '-' + str(month), '%Y-%m')
+
+        for k in pre_month_days:
+            if k['month'] == real_date:
+                return k['days'] * pre_rebate_money
+        return 0
+
+    def real_profit_money(self, year, month):
+        return self.executive_report(g.user, year, [month], 'normal')[0] - \
+            self.real_rebate_agent_money_by_month(year, month) - \
+            self.real_rebate_mediums_money_by_month(year, month)
+
 
 class BackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_back_money'

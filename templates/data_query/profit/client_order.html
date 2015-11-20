@@ -11,14 +11,17 @@
         <th>合同总金额</th>
         <th>已回款金额</th>
         <th>客户{{month}}月执行额</th>
-        <th>{{month}}月支付代理返点</th>
+        <th>{{month}}月代理返点</th>
+        <th>{{month}}月实际代理返点</th>
         <th style="width:100px;">投放媒体</th>
         <th>{{month}}月客户金额</th>
         <th style="width:165px;">媒体合同号</th>
         <th>媒体合同总金额</th>
         <th>{{month}}月媒体执行金额</th>
         <th>{{month}}月媒体返点</th>
+        <th>{{month}}月实际媒体返点</th>
         <th>{{month}}月合同利润</th>
+        <th>{{month}}月实际合同利润</th>
         <th>合同开始</th> 
         <th>合同结束</th> 
     </tr>
@@ -33,6 +36,7 @@
         <td>{{order.back_moneys|format_price}}</td>
         <td>{{order.executive_report(g.user, year, [month], 'normal')[0]|format_price}}</td>
         <td>{{order.rebate_agent_by_month(year, month)|format_price}}</td>
+        <td>{{order.real_rebate_agent_money_by_month(year, month)|format_price}}</td>
         <td>
             {% for k in order.medium_orders %}
             {{ k.name }}<br/>
@@ -62,7 +66,9 @@
             {{k.rebate_medium_by_month(year, month)|format_price}}<br/>
             {% endfor %}
         </td>
+        <td>{{order.real_rebate_mediums_money_by_month(year, month)|format_price}}</td>
         <td>{{order.profit_money(year, month)|format_price}}</td>
+        <td>{{order.real_profit_money(year, month)|format_price}}</td>
         <td>{{order.start_date_cn}}</td>
         <td>{{order.end_date_cn}}</td>
     </tr>

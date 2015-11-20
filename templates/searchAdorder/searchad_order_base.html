@@ -28,6 +28,9 @@
     <a id="_data_query_" class="list-group-item" href="{{url_for('searchAd_saler_client_order_data_query.agent_invoice')}}">
         <span class="glyphicon glyphicon-th-list"></span> 普通订单
     </a>
+    <a id="_searchAd_rebate_order_data_query_" class="list-group-item" href="{{url_for('searchAd_saler_rebate_order_data_query.agent_invoice')}}">
+        <span class="glyphicon glyphicon-th-list"></span> 返点订单
+    </a>
     {% endif %}
     </div>
     <div class="left-btn">
@@ -40,11 +43,19 @@
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
         if (p_pathname[3] == 'data_query'){
-            $('#_'+p_pathname[3]+'_').addClass("active");
+            if (p_pathname[2] == 'searchAd_rebate_order'){
+                $('#_searchAd_rebate_order_data_query_').addClass("active");
+            }else{
+                $('#_'+p_pathname[3]+'_').addClass("active");
+            }
+            
         }else{
             $('#_'+p_pathname[2]+'_').addClass("active");
             if(['order', 'searchAd_order'].indexOf(p_pathname[2]) >= 0 ){
                 $('#_my_orders_').addClass("active");
+            }
+            if(['searchAd_rebate_order', 'rebate_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_rebate_orders_').addClass("active");
             }
             if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
                 $('#_my_framework_orders_').addClass("active");

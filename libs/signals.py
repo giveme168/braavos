@@ -634,8 +634,7 @@ def back_money_apply(sender, apply_context):
         s_title = u'回款状态变为未完成'
     else:
         s_title = u'回款信息'
-
-    if order.__tablename__ == 'searchAd_bra_client_order':
+    if order.__tablename__ in ['searchAd_bra_client_order', 'searchAd_bra_rebate_order']:
         to_users = order.direct_sales + order.agent_sales +\
             [order.creator, g.user] + order.leaders
         title = u'【搜索部门-项目回款】%s-%s' % (order.name, s_title)
