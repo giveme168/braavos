@@ -14,7 +14,7 @@ searchAd_saler_rebate_order_data_query_bp = Blueprint(
 
 @searchAd_saler_rebate_order_data_query_bp.route('/agent_invoice', methods=['GET'])
 def agent_invoice():
-    if not g.user.is_finance():
+    if not g.user.is_searchad_leader():
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -45,7 +45,7 @@ def agent_invoice():
 
 @searchAd_saler_rebate_order_data_query_bp.route('/back_money', methods=['GET'])
 def back_money():
-    if not g.user.is_finance():
+    if not g.user.is_searchad_leader():
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -77,7 +77,7 @@ def back_money():
 
 @searchAd_saler_rebate_order_data_query_bp.route('/back_invoice', methods=['GET'])
 def back_invoice():
-    if not g.user.is_finance():
+    if not g.user.is_searchad_leader():
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -109,7 +109,7 @@ def back_invoice():
 
 @searchAd_saler_rebate_order_data_query_bp.route('/rebate_agent_invoice', methods=['GET'])
 def rebate_agent_invoice():
-    if not g.user.is_finance():
+    if not g.user.is_searchad_leader():
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -141,7 +141,7 @@ def rebate_agent_invoice():
 
 @searchAd_saler_rebate_order_data_query_bp.route('/pay_rebate_agent_invoice', methods=['GET'])
 def pay_rebate_agent_invoice():
-    if not g.user.is_finance():
+    if not g.user.is_searchad_leader():
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
