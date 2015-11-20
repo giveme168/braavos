@@ -102,7 +102,9 @@
 {% macro order_medium_edited_form(form, medium_order=None, order=None) -%}
 {% if medium_order %}
 <form class="form form-horizontal" method="POST" action="{{medium_order.edit_path()}}">
+  {% if g.user.is_super_leader() %}
   <a style="color:red;" href="{{url_for('order.medium_order_delete', order_id=medium_order.client_order.id, medium_id=medium_order.id)}}">删除媒体订单</a>
+  {% endif %}
 {% else %}
 <form class="form form-horizontal" method="POST" action="{{url_for('order.order_new_medium', order_id=order.id)}}">
 {% endif %}

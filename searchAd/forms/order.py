@@ -107,7 +107,16 @@ class ClientOrderBackMoneyForm(Form):
     back_time = DateField(u'回款日期')
 
     def __init__(self, *args, **kwargs):
-        super(DoubanOrderForm, self).__init__(*args, **kwargs)
+        super(ClientOrderBackMoneyForm, self).__init__(*args, **kwargs)
+
+
+class RebateOrderBackMoneyForm(Form):
+    rebate_order = SelectField(u'客户', coerce=int)
+    money = FloatField(u'合同金额(元)', default=0)
+    back_time = DateField(u'回款日期')
+
+    def __init__(self, *args, **kwargs):
+        super(RebateOrderBackMoneyForm, self).__init__(*args, **kwargs)
 
 
 class RebateOrderForm(Form):

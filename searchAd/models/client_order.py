@@ -567,7 +567,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
         return url_for("searchAd_saler_client_order_invoice.index", order_id=self.id)
 
     def finance_invoice_path(self):
-        return url_for("finance_client_order_invoice.info", order_id=self.id)
+        return url_for("searchAd_finance_client_order_invoice.info", order_id=self.id)
 
     def attach_status_confirm_path(self, attachment):
         return url_for('searchAd_order.client_attach_status',

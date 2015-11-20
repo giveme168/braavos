@@ -9,6 +9,7 @@ from libs.date_helpers import get_monthes_pre_days
 from models.douban_order import DoubanOrderExecutiveReport
 from models.order import MediumOrderExecutiveReport
 from searchAd.models.order import searchAdMediumOrderExecutiveReport
+from searchAd.models.rebate_order import searchAdRebateOrderExecutiveReport
 from models.client import Agent
 from controllers.data_query.helpers.super_leader_helpers import write_medium_money_excel
 
@@ -81,6 +82,7 @@ def money():
                       'agent_rebate': k.client_order.agent_rebate} for k in medium_orders]
 
     # 搜索部门合同
+    # 普通订单
     searchAd_medium_orders = searchAdMediumOrderExecutiveReport.query.filter(
         searchAdMediumOrderExecutiveReport.month_day >= start_date_month,
         searchAdMediumOrderExecutiveReport.month_day <= end_date_month)
@@ -91,6 +93,23 @@ def money():
                                'medium_rebate': k.order.medium_rebate_by_year(k.month_day),
                                'agent_rebate': k.client_order.agent_rebate} for k in searchAd_medium_orders]
     searchAD_money = _get_medium_moneys(searchAd_medium_orders, pre_monthes, 0)
+    # 返点订单
+    searchAd_rebate_orders = searchAdRebateOrderExecutiveReport.query.filter(
+        searchAdMediumOrderExecutiveReport.month_day >= start_date_month,
+        searchAdMediumOrderExecutiveReport.month_day <= end_date_month)
+    rebate_order_money = {'ex_money': []}
+    for d in pre_monthes:
+        pro_month_orders = [
+            o for o in searchAd_rebate_orders.filter_by(month_day=d['month']) if o.status == 1]
+        for k in range(1, 4):
+            location_orders = [
+                o for o in pro_month_orders if len(set(o.locations) & set([k]))]
+            if location_orders:
+                ex_money = sum([k.money for k in pro_month_orders])
+                rebate_order_money['ex_money'].append(round(ex_money, 2))
+            else:
+                rebate_order_money['ex_money'].append(0.0)
+
     # 搜索部门合同结束
     youli_money = _get_medium_moneys(medium_orders, pre_monthes, 3)
     wuxian_money = _get_medium_moneys(medium_orders, pre_monthes, 8)
@@ -151,7 +170,7 @@ def money():
         numpy.array([k * agent_wuxian_rebate for k in wuxian_money['money2']])
     douban_money['profit'] = numpy.array(
         douban_money['in_money']) - numpy.array(douban_money['rebate'])
-    # 结束豆瓣收入、服务费、返点、毛利为直签豆瓣+优力和无线总和
+    # 计算豆瓣收入、服务费、返点、毛利为直签豆瓣+优力和无线总和
     total = numpy.array(douban_money['profit']) +\
         numpy.array(youli_money['sale_money']) +\
         numpy.array(wuxian_money['sale_money']) +\
@@ -163,15 +182,18 @@ def money():
         numpy.array(kecheng_money['sale_money']) +\
         numpy.array(midi_money['sale_money']) +\
         numpy.array(other_money['sale_money']) +\
-        numpy.array(searchAD_money['sale_money'])
+        numpy.array(searchAD_money['sale_money']) +\
+        numpy.array(rebate_order_money['ex_money'])
     if request.values.get('action', '') == 'download':
         response = write_medium_money_excel(pre_monthes=pre_monthes, douban_money=douban_money,
                                             youli_money=youli_money, wuxian_money=wuxian_money,
                                             momo_money=momo_money, zhihu_money=zhihu_money,
                                             xiachufang_money=xiachufang_money, xueqiu_money=xueqiu_money,
                                             huxiu_money=huxiu_money, kecheng_money=kecheng_money,
-                                            midi_money=midi_money, other_money=other_money, total=total,
-                                            searchAD_money=searchAD_money)
+                                            midi_money=midi_money, other_money=other_money,
+                                            searchAD_money=searchAD_money, rebate_order_money=rebate_order_money,
+                                            total=total,
+                                            )
         return response
     return tpl('/data_query/super_leader/medium_money.html',
                pre_monthes=pre_monthes, douban_money=douban_money,
@@ -180,4 +202,4 @@ def money():
                xiachufang_money=xiachufang_money, xueqiu_money=xueqiu_money,
                huxiu_money=huxiu_money, kecheng_money=kecheng_money,
                midi_money=midi_money, other_money=other_money, total=total,
-               searchAD_money=searchAD_money)
+               searchAD_money=searchAD_money, rebate_order_money=rebate_order_money)

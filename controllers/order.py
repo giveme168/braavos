@@ -913,14 +913,11 @@ def framework_order_info(order_id):
 def my_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader():
         orders = FrameworkOrder.all()
-        if g.user.is_admin():
+        if g.user.is_admin() or g.user.is_contract():
             pass
         elif g.user.is_super_leader():
             orders = [o for o in orders if o.contract_status ==
                       CONTRACT_STATUS_APPLYCONTRACT]
-        elif g.user.is_contract():
-            orders = [o for o in orders if o.contract_status in [
-                CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
         elif g.user.is_media() or g.user.is_media_leader():
             orders = [
                 o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]

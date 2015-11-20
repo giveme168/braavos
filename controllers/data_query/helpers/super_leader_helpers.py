@@ -24,7 +24,8 @@ def write_medium_money_excel(pre_monthes, douban_money,
                              xiachufang_money, xueqiu_money,
                              huxiu_money, kecheng_money,
                              midi_money, other_money,
-                             searchAD_money, total):
+                             searchAD_money, rebate_order_money,
+                             total):
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -37,12 +38,12 @@ def write_medium_money_excel(pre_monthes, douban_money,
         worksheet.set_column(k + 2, 2, 10)
     worksheet.set_column(1, 1, 30)
     # 设置高度
-    for k in range(0, 73):
+    for k in range(0, 74):
         worksheet.set_row(k, 30)
 
     worksheet.merge_range(0, 0, 0, 1, u'时间', align_center)
     worksheet.merge_range(1, 0, 1, 1, u'媒体项目', align_center)
-    worksheet.merge_range(2, 0, 72, 0, u'致趣收入', align_center)
+    worksheet.merge_range(2, 0, 73, 0, u'致趣收入', align_center)
 
     locations = [u'华北', u'华东', u'华南']
     month_start, month_end = 2, 4
@@ -77,7 +78,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
             {'AAAAAA': [
                 u'其他收入', u'其他媒体执行金额', u'其他媒体净成本', u'其他代理成本', u'其他毛利', '']},
             {'FF0088': [
-                u'搜索部门收入', u'搜索部门执行金额', u'搜索部门净成本', u'搜索部门代理成本', u'搜索部门毛利']}]
+                u'搜索部门收入', u'搜索部门返点收入', u'搜索部门执行金额', u'搜索部门净成本', u'搜索部门代理成本', u'搜索部门毛利']}]
     th = 2
     for k in keys:
         for i in k[k.keys()[0]]:
@@ -225,6 +226,8 @@ def write_medium_money_excel(pre_monthes, douban_money,
     # 搜索部门
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, searchAD_money['sale_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, rebate_order_money['ex_money'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, searchAD_money['money2'])
     th = _write_money_in_excel(

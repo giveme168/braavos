@@ -8,6 +8,7 @@ from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from models.consts import DATE_FORMAT
+from searchAd.models.rebate_order_invoice import searchAdInvoice, searchAdRebateAgentInvoice, searchAdAgentInvoicePay
 from libs.mail import mail
 from libs.date_helpers import get_monthes_pre_days
 
@@ -240,6 +241,14 @@ class searchAdRebateOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     @property
     def sale_type_cn(self):
         return SALE_TYPE_CN.get(self.sale_type)
+
+    @property
+    def direct_sales(self):
+        return self.sales
+
+    @property
+    def agent_sales(self):
+        return []
 
     @property
     def direct_sales_names(self):
@@ -605,6 +614,51 @@ by %s\n
     def get_default_contract(self):
         return contract_generator(self.agent.current_framework, self.id)
 
+    @property
+    def invoice_pass_sum(self):
+        return sum([k.money for k in searchAdInvoice.query.filter_by(rebate_order_id=self.id)
+                    if k.invoice_status == 0])
+
+    @property
+    def invoice_apply_sum(self):
+        return sum([k.money for k in searchAdInvoice.query.filter_by(rebate_order_id=self.id)
+                    if k.invoice_status == 3])
+
+    def saler_invoice_path(self):
+        return url_for("searchAd_saler_rebate_order_invoice.index", order_id=self.id)
+
+    @property
+    def agents(self):
+        return [self.agent]
+
+    @property
+    def agent_money(self):
+        inad_rebate = self.agent.inad_rebate_by_year(year=self.start_date.year)
+        return round(float(inad_rebate) * self.money / 100, 2)
+
+    @property
+    def agents_invoice_sum(self):  # 一个ClientOrder实例只有一个agent
+        return sum([k.money for k in searchAdRebateAgentInvoice.query.filter_by(rebate_order_id=self.id)])
+
+    @property
+    def agent_invoice_pass_sum(self):
+        money = 0.0
+        invoices = searchAdRebateAgentInvoice.query.filter_by(rebate_order_id=self.id)
+        for invoice in invoices:
+            for invoice_pay in searchAdAgentInvoicePay.query.filter_by(pay_status=0, agent_invoice=invoice):
+                money += invoice_pay.money
+        return money
+
+    @property
+    def agents_invoice_pass_sum(self):
+        return self.agent_invoice_pass_sum
+
+    def get_invoice_by_status(self, type):
+        return [invoice for invoice in self.searchad_bra_rebate_invoices if invoice.invoice_status == type]
+
+    def finance_invoice_path(self):
+        return url_for("searchAd_finance_rebate_order_invoice.info", order_id=self.id)
+
 
 class searchAdRebateOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_searchad_rebate_order_executive_report'
@@ -680,7 +734,7 @@ class searchRebateOrderReject(db.Model, BaseModelMixin):
         return self.reject_time.strftime('%Y-%m') + u'月'
 
 
-class BackMoney(db.Model, BaseModelMixin):
+class searchAdBackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'bra_rebate_order_back_money'
     id = db.Column(db.Integer, primary_key=True)
     rebate_order_id = db.Column(
@@ -711,7 +765,7 @@ class BackMoney(db.Model, BaseModelMixin):
         return self.rebate_order
 
 
-class BackInvoiceRebate(db.Model, BaseModelMixin):
+class searchAdBackInvoiceRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_rebate_order_back_invoice_rebate'
     id = db.Column(db.Integer, primary_key=True)
     rebate_order_id = db.Column(

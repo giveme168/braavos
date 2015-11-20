@@ -1,0 +1,32 @@
+{% extends "/finance/searchAd_finance_base.html" %}
+{% block title %}我的客户订单{% endblock %}
+
+{% block main_box %}
+<div class="bra-main bra-box">
+    <h3>正在申请的发票1</h3>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>名称</th>
+            <th>合同号</th>
+            <th>合同总金额</th>
+            <th>已开发票金额</th>
+            <th>未开发票金额</th>
+            <th>正在申请发票金额</th>
+            <th>申请发票个数</th>
+            <th>操作</th>
+        </tr>
+        {% for order in orders %}
+        <tr>
+            <td><a href="{{url_for('searchAd_finance_rebate_order_invoice.info', order_id=order.id)}}">{{order.name}}</a></td>
+            <td>{{ order.contract }}</td>
+            <td>{{ order.money }} 元</td>
+            <td>{{ order.invoice_pass_sum }} 元</td>
+            <td>{{ order.money - order.invoice_pass_sum }} 元</td>
+            <td>{{ order.invoice_apply_sum }} 元</td>
+            <td>{{ order.get_invoice_by_status(3)|length }}</td>
+            <td><a href="{{url_for('searchAd_finance_rebate_order_invoice.info', order_id=order.id)}}">查看</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

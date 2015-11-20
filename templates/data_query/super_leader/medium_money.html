@@ -22,7 +22,7 @@
         <td></td>
     </tr>
     <tr>
-        <td rowspan=71>致趣收入</td>
+        <td rowspan=72>致趣收入</td>
         <td  style="background-color:#CCFF99;">豆瓣执行收入</td>
         {% for k in douban_money.ex_money %}
         <td>{{k|format_price}}</td>
@@ -441,6 +441,13 @@
         <td>{{k|format_price}}</td>
         {% endfor %}
         <td>{{ searchAD_money.sale_money|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF0088;">搜索部门返点收入</td>
+        {% for k in rebate_order_money.ex_money %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ rebate_order_money.ex_money|sum()|format_price }}</td>
     </tr>
     <tr>
         <td style="background-color:#FF0088;">搜索部门执行金额</td>
