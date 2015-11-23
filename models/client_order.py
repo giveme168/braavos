@@ -975,6 +975,7 @@ by %s\n
         else:
             return 1
 
+    # 获取当月代理真实返点
     def real_rebate_agent_money_by_month(self, year, month):
         pre_rebate_money = (self.agent_invoice_pass_sum + self.back_invoice_rebate_money) / \
             ((self.client_end - self.client_start).days + 1)
@@ -988,6 +989,7 @@ by %s\n
                 return k['days'] * pre_rebate_money
         return 0
 
+    # 获取当月媒体真实返点
     def real_rebate_mediums_money_by_month(self, year, month):
         pre_rebate_money = self.mediums_rebate_invoice_pass_sum / \
             ((self.client_end - self.client_start).days + 1)
@@ -1001,6 +1003,7 @@ by %s\n
                 return k['days'] * pre_rebate_money
         return 0
 
+    # 获取当月真实利润
     def real_profit_money(self, year, month):
         return self.executive_report(g.user, year, [month], 'normal')[0] - \
             self.real_rebate_agent_money_by_month(year, month) - \
