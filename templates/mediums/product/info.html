@@ -1,9 +1,10 @@
-{% extends "/mediums/mediums_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 {% block title %}媒体产品{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content%}
+{% include "/mediums/mediums_base.html" %}
+<div class="container bra-box">
     <h3>查看{% if mtype == "pc" %}PC端{% elif mtype == "app" %}App端{% elif mtype == "down" %}线下{% endif %}媒体产品详情--{{product.name}}</h3>
     <form class="form form-horizontal">
         <div class="form-group">

@@ -1,11 +1,12 @@
-{% extends "/searchad_order_base.html" %}
+{% extends "/base.html" %}
 {% from 'searchad_order_form_framework.html' import order_framework_form %}
 {% from 'searchad_order_form_contract.html' import order_contract_form %}
 {% from 'searchad_order_form_attachment.html' import framework_order_attachment %}
 {% from 'comments.html' import comments_box %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content%}
+{% include "/searchAdorder/searchad_order_base.html" %}
+<div class="container bra-box">
     <h4> {{ order.name }} </h4>
     <div class="panel-group" id="accordion">
         <div class="panel panel-default">

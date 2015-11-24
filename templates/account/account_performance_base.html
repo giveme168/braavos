@@ -1,24 +1,24 @@
-{% extends "/site_base.html" %}
-
-{% block left_box%}
-<style>
-.list-group-item {
-    margin-left:15px;
-}
-</style>
-<div class="bra-left bra-box">
-    <div class="list-group" id="left-list">
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>销售人员管理</li>
-    {% if g.user.is_leader() or g.user.is_super_leader() %}
-    <a class="list-group-item" href="{{url_for('account_performance.index')}}">团队销售指标</a>
-    {% endif %}
-    {% if g.user.is_super_leader() %}
-    <a class="list-group-item" href="{{url_for('account_commission.index')}}">销售人员业绩</a>
-    {% endif %}
+<div class="container" style="min-width: 950px;">
+    <div class="menu">
+        <div class="list">
+            <ul>
+                {% if g.user.is_leader() or g.user.is_super_leader() %}
+                <a href="{{url_for('account_performance.index')}}"><li id="_performance_">团队销售指标</li></a>
+                {% endif %}
+                {% if g.user.is_super_leader() %}
+                <a href="{{url_for('account_commission.index')}}"><li id="_commission_">销售人员业绩</li></a>
+                {% endif %}
+                <div class="line" style="clear: both"></div>
+            </ul>
+        </div>
     </div>
-    <div class="left-btn">
-        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
-        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    <div class="form-list">
     </div>
 </div>
-{% endblock %}
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[2]+'_').addClass("on");
+    })
+</script>

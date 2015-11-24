@@ -1,4 +1,4 @@
-{% extends "/data_query/data_query_base.html" %}
+{% extends "/base.html" %}
 {% block title %}月度订单金额{% endblock %}
 
 {% macro all_items(orders) -%}
@@ -56,8 +56,9 @@
 </table>
 {%- endmacro %}
 
-{% block main_box %}
-<div class="bra-main bra-box" style="width:2000px;">
+{% block content %}
+{% include "/data_query/data_query_base.html" %}
+<div class="container bra-box" style="width:2000px;">
     <h3>月度订单金额</h3>
     <div class="search">
         <form action="" >

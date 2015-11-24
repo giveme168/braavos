@@ -1,8 +1,9 @@
-{% extends "/outsource_base.html" %}
+{% extends "/base.html" %}
 {% block title %}收款方{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/outsource/outsource_base.html" %}
+<div class="container bra-box">
     <h3> 收款方
         <a class="btn btn-sm btn-default" href="{{url_for('outsource.new_target')}}">新建</a>
     </h3>

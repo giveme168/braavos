@@ -10,7 +10,32 @@
   <link rel="stylesheet" href="/static/css/chosen.css" type="text/css">
   <link rel="stylesheet" href="/static/css/bootstrap-datetimepicker.min.css" type="text/css">
   <link rel="stylesheet" href="/static/css/base.css" type="text/css">
-  <link href="http://cdn.bootcss.com/highlight.js/8.0/styles/monokai_sublime.min.css" type="text/css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css" type="text/css">
+  <link rel="stylesheet" href="/static/css/top_nav.css">
+  <style>
+  .logo-avatar{width: 109px; height: 30px;}
+  .bra-box {
+    margin-top: 20px;
+    box-shadow: 0 0 6px 4px rgba(0, 0, 0, .04);
+    background-color: white;
+    min-height: 800px;
+  }
+  .bra-form-control {
+    width: 300px;
+    display: inline-block;
+  }
+  .bs-docs-footer-links {
+    padding-left: 0;
+    margin-top: 20px;
+  }
+  .bs-docs-footer-links li:first-child {
+      padding-left: 0;
+  }
+  .bs-docs-footer-links li {
+      display: inline;
+      padding: 0 2px;
+  }
+  </style>
   <script src="/static/js/jquery.min.js"></script>
   <script src="/static/js/bootstrap.min.js"></script>
   <script src="/static/js/jquery.json.min.js"></script>
@@ -19,17 +44,64 @@
   <script src="/static/js/bootstrap-datetimepicker.zh-CN.js"></script>
   <script src="http://cdn.bootcss.com/highlight.js/8.0/highlight.min.js"></script>
   <script src="/static/js/base.js"></script>
+  <script src="/static/js/top_nav.js" type="text/javascript"></script>
   {% block extra_head %}{% endblock %}
 </head>
 <body>
+  <nav class="navbar navbar-inverse" role="navigation" style="position: fixed;
+width: 100%; z-index:999;">
+    <div class="container">
+      <div class="navbar-header">
+         <a class="navbar-brand" href="/"><img class="logo-avatar" alt="logo" src="http://www.inad.com/images/logo_2x.png"></a>
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li id="index"><a href="/">首页</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li id="contact" class=""><a target="_blank" href="{{url_for('user.contact')}}">通讯录</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <span><!--<img class="user-avatar" src="{{g.user.avatar}}"/>--></span>
+              <span> {{g.user.name}}</span>
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="{{url_for('user.logout')}}">退出</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}} alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <strong>提示: </strong>{{ message | safe}}
+      </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
   {% block content %}{% endblock %}
-  {% block footer %}
-  <div id="footer">
-    <div class="container text-center">
-        <p>z.inad.com by <a style="color: black;" target="_blank" href="http://blog.inad.com/">技术团队</a></p>
-    </div>
-  </div>
-  {% endblock %}
+  <hr>
+    <footer>
+      <div class="container">
+      <ul class="bs-docs-footer-links text-muted">
+      <li>设计开发：产品开发部门</li>
+      <li>·</li>
+      <li>联系方式：z@inad.com</li>
+      <li>·</li>
+      <li><a target="_blank" href="http://mail.inad.com/">企业邮箱</a></li>
+      <li>·</li>
+      <li><a target="_blank" href="http://www.inad.com/">致趣官网</a></li>
+      <li>·</li>
+      <li><a target="_blank" href="{{url_for('account_data.handbook')}}">员工手册</a></li>
+    </ul>
+      </div>
+    </footer>
+    <br/>
   {% block bottom_script %}{% endblock %}
 </body>
 </html>

@@ -1,4 +1,4 @@
-{% extends "/finance/finance_base.html" %}
+{% extends "/base.html" %}
 {% block title %}新媒体订单列表{% endblock %}
 {% macro all_items(orders) -%}
 <table class="table table-bordered">
@@ -40,8 +40,9 @@
     {% endfor %}
 </table>
 {%- endmacro %}
-{% block main_box %}
-    <div class="bra-main bra-box" style="width:1200px;">
+{% block content %}
+{% include "/finance/finance_base.html" %}
+    <div class="container bra-box" style="width:1200px;">
         <h3>新媒体订单列表</h3>
         <div class="search">
             <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">

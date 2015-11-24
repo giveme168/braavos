@@ -1,4 +1,4 @@
-{% extends "/finance/finance_base.html" %}
+{% extends "/base.html" %}
 {% block title %}框架列表{% endblock %}
 
 {% macro all_items(orders) -%}
@@ -37,8 +37,9 @@
 </table>
 {%- endmacro %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/finance/finance_base.html" %}
+<div class="container bra-box">
     <h3>框架合同</h3>
     {{ all_items(orders) }}
     {% set pages = orders %}

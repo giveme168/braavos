@@ -1,4 +1,4 @@
-{% extends "/order_base.html" %}
+{% extends "base.html" %}
 {% from 'order_form_client.html' import order_client_form %}
 {% from 'order_form_medium.html' import order_medium_form %}
 {% from 'order_form_medium.html' import new_order_medium_form %}
@@ -120,8 +120,9 @@
 </script>
 {%- endmacro %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "order_base.html" %}
+<div class="container bra-box">
   <h4> {{ order.name }} </h4>
   <div>
     {% include "saler/client_order/nav_base.html" %}

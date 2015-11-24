@@ -1,4 +1,4 @@
-{% extends "/searchad_order_base.html" %}
+{% extends "/base.html" %}
 {% block title %}框架列表{% endblock %}
 
 {% macro all_items(orders) -%}
@@ -45,10 +45,12 @@
 </table>
 {%- endmacro %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content%}
+{% include "/searchAdorder/searchad_order_base.html" %}
+<div class="container bra-box">
     <h3> {{title}}
         <!--<input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">-->
+        <a class="btn btn-sm btn-success" href="{{url_for('searchAd_order.new_framework_order')}}">新建框架订单</a>
     </h3>
     {{ all_items(orders) }}
     {% set pages = orders %}

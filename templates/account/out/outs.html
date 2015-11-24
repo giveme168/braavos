@@ -1,14 +1,15 @@
-{% extends "/account/account_out_base.html" %}
+{% extends "/base.html" %}
 {% block title %}外出报备列表{% endblock %}
 
-{% block main_box %}
+{% block content %}
+{% include "/account/account_out_base.html" %}
 <style>
     pre {
         background-color:#ffffff;
         border:1px solid #ffffff;
     }
 </style>
-<div class="bra-main bra-box"  style="width:1500px;">
+<div class="container bra-box"  style="width:1500px;">
     <h3>{{title}}</h3>
     <div class="search">
         <form class="form-inline" method="GET">

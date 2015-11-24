@@ -1,9 +1,10 @@
-{% extends "/mediums/mediums_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_tpl_ex_form %}
 {% block title %}媒体资源{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content%}
+{% include "/mediums/mediums_base.html" %}
+<div class="container bra-box">
     <h3>修改媒体资源</h3>
     <form class="form form-horizontal" method="POST" action="{{url_for('mediums_resource.update', pid=resource.id)}}" onsubmit="return check_form(this);">
         <input class="hide" name="mtype" value="{{mtype}}"/>

@@ -1,4 +1,4 @@
-{% extends "/outsource_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 {% macro merger_table(merger_outsources, status, target) -%}
 <div class="panel-group" id="accordion-outsource">
@@ -228,8 +228,9 @@
         </div>
     </div>
 {%- endmacro %}
-{% block main_box%}
-<div class="bra-main bra-box" style="width:1300px;">
+{% block content %}
+{% include "/outsource/outsource_base.html" %}
+<div class="container bra-box" style="width:1300px;">
     <!--申请中的打款信息开始-->
     {% if apply_merger_outsources.count() > 0 %}
       {{ merger_table(apply_merger_outsources, 1, target) }}

@@ -1,8 +1,9 @@
-{% extends "/user_base.html" %}
+{% extends "base.html" %}
 {% block title %}角色{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "user_base.html" %}
+<div class="container" style="min-width: 950px;">
     <h3>角色列表
         <a class="btn btn-sm btn-default" href="{{url_for('user.new_team')}}">新建</a>
     </h3>

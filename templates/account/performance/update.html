@@ -1,9 +1,10 @@
-{% extends "/account/account_performance_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 {% block title %}新建销售计划{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/account/account_performance_base.html" %}
+<div class="container bra-box">
     <h4>{{performance.location_cn}}{{performance.year}}{{performance.q_month}}销售计划</h4>
     <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
         <div class="form-group">

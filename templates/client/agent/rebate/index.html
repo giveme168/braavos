@@ -1,8 +1,9 @@
-{% extends "/client_base.html" %}
+{% extends "/base.html" %}
 {% block title %} 媒体列表{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/client/client_base.html" %}
+<div class="container bra-box">
     <h3> {{agent.name}} -- 返点信息
         <a class="btn btn-sm btn-info" href="{{url_for('client.agent_rebate_create', agent_id=agent.id)}}">新建</a>
         <a class="btn btn-default btn-sm" href="{{url_for('client.agents')}}">返回</a>

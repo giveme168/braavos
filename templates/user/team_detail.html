@@ -1,9 +1,10 @@
-{% extends "/user_base.html" %}
+{% extends "base.html" %}
 {% from 'form.html' import form_tpl %}
 {% block title %}角色管理{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "user_base.html" %}
+<div class="container bra-box" style="min-width: 950px;">
     <h3>角色 - {{team.name}}</h3>
     {{ form_tpl(form) }}
     <h3>角色列表</h3>

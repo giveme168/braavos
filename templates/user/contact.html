@@ -1,10 +1,9 @@
-{% extends "/site_base.html" %}
-{% from 'form.html' import form_tpl %}
+{% extends "base.html" %}
 {% block title %}员工通讯录{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
-    <h3>员工通讯录</h3>
+{% block content %}
+<div class="container" style="min-width: 950px;">
+    <h3 style="margin-top: 85px;">员工通讯录</h3>
     <table class="table">
       <thead>
         <tr>
@@ -28,8 +27,6 @@
 </div>
 <script>
     $(function(){
-        $(".content-box").css("margin-left", "auto");
-        $(".content-box").css("margin-right", "auto");
         document.oncontextmenu = function(){return false;};     
     })
 </script>

@@ -32,6 +32,7 @@
 {%- endmacro %}
 
 {% macro form_tpl_ex_form(form) -%}
+    {{form.csrf_token}}
     {% for field in form %}
       {% if field != form.csrf_token %}
         {{ form_field(field) }}

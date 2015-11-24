@@ -1,8 +1,9 @@
-{% extends "/finance/searchAd_finance_base.html" %}
+{% extends "/base.html" %}
 {% block title %}所有客户发票{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/finance/searchAd_finance_base.html" %}
+<div class="container bra-box">
     <h3>所有客户发票<a class="btn btn-sm btn-default" href="{{url_for('searchAd_finance_client_order_invoice.index_pass')}}?type=excel">下载</a></h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">

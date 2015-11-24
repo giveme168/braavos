@@ -1,11 +1,12 @@
-{% extends "/order_base.html" %}
+{% extends "base.html" %}
 {% from 'order_form_douban.html' import order_douban_form %}
 {% from 'order_form_contract.html' import order_contract_form %}
 {% from 'order_form_attachment.html' import douban_order_attachment, finish_douban_order_attachment %}
 {% from 'comments.html' import comments_box %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "order_base.html" %}
+<div class="container bra-box">
     <h4> {{ order.name }} </h4>
     {% include "saler/douban_order/nav_base.html" %}
     <br/>

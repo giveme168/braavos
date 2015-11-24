@@ -1,81 +1,61 @@
-{% extends "/site_base.html" %}
-
-{% block left_box%}
- <div class="bra-left bra-box">
-    <div class="list-group" id="left-list">
-    <!-- 只有leader和合同管理员才能看所有订单 -->
-    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_operater() or g.user.is_media_leader() or g.user.is_finance() %}
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 新媒体</li>
-    <a id="_my_orders_" class="list-group-item" href="{{url_for('order.my_orders')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 我的新媒体订单
-    </a>
-    <a id="_orders_" class="list-group-item" href="{{url_for('order.orders')}}">
-        <span class="glyphicon glyphicon-th-list"></span> 全部新媒体订单
-    </a>
-    <a id="_new_order_" class="list-group-item" href="{{url_for('order.new_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 新建新媒体订单
-    </a>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 直签豆瓣</li>
-    <a id="_my_douban_orders_" class="list-group-item" href="{{url_for('order.my_douban_orders')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 我的直签豆瓣订单
-    </a>
-    <a id="_douban_orders_" class="list-group-item" href="{{url_for('order.douban_orders')}}">
-        <span class="glyphicon glyphicon-th-list"></span> 全部直签豆瓣订单
-    </a>
-    <a id="_new_douban_order_" class="list-group-item" href="{{url_for('order.new_douban_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 新建直签豆瓣订单
-    </a>
-    {% else %}
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 新媒体</li>
-    <a id="_my_orders_" class="list-group-item" href="{{url_for('order.my_orders')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 我的新媒体订单
-    </a>
-    <a id="_new_order_" class="list-group-item" href="{{url_for('order.new_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 新建新媒体订单
-    </a>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 直签豆瓣</li>
-    <a id="_my_douban_orders_" class="list-group-item" href="{{url_for('order.my_douban_orders')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 我的直签豆瓣订单
-    </a>
-    <a id="_new_douban_order_" class="list-group-item" href="{{url_for('order.new_douban_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 新建直签豆瓣订单
-    </a>
-    {% endif %}
-    <!-- 只有leader 销售 合同管理员才能看框架 -->
-    {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() %}
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 框架</li>
-    <a id="_my_framework_orders_" class="list-group-item" href="{{url_for('order.my_framework_orders')}}">
-        <span class="glyphicon glyphicon-th-list"></span> 我的框架
-    </a>
-    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() %}
-    <a id="_framework_orders_" class="list-group-item" href="{{url_for('order.framework_orders')}}">
-        <span class="glyphicon glyphicon-th-list"></span> 全部框架
-    </a>
-    {% endif %}
-    <a id="_new_framework_order_" class="list-group-item" href="{{url_for('order.new_framework_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 新建框架
-    </a>
-    {% endif %}
+<div class="container" style="min-width: 950px;">
+    <div class="menu">
+        <div class="list">
+            <ul>
+                <!-- 只有leader和合同管理员才能看所有订单 -->
+                {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_operater() or g.user.is_media_leader() or g.user.is_finance() %}
+                <a href="{{url_for('order.my_orders')}}">
+                  <li id="_my_orders_">我的新媒体订单</li>
+                </a>
+                <a href="{{url_for('order.orders')}}">
+                    <li id="_orders_">全部新媒体订单</li>
+                </a>
+                <a href="{{url_for('order.my_douban_orders')}}">
+                  <li id="_my_douban_orders_">我的直签豆瓣订单</li>
+                </a>
+                <a href="{{url_for('order.douban_orders')}}">
+                    <li id="_douban_orders_" >全部直签豆瓣订单</li>
+                </a>
+                {% else %}
+                <a href="{{url_for('order.my_orders')}}">
+                  <li id="_my_orders_" >我的新媒体订单</li>
+                </a>
+                <a href="{{url_for('order.my_douban_orders')}}">
+                  <li id="_my_douban_orders_" >我的直签豆瓣订单</li>
+                </a>
+                {% endif %}
+                <!-- 只有leader 销售 合同管理员才能看框架 -->
+                {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() %}
+                
+                <a href="{{url_for('order.my_framework_orders')}}">
+                    <li id="_my_framework_orders_" >我的框架订单</li>
+                </a>
+                    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() %}
+                    <a href="{{url_for('order.framework_orders')}}">
+                        <li id="_framework_orders_" >全部框架订单</li>
+                    </a>
+                    {% endif %}
+                {% endif %}
+                <div class="line" style="clear: both"></div>
+            </ul>
+        </div>
     </div>
-    <div class="left-btn">
-        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
-        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    <div class="form-list">
     </div>
 </div>
 <script>
     $(function(){
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
-        $('#_'+p_pathname[2]+'_').addClass("active");
+        $('#_'+p_pathname[2]+'_').addClass("on");
         if(['douban_order'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_my_douban_orders_').addClass("active");
+            $('#_my_douban_orders_').addClass("on");
         }
         if(['order', 'client_order'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_my_orders_').addClass("active");
+            $('#_my_orders_').addClass("on");
         }
         if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_my_framework_orders_').addClass("active");
+            $('#_my_framework_orders_').addClass("on");
         }
     })
 </script>
-{% endblock %}

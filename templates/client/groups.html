@@ -1,8 +1,9 @@
-{% extends "/client_base.html" %}
+{% extends "/base.html" %}
 {% block title %}甲方集团{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/client/client_base.html" %}
+<div class="container bra-box">
     <h3> 代理集团
         {% if g.user.is_contract() %}<a class="btn btn-sm btn-default" href="{{url_for('client.new_group')}}">新建</a>{% endif %}
     </h3>

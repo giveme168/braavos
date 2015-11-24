@@ -1,8 +1,9 @@
-{% extends "/account/account_leave_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 {% block title %}填写请假申请表{% endblock %}
 
-{% block main_box %}
+{% block content %}
+{% include "/account/account_leave_base.html" %}
 <style>
     pre {
         background-color:#ffffff;
@@ -10,7 +11,7 @@
         width:250px;
     }
 </style>
-<div class="bra-main bra-box">
+<div class="container bra-box">
     <h3>请假申请表</h3>
     <form class="form form-horizontal">
         <div class="form-group">

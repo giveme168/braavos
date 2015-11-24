@@ -1,8 +1,9 @@
-{% extends "/account/account_performance_base.html" %}
+{% extends "/base.html" %}
 {% block title %}销售人员提成{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/account/account_performance_base.html" %}
+<div class="container bra-box">
     <h3>{{user.name}}  的提成情况&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-sm btn-default" href="{{url_for('account_commission.create',user_id = user.id)}}">新建提成</a></h3>
     <br/>
     <table class="table table-bordered table-striped">

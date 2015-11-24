@@ -1,10 +1,11 @@
-{% extends "/mediums/mediums_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 {% block title %}策划案例{% endblock %}
-{% block main_box %}
+{% block content%}
+{% include "/mediums/mediums_base.html" %}
 <link rel="stylesheet" href="/static/css/bootstrap-tagsinput.css" type="text/css">
 
-<div class="bra-main bra-box" style="width:1200px;">
+<div class="container bra-box" style="width:1200px;">
   <h4>修改{{title}}</h4>
   <form class="form form-horizontal" method="POST" action="{{url_for('mediums_planning.update', type=type, cid=case.id)}}" onsubmit="return check_form(this);">
     <div class="form-group">
@@ -60,6 +61,7 @@
     <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
     <a href="{{url_for('mediums_planning.index', type=type)}}" class="btn btn-primary btn-sm col-md-offset-2"/>返回</a>
   </form>
+</div>
 <script>
   function check_form(obj){
       if (obj.name.value == ''){

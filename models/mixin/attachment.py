@@ -2,7 +2,7 @@ import datetime
 
 from models.attachment import (Attachment, ATTACHMENT_TYPE_CONTRACT, ATTACHMENT_TYPE_SCHEDULE,
                                ATTACHMENT_TYPE_OUTSOURCE, ATTACHMENT_TYPE_OTHERS, ATTACHMENT_TYPE_AGENT,
-                               ATTACHMENT_TYPE_FINISH)
+                               ATTACHMENT_TYPE_FINISH, ATTACHMENT_TYPE_USER_PIC)
 
 
 class AttachmentMixin():
@@ -115,3 +115,17 @@ class AttachmentMixin():
 
     def is_attachment_ready(self):
         return self.get_last_contract() and self.get_last_schedule()
+
+    def add_user_pic_file(self, user, filename):
+        Attachment.add(self.target_type, self.target_id, filename,
+                       ATTACHMENT_TYPE_USER_PIC, user, datetime.datetime.now())
+        return self.get_last_user_pic_file()
+
+    def get_user_pic_files(self):
+        return Attachment.query.filter_by(target_type=self.target_type,
+                                          target_id=self.target_id,
+                                          attachment_type=ATTACHMENT_TYPE_USER_PIC
+                                          ).order_by(Attachment.create_time.desc())
+
+    def get_last_user_pic_file(self):
+        return self.get_user_pic_files().first()

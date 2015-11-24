@@ -61,7 +61,7 @@ def notice_create():
         )
         flash(u'添加成功', 'success')
         return redirect(url_for('account_data.notice_index'))
-    return tpl('/account/data/notice/create.html', to_emails=User.all_active())
+    return tpl('/account/data/notice/create.html', to_emails=User.all_active(), notice=None)
 
 
 @account_data_bp.route('/notice/<nid>/delete', methods=['GET'])

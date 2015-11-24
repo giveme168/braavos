@@ -1,4 +1,4 @@
-{% extends "/data_query/data_query_base.html" %}
+{% extends "/base.html" %}
 {% block title %}媒体订单发票与款项{% endblock %}
 
 {% macro all_items(orders) -%}
@@ -57,8 +57,9 @@
 </table>
 {%- endmacro %}
 
-{% block main_box %}
-<div class="bra-main bra-box" style="width:2600px;">
+{% block content %}
+{% include "/data_query/data_query_base.html" %}
+<div class="container bra-box" style="width:2600px;">
     <h3> {{title}}</h3>
     <form class="form-inline">
         <div class="form-group">

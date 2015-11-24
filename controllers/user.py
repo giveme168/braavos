@@ -9,6 +9,7 @@ from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
 from config import DEFAULT_PASSWORD
 from libs.signals import password_changed_signal
 from libs.mail import check_auth_by_mail
+from libs.files import all_files_set
 
 user_bp = Blueprint('user', __name__, template_folder='../templates/user')
 page_num = 50
@@ -197,6 +198,20 @@ def user_detail(user_id):
         form.team.choices = [(user.team_id, user.team.name)]
         form.team_leaders.choices = [(u.id, u.name) for u in user.team_leaders]
     return tpl('user_detail.html', user=user, form=form, DEFAULT_PASSWORD=DEFAULT_PASSWORD)
+
+
+@user_bp.route('/<uid>/pic_upload', methods=['POST'])
+def pic_upload(uid):
+    user = User.get(uid)
+    try:
+        request.files['file'].filename.encode('gb2312')
+    except:
+        flash(u'文件名中包含非正常字符，请使用标准字符', 'danger')
+        return redirect(url_for('user.user_detail', user_id=uid))
+    filename = all_files_set.save(request.files['file'])
+    user.add_user_pic_file(g.user, filename)
+    flash(u'头像上传成功', 'success')
+    return redirect(url_for('user.user_detail', user_id=uid))
 
 
 @user_bp.route('/mine')

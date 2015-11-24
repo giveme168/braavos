@@ -1,26 +1,19 @@
-{% extends "/site_base.html" %}
-
-{% block left_box%}
-<style>
-.list-group-item {
-    margin-left:15px;
-}
-</style>
-<div class="bra-left bra-box">
-    <div class="list-group" id="left-list">
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 策划管理</li>
-    <a id="_bref_" class="list-group-item" href="{{url_for('planning_bref.index')}}">策划单</a>
+<div class="container" style="min-width: 950px;">
+    <div class="menu">
+        <div class="list">
+            <ul>
+                <a href="{{url_for('planning_bref.index')}}"><li id="_bref_">策划单</li></a>
+                <div class="line" style="clear: both"></div>
+            </ul>
+        </div>
     </div>
-    <div class="left-btn">
-        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
-        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    <div class="form-list">
     </div>
 </div>
 <script>
     $(function(){
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
-        $('#_'+p_pathname[2]+'_').addClass("active");
+        $('#_'+p_pathname[2]+'_').addClass("on");
     })
 </script>
-{% endblock %}

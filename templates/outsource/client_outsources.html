@@ -1,4 +1,4 @@
-{% extends "/outsource_base.html" %}
+{% extends "/base.html" %}
 {% from 'outsource_form.html' import outsource_form %}
 {% from 'comments.html' import comments_box %}
 
@@ -61,8 +61,9 @@
    </form>
 {%- endmacro %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/outsource/outsource_base.html" %}
+<div class="container bra-box">
 <h3><a target="_blank" href="{{order.order_path}}">{{order.name}}</a></h3>
 <table class="table table-bordered">
     <tr>

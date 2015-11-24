@@ -1,7 +1,8 @@
-{% extends "/order_base.html" %}
+{% extends "/base.html" %}
 {% from 'comments.html' import comments_box %}
-{% block main_box%}
-  <div class="bra-main bra-box">
+{% block content %}
+  {% include "/order/order_base.html" %}
+  <div class="container bra-box">
     <h4> {{ order.name }} 外包情况</h4>
     {% include "saler/client_order/nav_base.html" %}
     <div class="tab-content">

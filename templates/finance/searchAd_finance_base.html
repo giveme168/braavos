@@ -1,34 +1,26 @@
-{% extends "/site_base.html" %}
-
-{% block left_box%}
-<style>
-.list-group-item {
-    margin-left:15px;
-}
-</style>
-<div class="bra-left bra-box">
-    <div class="list-group" id="left-list">
-    <h4>搜索部门财务管理</h4>
-    {% if g.user.is_finance()%}
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>客户发票管理</li>
-    <a id="_searchAd_orderinvoice_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_invoice.index')}}">普通订单申请中的发票</a>
-    <a id="_searchAd_orderinvoicepass_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_invoice.index_pass')}}">普通订单所有发票信息</a>
-    <a id="_searchAd_rebate_orderinvoice_" class="list-group-item" href="{{url_for('searchAd_finance_rebate_order_invoice.index')}}">返点订单申请中的发票</a>
-    <a id="_searchAd_rebate_orderinvoicepass_" class="list-group-item" href="{{url_for('searchAd_finance_rebate_order_invoice.index_pass')}}">返点订单所有发票信息</a>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 收款管理</li>
-    <a id="_searchAd_orderback_moneyorders_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_back_money.index')}}">普通订单收款</a>
-    <a id="_searchAd_rebate_orderback_moneyorders_" class="list-group-item" href="{{url_for('searchAd_finance_rebate_order_back_money.index')}}">返点订单收款</a>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>媒体返点发票管理</li>
-    <a id="_searchAd_ordermedium_rebate_invoice_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index')}}">普通订单申请中的发票</a>
-    <a id="_searchAd_ordermedium_rebate_invoicepass_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index_pass')}}">普通订单所有发票信息</a>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>数据查询</li>
-    <a id="_searchAd_orderdata_query_" class="list-group-item" href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}">普通订单数据查询</a>
-    <a id="_searchAd_rebate_orderdata_query_" class="list-group-item" href="{{url_for('searchAd_finance_rebate_order_data_query.agent_invoice')}}">返点订单数据查询</a>
-    {% endif %}
-    </div>
-    <div class="left-btn">
-        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
-        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+<div class="container" style="min-width: 950px;">
+    <div class="menu">
+        <div class="list">
+          <ul>
+            {% if g.user.is_finance()%}
+            <a href="{{url_for('searchAd_finance_client_order_invoice.index')}}"><li id="_searchAd_orderinvoice_" >普通订单申请中的发票</li></a>
+            <a href="{{url_for('searchAd_finance_client_order_invoice.index_pass')}}"><li id="_searchAd_orderinvoicepass_">普通订单所有发票信息</li></a>
+            <a href="{{url_for('searchAd_finance_rebate_order_invoice.index')}}"><li id="_searchAd_rebate_orderinvoice_">返点订单申请中的发票</li></a>
+            <a href="{{url_for('searchAd_finance_rebate_order_invoice.index_pass')}}"><li id="_searchAd_rebate_orderinvoicepass_">返点订单所有发票信息</li></a>
+            <a href="{{url_for('searchAd_finance_client_order_back_money.index')}}"><li id="_searchAd_orderback_moneyorders_">普通订单收款</li></a>
+            <a href="{{url_for('searchAd_finance_rebate_order_back_money.index')}}"><li id="_searchAd_rebate_orderback_moneyorders_">返点订单收款</li></a>
+            <a href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index')}}"><li id="_searchAd_ordermedium_rebate_invoice_">普通订单申请中的发票</li></a>
+            <a href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index_pass')}}"><li id="_searchAd_ordermedium_rebate_invoicepass_">普通订单所有发票信息</li></a>
+            <a href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}"><li id="_searchAd_orderdata_query_">普通订单数据查询</li></a>
+            <a href="{{url_for('searchAd_finance_rebate_order_data_query.agent_invoice')}}"><li id="_searchAd_rebate_orderdata_query_">返点订单数据查询</li></a>
+            {% endif %}
+            <div class="line" style="clear: both"></div>
+           </ul>
+        </div>
+        <div class="list">
+          <ul>
+          </ul>
+        </div>
     </div>
 </div>
 <script>
@@ -37,10 +29,9 @@
         var p_pathname = pathname.split('/')
         
         if (p_pathname[3] == 'data_query'){
-            $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass('active')
+            $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass('on')
         }else{
-            $('#_'+p_pathname[2]+p_pathname[3]+p_pathname[4]+'_').addClass('active')
+            $('#_'+p_pathname[2]+p_pathname[3]+p_pathname[4]+'_').addClass('on')
         }
     })
 </script>
-{% endblock %}

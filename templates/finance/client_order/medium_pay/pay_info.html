@@ -1,10 +1,11 @@
-{% extends "/finance/finance_base.html" %}
+{% extends "/base.html" %}
 {% from '/form.html' import form_field %}
 {% from '/finance/client_order/medium_pay/medium_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/finance/finance_base.html" %}
+<div class="container bra-box">
     <h3>{{ invoice.company}} 订单发票信息</h3>
     <br/>
     <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=invoice.client_order.id)}}">客户订单收款详情</a>

@@ -1,7 +1,8 @@
-{% extends "/finance/searchAd_finance_base.html" %}
+{% extends "/base.html" %}
 {% block title %}{{title}}{% endblock %}
-{% block main_box%}
-<div class="bra-main bra-box" style="width:1400px;">
+{% block content %}
+{% include "/finance/searchAd_finance_base.html" %}
+<div class="container bra-box" style="width:1400px;">
   <h4>{{title}}</h4>
   <div>
     <ul class="nav nav-tabs">

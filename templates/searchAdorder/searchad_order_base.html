@@ -1,41 +1,30 @@
-{% extends "/site_base.html" %}
-
-{% block left_box%}
-<div class="bra-left bra-box">
-    <div class="list-group" id="left-list">
-    {% if g.user.is_searchad_member()  %}
-    <!-- 增加搜索广告订单 -->
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 搜索部门订单管理</li>
-    <a id="_my_framework_orders_" class="list-group-item" href="{{url_for('searchAd_order.my_framework_orders')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 我的框架订单
-    </a>
-    <a id="_new_framework_order_" class="list-group-item" href="{{url_for('searchAd_order.new_framework_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 新建框架订单
-    </a>
-    <a id="_my_orders_" class="list-group-item" href="{{url_for('searchAd_order.my_searchAd_orders')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 我的普通订单
-    </a>
-    <a id="_new_order_" class="list-group-item" href="{{url_for('searchAd_order.new_searchAd_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 新建普通订单
-    </a>
-    <a id="_my_rebate_orders_" class="list-group-item" href="{{url_for('searchAd_order.my_rebate_orders')}}">
-      <span class="glyphicon glyphicon-th-list"></span> 我的返点订单
-    </a>
-    <a id="_new_rebate_order_" class="list-group-item" href="{{url_for('searchAd_order.new_rebate_order')}}">
-        <span class="glyphicon glyphicon-plus"></span> 新建返点订单
-    </a>
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 数据查询</li>
-    <a id="_data_query_" class="list-group-item" href="{{url_for('searchAd_saler_client_order_data_query.agent_invoice')}}">
-        <span class="glyphicon glyphicon-th-list"></span> 普通订单
-    </a>
-    <a id="_searchAd_rebate_order_data_query_" class="list-group-item" href="{{url_for('searchAd_saler_rebate_order_data_query.agent_invoice')}}">
-        <span class="glyphicon glyphicon-th-list"></span> 返点订单
-    </a>
-    {% endif %}
+<div class="container" style="min-width: 950px;">
+    <div class="menu">
+        <div class="list">
+            <ul>
+            {% if g.user.is_searchad_member()  %}
+            <!-- 增加搜索广告订单 -->
+            <a href="{{url_for('searchAd_order.my_framework_orders')}}">
+              <li id="_my_framework_orders_">我的框架订单</li>
+            </a>
+            <a href="{{url_for('searchAd_order.my_searchAd_orders')}}">
+              <li id="_my_orders_" >我的普通订单</li>
+            </a>
+            <a href="{{url_for('searchAd_order.my_rebate_orders')}}">
+              <li id="_my_rebate_orders_" >我的返点订单</li>
+            </a>
+            <a href="{{url_for('searchAd_saler_client_order_data_query.agent_invoice')}}">
+                <li id="_data_query_" >普通订单数据</li>
+            </a>
+            <a href="{{url_for('searchAd_saler_rebate_order_data_query.agent_invoice')}}">
+                <li id="_searchAd_rebate_order_data_query_" >返点订单数据</li>
+            </a>
+            {% endif %}
+            <div class="line" style="clear: both"></div>
+            </ul>
+        </div>
     </div>
-    <div class="left-btn">
-        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
-        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    <div class="form-list">
     </div>
 </div>
 <script>
@@ -44,25 +33,24 @@
         var p_pathname = pathname.split('/')
         if (p_pathname[3] == 'data_query'){
             if (p_pathname[2] == 'searchAd_rebate_order'){
-                $('#_searchAd_rebate_order_data_query_').addClass("active");
+                $('#_searchAd_rebate_order_data_query_').addClass("on");
             }else{
-                $('#_'+p_pathname[3]+'_').addClass("active");
+                $('#_'+p_pathname[3]+'_').addClass("on");
             }
             
         }else{
-            $('#_'+p_pathname[2]+'_').addClass("active");
+            $('#_'+p_pathname[2]+'_').addClass("on");
             if(['order', 'searchAd_order'].indexOf(p_pathname[2]) >= 0 ){
-                $('#_my_orders_').addClass("active");
+                $('#_my_orders_').addClass("on");
             }
             if(['searchAd_rebate_order', 'rebate_order'].indexOf(p_pathname[2]) >= 0 ){
-                $('#_my_rebate_orders_').addClass("active");
+                $('#_my_rebate_orders_').addClass("on");
             }
             if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
-                $('#_my_framework_orders_').addClass("active");
+                $('#_my_framework_orders_').addClass("on");
             }
         }
         
     })
 
 </script>
-{% endblock %}

@@ -1,11 +1,12 @@
-{% extends "/searchAdorder/searchad_order_base.html" %}
+{% extends "/base.html" %}
 {% from 'searchad_order_form_rebate.html' import order_rebate_form %}
 {% from 'searchad_order_form_contract.html' import order_contract_form %}
 {% from 'searchad_order_form_attachment.html' import rebate_order_attachment %}
 {% from 'comments.html' import comments_box %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content%}
+{% include "/searchAdorder/searchad_order_base.html" %}
+<div class="container bra-box">
     <h4> {{ order.name }} </h4>
     <br/>
     {% include "saler/searchAd_rebate_order/nav_base.html" %}

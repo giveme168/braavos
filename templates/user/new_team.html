@@ -1,9 +1,9 @@
-{% extends "/user_base.html" %}
+{% extends "base.html" %}
 {% from 'form.html' import form_tpl %}
 {% block title %}新建角色{% endblock %}
-
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "user_base.html" %}
+<div class="container bra-box" style="min-width: 950px;">
     <h3>新建角色</h3>
     {{ form_tpl(form) }}
 </div>

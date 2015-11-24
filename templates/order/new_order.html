@@ -1,8 +1,9 @@
-{% extends "/order_base.html" %}
+{% extends "base.html" %}
 {% from 'order_form_client.html' import new_order_client_form %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "order_base.html" %}
+<div class="container bra-box">
     <h3>新建客户订单</h3>
      {{ new_order_client_form(form, mediums) }}
 </div>

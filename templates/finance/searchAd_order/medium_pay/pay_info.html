@@ -1,10 +1,11 @@
-{% extends "/finance/searchAd_finance_base.html" %}
+{% extends "/base.html" %}
 {% from '/form.html' import form_field %}
 {% from '/finance/searchAd_order/medium_pay/medium_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/finance/searchAd_finance_base.html" %}
+<div class="container bra-box">
     <h3>{{ invoice.client_order.agent.name }}-{{invoice.client_order.name}} 客户订单发票信息</h3>
     <table class="table table-bordered">
           <tr>

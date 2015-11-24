@@ -10,8 +10,8 @@
     $(document).ready(function(){
     var pathname = window.location.pathname;
     var path_name = pathname.split("/")
-    if (path_name[2] == 'order'){
-        $("#_order_").addClass("active");
+    if (path_name[2] == 'rebate_order'){
+        $("#_rebate_order_").addClass("active");
     }else{
         $("#_" + path_name[3]+'_').addClass("active");
     }
