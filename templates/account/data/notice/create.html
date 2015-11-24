@@ -1,69 +1,14 @@
 {% from 'form.html' import form_field %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="renderer" content="webkit">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>通知</title>
-  <link rel="shortcut icon" href="/static/imgs/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/static/kindeditor/themes/simple/simple.css" />
-  <link rel="stylesheet" href="/static/css/bootstrap-datetimepicker.min.css" type="text/css">
-  <link rel="stylesheet" href="/static/css/chosen.css" type="text/css">
-  <script src="/static/js/jquery.min.js"></script>
-  <script src="/static/js/bootstrap.min.js"></script>
-  <script src="/static/js/chosen.jquery.min.js"></script>
-  <script charset="utf-8" src="/static/kindeditor/kindeditor-min.js"></script>
-  <script charset="utf-8" src="/static/kindeditor/lang/zh_CN.js"></script>
-  <script src="/static/js/bootstrap-datetimepicker.min.js"></script>
-  <script src="/static/js/bootstrap-datetimepicker.zh-CN.js"></script>
-  <script src="/static/js/jquery.json.min.js"></script>
-  <style>
-  .logo-avatar{width: 109px; height: 30px;}
-  </style>
-</head>
-<body>
-  <nav class="navbar navbar-inverse" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header">
-           <a class="navbar-brand" href="/"><img class="logo-avatar" alt="logo" src="/static/imgs/logo_2x.png"></a>
-        </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-            <li id="index"><a href="/">首页</a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li id="contact" class=""><a target="_blank" href="{{url_for('user.contact')}}">通讯录</a></li>
-            <li><a target="_blank" href="http://mail.inad.com/">致趣邮箱</a></li>
-            <li><a target="_blank" href="http://www.inad.com/">致趣官网</a></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <span><!--<img class="user-avatar" src="{{g.user.avatar}}"/>--></span>
-                <span> {{g.user.name}}</span>
-                <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu" role="menu">
-                <li><a href="{{url_for('user.logout')}}">退出</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{category}} alert-dismissible" role="alert">
-          <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-          <strong>提示: </strong>{{ message | safe}}
-        </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-  <div class="container-fluid">
-    <div class="row">
+{% extends "/base.html" %}
+{% block title %}系统通知{% endblock %}
+{% block content %}
+<style>
+.bra-box{
+  margin-top:0;
+}
+</style>
+  <div class="container bra-box">
+    <div class="row" style="margin-top: 85px;">
         <div class="col-md-1"></div>
         <div class="col-md-10 main">
             <h1 class="page-header">发布通知</h1>
@@ -95,7 +40,7 @@
                     
                     <div class="form-group">
                         <label class="col-sm-2 control-label">内容</label>
-                        <div class="col-sm-8">
+                        <div class="col-sm-10">
                           <textarea id="content" name="content" class="form-control" style="height:500px;">{{notice.content|safe}}</textarea>
                         </div>
                     </div>
@@ -111,24 +56,22 @@
     </div>
   </div>
 <script>
-$(function(){
-    KindEditor.ready(function(K) {
-         editor = K.create('#content', {
-              uploadJson : "{{url_for('account_data.upload')}}",
-              themeType : 'simple',
-              langType: 'zh_CN'
-          });
-    });
-    $('#create').datetimepicker({
-        format: 'yyyy-mm-dd hh:ii',
-        language: 'zh-CN',
-        autoclose : true,
-        todayBtn : true,
-        todayHighlight : true,
-        startDate:new Date()
-    });
-})
 $(document).ready(function(){
+  KindEditor.ready(function(K) {
+       editor = K.create('#content', {
+            uploadJson : "{{url_for('account_data.upload')}}",
+            themeType : 'simple',
+            langType: 'zh_CN'
+        });
+  });
+  $('#create').datetimepicker({
+      format: 'yyyy-mm-dd hh:ii',
+      language: 'zh-CN',
+      autoclose : true,
+      todayBtn : true,
+      todayHighlight : true,
+      startDate:new Date()
+  });
   // 多选选择器
   $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true, width:'79%'});
   var emails = []
@@ -138,5 +81,8 @@ $(document).ready(function(){
   $("#emails").val(emails).trigger('chosen:updated');
 })
 </script>
-</body>
-</html>
+{% endblock %}
+{% block bottom_script %}
+<script charset="utf-8" src="/static/kindeditor/kindeditor-min.js"></script>
+<script charset="utf-8" src="/static/kindeditor/lang/zh_CN.js"></script>
+{% endblock %}

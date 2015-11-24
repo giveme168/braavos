@@ -1,14 +1,15 @@
-{% extends "/account/account_leave_base.html" %}
+{% extends "/base.html" %}
 {% block title %}请假列表{% endblock %}
 
-{% block main_box %}
+{% block content %}
+{% include "/account/account_leave_base.html" %}
 <style>
     pre {
         background-color:#ffffff;
         border:1px solid #ffffff;
     }
 </style>
-<div class="bra-main bra-box"  style="width:1300px;">
+<div class="container bra-box"  style="width:1300px;">
     <h3>我的请假列表
         <a class="btn btn-sm btn-default" href="{{url_for('account_leave.create',user_id = g.user.id)}}">申请请假</a>
     </h3>

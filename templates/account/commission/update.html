@@ -1,15 +1,16 @@
-{% extends "/account/account_performance_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 {% block title %}新建{{commission.user.name}}的提成{% endblock %}
 
-{% block main_box %}
+{% block content %}
+{% include "/account/account_performance_base.html" %}
 <style>
     pre {
         background-color:#ffffff;
         border:1px solid #ffffff;
     }
 </style>
-<div class="bra-main bra-box">
+<div class="container bra-box">
     <h4>修改{{commission.user.name}}的提成</h4>
     <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
         <div class="form-group">

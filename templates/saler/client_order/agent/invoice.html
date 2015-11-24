@@ -1,4 +1,4 @@
-{% extends "/order_base.html" %}
+{% extends "base.html" %}
 {% from '/form.html' import form_field %}
 {% from '/saler/client_order/agent/agent_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
@@ -223,8 +223,9 @@ $(function() {
 });
 </script>
 {%- endmacro %}
-{% block main_box%}
-  <div class="bra-main bra-box">
+{% block content%}
+{% include "/order/order_base.html" %}
+  <div class="container bra-box">
     <h4> {{ invoice.client_order.name }} </h4>
     <div>
       {% set order = invoice.client_order %}

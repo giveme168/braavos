@@ -1,8 +1,9 @@
-{% extends "/finance/searchAd_finance_base.html" %}
+{% extends "/base.html" %}
 {% block title %}我的客户订单{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/finance/searchAd_finance_base.html" %}
+<div class="container bra-box">
     <h3>正在申请的发票1</h3>
     <table class="table table-bordered table-striped">
         <tr>

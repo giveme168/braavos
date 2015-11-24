@@ -1,20 +1,27 @@
-{% extends "/site_base.html" %}
-
-{% block left_box%}
-<div class="bra-left bra-box">
-    <div class="list-group" id="left-list">
-    {% if g.user.is_admin() or g.user.is_HR_leader() or g.user.is_super_leader() or g.user.is_HR() %}
-    <a class="list-group-item" href="{{url_for('user.users')}}">
-        <span class="glyphicon glyphicon-user"></span> 用户
-    </a>
-    <a class="list-group-item" href="{{url_for('user.teams')}}">
-        <span class="glyphicon glyphicon-stats"></span> 角色
-    </a>
-    {% endif %}
+<div class="container" style="min-width: 950px;">
+    <div class="menu">
+        <div class="list">
+            {% if g.user.is_admin() or g.user.is_HR_leader() or g.user.is_super_leader() or g.user.is_HR() %}
+            <ul>
+                <a href="{{url_for('user.users')}}"><li id='_user_'>用户</li></a>
+                <a href="{{url_for('user.teams')}}"><li id="_team_">角色</li></a>
+                <div class="line" style="clear: both"></div>
+            </ul>
+            {% endif %}
+        </div>
     </div>
-    <div class="left-btn">
-        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
-        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    <div class="form-list">
     </div>
 </div>
-{% endblock %}
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (['users', 'user', 'new_user'].indexOf(p_pathname[2]) >= 0){
+            $('#_user_').addClass("on");
+        }else if (['teams', 'team', 'new_team'].indexOf(p_pathname[2]) >= 0){
+            $('#_team_').addClass("on");
+        }
+        
+    })
+</script>

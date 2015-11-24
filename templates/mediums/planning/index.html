@@ -1,12 +1,13 @@
-{% extends "/mediums/mediums_base.html" %}
+{% extends "/base.html" %}
 {% block title %}策划案例{% endblock %}
-{% block main_box %}
+{% block content%}
+{% include "/mediums/mediums_base.html" %}
 <style>
   .glyphicon-plus {
     color: #FF9900;
   }
 </style>
-<div class="bra-main bra-box" style="width:1200px;">
+<div class="container bra-box" style="width:1200px;">
   <!--<h4>{{title}}</h4>-->
   <div>
     <ul class="nav nav-tabs">

@@ -1,0 +1,57 @@
+*{padding: 0;
+list-style: none;
+margin:; 0;
+font-family: "myFirstFont";}
+@font-face{
+font-family: myFirstFont;
+src: url('lanting.TTF');/* IE9+ */
+}
+.menu{width: 100%;
+	background: #f0f1f3;
+	clear: both;
+	margin-top:65px;}
+
+.menu .list ul {padding-top: 20px;
+				padding-left: 20px;
+				margin: 0 auto;
+				clear: both;}
+
+.menu .list ul a {text-decoration: none;
+				color: #fff;
+				text-align: center;
+				line-height: 30px;
+				margin-bottom: 10px;
+				margin-right:21px;
+				width: 120px;
+				height: 46px;
+				text-align: center;
+				font-size: 12px;
+				float: left;}
+
+.menu .list ul a li{background: #999999;
+					height: 30px;
+					text-align: center;}					
+
+.menu .list ul a :hover{background-color:#C9612E;
+						height:30px;
+						margin-bottom: 30px;}
+
+.menu .list ul .on{background-color:#C9612E;
+					height:30px;
+						margin-bottom: 30px;
+					}
+
+.form-list{width: 100%;}
+
+
+
+
+
+
+
+
+
+
+
+
+

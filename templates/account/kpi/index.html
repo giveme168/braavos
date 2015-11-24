@@ -1,8 +1,9 @@
-{% extends "/account/account_base.html" %}
+{% extends "/base.html" %}
 {% block title %}我的绩效考核{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box" style="width:1100px;">
+{% block content %}
+{% include "/account/account_base.html" %}
+<div class="container bra-box" style="width:1100px;">
     <div>
         <div class="tab-content">
           <div class="tab-pane active" id="tab-1">

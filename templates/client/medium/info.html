@@ -1,8 +1,9 @@
-{% extends "/client_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/client/client_base.html" %}
+<div class="container bra-box">
     <h3>{{ title }}</h3>
     <form class="form form-horizontal" method="POST">
       {{form.csrf_token}}

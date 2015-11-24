@@ -1,19 +1,13 @@
-{% extends "/site_base.html" %}
-
-{% block left_box%}
-<style>
-.list-group-item {
-    margin-left:15px;
-}
-</style>
-<div class="bra-left bra-box">
-    <div class="list-group" id="left-list">
-    <a class="list-group-item" href="{{url_for('util_insert_orders.index')}}">导入新媒体合同</a>
-    <a class="list-group-item" href="{{url_for('util_insert_douban_orders.index')}}">导入豆瓣合同</a>
+<div class="container" style="min-width: 950px;">
+    <div class="menu">
+        <div class="list">
+            <ul>
+                <a href="{{url_for('util_insert_orders.index')}}"><li>导入新媒体合同</li></a>
+                <a href="{{url_for('util_insert_douban_orders.index')}}"><li>导入豆瓣合同</li></a>
+                <div class="line" style="clear: both"></div>
+            </ul>
+        </div>
     </div>
-    <div class="left-btn">
-        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
-        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    <div class="form-list">
     </div>
 </div>
-{% endblock %}

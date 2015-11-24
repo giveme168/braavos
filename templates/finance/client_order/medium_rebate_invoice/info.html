@@ -1,10 +1,11 @@
-{% extends "/finance/finance_base.html" %}
+{% extends "/base.html" %}
 {% from '/form.html' import form_field %}
 {% from '/saler/client_order/medium_rebate_invoice/invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/finance/finance_base.html" %}
+<div class="container bra-box">
     <h3>媒体返点发票情况</h3>
     <table class="table table-bordered table-striped">
         <tr>

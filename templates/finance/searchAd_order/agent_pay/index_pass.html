@@ -1,8 +1,9 @@
-{% extends "/finance/searchAd_finance_base.html" %}
+{% extends "/base.html" %}
 {% block title %}我的客户订单{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/finance/searchAd_finance_base.html" %}
+<div class="container bra-box">
     <h3>已打款的媒体信息<a class="btn btn-sm btn-default" href="{{url_for('searchAd_finance_client_order_medium_pay.index_pass')}}?type=excel">下载</a></h3>
     <table class="table table-bordered table-striped">
         <tr>

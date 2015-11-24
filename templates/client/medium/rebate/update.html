@@ -1,8 +1,9 @@
-{% extends "/client_base.html" %}
+{% extends "/base.html" %}
 {% block title %} 媒体返点信息列表{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/client/client_base.html" %}
+<div class="container bra-box">
     <h3>更新 {{medium.name}} 返点信息</h3>
     <form class="form form-horizontal" method="POST" action="{{url_for('client.medium_rebate_update', medium_id=medium.id, rebate_id=rebate.id)}}" onsubmit="return check_form(this);">
         <div class="form-group">

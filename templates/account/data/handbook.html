@@ -1,49 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="renderer" content="webkit">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>员工手册</title>
-  <link rel="shortcut icon" href="/static/imgs/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-  <script src="/static/js/jquery.min.js"></script>
-  <script src="/static/js/bootstrap.min.js"></script>
-  <style>
-  .logo-avatar{width: 109px; height: 30px;}
-  </style>
-</head>
-<body>
-  <nav class="navbar navbar-inverse" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header">
-           <a class="navbar-brand" href="/"><img class="logo-avatar" alt="logo" src="http://www.inad.com/images/logo_2x.png"></a>
-        </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-            <li id="index"><a href="/">首页</a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li id="contact" class=""><a target="_blank" href="{{url_for('user.contact')}}">通讯录</a></li>
-            <li><a target="_blank" href="http://mail.inad.com/">致趣邮箱</a></li>
-            <li><a target="_blank" href="http://www.inad.com/">致趣官网</a></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <span><!--<img class="user-avatar" src="{{g.user.avatar}}"/>--></span>
-                <span> {{g.user.name}}</span>
-                <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu" role="menu">
-                <li><a href="{{url_for('user.logout')}}">退出</a></li>
-              </ul>
-            </li>
-          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
-  <div class="container">
-    <h1 class="text-center">员工手册</h1></br>
+{% extends "/base.html" %}
+{% block title %}员工手册{% endblock %}
+
+{% block content %}
+  <div class="container" style="min-width: 950px;">
+    <h1 class="text-center" style="margin-top: 85px;">员工手册</h1></br>
     <p class="text-center">2015.11月 颁布</p>
     </br></br></br></br><h3>欢迎致辞</h3>
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;欢迎你来到致趣联媒（INAD），我们的前身是豆瓣的商务部，2014年我们这群共事多年且志趣相投的小伙伴一起从豆瓣独立出来创立了这家公司。我们曾经见证了中国互联网广告波澜壮阔的发展，这次我们又选择做移动互联网营销的弄潮儿，大家一起用兴趣和激情，要做一番有趣又有未来的事业。
@@ -57,7 +17,7 @@
     <h4>一、  致趣创始记</h4>
     <ul class="list-unstyled">
       <li>公司名称：上海致趣广告有限公司</li>
-      <li>英文名称：INAD [in’æd]？</li>
+      <li>英文名称：INAD</li>
       <li>对外标准全称：致趣联媒</li>
       <li>对外标准简称：致趣</li>
       <li>网址：<a target="_blank" href="http://www.inad.com/">http://www.inad.com/</a></li>
@@ -213,7 +173,7 @@
       <li>公共假期
         <ul class="list-unstyled">
           <li>&bull;&nbsp;你可以享受国家法定的公共假期：元旦1天、春节3天、清明节1天、劳动节1天、端午节1天、中秋节1天、国庆节3天；</li>
-          <li>&bull;&nbsp;如果你已为人母，“六一儿童节“的上午可以休假半天陪伴小朋友。适逢节假日、双休日该休假不顺延；</li>
+          <li>&bull;&nbsp;如果你已为人父母，“六一儿童节“的上午可以休假半天陪伴小朋友（不影响工作的前提下）。适逢节假日、双休日该休假不顺延；</li>
           <li>&bull;&nbsp;公共假期无需申请，按公司统一规定执行，属于带薪假期，薪资全额发放。</li>
         </ul>
       </li>
@@ -605,6 +565,5 @@
   </br>
   </br>
   </br>
-  </div>
-</body>
-</html>
+</div>
+{% endblock %}

@@ -1,15 +1,16 @@
-{% extends "/account/account_leave_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 {% block title %}填写请假申请表{% endblock %}
 
-{% block main_box %}
+{% block content %}
+{% include "/account/account_leave_base.html" %}
 <style>
     pre {
         background-color:#ffffff;
         border:1px solid #ffffff;
     }
 </style>
-<div class="bra-main bra-box">
+<div class="container bra-box">
     {% if leave %}
     <h3>修改请假申请表</h3>
     {% else %}

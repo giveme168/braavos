@@ -1,8 +1,10 @@
-{% extends "/util_base.html" %}
+{% extends "/base.html" %}
+{% block title%}导入直签豆瓣订单{% endblock %}
 {% from 'form.html' import form_field %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content%}
+{% include "/util/util_base.html" %}
+<div class="container bra-box">
     <h3>新建豆瓣订单</h3>
      <form class="form form-horizontal" method="POST">
     <input class="hide" name="info_type" value="0"/>

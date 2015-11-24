@@ -1,11 +1,17 @@
-{% extends "/user_base.html" %}
-{% from 'form.html' import form_tpl %}
+{% extends "base.html" %}
+{% from 'form.html' import form_tpl, form_tpl_ex_form %}
 {% block title %}新建用户{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "user_base.html" %}
+<div class="container bra-box" style="min-width: 950px;">
     <h3>新建用户</h3>
-    {{ form_tpl(form) }}
+    <form class="form form-horizontal" method="POST" action="" onsubmit="">
+        {{ form_tpl_ex_form(form) }}
+        <br/><br/>
+        <a href="{{url_for('user.users')}}" class="btn btn-primary btn-sm col-md-offset-2">返回</a>
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+    </form>
 </div>
 <script>
 Date.prototype.Format = function (fmt) { //author: meizz 

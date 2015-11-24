@@ -1,8 +1,8 @@
-{% extends "/user_base.html" %}
-{% block title %}用户列表{% endblock %}
-
-{% block main_box %}
-<div class="bra-main bra-box" style="width:1200px;">
+{% extends "base.html" %}
+{% block title %}员工通讯录{% endblock %}
+{% block content %}
+{% include "user_base.html" %}
+<div class="container" style="min-width: 950px;">
     <h3>用户列表
         <a class="btn btn-sm btn-default" href="{{url_for('user.new_user')}}">新建</a>
     </h3>
@@ -29,5 +29,4 @@
         {% endfor %}
     </table>
 </div>
-
 {% endblock %}

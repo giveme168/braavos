@@ -1,8 +1,3 @@
-body{
-    min-height: 100%;
-    background-color: #eee;
-    min-width: 1265px;
-}
 #footer {
     margin-top: 20px;
 }
@@ -13,9 +8,7 @@ body{
     width: 300px;
     display: inline-block;
 }
-.container-fluid{
-    max-width: 95%;
-}
+
 .navbar {
     min-height: 45px;
     width: 100%;
@@ -48,9 +41,10 @@ body{
 }
 
 .alert {
-    width: 70%;
-    margin-left: auto;
-    margin-right: auto;
+    position: fixed;
+    width: 100%;
+    margin-top: 65px;
+    z-index:999;
 }
 .alert-message {
     background-color: #d9edf7;

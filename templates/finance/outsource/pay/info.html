@@ -1,7 +1,8 @@
-{% extends "/finance/finance_base.html" %}
+{% extends "/base.html" %}
 {% from 'comments.html' import comments_box %}
 
-{% block main_box%}
+{% block content %}
+{% include "/finance/finance_base.html" %}
 {% macro merger_table(merger_outsources, status, target) -%}
 <div class="panel-group" id="accordion-outsource">
         <div class="panel panel-default">
@@ -117,7 +118,7 @@
         </div>
     </div>
 {%- endmacro %}
-<div class="bra-main bra-box" style="width:1600px;">
+<div class="container bra-box" style="width:1600px;">
     {% if target %}
     <h3>外包收款方信息</h3>
     <table class="table table-bordered table-striped">

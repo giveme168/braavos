@@ -32,3 +32,10 @@ def get_medium_path(filename, domain=True):
         return app.config['DOMAIN'] + path
     else:
         return path
+
+def get_all_file_path(filename, domain=True):
+    path = all_files_set.url(filename)
+    if domain:
+        return app.config['DOMAIN'] + path
+    else:
+        return path

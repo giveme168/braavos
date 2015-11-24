@@ -1,7 +1,8 @@
-{% extends "/util_base.html" %}
+{% extends "/base.html" %}
 {% block title %}合同导入{% endblock %}
-{% block main_box %}
-    <div class="bra-main bra-box" style="width:2000px;">
+{% block content%}
+{% include "/util/util_base.html" %}
+    <div class="container bra-box" style="width:2000px;">
         <h3>客户订单列表</h3>
         <div class="search">
             <form class="form-inline" role="form" action="" method='POST' enctype="multipart/form-data">

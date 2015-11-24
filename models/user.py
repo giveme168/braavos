@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask import url_for, json
 
 from . import db, BaseModelMixin
+from models.mixin.attachment import AttachmentMixin
 from libs.date_helpers import check_month_get_Q
 
 USER_STATUS_ON = 1         # 有效
@@ -88,7 +89,7 @@ team_leaders = db.Table('team_leaders',
                         )
 
 
-class User(db.Model, BaseModelMixin):
+class User(db.Model, BaseModelMixin, AttachmentMixin):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))

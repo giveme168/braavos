@@ -1,8 +1,9 @@
-{% extends "/finance/finance_base.html" %}
+{% extends "/base.html" %}
 {% from 'comments.html' import comments_box %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/finance/finance_base.html" %}
+<div class="container bra-box">
     <h3>{{order.agent.name}}-{{order.name}}外包发票情况</h3>
     <table class="table table-bordered">
         <tr>

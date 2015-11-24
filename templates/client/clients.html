@@ -1,8 +1,9 @@
-{% extends "/client_base.html" %}
+{% extends "/base.html" %}
 {% block title %} 客户列表{% endblock %}
 
-{% block main_box %}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/client/client_base.html" %}
+<div class="container bra-box">
     <h3>客户列表
         <a class="btn btn-default btn-sm" href="{{url_for('client.new_client')}}">新建</a>
     </h3>

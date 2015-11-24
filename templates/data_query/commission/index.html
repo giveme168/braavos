@@ -1,25 +1,26 @@
-{% extends "/data_query/data_query_base.html" %}
+{% extends "/base.html" %}
 {% block title %}销售提成{% endblock %}
-{% block main_box %}
-<div class="bra-main bra-box" style="width:2500px;">
+{% block content %}
+{% include "/data_query/data_query_base.html" %}
+<div class="container bra-box" style="width:2500px;">
     <h3>销售提成</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
         <div class="form-group">
-            <select class="form-control" name="year" id="year" placeholder="选择执行年">
+            <select class="form-control" name="year" id="year" placeholder="选择执行年" style="width:200px;">
                 <option value="2015">2015</option>
                 <option value="2014">2014</option>
             </select>
         </div>
         <div class="form-group">
-            <select class="form-control" name="Q" id="Q" style="width:80px;" placeholder="选择执行月">
+            <select class="form-control" name="Q" id="Q" style="width:80px;" placeholder="选择执行月" style="width:200px;">
                 {% for k in range(1,5) %}
                     <option value='Q{{k}}'>Q{{k}}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="form-group">
-            <select class="form-control" id="location_id" name="location_id" placeholder="选择区域">
+            <select class="form-control" id="location_id" name="location_id" placeholder="选择区域" style="width:200px;">
                 <option value='0'>所有区域</option>
                 <option value="1">华北区</option>
                 <option value="2">华东区</option>

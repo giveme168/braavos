@@ -1,8 +1,9 @@
-{% extends "/planning/base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 {% from 'comments.html' import comments_box %}
 {% block title %}策划单-{{bref.title}}{% endblock %}
-{% block main_box %}
+{% block content %}
+{% include "/planning/base.html" %}
 {% macro edit_bref_form(form, data) -%}
 <form class="form form-horizontal" method="POST" action="{{url_for('planning_bref.update', bid=data.id)}}">
   {{ form.csrf_token }} 
@@ -158,7 +159,7 @@
         width:250px;
     }
 </style>
-<div class="bra-main bra-box">
+<div class="container bra-box">
   <h4>策划单-{{bref.title}}</h4>
   <div class="panel-group" id="accordion">
     <div class="panel panel-default">

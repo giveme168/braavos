@@ -1,22 +1,27 @@
-{% extends "/site_base.html" %}
-
-{% block left_box%}
-<style>
-.list-group-item {
-    margin-left:15px;
-}
-</style>
-<div class="bra-left bra-box">
-    <div class="list-group" id="left-list">
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span> 绩效考核</li>
-    <a class="list-group-item" href="{{url_for('account_kpi.index')}}">我的绩效考核</a>
-    {% if g.user.is_kpi_leader or g.user.is_HR_leader() or g.user.is_super_leader() %}
-    <a class="list-group-item" href="{{url_for('account_kpi.underling')}}">下属的绩效考核</a>
-    {% endif %}
+<div class="container" style="min-width: 950px;">
+    <div class="menu">
+        <div class="list">
+            <ul>
+                <a href="{{url_for('account_kpi.index')}}"><li id="__">我的绩效考核</li></a>
+                {% if g.user.is_kpi_leader or g.user.is_HR_leader() or g.user.is_super_leader() %}
+                <a href="{{url_for('account_kpi.underling')}}"><li id="_underling_">下属的绩效考核</li></a>
+                {% endif %}
+                <div class="line" style="clear: both"></div>
+            </ul>
+        </div>
     </div>
-    <div class="left-btn">
-        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
-        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    <div class="form-list">
     </div>
 </div>
-{% endblock %}
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[3]=='underling'){
+            $('#_'+p_pathname[3]+'_').addClass("on");
+        }else{
+            $('#__').addClass("on");
+        }
+        
+    })
+</script>

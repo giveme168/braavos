@@ -1,4 +1,4 @@
-{% extends "/searchAdorder/searchad_order_base.html" %}
+{% extends "/base.html" %}
 {% from '/saler/searchAd_order/medium_rebate_invoice/invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 
@@ -111,8 +111,9 @@
 </script>
 {%- endmacro %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content%}
+{% include "/searchAdorder/searchad_order_base.html" %}
+<div class="container bra-box">
   <h4> {{ order.name }} </h4>
   <div>
     {% include "saler/searchAd_order/nav_base.html" %}

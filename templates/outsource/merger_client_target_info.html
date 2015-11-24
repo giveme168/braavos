@@ -1,4 +1,4 @@
-{% extends "/outsource_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 {% macro merger_table(merger_outsources, status, target) -%}
 <div class="panel-group" id="accordion-outsource">
@@ -228,8 +228,9 @@
         </div>
     </div>
 {%- endmacro %}
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "/outsource/outsource_base.html" %}
+<div class="container bra-box">
     <h3>{{target.name}}的信息</h3>
     <table class="table table-bordered">
         <tr>

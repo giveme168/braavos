@@ -1,13 +1,14 @@
-{% extends "/planning/base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_field %}
 {% block title %}新建策划单{% endblock %}
-{% block main_box %}
+{% block content %}
+{% include "/planning/base.html" %}
 <style>
   .form-control {
     width: 400px;
   }
 </style>
-<div class="bra-main bra-box">
+<div class="container bra-box">
   <h4>新建策划单</h4>
   <form class="form form-horizontal" method="POST">
     {{ form.csrf_token }} 

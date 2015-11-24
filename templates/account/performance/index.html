@@ -1,7 +1,8 @@
-{% extends "/account/account_performance_base.html" %}
+{% extends "/base.html" %}
 {% block title %}团队销售指标{% endblock %}
 
-{% block main_box %}
+{% block content %}
+{% include "/account/account_performance_base.html" %}
 <style type="text/css">
     .table {
         margin-bottom: 5px;
@@ -10,7 +11,7 @@
         vertical-align:middle;/*设置垂直居中*/
     }
 </style>
-<div class="bra-main bra-box">
+<div class="container bra-box">
     <h3>团队销售指标 &nbsp;&nbsp;&nbsp;{% if g.user.is_leader() %}<a class="btn btn-sm btn-default" href="{{url_for('account_performance.create')}}">新建</a>{% endif %}
     </h3>
     <table class="table table-bordered table-striped">

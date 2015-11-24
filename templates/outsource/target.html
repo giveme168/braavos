@@ -1,13 +1,14 @@
-{% extends "/outsource_base.html" %}
+{% extends "/base.html" %}
 {% from 'form.html' import form_tpl %}
 
-{% block main_box%}
+{% block content %}
+{% include "/outsource/outsource_base.html" %}
 <style>
     .tips {
         color: red;
     }
 </style>
-<div class="bra-main bra-box">
+<div class="container bra-box">
     <h3>{{ title }}</h3>
     {{ form_tpl(form) }}
 </div>

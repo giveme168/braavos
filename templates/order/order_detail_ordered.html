@@ -1,8 +1,9 @@
-{% extends "/order_base.html" %}
+{% extends "base.html" %}
 {% from 'order_ordered_items.html' import ordered_items %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "order_base.html" %}
+<div class="container bra-box">
     <h4>
         {{ order.name }}
     </h4>

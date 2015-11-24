@@ -1,58 +1,52 @@
-{% extends "/site_base.html" %}
-
-{% block left_box%}
-<div class="bra-left bra-box">
-    <div class="list-group" id="left-list">
-    {% if g.user.is_operater_leader() %}
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>订单分配</li>
-    <a id="_client_orders_distribute_" class="list-group-item" href="{{url_for('outsource.client_orders_distribute')}}">
-        <span class="glyphicon glyphicon-stats"></span> 媒体订单
-    </a>
-    <a id="_douban_orders_distribute_" class="list-group-item" href="{{url_for('outsource.douban_orders_distribute')}}">
-        <span class="glyphicon glyphicon-stats"></span> 直签豆瓣订单
-    </a>
-    {% endif %}
-
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>外包管理</li>
-    <a id="_client_orders_" class="list-group-item" href="{{url_for('outsource.client_orders')}}">
-        <span class="glyphicon glyphicon-stats"></span> 我的媒体订单
-    </a>
-    <a id="_douban_orders_" class="list-group-item" href="{{url_for('outsource.douban_orders')}}">
-        <span class="glyphicon glyphicon-stats"></span> 我的直签豆瓣订单
-    </a>
-    {% if g.user.email.find('fenghaiyan')>=0 or g.user.is_super_leader() %}
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>合并付款</li>
-    <a id="_merger_client_target_" class="list-group-item" href="{{url_for('outsource.merger_client_target')}}">
-        <span class="glyphicon glyphicon-stats"></span> 媒体订单
-    </a>
-    <a id="_merger_douban_target_" class="list-group-item" href="{{url_for('outsource.merger_douban_target')}}">
-        <span class="glyphicon glyphicon-stats"></span> 豆瓣订单
-    </a>
-    {% endif %}
-    <li class="dropdown-header"><span class="glyphicon glyphicon-list-alt"></span>收款方管理</li>
-    <a id="_targets_" class="list-group-item" href="{{url_for('outsource.targets')}}">
-        <span class="glyphicon glyphicon-stats"></span> 收款方
-    </a>
+<div class="container" style="min-width: 950px;">
+    <div class="menu">
+        <div class="list">
+            <ul>
+                {% if g.user.is_operater_leader() %}
+                <a href="{{url_for('outsource.client_orders_distribute')}}">
+                    <li id="_client_orders_distribute_" >媒体订单分配</li>
+                </a>
+                <a href="{{url_for('outsource.douban_orders_distribute')}}">
+                    <li id="_douban_orders_distribute_" >直签豆瓣订单分配</li>
+                </a>
+                {% endif %}
+                <a href="{{url_for('outsource.client_orders')}}">
+                    <li id="_client_orders_" >我的媒体订单</li>
+                </a>
+                <a href="{{url_for('outsource.douban_orders')}}">
+                    <li id="_douban_orders_" >我的直签豆瓣订单</li>
+                </a>
+                {% if g.user.email.find('fenghaiyan')>=0 or g.user.is_super_leader() %}
+                <a href="{{url_for('outsource.merger_client_target')}}">
+                    <li id="_merger_client_target_" >媒体订单合并付款</li>
+                </a>
+                <a href="{{url_for('outsource.merger_douban_target')}}">
+                    <li id="_merger_douban_target_" >直签豆瓣订单付款</li>
+                </a>
+                {% endif %}
+                <a href="{{url_for('outsource.targets')}}">
+                    <li id="_targets_" >收款方管理</li>
+                </a>
+                <div class="line" style="clear: both"></div>
+            </ul>
+        </div>
     </div>
-    <div class="left-btn">
-        <span class="glyphicon glyphicon-chevron-left" id="list-hide"></span>
-        <span class="glyphicon glyphicon-chevron-right" id="list-show"></span>
+    <div class="form-list">
     </div>
 </div>
 <script>
     $(function(){
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
-        $('#_'+p_pathname[2]+'_').addClass("active");
+        $('#_'+p_pathname[2]+'_').addClass("on");
         if(['targets', 'client'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_targets_').addClass("active");
+            $('#_targets_').addClass("on");
         }
         if(['client_orders', 'client_order'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_client_orders_').addClass("active");
+            $('#_client_orders_').addClass("on");
         }
         if(['douban_orders', 'douban_order'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_douban_orders_').addClass("active");
+            $('#_douban_orders_').addClass("on");
         }
     })
 </script>
-{% endblock %}

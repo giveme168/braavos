@@ -1,9 +1,11 @@
-{% extends "/util_base.html" %}
+{% extends "/base.html" %}
+{% block title %}导入新媒体订单{% endblock %}
 {% from '/insert_order_form_client.html' import new_order_client_form %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
-    <h3>新建客户订单</h3>
+{% block content%}
+{% include "/util/util_base.html" %}
+<div class="container bra-box">
+    <h3>新建新媒体订单</h3>
      {{ new_order_client_form(form, mediums) }}
 </div>
 {% endblock %}
