@@ -335,20 +335,20 @@
 				 </div>
 				  <div class="menu-list">
 				  	<ul>
-				  		{% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader())%}
-              <!--搜索部门-->
-                <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank">搜索部门订单管理</a></li>
-              <!--搜索部门结束-->
-              {% else %}
-              <!--致趣订单-->
-                <li><a href="{{url_for('order.my_orders')}}" target="_blank">致趣订单管理</a></li>
-                {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() %}
-                <!--搜索部门-->
-                  <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank">搜索部门订单管理</a></li>
-                <!--搜索部门结束-->
-                {% endif %}
-              <!--致趣订单结束-->
-              {% endif %}
+				  		{% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
+                          <!--搜索部门-->
+                            <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank">搜索部门订单管理</a></li>
+                          <!--搜索部门结束-->
+                          {% else %}
+                          <!--致趣订单-->
+                            <li><a href="{{url_for('order.my_orders')}}" target="_blank">致趣订单管理</a></li>
+                            {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() %}
+                            <!--搜索部门-->
+                              <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank">搜索部门订单管理</a></li>
+                            <!--搜索部门结束-->
+                            {% endif %}
+                          <!--致趣订单结束-->
+                          {% endif %}
 				  	</ul>
 				  </div>
 				</div>
@@ -364,20 +364,20 @@
 				 </div>
 				  <div class="menu-list">
 				  	<ul>
-				  		{% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader())%}
-              <!--搜索部门-->
-                <li><a href="{{url_for('searchAd_client.agents')}}" target="_blank">搜索部门客户管理</a></li>
-              <!--搜索部门结束-->
-              {% else %}
-              <!--致趣订单-->
-                <li><a href="{{url_for('client.agents')}}" target="_blank">致趣客户管理</a></li>
-                {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() %}
-                <!--搜索部门-->
-                  <li><a href="{{url_for('searchAd_client.agents')}}" target="_blank">搜索部门客户管理</a></li>
-                <!--搜索部门结束-->
-                {% endif %}
-              <!--致趣订单结束-->
-              {% endif %}
+				  		{% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
+                      <!--搜索部门-->
+                        <li><a href="{{url_for('searchAd_client.agents')}}" target="_blank">搜索部门客户管理</a></li>
+                      <!--搜索部门结束-->
+                      {% else %}
+                      <!--致趣订单-->
+                        <li><a href="{{url_for('client.agents')}}" target="_blank">致趣客户管理</a></li>
+                        {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() %}
+                        <!--搜索部门-->
+                          <li><a href="{{url_for('searchAd_client.agents')}}" target="_blank">搜索部门客户管理</a></li>
+                        <!--搜索部门结束-->
+                        {% endif %}
+                      <!--致趣订单结束-->
+                      {% endif %}
 				  	</ul>
 				  </div>
 				</div>

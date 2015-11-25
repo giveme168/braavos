@@ -23,9 +23,8 @@ src: url('lanting.TTF');/* IE9+ */
 			padding-right: 0px;
 			padding-left: 0px;
 			position: relative;
-			z-index: 999;
-			margin-top: 5px;
-			z-index: 9;}
+			z-index: 900;
+			margin-top: 5px;}
 .set {
 	width:23px ;
 	height:23px ;
@@ -273,7 +272,7 @@ src: url('lanting.TTF');/* IE9+ */
 
 .all-doll p{margin-left: 100px;}
 
-.title-bussess{border-top: 1px solid #ccc;
+.title-bussess{/*border-top: 1px solid #ccc;*/
 				margin-top: 50px;}
 
 .bussess{width:150px;
@@ -329,7 +328,7 @@ src: url('lanting.TTF');/* IE9+ */
 			margin: 0 auto;
 				}
 
-.menu-list ul li, .menu-list ul li a{margin: 0 auto;
+.menu-list ul li {margin: 0 auto;
 				height: 30px;
 				color: #fff;
 				font-size: 12px;
@@ -339,6 +338,16 @@ src: url('lanting.TTF');/* IE9+ */
 				text-align: center;
 				cursor: pointer;
 				border-bottom:1px solid #424242;}
+
+.menu-list ul li a{margin: 0 auto;
+				height: 30px;
+				color: #fff;
+				font-size: 12px;
+				line-height: 30px;
+				width: 150px;
+				margin: 0 auto;
+				text-align: center;
+				cursor: pointer;}
 
 .menu-list ul li:hover, .menu-list ul li a:hover{
 					color: #debd78;
