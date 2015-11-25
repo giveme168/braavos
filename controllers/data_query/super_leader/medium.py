@@ -76,7 +76,7 @@ def money():
         MediumOrderExecutiveReport.month_day <= end_date_month)
     medium_orders = [{'month_day': k.month_day, 'order_id': k.client_order.id,
                       'status': k.status, 'medium_id': k.order.medium_id,
-                      'locations': k.locations, 'sale_money': k.sale_money,
+                      'locations': list(set(k.locations)), 'sale_money': k.sale_money,
                       'medium_money2': k.medium_money2,
                       'medium_rebate': k.order.medium_rebate_by_year(k.month_day),
                       'agent_rebate': k.client_order.agent_rebate} for k in medium_orders]
