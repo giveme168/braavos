@@ -116,7 +116,7 @@
 <div class="col-md-12">
     <div class="col-md-6" style="margin-left: 20px;">
         {% if g.user.is_operater %}
-        <form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('order.rebate_order_edit_cpm', order_id=rebate_order.id)}}">
+        <form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('searchAd_order.rebate_order_edit_cpm', order_id=rebate_order.id)}}">
         {% endif %}
         <table class="table table-bordered">
           <tr>

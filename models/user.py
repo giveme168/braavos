@@ -247,7 +247,7 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         return self.is_admin() or self.team.type == TEAM_TYPE_SEARCH_AD_LEADER
 
     def is_searchad_member(self):
-        return self.is_searchad_saler() or self.is_searchad_leader() or self.is_super_leader()
+        return self.is_searchad_saler() or self.is_searchad_leader() or self.is_super_leader() or self.is_contract()
 
     @classmethod
     def gets_by_team_type(cls, team_type):

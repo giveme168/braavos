@@ -34,58 +34,41 @@ src: url('lanting.TTF');/* IE9+ */
 
 .header #next{right:0;}
 
-.week{height:28px;
-      background:#f4f4f4;
-      padding:0 3px 0 2px;}
+.con pre{
+    background: none;
+    border: none;
+}
 
-.week span{display:inline-block;
-           width:40px;
-           font:12px/28px '';
-           text-align:center;}
+#datetime.wrap{
+    border: 1px solid #ccc;
+    width: 250px;
+    margin-left: 20px;
+    margin-top: 10px;
+    border-radius: 4px;
+    -moz-border-radius: 4px; /* Firefox */
+    -webkit-border-radius: 4px; /* Safari 和 Chrome */
+    height: 240px;
+}
 
-.curDate{height:39px;
-         padding-left:18px;
-         color:#fff;
-         font-size: 14px;
-         line-height:39px;}
-.curDays{width:100%;
-         overflow:hidden;
-         background:#f8f8f8;
-           margin-top: -10px;}
+.datepicker.datepicker-inline{
+    margin-left: 20px;
+    color: #757575;
+    font-weight: normal;
+    font-size: 13px;
+}
 
-#dates{width:640px;}
+.datepicker table tr td.today{
+    color: #fe6567;
+}
 
-.curDays ul{width:315px;
-            float:left;
-            padding-left:5px;}
+td.active.day{
+  background: #c9612e;  
+}
 
-.curDays li{display:inline-block;
-            text-align:center;
-            height:40px;
-            font:12px/40px "";
-            cursor:pointer;
-            margin: auto;
-            width:40px;
-            color: #757575;
-            margin-top:8px;}
 
-.curDays li.on{
-                border-radius: 100%;
-                -moz-border-radius: 100%; /* Firefox */
-                -webkit-border-radius: 100%; /* Safari 和 Chrome */
-                border-radius: 100%; /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
-                color:#fe6567;}
-
-.curDays li.none{background:none;
-                 border:none;
-                 width:40px;
-                 height:30px;}
-
-.curDays li.light{-moz-border-radius: 100%; /* Firefox */
-                -webkit-border-radius: 100%; /* Safari 和 Chrome */
-                    border-radius: 100%; /* Opera 10.5+, 以及使用了IE-CSS3的IE浏览器 */
-                    background: #c9612e;
-                    color: #fff;}
+td .tody.day{
+     color:#fe6567;
+}
 
 .caption #button {
     margin-left: 10%;
@@ -127,7 +110,7 @@ src: url('lanting.TTF');/* IE9+ */
 #content {float: right;
         min-height: 850px;
         width: 800px;
-        border-right: #99948d 1px solid;}
+        /*border-right: #99948d 1px solid;*/}
 
 #content .con h5{font-size: 18px;
             margin:0 auto;
@@ -140,12 +123,13 @@ src: url('lanting.TTF');/* IE9+ */
                     margin-bottom: 20px;
                     color: #83817c;}
 
-#content .con p{font-size: 12px;
+/*#content .con p{font-size: 12px;
                 margin-left: 5%;
                 color: #83817c;
                 margin-right: 40px;
                 line-height: 23px;
-                text-indent: 23px;}
+                text-indent: 23px;}*/
+
 #content .con .my-pic {float: left;
                     width: 23%;
                     margin-left: 10%;

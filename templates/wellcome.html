@@ -63,7 +63,7 @@
                     <div class="dynamic-msg">
                         <img src="/static/imgs/message.png" alt="#">
                         <span>{{k.create_time_cn}}</span>
-                        <p><a href="#">{{k.title}}</a></p>
+                        <p><a target="_blank" href="{{url_for('account_notice.index')}}?nid={{k.id}}">{{k.title}}</a></p>
                     </div>
                     {% endfor %}
                     <!--
@@ -83,7 +83,7 @@
   						<p><a href="#"></a></p>
   					</div>-->
   					<div class="more">
-  						<a target="_blank" href="#">更多公司通知 ></a>
+  						<a target="_blank" href="{{url_for('account_notice.index')}}">更多公司通知 ></a>
   					</div>
   				</div>
   			</div>
