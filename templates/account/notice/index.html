@@ -1,97 +1,107 @@
 {% extends "base.html" %}
-{% block title %}首页{% endblock %}
+{% block title %}系统通知{% endblock %}
 {% block content %}
-
 <link rel="stylesheet" href="/static/css/more_msg.css">
     <div class="container" style="min-width: 950px;border-right: 1px solid #99948d">
-        <div class="row" style="margin-top:70px;">
+        <div class="row" style="margin-top:54px;">
             <div class="tabs">
                 <div class="caption">
-                    <div class="wrap">
-                        <div class="header">
-                            <p id="prev"><</p>
-                            <p id="next">></p>
-                            <span class="curDate"></span>
-                        </div>
-                        <p class="week">
-                            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
-                        </p>
-                        <div class="curDays">
-                            <div id="dates" class="dates">
-                                <ul class="caption-data"></ul>
-                                <ul></ul>
-                            </div>
-                        </div>
+                    <div class="wrap" id="datetime">
                     </div>
                     <div id="button">
-                        <li>
-                            <div class="icon">
-                                <img src="/static/imgs/new-icon.png" alt="#">
-                            </div>
-                            <div class="time-val">
-                                <span class="select">15.11.19 1:09</span>
-                                <p class="select">的风味的风味的风味的风味的金额为咖啡金额违法金额为...。</p>
-                                <div class="content"><h5>标题</h5>
-                                    <h6>2015.10.29 8:00</h6>
-                                    <pre>
-                                        a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...为...。
-                                    </pre>
-                                </div>
-                            </div>  
-                        </li>
-                        <li>
+                        {% for n in notices %}
+                        <li id="{{n.id}}">
                             <div class="icon">
                                 <img src="/static/imgs/msg.png" alt="#">
                             </div>
                             <div class="time-val">
-                                <span>15.11.19 1:09</span>
-                                <p>的风味的风味的风味的风味咖啡的风味的啡金额违法金额为...。</p>
-                                <div class="content">
-                                    <div class="my-pic">
-                                        <img src="/static/imgs/head-pic.png" alt="#">
-                                    </div>
-                                    <div class="msg-intro">
-                                        <p>名&nbsp;&nbsp;&nbsp;&nbsp;字:<span>直属部门</span></p>
-                                        <p>直属部门:<span>直属部门</span></p>
-                                        <p>职&nbsp;&nbsp;&nbsp;&nbsp;位:<span>直属部门</span></p>
-                                        <p>星&nbsp;&nbsp;&nbsp;&nbsp;座:<span>直属部门</span></p>
-                                        <p>直属领导:<span>直属部门</span></p>
-                                        <p>邮&nbsp;&nbsp;&nbsp;&nbsp;箱:<span>jiayuahn@1798.com.cn</span></p>
-                                        <p>联系电话:<span>15011572110</span></p>
-                                        <p>简&nbsp;&nbsp;&nbsp;&nbsp;介:<span>风味的风味咖啡的风味的风味的风</span></p>
-                                    </div>
-                                </div>
-                            </div>  
-                        </li>
-                        <li>
-                            <div class="icon">
-                                <img src="/static/imgs/msg.png" alt="#">
-                            </div>
-                            <div class="time-val">
-                                <span>15.11.19 1:09</span>
-                                <p>的风味的风味的风味的风味咖啡的风咖啡金额违法金额为...。</p>
-                                <div class="content"><h5>标题</h5>
-                                    <h6>2015.10.29 8:00</h6>
+                                <span {% if loop.index0 == 0%}class="select"{% endif %}>{{n.create_time_cn}}</span>
+                                <p {% if loop.index0 == 0%}class="select"{% endif %}>{{n.title}}</p>
+                                <div class="content"><h5>{{n.title}}</h5>
+                                    <h6>{{n.create_time_cn}}</h6>
                                     <pre>
-                                        3的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...为...。
+                                        {{n.content|safe}}
                                     </pre>
                                 </div>
                             </div>  
                         </li>
+                        {% endfor %}
                     </div>
                     <div class="tcdPageCode">
                     </div>
                 </div>
                 <div id="content">
+                {% if nid %}
                     <div class="con" style="display: block;">
-                        <h5>标题</h5>
-                        <h6>2015.10.29 8:00</h6>
-                        <pre>a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...a的风味的风味的风味的风味咖啡的风味的风味的风味的金额为咖啡金额违法金额为...为...。</pre>
-                    </div>  
+                        <h5>{{notice.title}}</h5>
+                        <h6>{{notice.create_time_cn}}</h6>
+                        <pre>{{notice.content|safe}}</pre>
+                    </div> 
+                {% else %}
+                    {% for n in notices %}
+                        {% if loop.index0 == 0 %}
+                            <div class="con" style="display: block;">
+                                <h5>{{n.title}}</h5>
+                                <h6>{{n.create_time_cn}}</h6>
+                                <pre>{{n.content|safe}}</pre>
+                            </div>  
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
                 </div>
             </div> 
         </div>
-    </div>  
+    </div>   
+<script>
+$(function(){
+    var nid = parseInt('{{nid}}');
+    if (nid > 0){
+        $('#button').find("p").removeClass("select");
+        $('#button').find("span").removeClass("select")
+        $('#'+nid.toString()).find("p").addClass("select")
+        $('#'+nid.toString()).find("span").addClass("select")
+    }
+    
+    $('#datetime').datepicker({
+        format: "yyyy-mm-dd",
+        language: "zh-CN",
+        todayHighlight: true
+    });
+    $('#datetime').on("changeDate", function() {
+        var date = $('#datetime').datepicker('getFormattedDate')
+        $.ajax({
+            type:'POST',
+            url:"{{url_for('account_notice.index_jsonp')}}",
+            async:true,
+            dataType:'json',
+            data:{'date':date},
+            success:function(data){
+                var obj = data['data'];
+                $('#button').empty()
+                $('#content').empty()
+                var list_notice_str = ""
+                var content_notice_str = ""
+                for (var i=0; i<obj.length; i++){
+                    var content = obj[i]['content']
+                    var title = obj[i]['title']
+                    var create_time_cn = obj[i]['create_time_cn']
+                    if (i==0){
+                        list_notice_str += "<li><div class='icon'><img src='/static/imgs/msg.png' alt='#''></div><div class='time-val'><span class='select'>"+create_time_cn+"</span><p class='select'>"+title+"</p><div class='content'><h5>"+title+"</h5><h6>"+create_time_cn+"</h6><pre>"+content+"</pre></div></div></li>"
+                        
+                        content_notice_str += "<div class='con' style='display: block;'><h5>"+title+"</h5><h6>"+create_time_cn+"</h6><pre>"+content+"</pre></div>"
+                    }else{
+                        list_notice_str += "<li><div class='icon'><img src='/static/imgs/msg.png' alt='#''></div><div class='time-val'><span>"+create_time_cn+"</span><p>"+title+"</p><div class='content'><h5>"+title+"</h5><h6>"+create_time_cn+"</h6><pre>"+content+"</pre></div></div></li>"
+                    }
+                    
+                }
+                $('#button').html(list_notice_str);
+                $('#content').html(content_notice_str);
+                on_show()
+            }
+        });
+    });
+})
+</script>
 {% endblock %}
 {% block bottom_script %}
 <script charset="utf-8" src="/static/js/more_msg.js"></script>

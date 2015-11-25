@@ -180,6 +180,42 @@
         </div>
     </div>
     {% endif %}
+    <div class="panel panel-default" id="new-invoice" style="display:none;">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-new"> 已打款信息 </a>
+        </h4>
+      </div>
+      <div id="collapse-invoice-new" class="panel-collapse collapse in">
+        <div class="panel-body">
+          <div class="well">
+              <h4></h4>
+              <form class="form form-horizontal" method="POST" action="{{url_for('finance_client_order_medium_pay.new_invoice_pay', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">打款时间 : </label>
+                  <div class="col-sm-4">
+                     <input type="text" id="pay_time" name="pay_time" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">打款金额 : </label>
+                  <div class="col-sm-4">
+                     <input type="text" id="money" name="money" value="0" class="form-control bra-form-control">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">留言 : </label>
+                  <div class="col-sm-4">
+                     <textarea type="text" id="detail" name="detail" class="form-control bra-form-control"></textarea>
+                  </div>
+              </div>
+              <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+            </form>
+          </div>
+        </div>
+      </div>
+  </div>
+  <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写已打款</button>
     <div>{{ comments_box(invoice.client_order, msg_channel=3) }}</div>
 </div>
 <div class="modal fade" id="update_pay_time_form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

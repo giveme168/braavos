@@ -193,6 +193,28 @@ def invoice_pay_num(invoice_id):
     return redirect(url_for("finance_client_order_medium_pay.info", order_id=invoice.client_order.id))
 
 
+@finance_client_order_medium_pay_bp.route('/<invoice_id>/new_invoice_pay', methods=['POST'])
+def new_invoice_pay(invoice_id):
+    if not g.user.is_finance():
+        abort(404)
+    invoice = MediumInvoice.get(invoice_id)
+    if not invoice:
+        abort(404)
+    money = float(request.values.get('money', 0))
+    pay_time = request.values.get('pay_time', '')
+    detail = request.values.get('detail', '')
+    pay = MediumInvoicePay.add(money=money,
+                               pay_status=0,
+                               medium_invoice=invoice,
+                               pay_time=pay_time,
+                               detail=detail)
+    pay.save()
+    flash(u'新建打款信息成功!', 'success')
+    invoice.client_order.add_comment(g.user, u"添加已打款信息  发票号：%s  打款金额：%s元  打款时间：%s" % (
+        invoice.invoice_num, str(money), pay_time), msg_channel=3)
+    return redirect(url_for("finance_client_order_medium_pay.info", order_id=invoice.client_order.id))
+
+
 @finance_client_order_medium_pay_bp.route('/<invoice_id>/pass', methods=['POST'])
 def invoice_pass(invoice_id):
     if not g.user.is_finance():
