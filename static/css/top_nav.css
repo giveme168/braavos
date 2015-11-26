@@ -12,7 +12,7 @@ src: url('lanting.TTF');/* IE9+ */
 	position: fixed;
 	width: 100%;
 	margin-top:52px;}
-.menu .list{width: 1010px;
+.menu .list{width: 1180px;
 			margin: 0 auto;}
 .menu .list ul {padding-top: 20px;
 				padding-left: 20px;
@@ -24,7 +24,7 @@ src: url('lanting.TTF');/* IE9+ */
 				text-align: center;
 				line-height: 30px;
 				margin-bottom: 10px;
-				margin-right:21px;
+				margin-right:45px;
 				width: 120px;
 				height: 46px;
 				text-align: center;

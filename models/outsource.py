@@ -368,8 +368,9 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def invoices_cn(self):
-        return '<br/>'.join([u'公司名称:' + k.company + u';发票信息:' + k.invoice_num + u';发票金额:' + str(k.money)
-                             + u';拆分金额:' + str(k.ex_money) + u';开票时间:' + k.add_time_cn for k in self.invoices])
+        return '<br/>'.join([u'公司名称:' + k.company + u';发票信息:' + k.invoice_num +
+                             u';发票金额:' + str(k.money) + u';拆分金额:' + str(k.ex_money) +
+                             u';开票时间:' + k.add_time_cn for k in self.invoices if k.company == self.target.name])
 
 
 class OutSourceExecutiveReport(db.Model, BaseModelMixin):
@@ -641,8 +642,9 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def invoices_cn(self):
-        return '<br/>'.join([u'公司名称:' + k.company + u';发票信息:' + k.invoice_num + u';发票金额:' + str(k.money) +
-                             u';拆分金额:' + str(k.ex_money) + u';开票时间:' + k.add_time_cn for k in self.invoices])
+        return '<br/>'.join([u'公司名称:' + k.company + u';发票信息:' + k.invoice_num +
+                             u';发票金额:' + str(k.money) + u';拆分金额:' + str(k.ex_money) +
+                             u';开票时间:' + k.add_time_cn for k in self.invoices if k.company == self.target.name])
 
 
 MERGER_OUTSOURCE_STATUS_PAIED = 0
