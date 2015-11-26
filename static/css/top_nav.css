@@ -11,7 +11,8 @@ src: url('lanting.TTF');/* IE9+ */
 	clear: both;
 	position: fixed;
 	width: 100%;
-	margin-top:52px;}
+	margin-top:52px;
+	z-index: 900}
 .menu .list{width: 1180px;
 			margin: 0 auto;}
 .menu .list ul {padding-top: 20px;
