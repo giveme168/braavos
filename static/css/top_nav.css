@@ -9,8 +9,11 @@ src: url('lanting.TTF');/* IE9+ */
 .menu{width: 100%;
 	background: #f0f1f3;
 	clear: both;
+	position: fixed;
+	width: 100%;
 	margin-top:52px;}
-
+.menu .list{width: 1010px;
+			margin: 0 auto;}
 .menu .list ul {padding-top: 20px;
 				padding-left: 20px;
 				margin: 0 auto;
@@ -32,13 +35,15 @@ src: url('lanting.TTF');/* IE9+ */
 					height: 30px;
 					text-align: center;}					
 
-.menu .list ul a :hover{background-color:#C9612E;
+.menu .list ul a :hover{background:#c9612e;
 						height:30px;
 						margin-bottom: 30px;}
 
-.menu .list ul .on{background-color:#C9612E;
+.form-list{width: 100%;}
+
+.menu .list ul .on{background:#c9612e;
 					height:30px;
-						margin-bottom: 30px;
+					margin-bottom: 30px;
 					}
 
 .form-list{width: 100%;}

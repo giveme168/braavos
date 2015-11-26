@@ -40,7 +40,7 @@ def douban_order():
     douban_orders = list(set([k.douban_order for k in DoubanOrderExecutiveReport.query.filter_by(
         month_day=now_month) if k.douban_order.status == 1]))
     douban_orders += list(set([k.order for k in MediumOrderExecutiveReport.query.filter_by(
-        month_day=now_month) if k.client_order.status == 1]))
+        month_day=now_month) if k.client_order.status == 1 and k.order.medium_id in [3, 8]]))
     if douban_orders:
         douban_orders = sorted(
             douban_orders, key=lambda x: getattr(x, 'id'), reverse=True)

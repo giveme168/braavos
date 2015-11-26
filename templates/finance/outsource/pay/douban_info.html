@@ -55,7 +55,7 @@
                           {% for o in t.outsources %}
                           <tr>
                               <td>{% if status==2 %}{{ t.create_time_cn }}{% else %}{{ o.create_time_cn }}{% endif %}</td>
-                              <td>{{ o.target.name }}</td>
+                              <td><a tabindex="0" class="popover_a" role="button" data-toggle="popover" data-trigger="focus" title="发票信息" data-content="{{o.invoices_cn|safe}}">{{ o.target.name }}</a></td>
                               <td>{{ o.target.bank }}</td>
                               <td>{{ o.target.card }}</td>
                               <td>{{ o.target.alipay }}</td>
@@ -113,7 +113,7 @@
         </div>
     </div>
 {%- endmacro %}
-<div class="container bra-box" style="width:1400px;">
+<div class="container bra-box" style="width:1600px;">
     {% if target %}
     <h3>外包收款方信息</h3>
     <table class="table table-bordered table-striped">
@@ -171,6 +171,11 @@ Date.prototype.Format = function (fmt) { //author: meizz
     $(e).parent().find(".outsource-id").trigger("change");
   }
   $(function(){
+    
+    $('.popover_a').popover({
+      html:true,
+      template:'<div class="popover" role="tooltip" style="min-width:800px;"><div class="arrow"></div><div class="popover-content" style="min-width:800px;"></div></div>'
+    })
     showoutsource = function(ele){
       $(ele).hide();
       $("#new-outsource").show();

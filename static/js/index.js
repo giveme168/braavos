@@ -73,6 +73,10 @@ $('.bussess').find('.drown-click').click(function(e){
 
 })
 
+$('.own-name').click(function(e){
+	e.stopPropagation();
+		my_message();
+})
 $('body').click(function(){
 	$('.menu-list').slideUp();
 	var Left=$('.head-icon').find('img').offset().left;
@@ -109,6 +113,7 @@ my_message=function(){
 	}
 
 })
+
 
 
 
