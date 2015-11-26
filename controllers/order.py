@@ -758,7 +758,7 @@ def new_framework_order():
         order.add_comment(g.user, u"新建了该框架订单")
         flash(u'新建框架订单成功, 请上传合同!', 'success')
         # 框架合同同步甲方返点信息
-        _insert_agent_rebate(order)
+        # _insert_agent_rebate(order)
         return redirect(url_for("order.framework_order_info", order_id=order.id))
     else:
         form.client_start.data = datetime.now().date()
@@ -873,7 +873,7 @@ def framework_order_info(order_id):
                     flash(u'[框架订单]%s 保存成功!' % order.name, 'success')
 
                     # 框架合同同步甲方返点信息
-                    _insert_agent_rebate(order)
+                    # _insert_agent_rebate(order)
         elif info_type == 2:
             if not g.user.is_contract():
                 flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')

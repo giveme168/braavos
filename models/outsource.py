@@ -5,6 +5,7 @@ from flask import url_for
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from models.user import User
+from models.invoice import OutsourceInvoice, DoubanOutsourceInvoice
 from libs.date_helpers import get_monthes_pre_days
 
 TARGET_TYPE_FLASH = 1
@@ -360,6 +361,16 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     def order(self):
         return self.medium_order.client_order
 
+    @property
+    def invoices(self):
+        client_order = self.medium_order.client_order
+        return OutsourceInvoice.query.filter_by(client_order=client_order)
+
+    @property
+    def invoices_cn(self):
+        return '<br/>'.join([u'公司名称:' + k.company + u';发票信息:' + k.invoice_num + u';发票金额:' + str(k.money)
+                             + u';拆分金额:' + str(k.ex_money) + u';开票时间:' + k.add_time_cn for k in self.invoices])
+
 
 class OutSourceExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_outsource_executive_report'
@@ -623,6 +634,15 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     @property
     def order(self):
         return self.douban_order
+
+    @property
+    def invoices(self):
+        return DoubanOutsourceInvoice.query.filter_by(douban_order=self.douban_order)
+
+    @property
+    def invoices_cn(self):
+        return '<br/>'.join([u'公司名称:' + k.company + u';发票信息:' + k.invoice_num + u';发票金额:' + str(k.money) +
+                             u';拆分金额:' + str(k.ex_money) + u';开票时间:' + k.add_time_cn for k in self.invoices])
 
 
 MERGER_OUTSOURCE_STATUS_PAIED = 0
