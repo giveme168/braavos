@@ -18,6 +18,20 @@
     </tr>
     {% for order in orders %}
     <tr>
+        {% if order.__tablename__ == 'bra_order' %}
+        <td>{{order.locations_cn}}</td>
+        <td>{{order.associated_douban_contract}}</td>
+        <td>{{order.client.name}}</td>
+        <td>{{order.medium.name}}</td>
+        <td>{{order.campaign}}</td>
+        <td>{{order.medium_money2|format_price}}</td>
+        <td>{{order.back_moneys|format_price}}</td>
+        <td>{{order.get_executive_report_medium_money_by_month(year, month, 'normal').medium_money2|format_price }}<br/></td>
+        <td>{{order.rebate_agent_douban_by_month(year, month)|format_price}}</th>
+        <td>{{order.profit_money(year, month)|format_price}}</td>
+        <td>{{order.start_date_cn}}</td>
+        <td>{{order.end_date_cn}}</td>
+        {% else %}
         <td>{{order.locations_cn}}</td>
         <td>{{order.contract}}</td>
         <td>{{order.client.name}}</td>
@@ -30,6 +44,7 @@
         <td>{{order.profit_money(year, month)|format_price}}</td>
         <td>{{order.start_date_cn}}</td>
         <td>{{order.end_date_cn}}</td>
+        {% endif %}
     </tr>
     {% endfor %}
 </table>

@@ -8,6 +8,7 @@ from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
+from models.client import Agent
 from .item import (ITEM_STATUS_CN, SALE_TYPE_CN,
                    ITEM_STATUS_LEADER_ACTIONS, OCCUPY_RESOURCE_STATUS,
                    ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY,
@@ -17,6 +18,7 @@ from models.excel import (
     ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
     EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
     EXCEL_DATA_TYPE_NUM, COLOUR_RED, COLOUR_LIGHT_GRAY)
+from models.invoice import MediumInvoice, MediumInvoicePay
 from consts import DATE_FORMAT
 from libs.date_helpers import get_monthes_pre_days
 
@@ -174,12 +176,24 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return self.client_orders[0].locations
 
     @property
+    def locations_cn(self):
+        return self.client_orders[0].locations_cn
+
+    @property
     def name(self):
         return self.medium.name
 
     @property
     def client_order(self):
         return ClientOrder.get(self.client_orders[0].id)
+
+    @property
+    def client(self):
+        return self.client_order.client
+
+    @property
+    def agent(self):
+        return self.client_order.agent
 
     @property
     def operater_names(self):
@@ -688,6 +702,34 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                 return u'无'
         else:
             return u'无'
+
+    def rebate_agent_douban_by_month(self, year, month):
+        if self.medium_id == 3:
+            try:
+                rebate = Agent.get(94).douban_rebate_by_year(year)
+            except:
+                rebate = 0
+        elif self.medium_id == 8:
+            try:
+                rebate = Agent.get(105).douban_rebate_by_year(year)
+            except:
+                rebate = 0
+        else:
+            rebate = 0
+        ex_money = self.get_executive_report_medium_money_by_month(
+            year, month, 'normal')['medium_money2']
+        return round(ex_money * rebate / 100, 2)
+
+    def profit_money(self, year, month):
+        return round(self.get_executive_report_medium_money_by_month(year, month, 'normal')['medium_money2'] * 0.4 -
+                     self.rebate_agent_douban_by_month(year, month), 2)
+
+    @property
+    def back_moneys(self):
+        medium_invoices = MediumInvoice.query.filter_by(
+            client_order=self.client_order, medium_id=self.medium_id)
+        return sum([k.money for k in MediumInvoicePay.all() if
+                    k.pay_status == 0 and k.medium_invoice in medium_invoices])
 
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):

@@ -29,20 +29,39 @@ def write_douban_order_excel(orders, year, month):
 
     th = 1
     for k in range(len(orders)):
-        worksheet.write(th, 0, orders[k].locations_cn, align_left)
-        worksheet.write(th, 1, orders[k].contract, align_left)
-        worksheet.write(th, 2, orders[k].client.name, align_left)
-        worksheet.write(th, 3, orders[k].agent.name, align_left)
-        worksheet.write(th, 4, orders[k].campaign, align_left)
-        worksheet.write(th, 5, orders[k].money, align_left)
-        worksheet.write(th, 6, orders[k].back_moneys, align_left)
-        worksheet.write(th, 7, orders[k].executive_report(
-            g.user, year, [month], 'normal')[0], align_left)
-        worksheet.write(
-            th, 8, orders[k].rebate_agent_by_month(year, month), align_left)
-        worksheet.write(th, 9, orders[k].profit_money(year, month), align_left)
-        worksheet.write(th, 10, orders[k].start_date_cn, align_left)
-        worksheet.write(th, 11, orders[k].end_date_cn, align_left)
+        if orders[k].__tablename__ == 'bra_order':
+            worksheet.write(th, 0, orders[k].locations_cn, align_left)
+            worksheet.write(
+                th, 1, orders[k].associated_douban_contract, align_left)
+            worksheet.write(th, 2, orders[k].client.name, align_left)
+            worksheet.write(th, 3, orders[k].medium.name, align_left)
+            worksheet.write(th, 4, orders[k].campaign, align_left)
+            worksheet.write(th, 5, orders[k].medium_money2, align_left)
+            worksheet.write(th, 6, orders[k].back_moneys, align_left)
+            worksheet.write(th, 7, orders[k].get_executive_report_medium_money_by_month(
+                year, month, 'normal')['medium_money2'], align_left)
+            worksheet.write(th, 8, orders[k].rebate_agent_douban_by_month(
+                year, month), align_left)
+            worksheet.write(th, 9, orders[k].profit_money(
+                year, month), align_left)
+            worksheet.write(th, 10, orders[k].start_date_cn, align_left)
+            worksheet.write(th, 11, orders[k].end_date_cn, align_left)
+        else:
+            worksheet.write(th, 0, orders[k].locations_cn, align_left)
+            worksheet.write(th, 1, orders[k].contract, align_left)
+            worksheet.write(th, 2, orders[k].client.name, align_left)
+            worksheet.write(th, 3, orders[k].agent.name, align_left)
+            worksheet.write(th, 4, orders[k].campaign, align_left)
+            worksheet.write(th, 5, orders[k].money, align_left)
+            worksheet.write(th, 6, orders[k].back_moneys, align_left)
+            worksheet.write(th, 7, orders[k].executive_report(
+                g.user, year, [month], 'normal')[0], align_left)
+            worksheet.write(
+                th, 8, orders[k].rebate_agent_by_month(year, month), align_left)
+            worksheet.write(th, 9, orders[k].profit_money(
+                year, month), align_left)
+            worksheet.write(th, 10, orders[k].start_date_cn, align_left)
+            worksheet.write(th, 11, orders[k].end_date_cn, align_left)
         th += 1
     workbook.close()
     response.data = output.getvalue()
