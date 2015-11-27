@@ -177,8 +177,6 @@ def update_invoice(invoice_id, redirect_endpoint='searchAd_saler_client_order_me
     if request.method == 'POST':
         if not form.invoice_num.data:
             flash(u"修改打款发票失败，发票号不能为空", 'danger')
-        elif not form.money.data:
-            flash(u"修改打款发票失败，发票金额不能为空", 'danger')
         else:
             invoice.company = form.company.data,
             invoice.tax_id = form.tax_id.data,

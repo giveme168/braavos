@@ -283,7 +283,10 @@ class searchAdMediumInvoice(db.Model, BaseModelMixin):
 
     @property
     def add_time_cn(self):
-        return self.add_time.strftime("%Y-%m-%d")
+        try:
+            return self.add_time.strftime("%Y-%m-%d")
+        except:
+            return datetime.datetime.now().strftime("%Y-%m-%d")
 
     @property
     def pay_time_cn(self):
