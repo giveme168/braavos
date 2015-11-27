@@ -1,7 +1,8 @@
-{% extends "/order_base.html" %}
+{% extends "/base.html" %}
 
-{% block main_box%}
-<div class="bra-main bra-box">
+{% block content %}
+{% include "order_base.html" %}
+<div class="container bra-box">
     <table class="table table-bordered table-striped">
         <tr>
             <th>所有合同文件名</th>
