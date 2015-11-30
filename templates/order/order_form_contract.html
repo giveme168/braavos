@@ -134,6 +134,7 @@
     </div>
     <div class="form-group">
         <label class="col-sm-2 control-label">操作 : </label>
+        <input type="hidden" value="{{order.__tablename__}}" id="table_name">
         <div class="col-sm-6">
             {% if order.media_apply %}
               {% if order.contract_status == 0 and order.can_admin(g.user) %}
@@ -257,6 +258,38 @@
    var actionVal = $(this).val();
    var email = $("#contract-email").val();
    var msg = $("#msg").val();
+   var table_name = $('#table_name').val()
+   if(actionVal == '1'){
+      if(table_name == 'bra_client_order'){
+        var money = parseFloat($('#money').val());
+        var client_start = new Date($('#client_start').val());
+        var client_end = new Date($('#client_end').val());
+        
+        var sale_money = 0
+        var sale_money_dom = $("input[name='sale_money']");
+        var medium_start_dom = $("input[name='medium_start']");
+        var medium_end_dom = $("input[name='medium_end']");
+
+        for (var i=0; i<sale_money_dom.length-1; i++){
+          var medium_start = new Date(medium_start_dom[i].value);
+          var medium_end = new Date(medium_end_dom[i].value);
+          if (medium_start < client_start){
+            e.preventDefault();
+            alert('媒体合同的执行时间必须在客户合同执行时间内，请确认后进行审批')
+          }
+          if (medium_end > client_end){
+            e.preventDefault();
+            alert('媒体合同的执行时间必须在客户合同执行时间内，请确认后进行审批')
+          }
+          sale_money += parseFloat(sale_money_dom[i].value);
+        }
+        if (money != sale_money){
+          e.preventDefault();
+          alert('客户合同金额与媒体合同售卖金额总和不符，请确认后进行审批!');
+        }
+        
+      }
+   }
    if(actionVal == '2' || actionVal == '4' || actionVal == '7'){
      if(msg == ""){
          e.preventDefault();
