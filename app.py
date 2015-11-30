@@ -49,7 +49,7 @@ def request_user():
 
 @app.route('/')
 def index():
-    if not UserHandBook.query.filter_by(user = g.user).first():
+    if not UserHandBook.query.filter_by(user = g.user).first() and not g.user.is_other_person():
         return redirect(url_for('account_data.handbook'))
     notices = Notice.all()[:10]
     return render_template("wellcome.html", notices=notices)

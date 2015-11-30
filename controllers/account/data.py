@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-from flask import Blueprint, request, redirect, g, jsonify, flash, json, current_app as app
-from flask import url_for, render_template as tpl
+from flask import Blueprint, request, redirect, g, flash, json, current_app as app
+from flask import url_for, make_response, render_template as tpl
 from wtforms import SelectMultipleField
 
 from models.user import User, UserHandBook
@@ -48,10 +48,10 @@ def notice_create():
         content = request.values.get('content', '')
         if not title:
             flash(u'请填写标题', 'danger')
-            return tpl('/account/data/notice.html', to_emails=User.all_active())
+            return tpl('/account/data/notice/create.html', to_emails=User.all_active(), notice=None)
         if not content:
             flash(u'请填写内容', 'danger')
-            return tpl('/account/data/notice.html', to_emails=User.all_active())
+            return tpl('/account/data/notice/create.html', to_emails=User.all_active(), notice=None)
         Notice.add(
             title=title,
             emails=json.dumps(emails),
@@ -83,10 +83,10 @@ def notice_update(nid):
         content = request.values.get('content', '')
         if not title:
             flash(u'请填写标题', 'danger')
-            return tpl('/account/data/notice.html', notice=notice, to_emails=User.all_active())
+            return tpl('/account/data/notice/create.html', notice=notice, to_emails=User.all_active())
         if not content:
             flash(u'请填写内容', 'danger')
-            return tpl('/account/data/notice.html', notice=notice, to_emails=User.all_active())
+            return tpl('/account/data/notice/create.html', notice=notice, to_emails=User.all_active())
         notice.title = title
         notice.emails = json.dumps(emails)
         notice.create_time = create
@@ -100,6 +100,32 @@ def notice_update(nid):
 
 @account_data_bp.route('/upload', methods=['POST'])
 def upload():
+    error = ''
+    url = ''
+    callback = request.args.get('CKEditorFuncNum')
+    if request.method == 'POST' and 'upload' in request.files:
+        try:
+            request.files['upload'].filename.encode('gb2312')
+        except:
+            error = u"文件名中包含非正常字符，请使用标准字符"
+            res = """<script type="text/javascript">
+                    window.parent.CKEDITOR.tools.callFunction(%s, '%s', '%s');
+                </script>
+            """ % (callback, url, error)
+            response = make_response(res)
+            response.headers["Content-Type"] = "text/html"
+            return response
+        filename = files_set.save(request.files['upload'])
+        url = app.config['DOMAIN'] + files_set.url(filename)
+    else:
+        error = 'POST error'
+    res = """<script type="text/javascript">
+    window.parent.CKEDITOR.tools.callFunction(%s, '%s', '%s');
+    </script>""" % (callback, url, error)
+    response = make_response(res)
+    response.headers["Content-Type"] = "text/html"
+    return response
+    '''
     try:
         request.files['imgFile'].filename.encode('gb2312')
     except:
@@ -107,3 +133,4 @@ def upload():
     filename = files_set.save(request.files['imgFile'])
     url = app.config['DOMAIN'] + files_set.url(filename)
     return jsonify({"error": 0, "url": url})
+    '''

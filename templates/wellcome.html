@@ -511,7 +511,9 @@
               {% if g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
               <li><a target="_blank" href="{{url_for('account_data.notice_index')}}">系统通知</a></li>
               {% endif %}
+              {% if not g.user.is_other_person() %}
               <li><a target="_blank" href="{{url_for('account_data.handbook')}}">员工手册</a></li>
+              {% endif %}
             </ul>
           </div>
         </div>

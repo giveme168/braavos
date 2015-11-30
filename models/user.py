@@ -15,6 +15,8 @@ USER_STATUS_CN = {
     USER_STATUS_OFF: u"停用",
     USER_STATUS_ON: u"有效"
 }
+
+TEAM_TYPE_OUT_INAD = 23  # 外部其他
 TEAM_TYPE_SEARCH_AD_LEADER = 22  # 360搜索广告销售Leader
 TEAM_TYPE_SEARCH_AD_SELLER = 21  # 360搜索广告销售
 TEAM_TYPE_MEDIA_LEADER = 20       # 内部-媒介Leader
@@ -62,7 +64,8 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_OPS_LEADER: u'内部行政-Leader',
     TEAM_TYPE_MEDIA_LEADER: u'内部-媒介Leader',
     TEAM_TYPE_SEARCH_AD_SELLER: u'360搜索广告销售',
-    TEAM_TYPE_SEARCH_AD_LEADER: u'360搜索广告销售Leader'
+    TEAM_TYPE_SEARCH_AD_LEADER: u'360搜索广告销售Leader',
+    TEAM_TYPE_OUT_INAD: u'外部-其他'
 }
 
 TEAM_LOCATION_DEFAULT = 0
@@ -401,6 +404,9 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
 
     def is_team_admin(self):
         return self in self.team.admins
+
+    def is_other_person(self):
+        return self.team.type == TEAM_TYPE_OUT_INAD
 
 
 team_admins = db.Table('team_admin_users',
