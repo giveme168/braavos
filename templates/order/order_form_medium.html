@@ -38,6 +38,14 @@
             {% endif %}
           </tr>
           <tr>
+            <th>执行开始时间</th>
+            <th>{{order.start_date_cn}}</th>
+          </tr>
+          <tr>
+            <th>执行结束时间</th>
+            <th>{{order.end_date_cn}}</th>
+          </tr>
+          <tr>
             <th>预估量 </th>
             {% if g.user.is_media() %}
             <td><input type='text' value="{{order.sale_CPM or 0}}" class="form-control bra-form-control" name="sale_CPM" style="width:100px;"/> CPM</td>
