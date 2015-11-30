@@ -641,7 +641,8 @@ def delete_orders():
 
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or \
+            g.user.is_media_leader() or g.user.is_finance():
         orders = ClientOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -912,9 +913,10 @@ def framework_order_info(order_id):
 
 @order_bp.route('/my_framework_orders', methods=['GET'])
 def my_framework_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or\
+            g.user.is_contract():
         orders = FrameworkOrder.all()
-        if g.user.is_admin() or g.user.is_contract():
+        if g.user.is_admin() or g.user.is_contract() or g.user.is_finance():
             pass
         elif g.user.is_super_leader():
             orders = [o for o in orders if o.contract_status ==
@@ -1161,7 +1163,8 @@ def douban_order_info(order_id):
 
 @order_bp.route('/my_douban_orders', methods=['GET'])
 def my_douban_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or\
+            g.user.is_media_leader() or g.user.is_finance():
         orders = DoubanOrder.all()
     elif g.user.is_leader():
         orders = [

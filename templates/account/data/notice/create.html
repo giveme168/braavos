@@ -8,7 +8,7 @@
         <div class="col-md-10 main">
             <h1 class="page-header">发布通知</h1>
             <div class="table-responsive">
-                <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" >
+                <form class="form-horizontal" role="form" method="post" onsubmit="return check_from()">
                     <div class="form-group">
                         <label class="col-sm-2 control-label">通知标题</label>
                         <div class="col-sm-8">
@@ -36,7 +36,7 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">内容</label>
                         <div class="col-sm-10">
-                          <textarea id="content" name="content" class="form-control" style="height:500px;">{{notice.content|safe}}</textarea>
+                          <textarea id="content" name="content" class="form-control" >{{notice.content|safe}}</textarea>
                         </div>
                     </div>
                     <div class="form-group">
@@ -51,13 +51,45 @@
     </div>
 </div>
 <script>
+function check_from(){
+    var title = $('#title').val();
+    var create = $('#create').val();
+    var content = $('#content').val();
+    if(title == ''){
+      alert('请输入标题');
+      $('#title').focus();
+      return false;
+    }else if (create == ''){
+      alert('请选择发布时间')
+      $('#create').focus();
+      return false;
+    }else if (content == ''){
+      alert('请填写新闻内容')
+      $('#content').focus();
+      return false;
+    }else{
+      return true;
+    }
+  }
 $(document).ready(function(){
-  KindEditor.ready(function(K) {
-       editor = K.create('#content', {
-            uploadJson : "{{url_for('account_data.upload')}}",
-            themeType : 'simple',
-            langType: 'zh_CN'
-        });
+  CKEDITOR.replace('content',{
+      filebrowserUploadUrl: "{{url_for('account_data.upload')}}",
+      height:600,
+      toolbarGroups: [
+        { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+        /*{ name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },*/
+        { name: 'links' },
+        { name: 'insert' },
+        /*{ name: 'forms' },*/
+        { name: 'tools' },
+        { name: 'document',    groups: [ 'mode', 'document', 'doctools' ] },
+        { name: 'others' },
+        { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+        { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+        { name: 'styles' },
+        { name: 'colors' },
+        { name: 'about' }
+      ],
   });
   $('#create').datetimepicker({
       format: 'yyyy-mm-dd hh:ii',
@@ -73,10 +105,12 @@ $(document).ready(function(){
   emails.push('{{k}}')
   {% endfor %}
   $("#emails").val(emails).trigger('chosen:updated');
+  $('#content').html('');
 })
 </script>
 {% endblock %}
 {% block bottom_script %}
+<script src="//cdn.ckeditor.com/4.5.5/full/ckeditor.js"></script>
 <script charset="utf-8" src="/static/kindeditor/kindeditor-min.js"></script>
 <script charset="utf-8" src="/static/kindeditor/lang/zh_CN.js"></script>
 {% endblock %}
