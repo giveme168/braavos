@@ -7,7 +7,7 @@ from wtforms import SelectMultipleField
 
 from models.user import User, UserHandBook
 from models.account.data import Notice
-from libs.files import files_set
+from libs.files import all_files_set
 from libs.wtf import Form
 
 account_data_bp = Blueprint(
@@ -115,8 +115,8 @@ def upload():
             response = make_response(res)
             response.headers["Content-Type"] = "text/html"
             return response
-        filename = files_set.save(request.files['upload'])
-        url = app.config['DOMAIN'] + files_set.url(filename)
+        filename = all_files_set.save(request.files['upload'])
+        url = app.config['DOMAIN'] + all_files_set.url(filename)
     else:
         error = 'POST error'
     res = """<script type="text/javascript">

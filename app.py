@@ -51,7 +51,7 @@ def request_user():
 def index():
     if not UserHandBook.query.filter_by(user = g.user).first() and not g.user.is_other_person():
         return redirect(url_for('account_data.handbook'))
-    notices = Notice.all()[:10]
+    notices = Notice.all()[:4]
     return render_template("wellcome.html", notices=notices)
     # if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()):
     #     return redirect(url_for('searchAd_order.index'))

@@ -1,0 +1,106 @@
+{% extends "/base.html" %}
+{% block title %}普通订单执行成本{% endblock %}
+{% macro all_items(orders) -%}
+<table class="table table-bordered">
+    <tr>
+        <th>所属区域</th>
+        <th style="width:165px;">合同号</th>
+        <th>客户名称</th>
+        <th>直客/代理</th>
+        <th>项目名称</th>
+        <th>合同总金额</th>
+        <th>已回款金额</th>
+        <th>客户{{month}}月执行额</th>
+        <th style="width:100px;">投放媒体</th>
+        <th style="width:165px;">媒体合同号</th>
+        <th>媒体合同下单金额</th>
+        <th>{{month}}月下单金额</th>
+        <th>{{month}}月媒体执行金额</th>
+        <th>{{month}}月合同利润</th>
+        <th>合同开始</th> 
+        <th>合同结束</th> 
+    </tr>
+    {% for order in orders %}
+    <tr>
+        <td>{{order.locations_cn}}</td>
+        <td>{{order.contract or '无'}}</td>
+        <td>{{order.client.name}}</td>
+        <td>{{order.agent.name}}</td>
+        <td>{{order.campaign}}</td>
+        <td>{{order.money|format_price}}</td>
+        <td>{{order.back_moneys|format_price}}</td>
+        <td>{{order.executive_report(g.user, year, [month], 'normal')[0]|format_price}}</td>
+        <td>
+            {% for k in order.medium_orders %}
+            {{ k.name }}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in order.medium_orders %}
+            {{ k.medium_contract or '无'}}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in order.medium_orders %}
+            {{ k.medium_money2|format_price  or '0'}}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in order.medium_orders %}
+            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').sale_money|format_price }}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in order.medium_orders %}
+            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').medium_money2|format_price }}<br/>
+            {% endfor %}
+        </td>
+        <td>{{order.profit_money(year, month)|format_price}}</td>
+        <td>{{order.start_date_cn}}</td>
+        <td>{{order.end_date_cn}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{%- endmacro %}
+{% block content %}
+{% include "/searchAd/data_query/data_query_base.html" %}
+<div class="container bra-box" style="width:2200px;">
+    <h3>普通订单执行成本</h3>
+    <div class="search">
+        <form class="form-inline" role="form" action="" method='get'>
+        <div class="form-group">
+            <select class="form-control" name="year" id="year" placeholder="选择执行年" style="width:100px;">
+                {% for k in range(0, 10) %}
+                <option value="{{2014+k}}">{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="month" id="month" placeholder="选择执行月" style="width:80px;">
+                {% for k in range(1, 13) %}
+                <option value="{{k}}">{{k}}月</option>
+                {% endfor %}
+            </select>
+        </div>
+        <input type="submit" value="查询" class="btn btn-sm btn-info" >
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+        </form>
+    </div>
+    <br>
+    {{ all_items(client_orders) }}
+</div>
+<script>
+    $(function(){
+        //$("#year option[value='{{year}}']").attr("selected","selected");  
+        $("#year").val("{{year}}");
+        $("#year").trigger("chosen:updated");
+        $("#month").val("{{month}}")
+        //$("#month option[value='{{month}}']").attr("selected","selected");  
+        $("#month").trigger("chosen:updated");
+    })
+    function download(){
+         window.location.href = window.location.pathname +
+          '?year=' + $('#year').val() +'&month=' + $('#month').val() + '&action=download';
+    }
+</script>
+{% endblock %}

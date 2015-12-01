@@ -23,6 +23,7 @@ from urls.searchAd.order import searchAd_order_register_blueprint
 from urls.searchAd.client import searchAd_client_register_blueprint
 from urls.searchAd.saler import searchAd_saler_register_blueprint
 from urls.searchAd.finance import searchAd_finance_register_blueprint
+from urls.searchAd.data_query import searchAd_data_query_register_blueprint
 
 
 def register_blueprint(app):
@@ -50,3 +51,4 @@ def register_blueprint(app):
     searchAd_client_register_blueprint(app)
     searchAd_saler_register_blueprint(app)
     searchAd_finance_register_blueprint(app)
+    searchAd_data_query_register_blueprint(app)

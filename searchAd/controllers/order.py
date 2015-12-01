@@ -325,6 +325,7 @@ def order_new_medium(order_id):
         co.add_comment(g.user, u"新建了媒体订单: %s %s %s" %
                        (mo.medium.name, mo.sale_money, mo.medium_money))
         flash(u'[媒体订单]新建成功!', 'success')
+        _insert_executive_report(mo, 'reload')
         return redirect(mo.info_path())
     return tpl('searchAd_order_new_medium.html', form=form)
 

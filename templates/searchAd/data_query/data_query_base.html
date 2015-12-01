@@ -1,0 +1,29 @@
+<div class="container-fluid top_nav_fluid">
+    <div class="menu">
+        <div class="list">
+          <ul>
+            {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_searchad_leader() %}
+            <a href="{{url_for('searchAd_data_query_profit.client_order')}}">
+              <li id="_profitclient_order_" >媒体订单执行成本</li>
+            </a>
+            <a href="{{url_for('searchAd_data_query_profit.rebate_order')}}">
+              <li id="_profitrebate_order_" >返点订单执行成本</li>
+            </a>
+            {% endif %}
+            <div class="line" style="clear: both"></div>
+          </ul>
+        </div>
+        <div class="list">
+          <ul>
+            
+          </ul>
+        </div>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[3]+p_pathname[4]+'_').addClass("on");
+    })
+</script>
