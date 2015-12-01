@@ -105,7 +105,10 @@ $(document).ready(function(){
   emails.push('{{k}}')
   {% endfor %}
   $("#emails").val(emails).trigger('chosen:updated');
-  $('#content').html('');
+  var pathname = window.location.pathname;
+  if (pathname.find('update')<0){
+    $('#content').html('');
+  }
 })
 </script>
 {% endblock %}

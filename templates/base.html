@@ -112,8 +112,8 @@ width: 100%; z-index:999;border-radius:0;top:0;">
         <li><a target="_blank" href="http://mail.inad.com/">企业邮箱</a></li>
         <li>·</li>
         <li><a target="_blank" href="http://www.inad.com/">致趣官网</a></li>
-        <li>·</li>
         {% if not g.user.is_other_person() %}
+        <li>·</li>
         <li><a target="_blank" href="{{url_for('account_data.handbook')}}">员工手册</a></li>
         {% endif %}
       </ul>

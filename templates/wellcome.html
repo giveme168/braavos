@@ -52,6 +52,11 @@
   						<span>15.11.19 1:09</span>
   						<p><a href="#">XXX项目审批通过</a></p>
   					</div>
+                    <div class="dynamic-msg">
+                        <img src="/static/imgs/message.png" alt="#">
+                        <span>15.11.19 1:09</span>
+                        <p><a href="#">请月底核查一下自己的项目是否正确</a></p>
+                    </div>
   					<div class="more">
   						<a href="#">更多个人通知 ></a>
   					</div>
@@ -537,8 +542,21 @@
 				 </div>
 				  <div class="menu-list">
 				  	<ul>
-				  		<li><a href="{{url_for('data_query_weekly.douban_index')}}" target="_blank">致趣数据管理</a></li>
-				  	</ul>
+                        {% if g.user.is_searchad_leader() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
+                      <!--搜索部门-->
+                        <li><a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank">搜索部门数据管理</a></li>
+                      <!--搜索部门结束-->
+                      {% else %}
+                      <!--致趣订单-->
+                        <li><a href="{{url_for('data_query_weekly.douban_index')}}" target="_blank">致趣数据管理</a></li>
+                        {% if g.user.is_super_leader() or g.user.is_finance() %}
+                        <!--搜索部门-->
+                          <li><a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank">搜索部门数据管理</a></li>
+                        <!--搜索部门结束-->
+                        {% endif %}
+                      <!--致趣订单结束-->
+                      {% endif %}
+                    </ul>
 				  </div>
 				</div>
 			</div>

@@ -252,14 +252,12 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     def sum_rebate_medium_by_month(self, year, month):
         return sum([k.rebate_medium_by_month(year, month) for k in self.medium_orders])
 
-    def sum_medium_exmoney_by_month(self, year, month):
-        return sum([k.get_executive_report_medium_money_by_month(year, month, 'normal')['medium_money2']
+    def sum_medium_money_by_month(self, year, month, type):
+        return sum([k.get_executive_report_medium_money_by_month(year, month, 'normal')[type]
                     for k in self.medium_orders])
 
     def profit_money(self, year, month):
-        return self.executive_report(g.user, year, [month], 'normal')[0] - self.rebate_agent_by_month(year, month) - \
-            self.sum_medium_exmoney_by_month(
-                year, month) + self.sum_rebate_medium_by_month(year, month)
+        return self.sum_medium_money_by_month(year, month, 'sale_money') - self.sum_medium_money_by_month(year, month, 'medium_money2')
 
     @property
     def mediums_rebate_money(self):
