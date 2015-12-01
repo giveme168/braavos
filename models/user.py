@@ -278,9 +278,7 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
 
     @classmethod
     def sales(cls):
-        return (cls.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER) +
-                cls.gets_by_team_type(TEAM_TYPE_AGENT_SELLER) +
-                cls.leaders())
+        return [u for u in cls.all() if u.team.type in [TEAM_TYPE_DIRECT_SELLER, TEAM_TYPE_AGENT_SELLER,TEAM_TYPE_LEADER]]
 
     @classmethod
     def searchAd_sales(cls):
