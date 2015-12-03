@@ -109,7 +109,8 @@ def money():
                 rebate_order_money['ex_money'].append(round(ex_money, 2))
             else:
                 rebate_order_money['ex_money'].append(0.0)
-
+    # 搜索部门毛利：普通订单收入+返点订单收入-执行金额
+    searchAD_money['profit'] = numpy.array(searchAD_money['profit']) + numpy.array(rebate_order_money['ex_money'])
     # 搜索部门合同结束
     youli_money = _get_medium_moneys(medium_orders, pre_monthes, 3)
     wuxian_money = _get_medium_moneys(medium_orders, pre_monthes, 8)

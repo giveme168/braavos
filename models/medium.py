@@ -73,6 +73,19 @@ ad_position_unit_table = db.Table('ad_position_unit',
                                       'unit_id', db.Integer, db.ForeignKey('ad_unit.id'))
                                   )
 
+LEVEL_S = 1
+LEVEL_A = 2
+LEVEL_B = 3
+LEVEL_C = 4
+LEVEL_OTHER = 100
+LEVEL_CN = {
+    LEVEL_S: u"S级",
+    LEVEL_A: u"A级",
+    LEVEL_B: u"B级",
+    LEVEL_C: u"C级",
+    LEVEL_OTHER: u"其他"
+}
+
 
 class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'medium'
@@ -83,6 +96,7 @@ class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     owner_id = db.Column(db.Integer, db.ForeignKey('team.id'))
     owner = db.relationship(
         'Team', backref=db.backref('mediums', lazy='dynamic'))
+    level = db.Column(db.Integer)
     tax_num = db.Column(db.String(100))  # 税号
     address = db.Column(db.String(100))  # 地址
     phone_num = db.Column(db.String(100))  # 电话
@@ -91,10 +105,11 @@ class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     rebates = db.relationship('MediumRebate')
     __mapper_args__ = {'order_by': id.desc()}
 
-    def __init__(self, name, owner, abbreviation=None, tax_num="",
+    def __init__(self, name, owner, level=100, abbreviation=None, tax_num="",
                  address="", phone_num="", bank="", bank_num=""):
         self.name = name
         self.owner = owner
+        self.level = level
         self.abbreviation = abbreviation or ""
         self.tax_num = tax_num
         self.address = address
@@ -168,6 +183,10 @@ class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         else:
             update_time = ''
         return update_time
+
+    @property
+    def level_cn(self):
+        return LEVEL_CN[self.level or 100]
 
 
 class MediumRebate(db.Model, BaseModelMixin):

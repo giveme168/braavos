@@ -105,6 +105,40 @@
         </form>
         {% endif %}
     </div>
+    <div class="panel panel-default" id="non-invoice">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 公司信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-0" class="panel-collapse collapse in">
+            <div class="panel-body">
+                
+                <div class="col-md-12">
+                    <div class="col-md-21" style="">
+                        <table class="table table-bordered table-striped">
+                          <tr>
+                            <th>公司名称</th>
+                            <th>公司税号</th>
+                            <th>公司地址</th>
+                            <th>公司电话</th>
+                            <th>开户行</th>
+                            <th>银行账号</th>
+                          </tr>
+                          <tr>
+                            <td>{{invoice.agent.name}}</td>
+                            <td>{{invoice.agent.tax_num}}</td>
+                            <td>{{invoice.agent.address}}</td>
+                            <td>{{invoice.agent.phone_num}}</td>
+                            <td>{{invoice.agent.bank}}</td>
+                            <td>{{invoice.agent.bank_num}}</td>
+                          </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     {% set invoices_data_apply = invoice.get_invoice_pas_by_status(3) %}
     {% set invoices_data_pass = invoice.get_invoice_pas_by_status(0) %}
     {% if invoices_data_pass|length > 0 %}

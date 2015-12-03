@@ -436,12 +436,15 @@ class OutSourceExecutiveReport(db.Model, BaseModelMixin):
 
     @property
     def order(self):
-        if self.otype == 1:
-            order = OutSource.get(self.outsource_id).client_order
-        else:
-            order = DoubanOutSource.get(self.outsource_id).douban_order
-        return order
-
+        try:
+            if self.otype == 1:
+                order = OutSource.get(self.outsource_id).client_order
+            else:
+                order = DoubanOutSource.get(self.outsource_id).douban_order
+            return order
+        except:
+            return None
+            
     @property
     def order_status(self):
         if self.otype == 1:

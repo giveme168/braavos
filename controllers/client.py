@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
+import operator
 
 from flask import Blueprint, request, redirect, abort, url_for, g
 from flask import render_template as tpl, flash
@@ -197,6 +198,7 @@ def medium_detail(medium_id):
     if request.method == 'POST' and form.validate():
         medium.name = form.name.data
         medium.owner = Team.get(form.owner.data)
+        medium.level = form.level.data
         medium.abbreviation = form.abbreviation.data
         medium.tax_num = form.tax_num.data
         medium.address = form.address.data
@@ -208,6 +210,7 @@ def medium_detail(medium_id):
     else:
         form.name.data = medium.name
         form.owner.data = medium.owner_id
+        form.level.data = medium.level or 100
         form.abbreviation.data = medium.abbreviation
         form.tax_num.data = medium.tax_num
         form.address.data = medium.address
@@ -220,6 +223,11 @@ def medium_detail(medium_id):
 @client_bp.route('/mediums', methods=['GET'])
 def mediums():
     mediums = Medium.all()
+    mediums = [{'files_update_time': k.files_update_time,
+                'level_cn': k.level_cn,'owner_name':k.owner.name,
+                'id': k.id, 'name': k.name, 'level': k.level or 100
+                }for k in Medium.all()]
+    mediums = sorted(mediums, key=operator.itemgetter('level'), reverse=False)
     return tpl('/client/medium/index.html', mediums=mediums)
 
 

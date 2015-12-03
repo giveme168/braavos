@@ -86,6 +86,7 @@ def index():
 
 @data_query_outsource_bp.route('/info', methods=['GET'])
 def info():
+    log_now_date = datetime.datetime.now()
     now_year = request.values.get('year', datetime.datetime.now().year)
     now_year_date = datetime.datetime.strptime(str(now_year), '%Y')
     start_date = now_year_date
@@ -94,9 +95,8 @@ def info():
     outsources = [{'order': k.order, 'month': k.month_day, 'pay_num': k.pay_num,
                    'type': k.type} for k in OutSourceExecutiveReport.query.filter(
         OutSourceExecutiveReport.month_day >= start_date,
-        OutSourceExecutiveReport.month_day <= end_date)
-        if k.contract_status not in [7, 8, 9] and k.order_status == 1]
-
+        OutSourceExecutiveReport.month_day <= end_date) if k.order]
+    outsources = [k for k in outsources if k['order'].contract_status not in [7, 8, 9] and k['order'].status == 1] 
     pre_monthes = get_monthes_pre_days(start_date, end_date)
     pre_month_orders = {}
 
@@ -114,7 +114,6 @@ def info():
     for k in pre_monthes:
         pre_month_orders[str(k['month'].month)] = list(
             set([s['order'] for s in outsources if s['month'] == k['month']]))
-
     # 获取单个合同每个季度的单项外包数据
     for k in range(len(pre_month_orders.values())):
         orders = pre_month_orders.values()[k]

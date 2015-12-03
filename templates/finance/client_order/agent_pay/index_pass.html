@@ -12,7 +12,9 @@
     <table class="table table-bordered table-striped">
         <tr>
             <th>客户名称</th>
-            <th>媒体总金额</th>
+            <th>合同号</th>
+            <th>合同金额</th>
+            <th>收到发票总金额</th>
             <th>已打款发票金额</th>
             <th>申请中的打款金额</th>
             <th>投放媒体</th>
@@ -23,9 +25,11 @@
         {% for order in orders %}
         <tr>
             <td><a href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
-            <td>{{order.mediums_money2}} 元</td>
-            <td>{{order.mediums_invoice_pass_sum}} 元</td>
-            <td>{{order.mediums_invoice_apply_sum}} 元</td>
+            <td>{{order.contract or "无合同号"}}</td>
+            <td>{{order.money}} 元</td>
+            <td>{{order.agents_invoice_sum}} 元</td>
+            <td>{{order.agents_invoice_pass_sum}} 元</td>
+            <td>{{order.agents_invoice_apply_sum}} 元</td>
             <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
             <td>{{order.get_agent_invoice_pay_by_status(3) | length}}</td>
             <td>{{order.get_agent_invoice_pay_by_status(0) | length}}</td>
