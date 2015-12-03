@@ -517,7 +517,7 @@ class AgentInvoicePay(db.Model, BaseModelMixin):
         return self.pay_time.strftime("%Y-%m-%d")
 
     @classmethod
-    def get_agent_invoices_status(cls, status):
+    def get_agent_invoices_pay_status(cls, status):
         return cls.query.filter_by(pay_status=status)
 
     @property

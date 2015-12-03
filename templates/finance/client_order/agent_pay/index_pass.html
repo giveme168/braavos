@@ -4,7 +4,11 @@
 {% block content %}
 {% include "/finance/finance_base.html" %}
 <div class="container bra-box">
-    <h3>已打款的媒体信息<a class="btn btn-sm btn-default" href="{{url_for('finance_client_order_medium_pay.index_pass')}}?type=excel">下载</a></h3>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="{{url_for('finance_client_order_agent_pay.apply')}}">申请中的客户付款</a></li>
+        <li class=""><a href="{{url_for('finance_client_order_agent_pay.index')}}">所有客户付款信息</a></li>
+    </ul>
+    <h3>申请中的客户付款信息</h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>客户名称</th>
@@ -18,14 +22,14 @@
         </tr>
         {% for order in orders %}
         <tr>
-            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
+            <td><a href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
             <td>{{order.mediums_money2}} 元</td>
             <td>{{order.mediums_invoice_pass_sum}} 元</td>
             <td>{{order.mediums_invoice_apply_sum}} 元</td>
             <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
-            <td>{{order.get_medium_invoice_by_status(2) | length}}</td>
-            <td>{{order.get_medium_invoice_by_status(0) | length}}</td>
-            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">查看</a></td>
+            <td>{{order.get_agent_invoice_pay_by_status(3) | length}}</td>
+            <td>{{order.get_agent_invoice_pay_by_status(0) | length}}</td>
+            <td><a href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">查看</a></td>
         </tr>
         {% endfor %}
     </table>

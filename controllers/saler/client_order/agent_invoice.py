@@ -209,7 +209,7 @@ def apply_pay(invoice_id):
     action = int(request.values.get('action', 0))
     to_users = agent_invoice.client_order.direct_sales + agent_invoice.client_order.agent_sales + \
         [agent_invoice.client_order.creator, g.user] + \
-        agent_invoice.client_order.leaders + User.medias()
+        agent_invoice.client_order.leaders
     to_emails = list(set(emails + [x.email for x in to_users]))
     if action == 2:
         action_msg = u'代理打款申请'

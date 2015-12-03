@@ -4,7 +4,11 @@
 {% block content %}
 {% include "/finance/searchAd_finance_base.html" %}
 <div class="container bra-box">
-    <h3>正在申请的媒体返点发票</h3>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index')}}">申请中的媒体返点发票</a></li>
+        <li class=""><a href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index_pass')}}">所有媒体返点发票</a></li>
+    </ul>
+    <h3>申请中的媒体返点发票</h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>直客/代理</th>

@@ -3,14 +3,11 @@
         <div class="list">
           <ul>
             {% if g.user.is_finance()%}
-            <a href="{{url_for('searchAd_finance_client_order_invoice.index')}}"><li id="_searchAd_orderinvoice_" >普通订单申请中的发票</li></a>
-            <a href="{{url_for('searchAd_finance_client_order_invoice.index_pass')}}"><li id="_searchAd_orderinvoicepass_">普通订单所有发票信息</li></a>
-            <a href="{{url_for('searchAd_finance_rebate_order_invoice.index')}}"><li id="_searchAd_rebate_orderinvoice_">返点订单申请中的发票</li></a>
-            <a href="{{url_for('searchAd_finance_rebate_order_invoice.index_pass')}}"><li id="_searchAd_rebate_orderinvoicepass_">返点订单所有发票信息</li></a>
+            <a href="{{url_for('searchAd_finance_client_order_invoice.index')}}"><li id="_searchAd_orderinvoice_" >普通订单客户发票</li></a>
+            <a href="{{url_for('searchAd_finance_rebate_order_invoice.index')}}"><li id="_searchAd_rebate_orderinvoice_">返点订单客户发票</li></a>
             <a href="{{url_for('searchAd_finance_client_order_back_money.index')}}"><li id="_searchAd_orderback_moneyorders_">普通订单收款</li></a>
             <a href="{{url_for('searchAd_finance_rebate_order_back_money.index')}}"><li id="_searchAd_rebate_orderback_moneyorders_">返点订单收款</li></a>
-            <a href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index')}}"><li id="_searchAd_ordermedium_rebate_invoice_">普通订单申请中的发票</li></a>
-            <a href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index_pass')}}"><li id="_searchAd_ordermedium_rebate_invoicepass_">普通订单所有发票信息</li></a>
+            <a href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index')}}"><li id="_searchAd_ordermedium_rebate_invoice_">普通订单媒体返点发票</li></a>
             <a href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}"><li id="_searchAd_orderdata_query_">普通订单数据查询</li></a>
             <a href="{{url_for('searchAd_finance_rebate_order_data_query.agent_invoice')}}"><li id="_searchAd_rebate_orderdata_query_">返点订单数据查询</li></a>
             {% endif %}
@@ -27,10 +24,11 @@
     $(function(){
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
-        
+        $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass('on')
         if (p_pathname[3] == 'data_query'){
             $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass('on')
-        }else{
+        }
+        else{
             $('#_'+p_pathname[2]+p_pathname[3]+p_pathname[4]+'_').addClass('on')
         }
     })

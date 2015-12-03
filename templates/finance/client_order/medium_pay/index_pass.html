@@ -4,6 +4,10 @@
 {% block content %}
 {% include "/finance/finance_base.html" %}
 <div class="container bra-box">
+    <ul class="nav nav-tabs">
+        <li class=""><a href="{{url_for('finance_client_order_medium_pay.apply')}}">申请中的媒体付款</a></li>
+        <li class="active"><a href="{{url_for('finance_client_order_medium_pay.index')}}">所有媒体付款</a></li>
+    </ul>
     <h3>{{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">

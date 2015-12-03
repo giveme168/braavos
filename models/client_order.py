@@ -319,9 +319,9 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [k for k in MediumInvoicePay.all()
                 if k.pay_status == int(type) and k.medium_invoice in self.mediuminvoices]
 
-    def get_agent_invoice_pay_by_status(self, type):
+    def get_agent_invoice_pay_by_status(self, status):
         return [k for k in AgentInvoicePay.all()
-                if isinstance(k.pay_status, int) and k.agent_invoice in self.agentinvoices]
+                if k.pay_status == int(status) and k.agent_invoice in self.agentinvoices]
 
     @property
     def medium_ids(self):

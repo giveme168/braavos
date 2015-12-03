@@ -6,7 +6,7 @@ from flask import render_template as tpl
 from models.user import TEAM_LOCATION_CN
 from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.invoice import (AgentInvoice, AgentInvoicePay, AGENT_INVOICE_STATUS_PASS,
-                            INVOICE_TYPE_CN)
+                            INVOICE_TYPE_CN, AGENT_INVOICE_STATUS_APPLY)
 from models.user import User
 from forms.invoice import AgentInvoiceForm
 from libs.signals import agent_invoice_apply_signal
@@ -55,13 +55,23 @@ def index():
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
-    return tpl('/finance/client_order/agent_pay/index.html', orders=orders, title=u'申请中的代理打款',
+    return tpl('/finance/client_order/agent_pay/index.html', orders=orders, title=u'全部客户付款',
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
                orderby=orderby, now_date=datetime.date.today(),
                search_info=search_info, page=page,
                params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
                       (orderby, search_info, location_id, status_id))
+
+
+@finance_client_order_agent_pay_bp.route('/apply', methods=['GET'])
+def apply():
+    if not g.user.is_finance():
+        abort(404)
+    orders = list([
+        invoicepay.agent_invoice.client_order for invoicepay in
+        AgentInvoicePay.get_agent_invoices_pay_status(3)])
+    return tpl('/finance/client_order/agent_pay/index_pass.html', orders=orders, title=u'申请中的客户付款')
 
 
 @finance_client_order_agent_pay_bp.route('/pass', methods=['GET'])
@@ -137,8 +147,7 @@ def invoice_pass(invoice_id):
     action = int(request.values.get('action', 0))
 
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
-        [invoice.client_order.creator, g.user] + \
-        User.operater_leaders() + User.medias()
+        [invoice.client_order.creator, g.user]
     to_emails = list(set(emails + [x.email for x in to_users]))
 
     if action != 10:

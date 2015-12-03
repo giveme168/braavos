@@ -4,6 +4,10 @@
 {% block content %}
 {% include "/finance/searchAd_finance_base.html" %}
 <div class="container bra-box">
+    <ul class="nav nav-tabs">
+        <li class=""><a href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index')}}">申请中的媒体返点发票</a></li>
+        <li class="active"><a href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index_pass')}}">所有媒体返点发票</a></li>
+    </ul>
     <h3>所有媒体返点发票<a class="btn btn-sm btn-default" href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index_pass')}}?type=excel">下载</a></h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">

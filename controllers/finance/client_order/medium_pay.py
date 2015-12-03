@@ -48,7 +48,7 @@ def apply():
     for k in orders.object_list:
         k.apply_num = len(k.medium_invoice.client_order.get_medium_invoice_pay_by_status(3))
         k.pay_num = len(k.medium_invoice.client_order.get_medium_invoice_pay_by_status(0))
-    return tpl('/finance/client_order/medium_pay/index.html', orders=orders, title=u'申请中的媒体打款',
+    return tpl('/finance/client_order/medium_pay/index.html', orders=orders, title=u'申请中的媒体付款',
                locations=select_locations, location_id=location_id,
                now_date=datetime.date.today(),
                search_info=search_info, page=page,
@@ -95,7 +95,7 @@ def index():
     for k in orders.object_list:
         k.apply_num = len(k.get_medium_invoice_pay_by_status(3))
         k.pay_num = len(k.get_medium_invoice_pay_by_status(0))
-    return tpl('/finance/client_order/medium_pay/index_pass.html', orders=orders, title=u'申请中的媒体打款',
+    return tpl('/finance/client_order/medium_pay/index_pass.html', orders=orders, title=u'申请中的媒体付款',
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
                orderby=orderby, now_date=datetime.date.today(),
@@ -145,7 +145,7 @@ def delete(order_id, invoice_id):
         flash(u'暂时不能删除，已有付款信息', 'danger')
         return redirect(url_for('finance_client_order_medium_pay.info', order_id=order_id))
     client_order = invoice.client_order
-    client_order.add_comment(g.user, u"删除打款发票申请信息：%s" % (
+    client_order.add_comment(g.user, u"删除付款发票申请信息：%s" % (
         u'发票内容: %s; 发票金额: %s元; 发票号: %s' % (invoice.detail, str(invoice.money), invoice.invoice_num)), msg_channel=3)
     invoice.delete()
     return redirect(url_for('finance_client_order_medium_pay.info', order_id=order_id))
@@ -171,7 +171,7 @@ def invoice_pay_time_update(invoice_id):
     invoice.save()
     flash(u'保存成功!', 'success')
     invoice.client_order.add_comment(g.user,
-                                     u"更新了打款时间:\n\r%s" % pay_time,
+                                     u"更新了付款时间:\n\r%s" % pay_time,
                                      msg_channel=3)
     return jsonify({'ret': True})
 
@@ -188,7 +188,7 @@ def invoice_pay_num(invoice_id):
     invoice.save()
     flash(u'保存成功!', 'success')
     invoice.client_order.add_comment(g.user,
-                                     u"更新了打款金额:\n\r%s" % invoice.pay_money,
+                                     u"更新了付款金额:\n\r%s" % invoice.pay_money,
                                      msg_channel=3)
     return redirect(url_for("finance_client_order_medium_pay.info", order_id=invoice.client_order.id))
 
@@ -209,8 +209,8 @@ def new_invoice_pay(invoice_id):
                                pay_time=pay_time,
                                detail=detail)
     pay.save()
-    flash(u'新建打款信息成功!', 'success')
-    invoice.client_order.add_comment(g.user, u"添加已打款信息  发票号：%s  打款金额：%s元  打款时间：%s" % (
+    flash(u'新建付款信息成功!', 'success')
+    invoice.client_order.add_comment(g.user, u"添加已付款信息  发票号：%s  付款金额：%s元  付款时间：%s" % (
         invoice.invoice_num, str(money), pay_time), msg_channel=3)
     return redirect(url_for("finance_client_order_medium_pay.info", order_id=invoice.client_order.id))
 
@@ -240,19 +240,19 @@ def invoice_pass(invoice_id):
         for invoice_pay in invoices_pay:
             invoice_pay.pay_status = invoice_status
             invoice_pay.save()
-            flash(u'媒体订单款已打,名称:%s, 打款金额%s' % (
+            flash(u'媒体订单款已打,名称:%s, 付款金额%s' % (
                 invoice_pay.medium_invoice.client_order.name +
                 '-' + invoice_pay.medium_invoice.medium.name,
                 str(invoice_pay.money)), 'success')
             invoice_pay.medium_invoice.client_order.add_comment(
-                g.user, u'媒体订单款已打款,名称%s, 打款金额%s ' % (
+                g.user, u'媒体订单款已付款,名称%s, 付款金额%s ' % (
                     invoice_pay.medium_invoice.client_order.name +
                         '-' + invoice_pay.medium_invoice.medium.name,
                     str(invoice_pay.money)),
                 msg_channel=3)
     else:
         action_msg = u'消息提醒'
-    apply_context = {"title": "媒体订单款已打款",
+    apply_context = {"title": "媒体订单款已付款",
                      "sender": g.user,
                      "to": to_emails,
                      "action_msg": action_msg,
