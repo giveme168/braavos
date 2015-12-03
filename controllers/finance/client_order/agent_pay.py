@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
-from flask import render_template as tpl
+from flask import jsonify, render_template as tpl
 
 from models.user import TEAM_LOCATION_CN
 from models.client_order import ClientOrder, CONTRACT_STATUS_CN
@@ -112,6 +112,19 @@ def pay_info(invoice_id):
     return tpl('/finance/client_order/agent_pay/pay_info.html',
                form=form, invoice=invoice, reminder_emails=reminder_emails,
                INVOICE_TYPE_CN=INVOICE_TYPE_CN)
+
+
+@finance_client_order_agent_pay_bp.route('/<invoice_id>/pay_time/update', methods=['POST'])
+def invoice_pay_time_update(invoice_id):
+    pay_time = request.values.get('pay_time', '')
+    invoice = AgentInvoicePay.get(invoice_id)
+    invoice.pay_time = pay_time
+    invoice.save()
+    flash(u'保存成功!', 'success')
+    invoice.client_order.add_comment(g.user,
+                                     u"更新了付款时间:\n\r%s" % pay_time,
+                                     msg_channel=5)
+    return jsonify({'ret': True})
 
 
 @finance_client_order_agent_pay_bp.route('/<invoice_id>/pay_num', methods=['POST'])
