@@ -32,7 +32,13 @@ def index():
                         )
         return redirect(url_for('account_onduty.index'))
     users = User.all_active()
-    return tpl('/account/onduty/index.html', users=users)
+    name = request.values.get('name', '')
+    location = int(request.values.get('location', 0))
+    if name:
+        users = [k for k in users if k.name == name]
+    if location:
+        users = [k for k in users if k.location == location]
+    return tpl('/account/onduty/index.html', users=users, name=name, location=location)
 
 
 @account_onduty_bp.route('<uid>/info', methods=['GET'])
@@ -63,8 +69,8 @@ def info(uid):
             on_time = u'无'
             off_time = u'无'
         dutys.append({'date_cn': s.strftime('%Y-%m-%d'),
-                      'on_time':on_time,
-                      'off_time':off_time})
+                      'on_time': on_time,
+                      'off_time': off_time})
         s = d
 
     return tpl('/account/onduty/info.html', user=user,

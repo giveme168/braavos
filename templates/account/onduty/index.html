@@ -16,7 +16,7 @@
     <form class="form-inline">
       <div class="form-group">
         <label for="exampleInputName2">员工姓名</label>
-        <input type="text" class="form-control" id="name" name="name" placeholder="员工姓名">
+        <input type="text" class="form-control" id="name" name="name" placeholder="员工姓名" value="{{name}}">
       </div>
       <div class="form-group">
         <label for="exampleInputEmail2">区域</label>
@@ -67,5 +67,9 @@
       alert("请选择正确的文件");
     }
   });
+  $(function(){
+    $('#location').val('{{location}}')
+    $("#location").trigger("chosen:updated");
+  })
 </script>
 {% endblock %}

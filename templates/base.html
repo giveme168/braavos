@@ -85,6 +85,7 @@ width: 100%; z-index:999;border-radius:0;top:0;">
               <span class="caret"></span>
             </a>
             <ul class="dropdown-menu" role="menu">
+              <li><a target="_blank" href="{{url_for('account_onduty.info', uid=g.user.id)}}">考勤</a></li>
               <li><a href="{{url_for('user.logout')}}">退出</a></li>
             </ul>
           </li>
