@@ -136,7 +136,8 @@ def new_user():
                                 recruited_date=form.recruited_date.data,
                                 quit_date=form.quit_date.data,
                                 cellphone=form.cellphone.data,
-                                position=form.position.data)
+                                position=form.position.data,
+                                sn=form.sn.data)
                 flash(u'新建用户(%s)成功!' % user.name, 'success')
             else:
                 flash(u'新建用户(%s)失败，用户名已经存在!' % form.name.data, 'danger')
@@ -169,6 +170,7 @@ def user_detail(user_id):
                 user.quit_date = form.quit_date.data
                 user.cellphone = form.cellphone.data
                 user.position = form.position.data
+                user.sn = form.sn.data
             elif g.user.id == user.id:
                 user.birthday = form.birthday.data
                 user.recruited_date = form.recruited_date.data
@@ -188,11 +190,13 @@ def user_detail(user_id):
         form.birthday.data = user.birthday or DEFAULT_BIRTHDAY
         form.recruited_date.data = user.recruited_date or DEFAULT_RECRUITED_DATE
         form.quit_date.data = user.quit_date or DEFAULT_RECRUITED_DATE
+        form.sn.data = user.sn or ''
     if not (g.user.team.is_admin() or g.user.is_HR() or g.user.is_HR_leader()):
         form.name.readonly = True
         form.email.readonly = True
         form.team.readonly = True
         form.status.readonly = True
+        form.sn.readonly = True
         form.status.choices = [(user.status, USER_STATUS_CN[user.status])]
         form.team_leaders.disabled = True
         form.team.choices = [(user.team_id, user.team.name)]

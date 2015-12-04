@@ -66,6 +66,7 @@ class NewUserForm(Form):
     quit_date = DateField(u'离职日期', default=DEFAULT_RECRUITED_DATE)
     cellphone = TextField(u'手机号', default='')
     position = TextField(u'职位', default='')
+    sn = TextField(u'员工编号', default='')
 
     def __init__(self, *args, **kwargs):
         super(NewUserForm, self).__init__(*args, **kwargs)

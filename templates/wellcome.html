@@ -570,7 +570,7 @@
 				</div>
 			</div>
       {% endif %}
-      {% if g.user.is_leader() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
+      {% if g.user.is_leader() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() %}
 			<div class="bussess">
 				<div class="manage">
 					<h5>人员管理</h5>
@@ -582,16 +582,19 @@
 				 </div>
 				  <div class="menu-list">
 				  	<ul>
-				  		{% if g.user.is_admin() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
-              <li><a href="{{url_for('user.index')}}" target="_blank">用户管理</a></li>
-              <li><a href="{{url_for('user.index')}}" target="_blank">角色管理</a></li>
-              {% endif %}
-              {% if g.user.is_leader() or g.user.is_super_leader() %}
-              <li><a href="{{url_for('account_performance.index')}}" target="_blank">团队销售指标</a></li>
-              {% endif %}
-              {% if g.user.is_super_leader() %}
-              <li><a href="{{url_for('account_commission.index')}}" target="_blank">销售人员提成</a></li>
-              {% endif %}
+				  	  {% if g.user.is_admin() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
+                        <li><a href="{{url_for('user.index')}}" target="_blank">用户管理</a></li>
+                        <li><a href="{{url_for('user.index')}}" target="_blank">角色管理</a></li>
+                      {% endif %}
+                      {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() %}
+                        <li><a href="{{url_for('account_onduty.index')}}" target="_blank">员工考勤</a></li>
+                      {% endif %}
+                      {% if g.user.is_leader() or g.user.is_super_leader() %}
+                        <li><a href="{{url_for('account_performance.index')}}" target="_blank">团队销售指标</a></li>
+                      {% endif %}
+                      {% if g.user.is_super_leader() %}
+                        <li><a href="{{url_for('account_commission.index')}}" target="_blank">销售人员提成</a></li>
+                      {% endif %}
 				  	</ul>
 				  </div>
 				</div>

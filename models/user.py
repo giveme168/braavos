@@ -109,9 +109,10 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     quit_date = db.Column(db.DateTime)
     cellphone = db.Column(db.String(20))
     position = db.Column(db.String(100))
+    sn = db.Column(db.String(10), index=True)
 
     def __init__(self, name, email, password, team, status=USER_STATUS_ON, team_leaders=[], birthday=None,
-                 position='', recruited_date=None, quit_date=None, cellphone=''):
+                 position='', recruited_date=None, quit_date=None, cellphone='', sn=''):
         self.name = name
         self.email = email.lower()
         self.set_password(password)
@@ -123,6 +124,7 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         self.quit_date = quit_date or datetime.date.today()
         self.cellphone = cellphone or ''
         self.position = position or ''
+        self.sn = sn
 
     '''
     def __repr__(self):
@@ -406,6 +408,13 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     def is_other_person(self):
         return self.team.type == TEAM_TYPE_OUT_INAD
 
+    @property
+    def last_check_time(self):
+        onduty = self.user_onduty
+        if onduty.count() > 0:
+            return onduty[-1].check_time.strftime('%Y-%m-%d %H:%M:%S')
+        return u'无'
+
 
 team_admins = db.Table('team_admin_users',
                        db.Column(
@@ -449,7 +458,7 @@ class Team(db.Model, BaseModelMixin):
         return self.type == TEAM_TYPE_SUPER_ADMIN
 
     def is_admin(self):
-        return self.is_super_admin() or self.type == TEAM_TYPE_ADMIN
+        return self.is_super_admin() or self.type in [TEAM_TYPE_ADMIN, TEAM_TYPE_SUPER_LEADER]
 
     def is_medium(self):
         return self.type == TEAM_TYPE_MEDIUM
@@ -783,3 +792,23 @@ class PerformanceEvaluation(db.Model, BaseModelMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
+
+
+class UserOnDuty(db.Model, BaseModelMixin):
+    __tablename__ = 'user_onduty'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship(
+        'User', backref=db.backref('user_onduty', lazy='dynamic'))
+    sn = sn = db.Column(db.String(10), index=True)
+    check_time = db.Column(db.DateTime, index=True)
+    create_time = db.Column(db.DateTime, index=True)
+    __mapper_args__ = {'order_by': check_time.asc()}
+    __table_args__ = (db.UniqueConstraint('sn', 'check_time', name='_user_onduty_sn_check_time'),)
+
+    def __init__(self, user, sn, check_time, create_time):
+        self.user = user
+        self.sn = sn
+        self.create_time = create_time
+        self.check_time = check_time
+
