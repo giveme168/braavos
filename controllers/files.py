@@ -11,7 +11,7 @@ from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.user import User
 from libs.files import files_set, attachment_set
-from libs.signals import contract_apply_signal
+from libs.email_signals import zhiqu_contract_apply_signal
 from models.attachment import Attachment
 from searchAd.models.client_order import searchAdClientOrder
 from searchAd.models.order import searchAdOrder
@@ -342,42 +342,40 @@ def associated_douban_order_files(order_id):
 
 def contract_email(order, attachment):
     if order.__tablename__ == 'bra_searchAd_framework_order':
-        contract_emails = [m.email for m in set(User.contracts() +
-                                                User.medias() +
-                                                order.sales +
-                                                [order.creator, g.user])]
+        to_users = set(User.contracts() +
+                              User.medias() +
+                              order.sales +
+                              [order.creator, g.user])
     elif order.__tablename__ == 'searchAd_bra_client_order':
-        contract_emails = [m.email for m in set(User.contracts() +
-                                                User.medias() +
-                                                order.agent_sales +
-                                                order.direct_sales +
-                                                [order.creator, g.user])]
+        to_users = set(User.contracts() +
+                              User.medias() +
+                              order.agent_sales +
+                              order.direct_sales +
+                              [order.creator, g.user])
     elif order.__tablename__ == 'bra_framework_order':
-        contract_emails = [m.email for m in set(User.contracts() +
-                                                order.agent_sales +
-                                                order.direct_sales +
-                                                [order.creator, g.user])]
+        to_users = set(User.contracts() +
+                              order.agent_sales +
+                              order.direct_sales +
+                              [order.creator, g.user])
     else:
-        contract_emails = [m.email for m in set(User.contracts() +
-                                                User.medias() +
-                                                order.direct_sales +
-                                                order.agent_sales +
-                                                order.operaters +
-                                                [order.creator, g.user])]
+        to_users = set(User.contracts() +
+                              User.medias() +
+                              order.direct_sales +
+                              order.agent_sales +
+                              order.operaters +
+                              [order.creator, g.user])
 
     action_msg = u"%s文件更新" % (attachment.type_cn)
     msg = u"""
     文件名:%s
     状态:%s
     上传者:%s""" % (attachment.filename, attachment.status_cn, g.user.name)
-    apply_context = {"sender": g.user,
-                     "to": contract_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": order}
-    contract_apply_signal.send(
-        app._get_current_object(), apply_context=apply_context)
-    flash(u'已发送提醒邮件给 %s' % ', '.join(contract_emails), "info")
+    context = {'order': order,
+               'sender': g.user,
+               'action_msg': action_msg,
+               'info': msg,
+               'to_users': to_users}
+    zhiqu_contract_apply_signal.send(app._get_current_object(), context=context)
 
 
 @files_bp.route('/finish/client_order/upload', methods=['POST'])

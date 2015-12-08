@@ -6,7 +6,7 @@
 {% block content %}
 {% include "/finance/finance_base.html" %}
 <div class="container bra-box">
-    <h4>{{ order.agent.name }}-{{order.name}} 媒体订单发票及打款情况</h4>
+    <h4>{{ order.agent.name }}-{{order.name}} 媒体订单发票及打款情况 <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">客户订单收款详情</a></h4>
     <table class="table table-bordered table-striped">
       <tr>
         <th>媒体总金额</th>

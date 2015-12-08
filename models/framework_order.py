@@ -176,9 +176,13 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         金额: %s
         直客销售: %s
         渠道销售: %s
+        执行开始时间: %s
+        执行结束时间: %s
+        框架合同号: %s
         备注: %s
         """ % (self.group.name, self.money, self.direct_sales_names,
-               self.agent_sales_names, self.description)
+               self.agent_sales_names, self.start_date_cn, self.end_date_cn,
+               self.contract,  self.description,)
 
     def can_admin(self, user):
         """是否可以修改该订单"""

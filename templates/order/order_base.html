@@ -36,6 +36,14 @@
                     </a>
                     {% endif %}
                 {% endif %}
+                {% if g.user.is_contract() or g.user.is_finance() %}
+                <a href="{{url_for('saler_client_order_data_query.back_money')}}">
+                  <li id="_client_orderdata_query_" >新媒体订单数据查询</li>
+                </a>
+                <a href="{{url_for('saler_douban_order_data_query.back_money')}}">
+                  <li id="_douban_orderdata_query_" >豆瓣订单数据查询</li>
+                </a>
+                {% endif %}
                 <div class="line" style="clear: both"></div>
             </ul>
         </div>
@@ -45,15 +53,19 @@
     $(function(){
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
-        $('#_'+p_pathname[2]+'_').addClass("on");
-        if(['douban_order'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_my_douban_orders_').addClass("on");
-        }
-        if(['order', 'client_order'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_my_orders_').addClass("on");
-        }
-        if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
-            $('#_my_framework_orders_').addClass("on");
+        if (p_pathname[3] == 'data_query'){
+            $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass("on");
+        }else{
+            $('#_'+p_pathname[2]+'_').addClass("on");
+            if(['douban_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_douban_orders_').addClass("on");
+            }
+            if(['order', 'client_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_orders_').addClass("on");
+            }
+            if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_framework_orders_').addClass("on");
+            }
         }
     })
 </script>

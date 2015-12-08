@@ -41,7 +41,7 @@ def index():
     return tpl('/account/onduty/index.html', users=users, name=name, location=location)
 
 
-@account_onduty_bp.route('<uid>/info', methods=['GET'])
+@account_onduty_bp.route('/<uid>/info', methods=['GET'])
 def info(uid):
     user = User.get(uid)
     start_time = request.values.get('start_time', '')

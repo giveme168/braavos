@@ -101,9 +101,10 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
     def email_info(self):
         return u"""
         关联媒体: %s
-        Campaign: %s (元)
+        Campaign: %s
         金额: %s (元)
-""" % (self.medium_order.medium.name, self.campaign, self.money or 0)
+        豆瓣合同号: %s
+""" % (self.medium_order.medium.name, self.campaign, self.money or 0, self.contract)
 
     def can_admin(self, user):
         """是否可以修改该订单"""

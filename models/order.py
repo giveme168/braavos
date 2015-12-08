@@ -231,9 +231,13 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         媒体金额: %s (元)
         预估CPM: %s
         预估ECPM: %.1f 媒体金额/预估CPM
+        执行开时间: %s
+        执行结束时间: %s
+        媒体合同号: %s
         执行: %s
         """ % (self.medium.name, self.sale_money or 0, self.medium_money2 or 0,
-               self.sale_CPM or 0, self.sale_ECPM, self.operater_names)
+               self.sale_CPM or 0, self.sale_ECPM, self.start_date_cn, self.end_date_cn,
+               self.medium_contract, self.operater_names)
 
     @property
     def direct_sales(self):

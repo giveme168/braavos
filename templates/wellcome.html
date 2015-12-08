@@ -37,26 +37,13 @@
 			</div>
   			<div class="winbox">
   				<div class="dynamic">
+                    {% for k in person_notices %}
   					<div class="dynamic-msg">
   						<img src="/static/imgs/message.png" alt="#">
-                        <span>15.11.19 1:09</span>
-  						<p><a href="#">XXXX项目回款时间已到！</a></p>
+                        <span>{{k.create_time_cn}}</span>
+  						<p><a target="_blank" href="#">{{k.title}}</a></p>
   					</div>
-  					<div class="dynamic-msg">
-  						<img src="/static/imgs/message.png" alt="#">
-  						<span>15.11.19 1:09</span>
-  						<p><a href="#">XXX项目已创建，请走审批流程</a></p>
-  					</div>
-					<div class="dynamic-msg">
-  						<img src="/static/imgs/message.png" alt="#">
-  						<span>15.11.19 1:09</span>
-  						<p><a href="#">XXX项目审批通过</a></p>
-  					</div>
-                    <div class="dynamic-msg">
-                        <img src="/static/imgs/message.png" alt="#">
-                        <span>15.11.19 1:09</span>
-                        <p><a href="#">请月底核查一下自己的订单是否正确</a></p>
-                    </div>
+                    {% endfor %}
   					<div class="more">
   						<a href="#">更多个人通知 ></a>
   					</div>

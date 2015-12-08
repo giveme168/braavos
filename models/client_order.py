@@ -522,19 +522,22 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return u"""
     类型:新媒体订单
     客户订单:
-
         客户: %s
         代理/直客: %s
         Campaign: %s
-        金额: %s
+        金额: %s (元)
         直客销售: %s
         渠道销售: %s
+        执行开始时间: %s
+        执行结束时间: %s
+        客户合同号: %s
 
     媒体订单:
 %s
     豆瓣订单:
 %s""" % (self.client.name, self.agent.name, self.campaign, self.money,
          self.direct_sales_names, self.agent_sales_names,
+         self.start_date_cn, self.end_date_cn, self.contract,
          "\n".join([o.email_info for o in self.medium_orders]),
          "\n".join([o.email_info for o in self.associated_douban_orders]))
 

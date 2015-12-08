@@ -28,6 +28,7 @@ from ..models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATU
 from ..forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm, RebateOrderForm
 
 from libs.signals import contract_apply_signal
+from libs.email_signals import zhiqu_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
 from controllers.data_query.helpers.outsource_helpers import write_searchAd_client_excel
@@ -40,7 +41,8 @@ ORDER_PAGE_NUM = 50
 
 def _delete_executive_report(order):
     if order.__tablename__ == 'searchad_bra_rebate_order':
-        searchAdRebateOrderExecutiveReport.query.filter_by(rebate_order=order).delete()
+        searchAdRebateOrderExecutiveReport.query.filter_by(
+            rebate_order=order).delete()
     elif order.__tablename__ == 'searchAd_bra_client_order':
         searchAdClientOrderExecutiveReport.query.filter_by(
             client_order=order).delete()
@@ -59,10 +61,11 @@ def _insert_executive_report(order, rtype):
         for k in order.pre_month_money():
             if not searchAdRebateOrderExecutiveReport.query.filter_by(rebate_order=order, month_day=k['month']).first():
                 er = searchAdRebateOrderExecutiveReport.add(rebate_order=order,
-                                                    money=k['money'],
-                                                    month_day=k['month'],
-                                                    days=k['days'],
-                                                    create_time=None)
+                                                            money=k['money'],
+                                                            month_day=k[
+                                                                'month'],
+                                                            days=k['days'],
+                                                            create_time=None)
                 er.save()
     elif order.__tablename__ == 'searchAd_bra_client_order':
         if rtype:
@@ -119,7 +122,7 @@ def _insert_executive_report(order, rtype):
 
 @searchAd_order_bp.route('/order/<order_id>/executive_report', methods=['GET'])
 def executive_report(order_id):
-    rtype = request.values.get('rtype', '')    
+    rtype = request.values.get('rtype', '')
     order = searchAdClientOrder.get(order_id)
     if not order:
         abort(404)
@@ -197,7 +200,7 @@ def new_searchAd_order():
         order.save()
         flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
         if g.user.is_super_admin():
-             _insert_executive_report(order, 'reload')
+            _insert_executive_report(order, 'reload')
         return redirect(order.info_path())
     else:
         form.client_start.data = datetime.now().date()
@@ -231,7 +234,8 @@ def order_info(order_id, tab_id=1):
                     order.framework_order_id = client_form.framework_order_id.data,
                     order.client = searchAdClient.get(client_form.client.data)
                     order.campaign = client_form.campaign.data
-                    order.money = int(round(float(client_form.money.data or 0)))
+                    order.money = int(
+                        round(float(client_form.money.data or 0)))
                     order.client_start = client_form.client_start.data
                     order.client_end = client_form.client_end.data
                     order.reminde_date = client_form.reminde_date.data
@@ -267,17 +271,14 @@ def order_info(order_id, tab_id=1):
                                             mo.medium_contract or "")
                 to_users = order.direct_sales + \
                     order.agent_sales + [order.creator, g.user]
-                to_emails = [x.email for x in set(to_users)]
-                apply_context = {"sender": g.user,
-                                 "to": to_emails,
-                                 "action_msg": action_msg,
-                                 "msg": msg,
-                                 "order": order}
-                contract_apply_signal.send(
-                    current_app._get_current_object(), apply_context=apply_context)
-                flash(u'[%s] 已发送邮件给 %s ' %
-                      (order.name, ', '.join(to_emails)), 'info')
 
+                context = {'order': order,
+                           'sender': g.user,
+                           'action_msg': action_msg,
+                           'info': msg,
+                           'to_users': to_users}
+                zhiqu_contract_apply_signal.send(
+                    current_app._get_current_object(), context=context)
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
 
     new_medium_form = MediumOrderForm()
@@ -459,15 +460,16 @@ def contract_status_change(order, action, emails, msg):
         _delete_executive_report(order)
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
-    to_emails = list(set(emails + [x.email for x in to_users]))
-    apply_context = {"sender": g.user,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": order}
-    contract_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context, action=action)
-    flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+    context = {
+        "sender": g.user,
+        "to_users": to_users,
+        "action_msg": action_msg,
+        "order": order,
+        "info": msg,
+        "action": order.contract_status
+    }
+    zhiqu_contract_apply_signal.send(
+        current_app._get_current_object(), context=context)
     order.add_comment(g.user, u"%s \n\r\n\r %s" % (action_msg, msg))
 
 
@@ -616,6 +618,7 @@ def medium_attach_status(order_id, attachment_id, status):
     attachment_status_change(order.client_order, attachment_id, status)
     return redirect(order.info_path())
 
+
 @searchAd_order_bp.route('/framework_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
 def framework_attach_status(order_id, attachment_id, status):
     order = searchAdFrameworkOrder.get(order_id)
@@ -634,19 +637,19 @@ def attachment_status_email(order, attachment):
     if order.__tablename__ in ['bra_searchAd_framework_order', 'searchad_bra_rebate_order']:
         to_users = order.sales + [order.creator, g.user]
     else:
-        to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
-    to_emails = list(set([x.email for x in to_users]))
+        to_users = order.direct_sales + \
+            order.agent_sales + [order.creator, g.user]
     action_msg = u"%s文件:%s-%s" % (attachment.type_cn,
                                   attachment.filename, attachment.status_cn)
     msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (
         attachment.filename, attachment.status_cn)
-    apply_context = {"sender": g.user,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": order}
-    contract_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
+    context = {'order': order,
+               'sender': g.user,
+               'action_msg': action_msg,
+               'info': msg,
+               'to_users': to_users}
+    zhiqu_contract_apply_signal.send(
+        current_app._get_current_object(), context=context)
 
 
 def get_client_form(order):
@@ -807,16 +810,13 @@ def framework_order_info(order_id):
                 msg = u"新合同号如下:\n\n%s-致趣: %s" % (
                     order.agent.name, order.contract)
                 to_users = order.sales + [order.creator, g.user]
-                to_emails = [x.email for x in set(to_users)]
-                apply_context = {"sender": g.user,
-                                 "to": to_emails,
-                                 "action_msg": action_msg,
-                                 "msg": msg,
-                                 "order": order}
-                contract_apply_signal.send(
-                    current_app._get_current_object(), apply_context=apply_context)
-                flash(u'[%s] 已发送邮件给 %s ' %
-                      (order.name, ', '.join(to_emails)), 'info')
+                context = {'order': order,
+                           'sender': g.user,
+                           'action_msg': action_msg,
+                           'info': msg,
+                           'to_users': to_users}
+                zhiqu_contract_apply_signal.send(
+                    current_app._get_current_object(), context=context)
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
 
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
@@ -902,24 +902,28 @@ def new_rebate_order():
     form = RebateOrderForm(request.form)
     if request.method == 'POST' and form.validate():
         order = searchAdRebateOrder.add(client=searchAdClient.get(form.client.data),
-                                agent=searchAdAgent.get(form.agent.data),
-                                campaign=form.campaign.data,
-                                money=int(round(float(form.money.data or 0))),
-                                medium_CPM=form.medium_CPM.data,
-                                sale_CPM=form.sale_CPM.data,
-                                client_start=form.client_start.data,
-                                client_end=form.client_end.data,
-                                reminde_date=form.reminde_date.data,
-                                sales=User.gets(form.sales.data),
-                                operaters=User.gets(form.operaters.data),
-                                designers=User.gets(form.designers.data),
-                                planers=User.gets(form.planers.data),
-                                contract_type=form.contract_type.data,
-                                resource_type=form.resource_type.data,
-                                sale_type=form.sale_type.data,
-                                creator=g.user,
-                                create_time=datetime.now(),
-                                finish_time=datetime.now())
+                                        agent=searchAdAgent.get(
+                                            form.agent.data),
+                                        campaign=form.campaign.data,
+                                        money=int(
+                                            round(float(form.money.data or 0))),
+                                        medium_CPM=form.medium_CPM.data,
+                                        sale_CPM=form.sale_CPM.data,
+                                        client_start=form.client_start.data,
+                                        client_end=form.client_end.data,
+                                        reminde_date=form.reminde_date.data,
+                                        sales=User.gets(form.sales.data),
+                                        operaters=User.gets(
+                                            form.operaters.data),
+                                        designers=User.gets(
+                                            form.designers.data),
+                                        planers=User.gets(form.planers.data),
+                                        contract_type=form.contract_type.data,
+                                        resource_type=form.resource_type.data,
+                                        sale_type=form.sale_type.data,
+                                        creator=g.user,
+                                        create_time=datetime.now(),
+                                        finish_time=datetime.now())
         order.add_comment(g.user, u"新建了该返点订单")
         flash(u'新建返点订单成功, 请上传合同!', 'success')
         return redirect(url_for("searchAd_order.rebate_order_info", order_id=order.id))
@@ -1017,7 +1021,8 @@ def rebate_order_info(order_id):
             abort(404)
     form = get_rebate_form(order)
     replace_saler_form = ReplaceSalersForm()
-    replace_saler_form.replace_salers.data = [k.id for k in order.replace_sales]
+    replace_saler_form.replace_salers.data = [
+        k.id for k in order.replace_sales]
     if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
         if info_type == 0:
@@ -1063,16 +1068,13 @@ def rebate_order_info(order_id):
                 msg = u"新合同号如下:\n\n%s-: %s\n\n" % (
                     order.agent.name, order.contract)
                 to_users = order.sales + [order.creator, g.user]
-                to_emails = [x.email for x in set(to_users)]
-                apply_context = {"sender": g.user,
-                                 "to": to_emails,
-                                 "action_msg": action_msg,
-                                 "msg": msg,
-                                 "order": order}
-                contract_apply_signal.send(
-                    current_app._get_current_object(), apply_context=apply_context)
-                flash(u'[%s] 已发送邮件给 %s ' %
-                      (order.name, ', '.join(to_emails)), 'info')
+                context = {'order': order,
+                           'sender': g.user,
+                           'action_msg': action_msg,
+                           'info': msg,
+                           'to_users': to_users}
+                zhiqu_contract_apply_signal.send(
+                    current_app._get_current_object(), context=context)
                 order.add_comment(g.user, u"更新了合同号, %s" % msg)
 
     reminder_emails = [(u.name, u.email) for u in User.all_active()]

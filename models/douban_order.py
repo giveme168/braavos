@@ -328,9 +328,13 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         直客销售: %s
         渠道销售: %s
         执行: %s
+        执行开始时间: %s
+        执行结束时间: %s
+        豆瓣合同号: %s
         """ % (self.client.name, self.agent.name, self.campaign, self.money,
                self.sale_CPM or 0, self.direct_sales_names,
-               self.agent_sales_names, self.operater_names)
+               self.agent_sales_names, self.operater_names,
+               self.start_date_cn, self.end_date_cn, self.contract)
 
     @property
     def search_info(self):
@@ -831,6 +835,10 @@ class BackMoney(db.Model, BaseModelMixin):
     @property
     def order(self):
         return self.douban_order
+
+    @property
+    def real_back_money_diff_time(self):
+        return (self.back_time.date() - self.douban_order.reminde_date).days
 
 
 class BackInvoiceRebate(db.Model, BaseModelMixin):

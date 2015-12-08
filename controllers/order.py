@@ -30,6 +30,7 @@ from models.download import (download_excel_table_by_doubanorders,
                              download_excel_table_by_frameworkorders)
 
 from libs.signals import contract_apply_signal
+from libs.email_signals import zhiqu_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
 from controllers.data_query.helpers.outsource_helpers import write_client_excel
@@ -291,7 +292,8 @@ def order_info(order_id, tab_id=1):
             abort(404)
     client_form = get_client_form(order)
     replace_saler_form = ReplaceSalersForm()
-    replace_saler_form.replace_salers.data = [k.id for k in order.replace_sales]
+    replace_saler_form.replace_salers.data = [
+        k.id for k in order.replace_sales]
     if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
         if info_type == 0:
@@ -304,7 +306,8 @@ def order_info(order_id, tab_id=1):
                     order.agent = Agent.get(client_form.agent.data)
                     order.client = Client.get(client_form.client.data)
                     order.campaign = client_form.campaign.data
-                    order.money = int(round(float(client_form.money.data or 0)))
+                    order.money = int(
+                        round(float(client_form.money.data or 0)))
                     order.client_start = client_form.client_start.data
                     order.client_end = client_form.client_end.data
                     order.reminde_date = client_form.reminde_date.data
@@ -336,32 +339,25 @@ def order_info(order_id, tab_id=1):
                     o.contract = request.values.get(
                         "douban_contract_%s" % o.id, "")
                     o.save()
-                flash(u'[%s]合同号保存成功!' % order.name, 'success')
+                flash(u'[%s]合同号更新成功!' % order.name, 'success')
 
                 action_msg = u"合同号更新"
                 msg = u"新合同号如下:\n\n%s-致趣: %s\n\n" % (
                     order.agent.name, order.contract)
                 for mo in order.medium_orders:
-                    msg = msg + \
-                        u"致趣-%s: %s\n\n" % (mo.medium.name, mo.medium_contract or "")
+                    msg = msg + u"致趣-%s: %s\n\n" % (mo.medium.name, mo.medium_contract or "")
                 for o in order.associated_douban_orders:
-                    msg = msg + \
-                        u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name, o.contract or "")
+                    msg = msg + u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name, o.contract or "")
                 to_users = order.direct_sales + \
                     order.agent_sales + [order.creator, g.user]
-                to_emails = [x.email for x in set(to_users)]
-                apply_context = {"sender": g.user,
-                                 "to": to_emails,
-                                 "action_msg": action_msg,
-                                 "msg": msg,
-                                 "order": order}
-                contract_apply_signal.send(
-                    current_app._get_current_object(), apply_context=apply_context)
-                flash(u'[%s] 已发送邮件给 %s ' %
-                      (order.name, ', '.join(to_emails)), 'info')
-
+                context = {'order': order,
+                           'sender': g.user,
+                           'action_msg': action_msg,
+                           'info': msg,
+                           'to_users': to_users}
+                zhiqu_contract_apply_signal.send(
+                    current_app._get_current_object(), context=context)
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
-
     new_medium_form = MediumOrderForm()
     new_medium_form.medium_start.data = order.client_start
     new_medium_form.medium_end.data = order.client_end
@@ -569,11 +565,11 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_PRINTED
         action_msg = u"合同打印完毕"
     elif action == 7:
-        action_msg = u"撤单申请，请部门leader确认"
+        action_msg = u"撤单申请"
         order.contract_status = CONTRACT_STATUS_DELETEAPPLY
         to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 8:
-        action_msg = u"确认撤单，请super_leader同意"
+        action_msg = u"确认撤单申请"
         order.contract_status = CONTRACT_STATUS_DELETEAGREE
         to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 9:
@@ -605,23 +601,17 @@ def contract_status_change(order, action, emails, msg):
         _delete_executive_report(order)
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
-    to_emails = list(set(emails + [x.email for x in to_users]))
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
-        to_emails = list(
-            set([k.email for k in User.douban_contracts()] + to_emails))
-# 关联豆瓣订单 申请打印 不发送豆瓣管理员
-#    elif (order.__tablename__ == 'bra_client_order'
-#          and order.associated_douban_orders and order.contract_status == 4 and action == 5):
-#        to_emails = list(
-#            set([k.email for k in User.douban_contracts()] + to_emails))
-    apply_context = {"sender": g.user,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": order}
-    contract_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context, action=action)
-    flash(u'[%s] 已发送邮件给 %s ' % (order.name, ', '.join(to_emails)), 'info')
+        to_users += User.douban_contracts()
+    context = {
+        "sender": g.user,
+        "to_users" : to_users,
+        "action_msg": action_msg,
+        "order": order,
+        "info": msg,
+        "action": order.contract_status
+    }
+    zhiqu_contract_apply_signal.send(current_app._get_current_object(), context=context)
     order.add_comment(g.user, u"%s \n\r\n\r %s" % (action_msg, msg))
 
 
@@ -750,7 +740,8 @@ def new_framework_order():
                                    reminde_date=form.reminde_date.data,
                                    direct_sales=User.gets(
                                        form.direct_sales.data),
-                                   agent_sales=User.gets(form.agent_sales.data),
+                                   agent_sales=User.gets(
+                                       form.agent_sales.data),
                                    contract_type=form.contract_type.data,
                                    creator=g.user,
                                    inad_rebate=form.inad_rebate.data,
@@ -891,16 +882,14 @@ def framework_order_info(order_id):
                     order.group.name, order.contract, order.douban_contract)
                 to_users = order.direct_sales + \
                     order.agent_sales + [order.creator, g.user]
-                to_emails = [x.email for x in set(to_users)]
-                apply_context = {"sender": g.user,
-                                 "to": to_emails,
-                                 "action_msg": action_msg,
-                                 "msg": msg,
-                                 "order": order}
-                contract_apply_signal.send(
-                    current_app._get_current_object(), apply_context=apply_context)
-                flash(u'[%s] 已发送邮件给 %s ' %
-                      (order.name, ', '.join(to_emails)), 'info')
+                context = {'order': order,
+                           'sender': g.user,
+                           'action_msg': action_msg,
+                           'info': msg,
+                           'to_users': to_users}
+                zhiqu_contract_apply_signal.send(
+                    current_app._get_current_object(), context=context)
+                
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
 
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
@@ -1092,7 +1081,8 @@ def douban_order_info(order_id):
             abort(404)
     form = get_douban_form(order)
     replace_saler_form = ReplaceSalersForm()
-    replace_saler_form.replace_salers.data = [k.id for k in order.replace_sales]
+    replace_saler_form.replace_salers.data = [
+        k.id for k in order.replace_sales]
     if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
         if info_type == 0:
@@ -1134,22 +1124,19 @@ def douban_order_info(order_id):
                 order.save()
                 _insert_executive_report(order, '')
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
-
+                
                 action_msg = u"合同号更新"
                 msg = u"新合同号如下:\n\n%s-豆瓣: %s\n\n" % (
                     order.agent.name, order.contract)
                 to_users = order.direct_sales + \
                     order.agent_sales + [order.creator, g.user]
-                to_emails = [x.email for x in set(to_users)]
-                apply_context = {"sender": g.user,
-                                 "to": to_emails,
-                                 "action_msg": action_msg,
-                                 "msg": msg,
-                                 "order": order}
-                contract_apply_signal.send(
-                    current_app._get_current_object(), apply_context=apply_context)
-                flash(u'[%s] 已发送邮件给 %s ' %
-                      (order.name, ', '.join(to_emails)), 'info')
+                context = {'order': order,
+                           'sender': g.user,
+                           'action_msg': action_msg,
+                           'info': msg,
+                           'to_users': to_users}
+                zhiqu_contract_apply_signal.send(
+                    current_app._get_current_object(), context=context)
                 order.add_comment(g.user, u"更新了合同号, %s" % msg)
 
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
@@ -1315,15 +1302,16 @@ def attachment_status_change(order, attachment_id, status):
 
 
 def attachment_status_email(order, attachment):
-    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
-    to_emails = list(set([x.email for x in to_users]))
-    action_msg = u"%s文件:%s-%s" % (attachment.type_cn, attachment.filename, attachment.status_cn)
+    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user] + User.contracts()
+    action_msg = u"%s文件:%s-%s" % (attachment.type_cn,
+                                  attachment.filename, attachment.status_cn)
     msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (
         attachment.filename, attachment.status_cn)
-    apply_context = {"sender": g.user,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": order}
-    contract_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
+    
+    context = {'order': order,
+               'sender': g.user,
+               'action_msg': action_msg,
+               'info': msg,
+               'to_users': to_users}
+    zhiqu_contract_apply_signal.send(
+        current_app._get_current_object(), context=context)

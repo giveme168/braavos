@@ -236,6 +236,13 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
         from ..models.client_order import searchAdClientOrder
         return [k.id for k in searchAdClientOrder.query.filter_by(framework_order_id=self.id)]
 
+    @property
+    def direct_sales(self):
+        return []
+
+    @property
+    def agent_sales(self):
+        return self.sales
 
 def contract_generator(agent, num):
     code = "ZQSC%s%03x-%03x" % (datetime.datetime.now().strftime('%Y%m'),
