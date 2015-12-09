@@ -12,7 +12,7 @@ from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_
 from models.user import User
 from models.medium import Medium
 from forms.invoice import MediumInvoiceForm
-from libs.signals import medium_invoice_apply_signal
+from libs.email_signals import medium_invoice_apply_signal
 
 
 saler_client_order_medium_invoice_bp = Blueprint(
@@ -42,7 +42,8 @@ def new_invoice(order_id, redirect_endpoint='saler_client_order_medium_invoice.i
         abort(404)
     form = MediumInvoiceForm(request.form)
     form.client_order.choices = [(order.id, order.client.name)]
-    form.medium.choices = [(order.id, order.client.name) for k in order.mediums]
+    form.medium.choices = [(order.id, order.client.name)
+                           for k in order.mediums]
     form.bool_invoice.choices = MEDIUM_INVOICE_BOOL_INVOICE_CN.items()
     # if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
     #     flash(u'新建打款发票失败，发票超过媒体总金额!', 'danger')
@@ -94,7 +95,8 @@ def new_invoice_pay(invoice_id):
     mi = MediumInvoice.get(invoice_id)
     # if mi.pay_invoice_money + money > mi.money:
     #     flash(u'付款金额大于发票金额，请重新填写!', 'danger')
-    #     return redirect(url_for('saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
+    # return redirect(url_for('saler_client_order_medium_invoice.invoice',
+    # invoice_id=invoice_id))
     pay = MediumInvoicePay.add(money=money,
                                medium_invoice=mi,
                                pay_time=pay_time,
@@ -115,7 +117,8 @@ def update_invoice_pay(invoice_id, invoice_pay_id):
     # mi = MediumInvoice.get(invoice_id)
     #  if mi.pay_invoice_money - pay.money + money > mi.money:
     #     flash(u'付款金额大于发票金额，请重新填写!', 'danger')
-    #     return redirect(url_for('saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
+    # return redirect(url_for('saler_client_order_medium_invoice.invoice',
+    # invoice_id=invoice_id))
     pay.money = money
     pay.pay_time = pay_time
     pay.detail = detail
@@ -205,10 +208,10 @@ def apply_pay(invoice_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
-    to_users = [g.user] + User.medias() + User.media_leaders() + User.super_leaders()
-    to_emails = list(set(emails + [x.email for x in to_users]))
+    to_users = [g.user] + User.medias() + User.media_leaders() + \
+        User.super_leaders()
     if action == 2:
-        action_msg = u'媒体订单打款申请'
+        action_msg = u'媒体打款申请'
         for invoice in invoice_pays:
             invoice.pay_status = MEDIUM_INVOICE_STATUS_APPLY
             invoice.save()
@@ -222,8 +225,8 @@ def apply_pay(invoice_id):
                     invoice.medium_invoice.invoice_num, invoice.detail)), msg_channel=3)
         send_type = "saler"
     elif action == 3:
-        action_msg = u'同意媒体订单打款申请，请财务打款'
-        to_emails += [k.email for k in User.finances()]
+        action_msg = u'媒体打款申请已同意'
+        to_users += User.finances()
         for invoice in invoice_pays:
             invoice.pay_status = MEDIUM_INVOICE_STATUS_AGREE
             invoice.save()
@@ -239,18 +242,16 @@ def apply_pay(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
-                     "title": action_msg,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "invoice": medium_invoice,
-                     "send_type": send_type,
-                     "invoice_pays": invoice_pays}
+    context = {"to_users": to_users,
+               "to_other": emails,
+               "action_msg": action_msg,
+               "info": msg,
+               "invoice": medium_invoice,
+               "order": medium_invoice.client_order,
+               "send_type": send_type,
+               "invoice_pays": invoice_pays}
     medium_invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s 打款发票开具申请] 已发送邮件给 %s ' %
-          (medium_invoice.client_order, ', '.join(to_emails)), 'info')
+        current_app._get_current_object(), context=context)
     return redirect(url_for('saler_client_order_medium_invoice.invoice', invoice_id=invoice_id))
 
 
@@ -266,7 +267,8 @@ def apply_invoice(invoice_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
-    to_users = [g.user] + User.medias() + User.media_leaders() + User.super_leaders()
+    to_users = [g.user] + User.medias() + User.media_leaders() + \
+        User.super_leaders()
     to_emails = list(set(emails + [x.email for x in to_users]))
 
     send_type = "saler"
@@ -286,6 +288,7 @@ def apply_invoice(invoice_id):
         action_msg = u'消息提醒'
 
     apply_context = {"sender": g.user,
+                     "to_other": emails,
                      "title": action_msg,
                      "to": to_emails,
                      "action_msg": action_msg,

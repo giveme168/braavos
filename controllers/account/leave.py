@@ -6,7 +6,7 @@ from flask import render_template as tpl, flash, current_app
 from models.user import User, Leave, LEAVE_STATUS_NORMAL, LEAVE_STATUS_APPLY, LEAVE_STATUS_PASS, LEAVE_STATUS_BACK
 from forms.user import UserLeaveForm
 
-from libs.signals import apply_leave_signal
+from libs.email_signals import account_leave_apply_signal
 from libs.paginator import Paginator
 from controllers.account.helpers.leave_helpers import write_outs_excel
 
@@ -151,7 +151,7 @@ def create(user_id):
             flash(u'添加成功', 'success')
         else:
             flash(u'已发送申请', 'success')
-            apply_leave_signal.send(
+            account_leave_apply_signal.send(
                 current_app._get_current_object(), leave=leave)
         return redirect(url_for('account_leave.index', user_id=user_id))
     days = [{'key': k, 'value': k} for k in range(0, 21)]
@@ -173,7 +173,7 @@ def status(user_id, lid):
     leave.status = status
     leave.save()
     flash(leave.status_cn, 'success')
-    apply_leave_signal.send(current_app._get_current_object(), leave=leave)
+    account_leave_apply_signal.send(current_app._get_current_object(), leave=leave)
     if status in [LEAVE_STATUS_APPLY, LEAVE_STATUS_BACK]:
         return redirect(url_for('account_leave.index', user_id=user_id))
     else:
@@ -200,7 +200,7 @@ def update(user_id, lid):
         leave.save()
         if int(status) == LEAVE_STATUS_APPLY:
             flash(u'已发送申请', 'success')
-            apply_leave_signal.send(
+            account_leave_apply_signal.send(
                 current_app._get_current_object(), leave=leave)
         else:
             flash(u'修改成功', 'success')

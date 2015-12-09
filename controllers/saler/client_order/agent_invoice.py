@@ -12,7 +12,7 @@ from models.invoice import (AgentInvoice, INVOICE_TYPE_CN, AGENT_INVOICE_BOOL_IN
 from models.user import User
 from models.client import Agent
 from forms.invoice import AgentInvoiceForm
-from libs.signals import agent_invoice_apply_signal
+from libs.email_signals import agent_invoice_apply_signal
 
 
 saler_client_order_agent_invoice_bp = Blueprint(
@@ -210,9 +210,8 @@ def apply_pay(invoice_id):
     to_users = agent_invoice.client_order.direct_sales + agent_invoice.client_order.agent_sales + \
         [agent_invoice.client_order.creator, g.user] + \
         agent_invoice.client_order.leaders
-    to_emails = list(set(emails + [x.email for x in to_users]))
     if action == 2:
-        action_msg = u'代理打款申请'
+        action_msg = u'代理返点打款申请'
         for invoice in invoice_pays:
             invoice.pay_status = AGENT_INVOICE_STATUS_APPLY
             invoice.save()
@@ -226,8 +225,8 @@ def apply_pay(invoice_id):
                     invoice.agent_invoice.invoice_num, invoice.detail)), msg_channel=5)
         send_type = "saler"
     elif action == 3:
-        action_msg = u'同意代理订单打款申请，请财务打款'
-        to_emails += [k.email for k in User.finances()]
+        action_msg = u'代理返点打款申请已同意'
+        to_users += User.finances()
         for invoice in invoice_pays:
             invoice.pay_status = AGENT_INVOICE_STATUS_AGREE
             invoice.save()
@@ -243,18 +242,16 @@ def apply_pay(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
-                     "title": action_msg,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "invoice": agent_invoice,
-                     "send_type": send_type,
-                     "invoice_pays": invoice_pays}
+    context = {"to_users": to_users,
+               "to_other": emails,
+               "action_msg": action_msg,
+               "info": msg,
+               "invoice": agent_invoice,
+               "order": agent_invoice.client_order,
+               "send_type": send_type,
+               "invoice_pays": invoice_pays}
     agent_invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s 打款发票开具申请] 已发送邮件给 %s ' %
-          (agent_invoice.client_order, ', '.join(to_emails)), 'info')
+        current_app._get_current_object(), context=context)
     return redirect(url_for('saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
 
 
@@ -297,6 +294,7 @@ def apply_invoice(invoice_id):
                      "action_msg": action_msg,
                      "msg": msg,
                      "order": invoice.client_order,
+                     "to_other": emails,
                      "send_type": send_type,
                      "invoices": invoices}
     agent_invoice_apply_signal.send(

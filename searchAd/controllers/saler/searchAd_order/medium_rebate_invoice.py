@@ -12,7 +12,7 @@ from searchAd.models.invoice import (searchAdMediumRebateInvoice, INVOICE_STATUS
                             INVOICE_STATUS_FAIL)
 from models.user import User
 from searchAd.forms.invoice import MediumRebateInvoiceForm
-from libs.signals import invoice_apply_signal
+from libs.email_signals import medium_rebate_invoice_apply_signal
 
 
 searchAd_saler_client_order_medium_rebate_invoice_bp = Blueprint(
@@ -169,13 +169,12 @@ def apply_invoice(invoice_id):
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
-    to_emails = list(set(emails + [x.email for x in to_users]))
     send_type = "saler"
     if action == 2:
         invoice_status = INVOICE_STATUS_APPLY
         action_msg = u'发票开具申请'
     elif action == 3:
-        to_emails = list(set(to_emails + [k.email for k in User.finances()]))
+        to_users = User.finances()
         invoice_status = INVOICE_STATUS_APPLYPASS
         action_msg = u'批准开发票'
         send_type = "finance"
@@ -193,18 +192,15 @@ def apply_invoice(invoice_id):
                 action_msg, u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=6)
     else:
         action_msg = u'消息提醒'
-    apply_context = {"sender": g.user,
-                     "to": to_emails,
-                     "title": u'【搜索部门】媒体返点发票-%s' % (action_msg),
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": invoice.client_order,
-                     "send_type": send_type,
-                     "invoices": invoices,
-                     "url": invoice.client_order.saler_medium_rebate_invoice_path(),
-                     }
-    invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s 发票开具申请] 已发送邮件给 %s ' %
-          (invoice.client_order, ', '.join(to_emails)), 'info')
+    context = {"to_users": to_users,
+               "to_other": emails,
+               "action_msg": action_msg,
+               "info": msg,
+               "order": invoice.client_order,
+               "send_type": send_type,
+               "action": action,
+               "invoices": invoices
+               }
+    medium_rebate_invoice_apply_signal.send(
+        current_app._get_current_object(), context=context)
     return redirect(url_for("searchAd_saler_client_order_medium_rebate_invoice.index", order_id=invoice.client_order.id))

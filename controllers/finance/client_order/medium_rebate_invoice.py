@@ -11,7 +11,7 @@ from models.invoice import (MediumRebateInvoice, INVOICE_STATUS_CN,
                             INVOICE_STATUS_APPLYPASS)
 from models.medium import Medium
 from forms.invoice import MediumRebateInvoiceForm
-from libs.signals import medium_rebate_invoice_apply_signal
+from libs.email_signals import medium_rebate_invoice_apply_signal
 from libs.paginator import Paginator
 from controllers.finance.helpers.invoice_helpers import write_medium_rebate_invoice_excel
 from controllers.tools import get_download_response
@@ -228,7 +228,6 @@ def pass_invoice(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
     to_users = User.medias() + User.media_leaders() + User.super_leaders()
-    to_emails = list(set(emails + [x.email for x in to_users]))
     if action != 10:
         invoice_status = INVOICE_STATUS_PASS
         action_msg = u'媒体返点发票已开'
@@ -243,17 +242,15 @@ def pass_invoice(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
-                     "title": action_msg,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": invoice.client_order,
-                     "send_type": "saler",
-                     "invoices": invoices,
-                     "url": invoice.client_order.finance_invoice_path()}
+    context = {"to_users": to_users,
+               "to_other": emails,
+               "action_msg": action_msg,
+               "action": 0,
+               "info": msg,
+               "order": invoice.client_order,
+               "send_type": 'end',
+               "invoices": invoices
+               }
     medium_rebate_invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s 发票已开] 已发送邮件给 %s ' %
-          (invoice.client_order, ', '.join(to_emails)), 'info')
+        current_app._get_current_object(), context=context)
     return redirect(url_for("finance_client_order_medium_rebate_invoice.info", order_id=invoice.client_order.id))

@@ -5,7 +5,7 @@ from flask import Blueprint, abort, url_for, current_app
 from flask import redirect, flash, g, request, render_template as tpl
 
 from models.douban_order import DoubanOrder, BackMoney, BackInvoiceRebate
-from libs.signals import back_money_apply_signal
+from libs.email_signals import back_money_apply_signal
 
 saler_douban_order_back_money_bp = Blueprint(
     'saler_douban_order_back_money', __name__, template_folder='../../templates/saler/douban_order')

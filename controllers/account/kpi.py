@@ -6,7 +6,7 @@ from flask import render_template as tpl
 
 from models.user import User, PerformanceEvaluation
 from libs.paginator import Paginator
-from libs.signals import kpi_apply_signal
+from libs.email_signals import account_kpi_apply_signal
 from controllers.account.helpers.kpi_helpers import write_report_excel, write_simple_report_excel
 
 account_kpi_bp = Blueprint(
@@ -291,7 +291,7 @@ def apply(r_id, status):
     report.save()
     apply_context = {}
     apply_context['report'] = report
-    kpi_apply_signal.send(
+    account_kpi_apply_signal.send(
         current_app._get_current_object(), apply_context=apply_context)
     if int(status) == 1:
         flash(u'绩效考核已被打回!', 'success')

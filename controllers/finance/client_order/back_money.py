@@ -7,7 +7,7 @@ from flask import current_app, render_template as tpl
 from models.user import TEAM_LOCATION_CN
 from libs.paginator import Paginator
 from models.client_order import ClientOrder, BackMoney, BackInvoiceRebate, CONTRACT_STATUS_CN
-from libs.signals import back_money_apply_signal
+from libs.email_signals import back_money_apply_signal
 
 finance_client_order_back_money_bp = Blueprint(
     'finance_client_order_back_money', __name__, template_folder='../../templates/finance/client_order')

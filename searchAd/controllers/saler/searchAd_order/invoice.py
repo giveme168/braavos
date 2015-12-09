@@ -12,7 +12,7 @@ from searchAd.models.invoice import (searchAdInvoice, INVOICE_STATUS_CN, INVOICE
 from searchAd.forms.invoice import InvoiceForm
 
 from models.user import User
-from libs.signals import invoice_apply_signal
+from libs.email_signals import invoice_apply_signal
 
 
 searchAd_saler_client_order_invoice_bp = Blueprint(
@@ -162,13 +162,12 @@ def apply_invoice(invoice_id):
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
-    to_emails = list(set(emails + [x.email for x in to_users]))
     send_type = "saler"
     if action == 2:
         invoice_status = INVOICE_STATUS_APPLY
         action_msg = u'发票开具申请'
     elif action == 3:
-        to_emails = list(set(to_emails + [k.email for k in User.finances()]))
+        to_users = User.finances()
         invoice_status = INVOICE_STATUS_APPLYPASS
         action_msg = u'批准开发票'
         send_type = "finance"
@@ -187,18 +186,15 @@ def apply_invoice(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
-                     "to": to_emails,
-                     "title": u'【搜索部门】客户发票-%s' % (action_msg),
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": invoice.client_order,
-                     "send_type": send_type,
-                     "invoices": invoices,
-                     "url": invoice.client_order.saler_invoice_path(),
-                     }
+    context = {"to_users": to_users,
+               "action_msg": action_msg,
+               "info": msg,
+               "order": invoice.client_order,
+               "send_type": send_type,
+               "action": action,
+               "invoices": invoices,
+               "to_other": emails
+               }
     invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s 发票开具申请] 已发送邮件给 %s ' %
-          (invoice.client_order, ', '.join(to_emails)), 'info')
+        current_app._get_current_object(), context=context)
     return redirect(url_for("searchAd_saler_client_order_invoice.index", order_id=invoice.client_order.id))

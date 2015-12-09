@@ -2,7 +2,7 @@
 from flask import Blueprint, request, g, jsonify, current_app
 
 from models.comment import Comment
-from libs.signals import add_comment_signal
+from libs.email_signals import add_comment_signal
 
 comment_bp = Blueprint('comment', __name__)
 

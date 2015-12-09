@@ -9,7 +9,7 @@ from models.invoice import (AgentInvoice, AgentInvoicePay, AGENT_INVOICE_STATUS_
                             INVOICE_TYPE_CN, AGENT_INVOICE_STATUS_APPLY)
 from models.user import User
 from forms.invoice import AgentInvoiceForm
-from libs.signals import agent_invoice_apply_signal
+from libs.email_signals import agent_invoice_apply_signal
 from libs.paginator import Paginator
 from controllers.saler.client_order.agent_invoice import (new_invoice as _new_invoice,
                                                           update_invoice as _update_invoice, get_invoice_from)
@@ -161,11 +161,10 @@ def invoice_pass(invoice_id):
 
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
         [invoice.client_order.creator, g.user]
-    to_emails = list(set(emails + [x.email for x in to_users]))
 
     if action != 10:
         invoice_status = AGENT_INVOICE_STATUS_PASS
-        action_msg = u'代理订单款已打'
+        action_msg = u'代理返点已打款'
         for invoice_pay in invoices_pay:
             invoice_pay.pay_status = invoice_status
             invoice_pay.save()
@@ -181,17 +180,15 @@ def invoice_pass(invoice_id):
                 msg_channel=5)
     else:
         action_msg = u'消息提醒'
-    apply_context = {"title": "代理订单款已打款",
-                     "sender": g.user,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "send_type": "saler",
-                     "invoice": invoice,
-                     "invoice_pays": invoices_pay}
+    context = {"to_users": to_users,
+               "action_msg": action_msg,
+               "info": msg,
+               "invoice": invoice,
+               "order": invoice.client_order,
+               "send_type": 'end',
+               "invoice_pays": invoices_pay}
     agent_invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'已发送邮件给 %s ' % (', '.join(to_emails)), 'info')
+        current_app._get_current_object(), context=context)
     return redirect(url_for("finance_client_order_agent_pay.pay_info", invoice_id=invoice_id))
 
 

@@ -7,7 +7,7 @@ from wtforms import SelectMultipleField
 from models.user import User, Out, OUT_STATUS_APPLY, OUT_STATUS_MEETED, OUT_STATUS_PASS, OUT_STATUS_MEETED_NOT_PASS
 from models.client import Client, Agent
 from models.medium import Medium
-from libs.signals import apply_out_signal
+from libs.email_signals import account_out_apply_signal
 from libs.paginator import Paginator
 from controllers.account.helpers.out_helpers import write_outs_excel
 
@@ -169,7 +169,7 @@ def create():
         )
         if int(request.values.get('action', 0)) == OUT_STATUS_APPLY:
             flash(u'已发送申请', 'success')
-            apply_out_signal.send(
+            account_out_apply_signal.send(
                 current_app._get_current_object(), out=out, status=1)
         else:
             flash(u'添加成功，请及时申请外出报备', 'success')
@@ -198,7 +198,7 @@ def status(oid):
         msg = u'外出报备通过-会议纪要填写完毕'
     out.save()
     flash(msg, 'success')
-    apply_out_signal.send(
+    account_out_apply_signal.send(
         current_app._get_current_object(), out=out, status=status)
     if g.user == out.creator:
         return redirect(url_for('account_out.index'))
@@ -237,7 +237,7 @@ def meeting_s(oid):
             status = 13
         out.save()
         flash(u'会议纪要填写完毕', 'success')
-        apply_out_signal.send(
+        account_out_apply_signal.send(
             current_app._get_current_object(), out=out, status=status)
         return redirect(url_for('account_out.index'))
     return tpl('/account/out/meeting_s.html', out=out)
@@ -286,7 +286,7 @@ def update(oid):
         out.save()
         if int(int(request.values.get('action', 0))) == OUT_STATUS_APPLY:
             flash(u'已发送申请', 'success')
-            apply_out_signal.send(
+            account_out_apply_signal.send(
                 current_app._get_current_object(), out=out, status=1)
         else:
             flash(u'添加成功，请及时申请外出报备', 'success')

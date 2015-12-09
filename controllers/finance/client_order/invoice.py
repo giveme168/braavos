@@ -9,7 +9,7 @@ from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.invoice import (Invoice, INVOICE_STATUS_CN,
                             INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
                             INVOICE_STATUS_APPLYPASS)
-from libs.signals import invoice_apply_signal
+from libs.email_signals import invoice_apply_signal
 from libs.paginator import Paginator
 from forms.invoice import InvoiceForm
 from controllers.finance.helpers.invoice_helpers import write_excel
@@ -223,10 +223,9 @@ def pass_invoice(invoice_id):
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
-    to_emails = list(set(emails + [x.email for x in to_users]))
     if action != 10:
         invoice_status = INVOICE_STATUS_PASS
-        action_msg = u'发票已开'
+        action_msg = u'客户发票已开'
         for invoice in invoices:
             invoice.invoice_status = invoice_status
             invoice.create_time = datetime.date.today()
@@ -238,19 +237,17 @@ def pass_invoice(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
-                     "title": action_msg,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": invoice.client_order,
-                     "send_type": "saler",
-                     "invoices": invoices,
-                     "url": invoice.client_order.finance_invoice_path()}
+    context = {"to_users": to_users,
+               "to_other": emails,
+               "action_msg": action_msg,
+               "action": 0,
+               "info": msg,
+               "order": invoice.client_order,
+               "send_type": 'end',
+               "invoices": invoices
+               }
     invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s 发票已开] 已发送邮件给 %s ' %
-          (invoice.client_order, ', '.join(to_emails)), 'info')
+        current_app._get_current_object(), context=context)
     return redirect(url_for("finance_client_order_invoice.info", order_id=invoice.client_order.id))
 
 

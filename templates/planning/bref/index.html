@@ -74,7 +74,7 @@
           <td><a href="{{url_for('planning_bref.info', bid=b.id)}}">{{b.title|truncate_html(30)}}</a> {% if b.level_status %}<span class="glyphicon glyphicon-flash glyphicon-plus" aria-hidden="true"></span>{% endif %}</td>
           <td>{{b.brand}}</td>
           <td>{{b.product}}</td>
-          <td>{{b.status_cn}}-{{b.level_status}}</td>
+          <td>{{b.status_cn}}</td>
           <td>{% if b.to_id == 0 %}无{% else %}{{b.toer.name}}{% endif %}</td>
           <td>{{b.get_time_cn}}点</td>
           <td>{{b.update_time_cn}}点</td>

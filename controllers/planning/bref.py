@@ -7,7 +7,7 @@ from models.planning import Bref, BREF_STATUS_CN
 from models.user import User, TEAM_TYPE_PLANNER
 from forms.planning import BrefForm
 
-from libs.signals import planning_bref_signal
+from libs.email_signals import planning_bref_signal
 from libs.paginator import Paginator
 
 planning_bref_bp = Blueprint(
@@ -195,7 +195,7 @@ def status(bid):
         bref.save()
         apply_context = {"sender": g.user,
                          "status": action,
-                         "to": emails,
+                         "to_other": emails,
                          "msg": msg,
                          "bref": bref}
         planning_bref_signal.send(

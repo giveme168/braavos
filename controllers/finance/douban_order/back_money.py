@@ -7,7 +7,7 @@ from flask import current_app, render_template as tpl
 from models.user import TEAM_LOCATION_CN
 from libs.paginator import Paginator
 from models.douban_order import DoubanOrder, BackMoney, BackInvoiceRebate, CONTRACT_STATUS_CN
-from libs.signals import back_money_apply_signal
+from libs.email_signals import back_money_apply_signal
 
 
 finance_douban_order_back_money_bp = Blueprint(

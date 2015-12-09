@@ -461,6 +461,7 @@ def contract_status_change(order, action, emails, msg):
     order.save()
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     context = {
+        "to_other": emails,
         "sender": g.user,
         "to_users": to_users,
         "action_msg": action_msg,

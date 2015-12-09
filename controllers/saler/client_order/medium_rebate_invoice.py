@@ -11,7 +11,7 @@ from models.invoice import (MediumRebateInvoice, INVOICE_STATUS_CN, INVOICE_TYPE
                             INVOICE_STATUS_FAIL)
 from models.user import User
 from forms.invoice import MediumRebateInvoiceForm
-from libs.signals import medium_rebate_invoice_apply_signal
+from libs.email_signals import medium_rebate_invoice_apply_signal
 
 
 saler_client_order_medium_rebate_invoice_bp = Blueprint(
@@ -168,19 +168,18 @@ def apply_invoice(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
     to_users = User.medias() + User.media_leaders() + User.super_leaders()
-    to_emails = list(set(emails + [x.email for x in to_users]))
     send_type = "saler"
     if action == 2:
         invoice_status = INVOICE_STATUS_APPLY
-        action_msg = u'发票开具申请'
+        action_msg = u'媒体返点发票开具申请'
     elif action == 3:
-        to_emails = list(set(to_emails + [k.email for k in User.finances()]))
+        to_users += User.finances()
         invoice_status = INVOICE_STATUS_APPLYPASS
-        action_msg = u'批准开发票'
+        action_msg = u'同意媒体返点发票开具申请'
         send_type = "finance"
     elif action == 4:
         invoice_status = INVOICE_STATUS_FAIL
-        action_msg = u'发票审批未通过'
+        action_msg = u'媒体返点发票开具申请未通过'
     if action != 10:
         for invoice in invoices:
             invoice.invoice_status = invoice_status
@@ -193,18 +192,15 @@ def apply_invoice(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
-                     "to": to_emails,
-                     "title": u'媒体返点发票-%s' % (action_msg),
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": invoice.client_order,
-                     "send_type": send_type,
-                     "invoices": invoices,
-                     "url": invoice.client_order.saler_medium_rebate_invoice_path(),
-                     }
+    context = {"to_users": to_users,
+               "to_other": emails,
+               "action_msg": action_msg,
+               "info": msg,
+               "order": invoice.client_order,
+               "send_type": send_type,
+               "action": action,
+               "invoices": invoices
+               }
     medium_rebate_invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s 发票开具申请] 已发送邮件给 %s ' %
-          (invoice.client_order, ', '.join(to_emails)), 'info')
+        current_app._get_current_object(), context=context)
     return redirect(url_for("saler_client_order_medium_rebate_invoice.index", order_id=invoice.client_order.id))

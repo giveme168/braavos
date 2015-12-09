@@ -113,10 +113,12 @@
             <th>客户合同金额</th>
             {% if t_type == 'douban_back_money' %}
             <th>回款金额</th>
+            <th>回款比例</th>
             <th>回款时间</th>
             <th>回款时间差</td>
             {% elif t_type == 'douban_back_invoice' %}
             <th>返点发票金额</th>
+            <th>回款比例</th>
             <th>返点发票时间</th>
             {% endif %}
         </tr>
@@ -142,17 +144,19 @@
             <td>{{o.douban_order.money|format_price}}</td>
             {% if t_type == 'douban_back_money' %}
             <td>{{o.money|format_price}}</td>
+            <td>{{o.douban_order.back_money_percent}}%</td>
             <td>{{o.back_time_cn}}</td>
             <td>{{o.real_back_money_diff_time}}天</td>
             {% elif t_type == 'douban_back_invoice' %}
             <td>{{o.money|format_price}}</td>
+            <td>{{o.douban_order.back_money_percent}}%</td>
             <td>{{o.back_time_cn}}</td>
             {% endif %}
         </tr>
         {% endfor %}
         <tr>
             <td colspan=11 style="text-align: center;">总计</td>
-            <td {% if t_type == 'douban_back_money' %} colspan=3 {% else %} colspan=2 {% endif %}style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>
+            <td {% if t_type == 'douban_back_money' %} colspan=4 {% elif t_type == 'douban_back_invoice' %} colspan=3 {% else %} colspan=2 {% endif %}style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>
         </tr>
     </table>
     {% else %}

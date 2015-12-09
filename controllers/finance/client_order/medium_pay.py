@@ -10,7 +10,7 @@ from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_STATU
 from forms.invoice import MediumInvoiceForm
 from models.user import User
 from models.medium import Medium
-from libs.signals import medium_invoice_apply_signal
+from libs.email_signals import medium_invoice_apply_signal
 from libs.paginator import Paginator
 from controllers.saler.client_order.medium_invoice import (new_invoice as _new_invoice,
                                                            update_invoice as _update_invoice, get_invoice_from)
@@ -236,7 +236,7 @@ def invoice_pass(invoice_id):
 
     if action != 10:
         invoice_status = MEDIUM_INVOICE_STATUS_PASS
-        action_msg = u'媒体订单款已打'
+        action_msg = u'媒体款项已打款'
         for invoice_pay in invoices_pay:
             invoice_pay.pay_status = invoice_status
             invoice_pay.save()
@@ -252,16 +252,15 @@ def invoice_pass(invoice_id):
                 msg_channel=3)
     else:
         action_msg = u'消息提醒'
-    apply_context = {"title": "媒体订单款已付款",
-                     "sender": g.user,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "send_type": "media",
-                     "invoice": invoice,
-                     "invoice_pays": invoices_pay}
+    context = {"to_users": to_users,
+               "action_msg": action_msg,
+               "info": msg,
+               "invoice": invoice,
+               "order": invoice.client_order,
+               "send_type": 'end',
+               "invoice_pays": invoices_pay}
     medium_invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
+        current_app._get_current_object(), context=context)
     flash(u'已发送邮件给 %s ' % (', '.join(to_emails)), 'info')
     return redirect(url_for("finance_client_order_medium_pay.pay_info", invoice_id=invoice_id))
 

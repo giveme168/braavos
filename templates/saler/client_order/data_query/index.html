@@ -125,11 +125,13 @@
             <th>开票时间</th>
             {% elif t_type == 'back_money' %}
             <th>回款金额</th>
+            <th>回款比例</th>
             <th>回款时间</th>
             <th>回款时间差</td>
             {% elif t_type == 'back_invoice' %}
             <th>返点发票金额</th>
             <th>返点发票时间</th>
+            <th>回款比例</th>
             {% elif t_type == 'rebate_agent_invoice' %}
             <th>返点发票金额</th>
             <th>返点发票时间</th>
@@ -156,22 +158,10 @@
             <td>{{o.client_order.agent_sales_names}}</td>
             <td>{{o.client_order.locations_cn}}</td>
             <td>
-                {% if t_type == 'agent_invoice' %}
-                    <a href="{{url_for('finance_client_order_invoice.info', order_id=o.client_order.id)}}">
-                {% elif t_type == 'back_money' %}
-                    <a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.client_order.id)}}">
+                {% if t_type == 'back_money' %}
+                    <a href="{{url_for('saler_client_order_back_money.index',order_id=o.client_order.id)}}">
                 {% elif t_type == 'back_invoice' %}
-                    <a href="{{url_for('finance_client_order_back_money.back_money',order_id=o.client_order.id)}}">
-                {% elif t_type == 'rebate_agent_invoice' %}
-                    <a href="{{url_for('finance_client_order_agent_pay.info', order_id=o.client_order.id)}}" >
-                {% elif t_type == 'pay_rebate_agent_invoice' %}
-                    <a href="{{url_for('finance_client_order_agent_pay.pay_info', invoice_id=o.id)}}">
-                {% elif t_type == 'medium_invoice' %}
-                    <a href="{{url_for('finance_client_order_medium_pay.info',order_id=o.client_order.id)}}">
-                {% elif t_type == 'pay_medium_invoice' %}
-                    <a href="{{url_for('finance_client_order_medium_pay.pay_info', invoice_id=o.id)}}">
-                {% elif t_type == 'medium_rebate_invoice' %}
-                    <a href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=o.client_order.id)}}">
+                    <a href="{{url_for('saler_client_order_back_money.index',order_id=o.client_order.id)}}">
                 {% endif %}
                 {{o.client_order.contract}}</a>
             </td>
@@ -190,11 +180,13 @@
             <td>{{o.create_time_cn}}</td>
             {% elif t_type == 'back_money' %}
             <td>{{o.money|format_price}}</td>
+            <td>{{o.client_order.back_money_percent}}%</td>
             <td>{{o.back_time_cn}}</td>
             <td>{{o.real_back_money_diff_time}}天</td>
             {% elif t_type == 'back_invoice' %}
             <td>{{o.money|format_price}}</td>
             <td>{{o.back_time_cn}}</td>
+            <td>{{o.client_order.back_money_percent}}%</td>
             {% elif t_type == 'rebate_agent_invoice' %}
             <td>{{o.money|format_price}}</td>
             <td>{{o.add_time_cn}}</td>
@@ -215,7 +207,7 @@
         {% endfor %}
         <tr>
             <td colspan=12 style="text-align: center;">总计</td>
-            <td {% if t_type == 'back_money' %} colspan=3 {% else %} colspan=2 {% endif %}style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>
+            <td {% if t_type == 'back_money' %} colspan=4 {% elif t_type == 'back_invoice' %} colspan=3 {% else %} colspan=2 {% endif %}style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>
         </tr>
     </table>
     {% endif %}

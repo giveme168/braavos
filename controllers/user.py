@@ -7,7 +7,7 @@ from . import admin_required
 from models.user import Team, User, USER_STATUS_CN, DEFAULT_BIRTHDAY, DEFAULT_RECRUITED_DATE
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
 from config import DEFAULT_PASSWORD
-from libs.signals import password_changed_signal
+from libs.email_signals import password_changed_signal
 from libs.mail import check_auth_by_mail
 from libs.files import all_files_set
 

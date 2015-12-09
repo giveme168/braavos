@@ -604,6 +604,7 @@ def contract_status_change(order, action, emails, msg):
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
         to_users += User.douban_contracts()
     context = {
+        "to_other": emails,
         "sender": g.user,
         "to_users" : to_users,
         "action_msg": action_msg,
