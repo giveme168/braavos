@@ -41,7 +41,7 @@
       <td>{{invoice.tax_id}}</td>
       <td>{{invoice.money}}元</td>
       <td>{{invoice.get_pay_money}}元</td>
-      <td>{{invoice.get_apply_pay_money}}元</td>
+      <td {% if invoice.get_apply_pay_money >0 %} style="color:red;" {% endif %}>{{invoice.get_apply_pay_money}}元</td>
       <td>{{invoice.get_unpay_money}}元</td>
       <td>{{invoice.add_time_cn}}</td>
       <td>{{invoice.invoice_type_cn}}</td>
@@ -67,7 +67,7 @@
       </div>
     </div>
   </div>
-  {% if g.user.is_super_leader() %}
+  {% if g.user.is_contract() or g.user.is_media() %}
   <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写发票</button>
   {% endif %}
 </div>

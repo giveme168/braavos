@@ -24,7 +24,8 @@ from ..models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATU
                                    CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
                                    CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
                                    STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
-                                   CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS)
+                                   CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS,
+                                   CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH)
 from ..forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm, RebateOrderForm
 
 from libs.signals import contract_apply_signal
@@ -453,6 +454,20 @@ def contract_status_change(order, action, emails, msg):
         order.status = STATUS_DEL
         to_users = to_users + order.leaders + User.contracts()
         _delete_executive_report(order)
+    elif action == 19:
+        msg = request.values.get('finish_msg', '')
+        finish_time = request.values.get('finish_time', datetime.now())
+        action_msg = u"项目归档(预)"
+        order.contract_status = CONTRACT_STATUS_PRE_FINISH
+        order.finish_time = finish_time
+        to_users = to_users + order.leaders + User.contracts()
+    elif action == 20:
+        msg = request.values.get('finish_msg', '')
+        finish_time = request.values.get('finish_time', datetime.now())
+        action_msg = u"项目归档（确认）"
+        order.contract_status = CONTRACT_STATUS_FINISH
+        order.finish_time = finish_time
+        to_users = to_users + order.leaders + User.contracts()
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
         order.insert_reject_time()

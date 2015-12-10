@@ -411,3 +411,31 @@ def finish_associated_douban_upload():
     order_id = request.values.get('order')
     order = AssociatedDoubanOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/finish/searchAd_client_order/upload', methods=['POST'])
+def finish_searchAd_client_order_upload():
+    order_id = request.values.get('order')
+    order = searchAdClientOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/finish/searchAd_rebate_order/upload', methods=['POST'])
+def finish_searchAd_rebate_order_upload():
+    order_id = request.values.get('order')
+    order = searchAdRebateOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/finish/searchAd_framework_order/upload', methods=['POST'])
+def finish_searchAd_framework_order_upload():
+    order_id = request.values.get('order')
+    order = searchAdFrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/finish/searchAd_medium_order/upload', methods=['POST'])
+def finish_searchAd_medium_order_upload():
+    order_id = request.values.get('order')
+    order = searchAdOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)

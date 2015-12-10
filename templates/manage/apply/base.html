@@ -1,0 +1,21 @@
+<div class="container-fluid top_nav_fluid">
+    <div class="menu">
+        <div class="list">
+          <ul>
+            <a href="{{url_for('manage_apply.order')}}"><li id="_order_">合同流程审批</li></a>
+        <div class="line" style="clear: both"></div>
+        </ul>
+        </div>
+        <div class="list">
+          <ul>
+          </ul>
+        </div>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[3]+'_').addClass("on");
+    })
+</script>

@@ -65,6 +65,7 @@ CONTRACT_STATUS_MEDIA = 6
 CONTRACT_STATUS_DELETEAPPLY = 7
 CONTRACT_STATUS_DELETEAGREE = 8
 CONTRACT_STATUS_DELETEPASS = 9
+CONTRACT_STATUS_PRE_FINISH = 19
 CONTRACT_STATUS_FINISH = 20
 CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_NEW: u"新建",
@@ -77,7 +78,8 @@ CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_DELETEAPPLY: u'撤单申请中...',
     CONTRACT_STATUS_DELETEAGREE: u'确认撤单',
     CONTRACT_STATUS_DELETEPASS: u'同意撤单',
-    CONTRACT_STATUS_FINISH: u'项目归档'
+    CONTRACT_STATUS_PRE_FINISH: u'项目归档（预）',
+    CONTRACT_STATUS_FINISH: u'项目归档（确认）'
 }
 
 STATUS_DEL = 0
@@ -151,6 +153,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     creator = db.relationship(
         'User', backref=db.backref('searchAd_created_client_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    finish_time = db.Column(db.DateTime)   # 合同归档时间
     back_money_status = db.Column(db.Integer)
     contract_generate = True
     media_apply = False
@@ -849,6 +852,13 @@ by %s\n
             return {'id': framework.id, 'name': framework.name}
         except:
             return {'id': 0, 'name': u'无框架'}
+
+    @property
+    def finish_time_cn(self):
+        try:
+            return self.finish_time.date()
+        except:
+            return ''
 
 
 class searchAdBackMoney(db.Model, BaseModelMixin):

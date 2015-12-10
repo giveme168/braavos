@@ -627,7 +627,7 @@ def merger_outsource_apply(sender, apply_context):
     to_user_name = ''
 
     if action == 1:
-        to_user_name = u'黄亮请审批外白合并付款信息'
+        to_user_name = u'黄亮请审批外包合并付款信息'
         to_user += [k for k in User.all() if k.email.find('huangliang')
                     >= 0 or k.email.find('fenghaiyan') >= 0] + [k for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':

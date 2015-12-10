@@ -415,7 +415,7 @@
 			</div>
 			<div class="bussess">
 				<div class="manage">
-					<h5>KOL管理</h5>
+					<h5>策划管理</h5>
 					<p style="width: 127px;line-height:54px;text-align: center;">下策划单</p>
 				</div>
 				<div class="menu-all">
@@ -586,6 +586,21 @@
 				  </div>
 				</div>
 			</div>
+      {% endif %}
+      {% if g.user.is_leader() or g.user.is_super_leader() %}
+            <div class="bussess">
+                <div class="manage">
+                    <h5>审批管理</h5>
+                    <p>业务流程需要审批项目</p>
+                </div>
+                <div class="menu-all">
+                 <a href="{{url_for('manage_apply.order')}}" target="_blank">
+                 <div class="drown-click">  
+                 </div>
+                 </a>
+                  
+                </div>
+            </div>
       {% endif %}
 		</div>
 	</div>	

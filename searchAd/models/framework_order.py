@@ -26,6 +26,7 @@ CONTRACT_STATUS_PRINTED = 5
 CONTRACT_STATUS_DELETEAPPLY = 7
 CONTRACT_STATUS_DELETEAGREE = 8
 CONTRACT_STATUS_DELETEPASS = 9
+CONTRACT_STATUS_PRE_FINISH = 19
 CONTRACT_STATUS_FINISH = 20
 CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_NEW: u"新建",
@@ -37,7 +38,8 @@ CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_DELETEAPPLY: u'撤单申请中...',
     CONTRACT_STATUS_DELETEAGREE: u'确认撤单',
     CONTRACT_STATUS_DELETEPASS: u'同意撤单',
-    CONTRACT_STATUS_FINISH: u'项目归档'
+    CONTRACT_STATUS_PRE_FINISH: u'项目归档（预）',
+    CONTRACT_STATUS_FINISH: u'项目归档（确认）'
 }
 
 STATUS_DEL = 0
@@ -80,6 +82,7 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
     creator = db.relationship(
         'User', backref=db.backref('created_searchAdframework_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    finish_time = db.Column(db.DateTime)   # 合同归档时间
     rebate = db.Column(db.Float)
     contract_generate = True
     media_apply = False
@@ -243,6 +246,13 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
     @property
     def agent_sales(self):
         return self.sales
+
+    @property
+    def finish_time_cn(self):
+        try:
+            return self.finish_time.date()
+        except:
+            return ''
 
 def contract_generator(agent, num):
     code = "ZQSC%s%03x-%03x" % (datetime.datetime.now().strftime('%Y%m'),

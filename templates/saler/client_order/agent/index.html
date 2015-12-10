@@ -37,7 +37,7 @@
       <td>{{invoice.tax_id}}</td>
       <td>{{invoice.money}}元</td>
       <td>{{invoice.get_pay_money}}元</td>
-      <td>{{invoice.get_apply_pay_money}}元</td>
+      <td {% if invoice.get_apply_pay_money >0 %} style="color:red;" {% endif %}>{{invoice.get_apply_pay_money}}元</td>
       <td>{{invoice.get_unpay_money}}元</td>
       <td>{{invoice.add_time_cn}}</td>
       <td>{{invoice.invoice_type_cn}}</td>

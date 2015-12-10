@@ -203,7 +203,9 @@
       </div>
     </div>
   </div>
+  {% if g.user.is_contract() or g.user.is_media() %}
   <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 申请打款</button>
+  {% endif %}
 </div>
 <script>
 $(document).ready(function(){

@@ -738,6 +738,10 @@ class MergerOutSource(db.Model, BaseModelMixin, CommentMixin):
     def search_invoice_info(self):
         return ''.join([k.order.search_invoice_info for k in self.outsources])
 
+    @property
+    def merger_path(self):
+        return url_for('outsource.merget_client_target_info', target_id=self.target_id)
+
 
 class MergerPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'merger_personal_out_source'
@@ -797,6 +801,10 @@ class MergerPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     @property
     def search_invoice_info(self):
         return ''.join([k.order.search_invoice_info for k in self.outsources])
+
+    @property
+    def merger_path(self):
+        return url_for('outsource.merget_client_target_personal_info')
 
 
 table_merger_douban_personal_outsources = db.Table('merget_douban_personal_outsources',
@@ -872,6 +880,10 @@ class MergerDoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     def search_invoice_info(self):
         return ''.join([k.order.search_invoice_info for k in self.outsources])
 
+    @property
+    def merger_path(self):
+        return url_for('outsource.merget_douban_target_info', target_id=self.target_id)
+
 
 class MergerDoubanPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'merger_douban_personal_out_source'
@@ -931,3 +943,7 @@ class MergerDoubanPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     @property
     def search_invoice_info(self):
         return ''.join([k.order.search_invoice_info for k in self.outsources])
+
+    @property
+    def merger_path(self):
+        return url_for('outsource.merget_douban_target_personal_info')

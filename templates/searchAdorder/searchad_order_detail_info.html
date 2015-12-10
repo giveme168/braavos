@@ -3,7 +3,7 @@
 {% from 'searchad_order_form_medium.html' import order_medium_form %}
 {% from 'searchad_order_form_medium.html' import new_order_medium_form %}
 {% from 'searchad_order_form_contract.html' import order_contract_form %}
-{% from 'searchad_order_form_attachment.html' import client_order_attachment, medium_order_attachment %}
+{% from 'searchad_order_form_attachment.html' import client_order_attachment, medium_order_attachment, finish_client_order_attachment, finish_medium_order_attachment %}
 {% from 'comments.html' import comments_box %}
 {% macro contract_box(order, client_form, new_medium_form, medium_forms, reminder_emails) -%}
     <div class="panel-group" id="accordion">
@@ -16,8 +16,12 @@
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_client_form(client_form, order) }}
-                    {{ client_order_attachment(order) }}
                     <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {{ client_order_attachment(order) }}
+                    {% if order.contract_status == 20 %}
+                    <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {{ finish_client_order_attachment(order) }}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -34,8 +38,14 @@
                     {{ order_medium_form(mf[0], mf[1]) }}
                     {{ medium_order_attachment(mf[1]) }}
                     <hr><div style="color:#999;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
-                    </div>
+                    {% if mf[1].finish_status == 0 %}
+                        <hr><div style="color:#999;">合同归档时间: {{mf[1].finish_time_cn}}</div>
+                        {% endif %}
+                        {% if order.contract_status == 20 %}
+                            {{ finish_medium_order_attachment(mf[1]) }}
+                        {% endif %}
                     {% endfor %}
+                    </div>
                     <div class="well" id="new-medium" style="display:none;">
                       <h4>新建媒体订单</h4>
                       {{ new_order_medium_form(new_medium_form, client_order=order) }}

@@ -96,7 +96,7 @@
     </tr>
 </table>
 <div class="panel-group" id="accordion-outsource">
-    {% for outsource_status in range(0, 6) %}
+    {% for outsource_status in [1, 5, 0, 2, 3, 4] %}
     {% set outsources = order.get_outsources_by_status(outsource_status) %}
     {% if outsources %}
     <div class="panel panel-default" id="accordion-outsource">
