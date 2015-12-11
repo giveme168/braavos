@@ -160,12 +160,14 @@
                             <th>打款时间</th>
                             <th>打款金额</th>
                             <th>备注</th>
+                            <th>操作</th>
                           </tr>
                           {% for invoice in invoices_data_pass %}
                           <tr>
                             <td>{{invoice.pay_time_cn}}</td>
                             <td>{{invoice.money}}元</td>
                             <td>{{invoice.detail}}</td>
+                            <td><a href='javascript:delete_pay_money("{{invoice.medium_invoice_id}}", "{{invoice.id}}")'>删除</a></td>
                           </tr>
                           {% endfor %}
                         </table>
@@ -278,6 +280,11 @@
   </div>
 </div>
 <script>
+   function delete_pay_money(invoice_id, pid){
+     if(confirm('你要确认要删除此项付款吗？')){
+        window.location.href="/finance/client_order/medium_pay/"+invoice_id+"/"+pid+"/pay_delete";       
+      }
+   }
    function show_update_pay_time(invoice_id, date){
       $("#invoice_id").val(invoice_id)
       $('#update_pay_time_form').modal();

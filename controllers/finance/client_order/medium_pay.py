@@ -32,7 +32,8 @@ def apply():
 
     orders = list(MediumInvoicePay.query.filter_by(pay_status=3))
     if location_id >= 0:
-        orders = [o for o in orders if location_id in o.medium_invoice.client_order.locations]
+        orders = [
+            o for o in orders if location_id in o.medium_invoice.client_order.locations]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.medium_invoice.client_order.search_invoice_info.lower()]
@@ -46,8 +47,10 @@ def apply():
     except:
         orders = paginator.page(paginator.num_pages)
     for k in orders.object_list:
-        k.apply_num = len(k.medium_invoice.client_order.get_medium_invoice_pay_by_status(3))
-        k.pay_num = len(k.medium_invoice.client_order.get_medium_invoice_pay_by_status(0))
+        k.apply_num = len(
+            k.medium_invoice.client_order.get_medium_invoice_pay_by_status(3))
+        k.pay_num = len(
+            k.medium_invoice.client_order.get_medium_invoice_pay_by_status(0))
     return tpl('/finance/client_order/medium_pay/index.html', orders=orders, title=u'申请中的媒体付款',
                locations=select_locations, location_id=location_id,
                now_date=datetime.date.today(),
@@ -262,6 +265,17 @@ def invoice_pass(invoice_id):
     medium_invoice_apply_signal.send(
         current_app._get_current_object(), context=context)
     flash(u'已发送邮件给 %s ' % (', '.join(to_emails)), 'info')
+    return redirect(url_for("finance_client_order_medium_pay.pay_info", invoice_id=invoice_id))
+
+
+@finance_client_order_medium_pay_bp.route('/<invoice_id>/<pid>/pay_delete', methods=['GET'])
+def invoice_pay_delete(invoice_id, pid):
+    invoice = MediumInvoice.get(invoice_id)
+    invoice_pay = MediumInvoicePay.get(pid)
+    flash(u'删除成功', 'success')
+    invoice.client_order.add_comment(g.user, u"删除了付款信息  发票号：%s  付款金额：%s元  付款时间：%s" % (
+        invoice.invoice_num, str(invoice_pay.money), invoice_pay.pay_time_cn), msg_channel=3)
+    invoice_pay.delete()
     return redirect(url_for("finance_client_order_medium_pay.pay_info", invoice_id=invoice_id))
 
 

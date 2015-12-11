@@ -192,6 +192,17 @@ def invoice_pass(invoice_id):
     return redirect(url_for("finance_client_order_agent_pay.pay_info", invoice_id=invoice_id))
 
 
+@finance_client_order_agent_pay_bp.route('/<invoice_id>/<pid>/pay_delete', methods=['GET'])
+def invoice_pay_delete(invoice_id, pid):
+    invoice = AgentInvoice.get(invoice_id)
+    invoice_pay = AgentInvoicePay.get(pid)
+    flash(u'删除成功', 'success')
+    invoice.client_order.add_comment(g.user, u"删除了付款信息  发票号：%s  付款金额：%s元  付款时间：%s" % (
+        invoice.invoice_num, str(invoice_pay.money), invoice_pay.pay_time_cn), msg_channel=5)
+    invoice_pay.delete()
+    return redirect(url_for("finance_client_order_agent_pay.pay_info", invoice_id=invoice_id))
+
+
 @finance_client_order_agent_pay_bp.route('/<order_id>/order/new', methods=['POST'])
 def new_invoice(order_id, redirect_endpoint='finance_client_order_agent_pay.info'):
     return _new_invoice(order_id, redirect_endpoint)
