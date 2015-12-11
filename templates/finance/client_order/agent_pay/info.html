@@ -46,7 +46,8 @@
         <td>{{invoice.invoice_num}}</td>
         <td>{{invoice.detail}}</td>
         <td>
-            <a href="{{url_for('finance_client_order_agent_pay.pay_info', invoice_id=invoice.id)}}">查看</a>
+            <a href="{{url_for('finance_client_order_agent_pay.pay_info', invoice_id=invoice.id)}}">查看</a>&nbsp;&nbsp;&nbsp;
+            <a href="{{url_for('finance_client_order_agent_pay.invoice_delete', invoice_id=invoice.id)}}">删除</a>
         </td>
       </tr>
       {% endfor %}

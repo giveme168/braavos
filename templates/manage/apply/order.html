@@ -2,7 +2,7 @@
 {% block title %}{{title}}{% endblock %}
 {% block content %}
 {% include "/manage/apply/base.html" %}
-<div class="container bra-box" style="width:1400px;">
+<div class="container bra-box" style="width:1600px;">
     <ul class="nav nav-tabs">
         <li id="__"><a href="{{url_for('manage_apply.order')}}">合同审批</a></li>
         <li id="_del_"><a href="{{url_for('manage_apply.order_del')}}">撤单审批</a></li>
@@ -86,6 +86,7 @@
     {% else %}
     <table class="table table-bordered">
         <tr>
+            <th>区域</th>
             <th>合同类型</th>
             <th>代理/直客</th>
             <th>客户</th>
@@ -95,11 +96,12 @@
             <th>回款日期</th>
             <th>直客销售</th>
             <th>渠道销售</th>
-            <th>区域</th>
             <th>执行开始时间</th>
             <th>执行结束时间</th>
+            {% if a_type != 'order' %}
             <th>申请金额</th>
             <th>申请个数</th>
+            {% endif %}
         </tr>
         {% for o in orders %}
         {% if a_type == 'order' %}
@@ -116,6 +118,7 @@
             {% set url = o.outsource_path() %}
         {% endif %}
         <tr>
+            <td>{{o.locations_cn}}</td>
             {% if o.__tablename__ == 'bra_client_order' %}
             <td>新媒体订单</td>
             {% else %}
@@ -129,7 +132,6 @@
             <td>{{o.reminde_date_cn}}</td>
             <td>{{o.direct_sales_names}}</td>
             <td>{{o.agent_sales_names}}</td>
-            <td>{{o.locations_cn}}</td>
             <td>{{o.start_date_cn}}</td>
             <td>{{o.end_date_cn}}</td>
             {% if a_type == 'medium_pay' %}

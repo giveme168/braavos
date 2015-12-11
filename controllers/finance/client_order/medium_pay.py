@@ -270,6 +270,8 @@ def invoice_pass(invoice_id):
 
 @finance_client_order_medium_pay_bp.route('/<invoice_id>/<pid>/pay_delete', methods=['GET'])
 def invoice_pay_delete(invoice_id, pid):
+    if not g.user.is_finance():
+        abort(404)
     invoice = MediumInvoice.get(invoice_id)
     invoice_pay = MediumInvoicePay.get(pid)
     flash(u'删除成功', 'success')
