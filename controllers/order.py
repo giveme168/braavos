@@ -612,7 +612,10 @@ def contract_status_change(order, action, emails, msg):
         "info": msg,
         "action": order.contract_status
     }
-    zhiqu_contract_apply_signal.send(current_app._get_current_object(), context=context)
+    douban_type = False
+    if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
+        douban_type = True
+    zhiqu_contract_apply_signal.send(current_app._get_current_object(), context=context, douban_type=douban_type)
     order.add_comment(g.user, u"%s \n\r\n\r %s" % (action_msg, msg))
 
 

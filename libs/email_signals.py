@@ -89,7 +89,7 @@ def contract_apply_douban(sender, apply_context):
                      file_paths=file_paths)
 
 
-def zhiqu_contract_apply(sender, context):
+def zhiqu_contract_apply(sender, context, douban_type=False):
     order = context['order']
     to_users = context['to_users']
     action_msg = context['action_msg']
@@ -101,7 +101,7 @@ def zhiqu_contract_apply(sender, context):
         action = context['action']
     else:
         action = None
-    if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4:
+    if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and douban_type:
         contract_apply_douban(sender, context)
     if action and int(action) == 1:
         leader_users = [k for k in to_users if k.team.type in [9]]
@@ -115,8 +115,11 @@ def zhiqu_contract_apply(sender, context):
             u'进行合同号分配'
     elif action and int(action) == 4:
         contract_users = [k for k in to_users if k.team.type in [10]]
-        action_info = u'请' + ','.join(_get_active_user_name(contract_users)) +\
-            u'进行合同打印'
+        if douban_type:
+            action_info = u'合同打印请求已发给豆瓣，请相关人员等待'
+        else:
+            action_info = u'请' + ','.join(_get_active_user_name(contract_users)) +\
+                u'进行合同打印'
     elif action and int(action) == 5:
         salers = order.direct_sales + order.agent_sales + [order.creator]
         action_info = ','.join(_get_active_user_name(salers)) + u'您的合同打印完成'
