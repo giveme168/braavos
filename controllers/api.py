@@ -19,6 +19,8 @@ def _order_to_dict(order, ass_order=None):
     param = {}
     if order.__tablename__ == 'bra_client_order':
         param['type'] = 'client_order'
+    elif ass_order:
+        param['type'] = 'ass_douban_order'
     else:
         param['type'] = 'douban_order'
     param['id'] = order.id
@@ -88,3 +90,23 @@ def order():
         return jsonify({'ret': True, 'data': douban_order[0]})
     else:
         return jsonify({'ret': False, 'data': {}})
+
+
+@api_bp.route('/search/<type>/<id>/order', methods=['GET'])
+def search_order(type, id):
+    if type == 'client_order':
+        client_order = ClientOrder.get(id)
+        if client_order:
+            return jsonify({'ret':True, 'data':_order_to_dict(client_order)})
+        return jsonify({'ret':False, 'data':{}}) 
+    elif type == 'douban_order':
+        douban_order = DoubanOrder.get(id)
+        if douban_order:
+            return jsonify({'ret':True, 'data':_order_to_dict(douban_order)})
+        return jsonify({'ret':False, 'data':{}})
+    elif type == 'ass_douban_order':
+        client_order = ClientOrder.get(id)
+        if client_order:
+            return jsonify({'ret':True, 'data':_order_to_dict(client_order, client_order.associated_douban_orders[0])})
+        return jsonify({'ret':False, 'data':{}})
+    return jsonify({'ret':False, 'data':{}})
