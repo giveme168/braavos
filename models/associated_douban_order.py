@@ -187,3 +187,7 @@ by %s\n
     @property
     def operaters(self):
         return self.medium_order.operaters
+
+    @property
+    def client_order(self):
+        return self.medium_order.client_order

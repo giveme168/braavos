@@ -25,12 +25,11 @@
                 </a>
                 {% endif %}
                 <!-- 只有leader 销售 合同管理员才能看框架 -->
-                {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() %}
-                
+                {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_finance() %}
                 <a href="{{url_for('order.my_framework_orders')}}">
                     <li id="_my_framework_orders_" >我的框架订单</li>
                 </a>
-                    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() %}
+                    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_finance() %}
                     <a href="{{url_for('order.framework_orders')}}">
                         <li id="_framework_orders_" >全部框架订单</li>
                     </a>
