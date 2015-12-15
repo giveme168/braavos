@@ -3,7 +3,19 @@
 {% block content %}
 {% include "/data_query/data_query_base.html" %}
 <div class="container bra-box" id="medium_box" style="width:1000px;">
-    <h3>媒体清单&nbsp;&nbsp;<input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();"></h3>
+    <h3>媒体清单</h3>
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="exampleInputEmail2">时间</label>
+            <select class="col-md-12" id="year" name="year" placeholder="时间">
+                {% for k in range(10) %}
+                <option value='{{2014+k}}'>{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-default">搜索</button>
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+    </form>
     <br>
     <table class="table table-bordered">
     <tr>
@@ -491,7 +503,9 @@
 <script>
     $(function(){
         var width = 110*(parseInt('{{other_money.profit|length}}')+3)
-        $("#medium_box").width(width)
+        $("#medium_box").width(width);
+        $("#year").val("{{year}}");
+        $("#year").trigger("chosen:updated");
     })
     function download(){
          window.location.href = window.location.pathname + '?action=download';

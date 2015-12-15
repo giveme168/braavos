@@ -50,6 +50,8 @@ def get_invoice_from(client_order, invoice=None):
         invoice_form.client_order.choices = [
             (invoice.client_order.id, invoice.client_order.client.name)]
         invoice_form.medium.choices = [(medium.id, medium.name) for medium in invoice.client_order.mediums]
+        if invoice:
+            invoice_form.medium.data = invoice.medium.id
         invoice_form.company.data = invoice.company
         invoice_form.bank.data = invoice.bank
         invoice_form.bank_id.data = invoice.bank_id

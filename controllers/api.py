@@ -33,7 +33,7 @@ def _order_to_dict(order, ass_order=None):
     param['end_time'] = order.client_end.strftime('%Y-%m-%d')
     param['direct_sales'] = order.direct_sales_names
     param['agent_sales'] = order.agent_sales_names
-    param['sale_type'] = order.sale_type_cn
+    param['resource_type'] = order.resource_type_cn
     if ass_order:
         param['real_agent'] = ass_order.medium_order.medium.name
     else:

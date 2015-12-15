@@ -61,10 +61,18 @@ def _get_medium_moneys(orders, pre_monthes, medium_id):
 @data_query_super_leader_medium_bp.route('/money', methods=['GET'])
 def money():
     now_date = datetime.datetime.now()
-    end_date_month = now_date.replace(
-        month=now_date.month, day=1, hour=0, minute=0, second=0, microsecond=0)
-    start_date_month = now_date.replace(
-        month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    year = int(request.values.get('year', now_date.year))
+    if year < now_date.year:
+        start_date_month = datetime.datetime.strptime(str(year)+'-01'+'-01','%Y-%m-%d')
+        end_date_month = datetime.datetime.strptime(str(year)+'-12'+'-31','%Y-%m-%d')
+    elif year == now_date.year:
+        end_date_month = now_date.replace(
+            month=now_date.month, day=1, hour=0, minute=0, second=0, microsecond=0)
+        start_date_month = now_date.replace(
+            month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    else:
+        start_date_month = datetime.datetime.strptime(str(year)+'-01'+'-01','%Y-%m-%d')
+        end_date_month = datetime.datetime.strptime(str(year)+'-01'+'-01','%Y-%m-%d')
     pre_monthes = get_monthes_pre_days(start_date_month, end_date_month)
 
     douban_orders = DoubanOrderExecutiveReport.query.filter(
@@ -110,7 +118,8 @@ def money():
             else:
                 rebate_order_money['ex_money'].append(0.0)
     # 搜索部门毛利：普通订单收入+返点订单收入-执行金额
-    searchAD_money['profit'] = numpy.array(searchAD_money['profit']) + numpy.array(rebate_order_money['ex_money'])
+    searchAD_money['profit'] = numpy.array(
+        searchAD_money['profit']) + numpy.array(rebate_order_money['ex_money'])
     # 搜索部门合同结束
     youli_money = _get_medium_moneys(medium_orders, pre_monthes, 3)
     wuxian_money = _get_medium_moneys(medium_orders, pre_monthes, 8)
@@ -203,4 +212,5 @@ def money():
                xiachufang_money=xiachufang_money, xueqiu_money=xueqiu_money,
                huxiu_money=huxiu_money, kecheng_money=kecheng_money,
                midi_money=midi_money, other_money=other_money, total=total,
-               searchAD_money=searchAD_money, rebate_order_money=rebate_order_money)
+               searchAD_money=searchAD_money, rebate_order_money=rebate_order_money,
+               year=str(year))
