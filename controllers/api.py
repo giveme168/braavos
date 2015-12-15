@@ -77,13 +77,13 @@ def clients():
 def order():
     sn = request.values.get('sn', '')
     client_order = [_order_to_dict(k)
-                                   for k in ClientOrder.all() if k.contract == sn]
+                                   for k in ClientOrder.all() if k.contract.lower().strip() == sn.lower().strip()]
     douban_order = [_order_to_dict(k)
-                                   for k in DoubanOrder.all() if k.contract == sn]
+                                   for k in DoubanOrder.all() if k.contract.lower().strip() == sn.lower().strip()]
     client_order += [_order_to_dict(k.client_order)
-                                    for k in Order.all() if k.medium_contract == sn]
+                                    for k in Order.all() if k.medium_contract.lower().strip() == sn.lower().strip()]
     client_order += [
-        _order_to_dict(k.client_order, k) for k in AssociatedDoubanOrder.all() if k.contract == sn]
+        _order_to_dict(k.client_order, k) for k in AssociatedDoubanOrder.all() if k.contract.lower().strip() == sn.lower().strip()]
     if client_order:
         return jsonify({'ret': True, 'data': client_order[0]})
     elif douban_order:
