@@ -2,7 +2,7 @@
     <div class="menu">
         <div class="list">
           <ul>
-            {% if g.user.is_finance()%}
+            {% if g.user.is_finance() or g.user.is_aduit()%}
             <a href="{{url_for('searchAd_finance_client_order_invoice.index')}}"><li id="_searchAd_orderinvoice_" >普通订单客户发票</li></a>
             <a href="{{url_for('searchAd_finance_rebate_order_invoice.index')}}"><li id="_searchAd_rebate_orderinvoice_">返点订单客户发票</li></a>
             <a href="{{url_for('searchAd_finance_client_order_back_money.index')}}"><li id="_searchAd_orderback_moneyorders_">普通订单收款</li></a>

@@ -325,7 +325,7 @@
                           {% else %}
                           <!--致趣订单-->
                             <li><a href="{{url_for('order.my_orders')}}" target="_blank">致趣订单管理</a></li>
-                            {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() %}
+                            {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit()%}
                             <!--搜索部门-->
                               <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank">搜索部门订单管理</a></li>
                             <!--搜索部门结束-->
@@ -354,7 +354,7 @@
                       {% else %}
                       <!--致趣订单-->
                         <li><a href="{{url_for('client.agents')}}" target="_blank">致趣客户管理</a></li>
-                        {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() %}
+                        {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit() %}
                         <!--搜索部门-->
                           <li><a href="{{url_for('searchAd_client.agents')}}" target="_blank">搜索部门客户管理</a></li>
                         <!--搜索部门结束-->
@@ -546,7 +546,7 @@
                       {% else %}
                       <!--致趣订单-->
                         <li><a href="{{url_for('data_query_weekly.douban_index')}}" target="_blank">致趣数据管理</a></li>
-                        {% if g.user.is_super_leader() or g.user.is_finance() %}
+                        {% if g.user.is_super_leader() or g.user.is_finance() or g.user.is_aduit() %}
                         <!--搜索部门-->
                           <li><a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank">搜索部门数据管理</a></li>
                         <!--搜索部门结束-->
@@ -557,7 +557,7 @@
 				  </div>
 				</div>
 			</div>
-      {% if g.user.is_finance() or g.user.is_super_leader() %}
+      {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_aduit()%}
 			<div class="bussess">
 				<div class="manage">
 					<h5>财务管理</h5>
@@ -569,8 +569,13 @@
 				 </div>
 				  <div class="menu-list">
 				  	<ul>
-				  		<li><a href="{{url_for('finance_client_order_invoice.index')}}" target="_blank">致趣财务管理</a></li>
-              <li><a href="{{url_for('searchAd_finance_client_order_invoice.index')}}" target="_blank">搜索部门财务管理</a></li>
+                        {% if g.user.team.type == 24 %}
+                        <li><a href="{{url_for('finance_client_order_data_query.agent_invoice')}}" target="_blank">致趣财务管理</a></li>
+                        <li><a href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}" target="_blank">搜索部门财务管理</a></li>
+                        {% else %}
+                        <li><a href="{{url_for('finance_client_order_invoice.index')}}" target="_blank">致趣财务管理</a></li>
+                        <li><a href="{{url_for('searchAd_finance_client_order_invoice.index')}}" target="_blank">搜索部门财务管理</a></li>
+                        {% endif %}
 				  	</ul>
 				  </div>
 				</div>

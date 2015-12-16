@@ -67,14 +67,14 @@
         <td colspan=36 style="height:30px;"></td>
     </tr>
     <tr>
-        <td  style="background-color:#CCFF99;">豆瓣收入(优力互动)</td>
+        <td  style="background-color:#CCFF99;">优力互动收入</td>
         {% for k in youli_money.sale_money %}
         <td>{{k|format_price}}</td>
         {% endfor %}
         <td>{{ youli_money.sale_money|sum()|format_price }}</td>
     </tr>
     <tr>
-        <td  style="background-color:#CCFF99;">豆瓣媒体合同金额(优力互动)</td> 
+        <td  style="background-color:#CCFF99;">优力互动媒体合同金额</td> 
         {% for k in youli_money.money2 %}
         <td>{{k|format_price}}</td>
         {% endfor %}
@@ -83,21 +83,21 @@
 
 
     <tr>
-        <td  style="background-color:#CCFF99;">豆瓣媒体净成本(优力互动)</td> 
+        <td  style="background-color:#CCFF99;">优力互动媒体净成本</td> 
         {% for k in youli_money.m_ex_money %}
         <td>{{k|format_price}}</td>
         {% endfor %}
         <td>{{ youli_money.m_ex_money|sum()|format_price }}</td>
     </tr>
     <tr>
-        <td  style="background-color:#CCFF99;">豆瓣代理成本(优力互动)</td> 
+        <td  style="background-color:#CCFF99;">优力互动代理成本</td> 
         {% for k in youli_money.a_rebate %}
         <td>{{k|format_price}}</td>
         {% endfor %}
         <td>{{ youli_money.a_rebate|sum()|format_price }}</td>
     </tr>
     <tr>
-        <td  style="background-color:#CCFF99;">致趣豆瓣毛利(优力互动)</td> 
+        <td  style="background-color:#CCFF99;">优力互动豆瓣毛利</td> 
         {% for k in youli_money.profit %}
         <td>{{k|format_price}}</td>
         {% endfor %}
@@ -107,35 +107,35 @@
         <td colspan=36 style="height:30px;"></td>
     </tr>
     <tr>
-        <td  style="background-color:#CCFF99;">豆瓣收入(无线互联)</td>
+        <td  style="background-color:#CCFF99;">无线互联收入</td>
         {% for k in wuxian_money.sale_money %}
         <td>{{k|format_price}}</td>
         {% endfor %}
         <td>{{ wuxian_money.sale_money|sum()|format_price }}</td>
     </tr>
     <tr>
-        <td  style="background-color:#CCFF99;">豆瓣媒体合同金额(无线互联)</td> 
+        <td  style="background-color:#CCFF99;">无线互联媒体合同金额</td> 
         {% for k in wuxian_money.money2 %}
         <td>{{k|format_price}}</td>
         {% endfor %}
         <td>{{ wuxian_money.money2|sum()|format_price }}</td>
     </tr>
     <tr>
-        <td  style="background-color:#CCFF99;">豆瓣媒体净成本(无线互联)</td> 
+        <td  style="background-color:#CCFF99;">无线互联媒体净成本</td> 
         {% for k in wuxian_money.m_ex_money %}
         <td>{{k|format_price}}</td>
         {% endfor %}
         <td>{{ wuxian_money.m_ex_money|sum()|format_price }}</td>
     </tr>
     <tr>
-        <td  style="background-color:#CCFF99;">豆瓣代理成本(无线互联)</td> 
+        <td  style="background-color:#CCFF99;">无线互联代理成本</td> 
         {% for k in wuxian_money.a_rebate %}
         <td>{{k|format_price}}</td>
         {% endfor %}
         <td>{{ wuxian_money.a_rebate|sum()|format_price }}</td>
     </tr>
     <tr>
-        <td  style="background-color:#CCFF99;">致趣豆瓣毛利(无线互联)</td> 
+        <td  style="background-color:#CCFF99;">无线互联豆瓣毛利</td> 
         {% for k in wuxian_money.profit %}
         <td>{{k|format_price}}</td>
         {% endfor %}
@@ -508,7 +508,7 @@
         $("#year").trigger("chosen:updated");
     })
     function download(){
-         window.location.href = window.location.pathname + '?action=download';
+         window.location.href = window.location.pathname + '?action=download&year='+$('#year').val();
     }
 </script>
 {% endblock %}

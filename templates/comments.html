@@ -20,6 +20,7 @@
 {%- endmacro %}
 
 {% macro comments_box(owner, msg_channel=0, text=True) -%}
+{% if not g.user.is_aduit() %}
 <div class="comments_box col-md-12">
   {% if text %}
   <form role="form" class="form comment-form col-md-12">
@@ -88,4 +89,5 @@ $(document).ready(function(){
     });
 });
 </script>
+{% endif %}
 {%- endmacro %}

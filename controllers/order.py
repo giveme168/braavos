@@ -636,7 +636,7 @@ def delete_orders():
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or \
-            g.user.is_media_leader() or g.user.is_finance():
+            g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit():
         orders = ClientOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -647,7 +647,7 @@ def my_orders():
     if not request.args.get('selected_status'):
         if g.user.is_admin():
             status_id = -1
-        elif g.user.is_super_leader():
+        elif g.user.is_super_leader() or g.user.is_aduit():
             status_id = -1
         elif g.user.is_leader():
             orders = [o for o in orders if g.user.location in o.locations]
@@ -907,7 +907,7 @@ def framework_order_info(order_id):
 @order_bp.route('/my_framework_orders', methods=['GET'])
 def my_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or\
-            g.user.is_contract():
+            g.user.is_contract() or g.user.is_aduit():
         orders = FrameworkOrder.all()
         if g.user.is_admin() or g.user.is_contract() or g.user.is_finance():
             pass
@@ -1155,7 +1155,7 @@ def douban_order_info(order_id):
 @order_bp.route('/my_douban_orders', methods=['GET'])
 def my_douban_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or\
-            g.user.is_media_leader() or g.user.is_finance():
+            g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit():
         orders = DoubanOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -1166,7 +1166,7 @@ def my_douban_orders():
     if not request.args.get('selected_status'):
         if g.user.is_admin():
             status_id = -1
-        elif g.user.is_super_leader():
+        elif g.user.is_super_leader() or g.user.is_aduit():
             status_id = -1
         elif g.user.is_leader():
             orders = [o for o in orders if g.user.location in o.locations]

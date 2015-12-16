@@ -19,6 +19,8 @@
             <a href="{{url_for('finance_client_order_data_query.agent_invoice')}}"><li  id="_client_orderdata_query_">新媒体订单数据查询</li></a>
             <a href="{{url_for('finance_douban_order_data_query.back_money')}}"><li  id="_douban_orderdata_query_">豆瓣订单数据查询</li></a>
             <a href="{{url_for('finance_framework_order.index')}}"><li  id="_framework_order_">框架合同查询</li></a>
+            {% elif g.user.is_aduit() %}
+            <a href="{{url_for('finance_client_order_data_query.agent_invoice')}}"><li  id="_client_orderdata_query_">新媒体订单数据查询</li></a>
             {% endif %}
         <div class="line" style="clear: both"></div>
         </ul>

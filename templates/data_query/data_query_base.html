@@ -26,7 +26,7 @@
               <li id="_outsourceinfo_" >外包成本详情</li>
             </a>
             {% endif %}
-            {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_media_leader() %}
+            {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_aduit() %}
             <a href="{{url_for('data_query_profit.client_order')}}">
               <li id="_profitclient_order_" >媒体订单执行成本</li>
             </a>
@@ -37,7 +37,7 @@
               <li id="_ordercost_" >媒体订单发票与款项</li>
             </a>
             {% endif %}
-            {% if g.user.is_super_leader() %}
+            {% if g.user.is_super_leader() or g.user.is_aduit() %}
             <a href="{{url_for('data_query_super_leader_medium.money')}}">
               <li id="_super_leadermedium_" >媒体清单</li>
             </a>
