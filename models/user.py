@@ -208,7 +208,7 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         return self.is_admin() or self.team.type == TEAM_TYPE_OPS_LEADER
 
     def is_aduit(self):
-        return self.is_admin() or self.team.type == TEAM_TYPE_AUDIT
+        return self.team.type == TEAM_TYPE_AUDIT
 
     def is_OPS(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_OPS

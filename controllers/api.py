@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import random
 import itertools
+import json
 from datetime import datetime
 from flask import Blueprint, request, abort, Response, jsonify
 
@@ -92,21 +93,41 @@ def order():
         return jsonify({'ret': False, 'data': {}})
 
 
-@api_bp.route('/search/<type>/<id>/order', methods=['GET'])
-def search_order(type, id):
+def _get_order_by_type(type, id):
     if type == 'client_order':
         client_order = ClientOrder.get(id)
         if client_order:
-            return jsonify({'ret':True, 'data':_order_to_dict(client_order)})
-        return jsonify({'ret':False, 'data':{}}) 
+            return _order_to_dict(client_order)
+        return {}
     elif type == 'douban_order':
         douban_order = DoubanOrder.get(id)
         if douban_order:
-            return jsonify({'ret':True, 'data':_order_to_dict(douban_order)})
-        return jsonify({'ret':False, 'data':{}})
+            return _order_to_dict(douban_order)
+        return {}
     elif type == 'ass_douban_order':
         client_order = ClientOrder.get(id)
         if client_order:
-            return jsonify({'ret':True, 'data':_order_to_dict(client_order, client_order.associated_douban_orders[0])})
-        return jsonify({'ret':False, 'data':{}})
+            return _order_to_dict(client_order, client_order.associated_douban_orders[0])
+        return {}
+    return {}
+
+
+@api_bp.route('/search/order', methods=['POST'])
+def search_order_by_json():
+    data = json.loads(request.values.get('data', json.dumps([])))
+    orders = []
+    for k in data:
+        order = _get_order_by_type(k['type'], k['id']) 
+        if order:
+            orders.append(order)
+    if orders:
+        return jsonify({'ret':True, 'data':orders})
+    return jsonify({'ret':False, 'data':[]})
+
+
+@api_bp.route('/search/<type>/<id>/order', methods=['GET'])
+def search_order(type, id):
+    order = _get_order_by_type(type, id)
+    if order:
+        return jsonify({'ret':True, 'data':order})
     return jsonify({'ret':False, 'data':{}})

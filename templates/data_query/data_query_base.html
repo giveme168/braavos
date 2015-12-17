@@ -18,7 +18,7 @@
               <li id="_medium_" >媒体执行额</li>
             </a>
             {% endif %}
-            {% if g.user.is_operater_leader() or g.user.is_super_leader() %}
+            {% if g.user.is_operater_leader() or g.user.is_super_leader() or g.user.is_aduit() %}
             <a href="{{url_for('data_query_outsource.index')}}">
               <li id="_outsource_" >外包成本</li>
             </a>

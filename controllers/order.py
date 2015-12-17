@@ -576,7 +576,7 @@ def contract_status_change(order, action, emails, msg):
         action_msg = u"同意撤单"
         order.contract_status = CONTRACT_STATUS_DELETEPASS
         order.status = STATUS_DEL
-        to_users = to_users + order.leaders + User.medias() + User.contracts()
+        to_users = User.media_leaders() + User.contracts() + User.super_leaders()
         if order.__tablename__ == 'bra_douban_order' and order.contract:
             to_users += User.douban_contracts()
         _delete_executive_report(order)
