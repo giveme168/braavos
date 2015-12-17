@@ -10,7 +10,7 @@
     <table class="table table-bordered">
           <tr>
             <th>公司名称</th>
-            <td>{{invoice.company}}</td>
+            <td>{{invoice.company}}{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
           </tr>
           <tr>
             <th>税号</th>

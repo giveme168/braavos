@@ -192,6 +192,8 @@ def medium_invoice_apply(sender, context):
     invoice_info = u"发票信息: " + invoice.detail + u'; 发票金额: ' + \
         str(invoice.money) + u'; 发票号: ' + invoice.invoice_num + \
         u'; 未打款金额: ' + str(invoice.get_unpay_money)
+    if invoice.invoice_num == '88888888':
+        invoice_info += u'; 未开发票'
     invoice_pay_info = "\n".join(
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
 
@@ -246,6 +248,8 @@ def agent_invoice_apply(sender, context):
     invoice_info = u"发票信息: " + invoice.detail + u'; 发票金额: ' + \
         str(invoice.money) + u'; 发票号: ' + invoice.invoice_num + \
         u'; 未打款金额: ' + str(invoice.get_unpay_money)
+    if invoice.invoice_num == '88888888':
+        invoice_info += u'; 未开发票'
     invoice_pay_info = "\n".join(
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if context['send_type'] == "saler":

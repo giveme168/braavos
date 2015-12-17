@@ -29,14 +29,14 @@
             <th>媒体金额</th>
             <td>{{order.medium_money2}} (元) 已利润未分成</td>
          </tr>
-         <tr>
+         <!--<tr>
             <th>分成金额</th>
             {% if g.user.is_media() %}
             <td><input type='text' value="{{order.medium_money or 0}}" class="form-control bra-form-control" name="medium_money" style="width:100px;"/>(元) 已利润已分成, 实际给媒体打款金额</td>
             {% else %}
             <td>{{order.medium_money}} </td>
             {% endif %}
-          </tr>
+          </tr>-->
           <tr>
             <th>执行开始时间</th>
             <th>{{order.start_date_cn}}</th>

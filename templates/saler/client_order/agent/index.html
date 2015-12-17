@@ -32,8 +32,12 @@
       <th width="5%">操作</th>
     </tr>
     {% for invoice in invoices %}
-    <tr>
-      <td>{{invoice.company}}</td>
+    {% if invoice.invoice_num == '88888888' %}
+      <tr style="border:2px solid #FF8888;">
+    {% else %}
+      <tr>
+    {% endif %}
+      <td>{{invoice.company}}{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
       <td>{{invoice.tax_id}}</td>
       <td>{{invoice.money}}元</td>
       <td>{{invoice.get_pay_money}}元</td>
@@ -111,7 +115,7 @@ $(function() {
 {%- endmacro %}
 {% block content%}
 {% include "/order/order_base.html" %}
-  <div class="container bra-box">
+  <div class="container bra-box" style="width:1400px;">
     <h4> {{ order.name }} </h4>
     <div>
       {% include "saler/client_order/nav_base.html" %}
