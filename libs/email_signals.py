@@ -64,10 +64,10 @@ def password_changed(sender, user):
                      body=u'您的InAd帐号密码已经被重新设置, 如果不是您的操作, 请联系广告平台管理员')
 
 
-def add_comment(sender, comment):
+def add_comment(sender, comment, msg_channel=0):
     send_simple_mail(u'InAd留言提醒[%s]' % comment.target.name,
                      recipients=[
-                         u.email for u in comment.target.get_mention_users(except_user=comment.creator)],
+                         u.email for u in comment.target.get_mention_users(except_user=comment.creator, msg_channel=msg_channel)],
                      body=(u'%s的新留言:\n\n %s' % (comment.creator.name, comment.msg)))
 
 
@@ -890,6 +890,10 @@ def planning_bref(sender, apply_context):
     to_emails = apply_context['to_other']
     to_users = [k for u in operater_admins + planning_team_admins +
                 [bref.creator] + bref.creator.team_leaders]
+    if bref.toer:
+        to_users += [bref.toer]
+    if bref.follower:
+        to_users += [bref.follower]
     if action in [0, 3]:
         finish_text = u"""<h3>完成情况:</h3>
 分配给: %s
