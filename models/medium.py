@@ -1070,9 +1070,10 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
         'User', backref=db.backref('case_user', lazy='dynamic'))
     desc = db.Column(db.String(300))
     is_win = db.Column(db.Integer, default=0)
+    pwd = db.Column(db.String(20))
     __mapper_args__ = {'order_by': create_time.desc()}
 
-    def __init__(self, name, url, type, medium, brand, industry, creator, desc, mediums, create_time=None, is_win=0):
+    def __init__(self, name, url, type, medium, brand, industry, creator, desc, mediums, pwd=None, create_time=None, is_win=0):
         self.name = name
         self.url = url
         self.type = type
@@ -1083,6 +1084,7 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
         self.creator = creator
         self.desc = desc
         self.is_win = is_win
+        self.pwd = pwd or ''
         self.create_time = create_time or datetime.datetime.now()
 
     @property
