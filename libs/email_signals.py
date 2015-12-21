@@ -40,7 +40,7 @@ def _get_active_user(send_users):
 
 def _get_active_user_email(send_users):
     send_users = _get_active_user(send_users)
-    return [k.email for k in send_users] + ['guoyu@inad.com']
+    return [k.email for k in send_users]
 
 
 def _get_active_user_name(send_users):

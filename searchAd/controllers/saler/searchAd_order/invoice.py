@@ -108,6 +108,43 @@ def new_invoice(order_id):
     return redirect(url_for("searchAd_saler_client_order_invoice.index", order_id=order_id))
 
 
+
+# 补录发票
+@searchAd_saler_client_order_invoice_bp.route('/<order_id>/order/add', methods=['POST'])
+def add_invoice(order_id):
+    order = searchAdClientOrder.get(order_id)
+    if not order:
+        abort(404)
+    form = InvoiceForm(request.form)
+    form.client_order.choices = [(order.id, order.client.name)]
+    if request.method == 'POST' and form.validate():
+        if int(form.money.data) > (int(order.money) - int(order.invoice_apply_sum) - int(order.invoice_pass_sum)):
+            flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
+            return redirect(url_for("searchAd_saler_client_order_invoice.index", order_id=order_id))
+        invoice = searchAdInvoice.add(client_order=order,
+                              company=form.company.data,
+                              tax_id=form.tax_id.data,
+                              address=form.address.data,
+                              phone=form.phone.data,
+                              bank_id=form.bank_id.data,
+                              bank=form.bank.data,
+                              detail=form.detail.data,
+                              money=form.money.data,
+                              invoice_type=form.invoice_type.data,
+                              invoice_status=0,
+                              creator=g.user,
+                              invoice_num=request.values.get('invoice_num', ''),
+                              back_time=form.back_time.data)
+        invoice.save()
+        flash(u'补录发票(%s)成功!' % form.company.data, 'success')
+        order.add_comment(g.user, u"补录发票信息：%s" % (
+            u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=1)
+    else:
+        for k in form.errors:
+            flash(u"补录发票失败，%s" % (form.errors[k][0]), 'danger')
+    return redirect(url_for("searchAd_saler_client_order_invoice.index", order_id=order_id))
+
+
 @searchAd_saler_client_order_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
 def update_invoice(invoice_id):
     invoice = searchAdInvoice.get(invoice_id)

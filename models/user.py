@@ -707,7 +707,8 @@ class Out(db.Model, BaseModelMixin):
 
 P_VERSION_ITEMS = [{'type': 1, 'name': u'2015上半年'}]
 P_VERSION_CN = {
-    1: u'2015年上半年'
+    1: u'2015年上半年',
+    2: u'2015年下半年'
 }
 
 P_TYPE_CN = {
