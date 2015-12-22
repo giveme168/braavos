@@ -67,9 +67,9 @@ LEVEL_TYPE_GENERAL = 2
 LEVEL_TYPE_COMPLEX = 3
 
 LEVEL_TYPE_CN = {
-    LEVEL_TYPE_NOMRAL: u'简单资源推荐案、word版本等——所需时间1天',
-    LEVEL_TYPE_GENERAL: u'普通策略案、创意案、细化执行案——所需时间2天',
-    LEVEL_TYPE_COMPLEX: u'复杂策略案、百万级大案、全年案、培训稿——所需时间3天',
+    LEVEL_TYPE_NOMRAL: u'C级：简单资源推荐、word版本等——至少1天',
+    LEVEL_TYPE_GENERAL: u'B级：普通策略案、创意案、细化执行案——至少2天',
+    LEVEL_TYPE_COMPLEX: u'A级：复杂策略案、百万级大案、全年案、培训稿等——至少3天',
 }
 
 

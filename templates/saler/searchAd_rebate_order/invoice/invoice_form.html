@@ -103,12 +103,14 @@
         {{ form_field(form.phone) }}
         {{ form_field(form.bank_id) }}
         {{ form_field(form.bank) }}
+        {% if add_old %}
         <div class="form-group">
           <label for="client_start" class="col-sm-2 control-label">发票号 : </label>
           <div class="col-sm-4">
             <input type="text" id="invoice_num" name="invoice_num" value="{{form.invoice_num.data}}" class="form-control bra-form-control">
           </div>
         </div>
+        {% endif %}
         {{ form_field(form.detail) }}
         {{ form_field(form.money) }}
         {{ form_field(form.invoice_type) }}
