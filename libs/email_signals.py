@@ -81,7 +81,8 @@ def contract_apply_douban(sender, apply_context):
         file_paths.append(order.get_last_schedule().real_path)
     douban_contracts = User.douban_contracts()
     to_users = [k.email for k in User.douban_contracts()] + \
-        _get_active_user_email(User.contracts())
+        _get_active_user_email(User.contracts()) + \
+        _get_active_user_email(order.direct_sales + order.agent_sales + [order.creator])
     send_attach_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
                      recipients=to_users,
                      body=order.douban_contract_email_info(

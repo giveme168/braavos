@@ -83,9 +83,6 @@ def index():
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
-    if orderby and len(orders):
-        orders = sorted(
-            orders, key=lambda x: getattr(x, orderby), reverse=True)
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
