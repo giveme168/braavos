@@ -672,7 +672,8 @@ def display_orders(orders, title, status_id=-1):
     start_time = request.args.get('start_time', '')
     end_time = request.args.get('end_time', '')
     search_medium = int(request.args.get('search_medium', 0))
-
+    year = str(request.values.get('year', datetime.now().year))
+    year_date = datetime.strptime(year, '%Y').date()
     if start_time and not end_time:
         start_time = datetime.strptime(start_time, '%Y-%m-%d').date()
         orders = [k for k in orders if k.create_time.date() >= start_time]
@@ -701,6 +702,8 @@ def display_orders(orders, title, status_id=-1):
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower().strip() in o.search_info.lower()]
+    
+    orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
@@ -725,7 +728,7 @@ def display_orders(orders, title, status_id=-1):
                    search_info=search_info, page=page, mediums=Medium.all(),
                    orderby=orderby, now_date=datetime.now().date(),
                    start_time=start_time, end_time=end_time, search_medium=search_medium,
-                   params=params)
+                   params=params, year=year)
 
 
 ######################
@@ -1206,6 +1209,7 @@ def douban_display_orders(orders, title, status_id=-1):
     search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.now().year))
     # page = max(1, page)
     # start = (page - 1) * ORDER_PAGE_NUM
     if location_id >= 0:
@@ -1218,7 +1222,7 @@ def douban_display_orders(orders, title, status_id=-1):
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
-
+    orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
@@ -1242,7 +1246,8 @@ def douban_display_orders(orders, title, status_id=-1):
                    orderby=orderby, now_date=datetime.now().date(),
                    search_info=search_info, page=page,
                    params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
-                   (orderby, search_info, location_id, status_id))
+                   (orderby, search_info, location_id, status_id),
+                   year=year)
 
 
 @order_bp.route('/douban_order/<order_id>/contract', methods=['POST'])

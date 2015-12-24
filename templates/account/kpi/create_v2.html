@@ -6,12 +6,12 @@
 {% include "/account/account_base.html" %}
 <div class="container bra-box" style="width:1100px;">
     <h3>填写绩效考核表&nbsp;&nbsp;&nbsp;<a style="color:red;" href="#" data-toggle="modal" data-target=".bs-example-modal-lg">查看填写说明</a></h3>
-    <form class="form form-horizontal" method="POST" action="{{url_for('account_kpi.create')}}" onsubmit="return check_form(this);">
+    <form class="form form-horizontal" method="POST" action="{{url_for('account_kpi.create_v2')}}" onsubmit="return check_form(this);">
         <table class="table table-bordered">
             <tr style="background-color: #AAAAAA;">
                 <th colspan=12 style="text-align:center;">关键绩效考核指标（KPI）</th>
                 <th style="text-align:right;">KPI权重：</th>
-                <th colspan=2>80%</th>
+                <th colspan=2>60%</th>
             </tr>
             <tr>
                 <th colspan=2 style="text-align:center;">维度</th>
@@ -311,11 +311,21 @@
                 <th>未评分</th>
             </tr>
             <tr>
-                <th colspan=5 style="text-align:center;">权重总计：</th>
-                <th>100%</th>
-                <th colspan=7 style="text-align:right;">ΣKPI（评分*权重）+Σ胜任力（评分*权重）=绩效评估总分</th>
+                <th colspan=5 rowspan=4 style="text-align:center;">权重总计：</th>
+                <th rowspan=4 >100%</th>
+            </tr>
+            <tr>
+                <th colspan=7 style="text-align:right;">ΣKPI（评分*权重）+Σ胜任力（评分*权重）</th>
                 <th id="total_s">0.00</th>
                 <th>未评分</th>
+            </tr>
+            <tr>
+                <th colspan=7 style="text-align:right;">Σ同事评分（评分*权重）</th>
+                <th colspan=2>未评分</th>
+            </tr>
+            <tr>
+                <th colspan=7 style="text-align:right;">绩效总评分</th>
+                <th colspan=2>未评分</th>
             </tr>
             <tr>
                 <th colspan=5 >自我总结：</th>
@@ -329,9 +339,9 @@
             </tr>
             <!--下半年规划开始-->
             <tr style="background-color: #AAAAAA;">
-                <th colspan=12 style="text-align:center;">2015年6-12月关键绩效考核指标（KPI）</th>
+                <th colspan=12 style="text-align:center;">未来半年关键绩效考核指标（KPI）</th>
                 <th style="text-align:right;">KPI权重：</th>
-                <th colspan=2>80%</th>
+                <th colspan=2>60%</th>
             </tr>
             <tr>
                 <th colspan=2 style="text-align:center;">维度</th>
@@ -567,7 +577,7 @@
         <div class="modal-body">
           <div class="container-fluid">
             <div class="col-sm-12">1. 评分为5分制，评分标准请见右侧《绩效评分&等级标准》。</div>
-            <div class="col-sm-12">2. 包括KR和胜任力两部分组成，权重分别为80%和20%。其中KR指标分为改进提升指标、业绩目标。</div>
+            <div class="col-sm-12">2. 包括KR和胜任力两部分组成，权重分别为60%和20%。其中KR指标分为改进提升指标、业绩目标。</div>
             <div class="col-sm-12">3. 管理人员需要填写管理指标，使用管理表单。</div>
             <div class="col-sm-12">
                 <table class="table table-bordered">
@@ -576,7 +586,7 @@
                         <th>评分标准</th>
                         <th>绩效等级</th>
                         <th>等级说明</th>
-                        <th style="width:80px;">绩效总分</th>
+                        <th style="width:60px;">绩效总分</th>
                     </tr>
                     <tr>
                         <th>5</th>
@@ -756,11 +766,11 @@
         var next_up_1_res = $('#next_up_1_res').val()
         
         if(next_kr_1_key == '' || next_kr_1_value == ''){
-            alert('请至少填写一项完整的下半年KR指标')
+            alert('请至少填写一项完整的未来半年KR指标')
             return false
         }
         if(next_up_1_key == '' || next_up_1_value == ''){
-            alert('请至少填写一项完整的下半年改进提升')
+            alert('请至少填写一项完整的未来半年改进提升')
             return false
         }
         
@@ -769,16 +779,16 @@
         var next_manage_1_value = $('#next_manage_1_value').val()
         var next_manage_1_res = $('#next_manage_1_res').val()
         if(next_manage_1_key == '' || next_manage_1_value == ''){
-            alert('请至少填写一项完整的下半年管理指标')
+            alert('请至少填写一项完整的未来半年管理指标')
             return false
         }
         {% endif %}
         // --------------------下季统计指标结束------------------------
 
-        if (total_kpi_w==80 && next_total_kpi_w==80){
+        if (total_kpi_w==60 && next_total_kpi_w==60){
             return true
         }else{
-            alert('当前KPI权重、及下半年KPI权重必须等于80%')
+            alert('当前KPI权重、及未来半年KPI权重必须等于60%')
             return false
         }
     }
@@ -816,10 +826,10 @@
         {% endif %}
         $('#total_kpi_s').html(total_kpi_s.toFixed(2))
         
-        if (total_kpi_w > 80){
+        if (total_kpi_w > 60){
             obj.focus();
             $('#total_kpi_w').html("<a style='color:red'>"+total_kpi_w + "%</a>")
-            alert('KPI权重必须等于80%，请重新分配');
+            alert('KPI权重必须等于60%，请重新分配');
         }else{
             $('#total_kpi_w').html(total_kpi_w+"%")
         }
@@ -867,10 +877,10 @@
         {% endif %}
         //$('#next_total_kpi_s').html(next_total_kpi_s.toFixed(2))
         
-        if (next_total_kpi_w > 80){
+        if (next_total_kpi_w > 60){
             obj.focus();
             $('#next_total_kpi_w').html("<a style='color:red'>"+next_total_kpi_w + "%</a>")
-            alert('下半年KPI权重必须等于80%，请重新分配');
+            alert('未来半年KPI权重必须等于60%，请重新分配');
         }else{
             $('#next_total_kpi_w').html(next_total_kpi_w+'%')
         }

@@ -289,6 +289,9 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return user.is_leader() or user.is_admin() or user.is_contract() or \
             user.is_media_leader() or user in admin_users
 
+    def can_media_leader_action(self, user):
+        return False
+        
     def path(self):
         return self.info_path()
 

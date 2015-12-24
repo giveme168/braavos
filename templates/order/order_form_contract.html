@@ -148,9 +148,9 @@
               <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请审批</button>
               {% endif %}
             {% endif %}
-            {% if order.contract_status == 1 and g.user.is_leader() %}
-            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="3">通过申请</button>
-            <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="4">拒绝申请</button>
+            {% if order.contract_status == 1 and (g.user.is_leader() or order.can_media_leader_action(g.user)) %}
+              <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="3">通过申请</button>
+              <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="4">拒绝申请</button>
             {% endif %}
             {% if order.contract_status == 1 and order.can_admin(g.user) %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">再次申请审批</button>

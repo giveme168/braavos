@@ -96,11 +96,11 @@
     </tr>
 </table>
 <div class="panel-group" id="accordion-outsource">
-    {% for outsource_status in [1, 5, 0, 2, 3, 4] %}
+    {% for outsource_status in [5, 1, 0, 2, 3, 4] %}
     {% set outsources = order.get_outsources_by_status(outsource_status) %}
     {% if outsources %}
     <div class="panel panel-default" id="accordion-outsource">
-        <div class="panel-heading">
+        <div class="panel-heading" {% if outsource_status==5 %}style="background-color:red;"{% endif %}>
             <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion-outsource" href="#collapse-outsource-{{outsource_status}}">{{order.get_outsource_status_cn(outsource_status)}}</a>
             </h4>

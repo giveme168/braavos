@@ -19,7 +19,7 @@ def write_simple_report_excel(reports):
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
     keys = [u'员工姓名', u'职务', u'考核周期', u'KR指标自评分', u'KR指标上级评分', u'改进提升自评分',
             u'改进提升上级评分', u'管理指标自评分', u'管理指标上级评分', u'胜任能力自评分', u'胜任能力上级评分',
-            u'绩效评估自评总分', u'绩效评估上级总评分', u'填表时间']
+            u'绩效评估自评总分', u'绩效评估上级总评分', u'同事评分', u'绩效总得分', u'填表时间']
     worksheet.set_column(0, len(keys), 18)
     for k in range(len(keys)):
         worksheet.write(0, k, keys[k], align_center)
@@ -44,7 +44,9 @@ def write_simple_report_excel(reports):
         worksheet.write(th, 10, reports[k].ability_score, align_center)
         worksheet.write(th, 11, reports[k].self_total_score, align_center)
         worksheet.write(th, 12, reports[k].total_score, align_center)
-        worksheet.write(th, 13, reports[k].create_time_cn, align_center)
+        worksheet.write(th, 13, reports[k].personnal_score, align_center)
+        worksheet.write(th, 14, reports[k].personnal_score+reports[k].total_score, align_center)
+        worksheet.write(th, 15, reports[k].create_time_cn, align_center)
         worksheet.set_row(th, 20)
         th += 1
     workbook.close()
@@ -190,13 +192,15 @@ def write_report_excel(report):
     worksheet.merge_range(th, 0, th, 4, u'积极主动', align_center)
     worksheet.merge_range(th, 5, th, 10, u'工作积极主动，不计较个人得失。', align_center)
     worksheet.write(th, 11, '4%', align_center)
-    worksheet.write(th, 12, report.now_report_obj['positive_res'], align_center)
+    worksheet.write(th, 12, report.now_report_obj[
+                    'positive_res'], align_center)
     worksheet.write(th, 13, report.now_report_obj['positive_s'], align_center)
     worksheet.write(
         th, 14, report.now_report_obj['leader_positive_s'], align_center)
     th += 1
     worksheet.merge_range(th, 0, th, 4, u'团队合作', align_center)
-    worksheet.merge_range(th, 5, th, 10, u'团队合作意识强，包括部门内部及跨部门合作。', align_center)
+    worksheet.merge_range(
+        th, 5, th, 10, u'团队合作意识强，包括部门内部及跨部门合作。', align_center)
     worksheet.write(th, 11, '4%', align_center)
     worksheet.write(th, 12, report.now_report_obj['team_res'], align_center)
     worksheet.write(th, 13, report.now_report_obj['team_s'], align_center)
@@ -204,7 +208,8 @@ def write_report_excel(report):
         th, 14, report.now_report_obj['leader_team_s'], align_center)
     th += 1
     worksheet.merge_range(th, 0, th, 4, u'学习能力', align_center)
-    worksheet.merge_range(th, 5, th, 10, u'开放心态，具备自我学习和成长的能力和意识。', align_center)
+    worksheet.merge_range(
+        th, 5, th, 10, u'开放心态，具备自我学习和成长的能力和意识。', align_center)
     worksheet.write(th, 11, '4%', align_center)
     worksheet.write(th, 12, report.now_report_obj['teach_res'], align_center)
     worksheet.write(th, 13, report.now_report_obj['teach_s'], align_center)
@@ -225,13 +230,32 @@ def write_report_excel(report):
     worksheet.write(th, 13, report.self_ability_score, align_center_color)
     worksheet.write(th, 14, report.ability_score, align_center_color)
     th += 1
-    worksheet.merge_range(th, 0, th, 4, u'权重总计：', align_center)
-    worksheet.write(th, 5, u'100%', align_center)
-    worksheet.merge_range(
-        th, 6, th, 12, u'ΣKPI（评分*权重）+Σ胜任力（评分*权重）=绩效评估总分', align_center)
-    worksheet.write(th, 13, report.self_total_score, align_center)
-    worksheet.write(th, 14, report.total_score, align_center)
-    th += 1
+
+    if report.version == 1:
+        worksheet.merge_range(th, 0, th, 4, u'权重总计：', align_center)
+        worksheet.write(th, 5, u'100%', align_center)
+        worksheet.merge_range(
+            th, 6, th, 12, u'ΣKPI（评分*权重）+Σ胜任力（评分*权重）=绩效评估总分', align_center)
+        worksheet.write(th, 13, report.self_total_score, align_center)
+        worksheet.write(th, 14, report.total_score, align_center)
+        th += 1
+    elif report.version == 2:
+        worksheet.merge_range(th, 0, th + 2, 4, u'权重总计：', align_center)
+        worksheet.merge_range(th, 5, th + 2, 5, u'100%', align_center)
+        worksheet.merge_range(
+            th, 6, th, 12, u'ΣKPI（评分*权重）+Σ胜任力（评分*权重）', align_center)
+        worksheet.merge_range(
+            th + 1, 6, th + 1, 12, u'Σ同事评分（评分*权重）', align_center)
+        worksheet.merge_range(
+            th + 2, 6, th + 2, 12, u'绩效总评分', align_center)
+        worksheet.write(th, 13, report.self_total_score, align_center)
+        worksheet.write(th, 14, report.total_score, align_center)
+        worksheet.merge_range(th + 1, 13, th + 1, 14,
+                              report.personnal_score, align_center)
+        worksheet.merge_range(th + 2, 13, th + 2, 14, report.total_score + report.personnal_score,
+                              align_center)
+        th += 3
+
     worksheet.set_row(th, 100)
     worksheet.merge_range(th, 0, th, 4, u'自我总结：', align_center)
     worksheet.merge_range(

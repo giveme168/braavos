@@ -30,7 +30,7 @@
             <tr style="background-color: #AAAAAA;">
                 <th colspan=12 style="text-align:center;">关键绩效考核指标（KPI）</th>
                 <th style="text-align:right;">KPI权重：</th>
-                <th colspan=2>80%</th>
+                <th colspan=2>60%</th>
             </tr>
             <tr>
                 <th colspan=2 style="text-align:center;">维度</th>
@@ -126,7 +126,7 @@
             {% endif %}
             <tr style="background-color: #AAAAAA;">
                 <th colspan=11 style="text-align:right;">KPI权重合计：</th>
-                <th id="total_kpi_w">80%</th>
+                <th id="total_kpi_w">60%</th>
                 <th style="text-align:right;">KPI评分合计：</th>
                 <th>{{report.self_KR_score+report.self_upper_score+report.self_manage_score}}</th>
                 <th id="total_leader_kpi_s">{{report.KR_score+report.upper_score+report.manage_score}}</th>
@@ -192,25 +192,35 @@
                 <th id="competence_leader_total_s">{{report.ability_score}}</th>
             </tr>
             <tr>
-                <th colspan=5 style="text-align:center;">权重总计：</th>
-                <th>100%</th>
-                <th colspan=7 style="text-align:right;">ΣKPI（评分*权重）+Σ胜任力（评分*权重）=绩效评估总分</th>
+                <th colspan=5 rowspan=4 style="text-align:center;">权重总计：</th>
+                <th rowspan=4 >100%</th>
+            </tr>
+            <tr>
+                <th colspan=7 style="text-align:right;">ΣKPI（评分*权重）+Σ胜任力（评分*权重）</th>
                 <th>{{report.self_total_score}}</th>
                 <th id="total_leader_s">{{report.total_score}}</th>
             </tr>
             <tr>
+                <th colspan=7 style="text-align:right;">Σ同事评分（评分*权重）</th>
+                <th colspan=2 >{{report.personnal_score}}</th>
+            </tr>
+            <tr>
+                <th colspan=7 style="text-align:right;">绩效总评分</th>
+                <th colspan=2 >{{report.total_score + report.personnal_score}}</th>
+            </tr>
+            <tr>
                 <th colspan=5 >自我总结：</th>
-                <th colspan=10 height="100px;"><pre style="width: 1000px;">{{report.now_report_obj.self_summary}}</pre></th>
+                <th colspan=10 height="100px;"><pre style="width: 100%;">{{report.now_report_obj.self_summary}}</pre></th>
             </tr>
             <tr>
                 <th colspan=5>上级评语：</th>
-                <th colspan=10 height="100px;"><pre style="width: 1000px;">{{report.now_report_obj.leader_summary}}</pre></th>
+                <th colspan=10 height="100px;"><pre style="width: 100%;">{{report.now_report_obj.leader_summary}}</pre></th>
             </tr>
             <!--下半年规划开始-->
             <tr style="background-color: #AAAAAA;">
                 <th colspan=12 style="text-align:center;">未来半年关键绩效考核指标（KPI）</th>
                 <th style="text-align:right;">KPI权重：</th>
-                <th colspan=2>80%</th>
+                <th colspan=2>60%</th>
             </tr>
             <tr>
                 <th colspan=2 style="text-align:center;">维度</th>
@@ -306,7 +316,7 @@
             {% endif %}
             <tr style="background-color: #AAAAAA;">
                 <th colspan=11 style="text-align:right;">KPI权重合计：</th>
-                <th id="next_total_kpi_w">80%</th>
+                <th id="next_total_kpi_w">60%</th>
                 <th style="text-align:right;">KPI评分合计：</th>
                 <th id="next_total_kpi_s">0.00</th>
                 <th>未评分</th>
@@ -315,7 +325,7 @@
         </table>
         <br/><br/>
         <a href="{{url_for('account_kpi.index')}}" class="btn btn-primary btn-sm col-md-offset-3" style="width:150px;">返回</a>
-        {% if g.user.is_HR_leader() %}
+        {% if g.user.is_HR_leader() and report.status != 5%}
         <a href="{{url_for('account_kpi.apply', r_id=report.id, status=5)}}" class="btn btn-primary btn-sm col-md-offset-3" style="width:150px;">归档</a>
         {% endif %}
     </from>

@@ -140,6 +140,13 @@
     <h3> {{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
+        <div class="col-md-1" style="padding:0;margin:0 5px;">
+            <select class="col-md-12" id="year" name="year" placeholder="年份">
+                {% for k in range(5) %}
+                <option value="{{2014+k}}">{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
             <select class="col-md-12" id="search_location" name="location" placeholder="区域">
                 {% for v, m in locations %}
@@ -210,7 +217,8 @@ function sort(value){
     var params = '?sortby='+sortby+'&orderby='+orderby+
     '&searchinfo='+encodeURIComponent($('#search_info').val())+
     '&selected_location='+encodeURIComponent($('#search_location').val())+
-    '&selected_status='+encodeURIComponent($('#search_status').val());
+    '&selected_status='+encodeURIComponent($('#search_status').val())+
+    '&year='+$('#year').val();
     {% if g.user.is_media() %}
         params += '&start_time='+$('#start_time').val()+
         '&end_time='+$('#end_time').val()+
@@ -223,7 +231,8 @@ function search(){
     var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
       '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val())+
-      '&orderby=' + ($('#orderby').val());
+      '&orderby=' + ($('#orderby').val())+
+      '&year='+$('#year').val();
     {% if g.user.is_media() %}
         params += '&start_time='+$('#start_time').val()+
         '&end_time='+$('#end_time').val()+
@@ -238,6 +247,7 @@ function download(){
       '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val()) +
       '&orderby=' + ($('#orderby').val())+
+      '&year='+$('#year').val()+
       '&action=download';
     {% if g.user.is_media() %}
         params += '&start_time='+$('#start_time').val()+
@@ -269,6 +279,8 @@ $(function(){
     $("#search_medium option[value='{{search_medium}}']").attr("selected","selected");  
     $("#search_medium").trigger("chosen:updated");
     {% endif %}
+    $('#year').val('{{year}}');
+    $("#year").trigger("chosen:updated");
 });
 
 $(document).ready(function(){

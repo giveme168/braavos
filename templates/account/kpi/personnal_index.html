@@ -1,0 +1,59 @@
+{% extends "/base.html" %}
+{% block title %}下属绩效考核{% endblock %}
+
+{% block content %}
+{% include "/account/account_base.html" %}
+<div class="container bra-box" style="width:1300px;">
+    <div>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-1">
+            <div class="search">
+                <form class="form-inline" role="form" action="{{url_for('account_kpi.personnal')}}" method='get'>
+                    <div class="form-group">
+                        <label for="">状态：</label>
+                        <select class="form-control" id="status" name="status" placeholder="选择状态">
+                            <option value='0'>已评分</option>
+                            <option value="1">未评分</option>
+                        </select>
+                    </div>
+                    <input type="submit" value="查询" class="btn btn-sm btn-info" style="width:80px;">
+                </form>
+            </div>
+            <br/>
+            <table class="table table-bordered">
+                <tr>
+                    <th>填写人</th>
+                    <th>审批人</th>
+                    <th>类型</th>
+                    <th>状态</th>
+                    <th style="width:120px;">操作</th>
+                </tr>
+                {% for k in personnal_objs %}
+                <tr id="tr_{{k.id}}">
+                    <td>{{k.performance.creator.name}}</td>
+                    <td>{{k.user.name}}</td>
+                    <td>{{k.performance.version_cn}}</td>
+                    <td>{{k.status_cn}}</td>
+                    <td>
+                        {% if k.status == 0 %}
+                        <a href="{{url_for('account_kpi.personnal_apply', pid=k.id)}}">重新评分</a> 
+                        {% else %}
+                        <a href="{{url_for('account_kpi.personnal_apply', pid=k.id)}}">评分</a> 
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% set pages = personnal_objs %}
+            {% include "pagination.html" %}
+          </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function(){
+        $('#status').val('{{status}}')
+        $('#status').trigger("chosen:updated");
+    })
+</script>
+{% endblock %}

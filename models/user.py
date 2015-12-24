@@ -719,6 +719,7 @@ P_TYPE_CN = {
 P_STATUS_NEW = 1
 P_STATUS_APPLY = 2
 P_STATUS_APPLY_END = 3
+P_STATUS_PERSONNEL_APPLY = 6
 P_STATUS_HR = 4
 P_STATUS_END = 5
 P_STATUS_CN = {
@@ -727,9 +728,11 @@ P_STATUS_CN = {
     P_STATUS_APPLY_END: u'领导评分完成',
     P_STATUS_HR: u'HR整理中',
     P_STATUS_END: u'归档',
+    P_STATUS_PERSONNEL_APPLY: u'员工评分中'
 }
 
 
+# 员工绩效考核表
 class PerformanceEvaluation(db.Model, BaseModelMixin):
     __tablename__ = 'user_preformance_evaluation'
     id = db.Column(db.Integer, primary_key=True)
@@ -797,6 +800,60 @@ class PerformanceEvaluation(db.Model, BaseModelMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
+
+    @property
+    def personnal_status_cn(self):
+        personnal_obj = self.user_preformance_evaluation_personnal_personnal
+        if personnal_obj.count() > 0:
+            return u'<br/>'.join([k.user.name +u'-'+ k.status_cn for k in personnal_obj])
+        return u'无'
+
+    @property
+    def personnal_score(self):
+        personnal_obj = self.user_preformance_evaluation_personnal_personnal
+        p_count = 0
+        p_score = 0
+        for k in personnal_obj:
+            if k.total_score:
+                p_count += 1
+                p_score += k.total_score
+        if p_count:
+            count = "%.2f" % (p_score/p_count)
+            return float(count)
+        return 0
+
+
+# 员工绩效考核员工评分表
+class PerformanceEvaluationPersonnal(db.Model, BaseModelMixin):
+    __tablename__ = 'user_preformance_evaluation_personnal'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship(
+        'User',
+        backref=db.backref('user_preformance_evaluation_personnal_user',
+                           lazy='dynamic'))
+    total_score = db.Column(db.Float, default=0.0)
+    performance_id = db.Column(db.Integer, db.ForeignKey(
+        'user_preformance_evaluation.id'))
+    performance = db.relationship(
+        'PerformanceEvaluation', backref=db.backref('user_preformance_evaluation_personnal_personnal',
+                                                    lazy='dynamic'))
+    status = db.Column(db.Integer, default=1)
+    body = db.Column(db.Text(), default=json.dumps({}))
+    
+    def __init__(self, user, performance, status=None, total_score=None, body=None):
+        self.user = user
+        self.performance = performance
+        self.total_score = total_score or 0.0
+        self.status = status or 1
+        self.body = body or json.dumps({})
+
+    @property
+    def status_cn(self):
+        if self.status:
+            return u'未评分'
+        return u'完成'
+
 
 
 class UserOnDuty(db.Model, BaseModelMixin):

@@ -3,23 +3,25 @@
 
 {% block content %}
 {% include "/account/account_base.html" %}
-<div class="container bra-box" style="width:1100px;">
+<div class="container bra-box" style="width:1300px;">
     <div>
         <div class="tab-content">
           <div class="tab-pane active" id="tab-1">
             <div class="search">
                 <form class="form-inline" role="form" action="{{url_for('account_kpi.index')}}" method='get'>
-                    <a href="{{url_for('account_kpi.create')}}" class="btn btn-sm btn-info" style="width:110px;">填写绩效考核表</a>
+                    <a href="{{url_for('account_kpi.create_v2')}}" class="btn btn-sm btn-info" style="width:110px;">填写绩效考核表</a>
                 </form>
             </div>
             <br/>
             <table class="table table-bordered">
                 <tr>
                     <th>填写人</th>
+                    <th>类型</th>
                     <th>KR指标自评分/上级评分</th>
                     <th>改进提升自评分/上级评分</th>
                     <th>管理指标自评分/上级评分</th>
                     <th>胜任能力自评分/上级评分</th>
+                    <th>同事评分</th>
                     <th>绩效评估自评总分/上级评分</th>
                     <th>直属领导</th>
                     <th>状态</th>
@@ -29,11 +31,16 @@
                 <tr>
                     <td>
                         {% if k.status == 5 %}
-                        <a href="{{url_for('account_kpi.info', r_id=k.id)}}">{{k.creator.name}}</a>
+                            {% if k.version == 1 %}
+                            <a href="{{url_for('account_kpi.info', r_id=k.id)}}">{{k.creator.name}}</a>
+                            {% elif k.version == 2 %}
+                            <a href="{{url_for('account_kpi.info_v2', r_id=k.id)}}">{{k.creator.name}}</a>
+                            {% endif %}
                         {% else %}
-                        {{k.creator.name}}
+                            {{k.creator.name}}
                         {% endif %}
                     </td>
+                    <td>{{k.version_cn}}</td>
                     <td>{{k.self_KR_score}} / {% if k.status == 5 %}{{k.KR_score}}{% else %}未评分{% endif %}</td>
                     <td>{{k.self_upper_score}} / {% if k.status == 5 %}{{k.upper_score}}{% else %}未评分{% endif %}</td>
                     <td>{% if k.type == 2 %}
@@ -50,13 +57,24 @@
                             {% else %}
                             无
                         {% endif %}</td>
-                    <td>{{k.self_ability_score}} / {% if k.status==5 %}{{k.ability_score}}{% else %}未评分{% endif %}</td>
-                    <td>{{k.self_total_score}} / {% if k.status==5 %}{{k.total_score}}{% else %}未评分{% endif %}</td>
-                    <td>{% for k in k.creator.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
+                    <td>
+                        {{k.self_ability_score}} / {% if k.status==5 %}{{k.ability_score}}{% else %}未评分{% endif %}
+                    </td>
+                    <td>{{k.personnal_score}}</td>
+                    <td>
+                        {{k.self_total_score+k.personnal_score}} / {% if k.status==5 %}{{k.total_score+k.personnal_score}}{% else %}未评分{% endif %}
+                    </td>
+                    <td>
+                        {% for k in k.creator.team_leaders %}{{k.name}}<br/>{% endfor %}
+                    </td>
                     <td>{{k.status_cn}}</td>
                     <td>
                         {% if k.status == 1 %}
+                            {% if k.version == 1 %}
                             <a href="{{url_for('account_kpi.update', r_id=k.id)}}">修改</a><br/>
+                            {% elif k.version == 2 %}
+                            <a href="{{url_for('account_kpi.update_v2', r_id=k.id)}}">修改</a><br/>
+                            {% endif %}
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=2)}}">申请评分</a>
                         {% elif k.status == 5 %}
                             <a href="{{url_for('account_kpi.info', r_id=k.id)}}?action=excel">下载</a><br/>

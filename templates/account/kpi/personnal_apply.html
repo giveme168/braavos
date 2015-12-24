@@ -1,0 +1,329 @@
+{% extends "/base.html" %}
+{% from 'form.html' import form_tpl_ex_form %}
+{% block title %}审批绩效考核表{% endblock %}
+
+{% block content %}
+{% include "/account/account_base.html" %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+        width:250px;
+    }
+</style>
+<div class="container bra-box" style="width:1100px;">
+    <h3>请为{{personnal_obj.performance.creator.name}}的绩效考核打分</h3>
+    <form class="form form-horizontal" method="POST" action="{{url_for('account_kpi.personnal_apply', pid=personnal_obj.id)}}" onsubmit="return check_form(this);">
+        <table class="table table-bordered">
+            <tr>
+                <th colspan=7 style="text-align:center;">同事相互评价表</th>
+            </tr>
+            <tr>
+                <th colspan=2 >考核项目</th>
+                <th>考核目标</th>
+                <th>分数</th>
+            </tr>
+            <tr>
+                <th rowspan=7 style="vertical-align:middle;">工作态度</th>
+            </tr>
+            <tr>
+                <th>积极性</th>
+                <th>
+                    1、工作积极主动<br/>
+                    2、且能保质保量完成
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_attitude_0_s" style="width:60px;" name="work_attitude_0_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>责任心</th>
+                <th>
+                    1、工作责任感强<br/>
+                    2、忠于职守、主动抢工作，有担当
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_attitude_1_s" style="width:60px;" name="work_attitude_1_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>团队协作</th>
+                <th>
+                    1、能够与同事保持良好的合作关系<br/>
+                    2、协助完成工作任务、无推诿<br/>
+                    3、具有集体荣誉感，尊重他人<br/>
+                    4、与关联部门的工作关系融洽，合作愉快
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_attitude_2_s" style="width:60px;" name="work_attitude_2_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>行为准则</th>
+                <th>
+                    1、工作踏实、肯干，不骄不躁<br/>
+                    2、恪守职业操守，具备自我管理能力<br/>
+                    3、在工作中积极改进自己的工作方式和方法，并卓有成效
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_attitude_3_s" style="width:60px;" name="work_attitude_3_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>服务意识</th>
+                <th>1、具备对内部关联部门及外部客户的服务意识</th>
+                <th style="vertical-align:middle;">
+                    <select id="work_attitude_4_s" style="width:60px;" name="work_attitude_4_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>忠诚度</th>
+                <th>
+                    1、认同、信守公司企业文化<br/>
+                    2、维护公司利益和形象
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_attitude_5_s" style="width:60px;" name="work_attitude_5_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+
+            <tr>
+                <th rowspan=10 style="vertical-align:middle;">工作能力</th>
+            </tr>
+            <tr>
+                <th>工作计划性</th>
+                <th>
+                    1、具有极强的制定计划的能力<br/>
+                    2、工作目标清晰、以结果为导向<br/>
+                    3、通过有效的计划提高工作效率
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_ability_0_s" style="width:60px;" name="work_ability_0_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>执行流程</th>
+                <th>
+                    1、在与关联部门的协作中，严格按照工作流程的规定进行工作<br/>
+                    2、无积压行为
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_ability_1_s" style="width:60px;" name="work_ability_1_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>专业能力</th>
+                <th>
+                    1、具备本岗位的专业知识及专业能力</br>
+                    2、对问题有独立见解，业务水平高超，专业水平扎实
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_ability_2_s" style="width:60px;" name="work_ability_2_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>沟通能力</th>
+                <th>
+                    1、能充分有效地与他人交换意见，简明扼要<br/>
+                    2、具有出色的谈话技巧，易于理解<br/>
+                    3、主动向关联部门提供与工作相关的信息
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_ability_3_s" style="width:60px;" name="work_ability_3_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>创新能力</th>
+                <th>
+                    1、工作中能不断提出新想法、新措施<br/>
+                    2、善于学习，注意规避风险<br/>
+                    3、锐意求新，在工作中有创新意识
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_ability_4_s" style="width:60px;" name="work_ability_4_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>成本意识</th>
+                <th>
+                    1、工作中有节约成本与控制成本的观念<br/>
+                    2、并能在工作中有具体成本控制的行动
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_ability_5_s" style="width:60px;" name="work_ability_5_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>工作效率</th>
+                <th>
+                    1、时间和资源的利用达到最佳，工作效率高<br/>
+                    2、完成任务速度快，质量高，效益好<br/>
+                    3、与关联部门的协作中，能第一时间做出反应，并做出适当的处理
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_ability_6_s" style="width:60px;" name="work_ability_6_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>解决问题能力</th>
+                <th>
+                    1、在工作中能够主动发现问题，敢于暴露问题<br/>
+                    2、并提出合理的解决建议"
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_ability_7_s" style="width:60px;" name="work_ability_7_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+            <tr>
+                <th>工作反馈</th>
+                <th>
+                    1、表达清晰、简洁，易于理解<br/>
+                    2、向关联部门提供的成果准确，无需重复加工<br/>
+                    3、工作结果能够全面完整不遗漏
+                </th>
+                <th style="vertical-align:middle;">
+                    <select id="work_ability_8_s" style="width:60px;" name="work_ability_8_s">
+                        {% for k in scores %}
+                            <option value="{{k}}">{{k}}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+            </tr>
+        </table>
+        <br/><br/>
+        <a href="{{url_for('account_kpi.personnal')}}" class="btn btn-primary btn-sm col-md-offset-3" style="width:150px;">返回</a>
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-3" style="width:150px;" value="保存"/>
+        <br/><br/>
+    </form>
+</div>
+<script>
+    function check_form(ele){
+        for (var i = 0; i<6; i++){
+            var ele_i = 'work_attitude_'+String(i)+'_s'
+            var i_data = $('#'+ele_i).val()
+            if (i_data==0.0){
+                if(i == 0){
+                    alert('请为工作态度-积极性项目打分');
+                    return false
+                }else if(i==1){
+                    alert('请为工作态度-责任心项目打分');
+                    return false
+                }else if(i==2){
+                    alert('请为工作态度-团队协作项目打分');
+                    return false
+                }else if(i==3){
+                    alert('请为工作态度-行为准则项目打分');
+                    return false
+                }else if(i==4){
+                    alert('请为工作态度-服务意识项目打分');
+                    return false
+                }else if(i==5){
+                    alert('请为工作态度-忠诚度项目打分');
+                    return false
+                }
+            }
+        }
+        for (var i = 0; i<9; i++){
+            var ele_i = 'work_ability_'+String(i)+'_s'
+            var i_data = $('#'+ele_i).val()
+            if (i_data==0.0){
+                if(i == 0){
+                    alert('请为工作能力-工作计划性项目打分');
+                    return false
+                }else if(i==1){
+                    alert('请为工作能力-执行流程项目打分');
+                    return false
+                }else if(i==2){
+                    alert('请为工作能力-专业能力项目打分');
+                    return false
+                }else if(i==3){
+                    alert('请为工作能力-沟通能力项目打分');
+                    return false
+                }else if(i==4){
+                    alert('请为工作能力-创新能力项目打分');
+                    return false
+                }else if(i==5){
+                    alert('请为工作能力-成本意识项目打分');
+                    return false
+                }else if(i==6){
+                    alert('请为工作能力-工作效率项目打分');
+                    return false
+                }else if(i==7){
+                    alert('请为工作能力-解决问题能力项目打分');
+                    return false
+                }else if(i==8){
+                    alert('请为工作能力-工作反馈项目打分');
+                    return false
+                }
+            }
+        }
+        return true
+    }
+    $(function(){
+        {% for k, v in attitude_param.items() %}
+        $('#{{k}}').val('{{v}}');
+        $('#{{k}}').trigger("chosen:updated");
+        {% endfor %}
+        {% for k, v in ability_param.items() %}
+        $('#{{k}}').val('{{v}}');
+        $('#{{k}}').trigger("chosen:updated");
+        {% endfor %}
+    })
+</script>
+{% endblock %}

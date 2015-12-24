@@ -189,6 +189,9 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         admin_users = self.direct_sales + self.agent_sales + [self.creator]
         return user.is_admin() or user.is_contract() or user in admin_users
 
+    def can_media_leader_action(self, user):
+        return False
+    
     def have_owner(self, user):
         """是否可以查看该订单"""
         owner = self.direct_sales + self.agent_sales + [self.creator]

@@ -464,6 +464,15 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return user.is_leader() or user.is_contract() or user.is_media() or\
             user.is_media_leader() or user in admin_users
 
+    def can_media_leader_action(self, user):
+        salers = self.direct_sales + self.agent_sales
+        action_users = []
+        for saler in salers:
+            action_users += list(saler.team.admins)
+        if user in action_users and user.team.type == 20:
+            return True
+        return False
+
     def can_action(self, user, action):
         """是否拥有leader操作"""
         if action in ITEM_STATUS_LEADER_ACTIONS:

@@ -908,6 +908,8 @@ def planning_bref(sender, apply_context):
 
 %s-%s
 策划单链接地址: %s</h3>
+留言信息:
+%s
 %s
 <h3>基本信息:</h3>
 名称:  %s
@@ -931,30 +933,33 @@ def planning_bref(sender, apply_context):
 建议:  %s
 备注:  
 %s
-留言信息:
-%s
+
 by:
 %s
-    """ % (to_name, title, status_cn, url, finish_text, bref.title, bref.agent, bref.brand, bref.product, bref.target, bref.background,
+    """ % (to_name, title, status_cn, url, apply_context['msg'], finish_text, bref.title, bref.agent, bref.brand, bref.product, bref.target, bref.background,
            bref.push_target, bref.push_theme, bref.push_time, bref.budget_cn, bref.is_temp_cn, bref.agent_type_cn,
            bref.use_type_cn, bref.level_cn, bref.get_time_cn, bref.intent_medium, bref.suggest, bref.desc,
-           apply_context['msg'], g.user.name)
+        g.user.name)
     _insert_person_notcie(to_users, title, body)
     flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
     send_html_mail(title, _get_active_user_email(to_users) +
-                   to_emails, body=body.replace('\n', '<br/>'))
+                   to_emails+['planning@inad.com'], body=body.replace('\n', '<br/>'))
 
 
 def account_kpi_apply(sender, apply_context):
     report = apply_context['report']
     if report.status == 2:
-        url = mail.app.config['DOMAIN'] + \
-            url_for('account_kpi.check_apply', r_id=report.id)
+        if report.version == 1:
+            url = mail.app.config['DOMAIN'] + \
+                url_for('account_kpi.check_apply', r_id=report.id)
+        else:
+            url = mail.app.config['DOMAIN'] + \
+                url_for('account_kpi.check_apply_v2', r_id=report.id)
         to_names = ','.join([k.name for k in report.creator.team_leaders])
         user_name = report.creator.name
         to_users = [k.email for k in report.creator.team_leaders] + \
             [report.creator.email]
-        title = u'绩效考核申请审批'
+        title = u'绩效考核-申请审批'
         body = u"""
 Dear %s:
 
@@ -965,13 +970,17 @@ Dear %s:
 
     """ % (to_names, user_name, url)
     elif report.status == 1:
-        url = mail.app.config['DOMAIN'] + \
-            url_for('account_kpi.update', r_id=report.id)
+        if report.version == 1:
+            url = mail.app.config['DOMAIN'] + \
+                url_for('account_kpi.update', r_id=report.id)
+        elif report.version == 2:
+            url = mail.app.config['DOMAIN'] + \
+                url_for('account_kpi.update_v2', r_id=report.id)
         to_names = report.creator.name
         user_name = report.creator.name
         to_users = [k.email for k in report.creator.team_leaders] + \
             [report.creator.email]
-        title = u'绩效考核被打回'
+        title = u'绩效考核-被打回'
         body = u"""
 Dear %s:
 
@@ -982,13 +991,17 @@ Dear %s:
 
     """ % (to_names, url)
     elif report.status == 4:
-        url = mail.app.config['DOMAIN'] + \
-            url_for('account_kpi.info', r_id=report.id)
+        if report.version == 1:
+            url = mail.app.config['DOMAIN'] + \
+                url_for('account_kpi.info', r_id=report.id)
+        else:
+            url = mail.app.config['DOMAIN'] + \
+                url_for('account_kpi.info_v2', r_id=report.id)
         to_names = ','.join([k.name for k in User.HR_leaders()])
         user_name = report.creator.name
         to_users = [k.email for k in User.HR_leaders(
         )] + [report.creator.email] + [k.email for k in report.creator.team_leaders]
-        title = u'绩效考核申请归档'
+        title = u'绩效考核-申请归档'
         body = u"""
 Dear %s:
 
@@ -999,13 +1012,17 @@ Dear %s:
 
     """ % (to_names, user_name, url)
     elif report.status == 5:
-        url = mail.app.config['DOMAIN'] + \
-            url_for('account_kpi.info', r_id=report.id)
+        if report.version == 1:
+            url = mail.app.config['DOMAIN'] + \
+                url_for('account_kpi.info', r_id=report.id)
+        else:
+            url = mail.app.config['DOMAIN'] + \
+                url_for('account_kpi.info_v2', r_id=report.id)
         to_names = report.creator.name
         user_name = report.creator.name
         to_users = [k.email for k in User.HR_leaders(
         )] + [report.creator.email] + [k.email for k in report.creator.team_leaders]
-        title = u'绩效考核已归档'
+        title = u'绩效考核-已归档'
         body = u"""
 Dear %s:
 
@@ -1015,8 +1032,22 @@ Dear %s:
     KPI链接地址: %s
 
     """ % (to_names, url)
+    elif report.status == 6:
+        url = mail.app.config['DOMAIN'] + \
+            url_for('account_kpi.personnal')
+        to_names = apply_context['user'].name
+        to_users = [apply_context['user'].email, g.user.email]
+        title = u'绩效考核-请您为同事打分'
+        body = u"""
+Dear %s:
 
-    send_simple_mail(title, list(set(to_users)), body=body)
+请您为同事的绩效考核打分，请通过下边链接进行打分。
+
+附注: 
+    KPI链接地址: %s
+
+    """ % (to_names, url)
+    send_simple_mail(title, list(set(to_users+['guoyu@inad.com'])), body=body)
 
 
 def back_money_apply(sender, apply_context):

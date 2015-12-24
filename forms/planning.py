@@ -23,8 +23,8 @@ class BrefForm(Form):
     use_type = SelectField(u'应用场景', coerce=int, default=1)
     level = SelectField(u'项目等级', coerce=int, default=1)
 
-    intent_medium = TextField(u'补充说明', description=u'视与客户沟通情况选填')
-    suggest = TextField(u'建议', description=u'视与客户沟通情况选填')
+    intent_medium = TextField(u'品牌意向媒体', description=u'视与客户沟通情况选填')
+    suggest = TextField(u'品牌沟通建议', description=u'视与客户沟通情况选填')
     desc = TextAreaField(u'备注')
 
     def __init__(self, *args, **kwargs):
