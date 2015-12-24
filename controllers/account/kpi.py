@@ -4,7 +4,7 @@ import datetime
 from flask import request, redirect, url_for, Blueprint, flash, json, jsonify, g, current_app
 from flask import render_template as tpl
 
-from models.user import User, PerformanceEvaluation, PerformanceEvaluationPersonnal
+from models.user import User, PerformanceEvaluation, PerformanceEvaluationPersonnal, P_VERSION_CN
 from libs.paginator import Paginator
 from libs.email_signals import account_kpi_apply_signal
 from controllers.account.helpers.kpi_helpers import write_report_excel, write_simple_report_excel
@@ -779,6 +779,7 @@ def _get_all_under_users(self_user_id):
 def underling():
     page = int(request.values.get('p', 1))
     status = int(request.values.get('status', 0))
+    version = int(request.values.get('version', 2))
 
     if g.user.is_HR_leader() or g.user.is_super_leader():
         reports = [k for k in PerformanceEvaluation.all() if k.status > 1]
@@ -800,6 +801,7 @@ def underling():
 
     if status != 0:
         reports = [k for k in reports if k.status == status]
+    reports = [k for k in reports if k.version == version]
     if request.values.get('action') == 'excel':
         return write_simple_report_excel(reports)
     paginator = Paginator(list(reports), 20)
@@ -810,7 +812,8 @@ def underling():
     return tpl('/account/kpi/underling.html', reports=reports, status=status,
                params='&status=' +
                str(status) + '&total_score=' + str(total_score),
-               total_score=total_score)
+               total_score=total_score, P_VERSION_CN=P_VERSION_CN,
+               version=version)
 
 
 

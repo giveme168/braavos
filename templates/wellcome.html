@@ -320,14 +320,14 @@
 				  	<ul>
 				  		{% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
                           <!--搜索部门-->
-                            <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank">搜索部门订单管理</a></li>
+                            <a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank"><li>搜索部门订单管理</li></a>
                           <!--搜索部门结束-->
                           {% else %}
                           <!--致趣订单-->
-                            <li><a href="{{url_for('order.my_orders')}}" target="_blank">致趣订单管理</a></li>
+                            <a href="{{url_for('order.my_orders')}}" target="_blank"><li>致趣订单管理</li></a>
                             {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit()%}
                             <!--搜索部门-->
-                              <li><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank">搜索部门订单管理</a></li>
+                              <a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank"><li>搜索部门订单管理</li></a>
                             <!--搜索部门结束-->
                             {% endif %}
                           <!--致趣订单结束-->
@@ -349,14 +349,14 @@
 				  	<ul>
 				  		{% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
                       <!--搜索部门-->
-                        <li><a href="{{url_for('searchAd_client.agents')}}" target="_blank">搜索部门客户管理</a></li>
+                        <a href="{{url_for('searchAd_client.agents')}}" target="_blank"><li>搜索部门客户管理</li></a>
                       <!--搜索部门结束-->
                       {% else %}
                       <!--致趣订单-->
-                        <li><a href="{{url_for('client.agents')}}" target="_blank">致趣客户管理</a></li>
+                        <a href="{{url_for('client.agents')}}" target="_blank"><li>致趣客户管理</li></a>
                         {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit() %}
                         <!--搜索部门-->
-                          <li><a href="{{url_for('searchAd_client.agents')}}" target="_blank">搜索部门客户管理</a></li>
+                          <a href="{{url_for('searchAd_client.agents')}}" target="_blank"><li>搜索部门客户管理</li></a>
                         <!--搜索部门结束-->
                         {% endif %}
                       <!--致趣订单结束-->
@@ -471,8 +471,8 @@
 				 </div>
 				  <div class="menu-list">
 				  	<ul>
-				  		<li><a href="{{url_for('account_out.index')}}" target="_blank">外出报备</a></li>
-          <li><a href="{{url_for('account_leave.index',user_id = g.user.id)}}" target="_blank">请假申请</a></li>
+				  		<a href="{{url_for('account_out.index')}}" target="_blank"><li>外出报备</li></a>
+                        <a href="{{url_for('account_leave.index',user_id = g.user.id)}}" target="_blank"><li>请假申请</li></a>
 				  	</ul>
 				  </div>
 				</div>
@@ -511,10 +511,10 @@
           <div class="menu-list">
             <ul>
               {% if g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
-              <li><a target="_blank" href="{{url_for('account_data.notice_index')}}">系统通知</a></li>
+              <a target="_blank" href="{{url_for('account_data.notice_index')}}"><li>系统通知</li></a>
               {% endif %}
               {% if not g.user.is_other_person() %}
-              <li><a target="_blank" href="{{url_for('account_data.handbook')}}">员工手册</a></li>
+              <a target="_blank" href="{{url_for('account_data.handbook')}}"><li>员工手册</li></a>
               {% endif %}
             </ul>
           </div>
@@ -541,14 +541,14 @@
 				  	<ul>
                         {% if g.user.is_searchad_leader() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
                       <!--搜索部门-->
-                        <li><a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank">搜索部门数据管理</a></li>
+                        <a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank"><li>搜索部门数据管理</li></a>
                       <!--搜索部门结束-->
                       {% else %}
                       <!--致趣订单-->
-                        <li><a href="{{url_for('data_query_weekly.douban_index')}}" target="_blank">致趣数据管理</a></li>
+                        <a href="{{url_for('data_query_weekly.douban_index')}}" target="_blank"><li>致趣数据管理</li></a>
                         {% if g.user.is_super_leader() or g.user.is_finance() or g.user.is_aduit() %}
                         <!--搜索部门-->
-                          <li><a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank">搜索部门数据管理</a></li>
+                          <a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank"><li>搜索部门数据管理</li></a>
                         <!--搜索部门结束-->
                         {% endif %}
                       <!--致趣订单结束-->
@@ -570,11 +570,11 @@
 				  <div class="menu-list">
 				  	<ul>
                         {% if g.user.team.type == 24 %}
-                        <li><a href="{{url_for('finance_client_order_data_query.agent_invoice')}}" target="_blank">致趣财务管理</a></li>
-                        <li><a href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}" target="_blank">搜索部门财务管理</a></li>
+                        <a href="{{url_for('finance_client_order_data_query.agent_invoice')}}" target="_blank"><li>致趣财务管理</li></a>
+                        <a href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}" target="_blank"><li>搜索部门财务管理</li></a>
                         {% else %}
-                        <li><a href="{{url_for('finance_client_order_invoice.index')}}" target="_blank">致趣财务管理</a></li>
-                        <li><a href="{{url_for('searchAd_finance_client_order_invoice.index')}}" target="_blank">搜索部门财务管理</a></li>
+                        <a href="{{url_for('finance_client_order_invoice.index')}}" target="_blank"><li>致趣财务管理</li></a>
+                        <a href="{{url_for('searchAd_finance_client_order_invoice.index')}}" target="_blank"><li>搜索部门财务管理</li></a>
                         {% endif %}
 				  	</ul>
 				  </div>
@@ -594,17 +594,17 @@
 				  <div class="menu-list">
 				  	<ul>
 				  	  {% if g.user.is_admin() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
-                        <li><a href="{{url_for('user.index')}}" target="_blank">用户管理</a></li>
-                        <li><a href="{{url_for('user.index')}}" target="_blank">角色管理</a></li>
+                        <a href="{{url_for('user.index')}}" target="_blank"><li>用户管理</li></a>
+                        <a href="{{url_for('user.index')}}" target="_blank"><li>角色管理</li></a>
                       {% endif %}
                       {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() %}
-                        <li><a href="{{url_for('account_onduty.index')}}" target="_blank">员工考勤</a></li>
+                        <a href="{{url_for('account_onduty.index')}}" target="_blank"><li>员工考勤</li></a>
                       {% endif %}
                       {% if g.user.is_leader() or g.user.is_super_leader() %}
-                        <li><a href="{{url_for('account_performance.index')}}" target="_blank">团队销售指标</a></li>
+                        <a href="{{url_for('account_performance.index')}}" target="_blank"><li>团队销售指标</li></a>
                       {% endif %}
                       {% if g.user.is_super_leader() %}
-                        <li><a href="{{url_for('account_commission.index')}}" target="_blank">销售人员提成</a></li>
+                        <a href="{{url_for('account_commission.index')}}" target="_blank"><li>销售人员提成</li></a>
                       {% endif %}
 				  	</ul>
 				  </div>

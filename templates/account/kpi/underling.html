@@ -14,6 +14,14 @@
                         <input type="text" class="form-control" id="number" name="number" placeholder="编号">
                     </div>-->
                     <div class="form-group">
+                        <label for="">类型：</label>
+                        <select class="form-control" id="version" name="version" placeholder="选择类型">
+                            {% for k, v in P_VERSION_CN.items() %}
+                            <option value="{{k}}">{{v}}<option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="">状态：</label>
                         <select class="form-control" id="status" name="status" placeholder="选择状态">
                             <option value='0'>所有状态</option>
@@ -160,6 +168,8 @@
         $('#status').trigger("chosen:updated");
         $('#total_score').val('{{total_score}}')
         $('#total_score').trigger("chosen:updated");
+        $('#version').val('{{version}}')
+        $('#version').trigger("chosen:updated");
     })
 </script>
 {% endblock %}
