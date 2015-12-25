@@ -36,10 +36,16 @@
             <td>{{ order.mediums_rebate_invoice_pass_sum }} 元</td>
             <td>{{ order.mediums_rebate_money - order.mediums_rebate_invoice_pass_sum }} 元</td>
             <td>{{ order.mediums_rebate_invoice_apply_sum }} 元</td>
-            <td>{{ order.get_medium_rebate_invoice_by_status(3)|length }}</td>
+            <td>{{ order.apply_count }}</td>
             <td><a href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=order.id)}}">查看</a></td>
         </tr>
         {% endfor %}
+        <tr>
+            <td colspan=9 style="text-align:center">总计</td>
+            <td>{{orders|sum(attribute='mediums_rebate_invoice_apply_sum')|format_price}} 元</td>
+            <td>{{orders|sum(attribute='apply_count')}}</td>
+            <td></td>
+        </tr>
     </table>
 </div>
 {% endblock %}

@@ -29,6 +29,8 @@ def index():
         abort(404)
     orders = set([
         invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
+    for k in orders:
+        k.apply_count = len(k.get_invoice_by_status(3))
     return tpl('/finance/client_order/invoice/index.html', orders=orders)
 
 

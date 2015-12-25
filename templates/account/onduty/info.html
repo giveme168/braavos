@@ -33,10 +33,10 @@
           <td>{{d.off_time}}</td>
           <td>
             {% if d.out_info %}
-              <a tabindex="0" class="btn btn-sm btn-danger" role="button" data-toggle="popover" data-trigger="focus" title="外出详情" data-content="{{d.out_info|safe}}">外出</a><br/>
+              <a tabindex="0" class="btn btn-sm btn-warning" role="button" data-toggle="popover" data-trigger="focus" title="外出详情" data-content="{{d.out_info|safe}}">外出</a><br/>
             {% endif %}
             {% if d.leave_info %}
-              <a tabindex="0" class="btn btn-sm btn-danger" role="button" data-toggle="popover" data-trigger="focus" title="请假详情" data-content="{{d.leave_info|safe}}">请假</a><br/>
+              <a tabindex="0" class="btn btn-sm btn-warning" role="button" data-toggle="popover" data-trigger="focus" title="请假详情" data-content="{{d.leave_info|safe}}">请假</a><br/>
             {% endif %}
           </td>
         </tr>
