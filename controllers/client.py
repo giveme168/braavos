@@ -224,7 +224,7 @@ def medium_detail(medium_id):
 def mediums():
     mediums = Medium.all()
     mediums = [{'files_update_time': k.files_update_time,
-                'level_cn': k.level_cn,'owner_name':k.owner.name,
+                'level_cn': k.level_cn, 'owner_name': k.owner.name,
                 'id': k.id, 'name': k.name, 'level': k.level or 100
                 }for k in Medium.all()]
     mediums = sorted(mediums, key=operator.itemgetter('level'), reverse=False)

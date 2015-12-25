@@ -653,8 +653,7 @@ def check_apply_v2(r_id):
         report.now_report = json.dumps(report.now_report_obj)
         report.create_time = datetime.datetime.now()
         report.save()
-        
-        
+
         if not PerformanceEvaluationPersonnal.query.filter_by(performance=report).first():
             for user in users:
                 PerformanceEvaluationPersonnal.add(
@@ -672,7 +671,7 @@ def check_apply_v2(r_id):
     scores = [float(k) / 10 for k in range(1, 51)]
     scores.append(0.00)
     scores.reverse()
-    return tpl('/account/kpi/apply_v2.html', type=report.type, scores=scores, 
+    return tpl('/account/kpi/apply_v2.html', type=report.type, scores=scores,
                report=report, users=User.all_active(), p_users=p_users)
 
 
@@ -687,7 +686,7 @@ def notice(r_id):
             apply_context['user'] = k.user
             account_kpi_apply_signal.send(
                 current_app._get_current_object(), apply_context=apply_context)
-    return jsonify({'ret':True})
+    return jsonify({'ret': True})
 
 
 @account_kpi_bp.route('/<r_id>/check_apply', methods=['GET', 'POST'])
@@ -793,11 +792,11 @@ def underling():
         total_score_p = total_score.split('-')
         if len(total_score) == 1:
             reports = [
-                k for k in reports if float(k.total_score+k.personnal_score) == float(total_score)]
+                k for k in reports if float(k.total_score + k.personnal_score) == float(total_score)]
         else:
             start, end = float(total_score_p[0]), float(total_score_p[1])
             reports = [k for k in reports if float(
-                k.total_score+k.personnal_score) >= start and float(k.total_score+k.personnal_score) < end]
+                k.total_score + k.personnal_score) >= start and float(k.total_score + k.personnal_score) < end]
 
     if status != 0:
         reports = [k for k in reports if k.status == status]
@@ -816,10 +815,10 @@ def underling():
                version=version)
 
 
-
 @account_kpi_bp.route('/personnal', methods=['GET'])
 def personnal():
     status = int(request.values.get('status', 1))
+    page = int(request.values.get('p', 1))
     if g.user.is_super_admin():
         personnal_objs = PerformanceEvaluationPersonnal.query.filter_by(status=status)
     else:
@@ -846,43 +845,43 @@ def personnal_apply(pid):
         attitude_param = {}
         ability_param = {}
         for k in range(6):
-            key = 'work_attitude_'+str(k)+'_s'
+            key = 'work_attitude_' + str(k) + '_s'
             attitude_param[key] = float(request.values.get(key, 0))
             if k == 0:
-                total_score += attitude_param[key]*0.05
+                total_score += attitude_param[key] * 0.05
             elif k == 1:
-                total_score += attitude_param[key]*0.1
+                total_score += attitude_param[key] * 0.1
             elif k == 2:
-                total_score += attitude_param[key]*0.1
+                total_score += attitude_param[key] * 0.1
             elif k == 3:
-                total_score += attitude_param[key]*0.05
+                total_score += attitude_param[key] * 0.05
             elif k == 4:
-                total_score += attitude_param[key]*0.05
+                total_score += attitude_param[key] * 0.05
             elif k == 5:
-                total_score += attitude_param[key]*0.05
+                total_score += attitude_param[key] * 0.05
         for k in range(9):
-            key = 'work_ability_'+str(k)+'_s'
+            key = 'work_ability_' + str(k) + '_s'
             ability_param[key] = float(request.values.get(key, 0))
             if k == 0:
-                total_score += ability_param[key]*0.1
+                total_score += ability_param[key] * 0.1
             elif k == 1:
-                total_score += ability_param[key]*0.05
+                total_score += ability_param[key] * 0.05
             elif k == 2:
-                total_score += ability_param[key]*0.1
+                total_score += ability_param[key] * 0.1
             elif k == 3:
-                total_score += ability_param[key]*0.05
+                total_score += ability_param[key] * 0.05
             elif k == 4:
-                total_score += ability_param[key]*0.05
+                total_score += ability_param[key] * 0.05
             elif k == 5:
-                total_score += ability_param[key]*0.05
+                total_score += ability_param[key] * 0.05
             elif k == 6:
-                total_score += ability_param[key]*0.05
+                total_score += ability_param[key] * 0.05
             elif k == 7:
-                total_score += ability_param[key]*0.1
+                total_score += ability_param[key] * 0.1
             elif k == 8:
-                total_score += ability_param[key]*0.05
+                total_score += ability_param[key] * 0.05
         personnal_obj.total_score = total_score * 0.2
-        personnal_obj.body = json.dumps({'attitude_param':attitude_param, 'ability_param':ability_param})
+        personnal_obj.body = json.dumps({'attitude_param': attitude_param, 'ability_param': ability_param})
         personnal_obj.status = 0
         personnal_obj.save()
 
@@ -900,9 +899,9 @@ def personnal_apply(pid):
     body_obj = json.loads(personnal_obj.body)
     attitude_param = {}
     ability_param = {}
-    if body_obj.has_key('attitude_param'):
+    if body_obj in 'attitude_param':
         attitude_param = body_obj['attitude_param']
-    if body_obj.has_key('ability_param'):
+    if body_obj in 'ability_param':
         ability_param = body_obj['ability_param']
     scores = [float(k) / 10 for k in range(1, 51)]
     scores.append(0.00)

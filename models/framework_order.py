@@ -182,7 +182,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         备注: %s
         """ % (self.group.name, self.money, self.direct_sales_names,
                self.agent_sales_names, self.start_date_cn, self.end_date_cn,
-               self.contract,  self.description,)
+               self.contract, self.description,)
 
     def can_admin(self, user):
         """是否可以修改该订单"""
@@ -191,7 +191,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def can_media_leader_action(self, user):
         return False
-    
+
     def have_owner(self, user):
         """是否可以查看该订单"""
         owner = self.direct_sales + self.agent_sales + [self.creator]

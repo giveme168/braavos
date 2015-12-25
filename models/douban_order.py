@@ -291,7 +291,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def can_media_leader_action(self, user):
         return False
-        
+
     def path(self):
         return self.info_path()
 

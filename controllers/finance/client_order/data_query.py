@@ -6,8 +6,7 @@ from flask import render_template as tpl
 from models.invoice import (Invoice, AgentInvoice, AgentInvoicePay, MediumInvoice,
                             MediumInvoicePay, MediumRebateInvoice)
 from models.client_order import BackMoney, BackInvoiceRebate
-from models.outsource import (MergerOutSource, MergerPersonalOutSource,
-                              MergerDoubanOutSource, MergerDoubanPersonalOutSource)
+from models.outsource import (MergerOutSource, MergerPersonalOutSource)
 from controllers.finance.helpers.data_query_helpers import write_order_excel
 finance_client_order_data_query_bp = Blueprint(
     'finance_client_order_data_query', __name__, template_folder='../../templates/finance/data_query')

@@ -29,7 +29,6 @@ from models.attachment import Attachment
 from models.download import (download_excel_table_by_doubanorders,
                              download_excel_table_by_frameworkorders)
 
-from libs.signals import contract_apply_signal
 from libs.email_signals import zhiqu_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
@@ -607,7 +606,7 @@ def contract_status_change(order, action, emails, msg):
     context = {
         "to_other": emails,
         "sender": g.user,
-        "to_users" : to_users,
+        "to_users": to_users,
         "action_msg": action_msg,
         "order": order,
         "info": msg,
@@ -673,7 +672,6 @@ def display_orders(orders, title, status_id=-1):
     end_time = request.args.get('end_time', '')
     search_medium = int(request.args.get('search_medium', 0))
     year = str(request.values.get('year', datetime.now().year))
-    year_date = datetime.strptime(year, '%Y').date()
     if start_time and not end_time:
         start_time = datetime.strptime(start_time, '%Y-%m-%d').date()
         orders = [k for k in orders if k.create_time.date() >= start_time]
@@ -702,7 +700,7 @@ def display_orders(orders, title, status_id=-1):
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower().strip() in o.search_info.lower()]
-    
+
     orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
     if orderby and len(orders):
         orders = sorted(
@@ -897,7 +895,7 @@ def framework_order_info(order_id):
                            'to_users': to_users}
                 zhiqu_contract_apply_signal.send(
                     current_app._get_current_object(), context=context)
-                
+
                 order.add_comment(g.user, u"更新合同号, %s" % msg)
 
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
@@ -1132,7 +1130,7 @@ def douban_order_info(order_id):
                 order.save()
                 _insert_executive_report(order, '')
                 flash(u'[%s]合同号保存成功!' % order.name, 'success')
-                
+
                 action_msg = u"合同号更新"
                 msg = u"新合同号如下:\n\n%s-豆瓣: %s\n\n" % (
                     order.agent.name, order.contract)
@@ -1313,11 +1311,10 @@ def attachment_status_change(order, attachment_id, status):
 
 def attachment_status_email(order, attachment):
     to_users = order.direct_sales + order.agent_sales + [order.creator, g.user] + User.contracts()
-    action_msg = u"%s文件:%s-%s" % (attachment.type_cn,
-                                  attachment.filename, attachment.status_cn)
+    action_msg = u"%s文件:%s-%s" % (attachment.type_cn, attachment.filename, attachment.status_cn)
     msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (
         attachment.filename, attachment.status_cn)
-    
+
     context = {'order': order,
                'sender': g.user,
                'action_msg': action_msg,

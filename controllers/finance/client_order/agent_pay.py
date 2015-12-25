@@ -6,7 +6,7 @@ from flask import jsonify, render_template as tpl
 from models.user import TEAM_LOCATION_CN
 from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.invoice import (AgentInvoice, AgentInvoicePay, AGENT_INVOICE_STATUS_PASS,
-                            INVOICE_TYPE_CN, AGENT_INVOICE_STATUS_APPLY)
+                            INVOICE_TYPE_CN)
 from models.user import User
 from forms.invoice import AgentInvoiceForm
 from libs.email_signals import agent_invoice_apply_signal
@@ -155,7 +155,6 @@ def invoice_pass(invoice_id):
     invoices_pay = AgentInvoicePay.gets(invoices_ids)
     if not invoices_pay:
         abort(403)
-    emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
 
@@ -211,7 +210,7 @@ def invoice_delete(invoice_id):
         abort(404)
     invoice = AgentInvoice.get(invoice_id)
     order_id = invoice.client_order.id
-    if AgentInvoicePay.query.filter_by(agent_invoice_id=order_id).count()>0:
+    if AgentInvoicePay.query.filter_by(agent_invoice_id=order_id).count() > 0:
         flash(u'删除失败，该发票已有付款项', 'danger')
         return redirect(url_for("finance_client_order_agent_pay.info", order_id=order_id))
     flash(u'删除成功', 'success')

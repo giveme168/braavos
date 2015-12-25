@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
-from flask import Blueprint, request, g, abort
+from flask import Blueprint, request
 from flask import render_template as tpl
 
 from models.douban_order import BackMoney, BackInvoiceRebate
-from models.outsource import (MergerOutSource, MergerPersonalOutSource,
-                              MergerDoubanOutSource, MergerDoubanPersonalOutSource)
+from models.outsource import (MergerDoubanOutSource, MergerDoubanPersonalOutSource)
 from controllers.finance.helpers.data_query_helpers import write_order_excel
 finance_douban_order_data_query_bp = Blueprint(
     'finance_douban_order_data_query', __name__, template_folder='../../templates/financd/data_query')
@@ -103,7 +102,7 @@ def personal_outsource():
         '''orders = [k for k in MergerPersonalOutSource.all(
         ) if k.create_time.year == int(year) and k.status == 0]'''
         orders = [k for k in MergerDoubanPersonalOutSource.all()
-                   if k.create_time.year == int(year) and k.status == 0]
+                  if k.create_time.year == int(year) and k.status == 0]
     if location != 0:
         orders = [k for k in orders if location in k.locations]
     if info:
@@ -136,13 +135,13 @@ def outsource():
                                                           MergerOutSource.status == 0)]
         '''
         orders = [k for k in MergerDoubanOutSource.query.filter(MergerDoubanOutSource.create_time >= search_date,
-                                                                 MergerDoubanOutSource.create_time < end_search_date,
-                                                                 MergerDoubanOutSource.status == 0)]
+                                                                MergerDoubanOutSource.create_time < end_search_date,
+                                                                MergerDoubanOutSource.status == 0)]
     else:
         '''orders = [k for k in MergerOutSource.all(
         ) if k.create_time.year == int(year) and k.status == 0]'''
         orders = [k for k in MergerDoubanOutSource.all()
-                   if k.create_time.year == int(year) and k.status == 0]
+                  if k.create_time.year == int(year) and k.status == 0]
     if location != 0:
         orders = [k for k in orders if location in k.locations]
     if info:

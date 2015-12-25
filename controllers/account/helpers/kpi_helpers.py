@@ -45,7 +45,7 @@ def write_simple_report_excel(reports):
         worksheet.write(th, 11, reports[k].self_total_score, align_center)
         worksheet.write(th, 12, reports[k].total_score, align_center)
         worksheet.write(th, 13, reports[k].personnal_score, align_center)
-        worksheet.write(th, 14, reports[k].personnal_score+reports[k].total_score, align_center)
+        worksheet.write(th, 14, reports[k].personnal_score + reports[k].total_score, align_center)
         worksheet.write(th, 15, reports[k].create_time_cn, align_center)
         worksheet.set_row(th, 20)
         th += 1

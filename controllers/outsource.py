@@ -468,8 +468,7 @@ def outsource(outsource_id):
 
         to_emails = list(
             set([x.email for x in to_users] + [k.email for k in outsource_apply_user]))
-        title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号',
-                                     order.jiafang_name, u'修改外包信息')
+        title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号', order.jiafang_name, u'修改外包信息')
         apply_context = {"sender": g.user,
                          "to": to_emails,
                          "action_msg": u'修改外包信息',
@@ -496,7 +495,7 @@ def outsource_status(order_id):
     outsource_ids = request.values.getlist('outsources')
 
     action = int(request.values.get('action', 0))
-    emails = request.values.getlist('email')
+    # emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
 
     to_users = order.direct_sales + order.agent_sales + \
@@ -530,26 +529,25 @@ def outsource_status(order_id):
         else:
             next_status = OUTSOURCE_STATUS_APPLY_LEADER
             action_msg = u'外包费用申请审批'
-        to_users_name = ','.join(
-            [k.name for k in outsource_apply_user] + [k.name for k in order.operater_users])
+        # to_users_name = ','.join(
+        #     [k.name for k in outsource_apply_user] + [k.name for k in order.operater_users])
 
     elif action == 1:
         next_status = OUTSOURCE_STATUS_PASS
         action_msg = u'外包费用审批通过'
-        to_users_name = ','.join(
-            [k.name for k in order.agent_sales] + [k.name for k in order.operater_users])
+        # to_users_name = ','.join(
+        #     [k.name for k in order.agent_sales] + [k.name for k in order.operater_users])
     elif action == 2:
         next_status = OUTSOURCE_STATUS_NEW
         action_msg = u'外包费用拒绝通过'
-        to_users_name = ','.join(
-            [k.name for k in order.agent_sales] + [k.name for k in order.operater_users])
+        # to_users_name = ','.join(
+        #     [k.name for k in order.agent_sales] + [k.name for k in order.operater_users])
     elif action == 3:
         next_status = OUTSOURCE_STATUS_APPLY_MONEY
         action_msg = u'外包费用申请打款'
-        to_users_name = ','.join([k.name for k in User.operater_leaders()])
+        # to_users_name = ','.join([k.name for k in User.operater_leaders()])
     elif action == 100:
-        to_users_name = ','.join(
-            [k.name for k in outsource_apply_user] + [k.name for k in order.operater_users])
+        # to_users_name = ','.join([k.name for k in outsource_apply_user] + [k.name for k in order.operater_users])
         outsources_json = json.loads(
             request.values.get('outsource_json', '[]'))
         outsources = []
@@ -565,11 +563,11 @@ def outsource_status(order_id):
             outsource.subtype = k['subtype']
             outsource.remark = k['remark']
             outsource.pay_num = k['num']
-            #outsource.status = next_status
+            # outsource.status = next_status
             outsource.save()
             outsources.append(outsource)
         # 根据修改后的金额，计算是否超过占比
-        outsource_percent = float(order.outsources_percent)/100
+        outsource_percent = float(order.outsources_percent) / 100
         if outsource_percent >= 0.02:
             action_msg = u'外包费用超过2%，修改并申请审批'
             next_status = OUTSOURCE_STATUS_EXCEED
@@ -596,15 +594,14 @@ def outsource_status(order_id):
                       u"%s:\n\r%s\n\r%s" % (
                           action_msg, "\n\r".join([o.name for o in outsources]), msg),
                       msg_channel=2)
-    to_emails = list(
-        set(emails + [x.email for x in to_users] + [k.email for k in outsource_apply_user]))
-    apply_context = {"to_users": to_users+outsource_apply_user,
+    # to_emails = list(set(emails + [x.email for x in to_users] + [k.email for k in outsource_apply_user]))
+    apply_context = {"to_users": to_users + outsource_apply_user,
                      "outsource_apply_user": outsource_apply_user,
                      "action_msg": action_msg,
                      "info": msg,
                      "order": order,
                      "action": action,
-                     "outsource_percent":outsource_percent,
+                     "outsource_percent": outsource_percent,
                      "outsources": outsources}
 
     outsource_apply_signal.send(

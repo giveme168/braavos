@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-import datetime
-
 from flask import Blueprint, request, g, abort
 from flask import render_template as tpl
 
 from models.user import TEAM_TYPE_LEADER, TEAM_TYPE_SUPER_LEADER
-from models.client_order import ClientOrder, CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_DELETEAPPLY, CONTRACT_STATUS_DELETEAGREE
+from models.client_order import (ClientOrder, CONTRACT_STATUS_APPLYCONTRACT,
+                                 CONTRACT_STATUS_DELETEAPPLY, CONTRACT_STATUS_DELETEAGREE)
 from models.douban_order import DoubanOrder
-from models.invoice import Invoice, INVOICE_STATUS_APPLY, MediumInvoicePay, MEDIUM_INVOICE_STATUS_APPLY, MediumRebateInvoice, AgentInvoicePay
-from models.outsource import MergerOutSource, MergerDoubanOutSource, MergerPersonalOutSource, MergerDoubanPersonalOutSource, MERGER_OUTSOURCE_STATUS_APPLY
+from models.invoice import (Invoice, INVOICE_STATUS_APPLY, MediumInvoicePay, MEDIUM_INVOICE_STATUS_APPLY,
+                            MediumRebateInvoice, AgentInvoicePay)
+from models.outsource import (MergerOutSource, MergerDoubanOutSource, MergerPersonalOutSource,
+                              MergerDoubanPersonalOutSource, MERGER_OUTSOURCE_STATUS_APPLY)
 
 manage_apply_bp = Blueprint(
     'manage_apply', __name__, template_folder='../../templates/manage/apply/')

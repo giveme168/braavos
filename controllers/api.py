@@ -77,14 +77,12 @@ def clients():
 @api_bp.route('/order', methods=['GET'])
 def order():
     sn = request.values.get('sn', '')
-    client_order = [_order_to_dict(k)
-                                   for k in ClientOrder.all() if k.contract.lower().strip() == sn.lower().strip()]
-    douban_order = [_order_to_dict(k)
-                                   for k in DoubanOrder.all() if k.contract.lower().strip() == sn.lower().strip()]
-    client_order += [_order_to_dict(k.client_order)
-                                    for k in Order.all() if k.medium_contract.lower().strip() == sn.lower().strip()]
-    client_order += [
-        _order_to_dict(k.client_order, k) for k in AssociatedDoubanOrder.all() if k.contract.lower().strip() == sn.lower().strip()]
+    client_order = [_order_to_dict(k) for k in ClientOrder.all() if k.contract.lower().strip() == sn.lower().strip()]
+    douban_order = [_order_to_dict(k) for k in DoubanOrder.all() if k.contract.lower().strip() == sn.lower().strip()]
+    client_order += [_order_to_dict(k.client_order) for k in Order.all()
+                     if k.medium_contract.lower().strip() == sn.lower().strip()]
+    client_order += [_order_to_dict(k.client_order, k) for k in AssociatedDoubanOrder.all()
+                     if k.contract.lower().strip() == sn.lower().strip()]
     if client_order:
         return jsonify({'ret': True, 'data': client_order[0]})
     elif douban_order:
@@ -117,17 +115,17 @@ def search_order_by_json():
     data = json.loads(request.values.get('data', json.dumps([])))
     orders = []
     for k in data:
-        order = _get_order_by_type(k['type'], k['id']) 
+        order = _get_order_by_type(k['type'], k['id'])
         if order:
             orders.append(order)
     if orders:
-        return jsonify({'ret':True, 'data':orders})
-    return jsonify({'ret':False, 'data':[]})
+        return jsonify({'ret': True, 'data': orders})
+    return jsonify({'ret': False, 'data': []})
 
 
 @api_bp.route('/search/<type>/<id>/order', methods=['GET'])
 def search_order(type, id):
     order = _get_order_by_type(type, id)
     if order:
-        return jsonify({'ret':True, 'data':order})
-    return jsonify({'ret':False, 'data':{}})
+        return jsonify({'ret': True, 'data': order})
+    return jsonify({'ret': False, 'data': {}})

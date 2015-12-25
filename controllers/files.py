@@ -343,27 +343,27 @@ def associated_douban_order_files(order_id):
 def contract_email(order, attachment):
     if order.__tablename__ == 'bra_searchAd_framework_order':
         to_users = set(User.contracts() +
-                              User.medias() +
-                              order.sales +
-                              [order.creator, g.user])
+                       User.medias() +
+                       order.sales +
+                       [order.creator, g.user])
     elif order.__tablename__ == 'searchAd_bra_client_order':
         to_users = set(User.contracts() +
-                              User.medias() +
-                              order.agent_sales +
-                              order.direct_sales +
-                              [order.creator, g.user])
+                       User.medias() +
+                       order.agent_sales +
+                       order.direct_sales +
+                       [order.creator, g.user])
     elif order.__tablename__ == 'bra_framework_order':
         to_users = set(User.contracts() +
-                              order.agent_sales +
-                              order.direct_sales +
-                              [order.creator, g.user])
+                       order.agent_sales +
+                       order.direct_sales +
+                       [order.creator, g.user])
     else:
         to_users = set(User.contracts() +
-                              User.medias() +
-                              order.direct_sales +
-                              order.agent_sales +
-                              order.operaters +
-                              [order.creator, g.user])
+                       User.medias() +
+                       order.direct_sales +
+                       order.agent_sales +
+                       order.operaters +
+                       [order.creator, g.user])
 
     action_msg = u"%s文件更新" % (attachment.type_cn)
     msg = u"""

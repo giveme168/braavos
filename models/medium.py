@@ -951,7 +951,8 @@ class AdPosition(db.Model, BaseModelMixin):
             current = start_date + timedelta(days=x)
             dates_list.append(current)
         current_nums = self.schedule_nums_by_dates(dates_list)
-        units_retains = [u.retain_nums_by_dates(dates_list) for u in self.units]
+        units_retains = [u.retain_nums_by_dates(
+            dates_list) for u in self.units]
         temp = map(list, itertools.izip(*units_retains))
         retain_nums = [sum(d) for d in temp]
         storage_info = []
@@ -974,7 +975,8 @@ class AdPosition(db.Model, BaseModelMixin):
         return ret
 
     def get_orders_by_date(self, date):
-        orders = [i.order for i in self.order_items if i.schedule_by_date(date)]
+        orders = [
+            i.order for i in self.order_items if i.schedule_by_date(date)]
         return list(set(orders))
 
     @classmethod
@@ -1073,7 +1075,8 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
     pwd = db.Column(db.String(20))
     __mapper_args__ = {'order_by': create_time.desc()}
 
-    def __init__(self, name, url, type, medium, brand, industry, creator, desc, mediums, pwd=None, create_time=None, is_win=0):
+    def __init__(self, name, url, type, medium, brand, industry, creator,
+                 desc, mediums, pwd=None, create_time=None, is_win=0):
         self.name = name
         self.url = url
         self.type = type

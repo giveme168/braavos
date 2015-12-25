@@ -284,7 +284,8 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
 
     @classmethod
     def sales(cls):
-        return [u for u in cls.all() if u.team.type in [TEAM_TYPE_DIRECT_SELLER, TEAM_TYPE_AGENT_SELLER,TEAM_TYPE_LEADER]]
+        return [u for u in cls.all() if u.team.type in [TEAM_TYPE_DIRECT_SELLER,
+                                                        TEAM_TYPE_AGENT_SELLER, TEAM_TYPE_LEADER]]
 
     @classmethod
     def searchAd_sales(cls):
@@ -391,7 +392,8 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         back_moneys = belong_time['back_moneys']
         for k in back_moneys:
             Q = check_month_get_Q(k[0].strftime('%m'))
-            performance_obj[str(k[0].year) + Q] = self.performance(k[0].year, Q)
+            performance_obj[
+                str(k[0].year) + Q] = self.performance(k[0].year, Q)
         return performance_obj
 
     # 销售提成 - 获取销售提成（跨年度有可能是多个）
@@ -821,7 +823,7 @@ class PerformanceEvaluation(db.Model, BaseModelMixin):
     def personnal_status_cn(self):
         personnal_obj = self.user_preformance_evaluation_personnal_personnal
         if personnal_obj.count() > 0:
-            return u'<br/>'.join([k.user.name +u'-'+ k.status_cn for k in personnal_obj])
+            return u'<br/>'.join([k.user.name + u'-' + k.status_cn for k in personnal_obj])
         return u'无'
 
     @property
@@ -834,7 +836,7 @@ class PerformanceEvaluation(db.Model, BaseModelMixin):
                 p_count += 1
                 p_score += k.total_score
         if p_count:
-            count = "%.2f" % (p_score/p_count)
+            count = "%.2f" % (p_score / p_count)
             return float(count)
         return 0
 
@@ -856,7 +858,7 @@ class PerformanceEvaluationPersonnal(db.Model, BaseModelMixin):
                                                     lazy='dynamic'))
     status = db.Column(db.Integer, default=1)
     body = db.Column(db.Text(), default=json.dumps({}))
-    
+
     def __init__(self, user, performance, status=None, total_score=None, body=None):
         self.user = user
         self.performance = performance
@@ -871,7 +873,6 @@ class PerformanceEvaluationPersonnal(db.Model, BaseModelMixin):
         return u'完成'
 
 
-
 class UserOnDuty(db.Model, BaseModelMixin):
     __tablename__ = 'user_onduty'
     id = db.Column(db.Integer, primary_key=True)
@@ -882,11 +883,11 @@ class UserOnDuty(db.Model, BaseModelMixin):
     check_time = db.Column(db.DateTime, index=True)
     create_time = db.Column(db.DateTime, index=True)
     __mapper_args__ = {'order_by': check_time.asc()}
-    __table_args__ = (db.UniqueConstraint('sn', 'check_time', name='_user_onduty_sn_check_time'),)
+    __table_args__ = (db.UniqueConstraint(
+        'sn', 'check_time', name='_user_onduty_sn_check_time'),)
 
     def __init__(self, user, sn, check_time, create_time):
         self.user = user
         self.sn = sn
         self.create_time = create_time
         self.check_time = check_time
-

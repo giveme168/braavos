@@ -63,16 +63,16 @@ def money():
     now_date = datetime.datetime.now()
     year = int(request.values.get('year', now_date.year))
     if year < now_date.year:
-        start_date_month = datetime.datetime.strptime(str(year)+'-01'+'-01','%Y-%m-%d')
-        end_date_month = datetime.datetime.strptime(str(year)+'-12'+'-31','%Y-%m-%d')
+        start_date_month = datetime.datetime.strptime(str(year) + '-01' + '-01', '%Y-%m-%d')
+        end_date_month = datetime.datetime.strptime(str(year) + '-12' + '-31', '%Y-%m-%d')
     elif year == now_date.year:
         end_date_month = now_date.replace(
             month=now_date.month, day=1, hour=0, minute=0, second=0, microsecond=0)
         start_date_month = now_date.replace(
             month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
     else:
-        start_date_month = datetime.datetime.strptime(str(year)+'-01'+'-01','%Y-%m-%d')
-        end_date_month = datetime.datetime.strptime(str(year)+'-01'+'-01','%Y-%m-%d')
+        start_date_month = datetime.datetime.strptime(str(year) + '-01' + '-01', '%Y-%m-%d')
+        end_date_month = datetime.datetime.strptime(str(year) + '-01' + '-01', '%Y-%m-%d')
     pre_monthes = get_monthes_pre_days(start_date_month, end_date_month)
 
     douban_orders = DoubanOrderExecutiveReport.query.filter(

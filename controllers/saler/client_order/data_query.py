@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
-from flask import Blueprint, request, g, abort
+from flask import Blueprint, request
 from flask import render_template as tpl
 
 from models.invoice import (Invoice, AgentInvoice, AgentInvoicePay, MediumInvoice,

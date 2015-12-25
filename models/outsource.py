@@ -444,7 +444,7 @@ class OutSourceExecutiveReport(db.Model, BaseModelMixin):
             return order
         except:
             return None
-            
+
     @property
     def order_status(self):
         if self.otype == 1:
