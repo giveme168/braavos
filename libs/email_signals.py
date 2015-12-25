@@ -1048,7 +1048,7 @@ Dear %s:
     KPI链接地址: %s
 
     """ % (to_names, url)
-    send_simple_mail(title, list(set(to_users+['guoyu@inad.com'])), body=body)
+    send_simple_mail(title, list(set(to_users)), body=body)
 
 
 def back_money_apply(sender, apply_context):

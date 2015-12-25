@@ -595,6 +595,14 @@ class Leave(db.Model, BaseModelMixin):
             else:
                 return u'0天'
 
+    @property
+    def start_time_date(self):
+        return self.start_time.date()
+
+    @property
+    def end_time_date(self):
+        return self.end_time.date()
+
 
 OUT_CREATOR_TYPE_SALER = 1
 OUT_CREATOR_TYPE_NORMAL = 2
@@ -703,6 +711,14 @@ class Out(db.Model, BaseModelMixin):
     @property
     def is_meeting(self):
         return int(self.create_time.strftime('%Y%m%d')) < int(datetime.datetime.now().strftime('%Y%m%d'))
+
+    @property
+    def start_time_date(self):
+        return self.start_time.date()
+
+    @property
+    def end_time_date(self):
+        return self.end_time.date()
 
 
 P_VERSION_ITEMS = [{'type': 1, 'name': u'2015上半年'}]

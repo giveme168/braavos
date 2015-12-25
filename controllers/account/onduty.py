@@ -3,7 +3,7 @@ import datetime
 from flask import Blueprint, request, redirect, url_for, g, abort, jsonify
 from flask import render_template as tpl, flash
 
-from models.user import User, UserOnDuty
+from models.user import User, UserOnDuty, Out, Leave
 
 
 account_onduty_bp = Blueprint(
@@ -44,6 +44,8 @@ def index():
 @account_onduty_bp.route('/<uid>/info', methods=['GET'])
 def info(uid):
     user = User.get(uid)
+    outs = [k for k in Out.all() if k.creator == user or user in k.joiners]
+    leaves = list(Leave.query.filter_by(creator=user))
     start_time = request.values.get('start_time', '')
     end_time = request.values.get('end_time', '')
     if not start_time and not end_time:
@@ -68,9 +70,22 @@ def info(uid):
         else:
             on_time = u'无'
             off_time = u'无'
+
+        out_info = ""
+        leave_info = ""
+        for k in outs:
+            if k.start_time_date <= s.date() and k.end_time_date >= s.date():
+                out_info += u'外出时间：%s 至 %s<br/>'%(k.start_time_cn, k.end_time_cn)
+
+        for k in leaves:
+            if k.start_time_date <= s.date() and k.end_time_date >= s.date():
+                leave_info += u'请假时间：%s点 至 %s点<br/>'%(k.start_time_cn, k.end_time_cn)
+
         dutys.append({'date_cn': s.strftime('%Y-%m-%d'),
                       'on_time': on_time,
-                      'off_time': off_time})
+                      'off_time': off_time,
+                      'out_info': out_info,
+                      'leave_info': leave_info})
         s = d
 
     return tpl('/account/onduty/info.html', user=user,

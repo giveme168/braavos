@@ -22,6 +22,7 @@
           <th>日期</th>
           <th>打卡时间(上班)</th>
           <th>打开时间(下班)</th>
+          <th>备注</th>
         </tr>
       </thead>
       <tbody>
@@ -30,6 +31,14 @@
           <th>{{d.date_cn}}</th>
           <td>{{d.on_time}}</td>
           <td>{{d.off_time}}</td>
+          <td>
+            {% if d.out_info %}
+              <a tabindex="0" class="btn btn-sm btn-danger" role="button" data-toggle="popover" data-trigger="focus" title="外出详情" data-content="{{d.out_info|safe}}">外出</a><br/>
+            {% endif %}
+            {% if d.leave_info %}
+              <a tabindex="0" class="btn btn-sm btn-danger" role="button" data-toggle="popover" data-trigger="focus" title="请假详情" data-content="{{d.leave_info|safe}}">请假</a><br/>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -37,6 +46,11 @@
 </div>
 <script>
 $(function(){
+  $('.btn').popover({
+    html:true,
+    placement:'left',
+    template:'<div class="popover" role="tooltip" style="min-width:400px;"><div class="arrow"></div><div class="popover-content" style="min-width:400px;"></div></div>'
+  })
   $('.datetimepicker').datetimepicker({
         autoclose: true,
         todayHighlight: true,

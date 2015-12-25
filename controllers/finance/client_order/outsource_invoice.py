@@ -73,8 +73,8 @@ def info(order_id):
         OutsourceInvoice.add(
             client_order=order,
             company=request.values.get('company', ''),
-            money=int(request.values.get('money', 0)),
-            ex_money=int(request.values.get('ex_money', 0)),
+            money=float(request.values.get('money', 0)),
+            ex_money=float(request.values.get('ex_money', 0)),
             invoice_num=request.values.get('invoice_num', ''),
             add_time=request.values.get('add_time', now_date),
             create_time=datetime.datetime.now(),
