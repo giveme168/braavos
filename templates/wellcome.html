@@ -597,7 +597,7 @@
                         <a href="{{url_for('user.index')}}" target="_blank"><li>用户管理</li></a>
                         <a href="{{url_for('user.index')}}" target="_blank"><li>角色管理</li></a>
                       {% endif %}
-                      {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() %}
+                      {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
                         <a href="{{url_for('account_onduty.index')}}" target="_blank"><li>员工考勤</li></a>
                       {% endif %}
                       {% if g.user.is_leader() or g.user.is_super_leader() %}
