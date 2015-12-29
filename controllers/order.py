@@ -539,7 +539,12 @@ def client_order_contract(order_id):
 def contract_status_change(order, action, emails, msg):
     action_msg = ''
     #  发送邮件
-    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user]
+    salers = order.direct_sales + order.agent_sales
+    leaders = []
+    for k in salers:
+        leaders += k.team_leaders
+    to_users = salers + [order.creator, g.user]
+    emails += [k.email for k in list(set(leaders))]
     if action == 1:
         order.contract_status = CONTRACT_STATUS_MEDIA
         action_msg = u"申请利润分配"
