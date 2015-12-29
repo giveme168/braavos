@@ -459,8 +459,11 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        admin_users = self.direct_sales + self.agent_sales + \
-            [self.creator] + self.replace_sales
+        salers = self.direct_sales + self.agent_sales + self.replace_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        admin_users = salers + [self.creator] + list(set(leaders))
         return user.is_leader() or user.is_contract() or user.is_media() or\
             user.is_media_leader() or user in admin_users
 
@@ -486,8 +489,11 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales +\
-            [self.creator] + self.operater_users + self.replace_sales
+        salers = self.direct_sales + self.agent_sales + self.replace_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        owner = salers + [self.creator] + self.operater_users + list(set(leaders))
         return user.is_admin() or user in owner
 
     def order_agent_owner(self, user):

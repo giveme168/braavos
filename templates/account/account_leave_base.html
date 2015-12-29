@@ -10,7 +10,7 @@
                     <li id="_underling_">下属的请假申请</li>
                 </a>
                 {% endif %}
-                {% if g.user.is_HR_leader() or g.user.is_OPS() or g.user.is_super_leader()  %}
+                {% if g.user.is_HR_leader() or g.user.is_OPS() or g.user.is_super_leader() or g.user.email in ['xiaoshou001@inad.com'] %}
                 <a href="{{url_for('account_leave.leaves')}}">
                     <li id="_leaves_">所有请假列表</li>
                 </a>
