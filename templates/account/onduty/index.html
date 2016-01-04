@@ -31,6 +31,19 @@
       <button type="submit" class="btn btn-info">查询</button>
     </form>
     <br/>
+    <form class="form-inline" method="POST">
+      <input type='hidden' value="excel" name="action">
+      <div class="form-group">
+        <label for="exampleInputName2"></label>
+        <input type="text" class="datetimepicker form-control" id="start_date" name="start_date" data-date-format="yyyy-mm-dd" value="{{start_date}}">
+      </div>
+      <div class="form-group">
+        <label for="exampleInputEmail2">至</label>
+        <input type="text" class="datetimepicker form-control" id="end_date" name="end_date" data-date-format="yyyy-mm-dd" value="{{end_date}}">
+      </div>
+      <button type="submit" class="btn btn-info">导出考勤</button>
+    </form>
+    <br/>
     <table class="table table-hover">
       <thead>
         <tr>
@@ -71,6 +84,16 @@
   $(function(){
     $('#location').val('{{location}}')
     $("#location").trigger("chosen:updated");
+
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn:true,
+        minView:2,
+        language: 'zh-CN'
+    });
+    $('#start_date').val('{{start_date}}')
+    $('#end_date').val('{{end_date}}')
   })
 </script>
 {% endblock %}
