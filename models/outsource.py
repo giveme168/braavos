@@ -189,7 +189,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
     target = db.relationship(
         'OutSourceTarget', backref=db.backref('outsources', lazy='dynamic'))
-    medium_order_id = db.Column(db.Integer, db.ForeignKey('bra_order.id'))
+    medium_order_id = db.Column(db.Integer, db.ForeignKey('bra_order.id'), index=True)
     medium_order = db.relationship(
         'Order', backref=db.backref('outsources', lazy='dynamic'))
     merger_outsources = db.relationship(
@@ -379,15 +379,15 @@ class OutSourceExecutiveReport(db.Model, BaseModelMixin):
     target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
     target = db.relationship('OutSourceTarget', backref=db.backref(
         'report_outsources_target', lazy='dynamic'))
-    outsource_id = db.Column(db.Integer)
-    otype = db.Column(db.Integer)
-    type = db.Column(db.Integer)
+    outsource_id = db.Column(db.Integer, index=True)
+    otype = db.Column(db.Integer, index=True)
+    type = db.Column(db.Integer, index=True)
     subtype = db.Column(db.Integer)
     invoice = db.Column(db.Boolean)  # 发票
     num = db.Column(db.Float)
     pay_num = db.Column(db.Float)
     create_time = db.Column(db.DateTime)
-    month_day = db.Column(db.DateTime)
+    month_day = db.Column(db.DateTime, index=True)
     days = db.Column(db.Integer)
     __table_args__ = (db.UniqueConstraint(
         'outsource_id', 'otype', 'month_day', name='_outsource_month_day_report'),)
@@ -471,7 +471,7 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     target = db.relationship('OutSourceTarget', backref=db.backref(
         'douban_outsources_target', lazy='dynamic'))
     douban_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_douban_order.id'))
+        db.Integer, db.ForeignKey('bra_douban_order.id'), index=True)
     douban_order = db.relationship(
         'DoubanOrder', backref=db.backref('douban_outsources', lazy='dynamic'))
     merger_outsources = db.relationship(

@@ -2,6 +2,7 @@
 {% block title %}{{user.name}} - 考勤{% endblock %}
 
 {% block content %}
+{% include "/account/account_onduty_base.html" %}
   <div class="container bra-box" style="min-width: 950px;">
     <h3>{{user.name}} - 考勤</h3>
     <form class="form-inline">
@@ -33,10 +34,13 @@
           <td>{{d.off_time}}</td>
           <td>
             {% if d.out_info %}
-              <a tabindex="0" class="btn btn-sm btn-warning" role="button" data-toggle="popover" data-trigger="focus" title="外出详情" data-content="{{d.out_info|safe}}">外出</a><br/>
+              <a tabindex="0" class="btn btn-sm btn-info" role="button" data-toggle="popover" data-trigger="focus" title="外出详情" data-content="{{d.out_info|safe}}">外出</a><br/>
             {% endif %}
             {% if d.leave_info %}
-              <a tabindex="0" class="btn btn-sm btn-warning" role="button" data-toggle="popover" data-trigger="focus" title="请假详情" data-content="{{d.leave_info|safe}}">请假</a><br/>
+              <a tabindex="0" class="btn btn-sm btn-info" role="button" data-toggle="popover" data-trigger="focus" title="请假详情" data-content="{{d.leave_info|safe}}">请假</a><br/>
+            {% endif %}
+            {% if d.warning_info %}
+              <a tabindex="0" class="btn btn-sm btn-danger" role="button" data-toggle="popover" data-trigger="focus" title="异常详情" data-content="{{d.warning_info|safe}}">异常</a><br/>
             {% endif %}
           </td>
         </tr>

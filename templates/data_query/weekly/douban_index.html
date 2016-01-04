@@ -93,9 +93,10 @@
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
         <div class="form-group">
-            <select class="form-control" name="year" id="year" placeholder="选择执行年">
-                <option value="2015">2015</option>
-                <option value="2014">2014</option>
+            <select class="form-control" name="year" id="year" placeholder="选择执行年" style="width:150px;">
+                {% for k in range(5) %}
+                <option value="{{2014+k}}">{{2014+k}}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="form-group">

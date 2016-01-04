@@ -515,8 +515,8 @@ class Leave(db.Model, BaseModelMixin):
     __tablename__ = 'user_leave'
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer)
-    start_time = db.Column(db.DateTime)
-    end_time = db.Column(db.DateTime)
+    start_time = db.Column(db.DateTime, index=True)
+    end_time = db.Column(db.DateTime, index=True)
     rate_day = db.Column(db.String(20))
     reason = db.Column(db.String(100))
     status = db.Column(db.Integer)
@@ -524,7 +524,7 @@ class Leave(db.Model, BaseModelMixin):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
         'User', backref=db.backref('creator_leave', lazy='dynamic'))
-    create_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime, index=True)
     __mapper_args__ = {'order_by': id.desc()}
 
     def __init__(self, type, start_time=None, end_time=None, rate_day='0-1', reason='',
@@ -656,8 +656,8 @@ class UserHandBook(db.Model, BaseModelMixin):
 class Out(db.Model, BaseModelMixin):
     __tablename__ = 'user_out'
     id = db.Column(db.Integer, primary_key=True)
-    start_time = db.Column(db.DateTime)
-    end_time = db.Column(db.DateTime)
+    start_time = db.Column(db.DateTime, index=True)
+    end_time = db.Column(db.DateTime, index=True)
     address = db.Column(db.String(300))
     reason = db.Column(db.Text())             # 外出原因
     meeting_s = db.Column(db.Text())          # 会议纪要
@@ -669,7 +669,7 @@ class Out(db.Model, BaseModelMixin):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
         'User', backref=db.backref('creator_out', lazy='dynamic'))
-    create_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime, index=True)
     joiners = db.relationship('User', secondary=out_joiners)
     __mapper_args__ = {'order_by': id.desc()}
 
@@ -879,7 +879,7 @@ class UserOnDuty(db.Model, BaseModelMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship(
         'User', backref=db.backref('user_onduty', lazy='dynamic'))
-    sn = sn = db.Column(db.String(10), index=True)
+    sn = db.Column(db.String(10), index=True)
     check_time = db.Column(db.DateTime, index=True)
     create_time = db.Column(db.DateTime, index=True)
     __mapper_args__ = {'order_by': check_time.asc()}

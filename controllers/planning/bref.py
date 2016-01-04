@@ -21,10 +21,11 @@ def index():
         brefs = [k for k in brefs if k.creator.location == g.user.location]
     elif g.user.is_planner():
         brefs = brefs
-    elif g.user.is_super_leader():
-        brefs = brefs
     else:
         brefs = [k for k in brefs if k.creator == g.user]
+
+    if g.user.team.type in [0, 14]:
+        brefs = list(Bref.all())
 
     page = int(request.values.get('p', 1))
     location = int(request.values.get('location', 0))

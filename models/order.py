@@ -740,17 +740,17 @@ class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_order_executive_report'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+        db.Integer, db.ForeignKey('bra_client_order.id'), index=True)  # 客户合同
     client_order = db.relationship(
         'ClientOrder', backref=db.backref('order_executive_reports', lazy='dynamic'))
     order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_order.id'))  # 客户合同
+        db.Integer, db.ForeignKey('bra_order.id'), index=True)  # 客户合同
     order = db.relationship(
         'Order', backref=db.backref('medium_executive_reports', lazy='dynamic'))
     medium_money = db.Column(db.Float())
     medium_money2 = db.Column(db.Float())
     sale_money = db.Column(db.Float())
-    month_day = db.Column(db.DateTime)
+    month_day = db.Column(db.DateTime, index=True)
     days = db.Column(db.Integer)
     create_time = db.Column(db.DateTime)
     __table_args__ = (db.UniqueConstraint(

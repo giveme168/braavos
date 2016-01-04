@@ -1,32 +1,23 @@
 {% extends "/base.html" %}
-{% block title %}员工考勤{% endblock %}
+{% block title %}销售异常考勤{% endblock %}
 
 {% block content %}
 {% include "/account/account_onduty_base.html" %}
   <div class="container bra-box" style="min-width: 950px;">
-    <h3>员工考勤</h3>
-    <form method="POST" class="form-inline" enctype="multipart/form-data">
-      <div class="form-group">
-        <label for="exampleInputName2"></label>
-        <input class="file-widget-input hide" type="file" name="file">
-      </div>
-      <button class="file-widget-btn btn btn-sm btn-primary">上传员工考勤</button>
-    </form>
-    
+    <h3>考勤异常销售</h3>
     <br/>
     <form class="form-inline">
       <div class="form-group">
-        <label for="exampleInputName2">员工姓名</label>
-        <input type="text" class="form-control" id="name" name="name" placeholder="员工姓名" value="{{name}}">
+        <label for="exampleInputName2"></label>
+        <input type="text" class="datetimepicker form-control" id="start_date" name="start_date" placeholder="开始时间" value="{{start_date}}" data-date-format="yyyy-mm-dd">
       </div>
       <div class="form-group">
-        <label for="exampleInputEmail2">区域</label>
-        <select class="form-control" id="location" name='location' style="width:150px;">
-          <option value='0'>全部</option>
-          <option value='1'>华北</option>
-          <option value='2'>华东</option>
-          <option value='3'>华南</option>
-        </select>
+        <label for="exampleInputName2">至</label>
+        <input type="text" class="datetimepicker form-control" id="end_date" name="end_date" placeholder="结束时间" value="{{start_date}}" data-date-format="yyyy-mm-dd">
+      </div>
+      <div class="form-group">
+        <label for="exampleInputName2">员工姓名</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="员工姓名" value="{{name}}">
       </div>
       <button type="submit" class="btn btn-info">查询</button>
     </form>
@@ -36,8 +27,7 @@
         <tr>
           <th>员工编号</th>
           <th>姓名</th>
-          <th>区域</th>
-          <th>最后一次打卡时间</th>
+          <th>异常次数</th>
           <th>操作</th>
         </tr>
       </thead>
@@ -46,9 +36,8 @@
         <tr>
           <th scope="row">{{user.sn or '无'}}</th>
           <td>{{user.name}}</td>
-          <td>{{user.location_cn}}</td>
-          <td>{{user.last_check_time}}</td>
-          <td><a target="_blank" href="{{url_for('account_onduty.info', uid=user.id)}}">查看</a></td>
+          <td {% if user.unusual_count > 0%} style="color:red;" {% endif %}>{{user.unusual_count}}</td>
+          <td><a target="_blank" href="{{url_for('account_onduty.info', uid=user.id)}}?start_time={{start_date}}&end_time={{end_date}}">查看</a></td>
         </tr>
         {% endfor %}
       </tbody>
@@ -71,6 +60,15 @@
   $(function(){
     $('#location').val('{{location}}')
     $("#location").trigger("chosen:updated");
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn:true,
+        minView:2,
+        language: 'zh-CN'
+    });
+    $('#start_date').val('{{start_date}}');
+    $('#end_date').val('{{end_date}}');
   })
 </script>
 {% endblock %}

@@ -1096,11 +1096,11 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_executive_report'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+        db.Integer, db.ForeignKey('bra_client_order.id'), index=True)  # 客户合同
     client_order = db.relationship(
         'ClientOrder', backref=db.backref('executive_reports', lazy='dynamic'))
     money = db.Column(db.Float())
-    month_day = db.Column(db.DateTime)
+    month_day = db.Column(db.DateTime, index=True)
     days = db.Column(db.Integer)
     create_time = db.Column(db.DateTime)
     __table_args__ = (db.UniqueConstraint(
