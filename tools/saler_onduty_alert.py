@@ -5,16 +5,30 @@ sys.path.append('/Users/guoyu1/workspace/inad/braavos')
 
 from app import app
 
-from controllers.account.onduty import _get_last_week_date, _get_unusual
+from controllers.account.onduty import _get_last_onduty_date, _get_last_week_date, _format_out, _format_leave, _format_onduty, _get_onduty
+from models.user import User
 from libs.mail import send_html_mail
 
 
 if __name__ == '__main__':
     start_date, end_date = _get_last_week_date()
-    users = _get_unusual(start_date, end_date)
+    all_active_user = User.all_active()
+    salers = [u for u in all_active_user if u.location == 1 and u.is_out_saler]
+    outs = _format_out()
+    leaves = _format_leave()
+    all_dus = _format_onduty(start_date, end_date)
+    # 打卡最后一次时间
+    last_onduty_date = _get_last_onduty_date()
+    users = []
+    for user in salers:
+        u_outs = [k for k in outs if k['creator_id'] == int(user.id)]
+        u_leaves = [k for k in leaves if k['creator_id'] == int(user.id)]
+        dutys = _get_onduty(all_dus, u_outs, u_leaves, user, start_date, end_date, last_onduty_date)
+        users.append({'count': sum(item['warning_count'] for item in dutys),
+                      'user': user})
     unusual_body = ""
     for k in users:
-        if k.unusual_count > 0:
+        if k['count'] > 0:
             red = "style='color:red;'"
         else:
             red = ''
@@ -22,7 +36,7 @@ if __name__ == '__main__':
             <td>%s</td>
             <td %s >%s</td>
             <td><a href='http://z.inad.com/account/onduty/%s/info?start_time=%s&end_time=%s'>查看</a></td>
-        </tr>""" % (k.name, red, str(k.unusual_count), k.id, str(start_date), str(end_date))
+        </tr>""" % (k['user'].name, red, str(k['count']), k['user'].id, str(start_date.date()), str(end_date.date()))
 
     body = u"""
     <h1>%s至%s  华北-销售考勤异常表</h1>
@@ -37,5 +51,5 @@ if __name__ == '__main__':
     <p>详情链接地址: %s<br/>
     由于数据准确性问题，请仔细核对是否准确，如果有问题请找郭钰。
     </p>
-    """ % (str(start_date), str(end_date), unusual_body, 'http://z.inad.com/account/onduty/unusual')
+    """ % (str(start_date.date()), str(end_date.date()), unusual_body, 'http://z.inad.com/account/onduty/unusual')
     send_html_mail(u'华北-销售考勤异常表', recipients=['guoyu@inad.com'], body=body)
