@@ -6,6 +6,8 @@ from controllers.account.commission import account_commission_bp
 from controllers.account.data import account_data_bp
 from controllers.account.notice import account_notice_bp
 from controllers.account.onduty import account_onduty_bp
+from controllers.account.turnover import account_turnover_bp
+
 
 def account_register_blueprint(app):
     app.register_blueprint(account_kpi_bp, url_prefix='/account/kpi')
@@ -16,3 +18,4 @@ def account_register_blueprint(app):
     app.register_blueprint(account_data_bp, url_prefix='/account/data')
     app.register_blueprint(account_notice_bp, url_prefix='/account/notice')
     app.register_blueprint(account_onduty_bp, url_prefix='/account/onduty')
+    app.register_blueprint(account_turnover_bp, url_prefix='/account/turnover')

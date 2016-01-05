@@ -1,0 +1,32 @@
+{% extends "/base.html" %}
+{% block title %}销售离职{% endblock %}
+
+{% block content %}
+{% include "/account/account_base.html" %}
+    <div class="container bra-box" style="min-width: 950px;">
+        <h3>销售离职交接</h3>
+        <br/>
+        <h4>合同交接</h4>
+        <form method="POST" class="form-inline">
+          <div class="form-group">
+            <label for="exampleInputName2">将</label>
+            <select name='f_saler' style="width:150px;">
+                <option value='0'>请选择</option>
+                {% for k in salers %}
+                    <option value="{{k.id}}">{{k.name}}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="exampleInputName2">的合同转给</label>
+            <select name='t_saler' style="width:150px;">
+                <option value='0'>请选择</option>
+                {% for k in salers %}
+                    <option value="{{k.id}}">{{k.name}}</option>
+                {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-sm btn-primary">替换</button>
+        </form>
+    </div>
+{% endblock %}

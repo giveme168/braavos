@@ -180,6 +180,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.contract_status = contract_status
         self.back_money_status = back_money_status
 
+    @property
+    def salers(self):
+        return list(set(self.direct_sales+self.agent_sales))
+
     @classmethod
     def get_all(cls):
         """查看所有没删除订单"""
