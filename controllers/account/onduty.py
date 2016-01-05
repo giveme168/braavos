@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
-from flask import Blueprint, request, redirect, url_for
+from flask import Blueprint, request, redirect, url_for, flash, abort, g
 from flask import render_template as tpl
 
 from models.user import User, UserOnDuty, Out, Leave
@@ -71,8 +71,10 @@ def _format_onduty(start_time, end_time):
     fonduty = []
     for k in onduty:
         fonduty.append({'check_time': k.check_time,
+                        'check_time_cn': k.check_time.strftime('%Y-%m-%d %H:%M:%S'),
                         'user': k.user,
-                        'user_id': k.user.id})
+                        'user_id': k.user.id,
+                        'id': k.id})
     return fonduty
 
 
@@ -220,14 +222,14 @@ def _get_onduty(all_dus, outs, leaves, user, start_time, end_time, last_onduty_d
                 else:
                     warning_info += u'工时未满8小时'
                     warning_count += 1
-
         dutys.append({'date_cn': s.strftime('%Y-%m-%d'),
                       'on_time': on_time,
                       'off_time': off_time,
                       'out_info': out_info,
                       'warning_info': warning_info,
                       'leave_info': leave_info,
-                      'warning_count': warning_count})
+                      'warning_count': warning_count,
+                      'dus': dus})
         s = d
     return dutys
 
@@ -316,9 +318,23 @@ def unusual():
                start_date=start_date.date(), end_date=end_date.date())
 
 
-@account_onduty_bp.route('/<uid>/info', methods=['GET'])
+@account_onduty_bp.route('/<uid>/info', methods=['GET', 'POST'])
 def info(uid):
     user = User.get(uid)
+    if request.method == 'POST':
+        if not (g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader()):
+            abort(403)
+        check_time = request.values.get('check_time', '')
+        if not check_time:
+            flash(u'请选择打卡时间', 'danger')
+            return redirect(url_for('account_onduty.info', uid=uid))
+        UserOnDuty.add(user=user,
+                       sn=user.sn,
+                       check_time=check_time,
+                       create_time=datetime.datetime.now())
+        flash(u'添加成功', 'success')
+        return redirect(url_for('account_onduty.info', uid=uid))
+
     start_time = request.values.get('start_time', '')
     end_time = request.values.get('end_time', '')
     if not start_time and not end_time:
@@ -338,3 +354,9 @@ def info(uid):
                start_time=start_time.strftime('%Y-%m-%d'),
                end_time=end_time.strftime('%Y-%m-%d'),
                dutys=dutys)
+
+
+@account_onduty_bp.route('/<uid>/onduty/<did>/delete')
+def onduty_delete(uid, did):
+    UserOnDuty.get(did).delete()
+    return redirect(url_for('account_onduty.info', uid=uid))

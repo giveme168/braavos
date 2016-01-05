@@ -24,7 +24,9 @@ def index():
 def login():
     form = LoginForm(request.form)
     if request.method == 'POST':
-        if request.values.get('is_pwd', ''):
+        is_pwd = request.values.get('is_pwd', '')
+        print is_pwd
+        if is_pwd:
             username = request.values.get('email', '')
             password = request.values.get('password', '')
             if check_auth_by_mail(username, password):
@@ -35,7 +37,7 @@ def login():
             user = form.validate()
         if user:
             login_user(user)
-            if user.check_password(DEFAULT_PASSWORD):
+            if user.check_password(DEFAULT_PASSWORD) and not is_pwd:
                 flash(u'您还在使用默认密码, 请及时<a href="%s">修改您的密码!</a>' %
                       url_for('user.pwd_change'), 'danger')
             return redirect(request.args.get("next", "/"))
