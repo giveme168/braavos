@@ -37,7 +37,7 @@
           <th scope="row">{{user.user.sn or '无'}}</th>
           <td>{{user.user.name}}</td>
           <td {% if user.count > 0%} style="color:red;" {% endif %}>{{user.count}}</td>
-          <td><a target="_blank" href="{{url_for('account_onduty.info', uid=user.id)}}?start_time={{start_date}}&end_time={{end_date}}">查看</a></td>
+          <td><a target="_blank" href="{{url_for('account_onduty.info', uid=user.user.id)}}?start_time={{start_date}}&end_time={{end_date}}">查看</a></td>
         </tr>
         {% endfor %}
       </tbody>

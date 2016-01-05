@@ -18,6 +18,7 @@ function test(data){
         
         var doc = document.getElementById('inad_'+ADSCODE+'_show').contentDocument || document.frames('inad_' + ADSCODE + '_show').document;
         doc.write(html);
+        doc.close();
     }
 }
 
