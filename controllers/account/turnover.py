@@ -24,11 +24,11 @@ def index():
         douban_orders = DoubanOrder.all()
         for k in client_orders:
             if f_user in k.salers and t_user not in k.replace_sales:
-                k.replace_sales = k.replace_sales+[t_user]
+                k.replace_sales = k.replace_sales + [t_user]
                 k.save()
         for k in douban_orders:
             if f_user in k.salers and t_user not in k.replace_sales:
-                k.replace_sales = k.replace_sales+[t_user]
+                k.replace_sales = k.replace_sales + [t_user]
                 k.save()
         flash(u'成功', 'success')
     return tpl('/account/turnover/index.html', salers=salers)

@@ -182,7 +182,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def salers(self):
-        return list(set(self.direct_sales+self.agent_sales))
+        return list(set(self.direct_sales + self.agent_sales))
 
     @classmethod
     def get_all(cls):
