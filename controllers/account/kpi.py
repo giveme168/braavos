@@ -899,9 +899,9 @@ def personnal_apply(pid):
     body_obj = json.loads(personnal_obj.body)
     attitude_param = {}
     ability_param = {}
-    if body_obj in 'attitude_param':
+    if 'attitude_param' in body_obj:
         attitude_param = body_obj['attitude_param']
-    if body_obj in 'ability_param':
+    if 'ability_param' in body_obj:
         ability_param = body_obj['ability_param']
     scores = [float(k) / 10 for k in range(1, 51)]
     scores.append(0.00)
