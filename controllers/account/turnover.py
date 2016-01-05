@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, request, flash
+from flask import Blueprint, request, flash, g, abort
 from flask import render_template as tpl
 from models.user import User
 from models.client_order import ClientOrder
@@ -11,6 +11,8 @@ account_turnover_bp = Blueprint(
 
 @account_turnover_bp.route('/index', methods=['GET', 'POST'])
 def index():
+    if not g.user.is_super_leader():
+        abort(403)
     salers = User.sales()
     if request.method == 'POST':
         f_saler = int(request.values.get('f_saler', 0))
@@ -26,8 +28,14 @@ def index():
             if f_user in k.salers and t_user not in k.replace_sales:
                 k.replace_sales = k.replace_sales + [t_user]
                 k.save()
+            if k.creator == f_user and t_user not in k.replace_sales:
+                k.replace_sales = k.replace_sales + [t_user]
+                k.save()
         for k in douban_orders:
             if f_user in k.salers and t_user not in k.replace_sales:
+                k.replace_sales = k.replace_sales + [t_user]
+                k.save()
+            if k.creator == f_user and t_user not in k.replace_sales:
                 k.replace_sales = k.replace_sales + [t_user]
                 k.save()
         flash(u'成功', 'success')

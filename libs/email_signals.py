@@ -889,8 +889,7 @@ def planning_bref(sender, apply_context):
         url_for('planning_bref.info', bid=bref.id)
     # 邮件发送人
     to_emails = apply_context['to_other']
-    to_users = [k for u in operater_admins + planning_team_admins +
-                [bref.creator] + bref.creator.team_leaders]
+    to_users = operater_admins + planning_team_admins + [bref.creator] + sale_admins
     if bref.toer:
         to_users += [bref.toer]
     if bref.follower:
