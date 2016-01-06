@@ -409,7 +409,7 @@ def order_new_medium(order_id):
         co.medium_orders = co.medium_orders + [mo]
         co.save()
         co.add_comment(g.user, u"新建了媒体订单: %s %s %s" %
-                       (mo.medium.name, mo.sale_money, mo.medium_money))
+                       (mo.medium.name, mo.sale_money, mo.medium_money2))
         flash(u'[媒体订单]新建成功!', 'success')
         _insert_executive_report(mo, 'reload')
         return redirect(mo.info_path())
@@ -441,7 +441,7 @@ def medium_order(mo_id):
     mo.finish_time = datetime.now()
     mo.save()
     mo.client_order.add_comment(
-        g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money))
+        g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money2))
     if finish_status == 0 and last_status != 0:
         mo.client_order.add_comment(g.user, u"%s 媒体订单已归档" % (mo.medium.name))
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')

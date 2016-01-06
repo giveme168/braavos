@@ -7,8 +7,8 @@ from flask import render_template as tpl
 from models.user import User, TEAM_LOCATION_CN
 from searchAd.models.rebate_order import searchAdRebateOrder, CONTRACT_STATUS_CN
 from searchAd.models.rebate_order_invoice import (searchAdInvoice, INVOICE_STATUS_CN,
-                            INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
-                            INVOICE_STATUS_APPLYPASS)
+                                                  INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
+                                                  INVOICE_STATUS_APPLYPASS)
 from libs.email_signals import invoice_apply_signal
 from libs.paginator import Paginator
 from searchAd.forms.invoice import RebateInvoiceForm as InvoiceForm
@@ -114,20 +114,20 @@ def new_invoice(order_id):
             flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
             return redirect(url_for("searchAd_finance_rebate_order_invoice.info", order_id=order_id))
         invoice = searchAdInvoice.add(rebate_order=order,
-                              company=form.company.data,
-                              tax_id=form.tax_id.data,
-                              address=form.address.data,
-                              phone=form.phone.data,
-                              bank_id=form.bank_id.data,
-                              bank=form.bank.data,
-                              detail=form.detail.data,
-                              money=form.money.data,
-                              invoice_type=form.invoice_type.data,
-                              creator=g.user,
-                              invoice_status=0,
-                              invoice_num=request.values.get(
-                                  'new_invoice_num', ''),
-                              back_time=form.back_time.data)
+                                      company=form.company.data,
+                                      tax_id=form.tax_id.data,
+                                      address=form.address.data,
+                                      phone=form.phone.data,
+                                      bank_id=form.bank_id.data,
+                                      bank=form.bank.data,
+                                      detail=form.detail.data,
+                                      money=form.money.data,
+                                      invoice_type=form.invoice_type.data,
+                                      creator=g.user,
+                                      invoice_status=0,
+                                      invoice_num=request.values.get(
+                                          'new_invoice_num', ''),
+                                      back_time=form.back_time.data)
         invoice.save()
         flash(u'开发票(%s)成功!' % form.company.data, 'success')
         order.add_comment(g.user, u"已开发票信息：%s" % (

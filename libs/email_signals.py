@@ -898,7 +898,7 @@ def planning_bref(sender, apply_context):
         finish_text = u"""<h3>完成情况:</h3>
 分配给: %s
 分配人: %s
-策划单地址:   %s
+网盘地址:   %s
         """ % (bref.toer.name, bref.follower.name, bref.url)
     else:
         finish_text = ''
