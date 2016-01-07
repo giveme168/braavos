@@ -641,7 +641,8 @@ def check_apply_v2(r_id):
             return redirect(url_for("account_kpi.check_apply_v2", r_id=r_id))
         # 先删除之前选的员工
         if report.status != 6:
-            PerformanceEvaluationPersonnal.query.filter_by(performance=report).delete()
+            PerformanceEvaluationPersonnal.query.filter_by(
+                performance=report).delete()
 
         report.now_report_obj.update(now_report)
         report.upper_score = upper_score
@@ -666,7 +667,8 @@ def check_apply_v2(r_id):
                     current_app._get_current_object(), apply_context=apply_context)
         flash(u'绩效考核表审批成功，已分配员工评分!', 'success')
         return redirect(url_for("account_kpi.underling"))
-    performance_personnals = PerformanceEvaluationPersonnal.query.filter_by(performance=report)
+    performance_personnals = PerformanceEvaluationPersonnal.query.filter_by(
+        performance=report)
     p_users = [k.user.id for k in performance_personnals]
     scores = [float(k) / 10 for k in range(1, 51)]
     scores.append(0.00)
@@ -779,14 +781,17 @@ def underling():
     page = int(request.values.get('p', 1))
     status = int(request.values.get('status', 0))
     version = int(request.values.get('version', 2))
+    reports = PerformanceEvaluation.query.filter_by(version=version)
+    if status != 0:
+        reports = [k for k in reports if k.status == status]
 
     if g.user.is_HR_leader() or g.user.is_super_leader():
-        reports = [k for k in PerformanceEvaluation.all() if k.status > 1]
+        reports = [k for k in reports if k.status > 1]
     else:
         underling_users = list(
             set([k['uid'] for k in _get_all_under_users(g.user.id)]))
-        reports = [k for k in PerformanceEvaluation.all(
-        ) if k.status > 1 and k.creator.id in underling_users]
+        reports = [k for k in reports if k.status >
+                   1 and k.creator.id in underling_users]
     total_score = str(request.values.get('total_score', 0))
     if total_score != '0':
         total_score_p = total_score.split('-')
@@ -798,9 +803,6 @@ def underling():
             reports = [k for k in reports if float(
                 k.total_score + k.personnal_score) >= start and float(k.total_score + k.personnal_score) < end]
 
-    if status != 0:
-        reports = [k for k in reports if k.status == status]
-    reports = [k for k in reports if k.version == version]
     if request.values.get('action') == 'excel':
         return write_simple_report_excel(reports)
     paginator = Paginator(list(reports), 20)
@@ -820,9 +822,11 @@ def personnal():
     status = int(request.values.get('status', 1))
     page = int(request.values.get('p', 1))
     if g.user.is_super_admin():
-        personnal_objs = PerformanceEvaluationPersonnal.query.filter_by(status=status)
+        personnal_objs = PerformanceEvaluationPersonnal.query.filter_by(
+            status=status)
     else:
-        personnal_objs = PerformanceEvaluationPersonnal.query.filter_by(user=g.user, status=status)
+        personnal_objs = PerformanceEvaluationPersonnal.query.filter_by(
+            user=g.user, status=status)
     paginator = Paginator(list(personnal_objs), 20)
     try:
         personnal_objs = paginator.page(page)
@@ -881,7 +885,8 @@ def personnal_apply(pid):
             elif k == 8:
                 total_score += ability_param[key] * 0.05
         personnal_obj.total_score = total_score * 0.2
-        personnal_obj.body = json.dumps({'attitude_param': attitude_param, 'ability_param': ability_param})
+        personnal_obj.body = json.dumps(
+            {'attitude_param': attitude_param, 'ability_param': ability_param})
         personnal_obj.status = 0
         personnal_obj.save()
 
@@ -953,7 +958,8 @@ def delete(r_id):
     if not g.user.is_admin():
         return jsonify({'id': ''})
     performance = PerformanceEvaluation.get(r_id)
-    PerformanceEvaluationPersonnal.query.filter_by(performance=performance).delete()
+    PerformanceEvaluationPersonnal.query.filter_by(
+        performance=performance).delete()
     performance.delete()
     flash(u'删除成功!', 'success')
     return jsonify({'id': r_id})
