@@ -14,6 +14,7 @@ from . import db, BaseModelMixin
 # 5 : 甲方打款与发票
 # 6 : 媒体资料
 # 7 : 策划单
+# 8 : 媒体返点回款
 ##################
 class Comment(db.Model, BaseModelMixin):
     __tablename__ = 'bra_comment'

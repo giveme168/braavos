@@ -8,6 +8,8 @@ from controllers.saler.client_order.outsource import saler_client_order_outsourc
 from controllers.saler.douban_order.outsource import saler_douban_order_outsource_bp
 from controllers.saler.client_order.data_query import saler_client_order_data_query_bp
 from controllers.saler.douban_order.data_query import saler_douban_order_data_query_bp
+from controllers.saler.client_order.medium_back_money import saler_client_order_medium_back_money_bp
+
 
 def saler_register_blueprint(app):
     app.register_blueprint(saler_client_order_invoice_bp, url_prefix='/saler/client_order/invoice')
@@ -20,3 +22,4 @@ def saler_register_blueprint(app):
     app.register_blueprint(saler_douban_order_outsource_bp, url_prefix='/saler/douban_order/outsource')
     app.register_blueprint(saler_client_order_data_query_bp, url_prefix='/saler/client_order/data_query')
     app.register_blueprint(saler_douban_order_data_query_bp, url_prefix='/saler/douban_order/data_query')
+    app.register_blueprint(saler_client_order_medium_back_money_bp, url_prefix='/saler/client_order/medium_back_money')

@@ -664,6 +664,11 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return sum([k.money for k in self.backmoneys] + [k.money for k in self.back_invoice_rebate_list])
 
     @property
+    def medium_back_moneys(self):
+        medium_back_money = MediumBackMoney.query.filter_by(client_order_id=self.id)
+        return sum([k.money for k in medium_back_money])
+
+    @property
     def client_back_moneys(self):
         return sum([k.money for k in self.backmoneys])
 
@@ -1065,6 +1070,38 @@ class BackMoney(db.Model, BaseModelMixin):
     @property
     def real_back_money_diff_time(self):
         return (self.back_time.date() - self.client_order.reminde_date).days
+
+
+class MediumBackMoney(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_client_order_medium_back_money'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'ClientOrder', backref=db.backref('client_order_medium_back_moneys', lazy='dynamic'))
+    order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_order.id'))  # 媒体合同
+    order = db.relationship(
+        'Order', backref=db.backref('order_medium_back_moneys', lazy='dynamic'))
+    money = db.Column(db.Float())
+    back_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': back_time.desc()}
+
+    def __init__(self, client_order_id, order_id, money=0.0, create_time=None, back_time=None):
+        self.client_order_id = client_order_id
+        self.order_id = order_id
+        self.money = money
+        self.create_time = create_time or datetime.date.today()
+        self.back_time = back_time or datetime.date.today()
+
+    @property
+    def back_time_cn(self):
+        return self.back_time.strftime(DATE_FORMAT)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
 
 
 class BackInvoiceRebate(db.Model, BaseModelMixin):

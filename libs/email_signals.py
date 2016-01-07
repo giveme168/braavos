@@ -30,6 +30,7 @@ account_out_apply_signal = braavos_signals.signal('account_out_apply')
 planning_bref_signal = braavos_signals.signal('planning_bref')
 account_kpi_apply_signal = braavos_signals.signal('account_kpi_apply')
 back_money_apply_signal = braavos_signals.signal('back_money_apply')
+medium_back_money_apply_signal = braavos_signals.signal('medium_back_money_apply')
 
 
 def _get_active_user(send_users):
@@ -1050,6 +1051,28 @@ Dear %s:
     send_simple_mail(title, list(set(to_users)), body=body)
 
 
+def medium_back_money_apply(sender, apply_context):
+    order = apply_context['order']
+    num = apply_context['num']
+    title = u"【新媒体订单-合同流程】- %s" % (order.name)
+    s_title = u'项目回款信息-媒体返点回款信息'
+    url = mail.app.config['DOMAIN'] + order.info_path()
+    to_users = User.contracts() + [g.user] + User.medias()
+    body = u"""
+<h3 style="color:red;">流程状态: %s
+回款详情:
+本次回款金额: %s
+订单链接地址: %s</h3>
+<p><h4>订单信息:</h4>
+%s</p>
+<p>by %s</p>
+""" % (s_title, str(num), url, order.email_info, g.user.name)
+    flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
+    _insert_person_notcie(to_users, title, body)
+    send_html_mail(title, recipients=_get_active_user_email(
+        to_users)+['guoyu@inad.com'], body=body.replace('\n', '<br/>'))
+
+
 def back_money_apply(sender, apply_context):
     order = apply_context['order']
     num = apply_context['num']
@@ -1126,3 +1149,4 @@ def email_init_signal(app):
     planning_bref_signal.connect_via(app)(planning_bref)
     account_kpi_apply_signal.connect_via(app)(account_kpi_apply)
     back_money_apply_signal.connect_via(app)(back_money_apply)
+    medium_back_money_apply_signal.connect_via(app)(medium_back_money_apply)
