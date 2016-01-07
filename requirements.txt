@@ -36,3 +36,4 @@ requests
 XlsxWriter
 flask-debugtoolbar
 numpy
+PycURL

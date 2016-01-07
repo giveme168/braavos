@@ -25,7 +25,6 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'POST':
         is_pwd = request.values.get('is_pwd', '')
-        print is_pwd
         if is_pwd:
             username = request.values.get('email', '')
             password = request.values.get('password', '')
