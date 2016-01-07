@@ -47,8 +47,8 @@ def band_channel_id(uid):
     channel_id = request.values.get('channel_id', '')
     device_type = int(request.values.get('device_type', 4))
 
-    msg = u'{"title":"绑定channel_id","description":"channel_id为:%s"}' % (
-        channel_id)
+    msg = u'{"title":"绑定channel_id","description":"channel_id为:%s", "custom_content":{"channel_id":%s}}' % (
+        channel_id, channel_id)
     # msg_ios = '{"aps":{"alert":"iOS Message from Push","sound":"","badge":1},"key1":"value1","key2":"value2"}'
     opts = {'msg_type': 1, 'expires': 300}
     c = Channel()
@@ -56,6 +56,9 @@ def band_channel_id(uid):
     try:
         ret = c.pushMsgToSingleDevice(str(channel_id), str(msg), opts)
         print ret
+        return jsonify({'ret': True, 'data': {'uid': uid, 'channel_id': channel_id}})
     except ChannelException as e:
-        print '[code]: %s [msg]: %s [request id]: %s' % (e.getLastErrorCode(), e.getLastErrorMsg(), c.getRequestId())
-    return jsonify({'ret': True})
+        msg = '[code]: %s [msg]: %s [request id]: %s' % (
+            e.getLastErrorCode(), e.getLastErrorMsg(), c.getRequestId())
+        return jsonify({'ret': False, 'msg': msg})
+    return jsonify({'ret': False, 'msg': 'method error'})

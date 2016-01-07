@@ -7,7 +7,7 @@ from models.douban_order import DoubanOrder
 from models.order import Order
 from models.associated_douban_order import AssociatedDoubanOrder
 
-api_bp = Blueprint('api', __name__)
+api_order_bp = Blueprint('api_order', __name__)
 
 
 def _order_to_dict(order, ass_order=None):
@@ -36,7 +36,7 @@ def _order_to_dict(order, ass_order=None):
     return param
 
 
-@api_bp.route('/order', methods=['GET'])
+@api_order_bp.route('/', methods=['GET'])
 def order():
     sn = request.values.get('sn', '')
     client_order = [_order_to_dict(k) for k in ClientOrder.all() if k.contract.lower().strip() == sn.lower().strip()]
@@ -72,7 +72,7 @@ def _get_order_by_type(type, id):
     return {}
 
 
-@api_bp.route('/search/order', methods=['POST'])
+@api_order_bp.route('/search/order', methods=['POST'])
 def search_order_by_json():
     data = json.loads(request.values.get('data', json.dumps([])))
     orders = []
@@ -85,7 +85,7 @@ def search_order_by_json():
     return jsonify({'ret': False, 'data': []})
 
 
-@api_bp.route('/search/<type>/<id>/order', methods=['GET'])
+@api_order_bp.route('/search/<type>/<id>/order', methods=['GET'])
 def search_order(type, id):
     order = _get_order_by_type(type, id)
     if order:
