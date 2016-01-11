@@ -60,10 +60,10 @@
         {% endfor %}
         <tr>
             <th colspan=4>合计</th>
-            <th>{{r_outsource_pay}}</th>
+            <th>{{r_outsource_pay|format_price}}</th>
             <th></th>
-            <th>{{orders|sum(attribute='outsources_paied_sum')}}</th>
-            <td colspan=28>{{total}}</td>
+            <th>{{orders|sum(attribute='outsources_paied_sum')|format_price}}</th>
+            <td colspan=28>{{total|format_price}}</td>
         </tr>
     </table>
 </div>

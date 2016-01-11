@@ -110,13 +110,13 @@ class Bref(db.Model, BaseModelMixin, CommentMixin):
         'User', backref=db.backref('bref_user', lazy='dynamic'))
     follow_id = db.Column(db.Integer, default=0)  # 分配人
     to_id = db.Column(db.Integer, default=0)   # 指派给
-
+    cc = db.Column(db.Text())
     __mapper_args__ = {'order_by': id.desc()}
 
     def __init__(self, title, agent, brand, product, target, background, push_target,
                  push_theme, push_time, budget, is_temp, agent_type, use_type, level,
                  get_time, intent_medium, suggest, desc, creator, status, follow_id,
-                 to_id, url=None, create_time=None, update_time=None):
+                 to_id, url=None, create_time=None, update_time=None, cc=''):
         self.title = title
         self.agent = agent
         self.status = status
@@ -142,6 +142,7 @@ class Bref(db.Model, BaseModelMixin, CommentMixin):
         self.get_time = get_time or datetime.datetime.now()
         self.create_time = create_time or datetime.datetime.now()
         self.update_time = update_time or datetime.datetime.now()
+        self.cc = cc or ''
 
     @property
     def follower(self):

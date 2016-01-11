@@ -193,6 +193,7 @@ def status(bid):
             bref.add_comment(g.user, u"完成了策划单:%s \n\r%s" %
                              (bref.title, msg), msg_channel=7)
         bref.update_time = datetime.datetime.now()
+        bref.cc = '|'.join(emails)
         bref.save()
         apply_context = {"sender": g.user,
                          "status": action,

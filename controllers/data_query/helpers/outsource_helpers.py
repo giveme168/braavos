@@ -73,7 +73,8 @@ def write_outsource_excel(monthes, data):
         worksheet.merge_range(10, start, 10, end, data['t_month'][k], align_left)
         start = end + 1
         end = start + 2
-
+    worksheet.merge_range(11, 0, 11, 1, u'总计', align_left)
+    worksheet.merge_range(11, 2, 11, 3 * len(monthes), sum(data['t_month']), align_left)
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %

@@ -338,6 +338,10 @@ $(function(){
   $('#toer').val('{{bref.to_id}}');
   $('#toer').trigger("chosen:updated");
   $('#url').val('{{bref.url}}')
+
+  var cc = '{{bref.cc}}'.split('|')
+  $('#contract-email').val(cc)
+  $('#contract-email').trigger("chosen:updated");
 })
 </script>
 {% endblock %}
