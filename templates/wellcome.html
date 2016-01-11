@@ -432,25 +432,20 @@
                   -->
 				</div>
 			</div>
+            {% if g.user.is_operater_leader() %}
             <div class="bussess">
                 <div class="manage">
                     <h5>KOL管理</h5>
                     <p style="width: 127px;line-height:54px;text-align: center;">KOL资料</p>
                 </div>
                 <div class="menu-all">
-                 <a href="#" target="_blank">
+                 <a href="{{url_for('kol.index', type='design')}}" target="_blank">
                     <div class="drown-click">
                     </div>
                  </a>
-                 <!--
-                  <div class="menu-list">
-                    <ul>
-                        <li><a href="{{url_for('planning_bref.index')}}" target="_blank">下策划单</a></li>
-                    </ul>
-                  </div>
-                  -->
                 </div>
             </div>
+            {% endif %}
 		</div>
 	</div>	
 

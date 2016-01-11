@@ -25,7 +25,7 @@ def write_outsource_excel(monthes, data):
             0, start_td, 0, end_td, monthes[k] + u'月', align_left)
         start_td += 3
         end_td += 3
-    locations = [u'华东', u'华北', u'华南'] * 3
+    locations = [u'华东', u'华北', u'华南'] * len(monthes)
     for k in range(len(locations)):
         worksheet.write(1, 2 + k, locations[k], align_left)
     worksheet.merge_range(2, 0, 10, 0, u'外包项目', align_left)
@@ -68,10 +68,11 @@ def write_outsource_excel(monthes, data):
             9, 3 + k * 3, data['t_locataion'][k]['huabei'], align_left)
         worksheet.write(
             9, 4 + k * 3, data['t_locataion'][k]['huanan'], align_left)
-    # for k in range(len(data['t_month'])):
-    worksheet.merge_range(10, 2, 10, 4, data['t_month'][0], align_left)
-    worksheet.merge_range(10, 5, 10, 7, data['t_month'][1], align_left)
-    worksheet.merge_range(10, 8, 10, 10, data['t_month'][2], align_left)
+    start, end = 2, 4
+    for k in range(len(monthes)):
+        worksheet.merge_range(10, start, 10, end, data['t_month'][k], align_left)
+        start = end + 1
+        end = start + 2
 
     workbook.close()
     response.data = output.getvalue()
@@ -131,7 +132,85 @@ def _insert_total_data(worksheet, align_center_color, data, th):
     return th
 
 
-def write_outsource_info_excel(now_year, pre_month_orders, total_Q_data):
+def write_outsource_info_excel(now_year, orders, total, r_outsource_pay):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    align_center_color = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1, 'fg_color': '#228B22'})
+    # 设置宽度为30
+    for k in range(41):
+        worksheet.set_column(k, 0, 15)
+    # 设置高度
+    for k in range(1000):
+        worksheet.set_row(k, 25)
+
+    worksheet.merge_range(0, 0, 1, 6, u'合同信息', align_center_color)
+    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'应付小计', u'所占比重', u'实付金额']
+    for k in range(len(keys)):
+        worksheet.write(2, k, keys[k], align_center_color)
+
+    start, end = 7, 13
+    for k in range(4):
+        worksheet.merge_range(0, start, 0, end, u'项目成本', align_center_color)
+        worksheet.merge_range(
+            1, start, 1, end, 'Q' + str(k + 1), align_center_color)
+        start, end = end + 1, end + 7
+
+    keys = [u'奖品', u'Flash', u'劳务(KOL、线下活动等)', u'效果优化', u'其他(视频等)',
+            u'flash&H5开发', u'H5开发']
+    td = 7
+    for i in range(4):
+        for k in keys:
+            worksheet.write(2, td, k, align_center_color)
+            td += 1
+
+    th = 3
+    for k in orders:
+        worksheet.write(th, 0, k.contract or u'无合同号', align_center)
+        worksheet.write(th, 1, k.campaign, align_center)
+        worksheet.write(th, 2, k.money, align_center)
+        worksheet.write(th, 3, k.locations_cn, align_center)
+        worksheet.write(th, 4, float(k.outsources_sum), align_center)
+        worksheet.write(
+            th, 5, str(float(k.outsources_percent)) + '%', align_center)
+        worksheet.write(th, 6, float(k.outsources_paied_sum), align_center)
+        o_money = k.o_money
+        for i in range(len(o_money)):
+            worksheet.write(th, 7 + i, o_money[i], align_center)
+        th += 1
+
+    worksheet.merge_range(th, 0, th, 3, u'合计', align_center)
+    worksheet.write(th, 4, r_outsource_pay, align_center)
+    worksheet.write(th, 5, '', align_center)
+    worksheet.write(th, 6, sum([k.outsources_paied_sum for k in orders]), align_center)
+    worksheet.merge_range(th, 7, th, 34, total, align_center)
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                ('外包详情', datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+'''
+def write_outsource_info_excel(now_year, pre_month_orders, total_Q_data, total):
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -211,6 +290,9 @@ def write_outsource_info_excel(now_year, pre_month_orders, total_Q_data):
     _insert_Q(worksheet, align_center, 'Q4', Q4_start + 1, th - 1)
     th = _insert_total_data(
         worksheet, align_center_color, total_Q_data['forth'], th)
+
+    worksheet.merge_range(th, 0, th, 8, u'合计', align_center_color)
+    worksheet.merge_range(th, 9, th, 36, total, align_center_color)
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
@@ -229,6 +311,7 @@ def write_outsource_info_excel(now_year, pre_month_orders, total_Q_data):
     response.headers = response_headers
     response.set_cookie('fileDownload', 'true', path='/')
     return response
+'''
 
 
 def write_client_excel(orders):

@@ -70,6 +70,16 @@
             </tr>
             {% endfor %}
         {% endfor %}
+        <tr>
+            <td colspan=3 style="text-align: center;">合计</td>
+            <td>{{orders|sum(attribute='money')|format_price}}</td>
+            <td></td>
+            <td></td>
+            <td>{{orders|sum(attribute='last_rebate_agent_money')|format_price}}</td>
+            <td></td>
+            <td>{{orders|sum(attribute='back_money_obj.now_Q_back_moneys')|format_price}}</td>
+            <td colspan=3 style="text-align: center;"></td>
+        </tr>
     </table>
 </div>
 <script>
