@@ -154,7 +154,6 @@ def _get_pre_dates(start_date, end_date):
 # 获取上周周一、周五的日期
 def _get_last_week_date():
     now_date = datetime.datetime.now()
-    now_date = datetime.datetime.strptime('2016-01-01', '%Y-%m-%d')
     offset_day = int(now_date.strftime('%w'))
     if offset_day == 0:
         start_date = (now_date - datetime.timedelta(7 + 6))

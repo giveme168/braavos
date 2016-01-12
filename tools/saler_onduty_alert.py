@@ -1,7 +1,8 @@
 # encoding: utf-8
 import sys
-sys.path.append('/Users/guoyu1/workspace/inad/braavos')
-# sys.path.append('/home/inad/apps/braavos/releases/current')
+import datetime
+# sys.path.append('/Users/guoyu1/workspace/inad/braavos')
+sys.path.append('/home/inad/apps/braavos/releases/current')
 
 from app import app
 
@@ -12,6 +13,11 @@ from libs.mail import send_html_mail
 
 if __name__ == '__main__':
     start_date, end_date = _get_last_week_date()
+    end_date = end_date + datetime.timedelta(1)
+    start_date = datetime.datetime.strptime(
+        start_date.strftime('%Y-%m-%d'), '%Y-%m-%d')
+    end_date = datetime.datetime.strptime(
+        end_date.date().strftime('%Y-%m-%d'), '%Y-%m-%d')
     all_active_user = User.all_active()
     salers = [u for u in all_active_user if u.location == 1 and u.is_out_saler]
     outs = _format_out()
@@ -23,7 +29,8 @@ if __name__ == '__main__':
     for user in salers:
         u_outs = [k for k in outs if k['creator_id'] == int(user.id)]
         u_leaves = [k for k in leaves if k['creator_id'] == int(user.id)]
-        dutys = _get_onduty(all_dus, u_outs, u_leaves, user, start_date, end_date, last_onduty_date)
+        dutys = _get_onduty(all_dus, u_outs, u_leaves, user,
+                            start_date, end_date, last_onduty_date)
         users.append({'count': sum(item['warning_count'] for item in dutys),
                       'user': user})
     unusual_body = ""
@@ -52,4 +59,7 @@ if __name__ == '__main__':
     由于数据准确性问题，请仔细核对是否准确，如果有问题请找郭钰。
     </p>
     """ % (str(start_date.date()), str(end_date.date()), unusual_body, 'http://z.inad.com/account/onduty/unusual')
-    send_html_mail(u'华北-销售考勤异常表', recipients=['guoyu@inad.com'], body=body)
+    send_html_mail(u'华北-销售考勤异常表',
+                   recipients=['guoyu@inad.com', 'lixuezhi@inad.com', 'shiying@inad.com',
+                               'yangqian@inad.com', 'yanyue@inad.com', 'weizhaoting@inad.com', 'huawei@inad.com'],
+                   body=body)

@@ -23,6 +23,7 @@
     <table class="table table-bordered table-hover">
       <thead>
         <tr>
+          <th>编号</th>
           <th>ID</th>
           <th>主页</th>
           <th>所在地</th>
@@ -31,25 +32,60 @@
           <th>合作意向</th>
           <th>是否有合作</th>
           <th>综合评分</th>
-          <th>联系方式</th>
+          <th>详情</th>
         </tr>
       </thead>
       <tbody>
         {% for k in kols %}
         <tr>
+          <td>{{loop.index}}</td>
           <td>{{k.name}}</td>
-          <td><a href="{{k.url}}" target="_blank">查看</a></td>
+          <td><a href="{{k.url}}" target="_blank">访问</a></td>
           <td>{{k.location}}</td>
           <td>{{k.fans}}</td>
-          <td>{{k.des}}</td>
+          <td>{{k.des|truncate_html(20)}}</td>
           <td>{{k.is_to_work}}</td>
           <td>{{k.is_work}}</td>
           <td>{{k.score}}</td>
-          <td>{{k.contact|safe}}</td>
+          <td><a href="javascript:on_show('{{k.name}}', '{{k.url}}', '{{k.location}}', '{{k.fans}}', '{{k.des}}', '{{k.is_to_work}}', '{{k.is_work}}', '{{k.score}}', '{{k.contact}}', '{{k.other_des}}');">查看</a></td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="ID"></h4>
+      </div>
+      <div class="modal-body">
+          <h4>主页</h4>
+          <p id="url"></p>
+          <h4>所在地</h4>
+          <p id="location"></p>
+          <h4>粉丝数</h4>
+          <p id="fans"></p>
+          <h4>介绍</h4>
+          <p id="des"></p>
+          <h4>合作意向</h4>
+          <p id="is_to_work"></p>
+          <h4>是否有合作</h4>
+          <p id="is_work"></p>
+          <h4>综合评分</h4>
+          <p id="score"></p>
+          <h4>联系方式</h4>
+          <p id="kol_contact"></p>
+          <h4>其他注明</h4>
+          <p id="other_des"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
 </div>
 <script>
   $(document).ready(function(){
@@ -57,5 +93,18 @@
     var path_name = pathname.split("/")
     $('#_'+path_name[2]+'_').addClass('active');
   })
+  function on_show(name, url, location, fans, des, is_to_work, is_work, score, contact, other_des){
+    $('#myModal').modal();
+    $('#ID').html(name);
+    $('#url').html(url);
+    $('#location').html(location);
+    $('#fans').html(fans);
+    $('#des').html(des);
+    $('#is_to_work').html(is_to_work);
+    $('#is_work').html(is_work);
+    $('#score').html(score);
+    $('#kol_contact').html(contact);
+    $('#other_des').html(other_des);
+  }
 </script>
 {% endblock %}

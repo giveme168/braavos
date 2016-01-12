@@ -1,11 +1,11 @@
 *{padding: 0;
 list-style: none;
 margin:; 0;
-font-family: "myFirstFont";}
-@font-face{
+/**font-family: "myFirstFont";**/}
+/**@font-face{
 font-family: myFirstFont;
-src: url('lanting.TTF');/* IE9+ */
-}
+src: url('lanting.TTF');
+}**/
 .row{width: 100%;}
 .introduction{width: 100%;}
 
