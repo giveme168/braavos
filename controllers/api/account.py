@@ -152,7 +152,7 @@ def leave_index(uid):
         param['start_time'] = k.start_time.strftime('%Y-%m-%d %H')
         param['end_time'] = k.end_time.strftime('%Y-%m-%d %H')
         param['day'] = k.rate_day.split('-')[0]
-        param['day'] = param['day'] + u'天'
+        param['day_cn'] = param['day'] + u'天'
         param['half'] = k.rate_day.split('-')[1]
         param['half_cn'] = k.half_cn
         param['senders'] = [{'id': m.id, 'name': m.name} for m in k.senders]
