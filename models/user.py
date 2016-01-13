@@ -567,6 +567,17 @@ class Leave(db.Model, BaseModelMixin):
             return False
 
     @property
+    def half_cn(self):
+        date = self.rate_day.split('-')
+        if int(date[1]) == 0:
+            return u'整'
+        elif int(date[1]) == 1:
+            return u'上半天'
+        elif int(date[1]) == 2:
+            return u'下半天'
+        return ''
+
+    @property
     def rate_day_cn(self):
         date = self.rate_day.split('-')
         if int(date[1]) == 0:
@@ -882,12 +893,14 @@ class UserOnDuty(db.Model, BaseModelMixin):
     sn = db.Column(db.String(10), index=True)
     check_time = db.Column(db.DateTime, index=True)
     create_time = db.Column(db.DateTime, index=True)
+    type = db.Column(db.Integer, default=0)
     __mapper_args__ = {'order_by': check_time.asc()}
     __table_args__ = (db.UniqueConstraint(
         'sn', 'check_time', name='_user_onduty_sn_check_time'),)
 
-    def __init__(self, user, sn, check_time, create_time):
+    def __init__(self, user, sn, check_time, create_time, type=0):
         self.user = user
         self.sn = sn
         self.create_time = create_time
         self.check_time = check_time
+        self.type = type

@@ -182,14 +182,14 @@ def _get_onduty(all_dus, outs, leaves, user, start_time, end_time, last_onduty_d
         dus = [k for k in all_dus if k['check_time'] >= s and k[
             'check_time'] < d and k['user_id'] == int(user.id)]
         if len(dus) >= 2:
-            on_time = dus[0]['check_time'].strftime('%Y-%m-%d %H:%M:%S')
-            off_time = dus[-1]['check_time'].strftime('%Y-%m-%d %H:%M:%S')
+            on_time_str = dus[0]['check_time'].strftime('%Y-%m-%d %H:%M:%S')
+            off_time_str = dus[-1]['check_time'].strftime('%Y-%m-%d %H:%M:%S')
         elif len(dus) < 2 and len(dus) > 0:
-            on_time = dus[0]['check_time'].strftime('%Y-%m-%d %H:%M:%S')
-            off_time = u'无'
+            on_time_str = dus[0]['check_time'].strftime('%Y-%m-%d %H:%M:%S')
+            off_time_str = u'无'
         else:
-            on_time = u'无'
-            off_time = u'无'
+            on_time_str = u'无'
+            off_time_str = u'无'
 
         out_info = ""
         leave_info = ""
@@ -213,6 +213,8 @@ def _get_onduty(all_dus, outs, leaves, user, start_time, end_time, last_onduty_d
                 if len(dus) >= 2:
                     on_time = dus[0]['check_time']
                     off_time = dus[-1]['check_time']
+                    on_time_str = on_time.strftime('%Y-%m-%d %H:%M:%S')
+                    off_time_str = off_time.strftime('%Y-%m-%d %H:%M:%S')
                     offset_hour = (
                         off_time - on_time).total_seconds() / 60 / 60
                     if offset_hour < 9:
@@ -222,8 +224,8 @@ def _get_onduty(all_dus, outs, leaves, user, start_time, end_time, last_onduty_d
                     warning_info += u'工时未满8小时'
                     warning_count += 1
         dutys.append({'date_cn': s.strftime('%Y-%m-%d'),
-                      'on_time': on_time,
-                      'off_time': off_time,
+                      'on_time': on_time_str,
+                      'off_time': off_time_str,
                       'out_info': out_info,
                       'warning_info': warning_info,
                       'leave_info': leave_info,
@@ -270,7 +272,8 @@ def index():
                                 user=user,
                                 sn=sn,
                                 check_time=check_time,
-                                create_time=datetime.datetime.now()
+                                create_time=datetime.datetime.now(),
+                                type=0
                             )
             return redirect(url_for('account_onduty.index'))
     now_date = datetime.datetime.now()
@@ -330,6 +333,7 @@ def info(uid):
         UserOnDuty.add(user=user,
                        sn=user.sn,
                        check_time=check_time,
+                       type=0,
                        create_time=datetime.datetime.now())
         flash(u'添加成功', 'success')
         return redirect(url_for('account_onduty.info', uid=uid))
@@ -339,6 +343,7 @@ def info(uid):
     if not start_time and not end_time:
         end_time = datetime.datetime.strptime(
             datetime.datetime.now().strftime('%Y-%m-%d'), '%Y-%m-%d')
+        end_time = end_time + datetime.timedelta(days=1)
         start_time = end_time - datetime.timedelta(days=30)
     else:
         start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d')
@@ -349,6 +354,8 @@ def info(uid):
     last_onduty_date = _get_last_onduty_date()
     all_dus = _format_onduty(start_time, end_time)
     dutys = _get_onduty(all_dus, outs, leaves, user, start_time, end_time, last_onduty_date)
+    for k in dutys:
+        print k['on_time'], k['off_time']
     return tpl('/account/onduty/info.html', user=user,
                start_time=start_time.strftime('%Y-%m-%d'),
                end_time=end_time.strftime('%Y-%m-%d'),
