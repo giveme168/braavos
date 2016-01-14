@@ -81,10 +81,10 @@ def index():
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
-    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()

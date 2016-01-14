@@ -39,8 +39,10 @@ def index_pass():
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.datetime.now().year))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_info.lower()]
@@ -66,9 +68,9 @@ def index_pass():
         return response
     return tpl('/finance/searchAd_order/medium_rebate_invoice/index_pass.html', orders=orders, locations=select_locations,
                location_id=location_id, statuses=select_statuses, orderby=orderby,
-               now_date=datetime.date.today(), search_info=search_info, page=page,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s' %
-                      (orderby, search_info, location_id))
+               now_date=datetime.date.today(), search_info=search_info, page=page, year=year,
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&year=%s' %
+                      (orderby, search_info, location_id, str(year)))
 
 
 @searchAd_finance_client_order_medium_rebate_invoice_bp.route('/<order_id>/info', methods=['GET'])

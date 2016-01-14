@@ -46,10 +46,10 @@ def index_pass():
     year = int(request.values.get('year', datetime.datetime.now().year))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
-    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)

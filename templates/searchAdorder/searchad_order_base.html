@@ -2,7 +2,7 @@
     <div class="menu">
         <div class="list">
             <ul>
-            {% if g.user.is_searchad_member() or g.user.is_aduit() %}
+            {% if g.user.is_searchad_member() or g.user.is_aduit() or g.user.is_finance() %}
             <!-- 增加搜索广告订单 -->
             <a href="{{url_for('searchAd_order.my_framework_orders')}}">
               <li id="_my_framework_orders_">我的框架订单</li>

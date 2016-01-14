@@ -702,11 +702,11 @@ def display_orders(orders, title, status_id=-1):
             orders = [o for o in orders if o.medium_status == 0]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
+    orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower().strip() in o.search_info.lower()]
 
-    orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
@@ -1221,13 +1221,13 @@ def douban_display_orders(orders, title, status_id=-1):
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
+    orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_info.lower()]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
-    orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
