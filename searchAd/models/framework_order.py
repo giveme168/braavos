@@ -127,7 +127,7 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
 
     @property
     def name(self):
-        return u"框架-%s" % (self.agent.name)
+        return u"%s年度-框架-%s" % (str(self.client_end.year), self.agent.name)
 
     @property
     def sales_names(self):

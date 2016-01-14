@@ -193,7 +193,7 @@ def display_orders(orders, template, title, operaters):
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
-    paginator = Paginator(orders, 1)
+    paginator = Paginator(orders, ORDER_PAGE_NUM)
     try:
         orders = paginator.page(page)
     except:

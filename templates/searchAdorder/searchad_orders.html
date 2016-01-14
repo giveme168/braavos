@@ -201,7 +201,6 @@
                 <option value="contract">按合同号排序</option>
             </select>
         </div>
-        {% if g.user.is_media() %}
         <input type="text" id="start_time" name="start_time" class="datetimepicker form-control bra-form-control" style="width:200px;" data-date-format="yyyy-mm-dd" placeholder="开始时间">
         <input type="text" id="end_time" name="end_time" class="datetimepicker form-control bra-form-control" style="width:200px;" data-date-format="yyyy-mm-dd" placeholder="结束时间">
         <div class="col-md-1" style="padding:0;margin-right:5px;">
@@ -212,7 +211,6 @@
                 {% endfor %}
             </select>
         </div>
-        {% endif %}
         <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
         <input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">
         <a class="btn btn-sm btn-success" href="{{url_for('searchAd_order.new_searchAd_order')}}">新建普通订单</a>
@@ -281,13 +279,8 @@ function enter_search(){
     }
 }
 $(function(){
-    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() %}
-    {% else %}
-    $("#search-area").hide()
-    {% endif %}
     $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
     $("#orderby").trigger("chosen:updated");
-    
     $('#start_time').val('{{start_time}}');
     $('#end_time').val('{{end_time}}');
     $("#search_medium").trigger("chosen:updated");
