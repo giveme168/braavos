@@ -524,6 +524,7 @@ def my_searchAd_orders():
 def display_orders(orders, title, status_id=-1):
     start_time = request.args.get('start_time', '')
     end_time = request.args.get('end_time', '')
+    year = int(request.values.get('year', datetime.now().year))
     search_medium = int(request.args.get('search_medium', 0))
 
     if start_time and not end_time:
@@ -537,7 +538,7 @@ def display_orders(orders, title, status_id=-1):
         end_time = datetime.strptime(end_time, '%Y-%m-%d').date()
         orders = [k for k in orders if k.create_time.date(
         ) >= start_time and k.create_time.date() <= end_time]
-
+    orders = [k for k in orders if k.client_start.year == year or k.client_end == year]
     if search_medium > 0:
         orders = [k for k in orders if search_medium in k.medium_ids]
     orderby = request.args.get('orderby', '')
@@ -567,15 +568,15 @@ def display_orders(orders, title, status_id=-1):
         except:
             orders = paginator.page(paginator.num_pages)
         params = '&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s\
-        &start_time=%s&end_time=%s&search_medium=%s' % (
-            orderby, search_info, location_id, status_id, start_time, end_time, search_medium)
+        &start_time=%s&end_time=%s&search_medium=%s&year=%s' % (
+            orderby, search_info, location_id, status_id, start_time, end_time, search_medium, str(year))
         return tpl('searchad_orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
                    search_info=search_info, page=page, mediums=searchAdMedium.all(),
                    orderby=orderby, now_date=datetime.now().date(),
                    start_time=start_time, end_time=end_time, search_medium=search_medium,
-                   params=params)
+                   params=params, year=year)
 
 
 @searchAd_order_bp.route('/order/<order_id>/recovery', methods=['GET'])
@@ -880,6 +881,8 @@ def framework_delete_orders():
 
 def framework_display_orders(orders, title):
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.now().year))
+    orders = [k for k in orders if k.client_start.year == year or k.client_end == year]
     if 'download' == request.args.get('action', ''):
         filename = (
             "%s-%s.xls" % (u"框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
@@ -893,7 +896,7 @@ def framework_display_orders(orders, title):
             orders = paginator.page(page)
         except:
             orders = paginator.page(paginator.num_pages)
-        return tpl('searchad_frameworks.html', title=title, orders=orders, page=page)
+        return tpl('searchad_frameworks.html', title=title, orders=orders, page=page, year=year)
 
 
 @searchAd_order_bp.route('/framework_order/<order_id>/contract', methods=['POST'])
@@ -1154,6 +1157,7 @@ def rebate_display_orders(orders, title, status_id=-1):
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.now().year))
     # page = max(1, page)
     # start = (page - 1) * ORDER_PAGE_NUM
     if location_id >= 0:
@@ -1163,6 +1167,7 @@ def rebate_display_orders(orders, title, status_id=-1):
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_info.lower()]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
@@ -1190,9 +1195,9 @@ def rebate_display_orders(orders, title, status_id=-1):
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
                    orderby=orderby, now_date=datetime.now().date(),
-                   search_info=search_info, page=page,
-                   params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
-                   (orderby, search_info, location_id, status_id))
+                   search_info=search_info, page=page, year=year,
+                   params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s&year=%s' %
+                   (orderby, search_info, location_id, status_id, year))
 
 
 @searchAd_order_bp.route('/rebate_order/<order_id>/contract', methods=['POST'])

@@ -41,14 +41,26 @@
 {% include "/finance/finance_base.html" %}
 <div class="container bra-box">
     <h3>框架合同</h3>
+    <form class="form-inline">
+      <div class="form-group">
+        <label for="">执行年</label>
+        <select class="form-control" id="year" name="year">
+            {% for k in range(5) %}
+                <option value="{{2014+k}}">{{2014+k}}年度</option>
+            {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-default">搜索</button>
+    </form>
+    <br/>
     {{ all_items(orders) }}
     {% set pages = orders %}
     {% include "pagination.html" %}
 </div>
 <script>
-function download(){
-    window.location.href = window.location.pathname +
-      '?action=download';
-}
+$(function(){
+    $('#year').val('{{year}}');
+    $("#year").trigger("chosen:updated");
+})
 </script>
 {% endblock %}

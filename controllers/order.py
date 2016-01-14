@@ -723,8 +723,8 @@ def display_orders(orders, title, status_id=-1):
         except:
             orders = paginator.page(paginator.num_pages)
         params = '&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s\
-        &start_time=%s&end_time=%s&search_medium=%s' % (
-            orderby, search_info, location_id, status_id, start_time, end_time, search_medium)
+        &start_time=%s&end_time=%s&search_medium=%s&year=%s' % (
+            orderby, search_info, location_id, status_id, start_time, end_time, search_medium, str(year))
         return tpl('orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
@@ -946,6 +946,8 @@ def framework_delete_orders():
 
 def framework_display_orders(orders, title):
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.now().year))
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if 'download' == request.args.get('action', ''):
         filename = (
             "%s-%s.xls" % (u"框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
@@ -959,7 +961,7 @@ def framework_display_orders(orders, title):
             orders = paginator.page(page)
         except:
             orders = paginator.page(paginator.num_pages)
-        return tpl('frameworks.html', title=title, orders=orders, page=page)
+        return tpl('frameworks.html', title=title, orders=orders, page=page, year=year)
 
 
 @order_bp.route('/framework_order/<order_id>/contract', methods=['POST'])
@@ -1248,8 +1250,8 @@ def douban_display_orders(orders, title, status_id=-1):
                    statuses=select_statuses, status_id=status_id,
                    orderby=orderby, now_date=datetime.now().date(),
                    search_info=search_info, page=page,
-                   params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
-                   (orderby, search_info, location_id, status_id),
+                   params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s&year=%s' %
+                   (orderby, search_info, location_id, status_id, str(year)),
                    year=year)
 
 

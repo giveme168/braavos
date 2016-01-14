@@ -834,7 +834,7 @@ class PerformanceEvaluation(db.Model, BaseModelMixin):
     def personnal_status_cn(self):
         personnal_obj = self.user_preformance_evaluation_personnal_personnal
         if personnal_obj.count() > 0:
-            return u'<br/>'.join([k.user.name + u'-' + k.status_cn for k in personnal_obj])
+            return u'<br/>'.join([k.user.name + u'-' + k.status_cn + '-' + str(k.total_score) for k in personnal_obj])
         return u'无'
 
     @property

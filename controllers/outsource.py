@@ -147,6 +147,7 @@ def display_orders(orders, template, title, operaters):
     location_id = int(request.args.get('selected_location', '-1'))
     status = request.args.get('status', '')
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.datetime.now().year))
 
     if g.user.team.type == TEAM_TYPE_LEADER:
         status = 'apply'
@@ -167,7 +168,7 @@ def display_orders(orders, template, title, operaters):
             set(location_id) & set(o.locations)) > 0]
     elif location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
-
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
@@ -192,18 +193,18 @@ def display_orders(orders, template, title, operaters):
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
-    paginator = Paginator(orders, ORDER_PAGE_NUM)
+    paginator = Paginator(orders, 1)
     try:
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
-    return tpl(template, title=title, orders=orders,
+    return tpl(template, title=title, orders=orders, year=year,
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
                orderby=orderby or 'create_time', status=status,
                search_info=search_info, page=page, operaters=operaters,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
-                      (orderby or 'create_time', search_info, location_id, status_id))
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s&year=%s' %
+                      (orderby or 'create_time', search_info, location_id, status_id, year))
 
 
 @outsource_bp.route('/', methods=['GET'])

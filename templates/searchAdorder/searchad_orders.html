@@ -163,6 +163,13 @@
     <h3> {{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
+        <div class="col-md-1" style="padding:0;margin:0 5px;">
+            <select class="form-control" id="year" name="year">
+                {% for k in range(5) %}
+                    <option value="{{2014+k}}">{{2014+k}}年度</option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
             <select class="col-md-12" id="search_location" name="location" placeholder="区域">
                 {% for v, m in locations %}
@@ -233,11 +240,10 @@ function sort(value){
     '&searchinfo='+encodeURIComponent($('#search_info').val())+
     '&selected_location='+encodeURIComponent($('#search_location').val())+
     '&selected_status='+encodeURIComponent($('#search_status').val());
-    {% if g.user.is_media() %}
-        params += '&start_time='+$('#start_time').val()+
+    params += '&start_time='+$('#start_time').val()+
         '&end_time='+$('#end_time').val()+
-        '&search_medium='+$('#search_medium').val()
-    {% endif %}
+        '&search_medium='+$('#search_medium').val()+
+        '&year='+$('#year').val();
     window.location.href = window.location.pathname+params;
 }
 
@@ -246,11 +252,10 @@ function search(){
       '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val())+
       '&orderby=' + ($('#orderby').val());
-    {% if g.user.is_media() %}
-        params += '&start_time='+$('#start_time').val()+
+      params += '&start_time='+$('#start_time').val()+
         '&end_time='+$('#end_time').val()+
-        '&search_medium='+$('#search_medium').val()
-    {% endif %}
+        '&search_medium='+$('#search_medium').val()+
+        '&year='+$('#year').val();
     window.location.href = window.location.pathname + params;
       
 }
@@ -261,11 +266,10 @@ function download(){
       '&selected_status=' + ($('#search_status').val()) +
       '&orderby=' + ($('#orderby').val())+
       '&action=download';
-    {% if g.user.is_media() %}
-        params += '&start_time='+$('#start_time').val()+
+      params += '&start_time='+$('#start_time').val()+
         '&end_time='+$('#end_time').val()+
-        '&search_medium='+$('#search_medium').val()
-    {% endif %}
+        '&search_medium='+$('#search_medium').val()+
+        '&year='+$('#year').val();
     window.location.href = window.location.pathname + params;
       
 }
@@ -284,12 +288,11 @@ $(function(){
     $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
     $("#orderby").trigger("chosen:updated");
     
-    {% if g.user.is_media() %}
     $('#start_time').val('{{start_time}}');
     $('#end_time').val('{{end_time}}');
-    $("#search_medium option[value='{{search_medium}}']").attr("selected","selected");  
     $("#search_medium").trigger("chosen:updated");
-    {% endif %}
+    $('#year').val('{{year}}');
+    $("#year").trigger("chosen:updated");
 });
 
 $(document).ready(function(){

@@ -42,12 +42,14 @@ def index_pass():
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
+    year = int(request.values.get('year', datetime.datetime.now().year))
     page = int(request.args.get('p', 1))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if orderby and len(orders):
         orders = sorted(
             orders, key=lambda x: getattr(x, orderby), reverse=True)
@@ -70,9 +72,9 @@ def index_pass():
         return response
     return tpl('/finance/client_order/invoice/index_pass.html', orders=orders, locations=select_locations,
                location_id=location_id, statuses=select_statuses, orderby=orderby,
-               now_date=datetime.date.today(), search_info=search_info, page=page,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s' %
-                      (orderby, search_info, location_id))
+               now_date=datetime.date.today(), search_info=search_info, page=page, year=year,
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&year=%s' %
+                      (orderby, search_info, location_id, str(year)))
 
 
 @finance_client_order_invoice_bp.route('/<order_id>/info', methods=['GET'])
