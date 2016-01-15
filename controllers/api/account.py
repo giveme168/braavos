@@ -91,7 +91,7 @@ def leave_create(uid):
         user = User.get(uid)
     except:
         return jsonify({'ret': False, 'msg': u'用户找不到'})
-    if request.method == 'POST':
+    if request.method == 'GET':
         try:
             type = int(request.values.get('type', 1))
         except:
@@ -107,11 +107,15 @@ def leave_create(uid):
         day = request.values.get('day', '0')
         half = request.values.get('half', '1')
         reason = request.values.get('reason', '')
-        senders_ids = request.values.get('senders', '').split('|')
-        try:
-            senders = User.gets(senders_ids)
-        except:
-            return jsonify({'ret': False, 'msg': u'抄送人错误'})
+        senders_str = request.values.get('senders', '')
+        if senders_str:
+            senders_ids = senders_str.split('|')
+            try:
+                senders = User.gets(senders_ids)
+            except:
+                return jsonify({'ret': False, 'msg': u'抄送人错误'})
+        else:
+            senders = []
         leave = Leave.add(type=type,
                           start_time=start_time,
                           end_time=end_time,
