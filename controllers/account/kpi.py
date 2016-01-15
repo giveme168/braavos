@@ -813,7 +813,7 @@ def underling():
     return tpl('/account/kpi/underling.html', reports=reports, status=status,
                params='&status=' +
                str(status) + '&total_score=' + str(total_score) +
-               '&version='+str(version),
+               '&version=' + str(version),
                total_score=total_score, P_VERSION_CN=P_VERSION_CN,
                version=version)
 
