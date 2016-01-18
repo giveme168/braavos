@@ -5,6 +5,7 @@
 <table class="table table-bordered table-striped">
     <tr>
         <th>直客/代理</th>
+        <th>客户</td>
         <th>合同金额</th>
         <th>合同号</th>
         <th>销售</th>
@@ -17,6 +18,7 @@
     {% for o in orders %}
     <tr>
         <td>{{o.agent.name}}</td>
+        <td>{% if o.client %}{{o.client.name}}{% else %}无{% endif %}</td>
         <td>{{o.money}}</td>
         <td><a href="{{url_for('searchAd_order.framework_order_info', order_id=o.id)}}">{{o.contract or "无合同号"}}</a></td>
         <td>{{o.sales_names}}</td>

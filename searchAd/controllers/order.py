@@ -538,7 +538,8 @@ def display_orders(orders, title, status_id=-1):
         end_time = datetime.strptime(end_time, '%Y-%m-%d').date()
         orders = [k for k in orders if k.create_time.date(
         ) >= start_time and k.create_time.date() <= end_time]
-    orders = [k for k in orders if k.client_start.year == year or k.client_end == year]
+    orders = [k for k in orders if k.client_start.year ==
+              year or k.client_end == year]
     if search_medium > 0:
         orders = [k for k in orders if search_medium in k.medium_ids]
     orderby = request.args.get('orderby', '')
@@ -725,18 +726,19 @@ def new_framework_order():
         else:
             contract_status = 0
         order = searchAdFrameworkOrder.add(agent=searchAdAgent.get(form.agent.data),
+                                           client_id=form.client_id.data,
                                            description=form.description.data,
                                            money=int(
-            round(float(form.money.data or 0))),
-            client_start=form.client_start.data,
-            client_end=form.client_end.data,
-            reminde_date=form.reminde_date.data,
-            sales=User.gets(form.sales.data),
-            contract_type=form.contract_type.data,
-            creator=g.user,
-            rebate=form.rebate.data,
-            contract_status=contract_status,
-            create_time=datetime.now())
+                                               float(form.money.data or 0)),
+                                           client_start=form.client_start.data,
+                                           client_end=form.client_end.data,
+                                           reminde_date=form.reminde_date.data,
+                                           sales=User.gets(form.sales.data),
+                                           contract_type=form.contract_type.data,
+                                           creator=g.user,
+                                           rebate=form.rebate.data,
+                                           contract_status=contract_status,
+                                           create_time=datetime.now())
         order.add_comment(g.user, u"新建了框架订单")
         flash(u'新建框架订单成功, 请上传合同!', 'success')
         return redirect(url_for("searchAd_order.framework_order_info", order_id=order.id))
@@ -776,6 +778,7 @@ def framework_recovery(order_id):
 def get_framework_form(order):
     framework_form = FrameworkOrderForm()
     framework_form.agent.data = order.agent.id
+    framework_form.client_id.data = order.client_id
     framework_form.description.data = order.description
     framework_form.money.data = order.money
     framework_form.client_start.data = order.client_start
@@ -804,6 +807,7 @@ def framework_order_info(order_id):
                 agent = searchAdAgent.get(framework_form.agent.data)
                 if framework_form.validate():
                     order.agent = agent
+                    order.client_id = framework_form.client_id.data
                     order.description = framework_form.description.data
                     order.money = framework_form.money.data
                     order.client_start = framework_form.client_start.data
@@ -882,7 +886,8 @@ def framework_delete_orders():
 def framework_display_orders(orders, title):
     page = int(request.args.get('p', 1))
     year = int(request.values.get('year', datetime.now().year))
-    orders = [k for k in orders if k.client_start.year == year or k.client_end == year]
+    orders = [k for k in orders if k.client_start.year ==
+              year or k.client_end == year]
     if 'download' == request.args.get('action', ''):
         filename = (
             "%s-%s.xls" % (u"框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
@@ -896,6 +901,11 @@ def framework_display_orders(orders, title):
             orders = paginator.page(page)
         except:
             orders = paginator.page(paginator.num_pages)
+        for k in orders.object_list:
+            if k.client_id:
+                k.client = searchAdClient.get(k.client_id)
+            else:
+                k.client = None
         return tpl('searchad_frameworks.html', title=title, orders=orders, page=page, year=year)
 
 
@@ -1164,7 +1174,8 @@ def rebate_display_orders(orders, title, status_id=-1):
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
-    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
+    orders = [k for k in orders if k.client_start.year ==
+              year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_info.lower()]

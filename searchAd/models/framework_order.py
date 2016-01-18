@@ -64,6 +64,7 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
     id = db.Column(db.Integer, primary_key=True)
     agent_id = db.Column(db.Integer, db.ForeignKey('searchAd_agent.id'))  # 代理公司id
     agent = db.relationship('searchAdAgent', backref=db.backref('agent_searchAd_order', lazy='dynamic'))
+    client_id = db.Column(db.Integer, default=0)
     description = db.Column(db.String(500))  # 描述
 
     contract = db.Column(db.String(100))  # 客户合同号
@@ -89,12 +90,13 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
     kind = "searchAdframework-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
-    def __init__(self, agent, description=None, status=STATUS_ON,
+    def __init__(self, agent, client_id=0, description=None, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None,
                  sales=None, creator=None, create_time=None,
                  contract_status=CONTRACT_STATUS_NEW, rebate=0.0):
         self.agent = agent
+        self.client_id = client_id or 0
         self.description = description or ""
 
         self.contract = contract
@@ -253,6 +255,7 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
             return self.finish_time.date()
         except:
             return ''
+
 
 def contract_generator(agent, num):
     code = "ZQSC%s%03x-%03x" % (datetime.datetime.now().strftime('%Y%m'),

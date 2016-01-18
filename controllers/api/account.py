@@ -91,7 +91,7 @@ def leave_create(uid):
         user = User.get(uid)
     except:
         return jsonify({'ret': False, 'msg': u'用户找不到'})
-    if request.method == 'GET':
+    if request.method == 'POST':
         try:
             type = int(request.values.get('type', 1))
         except:

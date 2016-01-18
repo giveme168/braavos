@@ -76,6 +76,7 @@ class MediumOrderForm(Form):
 
 class FrameworkOrderForm(Form):
     agent = SelectField(u'代理/直客', coerce=int)
+    client_id = SelectField(u'客户', coerce=int)
     description = TextAreaField(u'备注', description=u"请填写返点政策/配送政策等信息")
     money = FloatField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
@@ -88,6 +89,8 @@ class FrameworkOrderForm(Form):
     def __init__(self, *args, **kwargs):
         super(FrameworkOrderForm, self).__init__(*args, **kwargs)
         self.agent.choices = [(a.id, a.name) for a in searchAdAgent.all()]
+        self.client_id.choices = [(0, u'无客户')]
+        self.client_id.choices += [(a.id, a.name) for a in searchAdClient.all()]
         self.sales.choices = [(m.id, m.name) for m in User.searchAd_sales()]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
 
