@@ -106,7 +106,10 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and douban_type:
         contract_apply_douban(sender, context)
     if action and int(action) == 1:
-        leader_users = [k for k in to_users if k.team.type in [9]]
+        if order.__tablename__ == 'bra_medium_framework_order':
+            leader_users = [k for k in to_users if k.team.type in [20]]
+        else:
+            leader_users = [k for k in to_users if k.team.type in [9]]
         action_info = u'请' + ','.join(_get_active_user_name(leader_users)) +\
             u'进行审批'
     elif action and int(action) == 3:
