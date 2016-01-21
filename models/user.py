@@ -843,7 +843,7 @@ class PerformanceEvaluation(db.Model, BaseModelMixin):
         p_count = 0
         p_score = 0
         for k in personnal_obj:
-            if k.total_score:
+            if k.total_score and k.total_score != 1:
                 p_count += 1
                 p_score += k.total_score
         if p_count:

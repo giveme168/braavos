@@ -8,7 +8,8 @@ from wtforms import SelectMultipleField
 from libs.wtf import Form
 from forms.order import (ClientOrderForm, MediumOrderForm,
                          FrameworkOrderForm, DoubanOrderForm,
-                         AssociatedDoubanOrderForm)
+                         AssociatedDoubanOrderForm,
+                         MediumFrameworkOrderForm)
 
 from models.client import Client, Group, Agent, AgentRebate
 from models.medium import Medium
@@ -21,6 +22,7 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH)
 from models.client_order import ClientOrder, ClientOrderExecutiveReport
 from models.framework_order import FrameworkOrder
+from models.medium_framework_order import MediumFrameworkOrder
 from models.douban_order import DoubanOrder, DoubanOrderExecutiveReport
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.user import User, TEAM_LOCATION_CN
@@ -539,7 +541,10 @@ def client_order_contract(order_id):
 def contract_status_change(order, action, emails, msg):
     action_msg = ''
     #  发送邮件
-    salers = order.direct_sales + order.agent_sales
+    if order.__tablename__ == 'bra_medium_framework_order':
+        salers = order.medium_users
+    else:
+        salers = order.direct_sales + order.agent_sales
     leaders = []
     for k in salers:
         leaders += k.team_leaders
@@ -759,8 +764,8 @@ def new_framework_order():
                                    douban_rebate=form.douban_rebate.data,
                                    finish_time=datetime.now(),
                                    create_time=datetime.now())
-        order.add_comment(g.user, u"新建了该框架订单")
-        flash(u'新建框架订单成功, 请上传合同!', 'success')
+        order.add_comment(g.user, u"新建了该代理框架订单")
+        flash(u'新建代理框架订单成功, 请上传合同!', 'success')
         # 框架合同同步甲方返点信息
         # _insert_agent_rebate(order)
         return redirect(url_for("order.framework_order_info", order_id=order.id))
@@ -778,7 +783,7 @@ def framework_delete(order_id):
         abort(404)
     if not g.user.is_super_admin():
         abort(402)
-    flash(u"框架订单: %s 已删除" % (order.group.name), 'danger')
+    flash(u"代理框架订单: %s 已删除" % (order.group.name), 'danger')
     order.status = STATUS_DEL
     order.save()
     return redirect(url_for("order.my_framework_orders"))
@@ -791,7 +796,7 @@ def framework_recovery(order_id):
         abort(404)
     if not g.user.is_super_admin():
         abort(402)
-    flash(u"框架订单: %s 已恢复" % (order.group.name), 'success')
+    flash(u"代理框架订单: %s 已恢复" % (order.group.name), 'success')
     order.status = STATUS_ON
     order.save()
     return redirect(url_for("order.framework_delete_orders"))
@@ -853,7 +858,7 @@ def framework_order_info(order_id):
         info_type = int(request.values.get('info_type', '0'))
         if info_type == 0:
             if not order.can_admin(g.user) and not g.user.is_contract():
-                flash(u'您没有编辑权限! 请联系该框架的创建者或者销售同事!', 'danger')
+                flash(u'您没有编辑权限! 请联系该代理框架的创建者或者销售同事!', 'danger')
             else:
                 framework_form = FrameworkOrderForm(request.form)
                 agents = Agent.gets(framework_form.agents.data)
@@ -873,8 +878,8 @@ def framework_order_info(order_id):
                     order.inad_rebate = framework_form.inad_rebate.data
                     order.douban_rebate = framework_form.douban_rebate.data
                     order.save()
-                    order.add_comment(g.user, u"更新了该框架订单")
-                    flash(u'[框架订单]%s 保存成功!' % order.name, 'success')
+                    order.add_comment(g.user, u"更新了该代理框架订单")
+                    flash(u'[代理框架订单]%s 保存成功!' % order.name, 'success')
 
                     # 框架合同同步甲方返点信息
                     # _insert_agent_rebate(order)
@@ -929,19 +934,19 @@ def my_framework_orders():
             o for o in FrameworkOrder.all() if g.user.location in o.locations]
     else:
         orders = FrameworkOrder.get_order_by_user(g.user)
-    return framework_display_orders(orders, u'我的框架订单')
+    return framework_display_orders(orders, u'我的代理框架订单')
 
 
 @order_bp.route('/framework_orders', methods=['GET'])
 def framework_orders():
     orders = FrameworkOrder.all()
-    return framework_display_orders(orders, u'框架订单列表')
+    return framework_display_orders(orders, u'代理框架订单列表')
 
 
 @order_bp.route('/framework_delete_orders', methods=['GET'])
 def framework_delete_orders():
     orders = FrameworkOrder.delete_all()
-    return framework_display_orders(orders, u'已删除的框架订单列表')
+    return framework_display_orders(orders, u'已删除的代理框架订单列表')
 
 
 def framework_display_orders(orders, title):
@@ -950,7 +955,7 @@ def framework_display_orders(orders, title):
     orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if 'download' == request.args.get('action', ''):
         filename = (
-            "%s-%s.xls" % (u"框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+            "%s-%s.xls" % (u"代理框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
         xls = Excel().write_excle(
             download_excel_table_by_frameworkorders(orders))
         response = get_download_response(xls, filename)
@@ -976,6 +981,200 @@ def framework_order_contract(order_id):
     if order.contract_status == CONTRACT_STATUS_DELETEPASS:
         return redirect(url_for('order.framework_orders'))
     return redirect(url_for("order.framework_order_info", order_id=order.id))
+
+
+######################
+# medium framework order
+######################
+@order_bp.route('/new_medium_framework_order', methods=['GET', 'POST'])
+def new_medium_framework_order():
+    form = MediumFrameworkOrderForm(request.form)
+    if request.method == 'POST' and form.validate():
+        order = MediumFrameworkOrder.add(mediums=Medium.gets(form.mediums.data),
+                                         description=form.description.data,
+                                         money=float(form.money.data or 0),
+                                         client_start=form.client_start.data,
+                                         client_end=form.client_end.data,
+                                         medium_users=User.gets(
+                                             form.medium_users.data),
+                                         contract_type=form.contract_type.data,
+                                         creator=g.user,
+                                         inad_rebate=form.inad_rebate.data,
+                                         finish_time=datetime.now(),
+                                         create_time=datetime.now())
+        order.add_comment(g.user, u"新建了该媒体框架订单")
+        flash(u'新建媒体框架订单成功, 请上传合同!', 'success')
+        return redirect(url_for("order.medium_framework_order_info", order_id=order.id))
+    else:
+        form.client_start.data = datetime.now().date()
+        form.client_end.data = datetime.now().date()
+    return tpl('new_medium_framework_order.html', form=form)
+
+
+@order_bp.route('/medium_framework_order/<order_id>/delete', methods=['GET'])
+def medium_framework_delete(order_id):
+    order = MediumFrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"媒体框架订单: %s 已删除" % (order.group.name), 'danger')
+    order.status = STATUS_DEL
+    order.save()
+    return redirect(url_for("order.my_medium_framework_orders"))
+
+
+@order_bp.route('/medium_framework_order/<order_id>/recovery', methods=['GET'])
+def medium_framework_recovery(order_id):
+    order = MediumFrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    if not g.user.is_super_admin():
+        abort(402)
+    flash(u"媒体框架订单: %s 已恢复" % (order.group.name), 'success')
+    order.status = STATUS_ON
+    order.save()
+    return redirect(url_for("order.medium_framework_delete_orders"))
+
+
+def get_medium_framework_form(order):
+    framework_form = MediumFrameworkOrderForm()
+    framework_form.mediums.data = [a.id for a in order.mediums]
+    framework_form.description.data = order.description
+    framework_form.money.data = order.money
+    framework_form.client_start.data = order.client_start
+    framework_form.client_end.data = order.client_end
+    framework_form.medium_users.data = [u.id for u in order.medium_users]
+    framework_form.contract_type.data = order.contract_type
+    framework_form.inad_rebate.data = order.inad_rebate or 0.0
+    return framework_form
+
+
+@order_bp.route('/my_medium_framework_orders', methods=['GET'])
+def my_medium_framework_orders():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or\
+            g.user.is_contract() or g.user.is_aduit():
+        orders = MediumFrameworkOrder.all()
+        if g.user.is_admin() or g.user.is_contract() or g.user.is_finance():
+            pass
+        elif g.user.is_super_leader():
+            orders = [o for o in orders if o.contract_status ==
+                      CONTRACT_STATUS_APPLYCONTRACT]
+        elif g.user.is_media() or g.user.is_media_leader():
+            orders = [
+                o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
+    elif g.user.is_leader():
+        orders = [
+            o for o in MediumFrameworkOrder.all() if g.user.location in o.locations]
+    else:
+        orders = MediumFrameworkOrder.get_order_by_user(g.user)
+    return medium_framework_display_orders(orders, u'我的媒体框架订单')
+
+
+@order_bp.route('/medium_framework_orders', methods=['GET'])
+def medium_framework_orders():
+    orders = MediumFrameworkOrder.all()
+    return medium_framework_display_orders(orders, u'媒体框架订单列表')
+
+
+@order_bp.route('/medium_framework_delete_orders', methods=['GET'])
+def medium_framework_delete_orders():
+    orders = MediumFrameworkOrder.delete_all()
+    return framework_display_orders(orders, u'已删除的媒体框架订单列表')
+
+
+def medium_framework_display_orders(orders, title):
+    page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.now().year))
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
+    if 'download' == request.args.get('action', ''):
+        filename = (
+            "%s-%s.xls" % (u"媒体框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
+        xls = Excel().write_excle(
+            download_excel_table_by_frameworkorders(orders))
+        response = get_download_response(xls, filename)
+        return response
+    else:
+        paginator = Paginator(orders, ORDER_PAGE_NUM)
+        try:
+            orders = paginator.page(page)
+        except:
+            orders = paginator.page(paginator.num_pages)
+        return tpl('medium_frameworks.html', title=title, orders=orders, page=page, year=year)
+
+
+@order_bp.route('/medium_framework_order/<order_id>/contract', methods=['POST'])
+def medium_framework_order_contract(order_id):
+    order = MediumFrameworkOrder.get(order_id)
+    if not order:
+        abort(404)
+    action = int(request.values.get('action'))
+    emails = request.values.getlist('email')
+    msg = request.values.get('msg', '')
+    contract_status_change(order, action, emails, msg)
+    if order.contract_status == CONTRACT_STATUS_DELETEPASS:
+        return redirect(url_for('order.medium_framework_orders'))
+    return redirect(url_for("order.medium_framework_order_info", order_id=order.id))
+
+
+@order_bp.route('/medium_framework_order/<order_id>/info', methods=['GET', 'POST'])
+def medium_framework_order_info(order_id):
+    order = MediumFrameworkOrder.get(order_id)
+    if not order or order.status == 0:
+        abort(404)
+    framework_form = get_medium_framework_form(order)
+
+    if request.method == 'POST':
+        info_type = int(request.values.get('info_type', '0'))
+        if info_type == 0:
+            if not order.can_admin(g.user) and not g.user.is_contract():
+                flash(u'您没有编辑权限! 请联系该媒体框架的创建者或者销售同事!', 'danger')
+            else:
+                framework_form = MediumFrameworkOrderForm(request.form)
+                mediums = Medium.gets(framework_form.mediums.data)
+                if framework_form.validate():
+                    order.mediums = mediums
+                    order.description = framework_form.description.data
+                    order.money = framework_form.money.data
+                    order.client_start = framework_form.client_start.data
+                    order.client_end = framework_form.client_end.data
+                    order.medium_users = User.gets(
+                        framework_form.medium_users.data)
+                    order.contract_type = framework_form.contract_type.data
+                    order.inad_rebate = framework_form.inad_rebate.data
+                    order.save()
+                    order.add_comment(g.user, u"更新了该媒体框架订单")
+                    flash(u'[媒体框架订单]%s 保存成功!' % order.name, 'success')
+
+                    # 框架合同同步甲方返点信息
+                    # _insert_agent_rebate(order)
+        elif info_type == 2:
+            if not g.user.is_contract():
+                flash(u'您没有编辑权限! 请联系合同管理员!', 'danger')
+            else:
+                order.contract = request.values.get("base_contract", "")
+                order.save()
+                flash(u'[%s]合同号保存成功!' % order.name, 'success')
+
+                action_msg = u"合同号更新"
+                msg = u"新合同号如下:致趣: %s" % (order.contract)
+                to_users = order.medium_users + [order.creator, g.user]
+                context = {'order': order,
+                           'sender': g.user,
+                           'action_msg': action_msg,
+                           'info': msg,
+                           'to_users': to_users}
+                zhiqu_contract_apply_signal.send(
+                    current_app._get_current_object(), context=context)
+
+                order.add_comment(g.user, u"更新合同号, %s" % msg)
+
+    reminder_emails = [(u.name, u.email) for u in User.all_active()]
+    context = {'framework_form': framework_form,
+               'order': order,
+               'now_date': datetime.now(),
+               'reminder_emails': reminder_emails}
+    return tpl('medium_framework_detail_info.html', **context)
 
 
 ######################
@@ -1294,6 +1493,13 @@ def framework_attach_status(order_id, attachment_id, status):
     return redirect(order.info_path())
 
 
+@order_bp.route('/medium_framework_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
+def medium_framework_attach_status(order_id, attachment_id, status):
+    order = MediumFrameworkOrder.get(order_id)
+    attachment_status_change(order, attachment_id, status)
+    return redirect(order.info_path())
+
+
 @order_bp.route('/douban_order/<order_id>/attachment/<attachment_id>/<status>', methods=['GET'])
 def douban_attach_status(order_id, attachment_id, status):
     order = DoubanOrder.get(order_id)
@@ -1317,7 +1523,10 @@ def attachment_status_change(order, attachment_id, status):
 
 
 def attachment_status_email(order, attachment):
-    to_users = order.direct_sales + order.agent_sales + [order.creator, g.user] + User.contracts()
+    if order.__tablename__ == 'bra_medium_framework_order':
+        to_users = order.medium_users + [order.creator, g.user] + User.contracts()
+    else:
+        to_users = order.direct_sales + order.agent_sales + [order.creator, g.user] + User.contracts()
     action_msg = u"%s文件:%s-%s" % (attachment.type_cn, attachment.filename, attachment.status_cn)
     msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (
         attachment.filename, attachment.status_cn)

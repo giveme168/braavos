@@ -123,7 +123,10 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
             action_info = u'请' + ','.join(_get_active_user_name(contract_users)) +\
                 u'进行合同打印'
     elif action and int(action) == 5:
-        salers = order.direct_sales + order.agent_sales + [order.creator]
+        if order.__tablename__ == 'bra_medium_framework_order':
+            salers = order.medium_users + [order.creator]
+        else:
+            salers = order.direct_sales + order.agent_sales + [order.creator]
         action_info = ','.join(_get_active_user_name(salers)) + u'您的合同打印完成'
     elif action and int(action) == 6:
         medium_users = [k for k in to_users if k.team.type in [12, 20]]
@@ -142,7 +145,10 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
         action_info = u'请' + ','.join(_get_active_user_name(contract_users)) +\
             u'进行合同确认归档'
     elif action and int(action) == 20:
-        salers = order.direct_sales + order.agent_sales + [order.creator]
+        if order.__tablename__ == 'bra_medium_framework_order':
+            salers = order.medium_users + [order.creator]
+        else:
+            salers = order.direct_sales + order.agent_sales + [order.creator]
         action_info = ','.join(_get_active_user_name(salers)) + u'您的合同已确认归档'
     else:
         action_info = ''

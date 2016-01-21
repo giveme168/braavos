@@ -27,14 +27,26 @@
                 <!-- 只有leader 销售 合同管理员才能看框架 -->
                 {% if g.user.is_leader() or g.user.is_sale() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit() %}
                 <a href="{{url_for('order.my_framework_orders')}}">
-                    <li id="_my_framework_orders_" >我的框架订单</li>
+                    <li id="_my_framework_orders_" >我的代理框架订单</li>
                 </a>
                     {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_finance() %}
                     <a href="{{url_for('order.framework_orders')}}">
-                        <li id="_framework_orders_" >全部框架订单</li>
+                        <li id="_framework_orders_" >全部代理框架订单</li>
                     </a>
                     {% endif %}
                 {% endif %}
+
+                {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_finance() %}
+                <a href="{{url_for('order.my_medium_framework_orders')}}">
+                    <li id="_my_medium_framework_orders_" >我的媒体框架订单</li>
+                </a>
+                    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_finance() %}
+                    <a href="{{url_for('order.medium_framework_orders')}}">
+                        <li id="_medium_framework_orders_" >全部媒体框架订单</li>
+                    </a>
+                    {% endif %}
+                {% endif %}
+
                 {% if g.user.is_contract() or g.user.is_finance() %}
                 <a href="{{url_for('saler_client_order_data_query.back_money')}}">
                   <li id="_client_orderdata_query_" >新媒体订单数据查询</li>
@@ -62,7 +74,9 @@
             if(['order', 'client_order'].indexOf(p_pathname[2]) >= 0 ){
                 $('#_my_orders_').addClass("on");
             }
-            if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
+            if(['medium_framework_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_medium_framework_orders_').addClass("on");
+            }else if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
                 $('#_my_framework_orders_').addClass("on");
             }
         }

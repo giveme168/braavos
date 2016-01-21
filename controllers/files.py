@@ -6,6 +6,7 @@ from models.order import Order
 from models.client_order import (ClientOrder, CONTRACT_STATUS_NEW, CONTRACT_STATUS_APPLYREJECT,
                                  CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYCONTRACT)
 from models.framework_order import FrameworkOrder
+from models.medium_framework_order import MediumFrameworkOrder
 from searchAd.models.framework_order import searchAdFrameworkOrder
 from models.douban_order import DoubanOrder
 from models.associated_douban_order import AssociatedDoubanOrder
@@ -195,6 +196,20 @@ def framework_schedule_upload():
     return attachment_upload(order, FILE_TYPE_SCHEDULE)
 
 
+@files_bp.route('/medium_framework/contract/upload', methods=['POST'])
+def medium_framework_contract_upload():
+    order_id = request.values.get('order')
+    order = MediumFrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
+
+
+@files_bp.route('/medium_framework/schedule/upload', methods=['POST'])
+def medium_framework_schedule_upload():
+    order_id = request.values.get('order')
+    order = MediumFrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
+
+
 @files_bp.route('/searchAd_framework/contract/upload', methods=['POST'])
 def searchAd_framework_contract_upload():
     order_id = request.values.get('order')
@@ -234,6 +249,13 @@ def searchAd_rebate_schedule_upload():
 def framework_others_upload():
     order_id = request.values.get('order')
     order = FrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_OTHERS)
+
+
+@files_bp.route('/medium_framework/others/upload', methods=['POST'])
+def medium_framework_others_upload():
+    order_id = request.values.get('order')
+    order = MediumFrameworkOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_OTHERS)
 
 
@@ -316,6 +338,12 @@ def framework_order_files(order_id):
     return tpl("order_files.html", order=fo)
 
 
+@files_bp.route('/medium_framework_order/<order_id>/all_files', methods=['get'])
+def medium_framework_order_files(order_id):
+    fo = MediumFrameworkOrder.get(order_id)
+    return tpl("order_files.html", order=fo)
+
+
 @files_bp.route('/searchAdframework_order/<order_id>/all_files', methods=['get'])
 def searchAd_framework_order_files(order_id):
     fo = searchAdFrameworkOrder.get(order_id)
@@ -357,6 +385,10 @@ def contract_email(order, attachment):
                        order.agent_sales +
                        order.direct_sales +
                        [order.creator, g.user])
+    elif order.__tablename__ == 'bra_medium_framework_order':
+        to_users = set(User.contracts() +
+                       order.medium_users +
+                       [order.creator, g.user])
     else:
         to_users = set(User.contracts() +
                        User.medias() +
@@ -396,6 +428,13 @@ def finish_douban_order_upload():
 def finish_framework_order_upload():
     order_id = request.values.get('order')
     order = FrameworkOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/finish/medium_framework_order/upload', methods=['POST'])
+def finish_medium_framework_order_upload():
+    order_id = request.values.get('order')
+    order = MediumFrameworkOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_FINISH)
 
 

@@ -45,6 +45,7 @@ class Comment(db.Model, BaseModelMixin):
         from .client_order import ClientOrder
         from .douban_order import DoubanOrder
         from .framework_order import FrameworkOrder
+        from .medium_framework_order import MediumFrameworkOrder
         from .item import AdItem
         from .material import Material
         from searchAd.models.order import searchAdOrder
@@ -57,6 +58,7 @@ class Comment(db.Model, BaseModelMixin):
             'DoubanOrder': DoubanOrder,
             'ClientOrder': ClientOrder,
             'FrameworkOrder': FrameworkOrder,
+            'MediumFrameworkOrder': MediumFrameworkOrder,
             'AdItem': AdItem,
             'Material': Material,
             'searchAdOrder': searchAdOrder,

@@ -194,7 +194,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
         'Order', backref=db.backref('outsources', lazy='dynamic'))
     merger_outsources = db.relationship(
         'MergerOutSource', secondary=table_merger_outsources)
-    num = db.Column(db.Integer)
+    num = db.Column(db.Float)
     type = db.Column(db.Integer)
     subtype = db.Column(db.Integer)
     invoice = db.Column(db.Boolean)  # 发票
@@ -476,7 +476,7 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
         'DoubanOrder', backref=db.backref('douban_outsources', lazy='dynamic'))
     merger_outsources = db.relationship(
         'MergerDoubanOutSource', secondary=table_merger_douban_outsources)
-    num = db.Column(db.Integer)
+    num = db.Column(db.Float)
     type = db.Column(db.Integer)
     subtype = db.Column(db.Integer)
     invoice = db.Column(db.Boolean)  # 发票
