@@ -36,6 +36,7 @@ def send_mail(*args, **kwargs):
 def send_simple_mail(subject, recipients, body=''):
     if not recipients:
         return
+    return
     body += u"""
 
 --------
@@ -50,6 +51,7 @@ def send_simple_mail(subject, recipients, body=''):
 def send_html_mail(subject, recipients, body=''):
     if not recipients:
         return
+    return
     with mail.app.app_context():
         mail.send_message(subject, recipients=recipients, body='', html=body)
 

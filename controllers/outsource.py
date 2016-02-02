@@ -882,7 +882,7 @@ def merget_client_target_info(target_id):
 
     apply_outsources = OutSource.get_outsources_by_target(target_id, 2)
     apply_money_outsources = OutSource.get_outsources_by_target(target_id, 3)
-    paid_outsources = OutSource.get_outsources_by_target(target_id, 4)
+    paid_outsources = list(MergerOutSource.get_outsources_by_status(0, target_id))
     apply_merger_outsources = MergerOutSource.get_outsources_by_status(
         MERGER_OUTSOURCE_STATUS_APPLY, target_id=target_id)
 
@@ -998,7 +998,7 @@ def merget_douban_target_info(target_id):
                 current_app._get_current_object(), apply_context=apply_context)
         return redirect(url_for("outsource.merget_douban_target_info", target_id=target_id))
     apply_outsources = DoubanOutSource.get_outsources_by_target(target_id, 2)
-    paid_outsources = DoubanOutSource.get_outsources_by_target(target_id, 4)
+    paid_outsources = list(MergerDoubanOutSource.get_outsources_by_status(0, target_id))
     apply_merger_outsources = MergerDoubanOutSource.get_outsources_by_status(
         MERGER_OUTSOURCE_STATUS_APPLY, target_id=target_id)
     # 在流程中的合并付款中的外包项不用出现再正在付款中

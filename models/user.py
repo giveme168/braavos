@@ -734,6 +734,46 @@ class Out(db.Model, BaseModelMixin):
         return self.end_time.date()
 
 
+# 外出报表
+class OutReport(db.Model, BaseModelMixin):
+    __tablename__ = 'user_out_report'
+    id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.DateTime, index=True)
+    end_time = db.Column(db.DateTime, index=True)
+    address = db.Column(db.String(300))
+    reason = db.Column(db.Text())             # 外出原因
+    meeting_s = db.Column(db.Text())          # 会议纪要
+    persions = db.Column(db.String(300))      # 会见人
+    m_persion = db.Column(db.String(200))     # 公司名称
+    m_persion_type = db.Column(db.Integer)    # 公司名称类型
+    creator_type = db.Column(db.Integer)      # 创建人类型：销售 or 普通
+    status = db.Column(db.Integer)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('creator_out_report', lazy='dynamic'))
+    out_id = db.Column(db.Integer, db.ForeignKey('user_out.id'))
+    out = db.relationship(
+        'Out', backref=db.backref('out_report_out', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': id.desc()}
+
+    def __init__(self, start_time, end_time, reason, m_persion, creator, m_persion_type,
+                 address, persions, out, meeting_s='', creator_type=1, status=1, create_time=None):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.address = address
+        self.persions = persions
+        self.reason = reason
+        self.meeting_s = meeting_s
+        self.m_persion = m_persion
+        self.m_persion_type = m_persion_type
+        self.creator_type = creator_type
+        self.status = status
+        self.creator = creator
+        self.out = out
+        self.create_time = create_time or datetime.date.today()
+
+
 P_VERSION_ITEMS = [{'type': 1, 'name': u'2015上半年'}]
 P_VERSION_CN = {
     1: u'2015年上半年',

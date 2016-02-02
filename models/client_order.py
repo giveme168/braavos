@@ -143,13 +143,14 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)
     finish_time = db.Column(db.DateTime)   # 合同归档时间
     back_money_status = db.Column(db.Integer)
+    self_agent_rebate = db.Column(db.String(20))  # 单笔返点
     contract_generate = True
     media_apply = True
     kind = "client-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
     def __init__(self, agent, client, campaign, medium_orders=None, status=STATUS_ON,
-                 back_money_status=BACK_MONEY_STATUS_NOW,
+                 back_money_status=BACK_MONEY_STATUS_NOW, self_agent_rebate='0-0',
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  direct_sales=None, agent_sales=None, replace_sales=[], finish_time=None,
@@ -179,6 +180,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.finish_time = finish_time or datetime.datetime.now()
         self.contract_status = contract_status
         self.back_money_status = back_money_status
+        self.self_agent_rebate = self_agent_rebate
 
     @property
     def salers(self):
@@ -1035,6 +1037,15 @@ by %s\n
         return self.executive_report(g.user, year, [month], 'normal')[0] - \
             self.real_rebate_agent_money_by_month(year, month) - \
             self.real_rebate_mediums_money_by_month(year, month)
+
+    @property
+    def self_agent_rebate_value(self):
+        if self.self_agent_rebate:
+            p_self_agent_rebate = self.self_agent_rebate.split('-')
+        else:
+            p_self_agent_rebate = ['0', '0.0']
+        return {'status': p_self_agent_rebate[0],
+                'value': p_self_agent_rebate[1]}
 
 
 class BackMoney(db.Model, BaseModelMixin):

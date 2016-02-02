@@ -3,7 +3,7 @@ import datetime
 from flask import Blueprint, request, redirect, url_for, flash, abort, g
 from flask import render_template as tpl
 
-from models.user import User, UserOnDuty, Out, Leave
+from models.user import User, UserOnDuty, Leave, OutReport
 from controllers.account.helpers.onduty_helpers import write_ondutys_excel
 
 account_onduty_bp = Blueprint(
@@ -19,7 +19,7 @@ EXIT_DATE_TIMES = [datetime.datetime.strptime(
 
 # 格式化外出报备
 def _format_out():
-    outs = list(Out.all())
+    outs = list(OutReport.all())
     fout = []
     for k in outs:
         fout.append({'start_time': k.start_time,
@@ -32,6 +32,7 @@ def _format_out():
                      'end_time_cn': k.end_time.strftime('%Y-%m-%d %H:%M'),
                      'creator': k.creator,
                      'creator_id': int(k.creator.id)})
+        '''
         for i in k.joiners:
             fout.append({'start_time': k.start_time,
                          'end_time': k.end_time,
@@ -43,6 +44,7 @@ def _format_out():
                          'end_time_cn': k.end_time.strftime('%Y-%m-%d %H:%M'),
                          'creator': i,
                          'creator_id': int(i.id)})
+        '''
     return fout
 
 
@@ -72,7 +74,7 @@ def _format_onduty(start_time, end_time):
     for k in onduty:
         fonduty.append({'check_time': k.check_time,
                         'check_time_cn': k.check_time.strftime('%Y-%m-%d %H:%M:%S'),
-                        'user': k.user,
+                        # 'user': k.user,
                         'user_id': k.user.id,
                         'id': k.id})
     return fonduty
@@ -201,7 +203,7 @@ def _get_onduty(all_dus, outs, leaves, user, start_time, end_time, last_onduty_d
         for k in leaves:
             if k['start_time_date'] <= s.date() and k['end_time_date'] >= s.date():
                 leave_info += u'请假时间：%s点 至 %s点<br/>' % (
-                    k['start_time_cn'], ['k.end_time_cn'])
+                    k['start_time_cn'], k['end_time_cn'])
         # 入职时间
         try:
             recruited_date = user.recruited_date.date()
@@ -251,8 +253,10 @@ def index():
             duty_obj = []
             for user in User.all_active():
                 u_outs = [k for k in outs if k['creator_id'] == int(user.id)]
-                u_leaves = [k for k in leaves if k['creator_id'] == int(user.id)]
-                dutys = _get_onduty(all_dus, u_outs, u_leaves, user, start_date, end_date, last_onduty_date)
+                u_leaves = [k for k in leaves if k[
+                    'creator_id'] == int(user.id)]
+                dutys = _get_onduty(all_dus, u_outs, u_leaves,
+                                    user, start_date, end_date, last_onduty_date)
                 duty_obj.append({'count': sum(item['warning_count'] for item in dutys),
                                  'user': user})
             return write_ondutys_excel(duty_obj, start_date, end_date)
@@ -313,7 +317,8 @@ def unusual():
     for user in salers:
         u_outs = [k for k in outs if k['creator_id'] == int(user.id)]
         u_leaves = [k for k in leaves if k['creator_id'] == int(user.id)]
-        dutys = _get_onduty(all_dus, u_outs, u_leaves, user, start_date, end_date, last_onduty_date)
+        dutys = _get_onduty(all_dus, u_outs, u_leaves, user,
+                            start_date, end_date, last_onduty_date)
         users.append({'count': sum(item['warning_count'] for item in dutys),
                       'user': user})
     return tpl('/account/onduty/unusual_index.html', users=users, location=1,
@@ -348,14 +353,19 @@ def info(uid):
     else:
         start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d')
         end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d')
+    now_date_a = datetime.datetime.now()
     outs = [k for k in _format_out() if k['creator_id'] == int(uid)]
+    print u'获取所有外出', (datetime.datetime.now() - now_date_a).total_seconds()
     leaves = [k for k in _format_leave() if k['creator_id'] == int(uid)]
+    print u'获取所有请假', (datetime.datetime.now() - now_date_a).total_seconds()
     # 打卡最后一次时间
     last_onduty_date = _get_last_onduty_date()
+    print u'获取上一次打卡时间', (datetime.datetime.now() - now_date_a).total_seconds()
     all_dus = _format_onduty(start_time, end_time)
-    dutys = _get_onduty(all_dus, outs, leaves, user, start_time, end_time, last_onduty_date)
-    for k in dutys:
-        print k['on_time'], k['off_time']
+    print u'获取所有凯芹', (datetime.datetime.now() - now_date_a).total_seconds()
+    dutys = _get_onduty(all_dus, outs, leaves, user,
+                        start_time, end_time, last_onduty_date)
+    print u'结果', (datetime.datetime.now() - now_date_a).total_seconds()
     return tpl('/account/onduty/info.html', user=user,
                start_time=start_time.strftime('%Y-%m-%d'),
                end_time=end_time.strftime('%Y-%m-%d'),

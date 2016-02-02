@@ -167,6 +167,8 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
         title = u"【搜索业务框架订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchad_bra_rebate_order':
         title = u"【搜索业务返点订单-合同流程】- %s" % (order.name)
+    elif order.__tablename__ == 'bra_medium_framework_order':
+        title = u"【媒体框架订单-合同流程】- %s" % (order.name)
     else:
         title = u"【合同流程】- %s" % (order.name)
 
@@ -839,7 +841,7 @@ by:
     if out.creator_type == 1:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
         if out.status in [3, 4]:
-            title = u'【外出报备】-会议纪要'
+            title = u'会议纪要'
             to_user_emails = [k.email for k in to_users] + ['sales@inad.com']
     else:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
@@ -856,7 +858,7 @@ by:
         to_user_emails = [k.email for k in to_users] + ['admin@inad.com']
     # 会议纪要发送邮件标题改为"【外出报备】-会议纪要"
     if out.status in [3, 4]:
-        title = u'【外出报备】-会议纪要' + '-' + out.m_persion_cn + '-' + out.creator.name
+        title = u'会议纪要' + '-' + out.m_persion_cn + '-' + out.creator.name
     _insert_person_notcie(to_users, title, body)
     flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
     send_html_mail(title, list(set(to_user_emails)),

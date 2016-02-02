@@ -170,9 +170,6 @@ class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMix
         admin_users = salers + [self.creator] + list(set(leaders))
         return user.is_admin() or user.is_contract() or user in admin_users
 
-    def can_media_leader_action(self, user):
-        return False
-
     def have_owner(self, user):
         """是否可以查看该订单"""
         salers = self.medium_users
@@ -254,6 +251,15 @@ class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMix
             return True
         else:
             return False
+
+    def can_media_leader_action(self, user):
+        salers = self.medium_users
+        action_users = []
+        for saler in salers:
+            action_users += list(saler.team.admins)
+        if user in action_users and user.team.type == 20:
+            return True
+        return False
 
     @property
     def finish_time_cn(self):

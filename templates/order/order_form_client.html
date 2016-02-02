@@ -2,9 +2,9 @@
 
 {% macro order_client_form(form, client_order, replace_saler_form) -%}
   {% if g.user.is_super_leader() %}
-    {{ order_client_edited_form(form, mediums=None, replace_saler_form=replace_saler_form) }}
+    {{ order_client_edited_form(form, mediums=None, replace_saler_form=replace_saler_form, client_order=client_order) }}
   {% elif client_order.can_admin(g.user) and client_order.contract_status in [0, 1, 3, 6] %}
-    {{ order_client_edited_form(form, mediums=None, replace_saler_form=None) }}
+    {{ order_client_edited_form(form, mediums=None, replace_saler_form=None, client_order=client_order) }}
   {% else %}
     {{ order_client_table(client_order) }}
   {% endif %}
@@ -66,17 +66,26 @@
             <th>替代销售</th>
             <td>{{client_order.replace_sales_names}}</td>
           </tr>
+          {% if (g.user.is_super_leader() or g.user.is_leader() or client_order.can_media_leader_action(g.user)) and client_order %}
+          <tr>
+            <th style="color:red;">单笔返点</th>
+            <td>{% if client_order.self_agent_rebate_value.status == '0' %}
+                无单笔返点
+              {% else %}
+                {{client_order.self_agent_rebate_value.value}}元
+              {% endif %}</td>
+          </tr>
+          {% endif %}
         </table>
     </div>
 </div>
-
 {%- endmacro %}
 
 {% macro new_order_client_form(form, mediums, replace_saler_form=None) -%}
-    {{ order_client_edited_form(form, mediums, replace_saler_form) }}
+    {{ order_client_edited_form(form, mediums, replace_saler_form, client_order=None) }}
 {%- endmacro %}
 
-{% macro order_client_edited_form(form, mediums=None, replace_saler_form=None) -%}
+{% macro order_client_edited_form(form, mediums=None, replace_saler_form=None, client_order=None) -%}
 <form class="form form-horizontal" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
@@ -85,21 +94,21 @@
     {{ form_field(form.campaign) }}
     {{ form_field(form.money) }}
     <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
+      <label for="" class="col-sm-2 control-label">执行开始 : </label>
       <div class="col-sm-4">
-        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd" />
       </div>
     </div>
     <div class="form-group">
-      <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
+      <label for="" class="col-sm-2 control-label">执行结束 : </label>
       <div class="col-sm-4">
-        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd" />
       </div>
     </div>
     <div class="form-group">
-      <label for="reminde_date" class="col-sm-2 control-label">回款日期 : </label>
+      <label for="" class="col-sm-2 control-label">回款日期 : </label>
       <div class="col-sm-4">
-        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd" />
       </div>
     </div>
     {{ form_field(form.direct_sales) }}
@@ -109,6 +118,21 @@
     {{ form_field(form.sale_type) }}
     {% if replace_saler_form %}
       {{ form_field(replace_saler_form.replace_salers) }}
+    {% endif %}
+    {% if client_order %}
+    <div class="form-group" {% if g.user.is_super_leader() or g.user.is_leader() or client_order.can_media_leader_action(g.user) %}{% else %} style="display:none;"{% endif %}>
+      <label class="col-sm-2 control-label" style="color:red;">单笔返点 : </label>
+      <div class="col-sm-4" id="self_rebate_status">
+        <select name="self_rebate" id="self_rebate" style="width:300px;">
+          <option value="0">无单笔返点</option>
+          <option value="1">有单笔返点</option>
+        </select>
+      </div>
+      <div class="col-sm-10" id="self_rebate_value" style="display:none;">
+        <input type="text" id="self_rabate_value" name="self_rabate_value" class="form-control bra-form-control" value='0'>
+        <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
+      </div>
+    </div>
     {% endif %}
     {% if mediums %}
     <hr/>
@@ -175,6 +199,59 @@ $(document).ready(function(){
       endDate.setDate(endDate.getDate() + 90); 
       $('#reminde_date').val(endDate.Format("yyyy-MM-dd"))
     });
+    {% if client_order %}
+    $("#self_rebate").change(function(e){
+      var self_rebate = $('#self_rebate').val()
+      if(self_rebate==1){
+        $('#self_rebate_status').css('display', 'none');
+        $('#self_rebate_value').css('display', 'block');
+      }else{
+        $('#self_rebate_value').css('display', 'none');
+        $('#self_rebate_status').css('display', 'block');
+      }
+      set_default_rebate()
+    })
+    var self_agent_rebate = "{{client_order.self_agent_rebate}}";
+    var p_self_agent_rebate = self_agent_rebate.split('-')
+    $('#self_rebate').val(p_self_agent_rebate[0]);
+    $('#self_rabate_value').val(p_self_agent_rebate[1]);
+    $("#self_rebate").trigger("chosen:updated");
+    if (p_self_agent_rebate[0] == '0'){
+      $('#self_rebate_value').css('display', 'none');
+      $('#self_rebate_status').css('display', 'block');
+    }else{
+      $('#self_rebate_value').css('display', 'block');
+      $('#self_rebate_status').css('display', 'none');
+    }
+    /**
+    $('#agent').change(function(){
+      set_default_rebate();
+    })
+    $('#client_start').change(function(){
+      set_default_rebate();
+    })**/
+    {% endif %}
 });
+function set_default_rebate(){
+  $.ajax({
+    type: 'POST',
+    url: "/clients/agent/get_rebate_json",
+    data: {'agent_id':$('#agent').val(), 'year': $('#client_start').val()},
+    dataType: 'json',
+    success:function(data) {
+        var rebate = data['rebate'];
+        var money = $('#money').val();
+        var rebate_money = parseFloat(rebate / 100) * parseFloat(money)
+        $('#self_rabate_value').val(parseInt(rebate_money))
+    }
+  });
+}
+function default_rebate(){
+    $('#self_rebate').val(0);
+    $('#self_rabate_value').val('0');
+    $("#self_rebate").trigger("chosen:updated");
+    $('#self_rebate_value').css('display', 'none');
+    $('#self_rebate_status').css('display', 'block');
+}
 </script>
 {%- endmacro %}

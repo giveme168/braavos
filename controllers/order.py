@@ -298,6 +298,8 @@ def order_info(order_id, tab_id=1):
         k.id for k in order.replace_sales]
     if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
+        self_rebate = int(request.values.get('self_rebate', 0))
+        self_rabate_value = float(request.values.get('self_rabate_value', 0))
         if info_type == 0:
             if not order.can_admin(g.user):
                 flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
@@ -322,6 +324,7 @@ def order_info(order_id, tab_id=1):
                     if g.user.is_super_admin():
                         order.replace_sales = User.gets(
                             replace_saler_form.replace_salers.data)
+                        order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
                     order.save()
                     order.add_comment(g.user, u"更新了客户订单")
                     flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
@@ -604,6 +607,14 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_FINISH
         order.finish_time = finish_time
         to_users = to_users + order.leaders + User.medias() + User.contracts()
+    elif action == 21:
+        self_rebate = int(request.values.get('self_rebate', '0'))
+        self_rebate_value = float(request.values.get('self_rabate_value', '0'))
+        order.contract_status = CONTRACT_STATUS_APPLYPASS
+        order.self_agent_rebate = str(self_rebate) + '-' + str(self_rebate_value)
+        action_msg = u"审批通过"
+        to_users = to_users + order.leaders + User.contracts()
+        _insert_executive_report(order, '')
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
         order.insert_reject_time()
@@ -705,6 +716,14 @@ def display_orders(orders, title, status_id=-1):
     if status_id >= 0:
         if status_id == 30:
             orders = [o for o in orders if o.medium_status == 0]
+        elif status_id == 31:
+            orders = [o for o in orders if o.back_money_status == 0]
+        elif status_id == 32:
+            orders = [o for o in orders if o.back_money_status != 0]
+        elif status_id == 33:
+            orders = [o for o in orders if o.invoice_pass_sum != float(o.money)]
+        elif status_id == 34:
+            orders = [o for o in orders if o.invoice_pass_sum == float(o.money)]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
@@ -1061,11 +1080,7 @@ def my_medium_framework_orders():
             orders = [o for o in orders if o.contract_status ==
                       CONTRACT_STATUS_APPLYCONTRACT]
         elif g.user.is_media() or g.user.is_media_leader():
-            orders = [
-                o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
-    elif g.user.is_leader():
-        orders = [
-            o for o in MediumFrameworkOrder.all() if g.user.location in o.locations]
+            orders = [o for o in MediumFrameworkOrder.all() if g.user.location in o.locations]
     else:
         orders = MediumFrameworkOrder.get_order_by_user(g.user)
     return medium_framework_display_orders(orders, u'我的媒体框架订单')
@@ -1419,7 +1434,12 @@ def douban_display_orders(orders, title, status_id=-1):
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
-        orders = [o for o in orders if o.contract_status == status_id]
+        if status_id == 31:
+            orders = [o for o in orders if o.back_money_status == 0]
+        elif status_id == 32:
+            orders = [o for o in orders if o.back_money_status != 0]
+        else:
+            orders = [o for o in orders if o.contract_status == status_id]
     orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
     if search_info != '':
         orders = [

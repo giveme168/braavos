@@ -9,6 +9,8 @@ from models.user import User, UserOnDuty, Leave, LEAVE_TYPE_CN
 from libs.mail import check_auth_by_mail
 from controllers.api.sdk.baidu_push.Channel import Channel
 from controllers.api.sdk.baidu_push.lib.ChannelException import ChannelException
+from controllers.account.onduty import (_format_out, _format_leave, _get_last_onduty_date,
+                                        _format_onduty, _get_onduty)
 
 api_account_bp = Blueprint('api_account', __name__)
 
@@ -83,6 +85,29 @@ def onduty_create(uid):
                              'check_time': onduty.check_time.strftime('%Y-%m-%d %H:%M:%S')
                              }
                     })
+
+
+@api_account_bp.route('/<uid>/onduty/index', methods=['GET'])
+def onduty_index(uid):
+    user = User.get(uid)
+    start_time = request.values.get('start_time', '')
+    end_time = request.values.get('end_time', '')
+    if not start_time and not end_time:
+        end_time = datetime.datetime.strptime(
+            datetime.datetime.now().strftime('%Y-%m-%d'), '%Y-%m-%d')
+        end_time = end_time + datetime.timedelta(days=1)
+        start_time = end_time - datetime.timedelta(days=30)
+    else:
+        start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d')
+        end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d')
+    outs = [k for k in _format_out() if k['creator_id'] == int(uid)]
+    leaves = [k for k in _format_leave() if k['creator_id'] == int(uid)]
+    # 打卡最后一次时间
+    last_onduty_date = _get_last_onduty_date()
+    all_dus = _format_onduty(start_time, end_time)
+    dutys = _get_onduty(all_dus, outs, leaves, user,
+                        start_time, end_time, last_onduty_date)
+    return jsonify({'ret': True, 'data': dutys})
 
 
 @api_account_bp.route('/<uid>/leave/create', methods=['GET', 'POST'])
@@ -160,6 +185,7 @@ def leave_index(uid):
         param['half'] = k.rate_day.split('-')[1]
         param['half_cn'] = k.half_cn
         param['senders'] = [{'id': m.id, 'name': m.name} for m in k.senders]
+        param['leaders'] = [{'name': u.name} for u in k.creator.team_leaders]
         param['reason'] = k.reason
         param['status'] = k.status
         param['status_cn'] = k.status_cn

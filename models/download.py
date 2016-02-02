@@ -38,8 +38,8 @@ def download_excel_table_by_doubanorders(orders):
     excel_table = []
     temp_row = []
     for header_cn in [u"DoubanOrder ID", u"代理/直客", u"客户", u"Campaign",
-                      u"合同金额", u'回款金额', u"合同号", u"开始日期", u"结束日期",
-                      u"回款日期", u"直客销售", u"渠道销售",
+                      u"合同金额", u'回款比例', u'回款金额', u"合同号", u"开始日期",
+                      u"结束日期", u"回款日期", u"直客销售", u"渠道销售",
                       u"区域", u"直签/代理", u"状态"]:
         header_type = StyleTypes.header
         temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, header_cn, header_type))
@@ -52,6 +52,7 @@ def download_excel_table_by_doubanorders(orders):
         temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.client.name or " ", base_type))
         temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.campaign or " ", base_type))
         temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, order.money or 0, base_type))
+        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, str(order.back_money_percent) + "%", base_type))
         temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, order.back_moneys or 0, base_type))
         temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.contract or u"无合同号", base_type))
         temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.start_date_cn or " ", base_type))
