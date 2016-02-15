@@ -23,6 +23,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
                              momo_money, zhihu_money,
                              xiachufang_money, xueqiu_money,
                              huxiu_money, kecheng_money,
+                             weipiao_money, one_money,
                              midi_money, other_money,
                              searchAD_money, rebate_order_money,
                              total):
@@ -43,7 +44,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
 
     worksheet.merge_range(0, 0, 0, 1, u'时间', align_center)
     worksheet.merge_range(1, 0, 1, 1, u'媒体项目', align_center)
-    worksheet.merge_range(2, 0, 73, 0, u'致趣收入', align_center)
+    worksheet.merge_range(2, 0, 85, 0, u'致趣收入', align_center)
 
     locations = [u'华北', u'华东', u'华南']
     month_start, month_end = 2, 4
@@ -75,6 +76,10 @@ def write_medium_money_excel(pre_monthes, douban_money,
                 u'课程格子收入', u'课程格子媒体执行金额', u'课程格子媒体净成本', u'课程格子代理成本', u'课程格子毛利', '']},
             {'FFBB00': [
                 u'迷笛收入', u'迷笛媒体执行金额', u'迷笛媒体净成本', u'迷笛代理成本', u'迷笛毛利', '']},
+            {'FF3333': [
+                u'微票收入', u'微票媒体执行金额', u'微票媒体净成本', u'微票代理成本', u'微票毛利', '']},
+            {'E93EFF': [
+                u'ONE收入', u'One媒体执行金额', u'One媒体净成本', u'One代理成本', u'One毛利', '']},
             {'AAAAAA': [
                 u'其他收入', u'其他媒体执行金额', u'其他媒体净成本', u'其他代理成本', u'其他毛利', '']},
             {'FF0088': [
@@ -210,6 +215,30 @@ def write_medium_money_excel(pre_monthes, douban_money,
         worksheet, align_center, pre_monthes, th, midi_money['a_rebate'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, midi_money['profit'])
+    th += 1
+    # 微票
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, weipiao_money['sale_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, weipiao_money['money2'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, weipiao_money['m_ex_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, weipiao_money['a_rebate'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, weipiao_money['profit'])
+    th += 1
+    # One
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, one_money['sale_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, one_money['money2'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, one_money['m_ex_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, one_money['a_rebate'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, one_money['profit'])
     th += 1
     # 其他
     th = _write_money_in_excel(

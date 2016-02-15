@@ -29,7 +29,7 @@ def _get_medium_moneys(orders, pre_monthes, medium_id):
                 o for o in orders if o['month_day'] == d['month'] and o['status'] == 1]
         else:
             pro_month_orders = [o for o in orders if o['month_day'] == d[
-                'month'] and o['status'] == 1 and o['medium_id'] not in [3, 4, 5, 6, 7, 8, 9, 14, 21]]
+                'month'] and o['status'] == 1 and o['medium_id'] not in [3, 4, 5, 6, 7, 8, 9, 14, 21, 51, 52]]
         for k in range(1, 4):
             location_orders = [
                 o for o in pro_month_orders if len(set(o['locations']) & set([k]))]
@@ -121,6 +121,8 @@ def money():
     huxiu_money = _get_medium_moneys(medium_orders, pre_monthes, 14)
     kecheng_money = _get_medium_moneys(medium_orders, pre_monthes, 4)
     midi_money = _get_medium_moneys(medium_orders, pre_monthes, 21)
+    weipiao_money = _get_medium_moneys(medium_orders, pre_monthes, 52)
+    one_money = _get_medium_moneys(medium_orders, pre_monthes, 51)
     other_money = _get_medium_moneys(medium_orders, pre_monthes, None)
 
     # 获取直签豆瓣数据
@@ -182,6 +184,8 @@ def money():
         numpy.array(huxiu_money['sale_money']) +\
         numpy.array(kecheng_money['sale_money']) +\
         numpy.array(midi_money['sale_money']) +\
+        numpy.array(weipiao_money['sale_money']) +\
+        numpy.array(one_money['sale_money']) +\
         numpy.array(other_money['sale_money']) +\
         numpy.array(searchAD_money['sale_money']) +\
         numpy.array(rebate_order_money['ex_money'])
@@ -191,6 +195,7 @@ def money():
                                             momo_money=momo_money, zhihu_money=zhihu_money,
                                             xiachufang_money=xiachufang_money, xueqiu_money=xueqiu_money,
                                             huxiu_money=huxiu_money, kecheng_money=kecheng_money,
+                                            weipiao_money=weipiao_money, one_money=one_money,
                                             midi_money=midi_money, other_money=other_money,
                                             searchAD_money=searchAD_money, rebate_order_money=rebate_order_money,
                                             total=total,
@@ -202,6 +207,7 @@ def money():
                momo_money=momo_money, zhihu_money=zhihu_money,
                xiachufang_money=xiachufang_money, xueqiu_money=xueqiu_money,
                huxiu_money=huxiu_money, kecheng_money=kecheng_money,
+               weipiao_money=weipiao_money, one_money=one_money,
                midi_money=midi_money, other_money=other_money, total=total,
                searchAD_money=searchAD_money, rebate_order_money=rebate_order_money,
                year=str(year))

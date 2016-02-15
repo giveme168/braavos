@@ -35,7 +35,7 @@
         <td></td>
     </tr>
     <tr>
-        <td rowspan=72>致趣收入</td>
+        <td rowspan=88>致趣收入</td>
         <td  style="background-color:#CCFF99;">豆瓣执行收入</td>
         {% for k in douban_money.ex_money %}
         <td>{{k|format_price}}</td>
@@ -407,6 +407,85 @@
         {% endfor %}
         <td>{{ midi_money.profit|sum()|format_price }}</td>
     </tr>
+
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF3333;">微票收入</td>
+        {% for k in weipiao_money.sale_money %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ weipiao_money.sale_money|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF3333;">微票媒体执行金额</td> 
+        {% for k in weipiao_money.money2 %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ weipiao_money.money2|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF3333;">微票媒体净成本</td> 
+        {% for k in weipiao_money.m_ex_money %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ weipiao_money.m_ex_money|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF3333;">微票代理成本</td>
+        {% for k in weipiao_money.a_rebate %}
+        <td>{{k|format_price}}</td>
+        {% endfor %} 
+        <td>{{ weipiao_money.a_rebate|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#FF3333;">微票毛利</td> 
+        {% for k in weipiao_money.profit %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ weipiao_money.profit|sum()|format_price }}</td>
+    </tr>
+
+    <tr>
+        <td colspan=36 style="height:30px;"></td>
+    </tr>
+    <tr>
+        <td style="background-color:#E93EFF;">ONE收入</td>
+        {% for k in one_money.sale_money %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ one_money.sale_money|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#E93EFF;">ONE媒体执行金额</td> 
+        {% for k in one_money.money2 %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ one_money.money2|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#E93EFF;">ONE媒体净成本</td> 
+        {% for k in one_money.m_ex_money %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ one_money.m_ex_money|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#E93EFF;">ONE代理成本</td>
+        {% for k in one_money.a_rebate %}
+        <td>{{k|format_price}}</td>
+        {% endfor %} 
+        <td>{{ one_money.a_rebate|sum()|format_price }}</td>
+    </tr>
+    <tr>
+        <td style="background-color:#E93EFF;">ONE毛利</td> 
+        {% for k in one_money.profit %}
+        <td>{{k|format_price}}</td>
+        {% endfor %}
+        <td>{{ one_money.profit|sum()|format_price }}</td>
+    </tr>
+
     <tr>
         <td colspan=36 style="height:30px;"></td>
     </tr>
