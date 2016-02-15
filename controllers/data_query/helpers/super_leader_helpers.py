@@ -39,7 +39,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
         worksheet.set_column(k + 2, 2, 10)
     worksheet.set_column(1, 1, 30)
     # 设置高度
-    for k in range(0, 74):
+    for k in range(0, 86):
         worksheet.set_row(k, 30)
 
     worksheet.merge_range(0, 0, 0, 1, u'时间', align_center)
