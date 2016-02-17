@@ -22,7 +22,7 @@ function test(data){
     }
 }
 
-var url = 'http://54.222.128.118:8222/req/?unit=' + ADSCODE+'&callback=test',
+var url = 'http://r.inad.com/req/?unit=' + ADSCODE+'&callback=test',
     newScript=window.document.createElement('script'),
     firstScript=window.document.getElementsByTagName('script')[0];
     newScript.setAttribute('type', 'text/javascript');

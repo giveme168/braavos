@@ -171,7 +171,7 @@
                 {% elif t_type == 'medium_invoice' %}
                     <a href="{{url_for('finance_client_order_medium_pay.info',order_id=o.client_order.id)}}">
                 {% elif t_type == 'pay_medium_invoice' %}
-                    <a href="{{url_for('finance_client_order_medium_pay.pay_info', invoice_id=o.id)}}">
+                    <a href="{{url_for('finance_client_order_medium_pay.info',order_id=o.client_order.id)}}">
                 {% elif t_type == 'medium_rebate_invoice' %}
                     <a href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=o.client_order.id)}}">
                 {% endif %}
