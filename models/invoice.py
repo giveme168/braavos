@@ -306,6 +306,12 @@ class MediumInvoice(db.Model, BaseModelMixin):
                     if k.pay_status == MEDIUM_INVOICE_STATUS_PASS])
 
     @property
+    def rebate_invoice(self):
+        rebate_invoice = MediumRebateInvoice.query.filter_by(client_order_id=self.client_order_id,
+                                                             medium_id=self.medium_id)
+        return float(sum([i.money for i in rebate_invoice]))
+
+    @property
     def get_unpay_money(self):
         return self.money - self.get_pay_money
 

@@ -28,6 +28,7 @@
         <th>已打款金额</th>
         <th>申请中打款金额</th>
         <th>未打款金额</th>
+        <th>返点发票总金额</th>
         <th>开票时间</th>
         <th>发票类型</th>
         <th>发票号</th>
@@ -48,6 +49,7 @@
           <td>{{invoice.get_apply_pay_money}}元</td>
         {% endif %}
         <td>{{invoice.get_unpay_money}}元</td>
+        <td>{{invoice.rebate_invoice}}元</td>
         <td>{{invoice.add_time_cn}}</td>
         <td>{{invoice.invoice_type_cn}}</td>
         <td>{{invoice.invoice_num}}</td>
