@@ -169,7 +169,7 @@ def index():
         xls = write_excel(orders, query_type, th_obj)
         response = get_download_response(xls, filename)
         return response
-    return tpl('index.html',
+    return tpl('/data_query/order/index.html',
                orders=orders,
                page=page,
                query_type=query_type,
