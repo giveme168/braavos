@@ -17,19 +17,20 @@ data_query_super_leader_medium_bp = Blueprint(
     'data_query_super_leader_medium', __name__, template_folder='../../templates/data_query')
 
 
-def _get_medium_moneys(orders, pre_monthes, medium_id):
+def _get_medium_moneys(orders, pre_monthes, medium_ids):
     money_obj = {'sale_money': [], 'money2': [],
                  'm_ex_money': [], 'a_rebate': [], 'profit': []}
     for d in pre_monthes:
-        if medium_id:
+        if isinstance(medium_ids, list):
             pro_month_orders = [o for o in orders if o['month_day'] == d[
-                'month'] and o['status'] == 1 and o['medium_id'] == medium_id]
-        elif medium_id == 0:
+                'month'] and o['status'] == 1 and o['medium_id'] in medium_ids]
+        elif medium_ids == 0:
             pro_month_orders = [
                 o for o in orders if o['month_day'] == d['month'] and o['status'] == 1]
         else:
             pro_month_orders = [o for o in orders if o['month_day'] == d[
-                'month'] and o['status'] == 1 and o['medium_id'] not in [3, 4, 5, 6, 7, 8, 9, 14, 21, 51, 52]]
+                'month'] and o['status'] == 1 and o['medium_id'] not in [3, 4, 5, 6, 7, 8, 9, 14, 21, 51, 52, 57]]
+
         for k in range(1, 4):
             location_orders = [
                 o for o in pro_month_orders if len(set(o['locations']) & set([k]))]
@@ -112,17 +113,17 @@ def money():
     searchAD_money['profit'] = numpy.array(
         searchAD_money['profit']) + numpy.array(rebate_order_money['ex_money'])
     # 搜索部门合同结束
-    youli_money = _get_medium_moneys(medium_orders, pre_monthes, 3)
-    wuxian_money = _get_medium_moneys(medium_orders, pre_monthes, 8)
-    momo_money = _get_medium_moneys(medium_orders, pre_monthes, 7)
-    zhihu_money = _get_medium_moneys(medium_orders, pre_monthes, 5)
-    xiachufang_money = _get_medium_moneys(medium_orders, pre_monthes, 6)
-    xueqiu_money = _get_medium_moneys(medium_orders, pre_monthes, 9)
-    huxiu_money = _get_medium_moneys(medium_orders, pre_monthes, 14)
-    kecheng_money = _get_medium_moneys(medium_orders, pre_monthes, 4)
-    midi_money = _get_medium_moneys(medium_orders, pre_monthes, 21)
-    weipiao_money = _get_medium_moneys(medium_orders, pre_monthes, 52)
-    one_money = _get_medium_moneys(medium_orders, pre_monthes, 51)
+    youli_money = _get_medium_moneys(medium_orders, pre_monthes, [3])
+    wuxian_money = _get_medium_moneys(medium_orders, pre_monthes, [8])
+    momo_money = _get_medium_moneys(medium_orders, pre_monthes, [7])
+    zhihu_money = _get_medium_moneys(medium_orders, pre_monthes, [5])
+    xiachufang_money = _get_medium_moneys(medium_orders, pre_monthes, [6])
+    xueqiu_money = _get_medium_moneys(medium_orders, pre_monthes, [9])
+    huxiu_money = _get_medium_moneys(medium_orders, pre_monthes, [14, 57])
+    kecheng_money = _get_medium_moneys(medium_orders, pre_monthes, [4])
+    midi_money = _get_medium_moneys(medium_orders, pre_monthes, [21])
+    weipiao_money = _get_medium_moneys(medium_orders, pre_monthes, [52])
+    one_money = _get_medium_moneys(medium_orders, pre_monthes, [51])
     other_money = _get_medium_moneys(medium_orders, pre_monthes, None)
 
     # 获取直签豆瓣数据
