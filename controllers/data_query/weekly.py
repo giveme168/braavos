@@ -45,17 +45,6 @@ def _executive_report(order, user, now_year, monthes, sale_type):
                 break
             else:
                 pre_money = 0
-        '''
-        try:
-            pre_report = pre_reports.filter_by(
-                month_day=datetime.datetime(int(now_year), int(j), 1).date()).first()
-        except:
-            pre_report = None
-        try:
-            pre_money = pre_report.money
-        except:
-            pre_money = 0
-        '''
         try:
             moneys.append(round(pre_money / count / l_count, 2))
         except:

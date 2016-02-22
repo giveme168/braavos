@@ -46,24 +46,25 @@ def download_excel_table_by_doubanorders(orders):
     excel_table.append(temp_row)  # 表头
     base_type = StyleTypes.base
     for order in orders:
-        temp_row = []
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, order.id, base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.agent.name or " ", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.client.name or " ", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.campaign or " ", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, order.money or 0, base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, str(order.back_money_percent) + "%", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, order.back_moneys or 0, base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.contract or u"无合同号", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.start_date_cn or " ", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.end_date_cn or " ", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.reminde_date_cn or " ", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.direct_sales_names or " ", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.agent_sales_names or " ", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.locations_cn or " ", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.sale_type_cn or " ", base_type))
-        temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.contract_status_cn or " ", base_type))
-        excel_table.append(temp_row)
+        if order.contract:
+            temp_row = []
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, order.id, base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.agent.name or " ", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.client.name or " ", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.campaign or " ", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, order.money or 0, base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, str(order.back_money_percent) + "%", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, order.back_moneys or 0, base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.contract or u"无合同号", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.start_date_cn or " ", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.end_date_cn or " ", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.reminde_date_cn or " ", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.direct_sales_names or " ", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.agent_sales_names or " ", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.locations_cn or " ", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.sale_type_cn or " ", base_type))
+            temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.contract_status_cn or " ", base_type))
+            excel_table.append(temp_row)
     return excel_table
 
 
