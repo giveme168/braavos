@@ -87,6 +87,8 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
     reminde_date = db.Column(db.Date)  # 最迟回款日期
 
     direct_sales = db.relationship('User', secondary=direct_sales)
@@ -123,6 +125,8 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
         self.reminde_date = reminde_date or datetime.date.today()
 
         self.direct_sales = direct_sales or []

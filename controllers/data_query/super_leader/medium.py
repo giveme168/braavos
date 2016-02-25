@@ -2,7 +2,7 @@
 import datetime
 import numpy
 
-from flask import Blueprint, request
+from flask import Blueprint, request, json
 from flask import render_template as tpl
 
 from libs.date_helpers import get_monthes_pre_days
@@ -59,6 +59,22 @@ def _get_medium_moneys(orders, pre_monthes, medium_ids):
     return money_obj
 
 
+def _parse_dict_order(order):
+    d_order = {}
+    client_order = json.loads(order.order_json)
+    d_order.update(client_order)
+    medium_order = json.loads(order.medium_order_json)
+    d_order.update(medium_order)
+
+    d_order['month_day'] = order.month_day
+    d_order['status'] = order.status
+    d_order['sale_money'] = order.sale_money
+    d_order['medium_money2'] = order.medium_money2
+    d_order['medium_rebate'] = order.order.medium_rebate_by_year(d_order['month_day'])
+    d_order['agent_rebate'] = order.client_order.agent_rebate
+    return d_order
+
+
 @data_query_super_leader_medium_bp.route('/money', methods=['GET'])
 def money():
     now_date = datetime.datetime.now()
@@ -74,24 +90,14 @@ def money():
     medium_orders = MediumOrderExecutiveReport.query.filter(
         MediumOrderExecutiveReport.month_day >= start_date_month,
         MediumOrderExecutiveReport.month_day <= end_date_month)
-    medium_orders = [{'month_day': k.month_day, 'order_id': k.client_order.id,
-                      'status': k.status, 'medium_id': k.order.medium_id,
-                      'locations': list(set(k.locations)), 'sale_money': k.sale_money,
-                      'medium_money2': k.medium_money2,
-                      'medium_rebate': k.order.medium_rebate_by_year(k.month_day),
-                      'agent_rebate': k.client_order.agent_rebate} for k in medium_orders]
+    medium_orders = [_parse_dict_order(k) for k in medium_orders if k.status == 1]
 
     # 搜索部门合同
     # 普通订单
     searchAd_medium_orders = searchAdMediumOrderExecutiveReport.query.filter(
         searchAdMediumOrderExecutiveReport.month_day >= start_date_month,
         searchAdMediumOrderExecutiveReport.month_day <= end_date_month)
-    searchAd_medium_orders = [{'month_day': k.month_day, 'order_id': k.client_order.id,
-                               'status': k.status, 'medium_id': k.order.medium_id,
-                               'locations': k.locations, 'sale_money': k.sale_money,
-                               'medium_money2': k.medium_money2,
-                               'medium_rebate': k.order.medium_rebate_by_year(k.month_day),
-                               'agent_rebate': k.client_order.agent_rebate} for k in searchAd_medium_orders]
+    searchAd_medium_orders = [_parse_dict_order(k) for k in searchAd_medium_orders if k.status == 1]
     searchAD_money = _get_medium_moneys(searchAd_medium_orders, pre_monthes, 0)
     # 返点订单
     searchAd_rebate_orders = searchAdRebateOrderExecutiveReport.query.filter(

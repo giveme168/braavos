@@ -1,12 +1,12 @@
 # -*- coding: UTF-8 -*-
 import datetime
-from flask import url_for, g
+from flask import url_for, g, json
 from models import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from models.item import ITEM_STATUS_LEADER_ACTIONS
-from models.user import User, TEAM_LOCATION_CN
+from models.user import TEAM_LOCATION_CN
 from models.consts import DATE_FORMAT
 from ..models.framework_order import searchAdFrameworkOrder
 
@@ -50,7 +50,7 @@ AD_PROMOTION_TYPE_CN = {
     3: u'360导航猜你喜欢',
     4: u'360导航CPT',
     5: 'CPA',
-    6: 'CPT',  
+    6: 'CPT',
     7: 'CPC',
     8: 'CPD',
 }
@@ -138,6 +138,8 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
     reminde_date = db.Column(db.Date)  # 最迟回款日期
     resource_type = db.Column(db.Integer)  # 资源形式
     sale_type = db.Column(db.Integer)  # 资源形式
@@ -178,6 +180,8 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
 
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
         self.reminde_date = reminde_date or datetime.date.today()
         self.resource_type = resource_type
 
@@ -933,6 +937,10 @@ class searchAdClientOrderExecutiveReport(db.Model, BaseModelMixin):
     month_day = db.Column(db.DateTime)
     days = db.Column(db.Integer)
     create_time = db.Column(db.DateTime)
+    # 合同文件打包
+    order_json = db.Column(db.Text(), default=json.dumps({}))
+    status = db.Column(db.Integer, index=True)
+    contract_status = db.Column(db.Integer, index=True)
     __table_args__ = (db.UniqueConstraint(
         'client_order_id', 'month_day', name='_searchAd_client_order_month_day'),)
     __mapper_args__ = {'order_by': create_time.desc()}
@@ -943,6 +951,29 @@ class searchAdClientOrderExecutiveReport(db.Model, BaseModelMixin):
         self.month_day = month_day or datetime.date.today()
         self.days = days
         self.create_time = create_time or datetime.date.today()
+        # 合同文件打包
+        self.status = client_order.status
+        self.contract_status = client_order.contract_status
+        # 获取相应合同字段
+        dict_order = {}
+        dict_order['client_name'] = client_order.client.name
+        dict_order['agent_name'] = client_order.agent.name
+        dict_order['contract'] = client_order.contract
+        dict_order['campaign'] = client_order.campaign
+        dict_order['industry_cn'] = client_order.client.industry_cn
+        dict_order['locations'] = client_order.locations
+        dict_order['sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.direct_sales]
+        dict_order['salers_ids'] = [k['id'] for k in dict_order['sales']]
+        dict_order['get_saler_leaders'] = [
+            k.id for k in client_order.get_saler_leaders()]
+        dict_order['resource_type_cn'] = client_order.resource_type_cn
+        dict_order['operater_users'] = [
+            {'id': k.id, 'name': k.name}for k in client_order.operater_users]
+        dict_order['client_start'] = client_order.client_start.strftime(
+            '%Y-%m-%d')
+        dict_order['client_end'] = client_order.client_end.strftime('%Y-%m-%d')
+        self.order_json = json.dumps(dict_order)
 
     @property
     def month_cn(self):

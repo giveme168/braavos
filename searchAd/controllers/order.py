@@ -13,7 +13,7 @@ from models.attachment import Attachment
 # from models.download import (download_excel_table_by_doubanorders,
 #                             download_excel_table_by_frameworkorders)
 
-from ..models.client import searchAdClient, searchAdGroup, searchAdAgent, searchAdAgentRebate
+from ..models.client import searchAdClient, searchAdAgent
 from ..models.medium import searchAdMedium
 from ..models.order import searchAdOrder, searchAdMediumOrderExecutiveReport
 from searchAd.models.rebate_order import searchAdRebateOrder, searchAdRebateOrderExecutiveReport
@@ -28,7 +28,6 @@ from ..models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATU
                                    CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH)
 from ..forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm, RebateOrderForm
 
-from libs.signals import contract_apply_signal
 from libs.email_signals import zhiqu_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
@@ -38,6 +37,20 @@ searchAd_order_bp = Blueprint(
     'searchAd_order', __name__, template_folder='../../templates/searchAdorder')
 
 ORDER_PAGE_NUM = 50
+
+
+def _reload_status_executive_report(order):
+    reports = []
+    if order.__tablename__ == 'searchad_bra_rebate_order':
+        reports = searchAdRebateOrderExecutiveReport.query.filter_by(rebate_order=order)
+    elif order.__tablename__ == 'searchAd_bra_client_order':
+        reports = list(searchAdClientOrderExecutiveReport.query.filter_by(client_order=order))
+        reports += list(searchAdMediumOrderExecutiveReport.query.filter_by(client_order=order))
+    for r in reports:
+        r.status = order.status
+        r.contract_status = order.contract_status
+        r.save()
+    return
 
 
 def _delete_executive_report(order):
@@ -239,6 +252,8 @@ def order_info(order_id, tab_id=1):
                         round(float(client_form.money.data or 0)))
                     order.client_start = client_form.client_start.data
                     order.client_end = client_form.client_end.data
+                    order.client_start_year = client_form.client_start.data.year
+                    order.client_end_year = client_form.client_end.data.year
                     order.reminde_date = client_form.reminde_date.data
                     order.direct_sales = User.gets(
                         client_form.direct_sales.data)
@@ -474,6 +489,8 @@ def contract_status_change(order, action, emails, msg):
         action_msg = u"合同被驳回，请从新提交审核"
         _delete_executive_report(order)
     order.save()
+    # 重置报表状态
+    _reload_status_executive_report(order)
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     context = {
         "to_other": emails,
@@ -812,6 +829,8 @@ def framework_order_info(order_id):
                     order.money = framework_form.money.data
                     order.client_start = framework_form.client_start.data
                     order.client_end = framework_form.client_end.data
+                    order.client_start_year = framework_form.client_start.data.year
+                    order.client_end_year = framework_form.client_end.data.year
                     order.reminde_date = framework_form.reminde_date.data
                     order.sales = User.gets(framework_form.sales.data)
                     order.contract_type = framework_form.contract_type.data
@@ -1069,6 +1088,8 @@ def rebate_order_info(order_id):
                     order.medium_CPM = form.medium_CPM.data
                     order.client_start = form.client_start.data
                     order.client_end = form.client_end.data
+                    order.client_start_year = form.client_start.data.year
+                    order.client_end_year = form.client_end.data.year
                     order.reminde_date = form.reminde_date.data
                     order.sales = User.gets(form.sales.data)
                     order.operaters = User.gets(form.operaters.data)

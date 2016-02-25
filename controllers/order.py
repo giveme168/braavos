@@ -145,6 +145,21 @@ def _delete_executive_report(order):
     return
 
 
+def _reload_status_executive_report(order):
+    reports = []
+    if order.__tablename__ == 'bra_douban_order':
+        reports = DoubanOrderExecutiveReport.query.filter_by(douban_order=order)
+
+    elif order.__tablename__ == 'bra_client_order':
+        reports = list(ClientOrderExecutiveReport.query.filter_by(client_order=order))
+        reports += list(MediumOrderExecutiveReport.query.filter_by(client_order=order))
+    for r in reports:
+        r.status = order.status
+        r.contract_status = order.contract_status
+        r.save()
+    return
+
+
 def _insert_executive_report(order, rtype):
     if order.contract == '' or order.contract_status not in [2, 4, 5, 20]:
         return False
@@ -314,6 +329,8 @@ def order_info(order_id, tab_id=1):
                         round(float(client_form.money.data or 0)))
                     order.client_start = client_form.client_start.data
                     order.client_end = client_form.client_end.data
+                    order.client_start_year = client_form.client_start.data.year
+                    order.client_end_year = client_form.client_end.data.year
                     order.reminde_date = client_form.reminde_date.data
                     order.direct_sales = User.gets(
                         client_form.direct_sales.data)
@@ -621,6 +638,8 @@ def contract_status_change(order, action, emails, msg):
         action_msg = u"合同被驳回，请从新提交审核"
         _delete_executive_report(order)
     order.save()
+    # 重置报表状态
+    _reload_status_executive_report(order)
     flash(u'[%s] %s ' % (order.name, action_msg), 'success')
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and action == 5:
         to_users += User.douban_contracts()
@@ -888,6 +907,8 @@ def framework_order_info(order_id):
                     order.money = framework_form.money.data
                     order.client_start = framework_form.client_start.data
                     order.client_end = framework_form.client_end.data
+                    order.client_start_year = framework_form.client_start.data.year
+                    order.client_end_year = framework_form.client_end.data.year
                     order.reminde_date = framework_form.reminde_date.data
                     order.direct_sales = User.gets(
                         framework_form.direct_sales.data)
@@ -1153,6 +1174,8 @@ def medium_framework_order_info(order_id):
                     order.money = framework_form.money.data
                     order.client_start = framework_form.client_start.data
                     order.client_end = framework_form.client_end.data
+                    order.client_start_year = framework_form.client_start.data.year
+                    order.client_end_year = framework_form.client_end.data.year
                     order.medium_users = User.gets(
                         framework_form.medium_users.data)
                     order.contract_type = framework_form.contract_type.data
@@ -1327,6 +1350,8 @@ def douban_order_info(order_id):
                     order.medium_CPM = form.medium_CPM.data
                     order.client_start = form.client_start.data
                     order.client_end = form.client_end.data
+                    order.client_start_year = form.client_start.data.year
+                    order.client_end_year = form.client_end.data.year
                     order.reminde_date = form.reminde_date.data
                     order.direct_sales = User.gets(form.direct_sales.data)
                     order.agent_sales = User.gets(form.agent_sales.data)

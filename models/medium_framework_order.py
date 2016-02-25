@@ -78,6 +78,8 @@ class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMix
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
 
     medium_users = db.relationship('User', secondary=medium_users)
 
@@ -107,6 +109,8 @@ class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMix
         self.contract_type = contract_type
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
         self.medium_users = medium_users or []
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()

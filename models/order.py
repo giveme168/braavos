@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 from collections import defaultdict
-from flask import url_for
+from flask import url_for, json
 from xlwt import Utils
 
 from . import db, BaseModelMixin
@@ -752,6 +752,12 @@ class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
     sale_money = db.Column(db.Float())
     month_day = db.Column(db.DateTime, index=True)
     days = db.Column(db.Integer)
+    # 合同文件打包
+    order_json = db.Column(db.Text(), default=json.dumps({}))
+    medium_order_json = db.Column(db.Text(), default=json.dumps({}))
+    status = db.Column(db.Integer, index=True)
+    contract_status = db.Column(db.Integer, index=True)
+
     create_time = db.Column(db.DateTime)
     __table_args__ = (db.UniqueConstraint(
         'client_order_id', 'order_id', 'month_day', name='_medium_order_month_day'),)
@@ -767,6 +773,37 @@ class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
         self.month_day = month_day or datetime.date.today()
         self.days = days
         self.create_time = create_time or datetime.date.today()
+        # 合同文件打包
+        self.status = client_order.status
+        self.contract_status = client_order.contract_status
+        # 获取相应合同字段
+        dict_order = {}
+        dict_order['client_name'] = client_order.client.name
+        dict_order['agent_name'] = client_order.agent.name
+        dict_order['contract'] = client_order.contract
+        dict_order['campaign'] = client_order.campaign
+        dict_order['industry_cn'] = client_order.client.industry_cn
+        dict_order['locations'] = client_order.locations
+        dict_order['direct_sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.direct_sales]
+        dict_order['agent_sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.agent_sales]
+        dict_order['salers_ids'] = [k['id']
+                                    for k in (dict_order['direct_sales'] + dict_order['agent_sales'])]
+        dict_order['get_saler_leaders'] = [
+            k.id for k in client_order.get_saler_leaders()]
+        dict_order['resource_type_cn'] = client_order.resource_type_cn
+        dict_order['operater_users'] = [
+            {'id': k.id, 'name': k.name}for k in client_order.operater_users]
+        dict_order['client_start'] = client_order.client_start.strftime(
+            '%Y-%m-%d')
+        dict_order['client_end'] = client_order.client_end.strftime('%Y-%m-%d')
+        self.order_json = json.dumps(dict_order)
+        # 媒体合同
+        dict_medium_order = {'medium_id': order.medium_id,
+                             'sale_money': order.sale_money,
+                             'medium_money2': order.medium_money2}
+        self.medium_order_json = json.dumps(dict_medium_order)
 
     @property
     def month_cn(self):
@@ -775,10 +812,6 @@ class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
     @property
     def locations(self):
         return self.client_order.locations
-
-    @property
-    def status(self):
-        return self.client_order.status
 
 
 class StyleTypes(object):

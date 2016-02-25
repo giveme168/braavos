@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
-from flask import url_for, g
+from flask import url_for, g, json
 
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
@@ -126,6 +126,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
     reminde_date = db.Column(db.Date)  # 最迟回款日期
     resource_type = db.Column(db.Integer)  # 资源形式
     sale_type = db.Column(db.Integer)  # 资源形式
@@ -167,6 +169,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
         self.reminde_date = reminde_date or datetime.date.today()
         self.resource_type = resource_type
 
@@ -499,7 +503,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         leaders = []
         for k in salers:
             leaders += k.team_leaders
-        owner = salers + [self.creator] + self.operater_users + list(set(leaders))
+        owner = salers + [self.creator] + \
+            self.operater_users + list(set(leaders))
         return user.is_admin() or user in owner
 
     def order_agent_owner(self, user):
@@ -532,10 +537,14 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         search_info = self.search_info
         search_info += ''.join(
             [k.invoice_num for k in Invoice.query.filter_by(client_order=self)])
-        search_info += ''.join([k.invoice_num for k in MediumRebateInvoice.query.filter_by(client_order=self)])
-        search_info += ''.join([k.invoice_num for k in MediumInvoice.query.filter_by(client_order=self)])
-        search_info += ''.join([k.invoice_num for k in AgentInvoice.query.filter_by(client_order=self)])
-        search_info += ''.join([k.invoice_num for k in OutsourceInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in MediumRebateInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in MediumInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in AgentInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in OutsourceInvoice.query.filter_by(client_order=self)])
         return search_info
 
     @property
@@ -667,7 +676,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def medium_back_moneys(self):
-        medium_back_money = MediumBackMoney.query.filter_by(client_order_id=self.id)
+        medium_back_money = MediumBackMoney.query.filter_by(
+            client_order_id=self.id)
         return sum([k.money for k in medium_back_money])
 
     @property
@@ -1155,6 +1165,11 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
     month_day = db.Column(db.DateTime, index=True)
     days = db.Column(db.Integer)
     create_time = db.Column(db.DateTime)
+    # 合同文件打包
+    order_json = db.Column(db.Text(), default=json.dumps({}))
+    status = db.Column(db.Integer, index=True)
+    contract_status = db.Column(db.Integer, index=True)
+
     __table_args__ = (db.UniqueConstraint(
         'client_order_id', 'month_day', name='_client_order_month_day'),)
     __mapper_args__ = {'order_by': month_day.desc()}
@@ -1165,6 +1180,32 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
         self.month_day = month_day or datetime.date.today()
         self.days = days
         self.create_time = create_time or datetime.date.today()
+        # 合同文件打包
+        self.status = client_order.status
+        self.contract_status = client_order.contract_status
+        # 获取相应合同字段
+        dict_order = {}
+        dict_order['client_name'] = client_order.client.name
+        dict_order['agent_name'] = client_order.agent.name
+        dict_order['contract'] = client_order.contract
+        dict_order['campaign'] = client_order.campaign
+        dict_order['industry_cn'] = client_order.client.industry_cn
+        dict_order['locations'] = client_order.locations
+        dict_order['direct_sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.direct_sales]
+        dict_order['agent_sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.agent_sales]
+        dict_order['salers_ids'] = [k['id']
+                                    for k in (dict_order['direct_sales'] + dict_order['agent_sales'])]
+        dict_order['get_saler_leaders'] = [
+            k.id for k in client_order.get_saler_leaders()]
+        dict_order['resource_type_cn'] = client_order.resource_type_cn
+        dict_order['operater_users'] = [
+            {'id': k.id, 'name': k.name}for k in client_order.operater_users]
+        dict_order['client_start'] = client_order.client_start.strftime(
+            '%Y-%m-%d')
+        dict_order['client_end'] = client_order.client_end.strftime('%Y-%m-%d')
+        self.order_json = json.dumps(dict_order)
 
     @property
     def month_cn(self):
@@ -1185,7 +1226,8 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
             else:
                 count = len(self.client_order.direct_sales)
         elif user.team.location == 3 and len(self.client_order.locations) == 1:
-            count = len(self.client_order.agent_sales + self.client_order.direct_sales)
+            count = len(self.client_order.agent_sales +
+                        self.client_order.direct_sales)
         return self.money / count / l_count
 
 
