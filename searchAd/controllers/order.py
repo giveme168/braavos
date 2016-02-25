@@ -66,7 +66,7 @@ def _delete_executive_report(order):
 
 
 def _insert_executive_report(order, rtype):
-    if order.contract_status not in [2, 4, 5, 20]:
+    if order.contract_status not in [2, 4, 5, 19, 20]:
         return False
     if order.__tablename__ == 'searchad_bra_rebate_order':
         if rtype:

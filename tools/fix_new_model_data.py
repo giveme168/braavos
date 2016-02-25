@@ -18,7 +18,7 @@ from searchAd.models.framework_order import searchAdFrameworkOrder
 
 
 def _insert_search_executive_report(order, rtype):
-    if order.contract_status not in [2, 4, 5, 20]:
+    if order.contract_status not in [2, 4, 5, 19, 20]:
         return False
     if order.__tablename__ == 'searchad_bra_rebate_order':
         if rtype:
@@ -87,7 +87,7 @@ def _insert_search_executive_report(order, rtype):
 
 
 def _insert_zhiqu_executive_report(order, rtype):
-    if order.contract == '' or order.contract_status not in [2, 4, 5, 20]:
+    if order.contract == '' or order.contract_status not in [2, 4, 5, 19, 20]:
         return False
     if order.__tablename__ == 'bra_douban_order':
         if rtype:
