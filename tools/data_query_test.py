@@ -9,7 +9,7 @@ from app import app
 
 from models.order import MediumOrderExecutiveReport
 from models.douban_order import DoubanOrderExecutiveReport
-from models.client import Client
+from models.client import Client, Agent
 from models.medium import Medium
 from models.consts import CLIENT_INDUSTRY_LIST
 
@@ -24,6 +24,9 @@ if __name__ == '__main__':
         DoubanOrderExecutiveReport.month_day <= end_date_month)
     medium_orders = [{'month_day': k.month_day, 'client_id': k.client_order.client.id,
                       'client': k.client_order.client,
+                      'agent_id': k.client_order.agent.id,
+                      'agent': k.client_order.agent,
+                      'agent_name': k.client_order.agent.name,
                       'status': k.status, 'medium_id': int(k.order.medium_id),
                       'medium_name': k.order.medium.name,
                       'sale_money': k.sale_money, 'client_name': k.client_order.client.name,
@@ -31,40 +34,53 @@ if __name__ == '__main__':
                       } for k in medium_orders if k.status == 1 and k.client_order.status == 1]
     douban_orders = [{'month_day': k.month_day, 'client_id': k.douban_order.client.id,
                       'client': k.douban_order.client,
+                      'agent_id': k.douban_order.agent.id,
+                      'agent': k.douban_order.agent,
+                      'agent_name': k.douban_order.agent.name,
                       'status': k.status, 'money': k.money,
                       'client_name': k.douban_order.client.name,
                       } for k in douban_orders if k.status == 1 and k.douban_order.status == 1]
     youli_data = [{'client_id': k['client_id'],
                    'client': k['client'],
                    'client_name':k['client_name'],
+                   'agent_id': k['agent_id'],
+                   'agent': k['agent'],
+                   'agent_name':k['agent_name'],
                    'money':k['medium_money2']}
                   for k in medium_orders if k['medium_id'] == 3]
     wuxian_data = [{'client_id': k['client_id'],
                     'client': k['client'],
                     'client_name':k['client_name'],
+                    'agent_id': k['agent_id'],
+                    'agent': k['agent'],
+                    'agent_name':k['agent_name'],
                     'money':k['medium_money2']}
                    for k in medium_orders if k['medium_id'] == 8]
-    '''
 
     medium_date = [{'client_id': k['client_id'],
                     'client_name':k['client_name'],
+                    'agent_id': k['agent_id'],
+                    'agent': k['agent'],
+                    'agent_name':k['agent_name'],
                     'money':k['medium_money2'],
                     'medium_id':k['medium_id'],
                     'medium_name':k['medium_name']}
                    for k in medium_orders]
-    '''
 
     douban_date = [{'client_id': k['client_id'],
                     'client': k['client'],
+                    'agent_id': k['agent_id'],
+                    'agent': k['agent'],
+                    'agent_name':k['agent_name'],
                     'client_name':k['client_name'],
                     'money':k['money']}
                    for k in douban_orders]
     client_data = {}
-    for k in CLIENT_INDUSTRY_LIST:
-        client_data[k] = 0
+    for k in Client.all():
+        client_data[k.name] = 0
     for k in douban_date+youli_data+wuxian_data:
-        if client_data.has_key(k['client'].industry_cn):
-            client_data[k['client'].industry_cn] += k['money']
+        if client_data.has_key(k['client'].name):
+            client_data[k['client'].name] += k['money']
     client_data = sorted(client_data.iteritems(), key=lambda x: x[1])
     client_data.reverse()
     for k in client_data:
