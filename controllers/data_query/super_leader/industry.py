@@ -29,7 +29,7 @@ def douban():
                type='douban')
 
 
-@data_query_super_leader_industry_bp.route('/client_json', methods=['POST', 'GET'])
+@data_query_super_leader_industry_bp.route('/client_json', methods=['POST'])
 def client_json():
     now_date = datetime.datetime.now()
     start_year = str(request.values.get('start_year', now_date.year))
@@ -78,7 +78,7 @@ def client_json():
     return jsonify({'data': data, 'title': u'新媒体订单行业分析'})
 
 
-@data_query_super_leader_industry_bp.route('/douban_json', methods=['POST', 'GET'])
+@data_query_super_leader_industry_bp.route('/douban_json', methods=['POST'])
 def douban_json():
     now_date = datetime.datetime.now()
     start_year = str(request.values.get('start_year', now_date.year))
