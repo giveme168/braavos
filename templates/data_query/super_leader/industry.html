@@ -1,0 +1,182 @@
+{% extends "/base.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+{% include "/data_query/super_leader/super_leader_base.html" %}
+<div class="container bra-box" id="medium_box" style="width:1000px;">
+    <ul class="nav nav-tabs">
+      <li id="_client_"class=""><a href="{{url_for('data_query_super_leader_industry.client')}}">新媒体订单</a></li>
+      <li id="_douban_" class=""><a href="{{url_for('data_query_super_leader_industry.douban')}}">直签豆瓣订单</a></li>
+    </ul>
+    <h3>{{title}}</h3>
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="exampleInputEmail2">查询时间</label>
+            <select class="col-md-12" id="start_year" name="start_year" style="width:100px;">
+                {% for k in range(5) %}
+                <option value='{{2014+k}}'>{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="col-md-12" id="start_month" name="start_month" style="width:70px;">
+                {% for k in range(12) %}
+                    {% if k < 9 %}
+                        <option value='0{{1+k}}'>0{{1+k}}月</option>
+                    {% else %}
+                        <option value='{{1+k}}'>{{1+k}}月</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail2">&nbsp;至&nbsp;</label>
+            <select class="col-md-12" id="end_year" name="end_year" style="width:100px;">
+                {% for k in range(5) %}
+                <option value='{{2014+k}}'>{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="col-md-12" id="end_month" name="end_month" style="width:70px;">
+                {% for k in range(12) %}
+                    {% if k < 9 %}
+                        <option value='0{{1+k}}'>0{{1+k}}月</option>
+                    {% else %}
+                        <option value='{{1+k}}'>{{1+k}}月</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <a href="javascript:search();" class="btn btn-default">查询</a>
+        <!--<input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">-->
+    </form>
+    <br>
+    <div id="container"></div>
+    <div id="container_list">
+        
+    </div>
+<div>
+<script src="/static/js/highcharts/highcharts.js"></script>
+<script src="/static/js/highcharts/themes/grid-light.js"></script>
+<script>
+    $(document).ready(function(){
+        var pathname = window.location.pathname;
+        var path_name = pathname.split("/")
+        $("#_" + path_name[4]+'_').addClass("active");
+        Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+            return {
+                radialGradient: {
+                    cx: 0.5,
+                    cy: 0.3,
+                    r: 0.7
+                },
+                stops: [
+                    [0, color],
+                    [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+                ]
+            };
+        });
+        var now_date = new Date();
+        var year = now_date.getFullYear();
+        $('#start_year').val(year-1);
+        $('#start_month').val('01');
+        $('#end_year').val(year-1);
+        $('#end_month').val('12');
+        $("#start_year").trigger("chosen:updated");
+        $("#start_month").trigger("chosen:updated");
+        $("#end_year").trigger("chosen:updated");
+        $("#end_month").trigger("chosen:updated");
+        search()
+    })
+
+    function search(){
+        var start_year = parseInt($('#start_year').val());
+        var start_month = parseInt($('#start_month').val());
+        var end_year = parseInt($('#end_year').val());
+        var end_month = parseInt($('#end_month').val());
+        if (end_year - start_year < 0){
+            alert('时间选择错误，请重新选择')
+            return
+        }
+        if (end_year - start_year > 1){
+            alert('选择的时间段不能超过一年')
+            return
+        }else if (end_year - start_year == 1){
+            if (end_month - start_month > 0){
+                alert('选择的时间段不能超过一年')
+                return
+            }
+        }else{
+            if (end_month - start_month == 0){
+                alert('请选择大于一个月的时间段')
+                return
+            }
+        }
+        var type = '{{type}}';
+        if (type == 'client'){
+            var url = "{{url_for('data_query_super_leader_industry.client_json')}}"
+        }else{
+            var url = "{{url_for('data_query_super_leader_industry.douban_json')}}"
+        }
+        
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {start_year: start_year, start_month: start_month, end_year:end_year, end_month:end_month},
+            dataType: 'json',
+            success: function(data, err){
+                load_chart(data['title'], data['data'])
+                load_list_container(data['data'][0]['data'])
+            }
+
+        })
+    }
+    function load_list_container(data){
+        $('#container_list').html('');
+        var start_table = "<table class='table table-bordered'><thead><tr>\
+                        <th>#</th><th>行业分类</th><th>执行额</th><th>占比</th></tr>\
+                    </thead>\
+                    <tbody>"
+        var end_table = "</tbody></table>"
+        var list_container_table = ""
+        for(var i=0; i<data.length; i++){
+            list_container_table += "<tr><th scope='row'>"+(i+1)+"</th><td>"+data[i]['name']+"</td><td>"+data[i]['y']+"</td><td>"+data[i]["percent"]+"</td></tr>"
+        }
+        $('#container_list').html(start_table+list_container_table+end_table)
+    }
+    function load_chart(title, data) {    
+        // Build the chart
+        var chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'container',
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: title
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                        style: {
+                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                        },
+                        connectorColor: 'silver'
+                    }
+                }
+            },
+            series: data
+        });
+    };
+    
+</script>
+{% endblock %}
