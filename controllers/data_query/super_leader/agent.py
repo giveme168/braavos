@@ -73,12 +73,12 @@ def client_order_json():
             if sum_saler_money == 0:
                 percent = u'0.00%'
             else:
-                percent = '%.2f%%' % (v / sum_saler_money * 100)
+                percent = v / sum_saler_money * 100
             data[0]['data'].append({'name': k,
-                                    'y': float('%.2f' % v),
+                                    'y': v,
                                     'percent': percent})
     return jsonify({'data': data, 'title': u'新媒体订单代理分析',
-                    'total': float('%.2f' % sum_saler_money)})
+                    'total': float(sum_saler_money)})
 
 
 @data_query_super_leader_agent_bp.route('/douban_order_json', methods=['POST'])
@@ -137,9 +137,9 @@ def douban_order_json():
             if sum_saler_money == 0:
                 percent = u'0.00%'
             else:
-                percent = '%.2f%%' % (v / sum_saler_money * 100)
+                percent = v / sum_saler_money * 100
             data[0]['data'].append({'name': k,
-                                    'y': float('%.2f' % v),
+                                    'y': v,
                                     'percent': percent})
     return jsonify({'data': data, 'title': u'直签豆瓣订单（含：优力、无线）代理分析',
-                    'total': float('%.2f' % sum_saler_money)})
+                    'total': float(sum_saler_money)})
