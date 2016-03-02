@@ -153,7 +153,7 @@
         var end_table = "</tbody></table>"
         var list_container_table = ""
         for(var i=0; i<data.length; i++){
-            list_container_table += "<tr><th scope='row'>"+(i+1)+"</th><td>"+data[i]['name']+"</td><td>"+numeral(data[i]['y']).format('0,0.00')+"</td><td>"+numeral(data[i]["percent"]).format('0,0.00')+"</td></tr>"
+            list_container_table += "<tr><th scope='row'>"+(i+1)+"</th><td>"+data[i]['name']+"</td><td>"+numeral(data[i]['y']).format('0,0.00')+"</td><td>"+numeral(data[i]["percent"]).format('0,0.00')+"%</td></tr>"
         }
         list_container_table += "<tr><th scope='row' colspan=2 style='text-align: center;'>总计</th><td>"+numeral(total).format('0,0.00')+"</td><td>100.00%</td></tr>"
         $('#container_list').html(start_table+list_container_table+end_table)
