@@ -68,8 +68,14 @@
                           {% endfor %}
                           <tr>
                             <td style="text-align:center">合计</td>
-                            <td>{{merger_outsources|sum(attribute='pay_num')|format_price}}</td>
-                            <td colspan=14></td>
+                            <td colspan=15>
+                              {% if t.invoice %}
+                                {{t.outsources|sum(attribute='pay_num')|format_price}}
+                              {% else %}
+                                {% set totle_pay_num = t.outsources|sum(attribute='pay_num')*0.95 %}
+                                {{totle_pay_num|format_price}}
+                              {% endif %}
+                            </td>
                           </tr>
                         {% endfor %}
                     </table>

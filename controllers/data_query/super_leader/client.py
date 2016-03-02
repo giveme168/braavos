@@ -6,30 +6,30 @@ from flask import render_template as tpl
 
 from models.douban_order import DoubanOrderExecutiveReport
 from models.order import MediumOrderExecutiveReport
-from models.consts import CLIENT_INDUSTRY_LIST
+from models.client import Client
 
-data_query_super_leader_industry_bp = Blueprint(
-    'data_query_super_leader_industry', __name__, template_folder='../../templates/data_query')
+data_query_super_leader_client_bp = Blueprint(
+    'data_query_super_leader_client', __name__, template_folder='../../templates/data_query')
 
 
-@data_query_super_leader_industry_bp.route('/client_order', methods=['GET'])
+@data_query_super_leader_client_bp.route('/client_order', methods=['GET'])
 def client_order():
     if not g.user.is_super_leader():
         abort(403)
-    return tpl('/data_query/super_leader/industry.html',
-               title=u'新媒体订单行业分析',
+    return tpl('/data_query/super_leader/client.html',
+               title=u'新媒体订单客户分析',
                type='client')
 
 
-@data_query_super_leader_industry_bp.route('/douban_order', methods=['GET'])
+@data_query_super_leader_client_bp.route('/douban_order', methods=['GET'])
 def douban_order():
 
-    return tpl('/data_query/super_leader/industry.html',
-               title=u'豆瓣订单行业分析',
+    return tpl('/data_query/super_leader/client.html',
+               title=u'豆瓣订单客户分析',
                type='douban')
 
 
-@data_query_super_leader_industry_bp.route('/client_order_json', methods=['POST'])
+@data_query_super_leader_client_bp.route('/client_order_json', methods=['POST'])
 def client_order_json():
     now_date = datetime.datetime.now()
     start_year = str(request.values.get('start_year', now_date.year))
@@ -49,37 +49,38 @@ def client_order_json():
                       'client': k.client_order.client,
                       'medium_money2': k.medium_money2,
                       } for k in medium_orders if k.status == 1]
-    medium_date = [{'industry_name': CLIENT_INDUSTRY_LIST[k['client'].industry],
+    medium_date = [{'client_name': k['client'].name,
                     'money':k['medium_money2']}
                    for k in medium_orders]
 
-    industry_params = {}
-    for k in CLIENT_INDUSTRY_LIST:
-        industry_params[k] = 0
+    client_params = {}
+    for k in Client.all():
+        client_params[k.name] = 0
 
     for k in medium_date:
-        if k['industry_name'] in industry_params:
-            industry_params[k['industry_name']] += k['money']
-    industry_params = sorted(industry_params.iteritems(), key=lambda x: x[1])
-    industry_params.reverse()
+        if k['client_name'] in client_params:
+            client_params[k['client_name']] += k['money']
+    client_params = sorted(client_params.iteritems(), key=lambda x: x[1])
+    client_params.reverse()
     data = [{
         "name": u"占比",
         "data": []
     }]
-    sum_saler_money = sum([v for k, v in industry_params])
-    for k, v in industry_params:
-        if sum_saler_money == 0:
-            percent = u'0.00%'
-        else:
-            percent = '%.2f%%' % (v / sum_saler_money * 100)
-        data[0]['data'].append({'name': k,
-                                'y': float('%.2f' % v),
-                                'percent': percent})
-    return jsonify({'data': data, 'title': u'新媒体订单行业分析',
+    sum_saler_money = sum([v for k, v in client_params])
+    for k, v in client_params:
+        if v > 0:
+            if sum_saler_money == 0:
+                percent = u'0.00%'
+            else:
+                percent = '%.2f%%' % (v / sum_saler_money * 100)
+            data[0]['data'].append({'name': k,
+                                    'y': float('%.2f' % v),
+                                    'percent': percent})
+    return jsonify({'data': data, 'title': u'新媒体订单客户分析',
                     'total': float('%.2f' % sum_saler_money)})
 
 
-@data_query_super_leader_industry_bp.route('/douban_order_json', methods=['POST'])
+@data_query_super_leader_client_bp.route('/douban_order_json', methods=['POST'])
 def douban_order_json():
     now_date = datetime.datetime.now()
     start_year = str(request.values.get('start_year', now_date.year))
@@ -103,7 +104,7 @@ def douban_order_json():
                       'medium_id': int(k.order.medium_id),
                       'medium_money2': k.medium_money2,
                       } for k in medium_orders if k.status == 1]
-    medium_date = [{'industry_name': CLIENT_INDUSTRY_LIST[k['client'].industry],
+    medium_date = [{'client_name': k['client'].name,
                     'medium_id': k['medium_id'],
                     'money':k['medium_money2']}
                    for k in medium_orders if k['medium_id'] in [3, 8]]
@@ -111,31 +112,32 @@ def douban_order_json():
                       'client': k.douban_order.client,
                       'money': k.money,
                       } for k in douban_orders if k.status == 1]
-    douban_date = [{'industry_name': CLIENT_INDUSTRY_LIST[k['client'].industry],
+    douban_date = [{'client_name': k['client'].name,
                     'money':k['money']}
                    for k in douban_orders]
 
-    industry_params = {}
-    for k in CLIENT_INDUSTRY_LIST:
-        industry_params[k] = 0
+    client_params = {}
+    for k in Client.all():
+        client_params[k.name] = 0
 
     for k in douban_date + medium_date:
-        if k['industry_name'] in industry_params:
-            industry_params[k['industry_name']] += k['money']
-    industry_params = sorted(industry_params.iteritems(), key=lambda x: x[1])
-    industry_params.reverse()
+        if k['client_name'] in client_params:
+            client_params[k['client_name']] += k['money']
+    client_params = sorted(client_params.iteritems(), key=lambda x: x[1])
+    client_params.reverse()
     data = [{
         "name": u"占比",
         "data": []
     }]
-    sum_saler_money = sum([v for k, v in industry_params])
-    for k, v in industry_params:
-        if sum_saler_money == 0:
-            percent = u'0.00%'
-        else:
-            percent = '%.2f%%' % (v / sum_saler_money * 100)
-        data[0]['data'].append({'name': k,
-                                'y': float('%.2f' % v),
-                                'percent': percent})
-    return jsonify({'data': data, 'title': u'直签豆瓣订单（含：优力、无线）行业分析',
+    sum_saler_money = sum([v for k, v in client_params])
+    for k, v in client_params:
+        if v > 0:
+            if sum_saler_money == 0:
+                percent = u'0.00%'
+            else:
+                percent = '%.2f%%' % (v / sum_saler_money * 100)
+            data[0]['data'].append({'name': k,
+                                    'y': float('%.2f' % v),
+                                    'percent': percent})
+    return jsonify({'data': data, 'title': u'直签豆瓣订单（含：优力、无线）客户分析',
                     'total': float('%.2f' % sum_saler_money)})

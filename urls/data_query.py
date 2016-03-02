@@ -8,6 +8,9 @@ from controllers.data_query.commission import data_query_commission_bp
 
 from controllers.data_query.super_leader.medium import data_query_super_leader_medium_bp
 from controllers.data_query.super_leader.industry import data_query_super_leader_industry_bp
+from controllers.data_query.super_leader.agent import data_query_super_leader_agent_bp
+from controllers.data_query.super_leader.client import data_query_super_leader_client_bp
+from controllers.data_query.super_leader.sale_type import data_query_super_leader_sale_type_bp
 
 
 def data_query_register_blueprint(app):
@@ -20,3 +23,6 @@ def data_query_register_blueprint(app):
     app.register_blueprint(data_query_commission_bp, url_prefix='/data_query/commission')
     app.register_blueprint(data_query_super_leader_medium_bp, url_prefix='/data_query/super_leader/medium')
     app.register_blueprint(data_query_super_leader_industry_bp, url_prefix='/data_query/super_leader/industry')
+    app.register_blueprint(data_query_super_leader_agent_bp, url_prefix='/data_query/super_leader/agent')
+    app.register_blueprint(data_query_super_leader_client_bp, url_prefix='/data_query/super_leader/client')
+    app.register_blueprint(data_query_super_leader_sale_type_bp, url_prefix='/data_query/super_leader/sale_type')

@@ -14,8 +14,8 @@
 </div>
 <div class="container bra-box" id="medium_box" style="width:1000px;">
     <ul class="nav nav-tabs">
-      <li id="_client_order_"class=""><a href="{{url_for('data_query_super_leader_industry.client_order')}}">新媒体订单</a></li>
-      <li id="_douban_order_" class=""><a href="{{url_for('data_query_super_leader_industry.douban_order')}}">直签豆瓣订单</a></li>
+      <li id="_client_order_"class=""><a href="{{url_for('data_query_super_leader_client.client_order')}}">新媒体订单</a></li>
+      <li id="_douban_order_" class=""><a href="{{url_for('data_query_super_leader_client.douban_order')}}">直签豆瓣订单</a></li>
     </ul>
     <h3>{{title}}</h3>
     <form class="form-inline">
@@ -125,9 +125,9 @@
         }
         var type = '{{type}}';
         if (type == 'client'){
-            var url = "{{url_for('data_query_super_leader_industry.client_order_json')}}"
+            var url = "{{url_for('data_query_super_leader_client.client_order_json')}}"
         }else{
-            var url = "{{url_for('data_query_super_leader_industry.douban_order_json')}}"
+            var url = "{{url_for('data_query_super_leader_client.douban_order_json')}}"
         }
         
         $.ajax({

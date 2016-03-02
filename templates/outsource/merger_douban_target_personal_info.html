@@ -136,7 +136,7 @@
                             <td>{{t.type_cn}}</td>
                             <td id="num_{{t.id}}">{{t.num}}</td>
                             <td>{{t.remark}}</td>
-                            <td id="pay_num_{{t.id}}">{{t.pay_num}}</td>
+                            <td id="pay_num_{{t.id}}">{{t.pay_num*0.95}}</td>
                             {% if OUTSOURCE_STATUS_PASS != status%}
                             <td>{{t.invoice_info}}</td>
                             {% endif %}
@@ -157,7 +157,7 @@
                           {% endif %}
                           <td>{{outsources|sum(attribute='num')}}</td>
                           <td></td>
-                          <td>{{outsources|sum(attribute='pay_num')}}</td>
+                          <td>{{outsources|sum(attribute='pay_num')*0.95}}</td>
                           <td colspan=3></td>
                         </tr>
                     </table>
