@@ -55,6 +55,7 @@ def client_order_json():
     before_monthes = get_monthes_pre_days(
         before_last_year_start, before_last_year_end)
 
+    # 格式化成字典
     now_monthes_data = {}
     for k in now_monthes:
         now_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
@@ -77,16 +78,17 @@ def client_order_json():
                 int(order['month_day'].strftime('%s')) * 1000] += order['money']
     # 格式化数据，把近三年数据放在一年用于画图
     now_monthes_data = sorted(now_monthes_data.iteritems(), key=lambda x: x[0])
-    now_monthes_data.reverse()
+    # now_monthes_data.reverse()
     last_monthes_data = sorted(
         last_monthes_data.iteritems(), key=lambda x: x[0])
-    last_monthes_data.reverse()
+    # last_monthes_data.reverse()
     before_monthes_data = sorted(
         before_monthes_data.iteritems(), key=lambda x: x[0])
-    before_monthes_data.reverse()
+    # before_monthes_data.reverse()
     before_monthes_params = []
     last_monthes_params = []
     now_monthes_params = []
+    # 整理近三年数据
     for k, v in before_monthes_data:
         month_day = datetime.datetime.fromtimestamp(k / 1000)
         month_day = month_day.replace(year=year)
@@ -170,13 +172,13 @@ def douban_order_json():
                 int(order['month_day'].strftime('%s')) * 1000] += order['money']
     # 格式化数据，把近三年数据放在一年用于画图
     now_monthes_data = sorted(now_monthes_data.iteritems(), key=lambda x: x[0])
-    now_monthes_data.reverse()
+    # now_monthes_data.reverse()
     last_monthes_data = sorted(
         last_monthes_data.iteritems(), key=lambda x: x[0])
-    last_monthes_data.reverse()
+    # last_monthes_data.reverse()
     before_monthes_data = sorted(
         before_monthes_data.iteritems(), key=lambda x: x[0])
-    before_monthes_data.reverse()
+    # before_monthes_data.reverse()
     before_monthes_params = []
     last_monthes_params = []
     now_monthes_params = []
@@ -202,45 +204,4 @@ def douban_order_json():
                  'data': [[k['time'], k['money']] for k in last_monthes_params]})
     data.append({'name': str(now_year_start.year) + u'年度',
                  'data': [[k['time'], k['money']] for k in now_monthes_params]})
-
-    '''
-    medium_orders = [{'month_day': k.month_day, 'client_id': k.client_order.client.id,
-                      'client': k.client_order.client,
-                      'medium_id': int(k.order.medium_id),
-                      'medium_money2': k.medium_money2,
-                      } for k in medium_orders if k.status == 1]
-    medium_date = [{'money_name': CLIENT_money_LIST[k['client'].money],
-                    'medium_id': k['medium_id'],
-                    'money':k['medium_money2']}
-                   for k in medium_orders if k['medium_id'] in [3, 8]]
-    douban_orders = [{'month_day': k.month_day,
-                      'client': k.douban_order.client,
-                      'money': k.money,
-                      } for k in douban_orders if k.status == 1]
-    douban_date = [{'money_name': CLIENT_money_LIST[k['client'].money],
-                    'money':k['money']}
-                   for k in douban_orders]
-
-    money_params = {}
-    for k in CLIENT_money_LIST:
-        money_params[k] = 0
-
-    for k in douban_date + medium_date:
-        if k['money_name'] in money_params:
-            money_params[k['money_name']] += k['money']
-    money_params = sorted(money_params.iteritems(), key=lambda x: x[1])
-    money_params.reverse()
-    data = [{
-        "name": u"占比",
-        "data": []
-    }]
-    sum_saler_money = sum([v for k, v in money_params])
-    for k, v in money_params:
-        if sum_saler_money == 0:
-            percent = u'0.00%'
-        else:
-            percent = v / sum_saler_money * 100
-        data[0]['data'].append({'name': k,
-                                'y': v,
-                                'percent': percent})'''
     return jsonify({'data': data, 'title': u'直签豆瓣订单（含：优力、无线）执行额分析'})

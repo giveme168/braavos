@@ -58,6 +58,9 @@
             };
         });
         Highcharts.setOptions({
+            global : {
+                    useUTC : false
+            },
             lang: {
                 shortMonths: ['一月', '二月', '三月', '四月', '五月', '六月',  '七月', '八月', '九月', '十月', '十一月', '十二月']
                 
@@ -70,63 +73,7 @@
         }, null, document.getElementsByTagName('head')[0]);
 
         Highcharts.theme = {
-           colors: ["#7cb5ec", "#f7a35c", "#90ee7e", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee",
-              "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
-           chart: {
-              backgroundColor: null,
-              style: {
-                 fontFamily: "Dosis, sans-serif"
-              }
-           },
-           title: {
-              style: {
-                 fontSize: '16px',
-                 fontWeight: 'bold',
-                 textTransform: 'uppercase'
-              }
-           },
-           tooltip: {
-              borderWidth: 0,
-              backgroundColor: 'rgba(219,219,216,0.8)',
-              shadow: false
-           },
-           legend: {
-              itemStyle: {
-                 fontWeight: 'bold',
-                 fontSize: '13px'
-              }
-           },
-           xAxis: {
-              gridLineWidth: 1,
-              labels: {
-                 style: {
-                    fontSize: '12px'
-                 }
-              }
-           },
-           yAxis: {
-              minorTickInterval: 'auto',
-              title: {
-                 style: {
-                    textTransform: 'uppercase'
-                 }
-              },
-              labels: {
-                 style: {
-                    fontSize: '12px'
-                 }
-              }
-           },
-           plotOptions: {
-              candlestick: {
-                 lineColor: '#404048'
-              }
-           },
-
-
-           // General
-           background2: '#F0F0EA'
-
+           colors: ["#7cb5ec", "#f7a35c", "#90ee7e", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee","#55BF3B", "#DF5353", "#7798BF", "#aaeeee"]
         };
         Highcharts.setOptions(Highcharts.theme);
         var now_date = new Date();
@@ -153,28 +100,44 @@
             dataType: 'json',
             success: function(data, err){
                 load_chart(data['title'], data['data'])
-                //load_list_container(data['data'][0]['data'], data['total'])
+                load_list_container(data['data'])
                 $('#loading').hide()
             }
 
         })
     }
-    function load_list_container(data, total){
+    function load_list_container(data){
         $('#container_list').html('');
-        var start_table = "<table class='table table-bordered'><thead><tr>\
-                        <th>#</th><th>行业分类</th><th>执行额</th><th>占比</th></tr>\
-                    </thead>\
-                    <tbody>"
-        var end_table = "</tbody></table>"
-        var list_container_table = ""
-        for(var i=0; i<data.length; i++){
-            list_container_table += "<tr><th scope='row'>"+(i+1)+"</th><td>"+data[i]['name']+"</td><td>"+numeral(data[i]['y']).format('0,0.00')+"</td><td>"+numeral(data[i]["percent"]).format('0,0.00')+"%</td></tr>"
+        var year = parseInt($('#year').val());
+        var table_th = ""
+        for (var i=0; i<3; i++){
+            var y = year - i
+            table_th += "<th>" + y +"年度</th>"
+
         }
-        list_container_table += "<tr><th scope='row' colspan=2 style='text-align: center;'>总计</th><td>"+numeral(total).format('0,0.00')+"</td><td>100.00%</td></tr>"
-        $('#container_list').html(start_table+list_container_table+end_table)
+        var start_table = "<table class='table table-bordered'><thead><tr><th>月份</th>"+table_th+"</tr></thead><tbody>"
+        var now_year_date = data[2]['data']
+        var last_year_date = data[1]['data']
+        var before_last_year_date = data[0]['data']
+        var now_year_total = 0
+        var last_year_total = 0
+        var before_last_year_total = 0
+        var list_container_table = ""
+        for (var i=0; i<now_year_date.length; i++){
+            now_year_total += now_year_date[i][1]
+            last_year_total += last_year_date[i][1]
+            before_last_year_total += before_last_year_date[i][1]
+            list_container_table += "<tr><th scope='row'>"+(i+1)+"月</th><td>"+numeral(now_year_date[i][1]).format('0,0.00')+"</td><td>"+numeral(last_year_date[i][1]).format('0,0.00')+"</td><td>"+numeral(before_last_year_date[i][1]).format('0,0.00')+"</td></tr>"
+        }
+        var total_th = "<tr><th scope='row'>总计</th><td>"+numeral(now_year_total).format('0,0.00')+"</td><td>"+numeral(last_year_total).format('0,0.00')+"</td><td>"+numeral(before_last_year_total).format('0,0.00')+"</td></tr>" 
+        var end_table = "</tbody></table>"
+        $('#container_list').html(start_table+list_container_table+total_th+end_table)
     }
     function load_chart(title, data) {    
         $('#container').highcharts({
+            global : {
+                useUTC : false
+            },
             chart: {
                 type: 'spline'
             },
@@ -194,15 +157,36 @@
                     text: 'Date'
                 }
             },
-            yAxis: {
+            yAxis: [{ // left y axis
                 title: {
-                    text: '执行额 (元)'
+                    text: ''
                 },
-                min: 0
-            },
+                labels: {
+                    align: 'left',
+                    x: 3,
+                    y: 16,
+                    format: '{value:.,0f}'
+                },
+                showFirstLabel: false
+            }, { // right y axis
+                linkedTo: 0,
+                gridLineWidth: 0,
+                opposite: true,
+                title: {
+                    text: null
+                },
+                labels: {
+                    align: 'right',
+                    x: -3,
+                    y: 16,
+                    format: '{value:.,0f}'
+                },
+                showFirstLabel: false
+            }],
             tooltip: {
-                headerFormat: '<b>{series.name}</b><br>',
-                pointFormat: '{point.x:%b}: {point.y:.2f}元'
+                headerFormat: '<b>近三年对比</b><br>',
+                shared: true,
+                crosshairs: true
             },
 
             plotOptions: {
