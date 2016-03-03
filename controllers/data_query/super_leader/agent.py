@@ -23,7 +23,8 @@ def client_order():
 
 @data_query_super_leader_agent_bp.route('/douban_order', methods=['GET'])
 def douban_order():
-
+    if not g.user.is_super_leader():
+        abort(403)
     return tpl('/data_query/super_leader/agent.html',
                title=u'豆瓣订单代理分析',
                type='douban')
@@ -31,6 +32,8 @@ def douban_order():
 
 @data_query_super_leader_agent_bp.route('/client_order_json', methods=['POST'])
 def client_order_json():
+    if not g.user.is_super_leader():
+        abort(403)
     now_date = datetime.datetime.now()
     start_year = str(request.values.get('start_year', now_date.year))
     start_month = str(request.values.get('start_month', now_date.month))
@@ -44,7 +47,6 @@ def client_order_json():
     medium_orders = MediumOrderExecutiveReport.query.filter(
         MediumOrderExecutiveReport.month_day >= start_date_month,
         MediumOrderExecutiveReport.month_day <= end_date_month)
-
     medium_orders = [{'month_day': k.month_day,
                       'agent_id': k.client_order.agent.id,
                       'agent': k.client_order.agent,
@@ -53,7 +55,6 @@ def client_order_json():
     medium_date = [{'agent_name': k['agent'].name,
                     'money':k['medium_money2']}
                    for k in medium_orders]
-
     agent_params = {}
     for k in Agent.all():
         agent_params[k.name] = 0
@@ -83,6 +84,8 @@ def client_order_json():
 
 @data_query_super_leader_agent_bp.route('/douban_order_json', methods=['POST'])
 def douban_order_json():
+    if not g.user.is_super_leader():
+        abort(403)
     now_date = datetime.datetime.now()
     start_year = str(request.values.get('start_year', now_date.year))
     start_month = str(request.values.get('start_month', now_date.month))

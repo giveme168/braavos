@@ -23,7 +23,8 @@ def client_order():
 
 @data_query_super_leader_money_bp.route('/douban_order', methods=['GET'])
 def douban_order():
-
+    if not g.user.is_super_leader():
+        abort(403)
     return tpl('/data_query/super_leader/money.html',
                title=u'豆瓣订单执行金额分析',
                type='douban')
@@ -31,6 +32,8 @@ def douban_order():
 
 @data_query_super_leader_money_bp.route('/client_order_json', methods=['POST', 'GET'])
 def client_order_json():
+    if not g.user.is_super_leader():
+        abort(403)
     now_date = datetime.datetime.now()
     year = int(request.values.get('year', now_date.year))
     now_year_start = datetime.datetime.strptime(
@@ -89,20 +92,20 @@ def client_order_json():
     last_monthes_params = []
     now_monthes_params = []
     # 整理近三年数据
-    for k, v in before_monthes_data:
+    for k, v in now_monthes_data:
         month_day = datetime.datetime.fromtimestamp(k / 1000)
         month_day = month_day.replace(year=year)
-        before_monthes_params.append({'time': int(month_day.strftime(
+        now_monthes_params.append({'time': int(month_day.strftime(
             '%s')) * 1000, 'money': v})
     for k, v in last_monthes_data:
         month_day = datetime.datetime.fromtimestamp(k / 1000)
         month_day = month_day.replace(year=year)
         last_monthes_params.append({'time': int(month_day.strftime(
             '%s')) * 1000, 'money': v})
-    for k, v in now_monthes_data:
+    for k, v in before_monthes_data:
         month_day = datetime.datetime.fromtimestamp(k / 1000)
         month_day = month_day.replace(year=year)
-        now_monthes_params.append({'time': int(month_day.strftime(
+        before_monthes_params.append({'time': int(month_day.strftime(
             '%s')) * 1000, 'money': v})
     data = []
     data.append({'name': str(before_last_year_start.year) + u'年度',
@@ -116,6 +119,8 @@ def client_order_json():
 
 @data_query_super_leader_money_bp.route('/douban_order_json', methods=['POST', 'GET'])
 def douban_order_json():
+    if not g.user.is_super_leader():
+        abort(403)
     now_date = datetime.datetime.now()
     year = int(request.values.get('year', now_date.year))
     now_year_start = datetime.datetime.strptime(
@@ -182,20 +187,20 @@ def douban_order_json():
     before_monthes_params = []
     last_monthes_params = []
     now_monthes_params = []
-    for k, v in before_monthes_data:
+    for k, v in now_monthes_data:
         month_day = datetime.datetime.fromtimestamp(k / 1000)
         month_day = month_day.replace(year=year)
-        before_monthes_params.append({'time': int(month_day.strftime(
+        now_monthes_params.append({'time': int(month_day.strftime(
             '%s')) * 1000, 'money': v})
     for k, v in last_monthes_data:
         month_day = datetime.datetime.fromtimestamp(k / 1000)
         month_day = month_day.replace(year=year)
         last_monthes_params.append({'time': int(month_day.strftime(
             '%s')) * 1000, 'money': v})
-    for k, v in now_monthes_data:
+    for k, v in before_monthes_data:
         month_day = datetime.datetime.fromtimestamp(k / 1000)
         month_day = month_day.replace(year=year)
-        now_monthes_params.append({'time': int(month_day.strftime(
+        before_monthes_params.append({'time': int(month_day.strftime(
             '%s')) * 1000, 'money': v})
     data = []
     data.append({'name': str(before_last_year_start.year) + u'年度',

@@ -12,6 +12,7 @@ from controllers.data_query.super_leader.agent import data_query_super_leader_ag
 from controllers.data_query.super_leader.client import data_query_super_leader_client_bp
 from controllers.data_query.super_leader.sale_type import data_query_super_leader_sale_type_bp
 from controllers.data_query.super_leader.money import data_query_super_leader_money_bp
+from controllers.data_query.super_leader.client_info import data_query_super_leader_client_info_bp
 
 
 def data_query_register_blueprint(app):
@@ -28,3 +29,4 @@ def data_query_register_blueprint(app):
     app.register_blueprint(data_query_super_leader_client_bp, url_prefix='/data_query/super_leader/client')
     app.register_blueprint(data_query_super_leader_sale_type_bp, url_prefix='/data_query/super_leader/sale_type')
     app.register_blueprint(data_query_super_leader_money_bp, url_prefix='/data_query/super_leader/money')
+    app.register_blueprint(data_query_super_leader_client_info_bp, url_prefix='/data_query/super_leader/client_info')

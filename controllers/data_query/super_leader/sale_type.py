@@ -32,7 +32,8 @@ def client_order():
 
 @data_query_super_leader_sale_type_bp.route('/douban_order', methods=['GET'])
 def douban_order():
-
+    if not g.user.is_super_leader():
+        abort(403)
     return tpl('/data_query/super_leader/sale_type.html',
                title=u'豆瓣订单售卖类型分析',
                type='douban')
@@ -40,6 +41,8 @@ def douban_order():
 
 @data_query_super_leader_sale_type_bp.route('/client_order_json', methods=['POST'])
 def client_order_json():
+    if not g.user.is_super_leader():
+        abort(403)
     now_date = datetime.datetime.now()
     start_year = str(request.values.get('start_year', now_date.year))
     start_month = str(request.values.get('start_month', now_date.month))
@@ -91,6 +94,8 @@ def client_order_json():
 
 @data_query_super_leader_sale_type_bp.route('/douban_order_json', methods=['POST'])
 def douban_order_json():
+    if not g.user.is_super_leader():
+        abort(403)
     now_date = datetime.datetime.now()
     start_year = str(request.values.get('start_year', now_date.year))
     start_month = str(request.values.get('start_month', now_date.month))

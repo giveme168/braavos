@@ -14,8 +14,8 @@
 </div>
 <div class="container bra-box" id="medium_box" style="width:1000px;">
     <ul class="nav nav-tabs">
-      <li id="_client_order_"class=""><a href="{{url_for('data_query_super_leader_money.client_order')}}">新媒体订单</a></li>
-      <li id="_douban_order_" class=""><a href="{{url_for('data_query_super_leader_money.douban_order')}}">直签豆瓣订单</a></li>
+      <li id="_client_order_"class=""><a href="{{url_for('data_query_super_leader_client_info.client_order')}}">新媒体订单</a></li>
+      <li id="_douban_order_" class=""><a href="{{url_for('data_query_super_leader_client_info.douban_order')}}">直签豆瓣订单</a></li>
     </ul>
     <h3>{{title}}</h3>
     <form class="form-inline">
@@ -88,9 +88,9 @@
         var year = parseInt($('#year').val());
         var type = '{{type}}';
         if (type == 'client'){
-            var url = "{{url_for('data_query_super_leader_money.client_order_json')}}"
+            var url = "{{url_for('data_query_super_leader_client_info.client_order_json')}}"
         }else{
-            var url = "{{url_for('data_query_super_leader_money.douban_order_json')}}"
+            var url = "{{url_for('data_query_super_leader_client_info.douban_order_json')}}"
         }
         
         $.ajax({
@@ -108,28 +108,18 @@
     }
     function load_list_container(data){
         $('#container_list').html('');
-        var year = parseInt($('#year').val());
-        var table_th = ""
-        for (var i=0; i<3; i++){
-            var y = year - 2 + i
-            table_th += "<th>" + y +"年度</th>"
-
-        }
-        var start_table = "<table class='table table-bordered'><thead><tr><th>月份</th>"+table_th+"</tr></thead><tbody>"
-        var now_year_date = data[2]['data']
-        var last_year_date = data[1]['data']
-        var before_last_year_date = data[0]['data']
-        var now_year_total = 0
-        var last_year_total = 0
-        var before_last_year_total = 0
+        var start_table = "<table class='table table-bordered'><thead><tr><th>月份</th><th>成单客户数</th><th>平均客户金额</th></tr></thead><tbody>"
+        var client_count_data = data[0]['data']
+        var client_money_data = data[1]['data']
+        var client_count_total = 0
+        var client_money_total = 0
         var list_container_table = ""
-        for (var i=0; i<now_year_date.length; i++){
-            now_year_total += now_year_date[i][1]
-            last_year_total += last_year_date[i][1]
-            before_last_year_total += before_last_year_date[i][1]
-            list_container_table += "<tr><th scope='row'>"+(i+1)+"月</th><td>"+numeral(before_last_year_date[i][1]).format('0,0.00')+"</td><td>"+numeral(last_year_date[i][1]).format('0,0.00')+"</td><td>"+numeral(now_year_date[i][1]).format('0,0.00')+"</td></tr>"
+        for (var i=0; i<client_count_data.length; i++){
+            client_count_total += client_count_data[i][1]
+            client_money_total += client_money_data[i][1]
+            list_container_table += "<tr><th scope='row'>"+(i+1)+"月</th><td>"+numeral(client_count_data[i][1]).format('0,0.00')+"</td><td>"+numeral(client_money_data[i][1]).format('0,0.00')+"</td></tr>"
         }
-        var total_th = "<tr><th scope='row'>总计</th><td>"+numeral(before_last_year_total).format('0,0.00')+"</td><td>"+numeral(last_year_total).format('0,0.00')+"</td><td>"+numeral(now_year_total).format('0,0.00')+"</td></tr>" 
+        var total_th = "<tr><th scope='row'>总计</th><td>"+numeral(client_count_total).format('0,0.00')+"</td><td>"+numeral(client_money_total).format('0,0.00')+"</td></tr>" 
         var end_table = "</tbody></table>"
         $('#container_list').html(start_table+list_container_table+total_th+end_table)
     }
@@ -184,7 +174,7 @@
                 showFirstLabel: false
             }],
             tooltip: {
-                headerFormat: '<b>近三年对比</b><br>',
+                headerFormat: '<b>当月客户成单数据</b><br>',
                 shared: true,
                 crosshairs: true,
                 valueDecimals: 2
