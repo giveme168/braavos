@@ -65,11 +65,12 @@ def client_order_json():
         order_count = len(v['orders'])
         sum_order_money = sum([i.money for i in v['orders']])
         if order_count:
-            order_pre_money = sum_order_money/order_count
+            order_pre_money = sum_order_money / order_count
         else:
             order_pre_money = 0
         # 主装highcharts数据
-        day_time_stamp = int(datetime.datetime.strptime(str(k), '%Y-%m-%d').strftime('%s'))*1000
+        day_time_stamp = int(datetime.datetime.strptime(
+            str(k), '%Y-%m-%d').strftime('%s')) * 1000
         data[0]['data'].append([day_time_stamp, order_count])
         data[1]['data'].append([day_time_stamp, order_pre_money])
     return jsonify({'data': data, 'title': u'新媒体订单客户数量分析'})
@@ -110,11 +111,12 @@ def douban_order_json():
         order_count = len(v['orders'])
         sum_order_money = sum([i.money for i in v['orders']])
         if order_count:
-            order_pre_money = sum_order_money/order_count
+            order_pre_money = sum_order_money / order_count
         else:
             order_pre_money = 0
         # 主装highcharts数据
-        day_time_stamp = int(datetime.datetime.strptime(str(k), '%Y-%m-%d').strftime('%s'))*1000
+        day_time_stamp = int(datetime.datetime.strptime(
+            str(k), '%Y-%m-%d').strftime('%s')) * 1000
         data[0]['data'].append([day_time_stamp, order_count])
         data[1]['data'].append([day_time_stamp, order_pre_money])
     return jsonify({'data': data, 'title': u'直签豆瓣订单客户数量分析'})
