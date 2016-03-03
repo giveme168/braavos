@@ -49,7 +49,7 @@ def client_order_json():
     orders = ClientOrder.all()
     for k in orders:
         if k.contract_status in [2, 4, 5, 19, 20]:
-            create_month = k.create_time.replace(day=1).date()
+            create_month = k.client_start.replace(day=1)
             if create_month in client_params:
                 client_params[create_month]['orders'].append(k)
     client_params = sorted(
@@ -95,7 +95,7 @@ def douban_order_json():
     orders = DoubanOrder.all()
     for k in orders:
         if k.contract_status in [2, 4, 5, 19, 20]:
-            create_month = k.create_time.replace(day=1).date()
+            create_month = k.client_start.replace(day=1)
             if create_month in client_params:
                 client_params[create_month]['orders'].append(k)
     client_params = sorted(

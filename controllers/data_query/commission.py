@@ -58,7 +58,6 @@ def _belong_time_by_back_money(money, start, end, back_money_obj):
     # 获取合同执行额
     report_money = _order_executive_reports(money, start, end)
     now_Q_back_moneys = back_money_obj['now_Q_back_moneys']
-    # before_Q_back_moneys = back_money_obj['before_Q_back_moneys']
     t_report_money = 0
     report_times = []
     for k in range(len(report_money)):
