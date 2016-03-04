@@ -58,7 +58,7 @@ def index_json():
     for k in Medium.all():
         medium_info_params[k.name] = 0
 
-    for k in medium_date+douban_date:
+    for k in medium_date + douban_date:
         if k['medium_name'] in medium_info_params:
             medium_info_params[k['medium_name']] += k['money']
     medium_info_params = sorted(
