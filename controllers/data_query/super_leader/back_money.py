@@ -77,26 +77,42 @@ def _format_client_order(order):
     params = {}
     params['money'] = order.money
     params['reminde_date'] = order.reminde_date.replace(day=1)
-    params['order'] = order
-    params['table_name'] = order.__tablename__
+    params['order_id'] = order.id
+    params['reminde_date'] = order.reminde_date.replace(day=1)
     return params
 
 
-# 在指定时间内未回款金额
-def _un_back_money(order, month):
+# 格式化回款及返点发票
+def _format_back_money(back_moneys, type):
+    data = []
+    for k in back_moneys:
+        if type == 'client':
+            order_id = k.client_order_id
+        else:
+            order_id = k.douban_order_id
+        data.append({'money': k.money,
+                     'back_time': k.back_time.replace(day=1).date(),
+                     'order_id': order_id})
+    return data
+
+
+# 在指定时间内回款金额
+def _back_money(month, back_moneys):
     # 获取到指定时间之前的所有回款
-    if order['table_name'] == 'bra_client_order':
-        back_moneys = order['order'].backmoneys
-        back_invoice = order['order'].backinvoicerebates
-    else:
-        back_moneys = order['order'].douban_backmoneys
-        back_invoice = order['order'].douban_backinvoicerebates
     back_total = 0
-    for k in list(back_moneys) + list(back_invoice):
-        back_time = k.back_time.replace(day=1).date()
-        if back_time <= month:
-            back_total += k.money
-    return order['money'] - back_total
+    for k in back_moneys:
+        if k['back_time'] <= month:
+            back_total += k['money']
+    return back_total
+
+
+# 到账期后未回款合同总金额
+def _need_back_money(orders, month):
+    total_money = 0
+    for k in orders:
+        if k['reminde_date'] <= month:
+            total_money += k['money']
+    return total_money
 
 
 @data_query_super_leader_back_money_bp.route('/client_order_json', methods=['POST'])
@@ -118,28 +134,21 @@ def client_order_json():
         client_params[k['month'].date()] = {'back_moneys': 0,
                                             'un_back_moneys': 0}
     # 回款
-    back_moneys = ClientBackMoney.all()
-    back_invoice = ClientBackInvoiceRebate.all()
-    for k in list(back_moneys) + list(back_invoice):
-        back_time = k.back_time.replace(day=1).date()
-        if back_time in client_params:
-            client_params[back_time]['back_moneys'] += k.money
+    back_moneys = list(ClientBackMoney.all()) + \
+        list(ClientBackInvoiceRebate.all())
+    back_moneys = _format_back_money(back_moneys, 'client')
+    for k in back_moneys:
+        if k['back_time'] in client_params:
+            client_params[k['back_time']]['back_moneys'] += k['money']
 
     # 计算未回款金额累计
-    orders = [_format_client_order(k) for k in orders]
+    orders = [_format_client_order(k) for k in orders if k.contract_status in [
+        2, 4, 5, 19, 20]]
     for k in client_params:
-        client_params[k]['un_back_moneys'] += sum([_un_back_money(order, k) for order in orders])
+        need_back_money = _need_back_money(orders, k)
+        client_params[k][
+            'un_back_moneys'] += need_back_money - _back_money(k, back_moneys)
 
-    '''
-    # 未回款
-    for k in ex_orders:
-        if k.client_order.back_money_status == 1:
-            month_day = k.month_day.date()
-            if month_day in client_params:
-                un_back_money = _order_executive_reports(
-                    k.client_order, month_day)
-                client_params[month_day]['un_back_moneys'] += un_back_money
-    '''
     client_params = sorted(
         client_params.iteritems(), key=lambda x: x[0])
 
@@ -176,18 +185,20 @@ def douban_order_json():
         client_params[k['month'].date()] = {'back_moneys': 0,
                                             'un_back_moneys': 0}
     # 回款
-    back_moneys = DoubanBackMoney.all()
-    back_invoice = DoubanBackInvoiceRebate.all()
-    for k in list(back_moneys) + list(back_invoice):
-        back_time = k.back_time.replace(day=1).date()
-        if back_time in client_params:
-            client_params[back_time]['back_moneys'] += k.money
+    back_moneys = list(DoubanBackMoney.all()) + \
+        list(DoubanBackInvoiceRebate.all())
+    back_moneys = _format_back_money(back_moneys, 'douban')
+    for k in back_moneys:
+        if k['back_time'] in client_params:
+            client_params[k['back_time']]['back_moneys'] += k['money']
 
     # 计算未回款金额累计
-    orders = [_format_client_order(k) for k in orders]
+    orders = [_format_client_order(k) for k in orders if k.contract_status in [
+        2, 4, 5, 19, 20]]
     for k in client_params:
-        client_params[k]['un_back_moneys'] += sum([_un_back_money(order, k) for order in orders])
-
+        need_back_money = _need_back_money(orders, k)
+        client_params[k][
+            'un_back_moneys'] += need_back_money - _back_money(k, back_moneys)
     client_params = sorted(
         client_params.iteritems(), key=lambda x: x[0])
 
