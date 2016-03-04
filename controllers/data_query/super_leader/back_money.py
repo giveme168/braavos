@@ -75,10 +75,9 @@ def _order_executive_reports(order, month_day):
 # 格式化合同
 def _format_client_order(order):
     params = {}
-    params['money'] = order.money
+    params['money'] = float(order.money)
     params['reminde_date'] = order.reminde_date.replace(day=1)
-    params['order_id'] = order.id
-    params['reminde_date'] = order.reminde_date.replace(day=1)
+    params['order_id'] = int(order.id)
     return params
 
 
@@ -87,10 +86,10 @@ def _format_back_money(back_moneys, type):
     data = []
     for k in back_moneys:
         if type == 'client':
-            order_id = k.client_order_id
+            order_id = int(k.client_order_id)
         else:
-            order_id = k.douban_order_id
-        data.append({'money': k.money,
+            order_id = int(k.douban_order_id)
+        data.append({'money': float(k.money),
                      'back_time': k.back_time.replace(day=1).date(),
                      'order_id': order_id})
     return data
@@ -103,7 +102,7 @@ def _back_money(month, back_moneys):
     for k in back_moneys:
         if k['back_time'] <= month:
             back_total += k['money']
-    return back_total
+    return float(back_total)
 
 
 # 到账期后未回款合同总金额
@@ -112,7 +111,7 @@ def _need_back_money(orders, month):
     for k in orders:
         if k['reminde_date'] <= month:
             total_money += k['money']
-    return total_money
+    return float(total_money)
 
 
 @data_query_super_leader_back_money_bp.route('/client_order_json', methods=['POST'])
@@ -124,8 +123,7 @@ def client_order_json():
     now_year_start = datetime.datetime.strptime(
         str(year) + '-01-01', '%Y-%m-%d')
     now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
-    orders = ClientOrder.query.filter(ClientOrder.back_money_status == 1,
-                                      ClientOrder.status == 1,
+    orders = ClientOrder.query.filter(ClientOrder.status == 1,
                                       ClientOrder.reminde_date <= now_year_end)
 
     client_params = {}
@@ -147,7 +145,7 @@ def client_order_json():
     for k in client_params:
         need_back_money = _need_back_money(orders, k)
         client_params[k][
-            'un_back_moneys'] += need_back_money - _back_money(k, back_moneys)
+            'un_back_moneys'] = need_back_money - _back_money(k, back_moneys)
 
     client_params = sorted(
         client_params.iteritems(), key=lambda x: x[0])
@@ -176,8 +174,7 @@ def douban_order_json():
     now_year_start = datetime.datetime.strptime(
         str(year) + '-01-01', '%Y-%m-%d')
     now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
-    orders = DoubanOrder.query.filter(DoubanOrder.back_money_status == 1,
-                                      DoubanOrder.status == 1,
+    orders = DoubanOrder.query.filter(DoubanOrder.status == 1,
                                       DoubanOrder.reminde_date <= now_year_end)
     client_params = {}
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
@@ -198,7 +195,7 @@ def douban_order_json():
     for k in client_params:
         need_back_money = _need_back_money(orders, k)
         client_params[k][
-            'un_back_moneys'] += need_back_money - _back_money(k, back_moneys)
+            'un_back_moneys'] = need_back_money - _back_money(k, back_moneys)
     client_params = sorted(
         client_params.iteritems(), key=lambda x: x[0])
 

@@ -3,9 +3,6 @@
         <div class="list">
           <ul>
             {% if g.user.is_super_leader() %}
-            <!--<a href="{{url_for('data_query_super_leader_medium.money')}}">
-              <li id="_medium_" >媒体清单</li>
-            </a>-->
             <a href="{{url_for('data_query_super_leader_industry.client_order')}}">
               <li id="_industry_" >行业分析</li>
             </a>
@@ -33,7 +30,11 @@
         </div>
         <div class="list">
           <ul>
-            
+            {% if g.user.is_super_leader() %}
+            <a href="{{url_for('data_query_super_leader_medium_info.index')}}">
+              <li id="_medium_info_" >媒体执行额分析</li>
+            </a>
+            {% endif %}
           </ul>
         </div>
     </div>
