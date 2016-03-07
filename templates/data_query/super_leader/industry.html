@@ -20,7 +20,7 @@
     <h3>{{title}}</h3>
     <form class="form-inline">
         <div class="form-group">
-            <label for="exampleInputEmail2">查询时间</label>
+            <label for="exampleInputEmail2">查询时间：</label>
             <select class="col-md-12" id="start_year" name="start_year" style="width:100px;">
                 {% for k in range(5) %}
                 <option value='{{2014+k}}'>{{2014+k}}年</option>
@@ -55,6 +55,15 @@
                         <option value='{{1+k}}'>{{1+k}}月</option>
                     {% endif %}
                 {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail2">区域：</label>
+            <select class="col-md-12" id="location" name="location" style="width:70px;">
+                <option value='0'>全部</option>
+                <option value='1'>华北</option>
+                <option value='2'>华东</option>
+                <option value='3'>华南</option>
             </select>
         </div>
         <a href="javascript:search();" class="btn btn-default">查询</a>
@@ -106,6 +115,7 @@
         var start_month = parseInt($('#start_month').val());
         var end_year = parseInt($('#end_year').val());
         var end_month = parseInt($('#end_month').val());
+        var location = parseInt($('#location').val());
         if (end_year - start_year < 0){
             alert('时间选择错误，请重新选择')
             return
@@ -134,7 +144,7 @@
         $.ajax({
             type: 'POST',
             url: url,
-            data: {start_year: start_year, start_month: start_month, end_year:end_year, end_month:end_month},
+            data: {start_year: start_year, start_month: start_month, end_year:end_year, end_month:end_month, location:location},
             dataType: 'json',
             success: function(data, err){
                 load_chart(data['title'], data['data'])

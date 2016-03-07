@@ -54,7 +54,6 @@ def _order_executive_reports(order, month_day):
                                           datetime.datetime.strptime(end.strftime('%Y-%m-%d'), '%Y-%m-%d'))
     # pre_month_money_data = []
     for k in pre_month_days:
-        # pre_month_money_data.append({'money': pre_money * k['days'], 'month_day': k['month']})
         money = pre_money * k['days']
         month = k['month'].date()
         # 回款逐月递减，减到指定月后，看总回款的剩余情况，计算指定月未回款金额
@@ -73,23 +72,45 @@ def _order_executive_reports(order, month_day):
 
 
 # 格式化合同
-def _format_client_order(order):
+def _format_client_order(order, location):
     params = {}
-    params['money'] = float(order.money)
+    params['money'] = _get_money_by_location(order.money, order, location)
     params['reminde_date'] = order.reminde_date.replace(day=1)
     params['order_id'] = int(order.id)
     return params
 
 
+def _get_money_by_location(r_money, order, location):
+    if location != 0:
+        if set(order.locations) == set([location]):
+            return r_money
+        else:
+            # 用于查看渠道销售是否跨区
+            direct_sales = order.direct_sales
+            direct_location = list(set([k.team.location for k in direct_sales]))
+            # 用于查看直客销售是否跨区
+            agent_sales = order.agent_sales
+            agent_location = list(set([k.team.location for k in agent_sales]))
+            money = 0
+            if location in direct_location:
+                money += float(r_money) / len(direct_location)
+            if location in agent_location:
+                money += float(r_money) / len(agent_location)
+            return money
+    return r_money
+
+
 # 格式化回款及返点发票
-def _format_back_money(back_moneys, type):
+def _format_back_money(back_moneys, type, location):
     data = []
     for k in back_moneys:
         if type == 'client':
             order_id = int(k.client_order_id)
+            order = k.client_order
         else:
             order_id = int(k.douban_order_id)
-        data.append({'money': float(k.money),
+            order = k.douban_order
+        data.append({'money': _get_money_by_location(k.money, order, location),
                      'back_time': k.back_time.replace(day=1).date(),
                      'order_id': order_id})
     return data
@@ -119,6 +140,7 @@ def client_order_json():
     if not g.user.is_super_leader():
         abort(403)
     now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
     year = int(request.values.get('year', now_date.year))
     now_year_start = datetime.datetime.strptime(
         str(year) + '-01-01', '%Y-%m-%d')
@@ -134,13 +156,13 @@ def client_order_json():
     # 回款
     back_moneys = list(ClientBackMoney.all()) + \
         list(ClientBackInvoiceRebate.all())
-    back_moneys = _format_back_money(back_moneys, 'client')
+    back_moneys = _format_back_money(back_moneys, 'client', location)
     for k in back_moneys:
         if k['back_time'] in client_params:
             client_params[k['back_time']]['back_moneys'] += k['money']
 
     # 计算未回款金额累计
-    orders = [_format_client_order(k) for k in orders if k.contract_status in [
+    orders = [_format_client_order(k, location) for k in orders if k.contract_status in [
         2, 4, 5, 19, 20]]
     for k in client_params:
         need_back_money = _need_back_money(orders, k)
@@ -170,6 +192,7 @@ def douban_order_json():
     if not g.user.is_super_leader():
         abort(403)
     now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
     year = int(request.values.get('year', now_date.year))
     now_year_start = datetime.datetime.strptime(
         str(year) + '-01-01', '%Y-%m-%d')
@@ -184,13 +207,13 @@ def douban_order_json():
     # 回款
     back_moneys = list(DoubanBackMoney.all()) + \
         list(DoubanBackInvoiceRebate.all())
-    back_moneys = _format_back_money(back_moneys, 'douban')
+    back_moneys = _format_back_money(back_moneys, 'douban', location)
     for k in back_moneys:
         if k['back_time'] in client_params:
             client_params[k['back_time']]['back_moneys'] += k['money']
 
     # 计算未回款金额累计
-    orders = [_format_client_order(k) for k in orders if k.contract_status in [
+    orders = [_format_client_order(k, location) for k in orders if k.contract_status in [
         2, 4, 5, 19, 20]]
     for k in client_params:
         need_back_money = _need_back_money(orders, k)

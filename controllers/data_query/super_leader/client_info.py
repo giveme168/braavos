@@ -30,11 +30,32 @@ def douban_order():
                type='douban')
 
 
+def _get_money_by_location(order, location):
+    if location != 0:
+        if set(order.locations) == set([location]):
+            return order.money
+        else:
+            # 用于查看渠道销售是否跨区
+            direct_sales = order.direct_sales
+            direct_location = list(set([k.team.location for k in direct_sales]))
+            # 用于查看直客销售是否跨区
+            agent_sales = order.agent_sales
+            agent_location = list(set([k.team.location for k in agent_sales]))
+            money = 0
+            if location in direct_location:
+                money += float(order.money) / len(direct_location)
+            if location in agent_location:
+                money += float(order.money) / len(agent_location)
+            return money
+    return order.money
+
+
 @data_query_super_leader_client_info_bp.route('/client_order_json', methods=['POST'])
 def client_order_json():
     if not g.user.is_super_leader():
         abort(403)
     now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
     year = int(request.values.get('year', now_date.year))
     now_year_start = datetime.datetime.strptime(
         str(year) + '-01-01', '%Y-%m-%d')
@@ -51,7 +72,10 @@ def client_order_json():
         if k.contract_status in [2, 4, 5, 19, 20]:
             create_month = k.client_start.replace(day=1)
             if create_month in client_params:
-                client_params[create_month]['orders'].append(k)
+                if location == 0:
+                    client_params[create_month]['orders'].append(k)
+                elif location in k.locations:
+                    client_params[create_month]['orders'].append(k)
     client_params = sorted(
         client_params.iteritems(), key=lambda x: x[0])
     # 初始化highcharts数据
@@ -63,7 +87,7 @@ def client_order_json():
     # 根据时间组装合同
     for k, v in client_params:
         order_count = len(v['orders'])
-        sum_order_money = sum([i.money for i in v['orders']])
+        sum_order_money = sum([_get_money_by_location(i, location) for i in v['orders']])
         if order_count:
             order_pre_money = sum_order_money / order_count
         else:
@@ -81,6 +105,7 @@ def douban_order_json():
     if not g.user.is_super_leader():
         abort(403)
     now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
     year = int(request.values.get('year', now_date.year))
     now_year_start = datetime.datetime.strptime(
         str(year) + '-01-01', '%Y-%m-%d')
@@ -97,7 +122,10 @@ def douban_order_json():
         if k.contract_status in [2, 4, 5, 19, 20]:
             create_month = k.client_start.replace(day=1)
             if create_month in client_params:
-                client_params[create_month]['orders'].append(k)
+                if location == 0:
+                    client_params[create_month]['orders'].append(k)
+                elif location in k.locations:
+                    client_params[create_month]['orders'].append(k)
     client_params = sorted(
         client_params.iteritems(), key=lambda x: x[0])
     # 初始化highcharts数据
@@ -109,7 +137,7 @@ def douban_order_json():
     # 根据时间组装合同
     for k, v in client_params:
         order_count = len(v['orders'])
-        sum_order_money = sum([i.money for i in v['orders']])
+        sum_order_money = sum([_get_money_by_location(i, location) for i in v['orders']])
         if order_count:
             order_pre_money = sum_order_money / order_count
         else:

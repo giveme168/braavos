@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 
-from flask import Blueprint, request, jsonify, g, abort
+from flask import Blueprint, request, jsonify, g, abort, json
 from flask import render_template as tpl
 
 from models.douban_order import DoubanOrderExecutiveReport
@@ -30,11 +30,45 @@ def douban_order():
                type='douban')
 
 
+def _format_order(order, type='client'):
+    params = {}
+    params['month_day'] = order.month_day
+    if type == 'client':
+        params['money'] = order.medium_money2
+        params['medium_id'] = order.order.medium_id
+    else:
+        params['money'] = order.money
+    params['order_json'] = json.loads(order.order_json)
+    params['locations'] = params['order_json']['locations']
+    return params
+
+
+def _get_money_by_location(order, location):
+    if location != 0:
+        if set(order['locations']) == set([location]):
+            return order['money']
+        else:
+            # 用于查看渠道销售是否跨区
+            direct_sales = order['order_json']['direct_sales']
+            direct_location = list(set([k['location'] for k in direct_sales]))
+            # 用于查看直客销售是否跨区
+            agent_sales = order['order_json']['agent_sales']
+            agent_location = list(set([k['location'] for k in agent_sales]))
+            money = 0
+            if location in direct_location:
+                money += float(order['money']) / len(direct_location)
+            if location in agent_location:
+                money += float(order['money']) / len(agent_location)
+            return money
+    return order['money']
+
+
 @data_query_super_leader_money_bp.route('/client_order_json', methods=['POST', 'GET'])
 def client_order_json():
     if not g.user.is_super_leader():
         abort(403)
     now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
     year = int(request.values.get('year', now_date.year))
     now_year_start = datetime.datetime.strptime(
         str(year) + '-01-01', '%Y-%m-%d')
@@ -50,9 +84,7 @@ def client_order_json():
     medium_orders = MediumOrderExecutiveReport.query.filter(
         MediumOrderExecutiveReport.month_day >= before_last_year_start,
         MediumOrderExecutiveReport.month_day <= now_year_end)
-    medium_orders = [{'month_day': k.month_day,
-                      'money': k.medium_money2,
-                      } for k in medium_orders if k.status == 1]
+    medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
     last_monthes = get_monthes_pre_days(last_year_start, last_year_end)
     before_monthes = get_monthes_pre_days(
@@ -72,13 +104,13 @@ def client_order_json():
     for order in medium_orders:
         if int(order['month_day'].strftime('%s')) * 1000 in now_monthes_data:
             now_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += order['money']
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
         if int(order['month_day'].strftime('%s')) * 1000 in last_monthes_data:
             last_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += order['money']
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
         if int(order['month_day'].strftime('%s')) * 1000 in before_monthes_data:
             before_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += order['money']
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
     # 格式化数据，把近三年数据放在一年用于画图
     now_monthes_data = sorted(now_monthes_data.iteritems(), key=lambda x: x[0])
     # now_monthes_data.reverse()
@@ -122,6 +154,7 @@ def douban_order_json():
     if not g.user.is_super_leader():
         abort(403)
     now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
     year = int(request.values.get('year', now_date.year))
     now_year_start = datetime.datetime.strptime(
         str(year) + '-01-01', '%Y-%m-%d')
@@ -140,14 +173,11 @@ def douban_order_json():
     medium_orders = MediumOrderExecutiveReport.query.filter(
         MediumOrderExecutiveReport.month_day >= before_last_year_start,
         MediumOrderExecutiveReport.month_day <= now_year_end)
-    douban_date = [{'month_day': k.month_day,
-                    'money': k.money,
-                    } for k in douban_orders if k.status == 1]
-    medium_orders = [{'month_day': k.month_day,
-                      'medium_id': int(k.order.medium_id),
-                      'medium_money2': k.medium_money2
-                      } for k in medium_orders if k.status == 1]
-    douban_date += [{'month_day': k['month_day'], 'money':k['medium_money2']}
+    douban_date = [_format_order(k, 'douban')
+                   for k in douban_orders if k.status == 1]
+    medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    douban_date += [{'month_day': k['month_day'], 'money':k['money'],
+                     'order_json':k['order_json'], 'locations':k['locations']}
                     for k in medium_orders if k['medium_id'] in [3, 8]]
 
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
@@ -168,13 +198,13 @@ def douban_order_json():
     for order in douban_date:
         if int(order['month_day'].strftime('%s')) * 1000 in now_monthes_data:
             now_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += order['money']
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
         if int(order['month_day'].strftime('%s')) * 1000 in last_monthes_data:
             last_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += order['money']
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
         if int(order['month_day'].strftime('%s')) * 1000 in before_monthes_data:
             before_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += order['money']
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
     # 格式化数据，把近三年数据放在一年用于画图
     now_monthes_data = sorted(now_monthes_data.iteritems(), key=lambda x: x[0])
     # now_monthes_data.reverse()

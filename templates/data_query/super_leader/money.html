@@ -27,6 +27,15 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="form-group">
+            <label for="exampleInputEmail2">区域：</label>
+            <select class="col-md-12" id="location" name="location" style="width:70px;">
+                <option value='0'>全部</option>
+                <option value='1'>华北</option>
+                <option value='2'>华东</option>
+                <option value='3'>华南</option>
+            </select>
+        </div>
         <a href="javascript:search();" class="btn btn-default">查询</a>
         <!--<input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">-->
     </form>
@@ -86,6 +95,7 @@
     function search(){
         $('#loading').show()
         var year = parseInt($('#year').val());
+        var location = parseInt($('#location').val());
         var type = '{{type}}';
         if (type == 'client'){
             var url = "{{url_for('data_query_super_leader_money.client_order_json')}}"
@@ -96,7 +106,7 @@
         $.ajax({
             type: 'POST',
             url: url,
-            data: {year: year},
+            data: {year: year, location:location},
             dataType: 'json',
             success: function(data, err){
                 load_chart(data['title'], data['data'])

@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 
-from flask import Blueprint, request, jsonify, g, abort
+from flask import Blueprint, request, jsonify, g, abort, json
 from flask import render_template as tpl
 
 from models.douban_order import DoubanOrderExecutiveReport
@@ -30,11 +30,47 @@ def douban_order():
                type='douban')
 
 
+def _format_order(order, type='client'):
+    params = {}
+    params['month_day'] = order.month_day
+    if type == 'client':
+        params['client'] = order.client_order.client
+        params['money'] = order.medium_money2
+        params['medium_id'] = order.order.medium_id
+    else:
+        params['client'] = order.douban_order.client
+        params['money'] = order.money
+    params['order_json'] = json.loads(order.order_json)
+    params['locations'] = params['order_json']['locations']
+    return params
+
+
+def _get_money_by_location(order, location):
+    if location != 0:
+        if set(order['locations']) == set([location]):
+            return order['money']
+        else:
+            # 用于查看渠道销售是否跨区
+            direct_sales = order['order_json']['direct_sales']
+            direct_location = list(set([k['location'] for k in direct_sales]))
+            # 用于查看直客销售是否跨区
+            agent_sales = order['order_json']['agent_sales']
+            agent_location = list(set([k['location'] for k in agent_sales]))
+            money = 0
+            if location in direct_location:
+                money += float(order['money']) / len(direct_location)
+            if location in agent_location:
+                money += float(order['money']) / len(agent_location)
+            return money
+    return order['money']
+
+
 @data_query_super_leader_client_bp.route('/client_order_json', methods=['POST'])
 def client_order_json():
     if not g.user.is_super_leader():
         abort(403)
     now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
     start_year = str(request.values.get('start_year', now_date.year))
     start_month = str(request.values.get('start_month', now_date.month))
     end_year = str(request.values.get('end_year', now_date.year - 1))
@@ -48,12 +84,9 @@ def client_order_json():
         MediumOrderExecutiveReport.month_day >= start_date_month,
         MediumOrderExecutiveReport.month_day <= end_date_month)
 
-    medium_orders = [{'month_day': k.month_day, 'client_id': k.client_order.client.id,
-                      'client': k.client_order.client,
-                      'medium_money2': k.medium_money2,
-                      } for k in medium_orders if k.status == 1]
+    medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
     medium_date = [{'client_name': k['client'].name,
-                    'money':k['medium_money2']}
+                    'money': _get_money_by_location(k, location)}
                    for k in medium_orders]
 
     client_params = {}
@@ -88,6 +121,7 @@ def douban_order_json():
     if not g.user.is_super_leader():
         abort(403)
     now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
     start_year = str(request.values.get('start_year', now_date.year))
     start_month = str(request.values.get('start_month', now_date.month))
     end_year = str(request.values.get('end_year', now_date.year - 1))
@@ -104,21 +138,15 @@ def douban_order_json():
         MediumOrderExecutiveReport.month_day >= start_date_month,
         MediumOrderExecutiveReport.month_day <= end_date_month)
 
-    medium_orders = [{'month_day': k.month_day, 'client_id': k.client_order.client.id,
-                      'client': k.client_order.client,
-                      'medium_id': int(k.order.medium_id),
-                      'medium_money2': k.medium_money2,
-                      } for k in medium_orders if k.status == 1]
+    medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
     medium_date = [{'client_name': k['client'].name,
                     'medium_id': k['medium_id'],
-                    'money':k['medium_money2']}
+                    'money':_get_money_by_location(k, location)}
                    for k in medium_orders if k['medium_id'] in [3, 8]]
-    douban_orders = [{'month_day': k.month_day,
-                      'client': k.douban_order.client,
-                      'money': k.money,
-                      } for k in douban_orders if k.status == 1]
+    douban_orders = [_format_order(k, 'douban')
+                     for k in douban_orders if k.status == 1]
     douban_date = [{'client_name': k['client'].name,
-                    'money':k['money']}
+                    'money':_get_money_by_location(k, location)}
                    for k in douban_orders]
 
     client_params = {}

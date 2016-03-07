@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 
-from flask import Blueprint, request, jsonify, g, abort
+from flask import Blueprint, request, jsonify, g, abort, json
 from flask import render_template as tpl
 
 from models.douban_order import DoubanOrderExecutiveReport
@@ -20,11 +20,47 @@ def index():
                title=u'媒体执行额分析')
 
 
+def _format_order(order, type='client'):
+    params = {}
+    params['month_day'] = order.month_day
+    if type == 'client':
+        params['money'] = order.medium_money2
+        params['medium_id'] = order.order.medium_id
+        params['medium_name'] = order.order.medium.name
+    else:
+        params['money'] = order.money
+        params['medium_name'] = u'豆瓣'
+    params['order_json'] = json.loads(order.order_json)
+    params['locations'] = params['order_json']['locations']
+    return params
+
+
+def _get_money_by_location(order, location):
+    if location != 0:
+        if set(order['locations']) == set([location]):
+            return order['money']
+        else:
+            # 用于查看渠道销售是否跨区
+            direct_sales = order['order_json']['direct_sales']
+            direct_location = list(set([k['location'] for k in direct_sales]))
+            # 用于查看直客销售是否跨区
+            agent_sales = order['order_json']['agent_sales']
+            agent_location = list(set([k['location'] for k in agent_sales]))
+            money = 0
+            if location in direct_location:
+                money += float(order['money']) / len(direct_location)
+            if location in agent_location:
+                money += float(order['money']) / len(agent_location)
+            return money
+    return order['money']
+
+
 @data_query_super_leader_medium_info_bp.route('/index_json', methods=['POST'])
 def index_json():
     if not g.user.is_super_leader():
         abort(403)
     now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
     start_year = str(request.values.get('start_year', now_date.year))
     start_month = str(request.values.get('start_month', now_date.month))
     end_year = str(request.values.get('end_year', now_date.year - 1))
@@ -42,16 +78,8 @@ def index_json():
         DoubanOrderExecutiveReport.month_day >= start_date_month,
         DoubanOrderExecutiveReport.month_day <= end_date_month)
 
-    medium_orders = [{'month_day': k.month_day,
-                      'medium_name': k.order.medium.name,
-                      'medium_money2': k.medium_money2,
-                      } for k in medium_orders if k.status == 1]
-    medium_date = [{'medium_name': k['medium_name'],
-                    'money':k['medium_money2']}
-                   for k in medium_orders]
-    douban_date = [{'medium_name': u'豆瓣',
-                    'money': k.money}
-                   for k in douban_orders]
+    medium_date = [_format_order(k) for k in medium_orders if k.status == 1]
+    douban_date = [_format_order(k, 'douban') for k in douban_orders]
 
     medium_info_params = {}
     medium_info_params[u'豆瓣'] = 0
@@ -60,7 +88,7 @@ def index_json():
 
     for k in medium_date + douban_date:
         if k['medium_name'] in medium_info_params:
-            medium_info_params[k['medium_name']] += k['money']
+            medium_info_params[k['medium_name']] += _get_money_by_location(k, location)
     medium_info_params = sorted(
         medium_info_params.iteritems(), key=lambda x: x[1])
     medium_info_params.reverse()
