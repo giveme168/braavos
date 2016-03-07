@@ -58,9 +58,9 @@ def _get_money_by_location(order, location):
             agent_location = list(set([k['location'] for k in agent_sales]))
             money = 0
             if location in direct_location:
-                money += float(order['money'])/len(direct_location)
+                money += float(order['money']) / len(direct_location)
             if location in agent_location:
-                money += float(order['money'])/len(agent_location)
+                money += float(order['money']) / len(agent_location)
             return money
     return order['money']
 
@@ -141,7 +141,8 @@ def douban_order_json():
                     'medium_id': k['medium_id'],
                     'money':_get_money_by_location(k, location)}
                    for k in medium_orders if k['medium_id'] in [3, 8]]
-    douban_orders = [_format_order(k, 'douban') for k in douban_orders if k.status == 1]
+    douban_orders = [_format_order(k, 'douban')
+                     for k in douban_orders if k.status == 1]
     douban_date = [{'agent_name': k['agent'].name,
                     'money':_get_money_by_location(k, location)}
                    for k in douban_orders]
