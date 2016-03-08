@@ -129,7 +129,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     campaign = db.Column(db.String(100))  # 活动名称
 
     contract = db.Column(db.String(100))  # 豆瓣合同号
-    money = db.Column(db.Integer)  # 客户合同金额
+    money = db.Column(db.Float())  # 客户合同金额
     medium_CPM = db.Column(db.Integer)  # 实际CPM
     sale_CPM = db.Column(db.Integer)  # 下单CPM
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准

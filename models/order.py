@@ -98,9 +98,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         'ClientOrder', secondary=table_medium_orders)
 
     medium_contract = db.Column(db.String(100))  # 媒体合同号
-    medium_money = db.Column(db.Integer)  # 下单金额
-    medium_money2 = db.Column(db.Integer)  # 媒体金额
-    sale_money = db.Column(db.Integer)  # 售卖金额
+    medium_money = db.Column(db.Float())  # 下单金额
+    medium_money2 = db.Column(db.Float())  # 媒体金额
+    sale_money = db.Column(db.Float())  # 售卖金额
     medium_CPM = db.Column(db.Integer)  # 实际CPM
     sale_CPM = db.Column(db.Integer)  # 下单CPM
     discount = db.Column(db.Integer)  # 折扣类型

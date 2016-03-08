@@ -23,7 +23,7 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
         'Order', backref=db.backref('associated_douban_orders', lazy='dynamic'))
     campaign = db.Column(db.String(100))  # 活动名称
     contract = db.Column(db.String(100))  # 豆瓣合同号
-    money = db.Column(db.Integer)  # 客户合同金额
+    money = db.Column(db.Float())  # 客户合同金额
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User')
