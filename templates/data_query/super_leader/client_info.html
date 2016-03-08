@@ -16,6 +16,7 @@
     <ul class="nav nav-tabs">
       <li id="_client_order_"class=""><a href="{{url_for('data_query_super_leader_client_info.client_order')}}">新媒体订单</a></li>
       <li id="_douban_order_" class=""><a href="{{url_for('data_query_super_leader_client_info.douban_order')}}">直签豆瓣订单</a></li>
+      <li id="_search_" class=""><a href="{{url_for('data_query_super_leader_client_info.search')}}">搜索业务</a></li>
     </ul>
     <h3>{{title}}</h3>
     <form class="form-inline">
@@ -99,6 +100,8 @@
         var type = '{{type}}';
         if (type == 'client'){
             var url = "{{url_for('data_query_super_leader_client_info.client_order_json')}}"
+        }if (type == 'search'){
+            var url = "{{url_for('data_query_super_leader_client_info.search_json')}}"
         }else{
             var url = "{{url_for('data_query_super_leader_client_info.douban_order_json')}}"
         }

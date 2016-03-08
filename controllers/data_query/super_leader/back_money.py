@@ -10,6 +10,9 @@ from models.douban_order import BackInvoiceRebate as DoubanBackInvoiceRebate
 from models.client_order import ClientOrder
 from models.client_order import BackMoney as ClientBackMoney
 from models.client_order import BackInvoiceRebate as ClientBackInvoiceRebate
+from searchAd.models.client_order import searchAdClientOrder
+from searchAd.models.client_order import searchAdBackMoney
+from searchAd.models.client_order import searchAdBackInvoiceRebate
 from libs.date_helpers import get_monthes_pre_days
 
 data_query_super_leader_back_money_bp = Blueprint(
@@ -32,6 +35,15 @@ def douban_order():
     return tpl('/data_query/super_leader/back_money.html',
                title=u'豆瓣订单回款分析（包含返点发票）',
                type='douban')
+
+
+@data_query_super_leader_back_money_bp.route('/search', methods=['GET'])
+def search():
+    if not g.user.is_super_leader():
+        abort(403)
+    return tpl('/data_query/super_leader/back_money.html',
+               title=u'搜索业务回款分析（包含返点发票）',
+               type='search')
 
 
 # 计算某个合同指定月是否有回款
@@ -87,7 +99,8 @@ def _get_money_by_location(r_money, order, location):
         else:
             # 用于查看渠道销售是否跨区
             direct_sales = order.direct_sales
-            direct_location = list(set([k.team.location for k in direct_sales]))
+            direct_location = list(
+                set([k.team.location for k in direct_sales]))
             # 用于查看直客销售是否跨区
             agent_sales = order.agent_sales
             agent_location = list(set([k.team.location for k in agent_sales]))
@@ -133,6 +146,58 @@ def _need_back_money(orders, month):
         if k['reminde_date'] <= month:
             total_money += k['money']
     return float(total_money)
+
+
+@data_query_super_leader_back_money_bp.route('/search_json', methods=['POST'])
+def search_json():
+    if not g.user.is_super_leader():
+        abort(403)
+    now_date = datetime.datetime.now()
+    location = 0
+    year = int(request.values.get('year', now_date.year))
+    now_year_start = datetime.datetime.strptime(
+        str(year) + '-01-01', '%Y-%m-%d')
+    now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
+    orders = searchAdClientOrder.query.filter(searchAdClientOrder.status == 1,
+                                              searchAdClientOrder.reminde_date <= now_year_end)
+
+    client_params = {}
+    now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
+    for k in now_monthes:
+        client_params[k['month'].date()] = {'back_moneys': 0,
+                                            'un_back_moneys': 0}
+    # 回款
+    back_moneys = list(searchAdBackMoney.all()) + \
+        list(searchAdBackInvoiceRebate.all())
+    back_moneys = _format_back_money(back_moneys, 'client', location)
+    for k in back_moneys:
+        if k['back_time'] in client_params:
+            client_params[k['back_time']]['back_moneys'] += k['money']
+
+    # 计算未回款金额累计
+    orders = [_format_client_order(k, location) for k in orders if k.contract_status in [
+        2, 4, 5, 19, 20]]
+    for k in client_params:
+        need_back_money = _need_back_money(orders, k)
+        client_params[k][
+            'un_back_moneys'] = need_back_money - _back_money(k, back_moneys)
+
+    client_params = sorted(
+        client_params.iteritems(), key=lambda x: x[0])
+
+    # 初始化highcharts数据
+    data = []
+    data.append({'name': u'已回款金额',
+                 'data': []})
+    data.append({'name': u'未回款金额',
+                 'data': []})
+
+    for k, v in client_params:
+        day_time_stamp = int(datetime.datetime.strptime(
+            str(k), '%Y-%m-%d').strftime('%s')) * 1000
+        data[0]['data'].append([day_time_stamp, v['back_moneys']])
+        data[1]['data'].append([day_time_stamp, v['un_back_moneys']])
+    return jsonify({'data': data, 'title': u'搜索业务回款分析（包含返点发票）'})
 
 
 @data_query_super_leader_back_money_bp.route('/client_order_json', methods=['POST'])

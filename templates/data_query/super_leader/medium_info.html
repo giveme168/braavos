@@ -13,6 +13,10 @@
     <img class="loading_img" src="/static/imgs/loading.gif"></div>
 </div>
 <div class="container bra-box" id="medium_box" style="width:1000px;">
+    <ul class="nav nav-tabs">
+      <li id="__"class=""><a href="{{url_for('data_query_super_leader_medium_info.index')}}">致趣</a></li>
+      <li id="_search_" class=""><a href="{{url_for('data_query_super_leader_medium_info.search')}}">搜索业务</a></li>
+    </ul>
     <h3>{{title}}</h3>
     <form class="form-inline">
         <div class="form-group">
@@ -106,7 +110,6 @@
     })
 
     function search(){
-        $('#loading').show()
         var start_year = parseInt($('#start_year').val());
         var start_month = parseInt($('#start_month').val());
         var end_year = parseInt($('#end_year').val());
@@ -130,7 +133,14 @@
                 return
             }
         }
-        var url = "{{url_for('data_query_super_leader_medium_info.index_json')}}"
+        $('#loading').show();
+        var type = '{{type}}';
+        if (type == 'zhiqu'){
+            var url = "{{url_for('data_query_super_leader_medium_info.index_json')}}"
+        }else{
+            var url = "{{url_for('data_query_super_leader_medium_info.search_json')}}"
+        }
+        
         $.ajax({
             type: 'POST',
             url: url,
@@ -139,7 +149,7 @@
             success: function(data, err){
                 load_chart(data['title'], data['data'])
                 load_list_container(data['data'][0]['data'], data['total'])
-                $('#loading').hide()
+                $('#loading').hide();
             }
 
         })

@@ -6,6 +6,7 @@ from flask import render_template as tpl
 
 from models.douban_order import DoubanOrder
 from models.order import ClientOrder
+from searchAd.models.client_order import searchAdClientOrder
 from libs.date_helpers import get_monthes_pre_days
 
 data_query_super_leader_client_info_bp = Blueprint(
@@ -30,6 +31,15 @@ def douban_order():
                type='douban')
 
 
+@data_query_super_leader_client_info_bp.route('/search', methods=['GET'])
+def search():
+    if not g.user.is_super_leader():
+        abort(403)
+    return tpl('/data_query/super_leader/client_info.html',
+               title=u'搜索业务客户数量分析',
+               type='search')
+
+
 def _get_money_by_location(order, location):
     if location != 0:
         if set(order.locations) == set([location]):
@@ -48,6 +58,56 @@ def _get_money_by_location(order, location):
                 money += float(order.money) / len(agent_location)
             return money
     return order.money
+
+
+@data_query_super_leader_client_info_bp.route('/search_json', methods=['POST'])
+def search_json():
+    if not g.user.is_super_leader():
+        abort(403)
+    now_date = datetime.datetime.now()
+    location = 0
+    year = int(request.values.get('year', now_date.year))
+    now_year_start = datetime.datetime.strptime(
+        str(year) + '-01-01', '%Y-%m-%d')
+    now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
+    client_params = {}
+    now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
+    for k in now_monthes:
+        client_params[k['month'].date()] = {'orders': [],
+                                            'order_count': 0,
+                                            'order_pre_money': 0}
+    # 获取所有合同
+    orders = searchAdClientOrder.all()
+    for k in orders:
+        if k.contract_status in [2, 4, 5, 19, 20]:
+            create_month = k.client_start.replace(day=1)
+            if create_month in client_params:
+                if location == 0:
+                    client_params[create_month]['orders'].append(k)
+                elif location in k.locations:
+                    client_params[create_month]['orders'].append(k)
+    client_params = sorted(
+        client_params.iteritems(), key=lambda x: x[0])
+    # 初始化highcharts数据
+    data = []
+    data.append({'name': u'客户成交数量',
+                 'data': []})
+    data.append({'name': u'客户平均成交额',
+                 'data': []})
+    # 根据时间组装合同
+    for k, v in client_params:
+        order_count = len(v['orders'])
+        sum_order_money = sum([_get_money_by_location(i, location) for i in v['orders']])
+        if order_count:
+            order_pre_money = sum_order_money / order_count
+        else:
+            order_pre_money = 0
+        # 主装highcharts数据
+        day_time_stamp = int(datetime.datetime.strptime(
+            str(k), '%Y-%m-%d').strftime('%s')) * 1000
+        data[0]['data'].append([day_time_stamp, order_count])
+        data[1]['data'].append([day_time_stamp, order_pre_money])
+    return jsonify({'data': data, 'title': u'搜索业务客户数量分析'})
 
 
 @data_query_super_leader_client_info_bp.route('/client_order_json', methods=['POST'])

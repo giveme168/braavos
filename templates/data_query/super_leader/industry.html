@@ -16,6 +16,7 @@
     <ul class="nav nav-tabs">
       <li id="_client_order_"class=""><a href="{{url_for('data_query_super_leader_industry.client_order')}}">新媒体订单</a></li>
       <li id="_douban_order_" class=""><a href="{{url_for('data_query_super_leader_industry.douban_order')}}">直签豆瓣订单</a></li>
+      <li id="_search_" class=""><a href="{{url_for('data_query_super_leader_industry.search')}}">搜索业务</a></li>
     </ul>
     <h3>{{title}}</h3>
     <form class="form-inline">
@@ -110,7 +111,6 @@
     })
 
     function search(){
-        $('#loading').show()
         var start_year = parseInt($('#start_year').val());
         var start_month = parseInt($('#start_month').val());
         var end_year = parseInt($('#end_year').val());
@@ -134,9 +134,12 @@
                 return
             }
         }
+        $('#loading').show();
         var type = '{{type}}';
         if (type == 'client'){
             var url = "{{url_for('data_query_super_leader_industry.client_order_json')}}"
+        }else if(type == 'search'){
+            var url = "{{url_for('data_query_super_leader_industry.search_json')}}"
         }else{
             var url = "{{url_for('data_query_super_leader_industry.douban_order_json')}}"
         }
