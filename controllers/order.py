@@ -1329,6 +1329,8 @@ def douban_order_info(order_id):
         k.id for k in order.replace_sales]
     if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
+        self_rebate = int(request.values.get('self_rebate', 0))
+        self_rabate_value = float(request.values.get('self_rabate_value', 0))
         if info_type == 0:
             if not order.can_admin(g.user):
                 flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
@@ -1358,6 +1360,7 @@ def douban_order_info(order_id):
                     if g.user.is_super_admin():
                         order.replace_sales = User.gets(
                             replace_saler_form.replace_salers.data)
+                        order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
                     order.save()
                     order.add_comment(g.user, u"更新了该订单信息")
                     flash(u'[豆瓣订单]%s 保存成功!' % order.name, 'success')

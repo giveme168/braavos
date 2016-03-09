@@ -159,7 +159,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)
     finish_time = db.Column(db.DateTime)   # 合同归档时间
     back_money_status = db.Column(db.Integer)
-
+    self_agent_rebate = db.Column(db.String(20))  # 单笔返点
     contract_generate = False
     media_apply = False
     kind = "douban-order"
@@ -168,7 +168,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def __init__(self, agent, client, campaign, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  medium_CPM=0, sale_CPM=0, finish_time=None,
-                 back_money_status=BACK_MONEY_STATUS_NOW,
+                 back_money_status=BACK_MONEY_STATUS_NOW, self_agent_rebate='0-0',
                  client_start=None, client_end=None, reminde_date=None,
                  direct_sales=None, agent_sales=None, replace_sales=[],
                  operaters=None, designers=None, planers=None,
@@ -207,6 +207,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.contract_status = contract_status
         self.status = status
         self.back_money_status = back_money_status
+        self.self_agent_rebate = self_agent_rebate
 
     @property
     def salers(self):
@@ -748,6 +749,15 @@ by %s\n
             return self.finish_time.date()
         except:
             return ''
+
+    @property
+    def self_agent_rebate_value(self):
+        if self.self_agent_rebate:
+            p_self_agent_rebate = self.self_agent_rebate.split('-')
+        else:
+            p_self_agent_rebate = ['0', '0.0']
+        return {'status': p_self_agent_rebate[0],
+                'value': p_self_agent_rebate[1]}
 
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):

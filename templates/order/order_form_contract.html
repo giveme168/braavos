@@ -329,7 +329,8 @@
    }
    if (actionVal == '3'){
       var order_type = '{{order.__tablename__}}'
-      if (order_type == 'bra_client_order'){
+      var rebate_order_type = ['bra_client_order', 'bra_douban_order']
+      if (rebate_order_type.indexOf(order_type) >= 0){
         $('#self_rebate_form').modal();
         var self_agent_rebate = "{{order.self_agent_rebate}}";
         var p_self_agent_rebate = self_agent_rebate.split("-");
