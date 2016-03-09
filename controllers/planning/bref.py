@@ -18,9 +18,9 @@ planning_bref_bp = Blueprint(
 def index():
     brefs = list(Bref.all())
     if g.user.is_leader() or g.user.is_operater_leader():
-        brefs = [k for k in brefs if k.creator.location == g.user.location]
+        brefs = [k for k in brefs if k.creator.location == g.user.location and k.status != 1]
     elif g.user.is_planner():
-        brefs = brefs
+        brefs = [k for k in brefs if k.status != 1]
     else:
         brefs = [k for k in brefs if k.creator == g.user]
 

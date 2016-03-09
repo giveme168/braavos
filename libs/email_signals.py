@@ -873,7 +873,7 @@ def planning_bref(sender, apply_context):
     planning_team_admins = [k for k in User.all_active(
     ) if k.location == c_loction and k.team.type == 6][0].team.admins
     # 获取某区域销售负责人
-    sale_admins = bref.creator.team.admins
+    sale_admins = bref.creator.team.admins + bref.creator.team_leaders
     # 获取某区域执行负责人
     operater_admins = [k for k in User.all_active(
     ) if k.location == c_loction and k.team.type == 15]
