@@ -18,6 +18,7 @@ def _write_money_in_excel(worksheet, align_center, pre_monthes, th, money):
     return th
 
 
+# 导出媒体清单
 def write_medium_money_excel(pre_monthes, douban_money,
                              youli_money, wuxian_money,
                              momo_money, zhihu_money,
@@ -273,6 +274,68 @@ def write_medium_money_excel(pre_monthes, douban_money,
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
                 ("媒体清单", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+# 导出行业分析
+def write_industry_excel(obj):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+
+    bold = workbook.add_format({'bold': 1})
+
+    # Add the worksheet data that the charts will refer to.
+    headings = obj['headings']
+    data = obj['data']
+
+    worksheet.write_row('A1', headings, bold)
+    worksheet.write_column('A2', data[0])
+    worksheet.write_column('B2', data[1])
+    worksheet.write_column('C2', data[2])
+    worksheet.write_column('D2', data[3])
+
+    #######################################################################
+    #
+    # Create a new chart object.
+    #
+    chart1 = workbook.add_chart({'type': 'pie'})
+
+    # Configure the series. Note the use of the list syntax to define ranges:
+    chart1.add_series({
+        'name':       u'占比',
+        'categories': ['Sheet1', 1, 1, len(data[1]), 1],
+        'values':     ['Sheet1', 1, 2, len(data[3]), 2],
+    })
+
+    # Add a title.
+    chart1.set_title({'name': obj['title']})
+
+    # Set an Excel chart style. Colors with white outline and shadow.
+    chart1.set_style(10)
+
+    # Insert the chart into the worksheet (with an offset).
+    worksheet.insert_chart('E2', chart1, {'x_offset': 25, 'y_offset': 10})
+    workbook.close()
+
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                (str(obj['title']), datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
     mimetype_tuple = mimetypes.guess_type(filename)
     response_headers = Headers({
         'Pragma': "public",
