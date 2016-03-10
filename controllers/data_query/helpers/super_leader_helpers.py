@@ -321,9 +321,9 @@ def write_line_excel(obj):
         worksheet.write_column(COLUMN_LIST[k] + '2', data[k])
         if k >= 1:
             chart.add_series({
-                'name':       ['Sheet1', 0, k],
+                'name': ['Sheet1', 0, k],
                 'categories': ['Sheet1', 1, 0, len(data[0]), 0],
-                'values':     ['Sheet1', 1, k, len(data[k]), k],
+                'values': ['Sheet1', 1, k, len(data[k]), k],
             })
     # Add a chart title and some axis labels.
     chart.set_title({'name': obj['title']})
