@@ -318,9 +318,9 @@ def write_industry_excel(obj):
 
     # Configure the series. Note the use of the list syntax to define ranges:
     chart1.add_series({
-        'name':       u'占比',
+        'name': u'占比',
         'categories': ['Sheet1', 1, 1, len(data[1]), 1],
-        'values':     ['Sheet1', 1, 2, len(data[3]), 2],
+        'values': ['Sheet1', 1, 2, len(data[3]), 2],
     })
 
     # Add a title.
