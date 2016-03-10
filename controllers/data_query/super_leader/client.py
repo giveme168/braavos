@@ -209,7 +209,7 @@ def client_order_excle_data():
                    for k in medium_orders]
 
     client_params = {}
-    for k in searchAdClient.all():
+    for k in Client.all():
         client_params[k.name] = 0
 
     for k in medium_date:

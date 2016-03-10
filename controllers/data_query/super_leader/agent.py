@@ -205,7 +205,7 @@ def client_order_excle_data():
                    for k in medium_orders]
 
     agent_params = {}
-    for k in searchAdAgent.all():
+    for k in Agent.all():
         agent_params[k.name] = 0
 
     for k in medium_date:
@@ -310,7 +310,7 @@ def douban_order_excle_data():
                    for k in douban_orders]
 
     agent_params = {}
-    for k in searchAdAgent.all():
+    for k in Agent.all():
         agent_params[k.name] = 0
 
     for k in douban_date + medium_date:
