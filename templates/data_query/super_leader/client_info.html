@@ -37,8 +37,8 @@
                 <option value='3'>华南</option>
             </select>
         </div>
-        <a href="javascript:search();" class="btn btn-default">查询</a>
-        <!--<input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">-->
+        <a href="javascript:search();" class="btn btn-info">查询</a>
+        <a href="javascript:download();" class="btn btn-default">导出</a>
     </form>
     <br>
     <div id="container" style="min-height:400px;"></div>
@@ -100,12 +100,11 @@
         var type = '{{type}}';
         if (type == 'client'){
             var url = "{{url_for('data_query_super_leader_client_info.client_order_json')}}"
-        }if (type == 'search'){
+        }else if (type == 'search'){
             var url = "{{url_for('data_query_super_leader_client_info.search_json')}}"
         }else{
             var url = "{{url_for('data_query_super_leader_client_info.douban_order_json')}}"
         }
-        
         $.ajax({
             type: 'POST',
             url: url,
@@ -204,6 +203,11 @@
             series: data
         });
     };
-    
+    function download(){
+        var year = parseInt($('#year').val());
+        var location = parseInt($('#location').val());
+        params = '?action=excel&year='+year+'&location='+location;
+        window.location.href = window.location.pathname + params;
+    }
 </script>
 {% endblock %}

@@ -8,7 +8,7 @@ from models.douban_order import DoubanOrderExecutiveReport
 from models.order import MediumOrderExecutiveReport
 from models.consts import CLIENT_INDUSTRY_LIST
 from searchAd.models.order import searchAdMediumOrderExecutiveReport
-from controllers.data_query.helpers.super_leader_helpers import write_industry_excel
+from controllers.data_query.helpers.super_leader_helpers import write_pie_excel
 data_query_super_leader_industry_bp = Blueprint(
     'data_query_super_leader_industry', __name__, template_folder='../../templates/data_query')
 
@@ -20,7 +20,7 @@ def client_order():
     title = u'新媒体订单行业分析'
     action = request.values.get('action', '')
     if action == 'excel':
-        return write_industry_excel(client_order_excle_data())
+        return write_pie_excel(client_order_excle_data())
     return tpl('/data_query/super_leader/industry.html',
                title=title,
                type='client')
@@ -33,7 +33,7 @@ def douban_order():
     title = u'豆瓣订单行业分析'
     action = request.values.get('action', '')
     if action == 'excel':
-        return write_industry_excel(douban_order_excle_data())
+        return write_pie_excel(douban_order_excle_data())
     return tpl('/data_query/super_leader/industry.html',
                title=title,
                type='douban')
@@ -46,7 +46,7 @@ def search():
     title = u'搜索业务行业分析'
     action = request.values.get('action', '')
     if action == 'excel':
-        return write_industry_excel(search_excle_data())
+        return write_pie_excel(search_excle_data())
     return tpl('/data_query/super_leader/industry.html',
                title=title,
                type='search')
@@ -93,7 +93,7 @@ def _get_money_by_location(order, location):
 
 def search_excle_data():
     now_date = datetime.datetime.now()
-    location = int(request.values.get('location', 0))
+    location = 0
     start_year = str(request.values.get('start_year', now_date.year))
     start_month = str(request.values.get('start_month', now_date.month))
     end_year = str(request.values.get('end_year', now_date.year - 1))

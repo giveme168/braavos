@@ -8,6 +8,7 @@ from models.douban_order import DoubanOrderExecutiveReport
 from models.order import MediumOrderExecutiveReport
 from searchAd.models.order import searchAdMediumOrderExecutiveReport
 from libs.date_helpers import get_monthes_pre_days
+from controllers.data_query.helpers.super_leader_helpers import write_line_excel
 
 data_query_super_leader_money_bp = Blueprint(
     'data_query_super_leader_money', __name__, template_folder='../../templates/data_query')
@@ -17,8 +18,12 @@ data_query_super_leader_money_bp = Blueprint(
 def client_order():
     if not g.user.is_super_leader():
         abort(403)
+    title = u'新媒体订单执行金额分析'
+    action = request.values.get('action', '')
+    if action == 'excel':
+        return write_line_excel(client_order_excle_data())
     return tpl('/data_query/super_leader/money.html',
-               title=u'新媒体订单执行金额分析',
+               title=title,
                type='client')
 
 
@@ -26,8 +31,12 @@ def client_order():
 def douban_order():
     if not g.user.is_super_leader():
         abort(403)
+    title = u'豆瓣订单执行金额分析'
+    action = request.values.get('action', '')
+    if action == 'excel':
+        return write_line_excel(douban_order_excle_data())
     return tpl('/data_query/super_leader/money.html',
-               title=u'豆瓣订单执行金额分析',
+               title=title,
                type='douban')
 
 
@@ -35,8 +44,12 @@ def douban_order():
 def search():
     if not g.user.is_super_leader():
         abort(403)
+    title = u'搜索业务执行金额分析'
+    action = request.values.get('action', '')
+    if action == 'excel':
+        return write_line_excel(search_excle_data())
     return tpl('/data_query/super_leader/money.html',
-               title=u'搜索业务执行金额分析',
+               title=title,
                type='search')
 
 
@@ -71,6 +84,69 @@ def _get_money_by_location(order, location):
                 money += float(order['money']) / len(agent_location)
             return money
     return order['money']
+
+
+def search_excle_data():
+    now_date = datetime.datetime.now()
+    location = 0
+    year = int(request.values.get('year', now_date.year))
+    now_year_start = datetime.datetime.strptime(
+        str(year) + '-01-01', '%Y-%m-%d')
+    now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
+    last_year_start = datetime.datetime.strptime(
+        str(year - 1) + '-01-01', '%Y-%m-%d')
+    last_year_end = datetime.datetime.strptime(
+        str(year - 1) + '-12-01', '%Y-%m-%d')
+    before_last_year_start = datetime.datetime.strptime(
+        str(year - 2) + '-01-01', '%Y-%m-%d')
+    before_last_year_end = datetime.datetime.strptime(
+        str(year - 2) + '-12-01', '%Y-%m-%d')
+    medium_orders = searchAdMediumOrderExecutiveReport.query.filter(
+        searchAdMediumOrderExecutiveReport.month_day >= before_last_year_start,
+        searchAdMediumOrderExecutiveReport.month_day <= now_year_end)
+    medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
+    last_monthes = get_monthes_pre_days(last_year_start, last_year_end)
+    before_monthes = get_monthes_pre_days(
+        before_last_year_start, before_last_year_end)
+
+    # 格式化成字典
+    now_monthes_data = {}
+    for k in now_monthes:
+        now_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
+    last_monthes_data = {}
+    for k in last_monthes:
+        last_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
+    before_monthes_data = {}
+    for k in before_monthes:
+        before_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
+
+    for order in medium_orders:
+        if int(order['month_day'].strftime('%s')) * 1000 in now_monthes_data:
+            now_monthes_data[
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+        if int(order['month_day'].strftime('%s')) * 1000 in last_monthes_data:
+            last_monthes_data[
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+        if int(order['month_day'].strftime('%s')) * 1000 in before_monthes_data:
+            before_monthes_data[
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+    # 格式化数据，把近三年数据放在一年用于画图
+    now_monthes_data = sorted(now_monthes_data.iteritems(), key=lambda x: x[0])
+    last_monthes_data = sorted(
+        last_monthes_data.iteritems(), key=lambda x: x[0])
+    before_monthes_data = sorted(
+        before_monthes_data.iteritems(), key=lambda x: x[0])
+
+    headings = ['月份', str(before_last_year_start.year) + u'年度',
+                str(last_year_start.year) + u'年度',
+                str(now_year_start.year) + u'年度']
+    data = []
+    data.append([str(k + 1) + u'月' for k in range(len(now_monthes_data))])
+    data.append([v for k, v in before_monthes_data])
+    data.append([v for k, v in last_monthes_data])
+    data.append([v for k, v in now_monthes_data])
+    return {'data': data, 'title': u'搜索业务执行额分析', 'headings': headings}
 
 
 @data_query_super_leader_money_bp.route('/search_json', methods=['POST'])
@@ -159,6 +235,69 @@ def search_json():
     return jsonify({'data': data, 'title': u'搜索业务执行额分析'})
 
 
+def client_order_excle_data():
+    now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
+    year = int(request.values.get('year', now_date.year))
+    now_year_start = datetime.datetime.strptime(
+        str(year) + '-01-01', '%Y-%m-%d')
+    now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
+    last_year_start = datetime.datetime.strptime(
+        str(year - 1) + '-01-01', '%Y-%m-%d')
+    last_year_end = datetime.datetime.strptime(
+        str(year - 1) + '-12-01', '%Y-%m-%d')
+    before_last_year_start = datetime.datetime.strptime(
+        str(year - 2) + '-01-01', '%Y-%m-%d')
+    before_last_year_end = datetime.datetime.strptime(
+        str(year - 2) + '-12-01', '%Y-%m-%d')
+    medium_orders = MediumOrderExecutiveReport.query.filter(
+        MediumOrderExecutiveReport.month_day >= before_last_year_start,
+        MediumOrderExecutiveReport.month_day <= now_year_end)
+    medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
+    last_monthes = get_monthes_pre_days(last_year_start, last_year_end)
+    before_monthes = get_monthes_pre_days(
+        before_last_year_start, before_last_year_end)
+
+    # 格式化成字典
+    now_monthes_data = {}
+    for k in now_monthes:
+        now_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
+    last_monthes_data = {}
+    for k in last_monthes:
+        last_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
+    before_monthes_data = {}
+    for k in before_monthes:
+        before_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
+
+    for order in medium_orders:
+        if int(order['month_day'].strftime('%s')) * 1000 in now_monthes_data:
+            now_monthes_data[
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+        if int(order['month_day'].strftime('%s')) * 1000 in last_monthes_data:
+            last_monthes_data[
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+        if int(order['month_day'].strftime('%s')) * 1000 in before_monthes_data:
+            before_monthes_data[
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+    # 格式化数据，把近三年数据放在一年用于画图
+    now_monthes_data = sorted(now_monthes_data.iteritems(), key=lambda x: x[0])
+    last_monthes_data = sorted(
+        last_monthes_data.iteritems(), key=lambda x: x[0])
+    before_monthes_data = sorted(
+        before_monthes_data.iteritems(), key=lambda x: x[0])
+
+    headings = ['月份', str(before_last_year_start.year) + u'年度',
+                str(last_year_start.year) + u'年度',
+                str(now_year_start.year) + u'年度']
+    data = []
+    data.append([str(k + 1) + u'月' for k in range(len(now_monthes_data))])
+    data.append([v for k, v in before_monthes_data])
+    data.append([v for k, v in last_monthes_data])
+    data.append([v for k, v in now_monthes_data])
+    return {'data': data, 'title': u'新媒体订单执行额分析', 'headings': headings}
+
+
 @data_query_super_leader_money_bp.route('/client_order_json', methods=['POST'])
 def client_order_json():
     if not g.user.is_super_leader():
@@ -243,6 +382,78 @@ def client_order_json():
     data.append({'name': str(now_year_start.year) + u'年度',
                  'data': [[k['time'], k['money']] for k in now_monthes_params]})
     return jsonify({'data': data, 'title': u'新媒体订单执行额分析'})
+
+
+def douban_order_excle_data():
+    now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
+    year = int(request.values.get('year', now_date.year))
+    now_year_start = datetime.datetime.strptime(
+        str(year) + '-01-01', '%Y-%m-%d')
+    now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
+    last_year_start = datetime.datetime.strptime(
+        str(year - 1) + '-01-01', '%Y-%m-%d')
+    last_year_end = datetime.datetime.strptime(
+        str(year - 1) + '-12-01', '%Y-%m-%d')
+    before_last_year_start = datetime.datetime.strptime(
+        str(year - 2) + '-01-01', '%Y-%m-%d')
+    before_last_year_end = datetime.datetime.strptime(
+        str(year - 2) + '-12-01', '%Y-%m-%d')
+    douban_orders = DoubanOrderExecutiveReport.query.filter(
+        DoubanOrderExecutiveReport.month_day >= before_last_year_start,
+        DoubanOrderExecutiveReport.month_day <= now_year_end)
+    medium_orders = MediumOrderExecutiveReport.query.filter(
+        MediumOrderExecutiveReport.month_day >= before_last_year_start,
+        MediumOrderExecutiveReport.month_day <= now_year_end)
+    douban_date = [_format_order(k, 'douban')
+                   for k in douban_orders if k.status == 1]
+    medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    douban_date += [{'month_day': k['month_day'], 'money':k['money'],
+                     'order_json':k['order_json'], 'locations':k['locations']}
+                    for k in medium_orders if k['medium_id'] in [3, 8]]
+
+    now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
+    last_monthes = get_monthes_pre_days(last_year_start, last_year_end)
+    before_monthes = get_monthes_pre_days(
+        before_last_year_start, before_last_year_end)
+
+    now_monthes_data = {}
+    for k in now_monthes:
+        now_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
+    last_monthes_data = {}
+    for k in last_monthes:
+        last_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
+    before_monthes_data = {}
+    for k in before_monthes:
+        before_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
+
+    for order in douban_date:
+        if int(order['month_day'].strftime('%s')) * 1000 in now_monthes_data:
+            now_monthes_data[
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+        if int(order['month_day'].strftime('%s')) * 1000 in last_monthes_data:
+            last_monthes_data[
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+        if int(order['month_day'].strftime('%s')) * 1000 in before_monthes_data:
+            before_monthes_data[
+                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+    # 格式化数据，把近三年数据放在一年用于画图
+    now_monthes_data = sorted(now_monthes_data.iteritems(), key=lambda x: x[0])
+    last_monthes_data = sorted(
+        last_monthes_data.iteritems(), key=lambda x: x[0])
+    before_monthes_data = sorted(
+        before_monthes_data.iteritems(), key=lambda x: x[0])
+
+    headings = ['月份', str(before_last_year_start.year) + u'年度',
+                str(last_year_start.year) + u'年度',
+                str(now_year_start.year) + u'年度']
+    data = []
+    data.append([str(k + 1) + u'月' for k in range(len(now_monthes_data))])
+    data.append([v for k, v in before_monthes_data])
+    data.append([v for k, v in last_monthes_data])
+    data.append([v for k, v in now_monthes_data])
+    return {'data': data, 'title': u'直签豆瓣订单（含：优力、无线）执行额分析',
+            'headings': headings}
 
 
 @data_query_super_leader_money_bp.route('/douban_order_json', methods=['POST'])

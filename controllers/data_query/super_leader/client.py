@@ -9,6 +9,7 @@ from models.order import MediumOrderExecutiveReport
 from searchAd.models.order import searchAdMediumOrderExecutiveReport
 from models.client import Client
 from searchAd.models.client import searchAdClient
+from controllers.data_query.helpers.super_leader_helpers import write_pie_excel
 
 data_query_super_leader_client_bp = Blueprint(
     'data_query_super_leader_client', __name__, template_folder='../../templates/data_query')
@@ -16,11 +17,14 @@ data_query_super_leader_client_bp = Blueprint(
 
 @data_query_super_leader_client_bp.route('/client_order', methods=['GET'])
 def client_order():
-    print '111'
     if not g.user.is_super_leader():
         abort(403)
+    title = u'新媒体订单客户分析'
+    action = request.values.get('action', '')
+    if action == 'excel':
+        return write_pie_excel(client_order_excle_data())
     return tpl('/data_query/super_leader/client.html',
-               title=u'新媒体订单客户分析',
+               title=title,
                type='client')
 
 
@@ -28,8 +32,12 @@ def client_order():
 def douban_order():
     if not g.user.is_super_leader():
         abort(403)
+    title = u'豆瓣订单客户分析'
+    action = request.values.get('action', '')
+    if action == 'excel':
+        return write_pie_excel(douban_order_excle_data())
     return tpl('/data_query/super_leader/client.html',
-               title=u'豆瓣订单客户分析',
+               title=title,
                type='douban')
 
 
@@ -37,8 +45,12 @@ def douban_order():
 def search():
     if not g.user.is_super_leader():
         abort(403)
+    title = u'搜索业务客户分析'
+    action = request.values.get('action', '')
+    if action == 'excel':
+        return write_pie_excel(search_excle_data())
     return tpl('/data_query/super_leader/client.html',
-               title=u'搜索业务客户分析',
+               title=title,
                type='search')
 
 
@@ -75,6 +87,53 @@ def _get_money_by_location(order, location):
                 money += float(order['money']) / len(agent_location)
             return money
     return order['money']
+
+
+def search_excle_data():
+    now_date = datetime.datetime.now()
+    location = 0
+    start_year = str(request.values.get('start_year', now_date.year))
+    start_month = str(request.values.get('start_month', now_date.month))
+    end_year = str(request.values.get('end_year', now_date.year - 1))
+    end_month = str(request.values.get('end_month', now_date.month))
+
+    start_date_month = datetime.datetime.strptime(
+        start_year + '-' + start_month, '%Y-%m')
+    end_date_month = datetime.datetime.strptime(
+        end_year + '-' + end_month, '%Y-%m')
+    medium_orders = searchAdMediumOrderExecutiveReport.query.filter(
+        searchAdMediumOrderExecutiveReport.month_day >= start_date_month,
+        searchAdMediumOrderExecutiveReport.month_day <= end_date_month)
+
+    medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_date = [{'client_name': k['client'].name,
+                    'money': _get_money_by_location(k, location)}
+                   for k in medium_orders]
+
+    client_params = {}
+    for k in searchAdClient.all():
+        client_params[k.name] = 0
+
+    for k in medium_date:
+        if k['client_name'] in client_params:
+            client_params[k['client_name']] += k['money']
+    client_params = sorted(client_params.iteritems(), key=lambda x: x[1])
+    client_params = [(k, v) for k, v in client_params if v > 0]
+    client_params.reverse()
+
+    headings = ['#', u'客户名称', u'执行额', u'占比']
+    data = []
+    data.append([k + 1 for k in range(len(client_params))])
+    data.append([k for k, v in client_params])
+    data.append([v for k, v in client_params])
+    sum_saler_money = sum([v for k, v in client_params])
+    if sum_saler_money:
+        data.append(['%.2f%%' % (v / sum_saler_money * 100)
+                     for k, v in client_params])
+    else:
+        data.append(['0.00%' for k, v in client_params])
+    return {'data': data, 'title': u'搜索业务客户分析',
+            'total': float(sum_saler_money), 'headings': headings}
 
 
 @data_query_super_leader_client_bp.route('/search_json', methods=['POST'])
@@ -128,6 +187,53 @@ def search_json():
                     'total': float(sum_saler_money)})
 
 
+def client_order_excle_data():
+    now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
+    start_year = str(request.values.get('start_year', now_date.year))
+    start_month = str(request.values.get('start_month', now_date.month))
+    end_year = str(request.values.get('end_year', now_date.year - 1))
+    end_month = str(request.values.get('end_month', now_date.month))
+
+    start_date_month = datetime.datetime.strptime(
+        start_year + '-' + start_month, '%Y-%m')
+    end_date_month = datetime.datetime.strptime(
+        end_year + '-' + end_month, '%Y-%m')
+    medium_orders = MediumOrderExecutiveReport.query.filter(
+        MediumOrderExecutiveReport.month_day >= start_date_month,
+        MediumOrderExecutiveReport.month_day <= end_date_month)
+
+    medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_date = [{'client_name': k['client'].name,
+                    'money': _get_money_by_location(k, location)}
+                   for k in medium_orders]
+
+    client_params = {}
+    for k in searchAdClient.all():
+        client_params[k.name] = 0
+
+    for k in medium_date:
+        if k['client_name'] in client_params:
+            client_params[k['client_name']] += k['money']
+    client_params = sorted(client_params.iteritems(), key=lambda x: x[1])
+    client_params = [(k, v) for k, v in client_params if v > 0]
+    client_params.reverse()
+
+    headings = ['#', u'客户名称', u'执行额', u'占比']
+    data = []
+    data.append([k + 1 for k in range(len(client_params))])
+    data.append([k for k, v in client_params])
+    data.append([v for k, v in client_params])
+    sum_saler_money = sum([v for k, v in client_params])
+    if sum_saler_money:
+        data.append(['%.2f%%' % (v / sum_saler_money * 100)
+                     for k, v in client_params])
+    else:
+        data.append(['0.00%' for k, v in client_params])
+    return {'data': data, 'title': u'新媒体订单客户分析',
+            'total': float(sum_saler_money), 'headings': headings}
+
+
 @data_query_super_leader_client_bp.route('/client_order_json', methods=['POST'])
 def client_order_json():
     if not g.user.is_super_leader():
@@ -177,6 +283,61 @@ def client_order_json():
                                     'percent': percent})
     return jsonify({'data': data, 'title': u'新媒体订单客户分析',
                     'total': float(sum_saler_money)})
+
+
+def douban_order_excle_data():
+    now_date = datetime.datetime.now()
+    location = int(request.values.get('location', 0))
+    start_year = str(request.values.get('start_year', now_date.year))
+    start_month = str(request.values.get('start_month', now_date.month))
+    end_year = str(request.values.get('end_year', now_date.year - 1))
+    end_month = str(request.values.get('end_month', now_date.month))
+
+    start_date_month = datetime.datetime.strptime(
+        start_year + '-' + start_month, '%Y-%m')
+    end_date_month = datetime.datetime.strptime(
+        end_year + '-' + end_month, '%Y-%m')
+    douban_orders = DoubanOrderExecutiveReport.query.filter(
+        DoubanOrderExecutiveReport.month_day >= start_date_month,
+        DoubanOrderExecutiveReport.month_day <= end_date_month)
+    medium_orders = MediumOrderExecutiveReport.query.filter(
+        MediumOrderExecutiveReport.month_day >= start_date_month,
+        MediumOrderExecutiveReport.month_day <= end_date_month)
+
+    medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_date = [{'client_name': k['client'].name,
+                    'medium_id': k['medium_id'],
+                    'money':_get_money_by_location(k, location)}
+                   for k in medium_orders if k['medium_id'] in [3, 8]]
+    douban_orders = [_format_order(k, 'douban')
+                     for k in douban_orders if k.status == 1]
+    douban_date = [{'client_name': k['client'].name,
+                    'money':_get_money_by_location(k, location)}
+                   for k in douban_orders]
+
+    client_params = {}
+    for k in Client.all():
+        client_params[k.name] = 0
+
+    for k in douban_date + medium_date:
+        if k['client_name'] in client_params:
+            client_params[k['client_name']] += k['money']
+    client_params = sorted(client_params.iteritems(), key=lambda x: x[1])
+    client_params = [(k, v) for k, v in client_params if v > 0]
+    client_params.reverse()
+    headings = ['#', u'客户名称', u'执行额', u'占比']
+    data = []
+    data.append([k + 1 for k in range(len(client_params))])
+    data.append([k for k, v in client_params])
+    data.append([v for k, v in client_params])
+    sum_saler_money = sum([v for k, v in client_params])
+    if sum_saler_money:
+        data.append(['%.2f%%' % (v / sum_saler_money * 100)
+                     for k, v in client_params])
+    else:
+        data.append(['0.00%' for k, v in client_params])
+    return {'data': data, 'title': u'直签豆瓣订单（含：优力、无线）客户分析',
+            'total': float(sum_saler_money), 'headings': headings}
 
 
 @data_query_super_leader_client_bp.route('/douban_order_json', methods=['POST'])

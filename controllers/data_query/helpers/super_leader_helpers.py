@@ -290,8 +290,76 @@ def write_medium_money_excel(pre_monthes, douban_money,
     return response
 
 
-# 导出行业分析
-def write_industry_excel(obj):
+COLUMN_LIST = ['A', 'B', 'C', 'D', 'E']
+
+
+# 导出可视化报表折线图
+def write_line_excel(obj):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    bold = workbook.add_format({'bold': 1})
+
+    # Add the worksheet data that the charts will refer to.
+    headings = obj['headings']
+    data = obj['data']
+
+    worksheet.write_row('A1', headings, bold)
+    '''
+    worksheet.write_column('A2', data[0])
+    worksheet.write_column('B2', data[1])
+    worksheet.write_column('C2', data[2])
+    worksheet.write_column('D2', data[3])
+    '''
+    # Create a new chart object. In this case an embedded chart.
+    chart = workbook.add_chart({'type': 'line'})
+
+    # 循环插入每条线，并减去第一组数据（第一组数据为月份的显示）
+    for k in range(len(obj['data'])):
+        worksheet.write_column(COLUMN_LIST[k] + '2', data[k])
+        if k >= 1:
+            chart.add_series({
+                'name':       ['Sheet1', 0, k],
+                'categories': ['Sheet1', 1, 0, len(data[0]), 0],
+                'values':     ['Sheet1', 1, k, len(data[k]), k],
+            })
+    # Add a chart title and some axis labels.
+    chart.set_title({'name': obj['title']})
+    # chart.set_x_axis({'name': 'Test number'})
+    # chart.set_y_axis({'name': 'Sample length (mm)'})
+
+    # Set an Excel chart style. Colors with white outline and shadow.
+    chart.set_style(10)
+
+    # Insert the chart into the worksheet (with an offset).
+    chart.set_size({'width': 600, 'height': 400})
+    worksheet.insert_chart('E2', chart, {'x_offset': 40, 'y_offset': 10})
+
+    workbook.close()
+
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                (str(obj['title']), datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+# 导出可视化报表饼图
+def write_pie_excel(obj):
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -314,23 +382,24 @@ def write_industry_excel(obj):
     #
     # Create a new chart object.
     #
-    chart1 = workbook.add_chart({'type': 'pie'})
+    chart = workbook.add_chart({'type': 'pie'})
 
     # Configure the series. Note the use of the list syntax to define ranges:
-    chart1.add_series({
+    chart.add_series({
         'name': u'占比',
         'categories': ['Sheet1', 1, 1, len(data[1]), 1],
         'values': ['Sheet1', 1, 2, len(data[3]), 2],
     })
 
     # Add a title.
-    chart1.set_title({'name': obj['title']})
+    chart.set_title({'name': obj['title']})
 
     # Set an Excel chart style. Colors with white outline and shadow.
-    chart1.set_style(10)
+    chart.set_style(10)
 
     # Insert the chart into the worksheet (with an offset).
-    worksheet.insert_chart('E2', chart1, {'x_offset': 25, 'y_offset': 10})
+    chart.set_size({'width': 700, 'height': 500})
+    worksheet.insert_chart('E2', chart, {'x_offset': 25, 'y_offset': 10})
     workbook.close()
 
     response.data = output.getvalue()
