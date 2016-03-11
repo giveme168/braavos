@@ -381,6 +381,7 @@ def order_info(order_id, tab_id=1):
     new_medium_form = MediumOrderForm()
     new_medium_form.medium_start.data = order.client_start
     new_medium_form.medium_end.data = order.client_end
+    new_medium_form.medium_money.hidden = True
     new_medium_form.discount.hidden = True
 
     new_associated_douban_form = AssociatedDoubanOrderForm()

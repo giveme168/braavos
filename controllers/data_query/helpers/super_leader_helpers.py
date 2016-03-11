@@ -300,6 +300,7 @@ def write_line_excel(obj):
     output = StringIO.StringIO()
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
+
     bold = workbook.add_format({'bold': 1})
 
     # Add the worksheet data that the charts will refer to.
@@ -320,6 +321,7 @@ def write_line_excel(obj):
     for k in range(len(obj['data'])):
         worksheet.write_column(COLUMN_LIST[k] + '2', data[k])
         if k >= 1:
+            worksheet.set_column(k, k, 25)
             chart.add_series({
                 'name': ['Sheet1', 0, k],
                 'categories': ['Sheet1', 1, 0, len(data[0]), 0],
@@ -366,6 +368,9 @@ def write_pie_excel(obj):
     workbook = xlsxwriter.Workbook(output)
     worksheet = workbook.add_worksheet()
 
+    worksheet.set_column(1, 1, 30)
+    worksheet.set_column(2, 2, 15)
+    worksheet.set_column(3, 3, 10)
     bold = workbook.add_format({'bold': 1})
 
     # Add the worksheet data that the charts will refer to.
