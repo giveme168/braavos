@@ -22,7 +22,7 @@ data_query_super_leader_back_money_bp = Blueprint(
 
 @data_query_super_leader_back_money_bp.route('/client_order', methods=['GET'])
 def client_order():
-    if not g.user.is_super_leader():
+    if not (g.user.is_super_leader() or g.user.is_aduit()):
         abort(403)
     title = u'新媒体订单回款分析（包含返点发票）'
     action = request.values.get('action', '')
@@ -35,7 +35,7 @@ def client_order():
 
 @data_query_super_leader_back_money_bp.route('/douban_order', methods=['GET'])
 def douban_order():
-    if not g.user.is_super_leader():
+    if not (g.user.is_super_leader() or g.user.is_aduit()):
         abort(403)
     title = u'豆瓣订单回款分析（包含返点发票）'
     action = request.values.get('action', '')
@@ -48,7 +48,7 @@ def douban_order():
 
 @data_query_super_leader_back_money_bp.route('/search', methods=['GET'])
 def search():
-    if not g.user.is_super_leader():
+    if not (g.user.is_super_leader() or g.user.is_aduit()):
         abort(403)
     title = u'搜索业务回款分析（包含返点发票）'
     action = request.values.get('action', '')
@@ -100,7 +100,7 @@ def _order_executive_reports(order, month_day):
 def _format_client_order(order, location):
     params = {}
     params['money'] = _get_money_by_location(order.money, order, location)
-    params['reminde_date'] = order.reminde_date.replace(day=1)
+    params['client_end'] = order.client_end.replace(day=1)
     params['order_id'] = int(order.id)
     return params
 
@@ -156,7 +156,7 @@ def _back_money(month, back_moneys):
 def _need_back_money(orders, month):
     total_money = 0
     for k in orders:
-        if k['reminde_date'] <= month:
+        if k['client_end'] <= month:
             total_money += k['money']
     return float(total_money)
 
@@ -169,7 +169,7 @@ def search_excle_data():
         str(year) + '-01-01', '%Y-%m-%d')
     now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
     orders = searchAdClientOrder.query.filter(searchAdClientOrder.status == 1,
-                                              searchAdClientOrder.reminde_date <= now_year_end)
+                                              searchAdClientOrder.client_end <= now_year_end)
 
     client_params = {}
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
@@ -213,7 +213,7 @@ def search_excle_data():
 
 @data_query_super_leader_back_money_bp.route('/search_json', methods=['POST'])
 def search_json():
-    if not g.user.is_super_leader():
+    if not (g.user.is_super_leader() or g.user.is_aduit()):
         abort(403)
     now_date = datetime.datetime.now()
     location = 0
@@ -222,7 +222,7 @@ def search_json():
         str(year) + '-01-01', '%Y-%m-%d')
     now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
     orders = searchAdClientOrder.query.filter(searchAdClientOrder.status == 1,
-                                              searchAdClientOrder.reminde_date <= now_year_end)
+                                              searchAdClientOrder.client_end <= now_year_end)
 
     client_params = {}
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
@@ -271,7 +271,7 @@ def client_order_excle_data():
         str(year) + '-01-01', '%Y-%m-%d')
     now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
     orders = ClientOrder.query.filter(ClientOrder.status == 1,
-                                      ClientOrder.reminde_date <= now_year_end)
+                                      ClientOrder.client_end <= now_year_end)
 
     client_params = {}
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
@@ -315,7 +315,7 @@ def client_order_excle_data():
 
 @data_query_super_leader_back_money_bp.route('/client_order_json', methods=['POST'])
 def client_order_json():
-    if not g.user.is_super_leader():
+    if not (g.user.is_super_leader() or g.user.is_aduit()):
         abort(403)
     now_date = datetime.datetime.now()
     location = int(request.values.get('location', 0))
@@ -324,7 +324,7 @@ def client_order_json():
         str(year) + '-01-01', '%Y-%m-%d')
     now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
     orders = ClientOrder.query.filter(ClientOrder.status == 1,
-                                      ClientOrder.reminde_date <= now_year_end)
+                                      ClientOrder.client_end <= now_year_end)
 
     client_params = {}
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
@@ -373,7 +373,7 @@ def douban_order_excle_data():
         str(year) + '-01-01', '%Y-%m-%d')
     now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
     orders = DoubanOrder.query.filter(DoubanOrder.status == 1,
-                                      DoubanOrder.reminde_date <= now_year_end)
+                                      DoubanOrder.client_end <= now_year_end)
     client_params = {}
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
     for k in now_monthes:
@@ -415,7 +415,7 @@ def douban_order_excle_data():
 
 @data_query_super_leader_back_money_bp.route('/douban_order_json', methods=['POST'])
 def douban_order_json():
-    if not g.user.is_super_leader():
+    if not (g.user.is_super_leader() or g.user.is_aduit()):
         abort(403)
     now_date = datetime.datetime.now()
     location = int(request.values.get('location', 0))
@@ -424,7 +424,7 @@ def douban_order_json():
         str(year) + '-01-01', '%Y-%m-%d')
     now_year_end = datetime.datetime.strptime(str(year) + '-12-01', '%Y-%m-%d')
     orders = DoubanOrder.query.filter(DoubanOrder.status == 1,
-                                      DoubanOrder.reminde_date <= now_year_end)
+                                      DoubanOrder.client_end <= now_year_end)
     client_params = {}
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
     for k in now_monthes:

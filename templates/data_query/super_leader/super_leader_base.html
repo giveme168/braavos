@@ -2,7 +2,7 @@
     <div class="menu">
         <div class="list">
           <ul>
-            {% if g.user.is_super_leader() %}
+            {% if g.user.is_super_leader() or g.user.is_aduit() %}
             <a href="{{url_for('data_query_super_leader_industry.client_order')}}">
               <li id="_industry_" >行业分析</li>
             </a>
@@ -30,7 +30,7 @@
         </div>
         <div class="list">
           <ul>
-            {% if g.user.is_super_leader() %}
+            {% if g.user.is_super_leader() or g.user.is_aduit() %}
             <a href="{{url_for('data_query_super_leader_medium_info.index')}}">
               <li id="_medium_info_" >媒体执行额分析</li>
             </a>

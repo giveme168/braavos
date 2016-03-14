@@ -18,7 +18,7 @@ data_query_super_leader_medium_info_bp = Blueprint(
 
 @data_query_super_leader_medium_info_bp.route('/', methods=['GET'])
 def index():
-    if not g.user.is_super_leader():
+    if not (g.user.is_super_leader() or g.user.is_aduit()):
         abort(403)
     title = u'媒体执行额分析'
     action = request.values.get('action', '')
@@ -31,7 +31,7 @@ def index():
 
 @data_query_super_leader_medium_info_bp.route('/search', methods=['GET'])
 def search():
-    if not g.user.is_super_leader():
+    if not (g.user.is_super_leader() or g.user.is_aduit()):
         abort(403)
     title = u'搜索业务媒体执行额分析'
     action = request.values.get('action', '')
@@ -123,7 +123,7 @@ def search_excle_data():
 
 @data_query_super_leader_medium_info_bp.route('/search_json', methods=['POST'])
 def search_json():
-    if not g.user.is_super_leader():
+    if not (g.user.is_super_leader() or g.user.is_aduit()):
         abort(403)
     now_date = datetime.datetime.now()
     location = 0
@@ -222,7 +222,7 @@ def index_excle_data():
 
 @data_query_super_leader_medium_info_bp.route('/index_json', methods=['POST'])
 def index_json():
-    if not g.user.is_super_leader():
+    if not (g.user.is_super_leader() or g.user.is_aduit()):
         abort(403)
     now_date = datetime.datetime.now()
     location = int(request.values.get('location', 0))

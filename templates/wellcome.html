@@ -622,7 +622,7 @@
                 </div>
             </div>
       {% endif %}
-      {% if g.user.is_super_leader() %}
+      {% if g.user.is_super_leader() or g.user.is_aduit() %}
             <div class="bussess">
                 <div class="manage">
                     <h5>数据报表</h5>

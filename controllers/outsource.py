@@ -558,12 +558,12 @@ def outsource_status(order_id):
                 outsource = DoubanOutSource.get(k['id'])
             else:
                 outsource = OutSource.get(k['id'])
-            outsource.num = k['num']
+            outsource.num = float(k['num'])
             outsource.target = OutSourceTarget.get(k['target'])
             outsource.type = k['type']
             outsource.subtype = k['subtype']
             outsource.remark = k['remark']
-            outsource.pay_num = k['num']
+            outsource.pay_num = float(k['num'])
             # outsource.status = next_status
             outsource.save()
             outsources.append(outsource)
