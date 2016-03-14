@@ -105,15 +105,16 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     team_leaders = db.relationship('User', secondary=team_leaders, primaryjoin=id == team_leaders.c.user_id,
                                    secondaryjoin=id == team_leaders.c.leader_id,
                                    backref="user_ids")
-    birthday = db.Column(db.DateTime)
-    recruited_date = db.Column(db.DateTime)
-    quit_date = db.Column(db.DateTime)
+    birthday = db.Column(db.DateTime)        # 生日
+    recruited_date = db.Column(db.DateTime)  # 入职时间
+    quit_date = db.Column(db.DateTime)       # 离职时间
+    positive_date = db.Column(db.DateTime)   # 转正时间
     cellphone = db.Column(db.String(20))
     position = db.Column(db.String(100))
     sn = db.Column(db.String(10), index=True)
 
     def __init__(self, name, email, password, team, status=USER_STATUS_ON, team_leaders=[], birthday=None,
-                 position='', recruited_date=None, quit_date=None, cellphone='', sn=''):
+                 position='', recruited_date=None, positive_date=None, quit_date=None, cellphone='', sn=''):
         self.name = name
         self.email = email.lower()
         self.set_password(password)
@@ -121,6 +122,7 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         self.status = status
         self.team_leaders = team_leaders
         self.birthday = birthday or DEFAULT_BIRTHDAY
+        self.positive_date = positive_date or DEFAULT_BIRTHDAY
         self.recruited_date = recruited_date or datetime.date.today()
         self.quit_date = quit_date or datetime.date.today()
         self.cellphone = cellphone or ''

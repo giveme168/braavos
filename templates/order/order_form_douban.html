@@ -219,10 +219,10 @@
           {% if (g.user.is_super_leader() or g.user.is_leader() or douban_order.can_media_leader_action(g.user)) and douban_order %}
           <tr>
             <th style="color:red;">单笔返点</th>
-            <td>{% if client_order.self_agent_rebate_value.status == '0' %}
+            <td>{% if douban_order.self_agent_rebate_value.status == '0' %}
                 无单笔返点
               {% else %}
-                {{client_order.self_agent_rebate_value.value}}元
+                {{douban_order.self_agent_rebate_value.value}}元
               {% endif %}</td>
           </tr>
           {% endif %}

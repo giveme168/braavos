@@ -135,6 +135,7 @@ def new_user():
                                 team_leaders=User.gets(form.team_leaders.data),
                                 birthday=form.birthday.data,
                                 recruited_date=form.recruited_date.data,
+                                positive_date=form.positive_date.data,
                                 quit_date=form.quit_date.data,
                                 cellphone=form.cellphone.data,
                                 position=form.position.data,
@@ -168,6 +169,7 @@ def user_detail(user_id):
                 user.team_leaders = User.gets(form.team_leaders.data)
                 user.birthday = form.birthday.data
                 user.recruited_date = form.recruited_date.data
+                user.positive_date = form.positive_date.data
                 user.quit_date = form.quit_date.data
                 user.cellphone = form.cellphone.data
                 user.position = form.position.data
@@ -190,6 +192,7 @@ def user_detail(user_id):
         form.team_leaders.data = [u.id for u in user.team_leaders]
         form.birthday.data = user.birthday or DEFAULT_BIRTHDAY
         form.recruited_date.data = user.recruited_date or DEFAULT_RECRUITED_DATE
+        form.positive_date.data = user.positive_date or DEFAULT_RECRUITED_DATE
         form.quit_date.data = user.quit_date or DEFAULT_RECRUITED_DATE
         form.sn.data = user.sn or ''
     if not (g.user.team.is_admin() or g.user.is_HR() or g.user.is_HR_leader()):

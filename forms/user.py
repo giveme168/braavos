@@ -63,6 +63,7 @@ class NewUserForm(Form):
     team_leaders = SelectMultipleField(u'直属领导', coerce=int)
     birthday = DateField(u'生日日期', default=DEFAULT_BIRTHDAY)
     recruited_date = DateField(u'入职日期', default=DEFAULT_RECRUITED_DATE)
+    positive_date = DateField(u'转正日期', default=DEFAULT_RECRUITED_DATE)
     quit_date = DateField(u'离职日期', default=DEFAULT_RECRUITED_DATE)
     cellphone = TextField(u'手机号', default='')
     position = TextField(u'职位', default='')
