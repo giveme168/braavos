@@ -16,6 +16,7 @@ from . import db, BaseModelMixin
 # 7 : 策划单
 # 8 : 媒体返点回款
 # 9 : 设置代理返点
+# 10: 杂项成本
 ##################
 class Comment(db.Model, BaseModelMixin):
     __tablename__ = 'bra_comment'

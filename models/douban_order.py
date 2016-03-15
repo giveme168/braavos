@@ -924,3 +924,50 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime(DATE_FORMAT)
+
+
+TARGET_TYPE_FLASH = 1
+TARGET_TYPE_KOL = 2
+TARGET_TYPE_H5 = 5
+TARGET_TYPE_VIDEO = 6
+TARGET_TYPE_CN = {
+    TARGET_TYPE_FLASH: u"Flash",
+    TARGET_TYPE_KOL: u"KOL",
+    TARGET_TYPE_VIDEO: u"视频",
+    TARGET_TYPE_H5: u"H5",
+}
+
+
+class OtherCost(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_douban_order_other_cost'
+    id = db.Column(db.Integer, primary_key=True)
+    douban_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_douban_order.id'))  # 客户合同
+    douban_order = db.relationship(
+        'DoubanOrder', backref=db.backref('douban_order_other_cost', lazy='dynamic'))
+    money = db.Column(db.Float())
+    type = db.Column(db.Integer)
+    invoice = db.Column(db.String(100))  # 发票号
+    on_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': on_time.desc()}
+
+    def __init__(self, douban_order, invoice, type, money=0.0, create_time=None, on_time=None):
+        self.douban_order = douban_order
+        self.money = money
+        self.type = type
+        self.invoice = invoice
+        self.create_time = create_time or datetime.date.today()
+        self.on_time = on_time or datetime.date.today()
+
+    @property
+    def on_time_cn(self):
+        return self.on_time.strftime(DATE_FORMAT)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
+    @property
+    def type_cn(self):
+        return TARGET_TYPE_CN[self.type]

@@ -1105,6 +1105,9 @@ def back_money_apply(sender, apply_context):
         if 3 in order.locations:
             to_users += [k for k in User.all()
                          if k.email.find('chenjingjing') >= 0]
+        if 1 in order.locations:
+            to_users += [k for k in User.all()
+                         if k.email.find('weizhaoting') >= 0]
 
     if order.__tablename__ == 'bra_client_order':
         title = u"【新媒体订单-合同流程】- %s" % (order.name)
