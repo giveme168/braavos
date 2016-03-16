@@ -124,9 +124,9 @@ def leave_create(uid):
 
         try:
             start_time = datetime.datetime.strptime(
-                request.values.get('start'), '%Y-%m-%d %H'),
+                request.values.get('start'), '%Y-%m-%d %H')
             end_time = datetime.datetime.strptime(
-                request.values.get('end'), '%Y-%m-%d %H'),
+                request.values.get('end'), '%Y-%m-%d %H')
         except:
             return jsonify({'ret': False, 'msg': u'开始结束时间错误'})
         day = request.values.get('day', '0')

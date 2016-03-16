@@ -113,7 +113,7 @@ def write_order_excel(orders, year, month):
     for k in range(len(orders)):
         mediums = orders[k].medium_orders
         # 媒介导出报表时要拆分(多媒体合同时要拆分成一条一条，不需要合并)
-        if g.user.is_media() or g.user.is_media_leader():
+        if g.user.is_media_leader():
             for i in range(len(mediums)):
                 worksheet.write(
                     th, 0, orders[k].locations_cn, align_left)

@@ -26,6 +26,14 @@
               <li id="_outsourceinfo_" >外包成本详情</li>
             </a>
             {% endif %}
+            {% if g.user.is_operater_leader() or g.user.is_super_leader() %}
+            <a href="{{url_for('data_query_outsource_cost.index')}}">
+              <li id="_outsource_cost_" >外包成本(含尚典)</li>
+            </a>
+            <a href="{{url_for('data_query_outsource_cost.info')}}">
+              <li id="_outsource_costinfo_" >外包成本详情(含尚典)</li>
+            </a>
+            {% endif %}
             {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_aduit() %}
             <a href="{{url_for('data_query_profit.client_order')}}">
               <li id="_profitclient_order_" >媒体订单执行成本</li>
