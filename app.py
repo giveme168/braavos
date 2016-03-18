@@ -18,12 +18,14 @@ login_manager.login_message = None
 login_manager.init_app(app)
 login_manager.login_view = "user.login"
 
+
 def page_recipe(pages, adjacent_pages=3):
     paginator = pages.paginator
-    page_numbers = [n for n in range(pages.number-adjacent_pages, pages.number+adjacent_pages+1) if n > 0 and n <= paginator.num_pages]
+    page_numbers = [n for n in range(
+        pages.number - adjacent_pages, pages.number + adjacent_pages + 1) if n > 0 and n <= paginator.num_pages]
 
     return page_numbers
-    
+
 app.jinja_env.filters['page_recipe'] = page_recipe
 
 
@@ -40,16 +42,18 @@ def load_user(userid):
 
 @app.before_request
 def request_user():
+    if request.path.startswith(u'/files/') and current_user is None:
+        return login_manager.unauthorized()
     if current_user and current_user.is_authenticated():
         g.user = current_user
     elif url_for('user.login') != request.path and not request.path.startswith(u'/static/') \
-        and not request.path.startswith('/api/'):
+            and not request.path.startswith('/api/'):
         return login_manager.unauthorized()
 
 
 @app.route('/')
 def index():
-    if not UserHandBook.query.filter_by(user = g.user).first() and not g.user.is_other_person():
+    if not UserHandBook.query.filter_by(user=g.user).first() and not g.user.is_other_person():
         return redirect(url_for('account_data.handbook'))
     notices = Notice.all()[:4]
     person_notices = PersonNotice.query.filter_by(user=g.user)[:4]
