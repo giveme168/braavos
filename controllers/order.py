@@ -457,7 +457,8 @@ def medium_order(mo_id):
     mo.planers = User.gets(form.planers.data)
     mo.discount = form.discount.data
     mo.finish_status = finish_status
-    mo.finish_time = datetime.now()
+    if finish_status == 0 and last_status != 0:
+        mo.finish_time = datetime.now()
     mo.save()
     mo.client_order.add_comment(
         g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money2))
@@ -496,8 +497,8 @@ def order_medium_edit_cpm(medium_id):
     finish_status = int(request.values.get('finish_status', 1))
     last_status = mo.finish_status
     mo.finish_status = finish_status
-    mo.finish_time = datetime.now()
     if finish_status == 0 and last_status != 0:
+        mo.finish_time = datetime.now()
         mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.medium.name))
     mo.save()
     if medium_money != '':

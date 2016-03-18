@@ -926,11 +926,6 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
         return self.create_time.strftime(DATE_FORMAT)
 
 
-TARGET_TYPE_FLASH = 1
-TARGET_TYPE_KOL = 2
-TARGET_TYPE_H5 = 5
-TARGET_TYPE_VIDEO = 6
-
 TARGET_TYPE_FLASH = 2
 TARGET_TYPE_KOL = 3
 TARGET_TYPE_H5 = 7

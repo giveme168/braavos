@@ -30,7 +30,7 @@ def outsource_to_dict(outsource):
             dict_outsource['locations'] = list(
                 set(dict_outsource['order'].locations))
             # 清除外包项中的KOL金额，加入尚典KOL进行计算
-            if dict_outsource['type'] == 1:
+            if dict_outsource['type'] == 3:
                 dict_outsource['pay_num'] = 0
                 dict_outsource['l_pre_pay_num'] = 0
             else:
