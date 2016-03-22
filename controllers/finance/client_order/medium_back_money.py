@@ -92,6 +92,7 @@ def back_money(order_id):
         medium_back_money_apply_signal.send(
             current_app._get_current_object(), apply_context=apply_context)
         flash(u'回款信息保存成功!', 'success')
+        return redirect(url_for('finance_client_order_medium_back_money.back_money', order_id=order_id))
     return tpl('/finance/client_order/medium_back_money/info.html', order=client_order, back_moneys=back_moneys)
 
 

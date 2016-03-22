@@ -2,7 +2,142 @@
 {% block title %}月度订单金额{% endblock %}
 {% block content %}
 {% include "/data_query/data_query_base.html" %}
-<div class="container bra-box" style="width:2000px;">
+
+
+{% macro total_tr(order, title) -%}
+  <tr>
+    <th>{{title}}</th>
+    <td>{{order.Delivered|sum('money')|format_price}}</td>
+    <td>{{order.Delivered|sum('money')|format_price}}</td>
+    <td>{{order.Delivered|sum('now_Q_money_check')|format_price}}</td>
+    <th>{{order.Delivered|sum('first_month_money')|format_price}}</th>
+    <td>{{order.Delivered|sum('second_month_money')|format_price}}</td>
+    <td>{{order.Delivered|sum('third_month_money')|format_price}}</td>
+  </tr>
+{%- endmacro %}
+
+{% macro order_tr(order, title) -%}
+ <tr>
+  <th rowspan="{{order.Delivered|length + order.Confirmed|length + 3}}">{{title}}</th>
+</tr>
+{% if order.Delivered %}
+    <tr>
+        <td rowspan="{{order.Delivered|length+1}}">确认 Delivered</td>
+    </tr>
+    {% for k in order.Delivered %}
+    <tr>
+        <td>{{k.contract}}</td>
+        <td>{{k.agent_name}}</td>
+        <td>{{k.campaign}}</td>
+        <td>{{k.industry_cn}}</td>
+        <td>{{k.direct_sales_names}}</td>
+        <td>{{k.agent_sales_names}}</td>
+        <td>{{k.money|format_price}}</td>
+        <td>{{k.medium_money2|format_price}}</td>
+        <td>{{k.now_Q_money_check|format_price}}</td>
+        <td>{{k.now_Q_money_zhixing|format_price}}</td>
+        <td>{{k.last_Q_money|format_price}}</td>
+        <td>{{k.after_Q_money|format_price}}</td>
+        <td>{{k.first_month_money|format_price}}</td>
+        <td>{{k.second_month_money|format_price}}</td>
+        <td>{{k.third_month_money|format_price}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>{{k.resource_type_cn}}</td>
+        <td>{{k.operater_names}}</td>
+        <td>{{k.client_start}}</td>
+        <td>{{k.client_end}}</td>
+    </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td>确认 Delivered</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+{% endif %}
+{% if order.Confirmed %}
+    <tr>
+        <td rowspan="{{order.Confirmed|length+1}}">流程中  Confirmed</td>
+    </tr>
+    {% for k in order.Confirmed %}
+    <tr>
+        <td>{{k.contract}}</td>
+        <td>{{k.agent_name}}</td>
+        <td>{{k.campaign}}</td>
+        <td>{{k.industry_cn}}</td>
+        <td>{{k.direct_sales_names}}</td>
+        <td>{{k.agent_sales_names}}</td>
+        <td>{{k.money|format_price}}</td>
+        <td>{{k.medium_money2|format_price}}</td>
+        <td> </td>
+        <td>{{k.now_Q_money_zhixing|format_price}}</td>
+        <td>{{k.last_Q_money|format_price}}</td>
+        <td>{{k.after_Q_money|format_price}}</td>
+        <td>{{k.first_month_money|format_price}}</td>
+        <td>{{k.second_month_money|format_price}}</td>
+        <td>{{k.third_month_money|format_price}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>{{k.resource_type_cn}}</td>
+        <td>{{k.operater_names}}</td>
+        <td>{{k.client_start}}</td>
+        <td>{{k.client_end}}</td>
+    </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td>流程中  Confirmed</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+{% endif %}
+
+{%- endmacro %}
+
+<div class="container bra-box" style="width:2400px;">
     <h3>媒体周报</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
@@ -46,150 +181,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <th>豆瓣</th>
-          <td>{{douban_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{douban_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{douban_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{douban_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{douban_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{douban_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>优力</th>
-          <td>{{youli_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{youli_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{youli_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{youli_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{youli_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{youli_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>无线</th>
-          <td>{{wuxian_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{wuxian_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{wuxian_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{wuxian_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{wuxian_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{wuxian_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>知乎</th>
-          <td>{{zhihu_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{zhihu_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{zhihu_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{zhihu_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{zhihu_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{zhihu_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>微票儿</th>
-          <td>{{weipiao_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{weipiao_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{weipiao_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{weipiao_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{weipiao_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{weipiao_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>ONE</th>
-          <td>{{one_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{one_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{one_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{one_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{one_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{one_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>雪球</th>
-          <td>{{xueqiu_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{xueqiu_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{xueqiu_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{xueqiu_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{xueqiu_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{xueqiu_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>虎嗅</th>
-          <td>{{huxiu_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{huxiu_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{huxiu_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{huxiu_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{huxiu_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{huxiu_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>乐动力</th>
-          <td>{{ledongli_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{ledongli_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{ledongli_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{ledongli_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{ledongli_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{ledongli_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>课程格子</th>
-          <td>{{kecheng_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{kecheng_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{kecheng_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{kecheng_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{kecheng_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{kecheng_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>携程</th>
-          <td>{{xiecheng_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{xiecheng_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{xiecheng_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{xiecheng_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{xiecheng_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{xiecheng_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>陌陌</th>
-          <td>{{momo_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{momo_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{momo_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{momo_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{momo_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{momo_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>辣妈帮</th>
-          <td>{{lama_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{lama_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{lama_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{lama_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{lama_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{lama_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>nice</th>
-          <td>{{nice_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{nice_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{nice_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{nice_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{nice_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{nice_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>其他媒体</th>
-          <td>{{other_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{other_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{other_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{other_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{other_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{other_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
-        <tr>
-          <th>媒介下单</th>
-          <td>{{meijie_data.Delivered|sum('money')|format_price}}</td>
-          <td>{{meijie_data.Delivered|sum('medium_money2')|format_price}}</td>
-          <td>{{meijie_data.Delivered|sum('now_Q_money_check')|format_price}}</td>
-          <th>{{meijie_data.Delivered|sum('first_month_money')|format_price}}</th>
-          <td>{{meijie_data.Delivered|sum('second_month_money')|format_price}}</td>
-          <td>{{meijie_data.Delivered|sum('third_month_money')|format_price}}</td>
-        </tr>
+        {{ total_tr(douban_data, '豆瓣') }}
+        {{ total_tr(youli_data, '优力互助') }}
+        {{ total_tr(wuxian_data, '无线互联') }}
+        {{ total_tr(zhihu_data, '知乎') }}
+        {{ total_tr(weipiao_data, '微票儿') }}
+        {{ total_tr(one_data, 'ONE') }}
+        {{ total_tr(xueqiu_data, '雪球') }}
+        {{ total_tr(huxiu_data, '虎嗅') }}
+        {{ total_tr(ledongli_data, '乐动力') }}
+        {{ total_tr(kecheng_data, '课程格子') }}
+        {{ total_tr(xiecheng_data, '携程') }}
+        {{ total_tr(momo_data, '陌陌') }}
+        {{ total_tr(lama_data, '辣妈帮') }}
+        {{ total_tr(nice_data, 'nice') }}
+        {{ total_tr(other_data, '其他媒体') }}
+        {{ total_tr(meijie_data, '媒介下单') }}
         <tr>
           <th>总计</th>
           <td>{{total_money|format_price}}</td>
@@ -232,124 +239,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <th rowspan="{{douban_data.Delivered|length + douban_data.Confirmed|length + 3}}">豆瓣</th>
-        </tr>
-        {% if douban_data.Delivered %}
-            <tr>
-                <td rowspan="{{douban_data.Delivered|length+1}}">确认 Delivered</td>
-            </tr>
-            {% for k in douban_data.Delivered %}
-            <tr>
-                <td>{{k.contract}}</td>
-                <td>{{k.agent_name}}</td>
-                <td>{{k.campaign}}</td>
-                <td>{{k.industry_cn}}</td>
-                <td>{{k.direct_sales_names}}</td>
-                <td>{{k.agent_sales_names}}</td>
-                <td>{{k.money|format_price}}</td>
-                <td>{{k.medium_money2|format_price}}</td>
-                <td>{{k.now_Q_money_check|format_price}}</td>
-                <td>{{k.now_Q_money_zhixing|format_price}}</td>
-                <td>{{k.last_Q_money|format_price}}</td>
-                <td>{{k.after_Q_money|format_price}}</td>
-                <td>{{k.first_month_money|format_price}}</td>
-                <td>{{k.second_month_money|format_price}}</td>
-                <td>{{k.third_month_money|format_price}}</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>{{k.resource_type_cn}}</td>
-                <td>{{k.operater_names}}</td>
-                <td>{{k.client_start}}</td>
-                <td>{{k.client_end}}</td>
-            </tr>
-            {% endfor %}
-        {% else %}
-            <tr>
-                <td>确认 Delivered</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        {% endif %}
-        {% if douban_data.Confirmed %}
-            <tr>
-                <td rowspan="{{douban_data.Confirmed|length+1}}">流程中  Confirmed</td>
-            </tr>
-            {% for k in douban_data.Confirmed %}
-            <tr>
-                <td>{{k.contract}}</td>
-                <td>{{k.agent_name}}</td>
-                <td>{{k.campaign}}</td>
-                <td>{{k.industry_cn}}</td>
-                <td>{{k.direct_sales_names}}</td>
-                <td>{{k.agent_sales_names}}</td>
-                <td>{{k.money|format_price}}</td>
-                <td>{{k.medium_money2|format_price}}</td>
-                <td> </td>
-                <td>{{k.now_Q_money_zhixing|format_price}}</td>
-                <td>{{k.last_Q_money|format_price}}</td>
-                <td>{{k.after_Q_money|format_price}}</td>
-                <td>{{k.first_month_money|format_price}}</td>
-                <td>{{k.second_month_money|format_price}}</td>
-                <td>{{k.third_month_money|format_price}}</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>{{k.resource_type_cn}}</td>
-                <td>{{k.operater_names}}</td>
-                <td>{{k.client_start}}</td>
-                <td>{{k.client_end}}</td>
-            </tr>
-            {% endfor %}
-        {% else %}
-            <tr>
-                <td>流程中  Confirmed</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        {% endif %}
-
+        {{ order_tr(douban_data, '豆瓣') }}
+        {{ order_tr(youli_data, '优力互助') }}
+        {{ order_tr(wuxian_data, '无线互联') }}
+        {{ order_tr(zhihu_data, '知乎') }}
+        {{ order_tr(weipiao_data, '微票儿') }}
+        {{ order_tr(one_data, 'ONE') }}
+        {{ order_tr(xueqiu_data, '雪球') }}
+        {{ order_tr(huxiu_data, '虎嗅') }}
+        {{ order_tr(ledongli_data, '乐动力') }}
+        {{ order_tr(kecheng_data, '课程格子') }}
+        {{ order_tr(xiecheng_data, '携程') }}
+        {{ order_tr(momo_data, '陌陌') }}
+        {{ order_tr(lama_data, '辣妈帮') }}
+        {{ order_tr(nice_data, 'nice') }}
+        {{ order_tr(other_data, '其他媒体') }}
+        {{ order_tr(meijie_data, '媒介下单') }}
       </tbody>
     </table>
 </div>
