@@ -7,6 +7,11 @@
               <li id="_order_" >月度订单金额</li>
             </a>
             {% endif %}
+            {% if g.user.is_super_admin() %}
+            <a href="{{url_for('data_query_weekly.medium_index')}}">
+              <li id="_weeklymedium_" >媒体周报（新）</li>
+            </a>
+            {% endif %}
             <a href="{{url_for('data_query_weekly.index')}}">
               <li id="_weekly_" >媒体订单周报</li>
             </a>
