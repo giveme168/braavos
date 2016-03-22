@@ -527,27 +527,30 @@ def _new_douban_order_to_dict(douban_order, last_Q_monthes, now_Q_monthes, after
         [u.name for u in douban_order.operater_users])
     dict_order['client_start'] = douban_order.client_start
     dict_order['client_end'] = douban_order.client_end
+    dt_format = "%d%m%Y"
+    start_datetime = datetime.datetime.strptime(douban_order.client_start.strftime(dt_format), dt_format)
+    end_datetime = datetime.datetime.strptime(douban_order.client_end.strftime(dt_format), dt_format)
     executive_report_data = pre_month_money(douban_order.money,
-                                            douban_order.client_start,
-                                            douban_order.client_end)
+                                            start_datetime,
+                                            end_datetime)
     # 本季度确认金额与本季度执行金额一致
     dict_order['now_Q_money_check'] = sum(
-        [k['money'] for k in executive_report_data if k['month'] in now_Q_monthes])
+        [k['money'] for k in executive_report_data if k['month'].date() in now_Q_monthes])
     dict_order['now_Q_money_zhixing'] = sum(
-        [k['money'] for k in executive_report_data if k['month'] in now_Q_monthes])
+        [k['money'] for k in executive_report_data if k['month'].date() in now_Q_monthes])
     # 下季度执行金额
     dict_order['after_Q_money'] = sum(
-        [k['money'] for k in executive_report_data if k['month'] in after_Q_monthes])
+        [k['money'] for k in executive_report_data if k['month'].date() in after_Q_monthes])
     # 上季度执行金额
     dict_order['last_Q_money'] = sum(
-        [k['money'] for k in executive_report_data if k['month'] in last_Q_monthes])
+        [k['money'] for k in executive_report_data if k['month'].date() in last_Q_monthes])
     # 本季度按月执行额
     now_Q_date_param = {}
     for k in now_Q_monthes:
         now_Q_date_param[k] = 0
     for k in executive_report_data:
-        if k['month'] in now_Q_date_param:
-            now_Q_date_param[k['month']] += k['money']
+        if k['month'].date() in now_Q_date_param:
+            now_Q_date_param[k['month'].date()] += k['money']
     now_Q_date_param = sorted(now_Q_date_param.iteritems(), key=lambda x: x[0])
     dict_order['first_month_money'] = now_Q_date_param[0][1]
     dict_order['second_month_money'] = now_Q_date_param[1][1]
@@ -556,9 +559,7 @@ def _new_douban_order_to_dict(douban_order, last_Q_monthes, now_Q_monthes, after
     dict_order['money'] = douban_order.money
     # 直签豆瓣订单客户金额与媒体进个相同
     dict_order['medium_money2'] = douban_order.money
-    dt_format = "%d%m%Y"
-    start_datetime = datetime.datetime.strptime(douban_order.client_start.strftime(dt_format), dt_format)
-    end_datetime = datetime.datetime.strptime(douban_order.client_end.strftime(dt_format), dt_format)
+
     pre_month_days = get_monthes_pre_days(start_datetime, end_datetime)
     dict_order['pre_month_days'] = set([k['month'] for k in pre_month_days])
     dict_order['status'] = douban_order.status
@@ -586,8 +587,8 @@ def _new_medium_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_mont
         [u.name for u in order.client_order.operater_users])
     dict_order['client_start'] = order.client_order.client_start
     dict_order['client_end'] = order.client_order.client_end
-    dict_order['money'] = order.medium_money2
-    dict_order['medium_money2'] = order.sale_money
+    dict_order['money'] = order.sale_money
+    dict_order['medium_money2'] = order.medium_money2
     dt_format = "%d%m%Y"
     start_datetime = datetime.datetime.strptime(order.medium_start.strftime(dt_format), dt_format)
     end_datetime = datetime.datetime.strptime(order.medium_end.strftime(dt_format), dt_format)
@@ -595,9 +596,8 @@ def _new_medium_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_mont
                                                  start_datetime,
                                                  end_datetime)
     executive_report_data = pre_month_money(dict_order['medium_money2'],
-                                            datetime.datetime.strptime(
-                                                order.medium_start.strftime(dt_format), dt_format),
-                                            datetime.datetime.strptime(order.medium_end.strftime(dt_format), dt_format))
+                                            start_datetime,
+                                            end_datetime)
     # 本季度确认金额与本季度执行金额一致
     dict_order['now_Q_money_check'] = sum(
         [k['money'] for k in sale_executive_report_data if k['month'].date() in now_Q_monthes])

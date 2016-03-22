@@ -46,7 +46,7 @@ def download_excel_table_by_doubanorders(orders):
     excel_table.append(temp_row)  # 表头
     base_type = StyleTypes.base
     for order in orders:
-        if order.contract:
+        if order.contract and order.back_money_status != -1:
             temp_row = []
             temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_NUM, order.id, base_type))
             temp_row.append(ExcelCellItem(EXCEL_DATA_TYPE_STR, order.agent.name or " ", base_type))

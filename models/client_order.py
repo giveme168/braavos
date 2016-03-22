@@ -73,12 +73,13 @@ STATUS_CN = {
     STATUS_DEL: u'删除',
     STATUS_ON: u'正常',
 }
-
+BACK_MONEY_STATUS_BREAK = -1
 BACK_MONEY_STATUS_END = 0
 BACK_MONEY_STATUS_NOW = 1
 BACK_MONEY_STATUS_CN = {
     BACK_MONEY_STATUS_END: u'回款完成',
     BACK_MONEY_STATUS_NOW: u'正在回款',
+    BACK_MONEY_STATUS_BREAK: u'坏账'
 }
 
 ECPM_CONTRACT_STATUS_LIST = [2, 4, 5]
@@ -718,7 +719,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def back_money_status_cn(self):
-        if self.back_money_status == 0:
+        if self.back_money_status in [-1, 0]:
             return BACK_MONEY_STATUS_CN[BACK_MONEY_STATUS_END]
         else:
             return BACK_MONEY_STATUS_CN[self.back_money_status or 1]
@@ -727,6 +728,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def back_money_percent(self):
         if self.back_money_status == 0:
             return 100
+        elif self.back_money_status == -1:
+            return 0
         else:
             return int(float(self.back_moneys) / self.money * 100) if self.money else 0
 

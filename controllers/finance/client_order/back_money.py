@@ -91,6 +91,18 @@ def back_money(order_id):
                 flash(u'更新了回款状态，回款已完成!', 'success')
                 order.add_comment(
                     g.user, u"更新了回款状态，回款已完成;", msg_channel=4)
+            elif int(back_money_status) == -1:
+                order.back_money_status = int(back_money_status)
+                order.save()
+                flash(u'该项目为划账!', 'success')
+                order.add_comment(g.user, u"坏账项目", msg_channel=4)
+                apply_context = {
+                    'order': order,
+                    'num': -1,
+                    'type': 'end',
+                }
+                back_money_apply_signal.send(
+                    current_app._get_current_object(), apply_context=apply_context)
             else:
                 order.back_money_status = int(back_money_status)
                 order.save()
