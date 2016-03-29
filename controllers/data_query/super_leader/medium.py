@@ -42,7 +42,7 @@ def _get_medium_moneys(orders, pre_monthes, medium_ids):
                 medium_rebate = sum(
                     [o['medium_money2'] / len(o['locations']) * o['medium_rebate'] / 100 for o in location_orders])
                 m_ex_money = money2 - medium_rebate
-                a_rebate = sum([o['medium_money2'] / len(o['locations']) *
+                a_rebate = sum([o['sale_money'] / len(o['locations']) *
                                 o['agent_rebate'] / 100 for o in location_orders])
                 profit = sale_money - m_ex_money - a_rebate
                 money_obj['sale_money'].append(round(sale_money, 2))

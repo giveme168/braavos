@@ -18,11 +18,11 @@
 
 {% macro order_tr(order, title) -%}
  <tr>
-  <th rowspan="{{order.Delivered|length + order.Confirmed|length + 3}}">{{title}}</th>
+  <th style="vertical-align: middle;" rowspan="{{order.Delivered|length + order.Confirmed|length + 3}}">{{title}}</th>
 </tr>
 {% if order.Delivered %}
     <tr>
-        <td rowspan="{{order.Delivered|length+1}}">确认 Delivered</td>
+        <td style="vertical-align: middle;" rowspan="{{order.Delivered|length+1}}">确认 Delivered</td>
     </tr>
     {% for k in order.Delivered %}
     <tr>
@@ -52,7 +52,7 @@
     {% endfor %}
 {% else %}
     <tr>
-        <td>确认 Delivered</td>
+        <td style="vertical-align: middle;">确认 Delivered</td>
         <td></td>
         <td></td>
         <td></td>
@@ -79,7 +79,7 @@
 {% endif %}
 {% if order.Confirmed %}
     <tr>
-        <td rowspan="{{order.Confirmed|length+1}}">流程中  Confirmed</td>
+        <td style="vertical-align: middle;" rowspan="{{order.Confirmed|length+1}}">流程中  Confirmed</td>
     </tr>
     {% for k in order.Confirmed %}
     <tr>
@@ -109,7 +109,7 @@
     {% endfor %}
 {% else %}
     <tr>
-        <td>流程中  Confirmed</td>
+        <td style="vertical-align: middle;">流程中  Confirmed</td>
         <td></td>
         <td></td>
         <td></td>
@@ -164,7 +164,7 @@
             </select>
         </div>
         <input type="submit" value="查询" class="btn btn-sm btn-info" >
-        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+        <!--<input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">-->
         </form>
     </div>
     <br/>
@@ -182,7 +182,7 @@
       </thead>
       <tbody>
         {{ total_tr(douban_data, '豆瓣') }}
-        {{ total_tr(youli_data, '优力互助') }}
+        {{ total_tr(youli_data, '优力互动') }}
         {{ total_tr(wuxian_data, '无线互联') }}
         {{ total_tr(zhihu_data, '知乎') }}
         {{ total_tr(weipiao_data, '微票儿') }}
@@ -240,7 +240,7 @@
       </thead>
       <tbody>
         {{ order_tr(douban_data, '豆瓣') }}
-        {{ order_tr(youli_data, '优力互助') }}
+        {{ order_tr(youli_data, '优力互动') }}
         {{ order_tr(wuxian_data, '无线互联') }}
         {{ order_tr(zhihu_data, '知乎') }}
         {{ order_tr(weipiao_data, '微票儿') }}

@@ -1,667 +1,702 @@
-{% extends "base.html" %}
-{% block title %}首页{% endblock %}
-
-{% block content %}
-<div class="container" style="min-width: 950px;">
-  	<div class="row">
-  		<div class="nav">
-  		</div>
-	</div>
-	<div class="row">
-		<div class="introduction" style="margin-top:65px;">
-			<div class="intro-all">
-				<div class="sculpture">
-					<div class="head-icon">
-                        {% set schedule = g.user.get_last_user_pic_file()  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="/static/imgs/favicon.ico" type="image/x-icon"/>
+    <title>首页</title>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/index_v_1_0_0.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/css/style_v_1_0_0.css">
+</head>
+<body>
+<div class="nav">
+    <div class="navigation-content">
+        <div class="logo">
+            <img src="/static/image/homepage_icon/LOGO.png" alt="#">
+        </div>
+        <div class="navigation-content-list">
+            <ul>
+                <li class="mail-list"><a href="{{url_for('user.contact')}}"  target="_blank">通讯录</a></li>
+                <li class='head-portrait'>
+                    {% set schedule = g.user.get_last_user_pic_file()  %}
                         {% if schedule %}
                         <img src="{{schedule.all_file_path}}" alt="＃">
                         {% else %}
                          <img src="/static/imgs/head-pic.png" alt="＃">
                         {% endif %}
-					</div>
-					<div class="set">
-						<a href="{{url_for('user.user_detail', user_id=g.user.id)}}" target="_blank"><img src="/static/imgs/edit icon.png" alt="#"></a>
-					</div>
-					<div class="own-name">
-						<p>><span>{{g.user.name}}</span></p>
-					</div>
-				</div>
-				<div class="module-box">
-					<div class="message">
-						<p>职&nbsp;&nbsp;&nbsp;&nbsp;位:<span>{{g.user.position or '暂无'}}</span></p>
-						<p>直属领导:<span>{{g.user.team_leaders_cn}}</span></p>
-						<p>邮&nbsp;&nbsp;&nbsp;&nbsp;箱:<span>{{g.user.email}}</span></p>
-						<p>联系电话:<span>{{g.user.cellphone or '暂无'}}</span></p>
-					</div>
-				</div>
-			</div>
-  			<div class="winbox">
-  				<div class="dynamic">
-                    {% for k in person_notices %}
-  					<div class="dynamic-msg">
-  						<img src="/static/imgs/message.png" alt="#">
-                        <span>{{k.create_time_cn}}</span>
-  						<p><a target="_blank" href="#">{{k.title}}</a></p>
-  					</div>
-                    {% endfor %}
-  					<div class="more">
-  						<a href="#">更多个人通知 ></a>
-  					</div>
-  				</div>
-  			</div>
-  			<div class="winbox">
-  				<div class="dynamic">
-                    {% for k in notices %}
-                    <div class="dynamic-msg">
-                        <img src="/static/imgs/message.png" alt="#">
-                        <span>{{k.create_time_cn}}</span>
-                        <p><a target="_blank" href="{{url_for('account_notice.index')}}?nid={{k.id}}">{{k.title}}</a></p>
-                    </div>
-                    {% endfor %}
-                    <!--
-  					<div class="dynamic-img">
-  						<img src="/static/imgs/new-icon.png" alt="#" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" style="padding: 0 0 ;background: #fff;border: none;">
-  						<span>15.11.19 1:09</span>
-  						<p><a href="#">...。</a></p>
-  					</div>
-  					-->
-  					<div class="more">
-  						<a target="_blank" href="{{url_for('account_notice.index')}}">更多公司通知 ></a>
-  					</div>
-  				</div>
-  			</div>
-  			<div class="line-1"></div>
-		</div>
-	</div>
-    <!--销售开始-->
-	<div class="row" style="display:none;">
-		<div class="title">
-			<h1>销售模块</h1>
-			<span>SALES</span>
-		</div>
-		<div id="tab1">
-	      <ul id="nav-title">
-	         <li class="on" style="border-left: 1px solid #ccc">Q4</li>
-	         <li>Q3</li>
-	         <li>Q2</li>
-	         <li style="">Q1</li>
-	      </ul>
-	      <div id="con1">
-	        <ul class="select">
-	        	<div class="quarter">
-	        		<div class="ser-task">
-	        			<h5>季度任务</h5>
-	        			<p><strong>100K/</strong><span>200K</span></p>
-	        		</div>
-					 <div class="completion">
-					 	<p>完成率</p>
-					 	<span>60%</span>
-					 	<div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
-						  <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-						   	 
-						  </div>
-						</div>
-					 </div>
-					 <div class="received">
-					 	<h5>季度回款</h5>
-	        			<p><strong>300K</strong></p>
-					 </div>
-	        	</div>
-	        	<div class="quarter">
-	        		<div class="ser-task">
-	        			<h5>年度任务</h5>
-	        			<p><strong>300K/</strong><span>200K</span></p>
-	        		</div>
-					 <div class="completion">
-					 	<p>完成率</p>
-					 	<span>60%</span>
-					 	<div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
-						  <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-						   	 
-						  </div>
-						</div>
-					 </div>
-					 <div class="received">
-					 	<h5>年度回款</h5>
-	        			<p><strong>300K</strong></p>
-					 </div>
-	        	</div> 
-	        	<div class="living-quarter">
-	        		<div class="quarter－see pad-box">
-					 	<p>季度会见<strong>30</strong><span>次</span></p>
-					 </div>
-	        		<div class="outsourcing pad-box">
-					 	<p>季度外包成本<strong>300</strong><span>K</span></p>
-					 </div>
-					 <div class="all-doll pad-box">
-					 	<p>极度报销总额<strong>30</strong><span>K</span></p>
-					 </div>
-	        	</div>
-	        </ul>
-
-	        <ul>
-	        	<div class="quarter">
-	        		<div class="ser-task">
-	        			<h5>季度任务</h5>
-	        			<p><strong>200K/</strong><span>200K</span></p>
-	        		</div>
-					 <div class="completion">
-					 	<p>完成率</p>
-					 	<span>60%</span>
-					 	<div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
-						  <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-						   	 
-						  </div>
-						</div>
-					 </div>
-					 <div class="received">
-					 	<h5>季度回款</h5>
-	        			<p><strong>301K</strong></p>
-					 </div>
-	        	</div>
-	        	<div class="quarter">
-	        		<div class="ser-task">
-	        			<h5>年度任务</h5>
-	        			<p><strong>300K</strong><span>200K</span></p>
-	        		</div>
-					 <div class="completion">
-					 	<p>完成率</p>
-					 	<span>60%</span>
-					 	<div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
-						  <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-						   	 
-						  </div>
-						</div>
-					 </div>
-					 <div class="received">
-					 	<h5>年度回款</h5>
-	        			<p><strong>300K</strong></p>
-					 </div>
-	        	</div> 
-	        	<div class="living-quarter">
-	        		<div class="quarter－see pad-box">
-					 	<p>季度会见<strong>30</strong><span>次</span></p>
-					 </div>
-	        		<div class="outsourcing pad-box">
-					 	<p>季度外包成本<strong>300</strong><span>K</span></p>
-					 </div>
-					 <div class="all-doll pad-box">
-					 	<p>极度报销总额<strong>30</strong><span>K</span></p>
-					 </div>
-	        	</div>
-	        </ul>
-	         <ul>
-	        	<div class="quarter">
-	        		<div class="ser-task">
-	        			<h5>季度任务</h5>
-	        			<p><strong>300K/</strong><span>200K</span></p>
-	        		</div>
-					 <div class="completion">
-					 	<p>完成率</p>
-					 	<span>60%</span>
-					 	<div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
-						  <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-						   	 
-						  </div>
-						</div>
-					 </div>
-					 <div class="received">
-					 	<h5>季度回款</h5>
-	        			<p><strong>302K</strong></p>
-					 </div>
-	        	</div>
-	        	<div class="quarter">
-	        		<div class="ser-task">
-	        			<h5>年度任务</h5>
-	        			<p><strong>300K/</strong><span>200K</span></p>
-	        		</div>
-					 <div class="completion">
-					 	<p>完成率</p>
-					 	<span>60%</span>
-					 	<div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
-						  <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-						   	 
-						  </div>
-						</div>
-					 </div>
-					 <div class="received">
-					 	<h5>年度回款</h5>
-	        			<p><strong>300K</strong></p>
-					 </div>
-	        	</div> 
-	        	<div class="living-quarter">
-	        		<div class="quarter－see pad-box">
-					 	<p>季度会见<strong>30</strong><span>次</span></p>
-					 </div>
-	        		<div class="outsourcing pad-box">
-					 	<p>季度外包成本<strong>300</strong><span>K</span></p>
-					 </div>
-					 <div class="all-doll pad-box">
-					 	<p>极度报销总额<strong>30</strong><span>K</span></p>
-					 </div>
-	        	</div>
-	        </ul>
-	         <ul>
-	        	<div class="quarter">
-	        		<div class="ser-task">
-	        			<h5>季度任务</h5>
-	        			<p><strong>400K/</strong><span>200K</span></p>
-	        		</div>
-					 <div class="completion">
-					 	<p>完成率</p>
-					 	<span>60%</span>
-					 	<div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
-						  <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-						   	 
-						  </div>
-						</div>
-					 </div>
-					 <div class="received">
-					 	<h5>季度回款</h5>
-	        			<p><strong>303K</strong></p>
-					 </div>
-	        	</div>
-	        	<div class="quarter">
-	        		<div class="ser-task">
-	        			<h5>年度任务</h5>
-	        			<p><strong>300K/</strong><span>200K</span></p>
-	        		</div>
-					 <div class="completion">
-					 	<p>完成率</p>
-					 	<span>60%</span>
-					 	<div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
-						  <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%;">
-						   	 
-						  </div>
-						</div>
-					 </div>
-					 <div class="received">
-					 	<h5>年度回款</h5>
-	        			<p><strong>300K</strong></p>
-					 </div>
-	        	</div> 
-	        	<div class="living-quarter">
-	        		<div class="quarter－see pad-box">
-					 	<p>季度会见<strong>30</strong><span>次</span></p>
-					 </div>
-	        		<div class="outsourcing pad-box">
-					 	<p>季度外包成本<strong>300</strong><span>K</span></p>
-					 </div>
-					 <div class="all-doll pad-box">
-					 	<p>极度报销总额<strong>30</strong><span>K</span></p>
-					 </div>
-	        	</div>
-	        </ul>
-	      </div>
-		</div>
-	</div>
-    <!--销售结束-->
-	<div class="row business-modular">
-		<div class="title title-bussess" >
-			<h1>业务模块</h1>
-			<span>BUSINESS</span>
-		</div>
-		<div class="bussess-box" style="width: 105%;">
-			<div class="bussess">
-				<div class="manage">
-					<h5>订单管理</h5>
-					<p>新媒体订单、直签豆瓣订单、框架订单等</p>
-				</div>
-                <!--
-				<div class="new">
-					<img src="/static/imgs/new.png" alt="">
-				</div>
-                -->
-				<div class="menu-all">
-				 <div class="drown-click">
-				 	
-				 </div>
-				  <div class="menu-list">
-				  	<ul>
-				  		{% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
-                          <!--搜索部门-->
-                            <a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank"><li>搜索部门订单管理</li></a>
-                          <!--搜索部门结束-->
-                          {% else %}
-                          <!--致趣订单-->
-                            <a href="{{url_for('order.my_orders')}}" target="_blank"><li>致趣订单管理</li></a>
-                            {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit()%}
-                            <!--搜索部门-->
-                              <a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank"><li>搜索部门订单管理</li></a>
-                            <!--搜索部门结束-->
-                            {% endif %}
-                          <!--致趣订单结束-->
-                          {% endif %}
-				  	</ul>
-				  </div>
-				</div>
-			</div>
-			<div class="bussess">
-				<div class="manage">
-					<h5>客户管理</h5>
-					<p>媒体、直客／代理、客户</p>
-				</div>
-				<div class="menu-all">
-				 <div class="drown-click">
-				
-				 </div>
-				  <div class="menu-list">
-				  	<ul>
-				  		{% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
-                      <!--搜索部门-->
-                        <a href="{{url_for('searchAd_client.agents')}}" target="_blank"><li>搜索部门客户管理</li></a>
-                      <!--搜索部门结束-->
-                      {% else %}
-                      <!--致趣订单-->
-                        <a href="{{url_for('client.agents')}}" target="_blank"><li>致趣客户管理</li></a>
-                        {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit() %}
-                        <!--搜索部门-->
-                          <a href="{{url_for('searchAd_client.agents')}}" target="_blank"><li>搜索部门客户管理</li></a>
-                        <!--搜索部门结束-->
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                      <span>{{g.user.name}}</span>
+                      <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a target="_blank" href="{{url_for('account_onduty.info', uid=g.user.id)}}"  target="_blank">考勤</a></li>
+                      <li><a href="{{url_for('user.logout')}}">退出</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>  
+</div>
+<div class="container" style="width:958px;">
+    <div class="row">
+        <div class="introduction">
+            <div class="intro-all">
+                <div class="sculpture">
+                    <div class="head-icon">
+                        {% set schedule = g.user.get_last_user_pic_file()  %}
+                        {% if schedule %}
+                        <img src="{{schedule.all_file_path}}" alt="＃">
+                        {% else %}
+                         <img src="/static/image/homepage_icon/head-pic.png" alt="＃">
                         {% endif %}
-                      <!--致趣订单结束-->
-                      {% endif %}
-				  	</ul>
-				  </div>
-				</div>
-			</div>
-      {% if g.user.is_operater() or g.user.is_operater_leader() or g.user.is_super_leader() or (g.user.is_leader() and (not g.user.is_searchad_leader()))%}
-			<div class="bussess">
-				<div class="manage">
-					<h5>运营管理</h5>
-					<p style="width: 127px;line-height:54px;text-align: center;">运营管理</p>
-				</div>
-				<div class="menu-all">
-				  <a href="{{url_for('outsource.client_orders')}}" target="_blank">
-            <div class="drown-click">
-				    </div>
-          </a>
-				  
-				</div>
-			</div>
-      {% endif %}
-      {% if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %}
-			<div class="bussess">
-				<div class="manage">
-					<h5>媒介管理</h5>
-					<p>媒体打款及发票详情</p>
-				</div>
-				<div class="menu-all">
-				 <a href="{{url_for('media_client_order_data_query.medium_invoice')}}" target="_blank"><div class="drown-click">
-				
-				 </div></a>
-				</div>
-			</div>
-      {% endif %}
-			<div class="bussess">
-				<div class="manage">
-					<h5>资料查询</h5>
-					<p>媒体资料，策划案资料</p>
-				</div>
-				<div class="menu-all">
-				 <a href="{{url_for('mediums_files.index')}}" target="_blank">
-                    <div class="drown-click">
-				    </div>
-                 </a>
-                 <!--
-				  <div class="menu-list">
-				  	<ul>
-				  		<li><a href="{{url_for('mediums_files.index')}}" target="_blank">媒体资料</a></li>
-              <li><a href="{{url_for('mediums_planning.index', type=1)}}" target="_blank">策划案例</a></li>
-				  	</ul>
-				  </div>
-                  -->
-				</div>
-			</div>
-			<div class="bussess">
-				<div class="manage">
-					<h5>策划管理</h5>
-					<p style="width: 127px;line-height:54px;text-align: center;">下策划单</p>
-				</div>
-				<div class="menu-all">
-				 <a href="{{url_for('planning_bref.index')}}" target="_blank">
-                    <div class="drown-click">
-				    </div>
-                 </a>
-                 <!--
-				  <div class="menu-list">
-				  	<ul>
-				  		<li><a href="{{url_for('planning_bref.index')}}" target="_blank">下策划单</a></li>
-				  	</ul>
-				  </div>
-                  -->
-				</div>
-			</div>
-            {% if g.user.is_operater_leader() %}
-            <div class="bussess">
-                <div class="manage">
-                    <h5>KOL管理</h5>
-                    <p style="width: 127px;line-height:54px;text-align: center;">KOL资料</p>
-                </div>
-                <div class="menu-all">
-                 <a href="{{url_for('kol.index', type='design')}}" target="_blank">
-                    <div class="drown-click">
                     </div>
-                 </a>
+                    <div class="own-name">
+                        <p>{{g.user.name}}</p>
+                    </div>
+                </div>
+                <div class="module-box">
+                    <div class="message">
+                        <p>职&nbsp;&nbsp;&nbsp;&nbsp;位:<span>{{g.user.position or '暂无'}}</span></p>
+                        <p>直属领导:<span>{{g.user.team_leaders_cn}}</span></p>
+                        <p>邮&nbsp;&nbsp;&nbsp;&nbsp;箱:<span>{{g.user.email}}</span></p>
+                        <p>联系电话:<span>{{g.user.cellphone or '暂无'}}</span></p>
+                        <div class="set">
+                            <a href="{{url_for('user.user_detail', user_id=g.user.id)}}"><img src="/static/image/homepage_icon/edit icon.png" alt=""></a>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+
+            <div class="winbox">
+                <div class="dynamic">
+                    {% for k in person_notices %}
+                    <div class="dynamic-img">
+                        <img src="/static/image/homepage_icon/icon1.png" alt="#" class="btn btn-primary btn-lg" data-toggle="modal" data-target="myModal">
+                        <span>{{k.create_time_cn}}</span>
+                        <p><a href="#">{{k.title}}</a></p>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="more">
+                        <a href="#">更多个人信息</a>
+                    </div>
                 </div>
             </div>
-            {% endif %}
-		</div>
-	</div>	
-
-	<div class="row">
-		<div class="title" style="border-top: 1px solid #ccc;margin-top: 30px">
-			<h1>公司模块</h1>
-			<span>COMPANY</span>
-		</div>
-		<div class="bussess-box" style="width: 105%;">
-			<div class="bussess">
-				<div class="manage">
-					<h5>人事申请</h5>
-					<p>外出报备，请假申请，出差申请，评估</p>
-				</div>
-				<div class="menu-all">
-				 <div class="drown-click">
-					
-				 </div>
-				  <div class="menu-list">
-				  	<ul>
-				  		<a href="{{url_for('account_out.index')}}" target="_blank"><li>外出报备</li></a>
-                        <a href="{{url_for('account_leave.index',user_id = g.user.id)}}" target="_blank"><li>请假申请</li></a>
-				  	</ul>
-				  </div>
-				</div>
-			</div>
-			<div class="bussess">
-				<div class="manage">
-					<h5>财务申请</h5>
-					<p>报销申请，借款申请（预留）</p>
-				</div>
-				<div class="menu-all">
-				 <div class="drown-click" style="background: #f1f1f1;">
-				 </div>
-				</div>
-			</div>
-			<div class="bussess">
-				<div class="manage">
-					<h5>绩效考核</h5>
-					<p style="width: 127px;line-height:54px;text-align: center;">绩效考核</p>
-				</div>
-				<div class="menu-all">
-				 <a href="{{url_for('account_kpi.index')}}" target="_blank">
-           <div class="drown-click">
-  				 </div>
-         </a>
-				</div>
-			</div>
-      <div class="bussess">
-        <div class="manage">
-          <h5>公司规范</h5>
-          <p>员工手册、系统通知、系统使用说明</p>
+            <div class="winbox">
+                <div class="dynamic">
+                    {% for k in notices %}
+                    <div class="dynamic-img">
+                        <img src="/static/image/homepage_icon/icon1.png" alt="#" class="btn btn-primary btn-lg" data-toggle="modal" data-target="myModal">
+                        <span>{{k.create_time_cn}}</span>
+                        <p><a href="#">{{k.title}}</a></p>
+                    </div>
+                    {% endfor %}
+                    <div class="more">
+                        <a href="{{url_for('account_notice.index')}}"  target="_blank">更多公司信息</a>
+                    </div>
+                </div>
+            </div>
+            <div class="line-1"></div>
         </div>
-        <div class="menu-all">
-         <div class="drown-click">
-          
-         </div>
-          <div class="menu-list">
+    </div>
+    <div class="row main" style="display:none;">
+        <div class="title">
+            <h1>销售模块</h1>
+            <span>SALES</span>
+        </div>
+        <div id="tab1">
+          <ul id="nav-title">
+             <li class="on">Q4</li>
+             <li>Q3</li>
+             <li>Q2</li>
+             <li style="">Q1</li>
+          </ul>
+          <div id="con1">
+            <ul class="select">
+                <div class="quarter">
+                    <div class="ser-task">
+                        <h5>季度任务</h5>
+                        <p><strong>100K/</strong><span>200K</span></p>
+                    </div>
+                     <div class="completion">
+                        <p>完成率</p>
+                        <span>60%</span>
+                        <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
+                          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
+                             
+                          </div>
+                        </div>
+                     </div>
+                     <div class="received">
+                        <h5>季度回款</h5>
+                        <p><strong>300K</strong></p>
+                     </div>
+                </div>
+                <div class="quarter">
+                    <div class="ser-task">
+                        <h5>年度任务</h5>
+                        <p><strong>300K/</strong><span>200K</span></p>
+                    </div>
+                     <div class="completion">
+                        <p>完成率</p>
+                        <span>60%</span>
+                        <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
+                          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
+                             
+                          </div>
+                        </div>
+                     </div>
+                     <div class="received">
+                        <h5>年度回款</h5>
+                        <p><strong>300K</strong></p>
+                     </div>
+                </div> 
+                <div class="living-quarter">
+                    <div class="quarter－see pad-box">
+                        <p>季度会见<strong>30</strong><span>次</span></p>
+                     </div>
+                    <div class="outsourcing pad-box">
+                        <p>季度外包成本<strong>300</strong><span>K</span></p>
+                     </div>
+                     <div class="all-doll pad-box">
+                        <p>极度报销总额<strong>30</strong><span>K</span></p>
+                     </div>
+                </div>
+            </ul>
+
             <ul>
-              {% if g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
-              <a target="_blank" href="{{url_for('account_data.notice_index')}}"><li>系统通知</li></a>
-              {% endif %}
-              {% if not g.user.is_other_person() %}
-              <a target="_blank" href="{{url_for('account_data.handbook')}}"><li>员工手册</li></a>
-              {% endif %}
+                <div class="quarter">
+                    <div class="ser-task">
+                        <h5>季度任务</h5>
+                        <p><strong>200K/</strong><span>200K</span></p>
+                    </div>
+                     <div class="completion">
+                        <p>完成率</p>
+                        <span>60%</span>
+                        <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
+                          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
+                             
+                          </div>
+                        </div>
+                     </div>
+                     <div class="received">
+                        <h5>季度回款</h5>
+                        <p><strong>301K</strong></p>
+                     </div>
+                </div>
+                <div class="quarter">
+                    <div class="ser-task">
+                        <h5>年度任务</h5>
+                        <p><strong>300K</strong><span>200K</span></p>
+                    </div>
+                     <div class="completion">
+                        <p>完成率</p>
+                        <span>60%</span>
+                        <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
+                          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
+                             
+                          </div>
+                        </div>
+                     </div>
+                     <div class="received">
+                        <h5>年度回款</h5>
+                        <p><strong>300K</strong></p>
+                     </div>
+                </div> 
+                <div class="living-quarter">
+                    <div class="quarter－see pad-box">
+                        <p>季度会见<strong>30</strong><span>次</span></p>
+                     </div>
+                    <div class="outsourcing pad-box">
+                        <p>季度外包成本<strong>300</strong><span>K</span></p>
+                     </div>
+                     <div class="all-doll pad-box">
+                        <p>极度报销总额<strong>30</strong><span>K</span></p>
+                     </div>
+                </div>
+            </ul>
+             <ul>
+                <div class="quarter">
+                    <div class="ser-task">
+                        <h5>季度任务</h5>
+                        <p><strong>300K/</strong><span>200K</span></p>
+                    </div>
+                     <div class="completion">
+                        <p>完成率</p>
+                        <span>60%</span>
+                        <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
+                          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
+                             
+                          </div>
+                        </div>
+                     </div>
+                     <div class="received">
+                        <h5>季度回款</h5>
+                        <p><strong>302K</strong></p>
+                     </div>
+                </div>
+                <div class="quarter">
+                    <div class="ser-task">
+                        <h5>年度任务</h5>
+                        <p><strong>300K/</strong><span>200K</span></p>
+                    </div>
+                     <div class="completion">
+                        <p>完成率</p>
+                        <span>60%</span>
+                        <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
+                          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
+                             
+                          </div>
+                        </div>
+                     </div>
+                     <div class="received">
+                        <h5>年度回款</h5>
+                        <p><strong>300K</strong></p>
+                     </div>
+                </div> 
+                <div class="living-quarter">
+                    <div class="quarter－see pad-box">
+                        <p>季度会见<strong>30</strong><span>次</span></p>
+                     </div>
+                    <div class="outsourcing pad-box">
+                        <p>季度外包成本<strong>300</strong><span>K</span></p>
+                     </div>
+                     <div class="all-doll pad-box">
+                        <p>极度报销总额<strong>30</strong><span>K</span></p>
+                     </div>
+                </div>
+            </ul>
+             <ul>
+                <div class="quarter">
+                    <div class="ser-task">
+                        <h5>季度任务</h5>
+                        <p><strong>400K/</strong><span>200K</span></p>
+                    </div>
+                     <div class="completion">
+                        <p>完成率</p>
+                        <span>60%</span>
+                        <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
+                          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
+                             
+                          </div>
+                        </div>
+                     </div>
+                     <div class="received">
+                        <h5>季度回款</h5>
+                        <p><strong>303K</strong></p>
+                     </div>
+                </div>
+                <div class="quarter">
+                    <div class="ser-task">
+                        <h5>年度任务</h5>
+                        <p><strong>300K/</strong><span>200K</span></p>
+                    </div>
+                     <div class="completion">
+                        <p>完成率</p>
+                        <span>60%</span>
+                        <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
+                          <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
+                             
+                          </div>
+                        </div>
+                     </div>
+                     <div class="received">
+                        <h5>年度回款</h5>
+                        <p><strong>300K</strong></p>
+                     </div>
+                </div> 
+                <div class="living-quarter">
+                    <div class="quarter－see pad-box">
+                        <p>季度会见<strong>30</strong><span>次</span></p>
+                     </div>
+                    <div class="outsourcing pad-box">
+                        <p>季度外包成本<strong>300</strong><span>K</span></p>
+                     </div>
+                     <div class="all-doll pad-box">
+                        <p>极度报销总额<strong>30</strong><span>K</span></p>
+                     </div>
+                </div>
             </ul>
           </div>
         </div>
-      </div>
-		</div>	
-	</div>
-	<div class="row">
-		<div class="title" style="border-top: 1px solid #ccc;margin-top: 30px">
-			<h1>管理模块</h1>
-			<span>MANAGEMENT</span>
-		</div>
-		<div class="bussess-box" style="width: 105%;">
-			<div class="bussess">
-				<div class="manage">
-					<h5>数据管理</h5>
-					<p>销售人员周报，外包情况，媒体成本销售人员提成等</p>
-				</div>
-				<div class="menu-all">
-				 <div class="drown-click">
-					
-				 </div>
-				  <div class="menu-list">
-				  	<ul>
-                        {% if g.user.is_searchad_leader() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
-                      <!--搜索部门-->
-                        <a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank"><li>搜索部门数据管理</li></a>
-                      <!--搜索部门结束-->
-                      {% else %}
-                      <!--致趣订单-->
-                        <a href="{{url_for('data_query_weekly.douban_index')}}" target="_blank"><li>致趣数据管理</li></a>
-                        {% if g.user.is_super_leader() or g.user.is_finance() or g.user.is_aduit() %}
-                        <!--搜索部门-->
-                          <a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank"><li>搜索部门数据管理</li></a>
-                        <!--搜索部门结束-->
-                        {% endif %}
-                      <!--致趣订单结束-->
-                      {% endif %}
+    </div>
+    <div class="row business-modular">
+        <div class="title title-bussess" >
+            <h1>业务模块</h1>
+            <span>BUSINESS</span>
+        </div>
+        <div class="bussess-box">
+            
+            {% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
+            <!--搜索部门-->
+            <ul class="bussess administration">
+                <li class="order-management"><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank"><img src="/static/image/homepage_icon/icon5.png" alt="#"></a></li>
+                <li class="manage"><h5><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank">订单管理-搜索</a></h5></li>
+            </ul>
+            <!--搜索部门结束-->
+            {% else %}
+            <!--致趣订单-->
+                <ul class="bussess">
+                    <li class="order-management"><a href="{{url_for('order.my_orders')}}" target="_blank"><img src="/static/image/homepage_icon/icon5.png" alt="#"></a></li>
+                    <li class="manage"><a href="{{url_for('order.my_orders')}}" target="_blank"><h5>订单管理-致趣</h5></a></li>
+                </ul>
+              {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit()%}
+              <!--搜索部门-->
+                <ul class="bussess administration">
+                    <li class="order-management"><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank"><img src="/static/image/homepage_icon/icon5.png" alt="#"></a></li>
+                    <li class="manage"><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank"><h5>订单管理-搜索</h5></a></li>
+                </ul>
+              <!--搜索部门结束-->
+              {% endif %}
+            <!--致趣订单结束-->
+            {% endif %}
+            {% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
+                <!--搜索部门-->
+                <ul class="bussess">
+                    <li>
+                        <a href="{{url_for('searchAd_client.agents')}}" target="_blank">
+                            <img src="/static/image/homepage_icon/icon33.png" alt="">
+                        </a>
+                    </li>
+                    <li class="manage">
+                        <a href="{{url_for('searchAd_client.agents')}}" target="_blank">
+                            <h5>客户管理-搜索</h5>
+                        </a>
+                    </li>
+                </ul>
+                <!--搜索部门结束-->
+            {% else %}
+                <!--致趣订单-->
+                    <ul class="bussess">
+                        <li>
+                            <a href="{{url_for('client.agents')}}" target="_blank">
+                                <img src="/static/image/homepage_icon/icon33.png" alt="">
+                            </a>
+                        </li>
+                        <li class="manage">
+                            <a href="{{url_for('client.agents')}}" target="_blank">
+                                <h5>客户管理-致趣</h5>
+                            </a>
+                        </li>
                     </ul>
-				  </div>
-				</div>
-			</div>
-      {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_aduit()%}
-			<div class="bussess">
-				<div class="manage">
-					<h5>财务管理</h5>
-					<p>客户收款与付款、外包付款、数据查询</p>
-				</div>
-				<div class="menu-all">
-				 <div class="drown-click">
-					
-				 </div>
-				  <div class="menu-list">
-				  	<ul>
-                        {% if g.user.team.type == 24 %}
-                        <a href="{{url_for('finance_client_order_data_query.agent_invoice')}}" target="_blank"><li>致趣财务管理</li></a>
-                        <a href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}" target="_blank"><li>搜索部门财务管理</li></a>
-                        {% else %}
-                        <a href="{{url_for('finance_client_order_invoice.index')}}" target="_blank"><li>致趣财务管理</li></a>
-                        <a href="{{url_for('searchAd_finance_client_order_invoice.index')}}" target="_blank"><li>搜索部门财务管理</li></a>
-                        {% endif %}
-				  	</ul>
-				  </div>
-				</div>
-			</div>
-      {% endif %}
-      {% if g.user.is_leader() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() %}
-			<div class="bussess">
-				<div class="manage">
-					<h5>人员管理</h5>
-					<p>用户及权限设置，销售人员体层及目标设置</p>
-				</div>
-				<div class="menu-all">
-				 <div class="drown-click">
-					
-				 </div>
-				  <div class="menu-list">
-				  	<ul>
-				  	  {% if g.user.is_admin() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
-                        <a href="{{url_for('user.index')}}" target="_blank"><li>用户管理</li></a>
-                        <a href="{{url_for('user.index')}}" target="_blank"><li>角色管理</li></a>
-                      {% endif %}
-                      {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
-                        <a href="{{url_for('account_onduty.index')}}" target="_blank"><li>员工考勤</li></a>
-                      {% endif %}
-                      {% if g.user.is_leader() or g.user.is_super_leader() %}
-                        <a href="{{url_for('account_performance.index')}}" target="_blank"><li>团队销售指标</li></a>
-                      {% endif %}
-                      {% if g.user.is_super_leader() %}
-                        <a href="{{url_for('account_commission.index')}}" target="_blank"><li>销售人员提成</li></a>
-                        <a href="{{url_for('account_turnover.index')}}" target="_blank"><li>销售离职合同交接</li></a>
-                      {% endif %}
-				  	</ul>
-				  </div>
-				</div>
-			</div>
-      {% endif %}
-      {% if g.user.is_leader() or g.user.is_super_leader() %}
-            <div class="bussess">
-                <div class="manage">
-                    <h5>审批管理</h5>
-                    <p>业务流程需要审批项目</p>
-                </div>
-                <div class="menu-all">
-                 <a href="{{url_for('manage_apply.order')}}" target="_blank">
-                 <div class="drown-click">  
-                 </div>
-                 </a>
-                  
-                </div>
-            </div>
-      {% endif %}
-      {% if g.user.is_super_leader() or g.user.is_aduit() %}
-            <div class="bussess">
-                <div class="manage">
-                    <h5>数据报表</h5>
-                    <p>可视化数据展示</p>
-                </div>
-                <div class="menu-all">
-                 <a href="{{url_for('data_query_super_leader_industry.client_order')}}" target="_blank">
-                 <div class="drown-click">  
-                 </div>
-                 </a>
-                  
-                </div>
-            </div>
-      {% endif %}
-		</div>
-	</div>	
+                    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit() %}
+                    <!--搜索部门-->
+                    <ul class="bussess">
+                    <li>
+                        <a href="{{url_for('searchAd_client.agents')}}" target="_blank">
+                            <img src="/static/image/homepage_icon/icon33.png" alt="">
+                        </a>
+                    </li>
+                    <li class="manage">
+                        <a href="{{url_for('searchAd_client.agents')}}" target="_blank">
+                            <h5>客户管理-搜索</h5>
+                        </a>
+                    </li>
+                </ul>
+                    <!--搜索部门结束-->
+                    {% endif %}
+                <!--致趣订单结束-->
+            {% endif %}
+            {% if g.user.is_operater() or g.user.is_operater_leader() or g.user.is_super_leader() or (g.user.is_leader() and (not g.user.is_searchad_leader()))%}
+                <ul class="bussess">
+                    <li>
+                        <a href="{{url_for('outsource.client_orders')}}" target="_blank">
+                            <img src="/static/image/homepage_icon/icon7.png" alt="">
+                        </a>
+                    </li>
+                    <li class="manage">
+                        <a href="{{url_for('outsource.client_orders')}}" target="_blank">
+                            <h5>运营管理</h5>
+                        </a>
+                    </li>
+                </ul>
+            {% endif %}
+            {% if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %}
+            <ul class="bussess">
+                <li>
+                    <a href="{{url_for('media_client_order_data_query.medium_invoice')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon9.png" alt="">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('media_client_order_data_query.medium_invoice')}}" target="_blank">
+                        <h5>媒介管理</h5>
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+            <ul class="bussess">
+                <li>
+                    <a href="{{url_for('planning_bref.index')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon11.png" alt="">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('planning_bref.index')}}" target="_blank">
+                        <h5>策划管理</h5>
+                    </a>
+                </li>
+            </ul>
+            <ul class="bussess">
+                <li>
+                    <a href="{{url_for('kol.index', type='design')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon13.png" alt="">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('kol.index', type='design')}}" target="_blank">
+                        <h5>KOL管理</h5>
+                    </a>
+                </li>
+            </ul>
+            <ul class="bussess">
+                <li>
+                    <a href="{{url_for('mediums_files.index')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon15.png" alt="">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('mediums_files.index')}}" target="_blank">
+                        <h5>资料管理</h5>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>  
+    <div class="row business-modular">
+        <div class="title title-bussess" >
+            <h1>公司模块</h1>
+            <span>COMPANY</span>
+        </div>
+        <div class="bussess-box">
+            <ul class="bussess administration">
+                <li class="order-management">
+                    <a href="{{url_for('account_leave.index',user_id = g.user.id)}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon17.png" alt="#">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('account_leave.index',user_id = g.user.id)}}" target="_blank">
+                        <h5>请假申请</h5>
+                    </a>
+                </li>
+            </ul>
+            <ul class="bussess">
+                <li class="order-management">
+                    <a href="{{url_for('account_out.index')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon17.png" alt="#">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('account_out.index')}}" target="_blank">
+                        <h5>外出报备</h5>
+                    </a>
+                </li>
+            </ul>
+            <ul class="bussess">
+                <li><img src="/static/image/homepage_icon/icon19.png" alt=""></li>
+                <li class="manage"><h5>财务管理</h5></li>
+            </ul>
+            <ul class="bussess">
+                <li>
+                    <a href="{{url_for('account_kpi.index')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon21.png" alt="">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('account_kpi.index')}}" target="_blank">
+                        <h5>绩效管理</h5>
+                    </a></li>
+            </ul>
+            {% if not g.user.is_other_person() %}
+            <ul class="bussess">
+                <li>
+                    <a target="_blank" href="{{url_for('account_data.handbook')}}">
+                        <img src="/static/image/homepage_icon/icon23.png" alt="">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a target="_blank" href="{{url_for('account_data.handbook')}}">
+                        <h5>公司规范</h5>
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row business-modular">
+        <div class="title title-bussess" >
+            <h1>管理模块</h1>
+            <span>MANAGEMENT</span>
+        </div>
+        <div class="bussess-box">
+            {% if g.user.is_searchad_leader() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
+            <!--搜索部门-->
+            <ul class="bussess administration">
+                <li class="order-management">
+                    <a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon25.png" alt="#">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank">
+                        <h5>数据管理-搜索</h5>
+                    </a>
+                </li>
+            </ul>
+            <!--搜索部门结束-->
+            {% else %}
+            <!--致趣订单-->
+            <ul class="bussess">
+                <li class="order-management">
+                    <a href="{{url_for('data_query_weekly.douban_index')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon25.png" alt="#">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('data_query_weekly.douban_index')}}" target="_blank">
+                        <h5>数据管理-致趣</h5>
+                    </a>
+                </li>
+            </ul>
+              {% if g.user.is_super_leader() or g.user.is_finance() or g.user.is_aduit() %}
+              <!--搜索部门-->
+            <ul class="bussess">
+                <li class="order-management">
+                    <a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon25.png" alt="#">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('searchAd_data_query_profit.client_order')}}" target="_blank">
+                        <h5>数据管理-搜索</h5>
+                    </a>
+                </li>
+            </ul>
+              <!--搜索部门结束-->
+              {% endif %}
+            <!--致趣订单结束-->
+            {% endif %}
+            
+            {% if g.user.is_admin() or g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
+            <ul class="bussess">
+                <li>
+                    <a href="{{url_for('user.index')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon27.png" alt="">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('user.index')}}" target="_blank">
+                        <h5>人员管理</h5>
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+            {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
+                <ul class="bussess">
+                <li>
+                    <a href="{{url_for('account_onduty.index')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon27.png" alt="">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('account_onduty.index')}}" target="_blank">
+                        <h5>员工考勤</h5>
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+            {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_aduit()%}
+                {% if g.user.team.type == 24 %}
+                    <ul class="bussess">
+                        <li>
+                            <a href="{{url_for('finance_client_order_data_query.agent_invoice')}}" target="_blank">
+                                <img src="/static/image/homepage_icon/icon29.png" alt="">
+                            </a>
+                        </li>
+                        <li class="manage">
+                            <a href="{{url_for('finance_client_order_data_query.agent_invoice')}}" target="_blank">
+                                <h5>财务管理-致趣</h5>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="bussess">
+                        <li>
+                            <a href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}" target="_blank">
+                                <img src="/static/image/homepage_icon/icon29.png" alt="">
+                            </a>
+                        </li>
+                        <li class="manage">
+                            <a href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}" target="_blank">
+                                <h5>财务管理-搜索</h5>
+                            </a>
+                        </li>
+                    </ul>
+                {% else %}
+                    <ul class="bussess">
+                        <li>
+                            <a href="{{url_for('finance_client_order_invoice.index')}}" target="_blank">
+                                <img src="/static/image/homepage_icon/icon29.png" alt="">
+                            </a>
+                        </li>
+                        <li class="manage">
+                            <a href="{{url_for('finance_client_order_invoice.index')}}" target="_blank">
+                                <h5>财务管理-致趣</h5>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="bussess">
+                        <li>
+                            <a href="{{url_for('searchAd_finance_client_order_invoice.index')}}" target="_blank">
+                                <img src="/static/image/homepage_icon/icon29.png" alt="">
+                            </a>
+                        </li>
+                        <li class="manage">
+                            <a href="{{url_for('searchAd_finance_client_order_invoice.index')}}" target="_blank">
+                                <h5>财务管理-搜索</h5>
+                            </a>
+                        </li>
+                    </ul>
+                {% endif %}
+            {% endif %}
+            {% if g.user.is_leader() or g.user.is_super_leader() %}
+            <ul class="bussess">
+                <li>
+                    <a href="{{url_for('manage_apply.order')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon31.png" alt="">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('manage_apply.order')}}" target="_blank">
+                        <h5>审批管理</h5>
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+            {% if g.user.is_super_leader() %}
+            <ul class="bussess">
+                <li>
+                    <a href="{{url_for('data_query_super_leader_industry.client_order')}}" target="_blank">
+                        <img src="/static/image/homepage_icon/icon25.png" alt="">
+                    </a>
+                </li>
+                <li class="manage">
+                    <a href="{{url_for('data_query_super_leader_industry.client_order')}}" target="_blank">
+                        <h5>数据报表</h5>
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
 </div> 
-<script src="/static/js/index.js"></script>
-<script>
-    $(function(){
-        $('#index').addClass('active')
-    })
-</script>
-{% endblock %}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</body>
+</html>
 
