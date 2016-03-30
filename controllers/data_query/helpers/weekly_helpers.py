@@ -597,9 +597,8 @@ def new_insert_order_table(worksheet, align_center, order, th, title):
         th += 1
 
     if len(order['Confirmed']) > 1:
-        worksheet.merge_range(th + len(order['Delivered']) - 1,
-                              1, th + len(order['Delivered']) +
-                              len(order['Confirmed']) - 2,
+        worksheet.merge_range(th, 1,
+                              th + len(order['Confirmed']) - 1,
                               1, u'流程中', align_center)
         for k in order['Confirmed']:
             new_insert_order_info(worksheet, align_center, k, th)
@@ -719,7 +718,15 @@ def write_medium_index_excel(Q, now_year, Q_monthes, location_id, douban_data, y
         worksheet, align_center, other_data, th, u'其他媒体')
     th = new_insert_total_table(
         worksheet, align_center, meijie_data, th, u'媒介下单')
-
+    # 合计展示
+    worksheet.write(th, 25, u'总计', align_center)
+    worksheet.write(th, 26, total_money, align_center)
+    worksheet.write(th, 27, total_medium_money2, align_center)
+    worksheet.write(th, 28, '', align_center)
+    worksheet.write(th, 29, total_now_Q_money_zhixing, align_center)
+    worksheet.write(th, 30, total_first_month_money, align_center)
+    worksheet.write(th, 31, total_second_month_money, align_center)
+    worksheet.write(th, 32, total_third_month_money, align_center)
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s-%s-%s.xls" % (u"MediumWeekly",

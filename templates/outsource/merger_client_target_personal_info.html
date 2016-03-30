@@ -360,7 +360,7 @@
       $('#num').val(num)
       $('#pay_num').val(pay_num) 
       if($('#invoice').val()=='False'){
-          var pay_num = $('#pay_num').val()
+          var pay_num = $('#num').val()
           $('#pay_num').val(parseFloat(pay_num)*(1-parseFloat('{{INVOICE_RATE}}')))
       }
       $('#myModal').modal('show');
