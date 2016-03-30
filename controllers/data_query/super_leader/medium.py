@@ -65,7 +65,7 @@ def _parse_dict_order(order):
     d_order.update(client_order)
     medium_order = json.loads(order.medium_order_json)
     d_order.update(medium_order)
-
+    d_order['contract_status'] = order.client_order.contract_status
     d_order['month_day'] = order.month_day
     d_order['status'] = order.status
     d_order['sale_money'] = order.sale_money
@@ -91,13 +91,14 @@ def money():
         MediumOrderExecutiveReport.month_day >= start_date_month,
         MediumOrderExecutiveReport.month_day <= end_date_month)
     medium_orders = [_parse_dict_order(k) for k in medium_orders if k.status == 1]
-
+    medium_orders = [k for k in medium_orders if k['contract_status'] not in [0, 7, 8, 9]]
     # 搜索部门合同
     # 普通订单
     searchAd_medium_orders = searchAdMediumOrderExecutiveReport.query.filter(
         searchAdMediumOrderExecutiveReport.month_day >= start_date_month,
         searchAdMediumOrderExecutiveReport.month_day <= end_date_month)
     searchAd_medium_orders = [_parse_dict_order(k) for k in searchAd_medium_orders if k.status == 1]
+    searchAd_medium_orders = [k for k in searchAd_medium_orders if k['contract_status'] not in [0, 7, 8, 9]]
     searchAD_money = _get_medium_moneys(searchAd_medium_orders, pre_monthes, 0)
     # 返点订单
     searchAd_rebate_orders = searchAdRebateOrderExecutiveReport.query.filter(

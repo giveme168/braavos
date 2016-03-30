@@ -1,5 +1,5 @@
 {% extends "/base.html" %}
-{% block title %}月度订单金额{% endblock %}
+{% block title %}媒体周报（新）{% endblock %}
 {% block content %}
 {% include "/data_query/data_query_base.html" %}
 
@@ -8,8 +8,9 @@
   <tr>
     <th>{{title}}</th>
     <td>{{order.Delivered|sum('money')|format_price}}</td>
-    <td>{{order.Delivered|sum('money')|format_price}}</td>
-    <td>{{order.Delivered|sum('now_Q_money_check')|format_price}}</td>
+    <td>{{order.Delivered|sum('medium_money2')|format_price}}</td>
+    <td></td>
+    <td>{{order.Delivered|sum('now_Q_money_zhixing')|format_price}}</td>
     <th>{{order.Delivered|sum('first_month_money')|format_price}}</th>
     <td>{{order.Delivered|sum('second_month_money')|format_price}}</td>
     <td>{{order.Delivered|sum('third_month_money')|format_price}}</td>
@@ -34,7 +35,7 @@
         <td>{{k.agent_sales_names}}</td>
         <td>{{k.money|format_price}}</td>
         <td>{{k.medium_money2|format_price}}</td>
-        <td>{{k.now_Q_money_check|format_price}}</td>
+        <td></td>
         <td>{{k.now_Q_money_zhixing|format_price}}</td>
         <td>{{k.last_Q_money|format_price}}</td>
         <td>{{k.after_Q_money|format_price}}</td>
@@ -164,7 +165,7 @@
             </select>
         </div>
         <input type="submit" value="查询" class="btn btn-sm btn-info" >
-        <!--<input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">-->
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
         </form>
     </div>
     <br/>
@@ -175,6 +176,7 @@
           <th>合同金额</th>
           <th>媒体金额</th>
           <th>本季度确认额</th>
+          <th>本季度执行金额</th>
           {% for k in Q_monthes %}
           <th>{{k}}月执行额</th>
           {% endfor %}
@@ -201,7 +203,8 @@
           <th>总计</th>
           <td>{{total_money|format_price}}</td>
           <td>{{total_medium_money2|format_price}}</td>
-          <td>{{total_now_Q_money_check|format_price}}</td>
+          <td></td>
+          <td>{{total_now_Q_money_zhixing|format_price}}</td>
           <th>{{total_first_month_money|format_price}}</th>
           <td>{{total_second_month_money|format_price}}</td>
           <td>{{total_third_month_money|format_price}}</td>

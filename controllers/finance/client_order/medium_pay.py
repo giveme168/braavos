@@ -95,9 +95,12 @@ def index():
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
-    for k in orders.object_list:
-        k.apply_num = len(k.get_medium_invoice_pay_by_status(3))
-        k.pay_num = len(k.get_medium_invoice_pay_by_status(0))
+    for i in orders.object_list:
+        client_order = i
+        medium_invoices = [k.id for k in MediumInvoice.query.filter_by(client_order=client_order)]
+        pays = [k for k in MediumInvoicePay.all() if k.medium_invoice_id in medium_invoices]
+        i.apply_num = len([k for k in pays if k.pay_status == 3])
+        i.pay_num = len([k for k in pays if k.pay_status == 0])
     return tpl('/finance/client_order/medium_pay/index_pass.html', orders=orders, title=u'申请中的媒体付款',
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
