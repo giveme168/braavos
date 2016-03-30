@@ -78,7 +78,11 @@
                 <div class="dynamic">
                     {% for k in person_notices %}
                     <div class="dynamic-img">
+                        {% if loop.index == 1 %}
                         <img src="/static/image/homepage_icon/icon1.png" alt="#" class="btn btn-primary btn-lg" data-toggle="modal" data-target="myModal">
+                        {% else %}
+                        <img src="/static/image/homepage_icon/icon2.png" alt="#" class="btn btn-primary btn-lg" data-toggle="modal" data-target="myModal">
+                        {% endif %}
                         <span>{{k.create_time_cn}}</span>
                         <p><a href="#">{{k.title}}</a></p>
                     </div>
@@ -93,7 +97,11 @@
                 <div class="dynamic">
                     {% for k in notices %}
                     <div class="dynamic-img">
+                        {% if loop.index == 1 %}
                         <img src="/static/image/homepage_icon/icon1.png" alt="#" class="btn btn-primary btn-lg" data-toggle="modal" data-target="myModal">
+                        {% else %}
+                        <img src="/static/image/homepage_icon/icon2.png" alt="#" class="btn btn-primary btn-lg" data-toggle="modal" data-target="myModal">
+                        {% endif %}
                         <span>{{k.create_time_cn}}</span>
                         <p><a href="#">{{k.title}}</a></p>
                     </div>
@@ -328,7 +336,7 @@
         </div>
     </div>
     <div class="row business-modular">
-        <div class="title title-bussess" >
+        <div class="title title-bussess" style="border-top: 1px solid #fff;">
             <h1>业务模块</h1>
             <span>BUSINESS</span>
         </div>
@@ -500,9 +508,9 @@
                     </a>
                 </li>
             </ul>
-            <ul class="bussess">
+            <ul class="bussess" style="display:none;">
                 <li><img src="/static/image/homepage_icon/icon19.png" alt=""></li>
-                <li class="manage"><h5>财务管理</h5></li>
+                <li class="manage"><h5>财务申请</h5></li>
             </ul>
             <ul class="bussess">
                 <li>

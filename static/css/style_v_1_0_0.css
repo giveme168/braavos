@@ -56,13 +56,13 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 
 .introduction{width: 958px;
             height:216px;
-            margin-top:34px ;}
+            margin-top:34px;}
 
 .introduction .intro-all{padding-right: 0px;
             padding-left: 0px;
-            overflow: hidden;
             float: left;
-            width: 20%;}
+            width: 20%;
+            position: relative}
 
 .introduction .means{margin-top: 10px;}
 
@@ -81,7 +81,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
             margin-top: 15px;}
 
 .introduction .head-icon{width:136px;
-            height: 156px;
+            height: 136px;
             background: #fff;
             margin-right:15px;
             position: relative;
@@ -93,16 +93,15 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 .introduction .module-box{width: 400px;
         height: 175px;
         overflow: hidden;
-        position:absolute;
-        left: 168px;}
+        position:absolute;}
 
 .introduction .intro-all .sculpture .own-name{
             margin-top: 32px;
             cursor: pointer;
-            background: url(/static/image/homepage_icon/icon4.png) no-repeat;
+            background: url(../image/homepage_icon/icon4.png) no-repeat;
             }
 .introduction .intro-all .sculpture .own-name:hover{
-            background: url(/static/image/homepage_icon/icon3.png) no-repeat;
+            background: url(../image/homepage_icon/icon3.png) no-repeat;
             }
 .introduction .intro-all .sculpture .own-name p{color: #fff;
             height: 20px;
@@ -113,7 +112,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 
 
 .introduction .intro-all .module-box .message{position: absolute;
-        background: url(/static/image/homepage_icon/introduction_bg.png) no-repeat;
+        background: url(../image/homepage_icon/introduction_bg.png) no-repeat;
         overflow: hidden;
         width: 180px;
         display: none;
@@ -147,7 +146,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 .introduction .winbox{float: left;
         width: 40%;
         margin-top: 10px;
-        background: url(/static/image/homepage_icon/103_03.png) repeat-y;}
+        background: url(../image/homepage_icon/103_03.png) repeat-y;}
 
 
 .introduction .winbox .dynamic{width:100%;}
@@ -192,12 +191,12 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
                                     margin-bottom: 10px;
                                     height:20px;
                                     float: right;
-                                    background: url(/static/image/homepage_icon/icon4.png) no-repeat;}
+                                    background: url(../image/homepage_icon/icon4.png) no-repeat;}
 
 .introduction .winbox .dynamic .more:hover{
                                     width:96px;
                                     height:20px;
-                                    background: url(/static/image/homepage_icon/icon3.png) no-repeat;}
+                                    background: url(../image/homepage_icon/icon3.png) no-repeat;}
                                     
 
 .introduction .winbox .dynamic .more a{
@@ -332,7 +331,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 
 .main .all-doll p{margin-left: 100px;}
 
-.business-modular .title-bussess{/*border-top: 1px solid #ccc;*/
+.business-modular .title-bussess{border-top: 1px solid #ccc;
                                 margin-top: 20px;}
 
 .business-modular .title-bussess h1{font-size: 17px;
@@ -359,6 +358,5 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 .business-modular .bussess-box ul li h5{font-size: 17px;
                                         margin-top: 11px;
                                         color: #000000;}
-
 a:hover{text-decoration:none;}
-
+.nav .open>a, .nav .open>a:focus, .nav .open>a:hover{background: none;}

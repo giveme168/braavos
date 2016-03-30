@@ -60,7 +60,7 @@ $('body').click(function(){
     var Left=$('.head-icon').find('img').offset().left;
     var ms = $(".message");
     if (ms.is(":visible")){
-        ms.animate({left:-(Left+120)+'px'}).fadeOut();
+        ms.animate({left:-(135)+'px'}).fadeOut();
     }
 })
 
@@ -80,10 +80,9 @@ $('.bussess').find('img').mouseout(function(){
 
 my_message=function(){
      var ms = $(".message");
-     var Left=$('.head-icon').find('img').offset().left;
      if (ms.is(":hidden")){
-        ms.show().animate({left:Left-35+'px'});
-     }else{ms.animate({left:-(Left+120)+'px'},function(){
+        ms.show().animate({left:135+'px'});
+     }else{ms.animate({left:-(135)+'px'},function(){
             ms.fadeOut();
             })
         }
