@@ -37,6 +37,7 @@
                     </a>
                     <ul class="dropdown-menu" role="menu">
                       <li><a target="_blank" href="{{url_for('account_onduty.info', uid=g.user.id)}}"  target="_blank">考勤</a></li>
+                      <li><a href="{{url_for('other.nianhui')}}">年会投票</a></li>
                       <li><a href="{{url_for('user.logout')}}">退出</a></li>
                     </ul>
                 </li>
@@ -452,6 +453,7 @@
                     </a>
                 </li>
             </ul>
+            {% if g.user.is_super_leader or g.user.is_operater_leader %}
             <ul class="bussess">
                 <li>
                     <a href="{{url_for('kol.index', type='design')}}" target="_blank">
@@ -464,6 +466,7 @@
                     </a>
                 </li>
             </ul>
+            {% endif %}
             <ul class="bussess">
                 <li>
                     <a href="{{url_for('mediums_files.index')}}" target="_blank">
