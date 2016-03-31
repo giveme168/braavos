@@ -3,7 +3,7 @@
 {% include "/order/order_base.html" %}
 <div class="container bra-box">
     <h4>收入成本</h4>
-    {% include "saler/client_order/nav_base.html" %}
+    {% include "saler/douban_order/nav_base.html" %}
     <table class="table table-bordered">
       <tr>
         <th>条目</th>
@@ -16,24 +16,9 @@
         <td>{{order.back_moneys|format_price}}</td>
       </tr>
       <tr>
-        <td>客户发票</td>
-        <td>无此项</td>
-        <td>{{order.invoice_pass_sum|format_price}}</td>
-      </tr>
-      <tr>
         <td>代理返点</td>
         <td>{{(order.money*order.agent_rebate)|format_price}}</td>
-        <td>{{order.agent_invoice_pass_sum|format_price}}</td>
-      </tr>
-      <tr>
-        <td>媒体打款</td>
         <td>无此项</td>
-        <td>{{order.mediums_invoice_pass_sum|format_price}}</td>
-      </tr>
-      <tr>
-        <td>媒体返点回款</td>
-        <td>{{order.mediums_rebate_money|format_price}}</td>
-        <td>{{order.medium_back_moneys|format_price}}</td>
       </tr>
       <tr>
         <td>外包成本</td>
