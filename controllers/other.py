@@ -42,5 +42,6 @@ def nianhui():
     jm_count.reverse()
     res = []
     for k in jm_count:
-        res.append({'name': JM[k[0]], 'count': k[1], 'percent': float(k[1])/total_count*100})
+        res.append({'name': JM[k[0]], 'count': k[1],
+                    'percent': float(k[1]) / total_count * 100})
     return tpl('/other/nhs.html', res=res, total_count=total_count)
