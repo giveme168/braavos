@@ -29,6 +29,7 @@
             margin-top: 10px;
             border:none;
             margin: 0 auto;}
+    .progress{background: #f5f5f5;}
 </style>
 <div class="container" style="min-width: 950px;">
     <h3 style="margin-top: 85px;">2015年年会节目评选表</h3>
@@ -57,7 +58,7 @@
                     <td>2</td>
                     <td>《歌曲串烧》</td>
                     <td>歌曲</td>
-                    <td>谢仲、陈超、李授坤</td> 
+                    <td>谢仲、陈超、杨茜</td> 
                 </tr>
                 <tr>
                     <td><input type="checkbox" value="3" name="chk" class="select-table" data="3"></td>
@@ -92,7 +93,7 @@
                     <td>7</td>
                     <td>《INAD加油》</td>
                     <td>舞蹈</td>
-                    <td>赵利云、张韡、刘莹、谢哲菲、赵小刚</td> 
+                    <td>赵利云、张韡、刘莹、谢哲菲、赵小刚、王珊珊</td> 
                 </tr>
                 <tr>
                     <td><input type="checkbox" value="8" name="chk" class="select-table" data="8"></td>
@@ -126,6 +127,28 @@
         </table>
         <input type="button" value="确认" class='btn'>
     </form>
+    <h3 style="margin-top: 85px;">结果</h3>
+    <table border="1" cellspacing="0" cellpadding="0" bordercolor="#bdbdbd" >
+        <thead>
+                <tr>
+                    <th style="width:30%">节目名称</th>
+                    <th>结果</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in res %}
+                <tr>
+                    <td>{{k.name}}</td>
+                    <td>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="{{k.count}}" aria-valuemin="0" aria-valuemax="{{total_count}}" style="width: {{k.percent}}%">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+    </table>
 </div>
 
 <script>
