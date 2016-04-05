@@ -336,6 +336,8 @@ def invoice_apply(sender, context):
                 'DOMAIN'] + '/saler/searchAd_rebate_order/invoice/%s/order' % (order.id)
         if action == 2:
             leader_users = [k for k in to_users if k.team.type in [9]]
+            if 148 in [k.id for k in to_users]:
+                leader_users += [k for k in User.all() if k.team.type == 20]
             action_info = u'请' + ','.join(_get_active_user_name(leader_users)) +\
                 u'进行客户发票审批'
         else:

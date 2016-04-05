@@ -114,7 +114,7 @@ OUTSOURCE_TYPE_CN = {
     OUTSOURCE_TYPE_FLASH: u"Flash",
     OUTSOURCE_TYPE_KOL: u"劳务(KOL、线下活动等)",
     OUTSOURCE_TYPE_BETTER: u"效果优化",
-    OUTSOURCE_TYPE_OTHER: u"其他(视频等)",
+    OUTSOURCE_TYPE_OTHER: u"其他(预留)",
     OUTSOURCE_TYPE_FLASH_AND_H5: u'flash&H5开发',
     OUTSOURCE_TYPE_H5: u'H5开发',
 }
