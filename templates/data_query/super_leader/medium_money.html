@@ -94,7 +94,7 @@
         {% for k in douban_money.a_rebate %}
         <td>{{k|format_price}}</td>
         {% endfor %}
-        <td>{{ douban_money.rebate|sum()|format_price }}</td>
+        <td>{{ douban_money.a_rebate|sum()|format_price }}</td>
     </tr>
     <tr>
         <td  style="background-color:#CCFF99;">豆瓣毛利</td> 
@@ -190,7 +190,7 @@
         {% for k in rebate_order_money.sale_money %}
         <td>{{k|format_price}}</td>
         {% endfor %}
-        <td>{{ rebate_order_money.ex_money|sum()|format_price }}</td>
+        <td>{{ rebate_order_money.sale_money|sum()|format_price }}</td>
     </tr>
     <tr>
         <td style="background-color:#FF0088;">搜索部门执行金额</td>

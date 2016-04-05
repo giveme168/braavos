@@ -124,6 +124,22 @@ def _parse_dict_order(order):
             d_order['self_agent_rebate'] = '0'
         # 是否关联豆瓣订单
         d_order['is_c_douban'] = False
+    elif order.__tablename__ == 'bra_searchad_rebate_order_executive_report':
+        d_order['locations'] = order.rebate_order.locations
+        d_order['contract_status'] = order.rebate_order.contract_status
+        d_order['sale_money'] = order.money
+        d_order['medium_money2'] = order.money
+        d_order['medium_rebate'] = 0
+        d_order['agent_rebate'] = order.rebate_order.agent_rebate
+        # 单笔返点
+        try:
+            d_order['self_agent_rebate'] = order.rebate_order.self_agent_rebate
+            d_order['self_agent_rebate'] = d_order[
+                'self_agent_rebate'].split('-')[1]
+        except:
+            d_order['self_agent_rebate'] = '0'
+        # 是否关联豆瓣订单
+        d_order['is_c_douban'] = False
     else:
         d_order['money'] = order.client_order.money
         d_order['locations'] = order.client_order.locations

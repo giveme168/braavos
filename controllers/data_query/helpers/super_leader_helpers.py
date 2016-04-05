@@ -101,11 +101,11 @@ def write_medium_money_excel(pre_monthes, douban_money,
     th = 2
     # 直签豆瓣
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['ex_money'])
+        worksheet, align_center, pre_monthes, th, douban_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['in_money'])
+        worksheet, align_center, pre_monthes, th, douban_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['rebate'])
+        worksheet, align_center, pre_monthes, th, douban_money['a_rebate'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, douban_money['profit'])
     th += 1
@@ -257,7 +257,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, searchAD_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, rebate_order_money['ex_money'])
+        worksheet, align_center, pre_monthes, th, rebate_order_money['sale_money'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, searchAD_money['money2'])
     th = _write_money_in_excel(
