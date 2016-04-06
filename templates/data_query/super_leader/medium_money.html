@@ -34,7 +34,7 @@
         <td>{{ order.a_rebate|sum()|format_price }}</td>
     </tr>
     <tr>
-        <td  style="background-color:#{{color}};">{{title}}豆瓣毛利</td> 
+        <td  style="background-color:#{{color}};">{{title}}毛利</td> 
         {% for k in order.profit %}
         <td>{{k|format_price}}</td>
         {% endfor %}

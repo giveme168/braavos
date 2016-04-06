@@ -6,6 +6,7 @@ from flask import Blueprint, request
 from flask import render_template as tpl
 
 from libs.date_helpers import get_monthes_pre_days
+from models.client import AgentRebate
 from models.douban_order import DoubanOrderExecutiveReport
 from models.order import MediumOrderExecutiveReport
 from searchAd.models.order import searchAdMediumOrderExecutiveReport
@@ -16,7 +17,12 @@ data_query_super_leader_medium_bp = Blueprint(
     'data_query_super_leader_medium', __name__, template_folder='../../templates/data_query')
 
 
-def _get_medium_moneys(orders, pre_monthes, medium_ids, o_type='zhiqian_order'):
+########
+# 计算合同的收入成本值：
+# 第一个参数：合同， 第二个参数：计算横跨时间段，第三个参数：媒体ids（用于识别计算媒体），
+# 第四个参数：合同类型，第五个参数：代理信息（只有关联豆瓣订单时使用）
+########
+def _get_medium_moneys(orders, pre_monthes, medium_ids, o_type='zhiqian_order', agent_rebate_obj=None):
     money_obj = {'sale_money': [], 'money2': [],
                  'm_ex_money': [], 'a_rebate': [], 'profit': []}
     for d in pre_monthes:
@@ -71,13 +77,22 @@ def _get_medium_moneys(orders, pre_monthes, medium_ids, o_type='zhiqian_order'):
                     # 代理返点
                     a_rebate = 0
                     for l_order in location_orders:
+
                         if float(l_order['self_agent_rebate']):
                             a_rebate += float(l_order['self_agent_rebate']) * \
                                 float(
                                     l_order['sale_money']) / float(l_order['money']) / len(o['locations'])
                         else:
-                            a_rebate += float(l_order['sale_money']) / len(l_order['locations']) * float(l_order[
-                                'agent_rebate']) / 100 / len(o['locations'])
+                            if agent_rebate_obj:
+                                if int(l_order['medium_id']) in agent_rebate_obj:
+                                    agent_rebate = agent_rebate_obj[
+                                        int(l_order['medium_id'])]
+                                else:
+                                    agent_rebate = 0
+                            else:
+                                agent_rebate = l_order['agent_rebate']
+                            a_rebate += float(l_order['sale_money']) / len(
+                                l_order['locations']) * float(agent_rebate) / 100 / len(o['locations'])
                     # 净利润
                     profit = sale_money - m_ex_money - a_rebate
 
@@ -170,6 +185,18 @@ def _parse_dict_order(order):
     return d_order
 
 
+##########
+# 媒体清单计算方法
+# 豆瓣执行收入：直签豆瓣订单合同金额 + 关联豆瓣订单合同金额
+# 豆瓣服务费计提：直签豆瓣订单合同金额 * 0.4 + 关联豆瓣订单合同金额
+# 豆瓣订单返点成本：直签豆瓣订单对代理的返点 + 关联豆瓣订单豆瓣对关联媒体的返点
+#
+# 媒体收入：媒体订单售卖金额
+# 媒体合同金额：媒体订单媒体金额
+# 媒体净成本：媒体合同金额 - 对媒体的返点
+# 媒体代理成本：对客户/代理的返点
+# 媒体毛利：媒体收入- 媒体净成本 - 媒体代理成本
+#########
 @data_query_super_leader_medium_bp.route('/money', methods=['GET'])
 def money():
     now_date = datetime.datetime.now()
@@ -179,6 +206,40 @@ def money():
     end_date_month = datetime.datetime.strptime(
         str(year) + '-12' + '-31', '%Y-%m-%d')
     pre_monthes = get_monthes_pre_days(start_date_month, end_date_month)
+
+    # 获取关联豆瓣订单代理返点，用于快速计算关联豆瓣订单代理
+    try:
+        agent_youli_rebate = AgentRebate.query.filter_by(
+            year=start_date_month, agent_id=105).first().douban_rebate
+    except:
+        agent_youli_rebate = 0
+    try:
+        agent_wuxian_rebate = AgentRebate.query.filter_by(
+            year=start_date_month, agent_id=94).first().douban_rebate
+    except:
+        agent_wuxian_rebate = 0
+    try:
+        agent_haohai_rebate = AgentRebate.query.filter_by(
+            year=start_date_month, agent_id=228).first().douban_rebate
+    except:
+        agent_haohai_rebate = 0
+    try:
+        agent_pinzhong_rebate = AgentRebate.query.filter_by(
+            year=start_date_month, agent_id=213).first().douban_rebate
+    except:
+        agent_pinzhong_rebate = 0
+    try:
+        agent_yingrui_rabate = AgentRebate.query.filter_by(
+            year=start_date_month, agent_id=93).first().douban_rebate
+    except:
+        agent_yingrui_rabate = 0
+
+    agent_rebate_obj = {8: agent_wuxian_rebate,
+                        3: agent_youli_rebate,
+                        44: agent_haohai_rebate,
+                        27: agent_yingrui_rabate,
+                        37: agent_pinzhong_rebate}
+
     # 直签豆瓣订单开始
     douban_orders = DoubanOrderExecutiveReport.query.filter(
         DoubanOrderExecutiveReport.month_day >= start_date_month,
@@ -228,7 +289,7 @@ def money():
     # 关联豆瓣订单开始
     ass_douban_order = [k for k in medium_orders if k['is_c_douban']]
     ass_douban_money = _get_medium_moneys(
-        ass_douban_order, pre_monthes, 0, 'medium_order')
+        ass_douban_order, pre_monthes, 0, 'medium_order', agent_rebate_obj)
     # 关联豆瓣订单结束
 
     # 搜索直签订单开始
