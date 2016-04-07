@@ -54,12 +54,11 @@ def _get_medium_moneys(orders, pre_monthes, medium_ids, o_type='zhiqian_order', 
                     # 代理返点
                     a_rebate = 0
                     for l_order in location_orders:
-                        if float(l_order['self_agent_rebate']):
-                            a_rebate += float(l_order['self_agent_rebate']
-                                              ) / len(o['locations'])
+                        if int(l_order['self_agent_rebate']):
+                            a_rebate += float(l_order['self_agent_rebate_value']) / len(l_order['locations'])
                         else:
                             a_rebate += float(l_order['sale_money']) / len(l_order['locations']) * float(l_order[
-                                'agent_rebate']) / 100 / len(o['locations'])
+                                'agent_rebate']) / 100
                     # 净利润
                     profit = money2 - a_rebate
                 else:
@@ -78,12 +77,12 @@ def _get_medium_moneys(orders, pre_monthes, medium_ids, o_type='zhiqian_order', 
                     a_rebate = 0
                     for l_order in location_orders:
 
-                        if float(l_order['self_agent_rebate']):
-                            a_rebate += float(l_order['self_agent_rebate']) * \
+                        if int(l_order['self_agent_rebate']):
+                            a_rebate += float(l_order['self_agent_rebate_value']) * \
                                 float(
-                                    l_order['sale_money']) / float(l_order['money']) / len(o['locations'])
+                                    l_order['sale_money']) / float(l_order['money']) / len(l_order['locations'])
                         else:
-                            if agent_rebate_obj:
+                            if l_order['is_c_douban'] and agent_rebate_obj:
                                 if int(l_order['medium_id']) in agent_rebate_obj:
                                     agent_rebate = agent_rebate_obj[
                                         int(l_order['medium_id'])]
@@ -92,7 +91,7 @@ def _get_medium_moneys(orders, pre_monthes, medium_ids, o_type='zhiqian_order', 
                             else:
                                 agent_rebate = l_order['agent_rebate']
                             a_rebate += float(l_order['sale_money']) / len(
-                                l_order['locations']) * float(agent_rebate) / 100 / len(o['locations'])
+                                l_order['locations']) * float(agent_rebate) / 100
                     # 净利润
                     profit = sale_money - m_ex_money - a_rebate
 
@@ -121,8 +120,10 @@ def _parse_dict_order(order):
     d_order['month_day'] = order.month_day
     if order.__tablename__ == 'bra_medium_order_executive_report':
         d_order['medium_id'] = order.order.medium.id
+        d_order['medium_order_id'] = order.order.id
     else:
         d_order['medium_id'] = 0
+        d_order['medium_order_id'] = 0
     if order.__tablename__ == 'bra_douban_order_executive_report':
         d_order['locations'] = order.douban_order.locations
         d_order['contract_status'] = order.douban_order.contract_status
@@ -132,11 +133,12 @@ def _parse_dict_order(order):
         d_order['agent_rebate'] = order.douban_order.agent_rebate
         # 单笔返点
         try:
-            d_order['self_agent_rebate'] = order.douban_order.self_agent_rebate
-            d_order['self_agent_rebate'] = d_order[
-                'self_agent_rebate'].split('-')[1]
+            self_agent_rebate = order.douban_order.self_agent_rebate
+            d_order['self_agent_rebate'] = self_agent_rebate.split('-')[0]
+            d_order['self_agent_rebate_value'] = self_agent_rebate.split('-')[1]
         except:
-            d_order['self_agent_rebate'] = '0'
+            d_order['self_agent_rebate'] = 0
+            d_order['self_agent_rebate_value'] = 0
         # 是否关联豆瓣订单
         d_order['is_c_douban'] = False
     elif order.__tablename__ == 'bra_searchad_rebate_order_executive_report':
@@ -147,12 +149,8 @@ def _parse_dict_order(order):
         d_order['medium_rebate'] = 0
         d_order['agent_rebate'] = order.rebate_order.agent_rebate
         # 单笔返点
-        try:
-            d_order['self_agent_rebate'] = order.rebate_order.self_agent_rebate
-            d_order['self_agent_rebate'] = d_order[
-                'self_agent_rebate'].split('-')[1]
-        except:
-            d_order['self_agent_rebate'] = '0'
+        d_order['self_agent_rebate'] = 0
+        d_order['self_agent_rebate_value'] = 0
         # 是否关联豆瓣订单
         d_order['is_c_douban'] = False
     else:
@@ -166,11 +164,12 @@ def _parse_dict_order(order):
         d_order['agent_rebate'] = order.client_order.agent_rebate
         # 单笔返点
         try:
-            d_order['self_agent_rebate'] = order.client_order.self_agent_rebate
-            d_order['self_agent_rebate'] = d_order[
-                'self_agent_rebate'].split('-')[1]
+            self_agent_rebate = order.client_order.self_agent_rebate
+            d_order['self_agent_rebate'] = self_agent_rebate.split('-')[0]
+            d_order['self_agent_rebate_value'] = self_agent_rebate.split('-')[1]
         except:
-            d_order['self_agent_rebate'] = '0'
+            d_order['self_agent_rebate'] = 0
+            d_order['self_agent_rebate_value'] = 0
         # 是否关联豆瓣订单
         try:
             ass_order = order.order.associated_douban_order
@@ -260,6 +259,17 @@ def money():
                      for k in medium_orders if k.status == 1]
     medium_orders = [k for k in medium_orders if k[
         'contract_status'] not in [0, 7, 8, 9]]
+
+    # 关联豆瓣订单开始
+    ass_douban_order = [k for k in medium_orders if k['is_c_douban']]
+    ass_douban_money = _get_medium_moneys(
+        ass_douban_order, pre_monthes, 0, 'medium_order', agent_rebate_obj)
+    # 关联豆瓣订单结束
+
+    # 排除媒体订单中的关联豆瓣订单
+    # ass_douban_order_ids = [k['medium_order_id'] for k in ass_douban_order]
+    # medium_orders = [k for k in medium_orders if k['medium_order_id'] not in ass_douban_order_ids]
+
     youli_money = _get_medium_moneys(
         medium_orders, pre_monthes, [3], 'medium_order')
     wuxian_money = _get_medium_moneys(
@@ -286,12 +296,6 @@ def money():
         medium_orders, pre_monthes, None, 'medium_order')
     # 媒体订单结束
 
-    # 关联豆瓣订单开始
-    ass_douban_order = [k for k in medium_orders if k['is_c_douban']]
-    ass_douban_money = _get_medium_moneys(
-        ass_douban_order, pre_monthes, 0, 'medium_order', agent_rebate_obj)
-    # 关联豆瓣订单结束
-
     # 搜索直签订单开始
     searchAd_medium_orders = searchAdMediumOrderExecutiveReport.query.filter(
         searchAdMediumOrderExecutiveReport.month_day >= start_date_month,
@@ -315,83 +319,6 @@ def money():
     rebate_order_money = _get_medium_moneys(
         searchAd_rebate_orders, pre_monthes, 0, 'zhiqian_order')
     # 搜索返点订单结束
-    '''
-    douban_orders = DoubanOrderExecutiveReport.query.filter(
-        DoubanOrderExecutiveReport.month_day >= start_date_month,
-        DoubanOrderExecutiveReport.month_day <= end_date_month)
-
-    medium_orders = MediumOrderExecutiveReport.query.filter(
-        MediumOrderExecutiveReport.month_day >= start_date_month,
-        MediumOrderExecutiveReport.month_day <= end_date_month)
-    medium_orders = [_parse_dict_order(k) for k in medium_orders if k.status == 1]
-    medium_orders = [k for k in medium_orders if k['contract_status'] not in [0, 7, 8, 9]]
-    # 搜索部门合同
-    # 普通订单
-    searchAd_medium_orders = searchAdMediumOrderExecutiveReport.query.filter(
-        searchAdMediumOrderExecutiveReport.month_day >= start_date_month,
-        searchAdMediumOrderExecutiveReport.month_day <= end_date_month)
-    searchAd_medium_orders = [_parse_dict_order(k) for k in searchAd_medium_orders if k.status == 1]
-    searchAd_medium_orders = [k for k in searchAd_medium_orders if k['contract_status'] not in [0, 7, 8, 9]]
-    searchAD_money = _get_medium_moneys(searchAd_medium_orders, pre_monthes, 0)
-    # 返点订单
-    searchAd_rebate_orders = searchAdRebateOrderExecutiveReport.query.filter(
-        searchAdMediumOrderExecutiveReport.month_day >= start_date_month,
-        searchAdMediumOrderExecutiveReport.month_day <= end_date_month)
-    rebate_order_money = {'ex_money': []}
-    for d in pre_monthes:
-        pro_month_orders = [
-            o for o in searchAd_rebate_orders.filter_by(month_day=d['month']) if o.status == 1]
-        for k in range(1, 4):
-            location_orders = [
-                o for o in pro_month_orders if len(set(o.locations) & set([k]))]
-            if location_orders:
-                ex_money = sum([k.money for k in pro_month_orders])
-                rebate_order_money['ex_money'].append(round(ex_money, 2))
-            else:
-                rebate_order_money['ex_money'].append(0.0)
-    # 搜索部门毛利：普通订单收入+返点订单收入-执行金额
-    searchAD_money['profit'] = numpy.array(
-        searchAD_money['profit']) + numpy.array(rebate_order_money['ex_money'])
-    # 搜索部门合同结束
-    youli_money = _get_medium_moneys(medium_orders, pre_monthes, [3])
-    wuxian_money = _get_medium_moneys(medium_orders, pre_monthes, [8])
-    momo_money = _get_medium_moneys(medium_orders, pre_monthes, [7])
-    zhihu_money = _get_medium_moneys(medium_orders, pre_monthes, [5])
-    xiachufang_money = _get_medium_moneys(medium_orders, pre_monthes, [6])
-    xueqiu_money = _get_medium_moneys(medium_orders, pre_monthes, [9])
-    huxiu_money = _get_medium_moneys(medium_orders, pre_monthes, [14, 57])
-    kecheng_money = _get_medium_moneys(medium_orders, pre_monthes, [4])
-    midi_money = _get_medium_moneys(medium_orders, pre_monthes, [21])
-    weipiao_money = _get_medium_moneys(medium_orders, pre_monthes, [52])
-    one_money = _get_medium_moneys(medium_orders, pre_monthes, [51])
-    other_money = _get_medium_moneys(medium_orders, pre_monthes, None)
-
-    # 获取直签豆瓣数据
-    douban_money = {'ex_money': [], 'in_money': [], 'rebate': [], 'profit': []}
-    for d in pre_monthes:
-        pro_month_orders = [
-            o for o in douban_orders.filter_by(month_day=d['month']) if o.status == 1]
-        for k in range(1, 4):
-            location_orders = [
-                o for o in pro_month_orders if len(set(o.locations) & set([k]))]
-            if location_orders:
-                ex_money = sum([k.money / len(k.locations)
-                                for k in location_orders])
-                in_money = ex_money * 0.4
-                rebate = sum(
-                    [k.money / len(k.locations) * k.douban_order.agent_rebate / 100 for k in location_orders])
-                profit = in_money - rebate
-                douban_money['ex_money'].append(round(ex_money, 2))
-                douban_money['in_money'].append(round(in_money, 2))
-                douban_money['rebate'].append(round(rebate, 2))
-                douban_money['profit'].append(round(profit, 2))
-            else:
-                douban_money['ex_money'].append(0.0)
-                douban_money['in_money'].append(0.0)
-                douban_money['rebate'].append(0.0)
-                douban_money['profit'].append(0.0)
-    # 直签豆瓣数据结束
-    '''
 
     # 豆瓣收入、服务费、返点、毛利为直签豆瓣+优力和无线总和
     douban_money['sale_money'] = numpy.array(

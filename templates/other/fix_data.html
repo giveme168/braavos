@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}整理数据{% endblock %}
+
+{% block content %}
+<div class="container bra-box" style="width:1600px;">
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="exampleInputName2">执行时间</label>
+            <select class="form-control bra-form-control" id="year" name="year" placeholder="" style="width:100px;">
+                {% for k in range(10) %}
+                <option value="{{2014+k}}">{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <input type="submit" name="search" value="搜索" class="btn btn-sm btn-info">
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+    </form>
+    <br>
+    <table class="table table-bordered">
+    <tr>
+        <th>项目名称</th>
+        <th>代理/直客</th>
+        <th>合同号</th>
+        <th>行业</th>
+        <th>直客销售</th>
+        <th>渠道销售</th>
+        <th>合同金额</th>
+        <th>已开发票总金额</th>
+        <th>媒体总金额</th>
+        <th>媒体名称</th>
+        <th>媒体售卖金额</th>
+        <th>媒体金额</th>
+        <th>媒体返点金额</th>
+        <th>客户返点金额</th>
+        <th>类型</th>
+        <th>执行开始时间</th>
+        <th>执行结束时间</th>
+    </tr>
+    {% for o in orders %}
+    <tr>
+        <td>{{o.campaign}}</td>
+        <td>{{o.agent.name}}</td>
+        <td>{{o.contract}}</td>
+        <td>{{o.client.industry_cn}}</td>
+        <td>{{o.direct_sales_names}}</td>
+        <td>{{o.agent_sales_names}}</td>
+        <td>{{o.money|format_price}}</td>
+        <td>{{o.invoice_pass_sum|format_price}}</td>
+        <td>{{o.mediums_money2|format_price}}</td>
+        <td>
+            {% for k in o.medium_orders %}
+                {{k.medium.name}}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in o.medium_orders %}
+                {{k.sale_money|format_price}}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in o.medium_orders %}
+                {{k.medium_money2|format_price}}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for k in o.medium_orders %}
+                {{k.medium_rebate_value|format_price}}<br/>
+            {% endfor %}
+        </td>
+        <td>{{o.agent_rebate_value|format_price}}</td>
+        <td>{{o.resource_type_cn}}</td>
+        <td>{{o.start_date_cn}}</td>
+        <td>{{o.end_date_cn}}</td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+<script>
+function download(){
+    var params = '?action=download';
+    params += '&year='+$('#year').val()
+    window.location.href = window.location.pathname + params;
+      
+}
+$(function(){
+    $('#year').val('{{year}}')
+    $("#year").trigger("chosen:updated");
+    
+});
+</script>
+{% endblock %}
+
