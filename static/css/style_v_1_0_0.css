@@ -78,7 +78,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
             padding-left: 0px;
             position: relative;
             z-index: 999;
-            margin-top: 15px;}
+            margin-top: 35px;}
 
 .introduction .head-icon{width:136px;
             height: 136px;
@@ -87,7 +87,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
             position: relative;
             overflow: hidden;}  
 
-.introduction .head-icon img{width:136px;}      
+.introduction .head-icon img{width:135px;}      
 
 
 .introduction .module-box{width: 400px;
@@ -98,38 +98,42 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 .introduction .intro-all .sculpture .own-name{
             margin-top: 32px;
             cursor: pointer;
-            background: url(../image/homepage_icon/icon4.png) no-repeat;
+            display: inline-block;
+            background: #919191;
+            border-radius: 20px;
+            position: relative;
             }
 .introduction .intro-all .sculpture .own-name:hover{
-            background: url(../image/homepage_icon/icon3.png) no-repeat;
+            background: #eb3341;
             }
 .introduction .intro-all .sculpture .own-name p{color: #fff;
-            height: 20px;
-            line-height: 20px;
             text-align: center;
-            width:96px;
-            font-size: 12px;}
-
+            font-size: 12px;
+            margin-top: 3px;
+            margin-bottom: 3px;;
+            padding:0 30px 0px 10px}
+.introduction .intro-all .sculpture .own-name img{position: absolute;bottom:3px;right:5px;}
 
 .introduction .intro-all .module-box .message{position: absolute;
-        background: url(../image/homepage_icon/introduction_bg.png) no-repeat;
+        background: #000;
+        opacity: 0.8;
         overflow: hidden;
-        width: 180px;
+        width: 270px;
         display: none;
         border: 1px solid #ccc;
         padding-right: 10px;
-        height:136px;
+        height:135px;
         z-index: 99;
-        margin-left: 0px;
-        margin-top: 15px;}
+        margin-top: 35px;
+        padding-top: 18px;}
 
 .introduction .intro-all .module-box .set {
     width:23px ;
     height:23px ;
     position: absolute;
-    right: 0px;
+    right: 10px;
     cursor: pointer;
-    bottom:0px;
+    bottom:5px;
     }
 
 .introduction .intro-all .module-box .set img{
@@ -138,9 +142,8 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 
 .introduction .intro-all .module-box .message p,.introduction .intro-all .module-box .message span{font-size: 12px;
                         color: #e0e0e0;
-                        line-height: 12px;
-                        margin-left: 10px;
-                        margin-top: 12px;}
+                        line-height: 16px;
+                        margin-left: 10px;}
 
 
 .introduction .winbox{float: left;
@@ -187,16 +190,20 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
                                         margin-bottom: 10px;}
 
 .introduction .winbox .dynamic .more{cursor:pointer;
-                                    width:96px;
+                                    width:106px;
                                     margin-bottom: 10px;
-                                    height:20px;
+                                    height:22px;
+                                    line-height: 22px;
                                     float: right;
-                                    background: url(../image/homepage_icon/icon4.png) no-repeat;}
-
+                                    padding-left: 3px;
+                                    position: relative;
+                                    background: #919191;
+                                    border-radius: 20px;}
+.introduction .winbox .dynamic .more img{position: absolute;
+                                        right:5px;
+                                        bottom:2px;}
 .introduction .winbox .dynamic .more:hover{
-                                    width:96px;
-                                    height:20px;
-                                    background: url(../image/homepage_icon/icon3.png) no-repeat;}
+                                    background: #eb3341;}
                                     
 
 .introduction .winbox .dynamic .more a{
@@ -224,8 +231,8 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 
 
 .main .title h1{font-size: 17px;
-        color: #484848;
-        margin-bottom: 6px;}
+        color: #424242;
+        margin-bottom: 2px;}
 
 .main .title span{color: #919191;           
             font-size: 14px;}
@@ -335,7 +342,8 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
                                 margin-top: 20px;}
 
 .business-modular .title-bussess h1{font-size: 17px;
-                                    color: #484848;}
+                                    color: #484848;
+                                    margin-bottom:2px;}
 
 .business-modular .title-bussess span{font-size: 14px;
                                     color: #919191}
@@ -345,18 +353,20 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
                             margin-left: 75px;}
 
 .business-modular .bussess-box ul{float: left;
-                                width:200px;
+                                width:160px;
                                 height:200px;
                                 }
 
 .business-modular .bussess-box .administration{margin-left:10px;}
 
 .business-modular .bussess-box ul li{text-align: center;
-                                    width: 200px;
                                     cursor: pointer;}
 
 .business-modular .bussess-box ul li h5{font-size: 17px;
+                                        color: #484848;
                                         margin-top: 11px;
-                                        color: #000000;}
-a:hover{text-decoration:none;}
+                                        }
+
+.business-modular .bussess-box ul li a:hover{text-decoration:none;}
 .nav .open>a, .nav .open>a:focus, .nav .open>a:hover{background: none;}
+

@@ -1,10 +1,10 @@
 {% extends "/base.html" %}
-{% block title %}销售人员提成比例{% endblock %}
+{% block title %}销售人员完成率{% endblock %}
 
 {% block content %}
 {% include "/account/account_performance_base.html" %}
 <div class="container bra-box">
-    <h3>销售人员提成比例</h3>
+    <h3>销售人员完成率</h3>
     <br/>
 
     <table class="table table-bordered table-striped">
@@ -12,8 +12,8 @@
             <th width="10%">区域</th>
             <th width="20%">姓名</th>
             <th width="20%">Leader</th>
-            <th width="20%">最近一年</th>
-            <th width="10%">提成</th>
+            <th width="20%">最近一季度</th>
+            <th width="10%">完成率</th>
             <th width="20%">操作</th>
         </tr>
     </table>
@@ -23,9 +23,9 @@
             <td width="10%">{{k.location_cn}}</td>
             <td width="20%">{{k.name}}</td>
             <td width="20%">{{k.team_leaders_cn}}</td>
-            <th width="20%">{% if k.lately_commission %}{{k.lately_commission.year}}年{% else %}无{% endif %}</th>
-            <th width="10%">{% if k.lately_commission %}{{k.lately_commission.rate}}%{% else %}无{% endif %}</th>
-            <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
+            <th width="20%">{% if k.lately_completion %}{{k.lately_completion.time}}{% else %}无{% endif %}</th>
+            <th width="10%">{% if k.lately_completion %}{{k.lately_completion.rate}}%{% else %}无{% endif %}</th>
+            <td width="20%"><a href="{{url_for('account_completion.info', user_id=k.id)}}">设置完成率</a></td>
         </tr>
         {% endfor %}
     </table>
@@ -35,9 +35,9 @@
             <td width="10%">{{k.location_cn}}</td>
             <td width="20%">{{k.name}}</td>
             <td width="20%">{{k.team_leaders_cn}}</td>
-            <th width="20%">{% if k.lately_commission %}{{k.lately_commission.year}}年{% else %}无{% endif %}</th>
-            <th width="10%">{% if k.lately_commission %}{{k.lately_commission.rate}}%{% else %}无{% endif %}</th>
-            <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
+            <th width="20%">{% if k.lately_completion %}{{k.lately_completion.time}}{% else %}无{% endif %}</th>
+            <th width="10%">{% if k.lately_completion %}{{k.lately_completion.rate}}%{% else %}无{% endif %}</th>
+            <td width="20%"><a href="{{url_for('account_completion.info', user_id=k.id)}}">设置完成率</a></td>
         </tr>
         {% endfor %}
     </table>
@@ -47,9 +47,9 @@
             <td width="10%">{{k.location_cn}}</td>
             <td width="20%">{{k.name}}</td>
             <td width="20%">{{k.team_leaders_cn}}</td>
-            <th width="20%">{% if k.lately_commission %}{{k.lately_commission.year}}年{% else %}无{% endif %}</th>
-            <th width="10%">{% if k.lately_commission %}{{k.lately_commission.rate}}%{% else %}无{% endif %}</th>
-            <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
+            <th width="20%">{% if k.lately_completion %}{{k.lately_completion.time}}{% else %}无{% endif %}</th>
+            <th width="10%">{% if k.lately_completion %}{{k.lately_completion.rate}}%{% else %}无{% endif %}</th>
+            <td width="20%"><a href="{{url_for('account_completion.info', user_id=k.id)}}">设置完成率</a></td>
         </tr>
         {% endfor %}
     </table>

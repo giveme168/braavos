@@ -423,6 +423,10 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
             return onduty[-1].check_time.strftime('%Y-%m-%d %H:%M:%S')
         return u'无'
 
+    @property
+    def lately_completion(self):
+        return self.completion_user.first()
+
 
 team_admins = db.Table('team_admin_users',
                        db.Column(

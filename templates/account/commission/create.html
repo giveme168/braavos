@@ -1,6 +1,6 @@
 {% extends "/base.html" %}
 {% from 'form.html' import form_field %}
-{% block title %}新建{{user.name}}的提成{% endblock %}
+{% block title %}新建{{user.name}}的提成比例{% endblock %}
 
 {% block content %}
 {% include "/account/account_performance_base.html" %}
@@ -11,7 +11,7 @@
     }
 </style>
 <div class="container bra-box">
-    <h4>新建{{user.name}}的提成</h4>
+    <h4>新建{{user.name}}的提成比例</h4>
     <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
         <div class="form-group">
           <label for="client_start" class="col-sm-2 control-label">年份 : </label>

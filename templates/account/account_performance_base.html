@@ -2,11 +2,12 @@
     <div class="menu">
         <div class="list">
             <ul>
-                {% if g.user.is_leader() or g.user.is_super_leader() %}
+                {% if g.user.is_leader() or g.user.is_super_leader() or g.user.is_finance() %}
                 <a href="{{url_for('account_performance.index')}}"><li id="_performance_">团队销售指标</li></a>
                 {% endif %}
-                {% if g.user.is_super_leader() %}
-                <a href="{{url_for('account_commission.index')}}"><li id="_commission_">销售人员业绩</li></a>
+                {% if g.user.is_super_leader() or g.user.is_finance() %}
+                <a href="{{url_for('account_commission.index')}}"><li id="_commission_">提成比例</li></a>
+                <a href="{{url_for('account_completion.index')}}"><li id="_completion_">完成率</li></a>
                 {% endif %}
                 <div class="line" style="clear: both"></div>
             </ul>

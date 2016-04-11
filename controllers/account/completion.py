@@ -4,14 +4,14 @@ from flask import Blueprint, request, redirect, url_for, g, abort, jsonify
 from flask import render_template as tpl, flash
 
 from models.user import User, TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG, TEAM_LOCATION_HUANAN
-from models.account.saler import Commission
+from models.account.saler import Completion
 
 
-account_commission_bp = Blueprint(
-    'account_commission', __name__, template_folder='../../templates/account/commission/')
+account_completion_bp = Blueprint(
+    'account_completion', __name__, template_folder='../../templates/account/completion/')
 
 
-@account_commission_bp.route('/', methods=['GET'])
+@account_completion_bp.route('/', methods=['GET'])
 def index():
     if not (g.user.is_super_leader() or g.user.is_finance()):
         return abort(404)
@@ -22,68 +22,70 @@ def index():
     huabei_users = [u for u in users if u.location == TEAM_LOCATION_HUABEI]
     huadong_users = [u for u in users if u.location == TEAM_LOCATION_HUADONG]
     huanan_users = [u for u in users if u.location == TEAM_LOCATION_HUANAN]
-    return tpl('/account/commission/index.html', huabei_users=huabei_users,
+    return tpl('/account/completion/index.html', huabei_users=huabei_users,
                huadong_users=huadong_users, huanan_users=huanan_users)
 
 
-@account_commission_bp.route('/<user_id>/info', methods=['GET'])
+@account_completion_bp.route('/<user_id>/info', methods=['GET'])
 def info(user_id):
     if not (g.user.is_super_leader() or g.user.is_finance()):
         return abort(404)
     user = User.get(user_id)
-    comms = Commission.query.filter_by(user_id=user_id)
-    return tpl('/account/commission/info.html', user=user, comms=comms)
+    comp = Completion.query.filter_by(user_id=user_id)
+    return tpl('/account/completion/info.html', user=user, comp=comp)
 
 
-@account_commission_bp.route('/<user_id>/create', methods=['GET', 'POST'])
+@account_completion_bp.route('/<user_id>/create', methods=['GET', 'POST'])
 def create(user_id):
     if not (g.user.is_super_leader() or g.user.is_finance()):
         return abort(404)
     user = User.get(user_id)
     if request.method == 'POST':
         rate = float(request.values.get('rate', 0))
-        year = int(request.values.get('year', datetime.datetime.now().year))
+        year = str(request.values.get('year', datetime.datetime.now().year))
+        Q = str(request.values.get('Q', 'Q1'))
         try:
-            commission = Commission.add(
+            completion = Completion.add(
                 user=user,
                 creator=g.user,
                 rate=rate,
-                year=year)
-            if commission:
+                time=year+Q)
+            if completion:
                 flash(u'添加提成信息成功', 'success')
-                return redirect(url_for('account_commission.info', user_id=user_id))
+                return redirect(url_for('account_completion.info', user_id=user_id))
             else:
                 flash(u'该年度已存在返点信息', 'danger')
-                return redirect(url_for('account_commission.create', user_id=user_id))
+                return redirect(url_for('account_completion.create', user_id=user_id))
         except:
             flash(u'该年度已存在返点信息', 'danger')
-    return tpl('/account/commission/create.html', user=user)
+    return tpl('/account/completion/create.html', user=user)
 
 
-@account_commission_bp.route('/<user_id>/<mid>/update', methods=['GET', 'POST'])
+@account_completion_bp.route('/<user_id>/<mid>/update', methods=['GET', 'POST'])
 def update(user_id, mid):
     if not (g.user.is_super_leader() or g.user.is_finance()):
         return abort(404)
-    commission = Commission.get(mid)
+    completion = Completion.get(mid)
     if request.method == 'POST':
         rate = float(request.values.get('rate', 0))
-        year = int(request.values.get('year', datetime.datetime.now().year))
+        year = str(request.values.get('year', datetime.datetime.now().year))
+        Q = str(request.values.get('Q', 'Q1'))
         try:
-            commission.year = year
-            commission.rate = rate
-            commission.save()
+            completion.time = year+Q
+            completion.rate = rate
+            completion.save()
             flash(u'修改提成信息成功', 'success')
-            return redirect(url_for('account_commission.info', user_id=user_id))
+            return redirect(url_for('account_completion.info', user_id=user_id))
         except:
             flash(u'该年度已存在返点信息', 'danger')
-            return redirect(url_for('account_commission.update', user_id=user_id, mid=mid))
-    return tpl('/account/commission/update.html', commission=commission)
+            return redirect(url_for('account_completion.update', user_id=user_id, mid=mid))
+    return tpl('/account/completion/update.html', completion=completion)
 
 
-@account_commission_bp.route('/<user_id>/<mid>/delete', methods=['GET'])
+@account_completion_bp.route('/<user_id>/<mid>/delete', methods=['GET'])
 def delete(user_id, mid):
     if not (g.user.is_super_leader() or g.user.is_finance()):
         return abort(404)
-    commission = Commission.get(mid)
-    commission.delete()
+    completion = Completion.get(mid)
+    completion.delete()
     return jsonify({'id': mid})
