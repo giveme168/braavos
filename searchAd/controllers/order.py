@@ -31,7 +31,7 @@ from ..forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm, 
 from libs.email_signals import zhiqu_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
-from controllers.data_query.helpers.outsource_helpers import write_searchAd_client_excel
+from controllers.helpers.order_helpers import write_searchAd_client_excel
 
 searchAd_order_bp = Blueprint(
     'searchAd_order', __name__, template_folder='../../templates/searchAdorder')

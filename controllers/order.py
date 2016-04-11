@@ -34,7 +34,7 @@ from models.download import (download_excel_table_by_doubanorders,
 from libs.email_signals import zhiqu_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
-from controllers.data_query.helpers.outsource_helpers import write_client_excel
+from controllers.helpers.order_helpers import write_client_excel
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 

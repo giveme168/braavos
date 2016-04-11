@@ -147,11 +147,14 @@ def write_fix_date(orders, otype=None):
                 worksheet.write(th, 14, orders[k].resource_type_cn, align_left)
                 worksheet.write(th, 15, orders[k].start_date_cn, align_left)
                 worksheet.write(th, 16, orders[k].end_date_cn, align_left)
-                worksheet.write(th, 9, mediums[0].medium.name, align_left)
-                worksheet.write(th, 10, mediums[0].sale_money, align_left)
-                worksheet.write(th, 11, mediums[0].medium_money2, align_left)
-                worksheet.write(
-                    th, 12, mediums[0].medium_rebate_value, align_left)
+                try:
+                    worksheet.write(th, 9, mediums[0].medium.name, align_left)
+                    worksheet.write(th, 10, mediums[0].sale_money, align_left)
+                    worksheet.write(th, 11, mediums[0].medium_money2, align_left)
+                    worksheet.write(
+                        th, 12, mediums[0].medium_rebate_value, align_left)
+                except:
+                    pass
                 th += 1
     workbook.close()
     response.data = output.getvalue()
@@ -184,13 +187,23 @@ def fix_data():
     year = int(request.values.get('year', 2015))
     year_date = datetime.datetime.strptime(str(year), '%Y')
     orders = [k for k in ClientOrder.all() if k.client_start.year ==
-              year and k.contract_status not in [0, 7, 8, 9] and k.status == 1]
+              year and k.contract_status not in [0, 7, 8, 9] and k.status == 1 and k.contract]
     for k in orders:
         for i in k.medium_orders:
-            medium_rebate = i.medium_rebate_by_year(year_date)
-            i.medium_rebate_value = i.medium_money2 * medium_rebate / 100
-        agent_rebate = k.agent_rebate
-        k.agent_rebate_value = k.money * agent_rebate / 100
+            if int(k.self_agent_rebate.split('-')[0]) == 1:
+                agent_rebate_value = float(k.self_agent_rebate.split('-')[1])
+                if k.money:
+                    i.medium_rebate_value = agent_rebate_value * i.sale_money / k.money
+                else:
+                    i.medium_rebate_value = 0
+            else:
+                medium_rebate = i.medium_rebate_by_year(year_date)
+                i.medium_rebate_value = i.medium_money2 * medium_rebate / 100
+        if int(k.self_agent_rebate.split('-')[0]) == 1:
+            k.agent_rebate_value = float(k.self_agent_rebate.split('-')[1])
+        else:
+            agent_rebate = k.agent_rebate
+            k.agent_rebate_value = k.money * agent_rebate / 100
     if request.values.get('action') == 'download':
         return write_fix_date(orders)
     return tpl('/fix_data.html', orders=orders, year=year)
@@ -202,10 +215,13 @@ def fix_data_douban():
         abort(403)
     year = int(request.values.get('year', 2015))
     orders = [k for k in DoubanOrder.all() if k.client_start.year ==
-              year and k.contract_status not in [0, 7, 8, 9] and k.status == 1]
+              year and k.contract_status not in [0, 7, 8, 9] and k.status == 1 and k.contract]
     for k in orders:
-        agent_rebate = k.agent_rebate
-        k.agent_rebate_value = k.money * agent_rebate / 100
+        if int(k.self_agent_rebate.split('-')[0]) == 1:
+            k.agent_rebate_value = float(k.self_agent_rebate.split('-')[1])
+        else:
+            agent_rebate = k.agent_rebate
+            k.agent_rebate_value = k.money * agent_rebate / 100
     if request.values.get('action') == 'download':
         return write_fix_date(orders, 'douban_order')
     return tpl('/fix_data_douban.html', orders=orders, year=year)
