@@ -49,7 +49,7 @@ def create(user_id):
                 user=user,
                 creator=g.user,
                 rate=rate,
-                time=year+Q)
+                time=year + Q)
             if completion:
                 flash(u'添加提成信息成功', 'success')
                 return redirect(url_for('account_completion.info', user_id=user_id))
@@ -71,7 +71,7 @@ def update(user_id, mid):
         year = str(request.values.get('year', datetime.datetime.now().year))
         Q = str(request.values.get('Q', 'Q1'))
         try:
-            completion.time = year+Q
+            completion.time = year + Q
             completion.rate = rate
             completion.save()
             flash(u'修改提成信息成功', 'success')
