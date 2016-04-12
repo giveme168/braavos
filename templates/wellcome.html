@@ -415,7 +415,7 @@
                     </a>
                 </li>
             </ul>
-            {% if g.user.is_super_leader or g.user.is_operater_leader %}
+            {% if g.user.is_super_leader() or g.user.is_operater_leader() %}
             <ul class="bussess">
                 <li>
                     <a href="{{url_for('kol.index', type='design')}}" target="_blank">

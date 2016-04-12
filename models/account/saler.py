@@ -117,8 +117,6 @@ class Completion(db.Model, BaseModelMixin):
         'User', backref=db.backref('completion_creator', lazy='dynamic'),
         foreign_keys=[creator_id])
     create_time = db.Column(db.DateTime)
-    __table_args__ = (
-        db.UniqueConstraint('user_id', 'rate', name='_completion_user_rate'),)
     __mapper_args__ = {'order_by': time.desc()}
 
     def __init__(self, user, time, rate=None, creator=None, create_time=None):
