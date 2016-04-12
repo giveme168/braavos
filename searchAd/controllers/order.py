@@ -17,7 +17,7 @@ from ..models.client import searchAdClient, searchAdAgent
 from ..models.medium import searchAdMedium
 from ..models.order import searchAdOrder, searchAdMediumOrderExecutiveReport
 from searchAd.models.rebate_order import searchAdRebateOrder, searchAdRebateOrderExecutiveReport
-from ..models.client_order import searchAdClientOrder, searchAdClientOrderExecutiveReport
+from ..models.client_order import searchAdClientOrder, searchAdClientOrderExecutiveReport, searchAdConfirmMoney
 from ..models.framework_order import searchAdFrameworkOrder
 
 from ..models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
@@ -228,6 +228,36 @@ def searchAd_orders():
     orders = searchAdClientOrder.all()
     status_id = int(request.args.get('selected_status', -1))
     return display_orders(orders, u'搜索广告订单列表', status_id)
+
+
+@searchAd_order_bp.route('/order/<order_id>/confirm_info', methods=['GET', 'POST'])
+def order_confirm_info(order_id):
+    order = searchAdClientOrder.get(order_id)
+    if request.method == 'POST':
+        now_date = datetime.now()
+        year = int(request.values.get('year', now_date.year))
+        Q = request.values.get('Q', 'Q1')
+        money = float(request.values.get('money', 0.0))
+        rebate = float(request.values.get('rebate', 0.0))
+        medium_order = searchAdOrder.get(request.values.get('m_order_id'))
+        searchAdConfirmMoney.add(year=year,
+                                 client_order=order,
+                                 order=medium_order,
+                                 Q=Q,
+                                 money=money,
+                                 rebate=rebate,
+                                 create_time=datetime.now())
+        flash(u'添加确认收入信息成功!', 'success')
+        order.add_comment(g.user, u"添加了确信收入信息: 确认周期：%s 所属媒体：%s 确认收入: %s 确认返点: %s" %
+                                  (str(year)+Q, medium_order.medium.name, str(money), str(rebate)))
+    else:
+        cid = request.values.get('cid')
+        confirm = searchAdConfirmMoney.get(cid)
+        flash(u'删除确认收入信息成功!', 'success')
+        order.add_comment(g.user, u"删除了确信收入信息: 确认周期：%s 所属媒体：%s 确认收入: %s 确认返点: %s" %
+                                  (str(confirm.year)+confirm.Q, confirm.order.medium.name, str(confirm.money), str(confirm.rebate)))
+        confirm.delete()
+    return redirect(order.info_path())
 
 
 @searchAd_order_bp.route('/order/<order_id>/info/<tab_id>', methods=['GET', 'POST'])

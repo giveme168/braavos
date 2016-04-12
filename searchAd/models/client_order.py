@@ -865,6 +865,38 @@ by %s\n
             return ''
 
 
+class searchAdConfirmMoney(db.Model, BaseModelMixin):
+    __tablename__ = 'searchad_bra_client_order_confirm_money'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('searchAd_bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'searchAdClientOrder', backref=db.backref('searchad_confirm_client_order', lazy='dynamic'))
+    order_id = db.Column(
+        db.Integer, db.ForeignKey('searchAd_bra_order.id'))  # 客户合同
+    order = db.relationship(
+        'searchAdOrder', backref=db.backref('searchad_confirm_order', lazy='dynamic'))
+    money = db.Column(db.Float())
+    rebate = db.Column(db.Float())
+    year = db.Column(db.Integer)
+    Q = db.Column(db.String(2))
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': year.desc()}
+
+    def __init__(self, client_order, year, Q, order, money=0.0, rebate=0.0, create_time=None):
+        self.client_order = client_order
+        self.order = order
+        self.money = money
+        self.rebate = rebate
+        self.year = year
+        self.Q = Q
+        self.create_time = create_time or datetime.date.today()
+
+    @property
+    def time(self):
+        return str(self.year) + str(self.Q)
+
+
 class searchAdBackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'searchAd_bra_client_order_back_money'
     id = db.Column(db.Integer, primary_key=True)
