@@ -22,6 +22,10 @@
             <td>{{order.medium.name}}</td>
           </tr>
           <tr>
+            <th>投放媒体 </th>
+            <td>{{order.channel_type_cn}}</td>
+          </tr>
+          <tr>
             <th>售卖金额</th>
             <td>{{order.sale_money}} (元) 无利润未分成</td>
           </tr>
@@ -88,6 +92,7 @@
 {% endif %}
     {{form.csrf_token}}
     {{ form_field(form.medium) }}
+    {{ form_field(form.channel_type) }}
     {{ form_field(form.sale_money) }}
     {{ form_field(form.medium_money2) }}
     {#

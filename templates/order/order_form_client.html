@@ -51,6 +51,10 @@
             <td>{{client_order.agent_sales_names}}</td>
           </tr>
           <tr>
+            <th>销售助理</th>
+            <td>{{client_order.assistant_sales_names}}</td>
+          </tr>
+          <tr>
             <th>合同模板类型</th>
             <td>{{client_order.contract_type_cn}}</td>
           </tr>
@@ -113,6 +117,7 @@
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
+    {{ form_field(form.assistant_sales) }}
     {{ form_field(form.contract_type) }}
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}

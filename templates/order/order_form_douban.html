@@ -30,6 +30,7 @@
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
+    {{ form_field(form.assistant_sales) }}
     {{ form_field(form.operaters) }}
     {{ form_field(form.designers) }}
     {{ form_field(form.planers) }}
@@ -68,6 +69,7 @@
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
+    {{ form_field(form.assistant_sales) }}
     {{ form_field(form.operaters) }}
     {{ form_field(form.designers) }}
     {{ form_field(form.planers) }}
@@ -122,6 +124,7 @@
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
+    {{ form_field(form.assistant_sales) }}
     {{ form_field(form.operaters) }}
     {{ form_field(form.designers) }}
     {{ form_field(form.planers) }}
@@ -187,6 +190,10 @@
           <tr>
             <th>渠道销售</th>
             <td>{{douban_order.agent_sales_names}}</td>
+          </tr>
+          <tr>
+            <th>销售助理</th>
+            <td>{{douban_order.assistant_sales_names}}</td>
           </tr>
            <tr>
             <th>执行人员 </th>

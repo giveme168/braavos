@@ -76,6 +76,7 @@ def new_order():
                                 reminde_date=form.reminde_date.data,
                                 direct_sales=User.gets(form.direct_sales.data),
                                 agent_sales=User.gets(form.agent_sales.data),
+                                assistant_sales=User.gets(form.assistant_sales.data),
                                 contract_type=form.contract_type.data,
                                 resource_type=form.resource_type.data,
                                 sale_type=form.sale_type.data,
@@ -268,6 +269,7 @@ def get_client_form(order):
     client_form.reminde_date.data = order.reminde_date
     client_form.direct_sales.data = [u.id for u in order.direct_sales]
     client_form.agent_sales.data = [u.id for u in order.agent_sales]
+    client_form.assistant_sales.data = [u.id for u in order.assistant_sales]
     client_form.contract_type.data = order.contract_type
     client_form.resource_type.data = order.resource_type
     client_form.sale_type.data = order.sale_type
@@ -333,6 +335,7 @@ def order_info(order_id, tab_id=1):
                     order.direct_sales = User.gets(
                         client_form.direct_sales.data)
                     order.agent_sales = User.gets(client_form.agent_sales.data)
+                    order.assistant_sales = User.gets(client_form.assistant_sales.data)
                     order.contract_type = client_form.contract_type.data
                     order.resource_type = client_form.resource_type.data
                     order.sale_type = client_form.sale_type.data
@@ -368,8 +371,7 @@ def order_info(order_id, tab_id=1):
                     msg = msg + u"致趣-%s: %s\n\n" % (mo.medium.name, mo.medium_contract or "")
                 for o in order.associated_douban_orders:
                     msg = msg + u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name, o.contract or "")
-                to_users = order.direct_sales + \
-                    order.agent_sales + [order.creator, g.user]
+                to_users = order.direct_sales + order.assistant_sales + order.agent_sales + [order.creator, g.user]
                 context = {'order': order,
                            'sender': g.user,
                            'action_msg': action_msg,
@@ -561,7 +563,7 @@ def contract_status_change(order, action, emails, msg):
     if order.__tablename__ == 'bra_medium_framework_order':
         salers = order.medium_users
     else:
-        salers = order.direct_sales + order.agent_sales
+        salers = order.direct_sales + order.agent_sales + order.assistant_sales
     leaders = []
     for k in salers:
         leaders += k.team_leaders
@@ -792,6 +794,7 @@ def new_framework_order():
                                        form.direct_sales.data),
                                    agent_sales=User.gets(
                                        form.agent_sales.data),
+                                   assistant_sales=User.gets(form.assistant_sales.data),
                                    contract_type=form.contract_type.data,
                                    creator=g.user,
                                    inad_rebate=form.inad_rebate.data,
@@ -847,6 +850,7 @@ def get_framework_form(order):
     framework_form.reminde_date.data = order.reminde_date
     framework_form.direct_sales.data = [u.id for u in order.direct_sales]
     framework_form.agent_sales.data = [u.id for u in order.agent_sales]
+    framework_form.assistant_sales.data = [u.id for u in order.assistant_sales]
     framework_form.contract_type.data = order.contract_type
     framework_form.inad_rebate.data = order.inad_rebate or 0.0
     framework_form.douban_rebate.data = order.douban_rebate or 0.0
@@ -910,6 +914,8 @@ def framework_order_info(order_id):
                         framework_form.direct_sales.data)
                     order.agent_sales = User.gets(
                         framework_form.agent_sales.data)
+                    order.assistant_sales = User.gets(
+                        framework_form.assistant_sales.data)
                     order.contract_type = framework_form.contract_type.data
                     order.inad_rebate = framework_form.inad_rebate.data
                     order.douban_rebate = framework_form.douban_rebate.data
@@ -932,7 +938,7 @@ def framework_order_info(order_id):
                 action_msg = u"合同号更新"
                 msg = u"新合同号如下:\n\n%s-致趣: %s\n\n豆瓣合同号: %s" % (
                     order.group.name, order.contract, order.douban_contract)
-                to_users = order.direct_sales + \
+                to_users = order.direct_sales + order.assistant_sales +\
                     order.agent_sales + [order.creator, g.user]
                 context = {'order': order,
                            'sender': g.user,
@@ -1229,6 +1235,7 @@ def new_douban_order():
                                 reminde_date=form.reminde_date.data,
                                 direct_sales=User.gets(form.direct_sales.data),
                                 agent_sales=User.gets(form.agent_sales.data),
+                                assistant_sales=User.gets(form.assistant_sales.data),
                                 operaters=User.gets(form.operaters.data),
                                 designers=User.gets(form.designers.data),
                                 planers=User.gets(form.planers.data),
@@ -1308,6 +1315,7 @@ def get_douban_form(order):
     form.reminde_date.data = order.reminde_date
     form.direct_sales.data = [u.id for u in order.direct_sales]
     form.agent_sales.data = [u.id for u in order.agent_sales]
+    form.assistant_sales.data = [u.id for u in order.assistant_sales]
     form.operaters.data = [u.id for u in order.operaters]
     form.designers.data = [u.id for u in order.designers]
     form.planers.data = [u.id for u in order.planers]
@@ -1353,6 +1361,7 @@ def douban_order_info(order_id):
                     order.reminde_date = form.reminde_date.data
                     order.direct_sales = User.gets(form.direct_sales.data)
                     order.agent_sales = User.gets(form.agent_sales.data)
+                    order.assistant_sales = User.gets(form.assistant_sales.data)
                     order.operaters = User.gets(form.operaters.data)
                     order.designers = User.gets(form.designers.data)
                     order.planers = User.gets(form.planers.data)
@@ -1379,7 +1388,7 @@ def douban_order_info(order_id):
                 action_msg = u"合同号更新"
                 msg = u"新合同号如下:\n\n%s-豆瓣: %s\n\n" % (
                     order.agent.name, order.contract)
-                to_users = order.direct_sales + \
+                to_users = order.direct_sales + order.assistant_sales +\
                     order.agent_sales + [order.creator, g.user]
                 context = {'order': order,
                            'sender': g.user,
@@ -1570,7 +1579,8 @@ def attachment_status_email(order, attachment):
     if order.__tablename__ == 'bra_medium_framework_order':
         to_users = order.medium_users + [order.creator, g.user] + User.contracts()
     else:
-        to_users = order.direct_sales + order.agent_sales + [order.creator, g.user] + User.contracts()
+        to_users = order.direct_sales + order.agent_sales + \
+            order.assistant_sales + [order.creator, g.user] + User.contracts()
     action_msg = u"%s文件:%s-%s" % (attachment.type_cn, attachment.filename, attachment.status_cn)
     msg = u"文件名:%s\n状态:%s\n如有疑问, 请联系合同管理员" % (
         attachment.filename, attachment.status_cn)

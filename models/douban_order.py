@@ -98,6 +98,13 @@ replace_sales = db.Table('douban_order_replace_sales',
                              'douban_order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
                          )
 
+assistant_sales = db.Table('douban_order_assistant_sales',
+                           db.Column(
+                               'assistant_sale_id', db.Integer, db.ForeignKey('user.id')),
+                           db.Column(
+                               'douban_order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
+                           )
+
 operater_users = db.Table('douban_order_users_operater',
                           db.Column(
                               'user_id', db.Integer, db.ForeignKey('user.id')),
@@ -144,6 +151,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
     replace_sales = db.relationship('User', secondary=replace_sales)
+    assistant_sales = db.relationship('User', secondary=assistant_sales)
 
     operaters = db.relationship('User', secondary=operater_users)
     designers = db.relationship('User', secondary=designer_users)
@@ -172,7 +180,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                  medium_CPM=0, sale_CPM=0, finish_time=None,
                  back_money_status=BACK_MONEY_STATUS_NOW, self_agent_rebate='0-0',
                  client_start=None, client_end=None, reminde_date=None,
-                 direct_sales=None, agent_sales=None, replace_sales=[],
+                 direct_sales=None, agent_sales=None, replace_sales=[], assistant_sales=[],
                  operaters=None, designers=None, planers=None,
                  resource_type=RESOURCE_TYPE_AD, sale_type=SALE_TYPE_AGENT,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
@@ -195,6 +203,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.direct_sales = direct_sales or []
         self.agent_sales = agent_sales or []
         self.replace_sales = replace_sales
+        self.assistant_sales = assistant_sales
 
         self.operaters = operaters or []
         self.designers = designers or []
@@ -273,6 +282,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.replace_sales])
 
     @property
+    def assistant_sales_names(self):
+        return ",".join([u.name for u in self.assistant_sales])
+
+    @property
     def operater_names(self):
         return ",".join([u.name for u in self.operaters])
 
@@ -286,7 +299,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def leaders(self):
-        return list(set([l for u in self.direct_sales + self.agent_sales + self.replace_sales
+        return list(set([l for u in self.direct_sales + self.agent_sales + self.replace_sales + self.assistant_sales
                          for l in u.user_leaders] + User.super_leaders()))
 
     @property
@@ -295,7 +308,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        salers = self.direct_sales + self.agent_sales + self.replace_sales
+        salers = self.direct_sales + self.agent_sales + self.replace_sales + self.assistant_sales
         leaders = []
         for k in salers:
             leaders += k.team_leaders
@@ -455,7 +468,7 @@ by %s\n
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        salers = self.direct_sales + self.agent_sales + self.replace_sales
+        salers = self.direct_sales + self.agent_sales + self.replace_sales + self.assistant_sales
         leaders = []
         for k in salers:
             leaders += k.team_leaders

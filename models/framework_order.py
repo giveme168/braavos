@@ -63,7 +63,12 @@ agent_sales = db.Table('framework_order_agent_sales',
                        db.Column(
                            'client_order_id', db.Integer, db.ForeignKey('bra_framework_order.id'))
                        )
-
+assistant_sales = db.Table('framework_order_assistant_sales',
+                           db.Column(
+                               'assistant_sale_id', db.Integer, db.ForeignKey('user.id')),
+                           db.Column(
+                               'client_order_id', db.Integer, db.ForeignKey('bra_framework_order.id'))
+                           )
 agents = db.Table('framework_order_agents',
                   db.Column('agent_id', db.Integer, db.ForeignKey('agent.id')),
                   db.Column(
@@ -93,7 +98,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
-
+    assistant_sales = db.relationship('User', secondary=assistant_sales)
     contract_status = db.Column(db.Integer)  # 合同审批状态
     status = db.Column(db.Integer)
 
@@ -112,7 +117,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def __init__(self, group, agents=None, description=None, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None,
-                 direct_sales=None, agent_sales=None, finish_time=None,
+                 direct_sales=None, agent_sales=None, assistant_sales=[], finish_time=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW,
                  inad_rebate=0.0, douban_rebate=0.0):
         self.group = group
@@ -131,6 +136,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.direct_sales = direct_sales or []
         self.agent_sales = agent_sales or []
+        self.assistant_sales = assistant_sales or []
 
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
@@ -168,8 +174,12 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.agent_sales])
 
     @property
+    def assistant_sales_names(self):
+        return ",".join([u.name for u in self.assistant_sales])
+
+    @property
     def leaders(self):
-        return list(set([l for u in self.direct_sales + self.agent_sales
+        return list(set([l for u in self.direct_sales + self.agent_sales + self.assistant_sales
                          for l in u.user_leaders] + User.super_leaders()))
 
     @property
@@ -190,7 +200,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        salers = self.direct_sales + self.agent_sales
+        salers = self.direct_sales + self.agent_sales + self.assistant_sales
         leaders = []
         for k in salers:
             leaders += k.team_leaders
@@ -202,7 +212,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        salers = self.direct_sales + self.agent_sales
+        salers = self.direct_sales + self.agent_sales + self.assistant_sales
         leaders = []
         for k in salers:
             leaders += k.team_leaders

@@ -27,6 +27,8 @@ ORDER_TYPE_CN = {
     ORDER_TYPE_NORMAL: u"标准广告(CPM, CPD)",
 }
 
+CHANNEL_TYPE_CN = [u"其他", u"360", u"百度", u"小米"]
+
 DISCOUNT_70 = 70
 DISCOUNT_60 = 60
 DISCOUNT_50 = 50
@@ -83,6 +85,7 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         'searchAd_medium.id'))  # 投放媒体
     medium = db.relationship(
         'searchAdMedium', backref=db.backref('orders', lazy='dynamic'))
+    channel_type = db.Column(db.Integer)  # 推广类型
     order_type = db.Column(db.Integer)  # 订单类型: CPM
 
     client_orders = db.relationship(
@@ -110,7 +113,7 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_generate = True
     kind = "searchAd-medium-order"
 
-    def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
+    def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL, channel_type=0,
                  medium_contract="", medium_money=0, sale_money=0, medium_money2=0,
                  medium_CPM=0, sale_CPM=0,
                  discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
@@ -119,7 +122,7 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.campaign = campaign
         self.medium = medium
         self.order_type = order_type
-
+        self.channel_type = channel_type
         self.medium_contract = medium_contract
         self.medium_money = medium_money
         self.medium_money2 = medium_money2
@@ -187,6 +190,10 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def order_type_cn(self):
         return ORDER_TYPE_CN[self.order_type]
+
+    @property
+    def channel_type_cn(self):
+        return CHANNEL_TYPE_CN[self.channel_type]
 
     @property
     def email_info(self):

@@ -193,6 +193,7 @@ def new_searchAd_order():
                               order.campaign
                           ))
         medium_ids = request.values.getlist('medium')
+        channel_type_ids = request.values.getlist('channel_type')
         sale_moneys = request.values.getlist('sale_money')
         medium_money2s = request.values.getlist('medium_money2')
         if medium_ids and sale_moneys and medium_money2s and len(medium_ids) == len(sale_moneys) == len(medium_money2s):
@@ -200,6 +201,7 @@ def new_searchAd_order():
                 medium = searchAdMedium.get(medium_ids[x])
                 mo = searchAdOrder.add(campaign=order.campaign,
                                        medium=medium,
+                                       channel_type=int(channel_type_ids[x] or 0),
                                        sale_money=int(
                                            round(float(sale_moneys[x] or 0))),
                                        medium_money=0,
@@ -352,6 +354,7 @@ def order_new_medium(order_id):
     if request.method == 'POST':
         mo = searchAdOrder.add(campaign=co.campaign,
                                medium=searchAdMedium.get(form.medium.data),
+                               channel_type=int(form.channel_type.data or 0),
                                medium_money=int(
                                    round(float(form.medium_money.data or 0))),
                                medium_money2=int(
@@ -385,6 +388,7 @@ def medium_order(mo_id):
     form = MediumOrderForm(request.form)
     if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader():
         mo.medium = searchAdMedium.get(form.medium.data)
+    mo.channel_type = int(form.channel_type.data or 0)
     mo.medium_money = int(round(float(form.medium_money.data or 0)))
     mo.medium_money2 = int(round(float(form.medium_money2.data or 0)))
     mo.sale_money = int(round(float(form.sale_money.data or 0)))
@@ -744,6 +748,7 @@ def get_medium_form(order, user=None):
     else:
         medium_form.medium.choices = [(order.medium.id, order.medium.name)]
     medium_form.medium.data = order.medium.id
+    medium_form.channel_type.data = order.channel_type
     medium_form.medium_money.data = order.medium_money
     medium_form.medium_money2.data = order.medium_money2
     medium_form.sale_money.data = order.sale_money
