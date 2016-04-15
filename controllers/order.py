@@ -20,7 +20,7 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
                                  CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS,
                                  CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH)
-from models.client_order import ClientOrder, ClientOrderExecutiveReport
+from models.client_order import ClientOrder, ClientOrderExecutiveReport, IntentionOrder, COMPLETE_PERCENT_CN
 from models.framework_order import FrameworkOrder
 from models.medium_framework_order import MediumFrameworkOrder
 from models.douban_order import DoubanOrder, DoubanOrderExecutiveReport
@@ -1592,3 +1592,162 @@ def attachment_status_email(order, attachment):
                'to_users': to_users}
     zhiqu_contract_apply_signal.send(
         current_app._get_current_object(), context=context)
+
+
+@order_bp.route('/intention_order', methods=['GET'])
+def intention_order():
+    orders = IntentionOrder.all()
+    year = str(request.values.get('year', datetime.now().year))
+    search_info = request.args.get('searchinfo', '')
+    location_id = int(request.args.get('selected_location', '-1'))
+    medium_id = int(request.args.get('medium_id', -1))
+    page = int(request.args.get('p', 1))
+
+    if g.user.is_super_leader():
+        orders = orders
+    elif g.user.is_leader():
+        orders = [o for o in orders if g.user.location in o.locations]
+    else:
+        orders = [o for o in orders if g.user == o.creator]
+
+    if location_id >= 0:
+        orders = [o for o in orders if location_id in o.locations]
+    orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
+    if search_info != '':
+        orders = [
+            o for o in orders if search_info.lower().strip() in o.search_info.lower()]
+    if medium_id != -1:
+        orders = [o for o in orders if o.medium_id == medium_id]
+    select_locations = TEAM_LOCATION_CN.items()
+    select_locations.insert(0, (-1, u'全部区域'))
+    paginator = Paginator(orders, ORDER_PAGE_NUM)
+    try:
+        orders = paginator.page(page)
+    except:
+        orders = paginator.page(paginator.num_pages)
+    for k in orders.object_list:
+        k.L_50 = 0
+        k.U_50 = 0
+        k.S_80 = 0
+        if k.complete_percent == 1:
+            k.L_50 = k.money
+        elif k.complete_percent == 2:
+            k.U_50 = k.money
+        elif k.complete_percent == 3:
+            k.S_80 = k.money
+    params = '&searchinfo=%s&selected_location=%s&year=%s&medium_id=%s' % (
+        search_info, location_id, str(year), str(medium_id))
+    return tpl('intention_index.html', orders=orders,
+               locations=select_locations, location_id=location_id,
+               search_info=search_info, page=page, mediums=Medium.all(),
+               now_date=datetime.now().date(), medium_id=medium_id,
+               params=params, year=year)
+
+
+class AgentForm(Form):
+    agent_sales = SelectMultipleField(u'渠道销售', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(AgentForm, self).__init__(*args, **kwargs)
+        self.agent_sales.choices = [(m.id, m.name) for m in User.sales()]
+
+
+class DirectForm(Form):
+    direct_sales = SelectMultipleField(u'直客销售', coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        super(DirectForm, self).__init__(*args, **kwargs)
+        self.direct_sales.choices = [(m.id, m.name) for m in User.sales()]
+
+
+@order_bp.route('/intention_order/create', methods=['GET', 'POST'])
+def intention_order_create():
+    if request.method == 'POST':
+        now_date = datetime.now()
+        medium_id = int(request.values.get('medium_id'))
+        agent = request.values.get('agent', '')
+        client = request.values.get('client', '')
+        campaign = request.values.get('campaign', '')
+        complete_percent = int(request.values.get('complete_percent', 1))
+        money = float(request.values.get('money', 0.0))
+        client_start = request.values.get('client_start', now_date.strftime('%Y-%m-%d'))
+        client_end = request.values.get('client_end', now_date.strftime('%Y-%m-%d'))
+        direct_sales = request.values.getlist('direct_sales')
+        agent_sales = request.values.getlist('agent_sales')
+        intention_order = IntentionOrder.add(
+            medium_id=medium_id,
+            agent=agent,
+            client=client,
+            campaign=campaign,
+            complete_percent=complete_percent,
+            money=money,
+            client_start=datetime.strptime(client_start, '%Y-%m-%d'),
+            client_end=datetime.strptime(client_end, '%Y-%m-%d'),
+            direct_sales=User.gets(direct_sales),
+            agent_sales=User.gets(agent_sales),
+            creator=g.user,
+            create_time=datetime.now()
+        )
+        msg = u"新建了洽谈订单:代理/直客：%s 客户：%s campaign：%s 预估程度：%s 预估金额：%s" % (
+            agent, client, campaign, COMPLETE_PERCENT_CN[complete_percent], str(money))
+        intention_order.add_comment(g.user, msg, msg_channel=11)
+        flash('添加成功', 'success')
+        return redirect(url_for('order.intention_order_update', intention_id=intention_order.id))
+    return tpl('intention_create.html', direct_form=DirectForm(),
+               agent_form=AgentForm(), agent=Agent.all(), client=Client.all(),
+               mediums=Medium.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN)
+
+
+@order_bp.route('/intention_order/<intention_id>/delete', methods=['GET', 'POST'])
+def intention_order_delete(intention_id):
+    IntentionOrder.get(intention_id).delete()
+    return redirect(url_for('order.intention_order'))
+
+
+@order_bp.route('/intention_order/<intention_id>/update', methods=['GET', 'POST'])
+def intention_order_update(intention_id):
+    intention_order = IntentionOrder.get(intention_id)
+    ex_user = list(intention_order.direct_sales) + list(intention_order.agent_sales) + [intention_order.creator]
+    if g.user not in ex_user:
+        return abort(403)
+    direct_form = DirectForm()
+    agent_form = AgentForm()
+    direct_form.direct_sales.data = [u.id for u in intention_order.direct_sales]
+    agent_form.agent_sales.data = [u.id for u in intention_order.agent_sales]
+
+    is_data_agent = Agent.query.filter_by(name=intention_order.agent).first()
+    is_data_client = Client.query.filter_by(name=intention_order.client).first()
+    if request.method == 'POST':
+        now_date = datetime.now()
+        medium_id = int(request.values.get('medium_id'))
+        agent = request.values.get('agent', '')
+        client = request.values.get('client', '')
+        campaign = request.values.get('campaign', '')
+        complete_percent = int(request.values.get('complete_percent', 1))
+        money = float(request.values.get('money', 0.0))
+        client_start = request.values.get('client_start', now_date.strftime('%Y-%m-%d'))
+        client_end = request.values.get('client_end', now_date.strftime('%Y-%m-%d'))
+        direct_sales = request.values.getlist('direct_sales')
+        agent_sales = request.values.getlist('agent_sales')
+        intention_order.medium_id = medium_id
+        intention_order.agent = agent
+        intention_order.client = client
+        intention_order.campaign = campaign
+        intention_order.complete_percent = complete_percent
+        intention_order.money = money
+        intention_order.client_start = datetime.strptime(client_start, '%Y-%m-%d')
+        intention_order.client_end = datetime.strptime(client_end, '%Y-%m-%d')
+        intention_order.direct_sales = User.gets(direct_sales)
+        intention_order.agent_sales = User.gets(agent_sales)
+        intention_order.creator = g.user
+        intention_order.create_time = datetime.now()
+        intention_order.save()
+        msg = u"修改了洽谈订单:代理/直客：%s 客户：%s campaign：%s 预估程度：%s 预估金额：%s" % (
+            agent, client, campaign, COMPLETE_PERCENT_CN[complete_percent], str(money))
+        intention_order.add_comment(g.user, msg, msg_channel=11)
+        flash('修改成功', 'success')
+        return redirect(url_for('order.intention_order_update', intention_id=intention_order.id))
+    return tpl('intention_update.html', direct_form=direct_form, intention_order=intention_order,
+               agent_form=agent_form, agent=Agent.all(), client=Client.all(),
+               is_data_agent=is_data_agent, is_data_client=is_data_client,
+               mediums=Medium.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN)

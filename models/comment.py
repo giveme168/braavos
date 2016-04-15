@@ -17,6 +17,7 @@ from . import db, BaseModelMixin
 # 8 : 媒体返点回款
 # 9 : 设置代理返点
 # 10: 杂项成本
+# 11: 洽谈中的订单
 ##################
 class Comment(db.Model, BaseModelMixin):
     __tablename__ = 'bra_comment'
@@ -45,7 +46,7 @@ class Comment(db.Model, BaseModelMixin):
     def target(self):
         from .order import Order
         from .client import Agent
-        from .client_order import ClientOrder
+        from .client_order import ClientOrder, IntentionOrder
         from .douban_order import DoubanOrder
         from .framework_order import FrameworkOrder
         from .medium_framework_order import MediumFrameworkOrder
@@ -69,6 +70,7 @@ class Comment(db.Model, BaseModelMixin):
             'searchAdRebateOrder': searchAdRebateOrder,
             'Medium': Medium,
             'Bref': Bref,
-            'Agent': Agent
+            'Agent': Agent,
+            'IntentionOrder': IntentionOrder,
         }
         return TARGET_DICT[self.target_type].get(self.target_id)

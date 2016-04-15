@@ -624,7 +624,7 @@
                 </li>
             </ul>
             {% endif %}
-            {% if g.user.is_super_leader() %}
+            {% if g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()%}
             <ul class="bussess">
                 <li>
                     <a href="{{url_for('data_query_super_leader_industry.client_order')}}" target="_blank">
@@ -647,7 +647,7 @@
             <span>MANAGEMENT</span>
         </div>
         <div class="bussess-box">
-          {% if g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() %}
+          {% if g.user.is_super_leader() or g.user.is_HR_leader() or g.user.is_HR() or g.user.is_finance()%}
             <ul class="bussess">
                 <li>
                     <a href="{{url_for('user.index')}}" target="_blank">

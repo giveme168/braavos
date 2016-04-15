@@ -2,7 +2,7 @@
 {% block title %}员工通讯录{% endblock %}
 {% block content %}
 {% include "user_base.html" %}
-<div class="container bra-box" style="min-width: 950px;">
+<div class="container bra-box" style="min-width: 1300px;">
     <h3>用户列表
         <a class="btn btn-sm btn-default" href="{{url_for('user.new_user')}}">新建</a>
     </h3>
@@ -15,6 +15,9 @@
             <th>职位</th>
             <th>状态</th>
             <th>Leader</th>
+            <th>入职时间</th>
+            <th>转正时间</th>
+            <th>离职时间</th>
         </tr>
         {% for u in users %}
         <tr>
@@ -25,6 +28,9 @@
             <td>{{u.position or ''}}</td>
             <td>{{'有效' if u.status else '暂停'}}</td>
             <td>{% for k in u.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
+            <td>{{u.recruited_date_cn}}</td>
+            <td>{{u.positive_date_cn}}</td>
+            <td>{{u.quit_date_cn}}</td>
         </tr>
         {% endfor %}
     </table>

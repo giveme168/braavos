@@ -7,19 +7,19 @@
 {% macro total_tr(order, title) -%}
   <tr>
     <th>{{title}}</th>
-    <td>{{order.Delivered|sum('money')|format_price}}</td>
-    <td>{{order.Delivered|sum('medium_money2')|format_price}}</td>
-    <td></td>
-    <td>{{order.Delivered|sum('now_Q_money_zhixing')|format_price}}</td>
-    <th>{{order.Delivered|sum('first_month_money')|format_price}}</th>
-    <td>{{order.Delivered|sum('second_month_money')|format_price}}</td>
-    <td>{{order.Delivered|sum('third_month_money')|format_price}}</td>
+    <td>{{(order.Delivered+order.Confirmed)|sum('money')|format_price}}</td>
+    <td>{{(order.Delivered+order.Confirmed)|sum('medium_money2')|format_price}}</td>
+    <td>{{(order.Delivered)|sum('now_Q_money_check')|format_price}}</td>
+    <td>{{(order.Delivered+order.Confirmed)|sum('now_Q_money_zhixing')|format_price}}</td>
+    <th>{{(order.Delivered+order.Confirmed)|sum('first_month_money')|format_price}}</th>
+    <td>{{(order.Delivered+order.Confirmed)|sum('second_month_money')|format_price}}</td>
+    <td>{{(order.Delivered+order.Confirmed)|sum('third_month_money')|format_price}}</td>
   </tr>
 {%- endmacro %}
 
 {% macro order_tr(order, title) -%}
  <tr>
-  <th style="vertical-align: middle;" rowspan="{{order.Delivered|length + order.Confirmed|length + 3}}">{{title}}</th>
+  <th style="vertical-align: middle;" rowspan="{{order.Delivered|length + order.Confirmed|length + order.Intention|length + 4}}">{{title}}</th>
 </tr>
 {% if order.Delivered %}
     <tr>
@@ -35,7 +35,7 @@
         <td>{{k.agent_sales_names}}</td>
         <td>{{k.money|format_price}}</td>
         <td>{{k.medium_money2|format_price}}</td>
-        <td></td>
+        <td>{{k.now_Q_money_check|format_price}}</td>
         <td>{{k.now_Q_money_zhixing|format_price}}</td>
         <td>{{k.last_Q_money|format_price}}</td>
         <td>{{k.after_Q_money|format_price}}</td>
@@ -92,7 +92,7 @@
         <td>{{k.agent_sales_names}}</td>
         <td>{{k.money|format_price}}</td>
         <td>{{k.medium_money2|format_price}}</td>
-        <td> </td>
+        <td>0</td>
         <td>{{k.now_Q_money_zhixing|format_price}}</td>
         <td>{{k.last_Q_money|format_price}}</td>
         <td>{{k.after_Q_money|format_price}}</td>
@@ -135,7 +135,63 @@
         <td></td>
     </tr>
 {% endif %}
-
+{% if order.Intention %}
+    <tr>
+        <td style="vertical-align: middle;" rowspan="{{order.Intention|length+1}}">洽谈中  WIP</td>
+    </tr>
+    {% for k in order.Intention %}
+    <tr>
+        <td>{{k.contract}}</td>
+        <td>{{k.agent_name}}</td>
+        <td>{{k.campaign}}</td>
+        <td>{{k.industry_cn}}</td>
+        <td>{{k.direct_sales_names}}</td>
+        <td>{{k.agent_sales_names}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>{{k.S_50|format_price}}</td>
+        <td>{{k.U_50|format_price}}</td>
+        <td>{{k.L_80|format_price}}</td>
+        <td></td>
+        <td></td>
+        <td>{{k.client_start}}</td>
+        <td>{{k.client_end}}</td>
+    </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td style="vertical-align: middle;">洽谈中  WIP</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+{% endif %}
 {%- endmacro %}
 
 <div class="container bra-box" style="width:2400px;">
@@ -203,7 +259,7 @@
           <th>总计</th>
           <td>{{total_money|format_price}}</td>
           <td>{{total_medium_money2|format_price}}</td>
-          <td></td>
+          <td>{{total_now_Q_money_check|format_price}}</td>
           <td>{{total_now_Q_money_zhixing|format_price}}</td>
           <th>{{total_first_month_money|format_price}}</th>
           <td>{{total_second_month_money|format_price}}</td>

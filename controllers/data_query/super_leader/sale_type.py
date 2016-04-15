@@ -26,7 +26,7 @@ data_query_super_leader_sale_type_bp = Blueprint(
 
 @data_query_super_leader_sale_type_bp.route('/client_order', methods=['GET'])
 def client_order():
-    if not (g.user.is_super_leader() or g.user.is_aduit()):
+    if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
         abort(403)
     title = u'新媒体订单售卖类型分析'
     action = request.values.get('action', '')
@@ -39,7 +39,7 @@ def client_order():
 
 @data_query_super_leader_sale_type_bp.route('/douban_order', methods=['GET'])
 def douban_order():
-    if not (g.user.is_super_leader() or g.user.is_aduit()):
+    if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
         abort(403)
     title = u'豆瓣订单售卖类型分析'
     action = request.values.get('action', '')
@@ -52,7 +52,7 @@ def douban_order():
 
 @data_query_super_leader_sale_type_bp.route('/search', methods=['GET'])
 def search():
-    if not (g.user.is_super_leader() or g.user.is_aduit()):
+    if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
         abort(403)
     title = u'搜索业务售卖类型分析'
     action = request.values.get('action', '')
@@ -147,7 +147,7 @@ def search_excle_data():
 
 @data_query_super_leader_sale_type_bp.route('/search_json', methods=['POST'])
 def search_json():
-    if not (g.user.is_super_leader() or g.user.is_aduit()):
+    if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
         abort(403)
     now_date = datetime.datetime.now()
     location = 0
@@ -245,7 +245,7 @@ def client_order_excle_data():
 
 @data_query_super_leader_sale_type_bp.route('/client_order_json', methods=['POST'])
 def client_order_json():
-    if not (g.user.is_super_leader() or g.user.is_aduit()):
+    if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
         abort(403)
     now_date = datetime.datetime.now()
     location = int(request.values.get('location', 0))
@@ -352,7 +352,7 @@ def douban_order_excle_data():
 
 @data_query_super_leader_sale_type_bp.route('/douban_order_json', methods=['POST'])
 def douban_order_json():
-    if not (g.user.is_super_leader() or g.user.is_aduit()):
+    if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
         abort(403)
     now_date = datetime.datetime.now()
     location = int(request.values.get('location', 0))

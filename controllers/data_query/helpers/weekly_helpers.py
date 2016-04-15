@@ -535,16 +535,16 @@ def new_insert_order_info(worksheet, align_center, order, th):
         worksheet.write(th, 7, order['agent_sales_names'], align_center)
         worksheet.write(th, 8, order['money'], align_center)
         worksheet.write(th, 9, order['medium_money2'], align_center)
-        worksheet.write(th, 10, '', align_center)
+        worksheet.write(th, 10, order['now_Q_money_check'], align_center)
         worksheet.write(th, 11, order['now_Q_money_zhixing'], align_center)
         worksheet.write(th, 12, order['last_Q_money'], align_center)
         worksheet.write(th, 13, order['after_Q_money'], align_center)
         worksheet.write(th, 14, order['first_month_money'], align_center)
         worksheet.write(th, 15, order['second_month_money'], align_center)
         worksheet.write(th, 16, order['third_month_money'], align_center)
-        worksheet.write(th, 17, '', align_center)
-        worksheet.write(th, 18, '', align_center)
-        worksheet.write(th, 19, '', align_center)
+        worksheet.write(th, 17, order['S_80'], align_center)
+        worksheet.write(th, 18, order['U_50'], align_center)
+        worksheet.write(th, 19, order['L_50'], align_center)
         worksheet.write(th, 20, order['resource_type_cn'], align_center)
         worksheet.write(th, 21, order['operater_names'], align_center)
         worksheet.write(th, 22, str(order['client_start']), align_center)
@@ -578,17 +578,19 @@ def new_insert_order_info(worksheet, align_center, order, th):
 def new_insert_order_table(worksheet, align_center, order, th, title):
     delivered_merge_length = len(order['Delivered']) or 1
     confirmed_merge_length = len(order['Confirmed']) or 1
-    merge_length = delivered_merge_length + confirmed_merge_length
+    intention_merge_length = len(order['Intention']) or 1
+    merge_length = delivered_merge_length + \
+        confirmed_merge_length + intention_merge_length
     worksheet.merge_range(th, 0, th + merge_length - 1, 0, title, align_center)
     if len(order['Delivered']) > 1:
         worksheet.merge_range(th, 1,
                               th + len(order['Delivered']) - 1,
-                              1, u'确认', align_center)
+                              1, u'确认 Delivered', align_center)
         for k in order['Delivered']:
             new_insert_order_info(worksheet, align_center, k, th)
             th += 1
     else:
-        worksheet.write(th, 1, u'确认', align_center)
+        worksheet.write(th, 1, u'确认 Delivered', align_center)
         if order['Delivered']:
             new_insert_order_info(worksheet, align_center,
                                   order['Delivered'][0], th)
@@ -599,15 +601,30 @@ def new_insert_order_table(worksheet, align_center, order, th, title):
     if len(order['Confirmed']) > 1:
         worksheet.merge_range(th, 1,
                               th + len(order['Confirmed']) - 1,
-                              1, u'流程中', align_center)
+                              1, u'流程中 Confirmed', align_center)
         for k in order['Confirmed']:
             new_insert_order_info(worksheet, align_center, k, th)
             th += 1
     else:
-        worksheet.write(th, 1, u'流程中', align_center)
+        worksheet.write(th, 1, u'流程中 Confirmed', align_center)
         if order['Confirmed']:
             new_insert_order_info(worksheet, align_center,
                                   order['Confirmed'][0], th)
+        else:
+            new_insert_order_info(worksheet, align_center, None, th)
+        th += 1
+    if len(order['Intention']) > 1:
+        worksheet.merge_range(th, 1,
+                              th + len(order['Intention']) - 1,
+                              1, u'洽谈中 WIP', align_center)
+        for k in order['Intention']:
+            new_insert_order_info(worksheet, align_center, k, th)
+            th += 1
+    else:
+        worksheet.write(th, 1, u'洽谈中 WIP', align_center)
+        if order['Intention']:
+            new_insert_order_info(worksheet, align_center,
+                                  order['Intention'][0], th)
         else:
             new_insert_order_info(worksheet, align_center, None, th)
         th += 1
@@ -617,18 +634,19 @@ def new_insert_order_table(worksheet, align_center, order, th, title):
 def new_insert_total_table(worksheet, align_center, order, th, title):
     worksheet.write(th, 25, title, align_center)
     worksheet.write(th, 26, sum([k['money']
-                                 for k in order['Delivered']]), align_center)
+                                 for k in order['Delivered'] + order['Confirmed']]), align_center)
     worksheet.write(th, 27, sum([k['medium_money2']
+                                 for k in order['Delivered'] + order['Confirmed']]), align_center)
+    worksheet.write(th, 28, sum([k['now_Q_money_check']
                                  for k in order['Delivered']]), align_center)
-    worksheet.write(th, 28, '', align_center)
     worksheet.write(th, 29, sum([k['now_Q_money_zhixing']
-                                 for k in order['Delivered']]), align_center)
+                                 for k in order['Delivered'] + order['Confirmed']]), align_center)
     worksheet.write(th, 30, sum([k['first_month_money']
-                                 for k in order['Delivered']]), align_center)
+                                 for k in order['Delivered'] + order['Confirmed']]), align_center)
     worksheet.write(th, 31, sum([k['second_month_money']
-                                 for k in order['Delivered']]), align_center)
+                                 for k in order['Delivered'] + order['Confirmed']]), align_center)
     worksheet.write(th, 32, sum([k['third_month_money']
-                                 for k in order['Delivered']]), align_center)
+                                 for k in order['Delivered'] + order['Confirmed']]), align_center)
     th += 1
     return th
 
@@ -722,7 +740,7 @@ def write_medium_index_excel(Q, now_year, Q_monthes, location_id, douban_data, y
     worksheet.write(th, 25, u'总计', align_center)
     worksheet.write(th, 26, total_money, align_center)
     worksheet.write(th, 27, total_medium_money2, align_center)
-    worksheet.write(th, 28, '', align_center)
+    worksheet.write(th, 28, total_now_Q_money_check, align_center)
     worksheet.write(th, 29, total_now_Q_money_zhixing, align_center)
     worksheet.write(th, 30, total_first_month_money, align_center)
     worksheet.write(th, 31, total_second_month_money, align_center)

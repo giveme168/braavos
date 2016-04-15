@@ -427,6 +427,23 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     def lately_completion(self):
         return self.completion_user.first()
 
+    @property
+    def recruited_date_cn(self):
+        if self.recruited_date.strftime('%Y-%m-%m') == '1970-01-01':
+            return u'无'
+        return self.recruited_date.strftime('%Y-%m-%m')
+
+    @property
+    def quit_date_cn(self):
+        if self.quit_date.strftime('%Y-%m-%m') == '1970-01-01':
+            return u'无'
+        return self.quit_date.strftime('%Y-%m-%m')
+
+    @property
+    def positive_date_cn(self):
+        if self.positive_date.strftime('%Y-%m-%m') == '1970-01-01':
+            return u'无'
+        return self.positive_date.strftime('%Y-%m-%m')
 
 team_admins = db.Table('team_admin_users',
                        db.Column(

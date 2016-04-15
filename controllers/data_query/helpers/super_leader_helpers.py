@@ -27,7 +27,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
                              weipiao_money, one_money,
                              midi_money, other_money,
                              searchAD_money, rebate_order_money,
-                             total):
+                             total, up_money):
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -40,12 +40,13 @@ def write_medium_money_excel(pre_monthes, douban_money,
         worksheet.set_column(k + 2, 2, 10)
     worksheet.set_column(1, 1, 30)
     # 设置高度
-    for k in range(0, 86):
+    for k in range(0, 76 + len(up_money) * 6):
         worksheet.set_row(k, 30)
 
     worksheet.merge_range(0, 0, 0, 1, u'时间', align_center)
     worksheet.merge_range(1, 0, 1, 1, u'媒体项目', align_center)
-    worksheet.merge_range(2, 0, 85, 0, u'致趣收入', align_center)
+    worksheet.merge_range(2, 0, 76 + len(up_money) *
+                          5, 0, u'致趣收入', align_center)
 
     locations = [u'华北', u'华东', u'华南']
     month_start, month_end = 2, 4
@@ -60,9 +61,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
     worksheet.write(0, len(pre_monthes) * 3 + 2, u'合计', align_center)
     worksheet.write(1, len(pre_monthes) * 3 + 2, '', align_center)
 
-    keys = [{'CCFF99': [u'豆瓣执行收入', u'豆瓣服务费收入计提', u'豆瓣返点成本', u'豆瓣毛利', '',
-                        u'豆瓣收入(优力互动)', u'豆瓣媒体合同金额(优力互动)', u'豆瓣媒体净成本(优力互动)', u'豆瓣代理成本(优力互动)', u'致趣豆瓣毛利(优力互动)', '',
-                        u'豆瓣收入(无线互联)', u'豆瓣媒体合同金额(无线互联)', u'豆瓣媒体净成本(无线互联)', u'豆瓣代理成本(无线互联)', u'致趣豆瓣毛利(无线互联)', '']},
+    keys = [{'CCFF99': [u'豆瓣执行收入', u'豆瓣服务费收入计提', u'豆瓣返点成本', u'豆瓣毛利', '']},
             {'33CCFF': [
                 u'陌陌收入', u'陌陌媒体执行金额', u'陌陌媒体净成本', u'陌陌代理成本', u'陌陌毛利', '']},
             {'0066FF': [
@@ -80,11 +79,12 @@ def write_medium_money_excel(pre_monthes, douban_money,
             {'FF3333': [
                 u'微票收入', u'微票媒体执行金额', u'微票媒体净成本', u'微票代理成本', u'微票毛利', '']},
             {'E93EFF': [
-                u'ONE收入', u'One媒体执行金额', u'One媒体净成本', u'One代理成本', u'One毛利', '']},
-            {'AAAAAA': [
-                u'其他收入', u'其他媒体执行金额', u'其他媒体净成本', u'其他代理成本', u'其他毛利', '']},
-            {'FF0088': [
-                u'效果业务收入', u'效果业务返点收入', u'效果业务执行金额', u'效果业务净成本', u'效果业务代理成本', u'效果业务毛利']}]
+                u'ONE收入', u'One媒体执行金额', u'One媒体净成本', u'One代理成本', u'One毛利', '']}]
+    for k, v in up_money.items():
+        keys.append({'FF7F50': [k + u'收入', k + u'媒体执行金额',
+                                k + u'媒体净成本', k + u'代理成本', k + u'毛利', '']})
+    keys += [{'AAAAAA': [u'其他收入', u'其他媒体执行金额', u'其他媒体净成本', u'其他代理成本', u'其他毛利', '']},
+             {'FF0088': [u'效果业务收入', u'效果业务返点收入', u'效果业务执行金额', u'效果业务净成本', u'效果业务代理成本', u'效果业务毛利']}]
     th = 2
     for k in keys:
         for i in k[k.keys()[0]]:
@@ -108,30 +108,6 @@ def write_medium_money_excel(pre_monthes, douban_money,
         worksheet, align_center, pre_monthes, th, douban_money['a_rebate'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, douban_money['profit'])
-    th += 1
-    # 优利互助
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['sale_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['money2'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['m_ex_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['a_rebate'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['profit'])
-    th += 1
-    # 无线互联
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['sale_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['money2'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['m_ex_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['a_rebate'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['profit'])
     th += 1
     # 陌陌
     th = _write_money_in_excel(
@@ -241,6 +217,21 @@ def write_medium_money_excel(pre_monthes, douban_money,
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, one_money['profit'])
     th += 1
+
+    # 大于100W的媒体
+    for k, v in up_money.items():
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, v['sale_money'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, v['money2'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, v['m_ex_money'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, v['a_rebate'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, v['profit'])
+        th += 1
+
     # 其他
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, other_money['sale_money'])

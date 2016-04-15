@@ -5,7 +5,7 @@ from flask import Blueprint, request, g
 from flask import render_template as tpl
 
 from models.user import TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG, TEAM_LOCATION_HUANAN
-from models.client_order import ClientOrderExecutiveReport
+from models.client_order import ClientOrderExecutiveReport, IntentionOrder
 from models.douban_order import DoubanOrder, DoubanOrderExecutiveReport
 from models.order import Order
 from models.medium import Medium
@@ -527,6 +527,10 @@ def _new_douban_order_to_dict(douban_order, last_Q_monthes, now_Q_monthes, after
         [u.name for u in douban_order.operater_users])
     dict_order['client_start'] = douban_order.client_start
     dict_order['client_end'] = douban_order.client_end
+    dict_order['finish_time'] = douban_order.finish_time.date().replace(day=1)
+    dict_order['L_50'] = ''
+    dict_order['U_50'] = ''
+    dict_order['S_80'] = ''
     dt_format = "%d%m%Y"
     start_datetime = datetime.datetime.strptime(
         douban_order.client_start.strftime(dt_format), dt_format)
@@ -535,9 +539,20 @@ def _new_douban_order_to_dict(douban_order, last_Q_monthes, now_Q_monthes, after
     executive_report_data = pre_month_money(douban_order.money,
                                             start_datetime,
                                             end_datetime)
-    # 本季度确认金额与本季度执行金额一致
-    dict_order['now_Q_money_check'] = sum(
-        [k['money'] for k in executive_report_data if k['month'].date() in now_Q_monthes])
+    if dict_order['contract_status'] == 20:
+        if dict_order['finish_time'] in now_Q_monthes:
+            dict_order['now_Q_money_check'] = sum(
+                [k['money'] for k in executive_report_data if k['month'].date() < now_Q_monthes[2]])
+        elif dict_order['finish_time'] < now_Q_monthes[0]:
+            # 本季度确认金额与本季度执行金额一致
+            dict_order['now_Q_money_check'] = sum(
+                [k['money'] for k in executive_report_data if k['month'].date() in now_Q_monthes])
+        else:
+            # 本季度确认金额与本季度执行金额一致
+            dict_order['now_Q_money_check'] = 0
+    else:
+        dict_order['now_Q_money_check'] = 0
+
     dict_order['now_Q_money_zhixing'] = sum(
         [k['money'] for k in executive_report_data if k['month'].date() in now_Q_monthes])
     # 下季度执行金额
@@ -591,6 +606,11 @@ def _new_medium_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_mont
     dict_order['client_end'] = order.client_order.client_end
     dict_order['money'] = order.sale_money
     dict_order['medium_money2'] = order.medium_money2
+    dict_order['L_50'] = ''
+    dict_order['U_50'] = ''
+    dict_order['S_80'] = ''
+    dict_order[
+        'finish_time'] = order.client_order.finish_time.date().replace(day=1)
     dt_format = "%d%m%Y"
     start_datetime = datetime.datetime.strptime(
         order.medium_start.strftime(dt_format), dt_format)
@@ -603,8 +623,17 @@ def _new_medium_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_mont
                                             start_datetime,
                                             end_datetime)
     # 本季度确认金额
-    dict_order['now_Q_money_check'] = sum(
-        [k['money'] for k in sale_executive_report_data if k['month'].date() in now_Q_monthes])
+    if dict_order['contract_status'] == 20:
+        if dict_order['finish_time'] in now_Q_monthes:
+            dict_order['now_Q_money_check'] = sum(
+                [k['money'] for k in sale_executive_report_data if k['month'].date() < now_Q_monthes[2]])
+        elif dict_order['finish_time'] < now_Q_monthes[0]:
+            dict_order['now_Q_money_check'] = sum(
+                [k['money'] for k in sale_executive_report_data if k['month'].date() in now_Q_monthes])
+        else:
+            dict_order['now_Q_money_check'] = 0
+    else:
+        dict_order['now_Q_money_check'] = 0
     dict_order['now_Q_money_zhixing'] = sum(
         [k['money'] for k in executive_report_data if k['month'].date() in now_Q_monthes])
     # 下季度执行金额
@@ -627,6 +656,59 @@ def _new_medium_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_mont
     pre_month_days = get_monthes_pre_days(start_datetime, end_datetime)
     dict_order['pre_month_days'] = set([k['month'] for k in pre_month_days])
     dict_order['status'] = order.client_order.status
+    return dict_order
+
+
+def _new_intention_order_to_dict(order):
+    dict_order = {}
+    dict_order['medium_id'] = order.medium_id
+    dict_order['client_name'] = order.client
+    dict_order['agent_name'] = order.agent
+    dict_order['campaign'] = order.campaign
+    dict_order['industry_cn'] = ''
+    dict_order['locations'] = order.locations
+    dict_order['contract'] = ''
+    dict_order['direct_sales_names'] = order.direct_sales_names
+    dict_order['agent_sales_names'] = order.agent_sales_names
+    dict_order['salers_ids'] = [k.id for k in (
+        order.direct_sales + order.agent_sales)]
+    dict_order['get_saler_leaders'] = [
+        k.id for k in order.get_saler_leaders()]
+    dict_order['resource_type_cn'] = ''
+    dict_order['operater_names'] = ''
+    dict_order['client_start'] = order.client_start
+    dict_order['client_end'] = order.client_end
+    dict_order['L_50'] = 0
+    dict_order['U_50'] = 0
+    dict_order['S_80'] = 0
+    if order.complete_percent == 1:
+        dict_order['L_50'] = order.money
+    elif order.complete_percent == 2:
+        dict_order['U_50'] = order.money
+    elif order.complete_percent == 3:
+        dict_order['S_80'] = order.money
+    dict_order['money'] = ''
+    dict_order['medium_money2'] = ''
+    dict_order['now_Q_money_check'] = ''
+
+    dict_order['now_Q_money_zhixing'] = ''
+    # 下季度执行金额
+    dict_order['after_Q_money'] = ''
+    # 上季度执行金额
+    dict_order['last_Q_money'] = ''
+    # 本季度按月执行额
+
+    dict_order['first_month_money'] = ''
+    dict_order['second_month_money'] = ''
+    dict_order['third_month_money'] = ''
+
+    dt_format = "%d%m%Y"
+    start_datetime = datetime.datetime.strptime(
+        order.client_start.strftime(dt_format), dt_format)
+    end_datetime = datetime.datetime.strptime(
+        order.client_end.strftime(dt_format), dt_format)
+    pre_month_days = get_monthes_pre_days(start_datetime, end_datetime)
+    dict_order['pre_month_days'] = set([k['month'] for k in pre_month_days])
     return dict_order
 
 
@@ -665,6 +747,28 @@ def medium_index():
                                           datetime.datetime.strptime(end_Q_month.strftime(dt_format), dt_format))
 
     pre_month_days = set([k['month'] for k in pre_month_days])
+
+    # 获取洽谈中的订单
+    intention_orders = [k for k in IntentionOrder.query.filter(int(now_year) >= DoubanOrder.client_start_year,
+                                                               int(now_year) <= DoubanOrder.client_end_year)]
+    intention_orders = [_new_intention_order_to_dict(
+        k) for k in intention_orders]
+    intention_orders = [k for k in intention_orders if len(
+        pre_month_days & k['pre_month_days']) > 0]
+    if location_id:
+        intention_orders = [
+            k for k in intention_orders if location_id in k['locations']]
+    if g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or \
+            g.user.is_finance() or g.user.is_media_leader():
+        intention_orders = intention_orders
+    elif g.user.is_leader():
+        intention_orders = [
+            o for o in intention_orders if g.user.location in o['locations']]
+    else:
+        intention_orders = [o for o in intention_orders if (
+            g.user.id in o['salers_ids']) or (g.user.id in o['get_saler_leaders'])]
+    # 获取洽谈中的订单结束
+
     # 获取直签豆瓣订单
     douban_orders = [k for k in DoubanOrder.query.filter(int(now_year) >= DoubanOrder.client_start_year,
                                                          int(now_year) <= DoubanOrder.client_end_year,
@@ -694,11 +798,12 @@ def medium_index():
         douban_orders = [
             o for o in douban_orders if (g.user.id in o['salers_ids']) or (g.user.id in o['get_saler_leaders'])]
     douban_data = {'Delivered': [],
-                   'Confirmed': []}
+                   'Confirmed': [],
+                   'Intention': [o for o in intention_orders if o['medium_id'] == 0]}
     for k in douban_orders:
-        if k['contract']:
+        if k['contract'] and k['contract_status'] == 20:
             douban_data['Delivered'].append(k)
-        else:
+        elif k['contract'] and k['contract_status'] != 20:
             douban_data['Confirmed'].append(k)
     # 获取直签豆瓣订单结束
 
@@ -730,170 +835,199 @@ def medium_index():
         medium_orders = [
             o for o in medium_orders if (g.user.id in o['salers_ids']) or (g.user.id in o['get_saler_leaders'])]
     youli_data = {'Delivered': [],
-                  'Confirmed': []}
+                  'Confirmed': [],
+                  'Intention': [o for o in intention_orders if o['medium_id'] == 3]}
     youli_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [3] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [3] and k['contract'] and k['contract_status'] == 20]
     youli_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [3]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     wuxian_data = {'Delivered': [],
-                   'Confirmed': []}
+                   'Confirmed': [],
+                   'Intention': [o for o in intention_orders if o['medium_id'] == 8]}
     wuxian_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [8] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [8] and k['contract'] and k['contract_status'] == 20]
     wuxian_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [8]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     zhihu_data = {'Delivered': [],
-                  'Confirmed': []}
+                  'Confirmed': [],
+                  'Intention': [o for o in intention_orders if o['medium_id'] == 5]}
     zhihu_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [5] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [5] and k['contract'] and k['contract_status'] == 20]
     zhihu_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [5]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
     weipiao_data = {'Delivered': [],
-                    'Confirmed': []}
+                    'Confirmed': [],
+                    'Intention': [o for o in intention_orders if o['medium_id'] == 52]}
     weipiao_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [52] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [52] and k['contract'] and k['contract_status'] == 20]
     weipiao_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [52]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     one_data = {'Delivered': [],
-                'Confirmed': []}
+                'Confirmed': [],
+                'Intention': [o for o in intention_orders if o['medium_id'] in [51, 67]]}
     one_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [51, 67] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [51, 67] and k['contract'] and k['contract_status'] == 20]
     one_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [51, 67]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     xueqiu_data = {'Delivered': [],
-                   'Confirmed': []}
+                   'Confirmed': [],
+                   'Intention': [o for o in intention_orders if o['medium_id'] == 9]}
     xueqiu_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [9] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [9] and k['contract'] and k['contract_status'] == 20]
     xueqiu_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [9]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     huxiu_data = {'Delivered': [],
-                  'Confirmed': []}
+                  'Confirmed': [],
+                  'Intention': [o for o in intention_orders if o['medium_id'] in [14, 57]]}
     huxiu_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [14, 57] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [14, 57] and k['contract'] and k['contract_status'] == 20]
     huxiu_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [14, 57]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     ledongli_data = {'Delivered': [],
-                     'Confirmed': []}
+                     'Confirmed': [],
+                     'Intention': [o for o in intention_orders if o['medium_id'] == 66]}
     ledongli_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [66] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [66] and k['contract'] and k['contract_status'] == 20]
     ledongli_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [66]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     kecheng_data = {'Delivered': [],
-                    'Confirmed': []}
+                    'Confirmed': [],
+                    'Intention': [o for o in intention_orders if o['medium_id'] == 4]}
     kecheng_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [4] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [4] and k['contract'] and k['contract_status'] == 20]
     kecheng_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [4]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     xiecheng_data = {'Delivered': [],
-                     'Confirmed': []}
+                     'Confirmed': [],
+                     'Intention': [o for o in intention_orders if o['medium_id'] == 59]}
     xiecheng_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [59] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [59] and k['contract'] and k['contract_status'] == 20]
     xiecheng_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [59]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     momo_data = {'Delivered': [],
-                 'Confirmed': []}
+                 'Confirmed': [],
+                 'Intention': [o for o in intention_orders if o['medium_id'] == 7]}
     momo_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [7] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [7] and k['contract'] and k['contract_status'] == 20]
     momo_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [7]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     lama_data = {'Delivered': [],
-                 'Confirmed': []}
+                 'Confirmed': [],
+                 'Intention': [o for o in intention_orders if o['medium_id'] == 39]}
     lama_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [39] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [39] and k['contract'] and k['contract_status'] == 20]
     lama_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [39]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     nice_data = {'Delivered': [],
-                 'Confirmed': []}
+                 'Confirmed': [],
+                 'Intention': [o for o in intention_orders if o['medium_id'] == 12]}
     nice_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [12] and k['contract']]
+        k for k in medium_orders if k['medium_id'] in [12] and k['contract'] and k['contract_status'] == 20]
     nice_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] in [12]
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     except_medium_ids = [3, 8, 5, 52, 51, 67, 9, 14, 57, 66, 4, 59, 7, 39, 12]
     other_data = {'Delivered': [],
-                  'Confirmed': []}
+                  'Confirmed': [],
+                  'Intention': [o for o in intention_orders if o['medium_id'] not in except_medium_ids]}
     other_data['Delivered'] = [k for k in medium_orders if k[
-        'medium_id'] not in except_medium_ids and k['contract']]
+        'medium_id'] not in except_medium_ids and k['contract'] and k['contract_status'] == 20]
     other_data['Confirmed'] = [
         k for k in medium_orders if k['medium_id'] not in except_medium_ids
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
-
+        and k['contract'] and k['contract_status'] != 20]
     meijie_data = {'Delivered': [],
-                   'Confirmed': []}
+                   'Confirmed': [],
+                   'Intention': []}
     meijie_data['Delivered'] = [k for k in medium_orders if k[
-        'contract'] and 148 in k['salers_ids']]
+        'contract'] and 148 in k['salers_ids'] and k['contract_status'] == 20]
     meijie_data['Confirmed'] = [
         k for k in medium_orders if 148 in k['salers_ids']
-        and k['contract'] == ''
-        and k['contract_status'] in [1, 2, 6]]
+        and k['contract'] and k['contract_status'] != 20]
 
     total_money = sum([k['money'] for k in douban_data['Delivered']]) + \
+        sum([k['money'] for k in douban_data['Confirmed']]) + \
         sum([k['money'] for k in youli_data['Delivered']]) +\
+        sum([k['money'] for k in youli_data['Confirmed']]) + \
         sum([k['money'] for k in wuxian_data['Delivered']]) +\
+        sum([k['money'] for k in wuxian_data['Confirmed']]) + \
         sum([k['money'] for k in zhihu_data['Delivered']]) + \
+        sum([k['money'] for k in zhihu_data['Confirmed']]) + \
         sum([k['money'] for k in weipiao_data['Delivered']]) + \
+        sum([k['money'] for k in weipiao_data['Confirmed']]) + \
         sum([k['money'] for k in one_data['Delivered']]) +\
+        sum([k['money'] for k in one_data['Confirmed']]) + \
         sum([k['money'] for k in xueqiu_data['Delivered']]) +\
+        sum([k['money'] for k in xueqiu_data['Confirmed']]) + \
         sum([k['money'] for k in huxiu_data['Delivered']]) + \
+        sum([k['money'] for k in huxiu_data['Confirmed']]) + \
         sum([k['money'] for k in ledongli_data['Delivered']]) + \
+        sum([k['money'] for k in ledongli_data['Confirmed']]) + \
         sum([k['money'] for k in kecheng_data['Delivered']]) +\
+        sum([k['money'] for k in kecheng_data['Confirmed']]) + \
         sum([k['money'] for k in xiecheng_data['Delivered']]) +\
+        sum([k['money'] for k in xiecheng_data['Confirmed']]) + \
         sum([k['money'] for k in momo_data['Delivered']]) + \
+        sum([k['money'] for k in momo_data['Confirmed']]) + \
         sum([k['money'] for k in lama_data['Delivered']]) + \
+        sum([k['money'] for k in lama_data['Confirmed']]) + \
         sum([k['money'] for k in nice_data['Delivered']]) + \
+        sum([k['money'] for k in nice_data['Confirmed']]) + \
+        sum([k['money'] for k in other_data['Confirmed']]) + \
         sum([k['money'] for k in other_data['Delivered']])
 
     total_medium_money2 = sum([k['medium_money2'] for k in douban_data['Delivered']]) + \
+        sum([k['medium_money2'] for k in douban_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in youli_data['Delivered']]) +\
+        sum([k['medium_money2'] for k in youli_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in wuxian_data['Delivered']]) +\
+        sum([k['medium_money2'] for k in wuxian_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in zhihu_data['Delivered']]) + \
+        sum([k['medium_money2'] for k in zhihu_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in weipiao_data['Delivered']]) + \
+        sum([k['medium_money2'] for k in weipiao_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in one_data['Delivered']]) +\
+        sum([k['medium_money2'] for k in one_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in xueqiu_data['Delivered']]) +\
+        sum([k['medium_money2'] for k in xueqiu_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in huxiu_data['Delivered']]) + \
+        sum([k['medium_money2'] for k in huxiu_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in ledongli_data['Delivered']]) + \
+        sum([k['medium_money2'] for k in ledongli_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in kecheng_data['Delivered']]) +\
+        sum([k['medium_money2'] for k in kecheng_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in xiecheng_data['Delivered']]) +\
+        sum([k['medium_money2'] for k in xiecheng_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in momo_data['Delivered']]) + \
+        sum([k['medium_money2'] for k in momo_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in lama_data['Delivered']]) + \
+        sum([k['medium_money2'] for k in lama_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in nice_data['Delivered']]) + \
+        sum([k['medium_money2'] for k in nice_data['Confirmed']]) + \
+        sum([k['medium_money2'] for k in other_data['Confirmed']]) + \
         sum([k['medium_money2'] for k in other_data['Delivered']])
 
     total_now_Q_money_check = sum([k['now_Q_money_check'] for k in douban_data['Delivered']]) + \
@@ -913,67 +1047,127 @@ def medium_index():
         sum([k['now_Q_money_check'] for k in other_data['Delivered']])
 
     total_now_Q_money_zhixing = sum([k['now_Q_money_zhixing'] for k in douban_data['Delivered']]) + \
+        sum([k['now_Q_money_zhixing'] for k in douban_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in youli_data['Delivered']]) +\
+        sum([k['now_Q_money_zhixing'] for k in youli_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in wuxian_data['Delivered']]) +\
+        sum([k['now_Q_money_zhixing'] for k in wuxian_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in zhihu_data['Delivered']]) + \
+        sum([k['now_Q_money_zhixing'] for k in zhihu_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in weipiao_data['Delivered']]) + \
+        sum([k['now_Q_money_zhixing'] for k in weipiao_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in one_data['Delivered']]) +\
+        sum([k['now_Q_money_zhixing'] for k in one_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in xueqiu_data['Delivered']]) +\
+        sum([k['now_Q_money_zhixing'] for k in xueqiu_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in huxiu_data['Delivered']]) + \
+        sum([k['now_Q_money_zhixing'] for k in huxiu_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in ledongli_data['Delivered']]) + \
+        sum([k['now_Q_money_zhixing'] for k in ledongli_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in kecheng_data['Delivered']]) +\
+        sum([k['now_Q_money_zhixing'] for k in kecheng_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in xiecheng_data['Delivered']]) +\
+        sum([k['now_Q_money_zhixing'] for k in xiecheng_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in momo_data['Delivered']]) + \
+        sum([k['now_Q_money_zhixing'] for k in momo_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in lama_data['Delivered']]) + \
+        sum([k['now_Q_money_zhixing'] for k in lama_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in nice_data['Delivered']]) + \
+        sum([k['now_Q_money_zhixing'] for k in nice_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in other_data['Confirmed']]) + \
         sum([k['now_Q_money_zhixing'] for k in other_data['Delivered']])
 
     total_first_month_money = sum([k['first_month_money'] for k in douban_data['Delivered']]) + \
+        sum([k['first_month_money'] for k in douban_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in youli_data['Delivered']]) +\
+        sum([k['first_month_money'] for k in youli_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in wuxian_data['Delivered']]) +\
+        sum([k['first_month_money'] for k in wuxian_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in zhihu_data['Delivered']]) + \
+        sum([k['first_month_money'] for k in zhihu_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in weipiao_data['Delivered']]) + \
+        sum([k['first_month_money'] for k in weipiao_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in one_data['Delivered']]) +\
+        sum([k['first_month_money'] for k in one_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in xueqiu_data['Delivered']]) +\
+        sum([k['first_month_money'] for k in xueqiu_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in huxiu_data['Delivered']]) + \
+        sum([k['first_month_money'] for k in huxiu_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in ledongli_data['Delivered']]) + \
+        sum([k['first_month_money'] for k in ledongli_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in kecheng_data['Delivered']]) +\
+        sum([k['first_month_money'] for k in kecheng_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in xiecheng_data['Delivered']]) +\
+        sum([k['first_month_money'] for k in xiecheng_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in momo_data['Delivered']]) + \
+        sum([k['first_month_money'] for k in momo_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in lama_data['Delivered']]) + \
+        sum([k['first_month_money'] for k in lama_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in nice_data['Delivered']]) + \
+        sum([k['first_month_money'] for k in nice_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in other_data['Confirmed']]) + \
         sum([k['first_month_money'] for k in other_data['Delivered']])
 
     total_second_month_money = sum([k['second_month_money'] for k in douban_data['Delivered']]) + \
+        sum([k['second_month_money'] for k in douban_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in youli_data['Delivered']]) +\
+        sum([k['second_month_money'] for k in youli_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in wuxian_data['Delivered']]) +\
+        sum([k['second_month_money'] for k in wuxian_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in zhihu_data['Delivered']]) + \
+        sum([k['second_month_money'] for k in zhihu_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in weipiao_data['Delivered']]) + \
+        sum([k['second_month_money'] for k in weipiao_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in one_data['Delivered']]) +\
+        sum([k['second_month_money'] for k in one_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in xueqiu_data['Delivered']]) +\
+        sum([k['second_month_money'] for k in xueqiu_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in huxiu_data['Delivered']]) + \
+        sum([k['second_month_money'] for k in huxiu_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in ledongli_data['Delivered']]) + \
+        sum([k['second_month_money'] for k in ledongli_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in kecheng_data['Delivered']]) +\
+        sum([k['second_month_money'] for k in kecheng_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in xiecheng_data['Delivered']]) +\
+        sum([k['second_month_money'] for k in xiecheng_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in momo_data['Delivered']]) + \
+        sum([k['second_month_money'] for k in momo_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in lama_data['Delivered']]) + \
+        sum([k['second_month_money'] for k in lama_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in nice_data['Delivered']]) + \
+        sum([k['second_month_money'] for k in nice_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in other_data['Confirmed']]) + \
         sum([k['second_month_money'] for k in other_data['Delivered']])
 
     total_third_month_money = sum([k['third_month_money'] for k in douban_data['Delivered']]) + \
+        sum([k['third_month_money'] for k in douban_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in youli_data['Delivered']]) +\
+        sum([k['third_month_money'] for k in youli_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in wuxian_data['Delivered']]) +\
+        sum([k['third_month_money'] for k in wuxian_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in zhihu_data['Delivered']]) + \
+        sum([k['third_month_money'] for k in zhihu_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in weipiao_data['Delivered']]) + \
+        sum([k['third_month_money'] for k in weipiao_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in one_data['Delivered']]) +\
+        sum([k['third_month_money'] for k in one_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in xueqiu_data['Delivered']]) +\
+        sum([k['third_month_money'] for k in xueqiu_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in huxiu_data['Delivered']]) + \
+        sum([k['third_month_money'] for k in huxiu_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in ledongli_data['Delivered']]) + \
+        sum([k['third_month_money'] for k in ledongli_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in kecheng_data['Delivered']]) +\
+        sum([k['third_month_money'] for k in kecheng_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in xiecheng_data['Delivered']]) +\
+        sum([k['third_month_money'] for k in xiecheng_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in momo_data['Delivered']]) + \
+        sum([k['third_month_money'] for k in momo_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in lama_data['Delivered']]) + \
+        sum([k['third_month_money'] for k in lama_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in nice_data['Delivered']]) + \
+        sum([k['third_month_money'] for k in nice_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in other_data['Confirmed']]) + \
         sum([k['third_month_money'] for k in other_data['Delivered']])
     if request.values.get('action') == 'download':
         response = write_medium_index_excel(Q=now_Q, now_year=now_year,

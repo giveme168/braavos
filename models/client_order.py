@@ -117,6 +117,132 @@ table_medium_orders = db.Table('client_order_medium_orders',
                                )
 
 
+COMPLETE_PERCENT_50_L = 1
+COMPLETE_PERCENT_50_U = 2
+COMPLETE_PERCENT_80 = 3
+COMPLETE_PERCENT_CN = {
+    COMPLETE_PERCENT_50_L: u'50%以下预估',
+    COMPLETE_PERCENT_50_U: u'50%以上预估',
+    COMPLETE_PERCENT_80: u'80%预估'
+}
+
+
+intention_direct_sales = db.Table('intention_order_direct_sales',
+                                  db.Column(
+                                      'sale_id', db.Integer, db.ForeignKey('user.id')),
+                                  db.Column(
+                                      'intent_order_id', db.Integer, db.ForeignKey('bra_intention_order.id'))
+                                  )
+intention_agent_sales = db.Table('intention_order_agent_sales',
+                                 db.Column(
+                                     'sale_id', db.Integer, db.ForeignKey('user.id')),
+                                 db.Column(
+                                     'intent_order_id', db.Integer, db.ForeignKey('bra_intention_order.id'))
+                                 )
+
+
+# 销售洽谈中的订单
+class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
+    __tablename__ = "bra_intention_order"
+
+    id = db.Column(db.Integer, primary_key=True)
+    agent = db.Column(db.String(100))     # 代理名称
+    medium_id = db.Column(db.Integer)
+    complete_percent = db.Column(db.Integer)
+    money = db.Column(db.Float())         # 客户合同金额
+    client = db.Column(db.String(100))    # 客户名称
+    campaign = db.Column(db.String(100))  # 活动名称
+    client_start = db.Column(db.Date)
+    client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
+    direct_sales = db.relationship('User', secondary=intention_direct_sales)
+    agent_sales = db.relationship('User', secondary=intention_agent_sales)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('intention_order_creator', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+
+    def __init__(self, agent, client, campaign, medium_id,
+                 complete_percent=1, money=0.0,
+                 client_start=None, client_end=None,
+                 direct_sales=None, agent_sales=None,
+                 creator=None, create_time=None):
+        self.agent = agent
+        self.client = client
+        self.campaign = campaign
+        self.medium_id = medium_id
+        self.complete_percent = complete_percent
+        self.money = money
+        self.client_start = client_start or datetime.date.today()
+        self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
+
+        self.direct_sales = direct_sales or []
+        self.agent_sales = agent_sales or []
+
+        self.creator = creator
+        self.create_time = create_time or datetime.datetime.now()
+
+    @property
+    def locations(self):
+        return list(set([u.location for u in self.direct_sales + self.agent_sales]))
+
+    @property
+    def locations_cn(self):
+        return ",".join([TEAM_LOCATION_CN[l] for l in self.locations])
+
+    @property
+    def direct_sales_names(self):
+        return ",".join([u.name for u in self.direct_sales])
+
+    @property
+    def agent_sales_names(self):
+        return ",".join([u.name for u in self.agent_sales])
+
+    @property
+    def start_date(self):
+        return self.client_start
+
+    @property
+    def end_date(self):
+        return self.client_end
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
+    @property
+    def start_date_cn(self):
+        return self.start_date.strftime(DATE_FORMAT)
+
+    @property
+    def end_date_cn(self):
+        return self.end_date.strftime(DATE_FORMAT)
+
+    @property
+    def complete_percent_cn(self):
+        return COMPLETE_PERCENT_CN[self.complete_percent]
+
+    @property
+    def medium_cn(self):
+        from medium import Medium
+        if self.medium_id == 0:
+            return u'豆瓣'
+        return Medium.get(self.medium_id).name
+
+    @property
+    def search_info(self):
+        return self.agent + self.client + self.campaign + self.medium_cn
+
+    def get_saler_leaders(self):
+        leaders = []
+        for user in self.agent_sales + self.direct_sales:
+            leaders += user.team_leaders
+        return leaders
+
+
 class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'bra_client_order'
 
