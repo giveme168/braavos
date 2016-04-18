@@ -20,21 +20,25 @@ def _parse_dict_order(order):
     d_order['month_day'] = order.month_day
     d_order['medium_id'] = order.order.medium.id
     d_order['money'] = order.client_order.money
+    d_order['order_sale_money'] = order.order.sale_money
     d_order['contract_status'] = order.client_order.contract_status
     d_order['sale_money'] = order.sale_money
     d_order['medium_money2'] = order.medium_money2
     medium_rebate = order.order.medium_rebate_by_year(d_order['month_day'])
     agent_rebate = order.client_order.agent_rebate
     d_order['medium_rebate_value'] = d_order['medium_money2'] * medium_rebate / 100
-    d_order['agent_rebate_value'] = d_order['sale_money'] * agent_rebate / 100
     # 单笔返点
     try:
         self_agent_rebate = order.client_order.self_agent_rebate
-        d_order['self_agent_rebate'] = int(self_agent_rebate.split('-')[0])
-        d_order['agent_rebate_value'] = int(self_agent_rebate.split('-')[1])
+        d_order['self_agent_rebate'] = float(self_agent_rebate.split('-')[0])
+        d_order['self_agent_rebate_value'] = float(self_agent_rebate.split('-')[1])
     except:
         d_order['self_agent_rebate'] = 0
-        d_order['agent_rebate_value'] = 0
+        d_order['self_agent_rebate_value'] = 0
+    if d_order['self_agent_rebate']:
+        d_order['agent_rebate_value'] = d_order['self_agent_rebate_value'] * d_order['sale_money'] / d_order['money']
+    else:
+        d_order['agent_rebate_value'] = d_order['sale_money'] * agent_rebate / 100
     d_order['status'] = order.status
     return d_order
 
@@ -55,7 +59,7 @@ def index():
     ex_medium_orders = MediumOrderExecutiveReport.query.filter(
         MediumOrderExecutiveReport.month_day >= start_date_month,
         MediumOrderExecutiveReport.month_day <= end_date_month)
-    ex_medium_orders = [_parse_dict_order(k) for k in ex_medium_orders]
+    ex_medium_orders = [_parse_dict_order(k) for k in ex_medium_orders if k.status == 1]
     ex_medium_orders = [k for k in ex_medium_orders if k[
         'contract_status'] not in [0, 7, 8, 9] and k['status'] == 1]
 

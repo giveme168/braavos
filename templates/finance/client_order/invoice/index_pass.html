@@ -30,13 +30,6 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-2" style="padding:0;margin-right:5px;">
-            <select class="col-md-12" id="orderby" name="orderby" placeholder="排序方式">
-                <option value="create_time">按添加时间排序</option>
-                <option value="reminde_date">按回款时间排序</option>
-                <option value="contract">按合同号排序</option>
-            </select>
-        </div>
         <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
         <a class="btn btn-sm btn-default" href="{{url_for('finance_client_order_invoice.index_pass')}}?type=excel">下载</a>
     </div>
@@ -73,35 +66,13 @@
     {% include "pagination.html" %}
 </div>
 <script>
-    function sort(value) {
-        var orderby = '{{orderby}}',
-            sortby = '{{sortby}}';
-        if (value == sortby) {
-            if (orderby == 'desc') {
-                orderby = 'asc'
-            } else {
-                orderby = 'desc'
-            }
-        } else {
-            sortby = value
-            orderby = 'desc'
-        }
-        window.location.href = window.location.pathname + '?sortby=' + sortby + '&orderby=' + orderby +
-            '&searchinfo=' + encodeURIComponent($('#search_info').val()) +
-            '&selected_location=' + encodeURIComponent($('#search_location').val())+
-            '&year='+$('#year').val();
-    }
-
     function search() {
         window.location.href = window.location.pathname +
             '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
             '&selected_location=' + ($('#search_location').val()) +
-            '&orderby=' + ($('#orderby').val())+
             '&year='+$('#year').val();
     }
     $(function() {
-        $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
-        $("#orderby").trigger("chosen:updated");
         $('#year').val('{{year}}');
         $("#year").trigger("chosen:updated");
     });

@@ -9,6 +9,29 @@
         <li class=""><a href="{{url_for('finance_client_order_agent_pay.index')}}">所有客户付款信息</a></li>
     </ul>
     <h3>申请中的客户付款信息</h3>
+    <div class="search">
+        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
+        <div class="col-md-1" style="padding:0;margin:0 5px;">
+            <select class="form-control" id="year" name="year">
+                {% for k in range(5) %}
+                    <option value="{{2014+k}}">{{2014+k}}年度</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
+            <select class="col-md-12" id="search_location" name="location" placeholder="区域">
+                {% for v, m in locations %}
+                    {% if v == location_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                    {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
+    </div>
+    <br/>
     <table class="table table-bordered table-striped">
         <tr>
             <th>客户名称</th>
@@ -38,4 +61,16 @@
         {% endfor %}
     </table>
 </div>
+<script>
+    function search() {
+        window.location.href = window.location.pathname +
+            '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&selected_location=' + ($('#search_location').val()) +
+            '&year='+$('#year').val();
+    }
+    $(function() {
+        $('#year').val('{{year}}');
+        $("#year").trigger("chosen:updated");
+    });
+</script>
 {% endblock %}

@@ -27,11 +27,30 @@ ORDER_PAGE_NUM = 50
 def index():
     if not g.user.is_finance():
         abort(404)
+    search_info = request.args.get('searchinfo', '')
+    location_id = int(request.args.get('selected_location', '-1'))
+    year = int(request.values.get('year', datetime.datetime.now().year))
     orders = set([
         invoice.client_order for invoice in MediumRebateInvoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
+    if location_id >= 0:
+        orders = [o for o in orders if location_id in o.locations]
+    orders = [k for k in orders if k.client_start.year ==
+              year or k.client_end.year == year]
+    if search_info != '':
+        orders = [
+            o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
+    select_locations = TEAM_LOCATION_CN.items()
+    select_locations.insert(0, (-1, u'全部区域'))
+    select_statuses = CONTRACT_STATUS_CN.items()
+    select_statuses.insert(0, (-1, u'全部合同状态'))
     for k in orders:
         k.apply_count = len(k.get_medium_rebate_invoice_by_status(3))
-    return tpl('/finance/client_order/medium_rebate_invoice/index.html', orders=orders)
+    return tpl('/finance/client_order/medium_rebate_invoice/index.html', orders=orders,
+               locations=select_locations,
+               location_id=location_id, statuses=select_statuses,
+               now_date=datetime.date.today(), search_info=search_info, year=year,
+               params='?&searchinfo=%s&selected_location=%s&year=%s' %
+                      (search_info, location_id, str(year)))
 
 
 @finance_client_order_medium_rebate_invoice_bp.route('/pass', methods=['GET'])
@@ -46,7 +65,8 @@ def index_pass():
     year = int(request.values.get('year', datetime.datetime.now().year))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
-    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
+    orders = [k for k in orders if k.client_start.year ==
+              year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
@@ -106,7 +126,8 @@ def new_invoice(order_id, redirect_epoint='finance_client_order_medium_rebate_in
         abort(404)
     form = MediumRebateInvoiceForm(request.form)
     form.client_order.choices = [(order.id, order.client.name)]
-    form.medium.choices = [(medium.id, medium.name) for medium in order.mediums]
+    form.medium.choices = [(medium.id, medium.name)
+                           for medium in order.mediums]
     if request.method == 'POST' and form.validate():
         medium = Medium.get(form.medium.data)
         # if float(form.money.data) > float(order.get_medium_rebate_money(medium) -

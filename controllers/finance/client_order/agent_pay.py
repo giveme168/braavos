@@ -41,7 +41,8 @@ def index():
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
-    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
+    orders = [k for k in orders if k.client_start.year ==
+              year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
@@ -70,10 +71,29 @@ def index():
 def apply():
     if not g.user.is_finance():
         abort(404)
+    search_info = request.args.get('searchinfo', '')
+    location_id = int(request.args.get('selected_location', '-1'))
+    year = int(request.values.get('year', datetime.datetime.now().year))
     orders = list([
         invoicepay.agent_invoice.client_order for invoicepay in
         AgentInvoicePay.get_agent_invoices_pay_status(3)])
-    return tpl('/finance/client_order/agent_pay/index_pass.html', orders=orders, title=u'申请中的客户付款')
+    if location_id >= 0:
+        orders = [o for o in orders if location_id in o.locations]
+    orders = [k for k in orders if k.client_start.year ==
+              year or k.client_end.year == year]
+    if search_info != '':
+        orders = [
+            o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
+    select_locations = TEAM_LOCATION_CN.items()
+    select_locations.insert(0, (-1, u'全部区域'))
+    select_statuses = CONTRACT_STATUS_CN.items()
+    select_statuses.insert(0, (-1, u'全部合同状态'))
+    return tpl('/finance/client_order/agent_pay/index_pass.html', orders=orders, title=u'申请中的客户付款',
+               locations=select_locations,
+               location_id=location_id, statuses=select_statuses,
+               now_date=datetime.date.today(), search_info=search_info, year=year,
+               params='?&searchinfo=%s&selected_location=%s&year=%s' %
+                      (search_info, location_id, str(year)))
 
 
 @finance_client_order_agent_pay_bp.route('/pass', methods=['GET'])
@@ -216,7 +236,8 @@ def invoice_delete(invoice_id):
         flash(u'删除失败，该发票已有付款项', 'danger')
         return redirect(url_for("finance_client_order_agent_pay.info", order_id=order_id))
     flash(u'删除成功', 'success')
-    invoice.client_order.add_comment(g.user, u"删除了发票信息  发票号：%s" % (invoice.invoice_num), msg_channel=5)
+    invoice.client_order.add_comment(
+        g.user, u"删除了发票信息  发票号：%s" % (invoice.invoice_num), msg_channel=5)
     invoice.delete()
     return redirect(url_for("finance_client_order_agent_pay.info", order_id=order_id))
 
