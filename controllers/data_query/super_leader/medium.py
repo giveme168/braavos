@@ -52,10 +52,14 @@ def _get_medium_moneys(orders, pre_monthes, medium_ids, o_type='zhiqian_order', 
                     m_ex_money = 0
                     # 代理返点
                     a_rebate = 0
-                    if year == 2015:
+                    if year == 2016:
                         # 按区分媒体金额
                         money2 = sum([o['medium_money2'] / len(o['locations'])
-                                      for o in location_orders]) * 0.4
+                                      for o in location_orders]) * 0.18
+                    elif year == 2014:
+                        # 按区分媒体金额
+                        money2 = sum([o['medium_money2'] / len(o['locations'])
+                                      for o in location_orders]) * 0.426
                         for l_order in location_orders:
                             if int(l_order['self_agent_rebate']):
                                 a_rebate += float(l_order['self_agent_rebate_value']) / len(
@@ -66,7 +70,14 @@ def _get_medium_moneys(orders, pre_monthes, medium_ids, o_type='zhiqian_order', 
                     else:
                         # 按区分媒体金额
                         money2 = sum([o['medium_money2'] / len(o['locations'])
-                                      for o in location_orders]) * 0.18
+                                      for o in location_orders]) * 0.4
+                        for l_order in location_orders:
+                            if int(l_order['self_agent_rebate']):
+                                a_rebate += float(l_order['self_agent_rebate_value']) / len(
+                                    l_order['locations'])
+                            else:
+                                a_rebate += float(l_order['sale_money']) / len(l_order['locations']) * float(l_order[
+                                    'agent_rebate']) / 100
                     # 净利润
                     profit = money2 - a_rebate
                 else:
@@ -363,17 +374,24 @@ def money():
     # 豆瓣收入、服务费、返点、毛利为直签豆瓣+优力和无线总和
     douban_money['sale_money'] = numpy.array(
         douban_money['sale_money']) + numpy.array(ass_douban_money['money2'])
-    if year == 2015:
+    if year == 2016:
         douban_money['money2'] = numpy.array(
-            douban_money['money2']) + numpy.array([k * 0.4 for k in ass_douban_money['money2']])
+            douban_money['money2']) + numpy.array([k * 0.18 for k in ass_douban_money['money2']])
+        douban_money['a_rebate'] = [0 for k in range(36)]
+        douban_money['profit'] = numpy.array(
+            douban_money['money2']) - numpy.array(douban_money['a_rebate'])
+    elif year == 2014:
+        douban_money['money2'] = numpy.array(
+            douban_money['money2']) + numpy.array([k * 0.426 for k in ass_douban_money['money2']])
         douban_money['a_rebate'] = numpy.array(
             douban_money['a_rebate']) + numpy.array(ass_douban_money['a_rebate'])
         douban_money['profit'] = numpy.array(
             douban_money['money2']) - numpy.array(douban_money['a_rebate'])
     else:
         douban_money['money2'] = numpy.array(
-            douban_money['money2']) + numpy.array([k * 0.18 for k in ass_douban_money['money2']])
-        douban_money['a_rebate'] = [0 for k in range(36)]
+            douban_money['money2']) + numpy.array([k * 0.4 for k in ass_douban_money['money2']])
+        douban_money['a_rebate'] = numpy.array(
+            douban_money['a_rebate']) + numpy.array(ass_douban_money['a_rebate'])
         douban_money['profit'] = numpy.array(
             douban_money['money2']) - numpy.array(douban_money['a_rebate'])
     # 计算豆瓣收入、服务费、返点、毛利为直签豆瓣+优力和无线总和

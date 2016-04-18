@@ -527,7 +527,10 @@ def _new_douban_order_to_dict(douban_order, last_Q_monthes, now_Q_monthes, after
         [u.name for u in douban_order.operater_users])
     dict_order['client_start'] = douban_order.client_start
     dict_order['client_end'] = douban_order.client_end
-    dict_order['finish_time'] = douban_order.finish_time.date().replace(day=1)
+    try:
+        dict_order['finish_time'] = douban_order.finish_time.date().replace(day=1)
+    except:
+        dict_order['finish_time'] = datetime.datetime.now().date().replace(day=1)
     dict_order['L_50'] = ''
     dict_order['U_50'] = ''
     dict_order['S_80'] = ''
@@ -609,8 +612,10 @@ def _new_medium_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_mont
     dict_order['L_50'] = ''
     dict_order['U_50'] = ''
     dict_order['S_80'] = ''
-    dict_order[
-        'finish_time'] = order.client_order.finish_time.date().replace(day=1)
+    try:
+        dict_order['finish_time'] = order.client_order.finish_time.date().replace(day=1)
+    except:
+        dict_order['finish_time'] = datetime.datetime.now().date().replace(day=1)
     dt_format = "%d%m%Y"
     start_datetime = datetime.datetime.strptime(
         order.medium_start.strftime(dt_format), dt_format)

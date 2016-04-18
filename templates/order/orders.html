@@ -19,7 +19,7 @@
         <th>直签/代理</th>
         <th>媒体订单</th>
         <th>媒体订单状态</th>
-        <th>分成金额</th>
+        <th>媒体金额</th>
         <th>合同号</th>
         <th>预估ECPM</th>
         <th>添加时间</th>
@@ -64,7 +64,7 @@
         </td>
         <td>
             {% for mo in o.medium_orders %}    
-            {{mo.medium_money}}
+            {{mo.medium_money2}}
             <br><br>
             {% endfor %}
         </td>

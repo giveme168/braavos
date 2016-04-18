@@ -46,7 +46,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
     worksheet.merge_range(0, 0, 0, 1, u'时间', align_center)
     worksheet.merge_range(1, 0, 1, 1, u'媒体项目', align_center)
     worksheet.merge_range(2, 0, 76 + len(up_money) *
-                          5, 0, u'致趣收入', align_center)
+                          6, 0, u'致趣收入', align_center)
 
     locations = [u'华北', u'华东', u'华南']
     month_start, month_end = 2, 4
