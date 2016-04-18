@@ -1,0 +1,103 @@
+{% extends "/base.html" %}
+{% block title %}销售提成{% endblock %}
+{% block content %}
+{% include "/account/account_performance_base.html" %}
+<div class="container bra-box" style="width:2500px;">
+    <h3>销售提成</h3>
+    <div class="search">
+        <form class="form-inline" role="form" action="" method='get'>
+        <div class="form-group">
+            <select class="form-control" name="year" id="year" placeholder="选择执行年" style="width:200px;">
+                {% for k in range(5) %}
+                <option value="{{2014+k}}">{{2014+k}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="Q" id="Q" style="width:80px;" placeholder="选择执行月" style="width:200px;">
+                {% for k in range(1,5) %}
+                    <option value='Q{{k}}'>Q{{k}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control" id="location_id" name="location_id" placeholder="选择区域" style="width:200px;">
+                <option value='0'>所有区域</option>
+                <option value="1">华北区</option>
+                <option value="2">华东区</option>
+                <option value="3">华南区</option>
+            </select>
+        </div>
+        <input type="submit" value="查询" class="btn btn-sm btn-info" >
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+        </form>
+    </div>
+    <br>
+    <table class="table table-bordered">
+        <tr>
+            <th>客户</th>
+            <th>项目名称</th>
+            <th>合同编号</th>
+            <th>合同金额</th>
+            <th>项目所属时间</th>
+            <th>返点时间</th>
+            <th>返点金额</th>
+            <th>回款时间</th>
+            <th>回款金额</th>
+            <th>区域</th>
+            <th>销售</th>
+            <th>计算公式（说明：完成率* 项目提成 * 回款金额 = 提成）</th>
+            <th>提成金额</th>
+        </tr>
+        {% for k in orders %}
+        <tr>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.agent_name}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.campaign}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.contract}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.money|format_price}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.belong_time.belong_time}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.last_rebate_agent_time}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.last_rebate_agent_money|format_price}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.back_money_obj.last_time}}</td>
+            <td rowspan="{{k.salers_ids|length + 1}}">{{k.back_money_obj.now_Q_back_moneys|format_price}}</td>
+        </tr>
+            {% for s in k.agent_sales+k.direct_sales %}
+            <tr>
+                <td>{{s.location_cn}}</td>
+                <td>{{s.name}}</td>
+                <td>{{s.str_formula|safe}}</td>
+                <td>{{s.commission_money|format_price}}</td>
+            </tr>
+            {% endfor %}
+        {% endfor %}
+        <tr>
+            <td colspan=3 style="text-align: center;">合计</td>
+            <td>{{orders|sum(attribute='money')|format_price}}</td>
+            <td></td>
+            <td></td>
+            <td>{{orders|sum(attribute='last_rebate_agent_money')|format_price}}</td>
+            <td></td>
+            <td>{{orders|sum(attribute='back_money_obj.now_Q_back_moneys')|format_price}}</td>
+            <td colspan=3 style="text-align: center;"></td>
+        </tr>
+    </table>
+</div>
+<script>
+    $(function(){
+        //$("#Q option[value='{{Q}}']").attr("selected","selected");
+        $("#Q").val('{{Q}}')
+        $("#Q").trigger("chosen:updated");
+        //$("#year option[value='{{now_year}}']").attr("selected","selected");  
+        $("#year").val('{{now_year}}')
+        $("#year").trigger("chosen:updated");
+        //$("#location_id option[value='{{location_id}}']").attr("selected","selected");  
+        $("#location_id").val('{{location_id}}')
+        $("#location_id").trigger("chosen:updated");
+    })
+    function download(){
+         window.location.href = window.location.pathname +
+          '?year=' + $('#year').val() + '&Q=' + $('#Q').val() +
+          '&location_id=' + $('#location_id').val()+ '&action=download';
+    }
+</script>
+{% endblock %}

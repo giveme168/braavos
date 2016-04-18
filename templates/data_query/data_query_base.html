@@ -18,7 +18,7 @@
             <a href="{{url_for('data_query_weekly.douban_index')}}">
               <li id="_weeklydouban_" >直签豆瓣订单周报</li>
             </a>
-            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+            {% if g.user.is_super_leader() or g.user.is_media_leader() %}
             <a href="{{url_for('data_query_medium.index')}}">
               <li id="_medium_" >媒体执行额</li>
             </a>

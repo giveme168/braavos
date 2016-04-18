@@ -195,7 +195,7 @@ def search_excle_data():
     client_params = sorted(
         client_params.iteritems(), key=lambda x: x[0])
 
-    headings = [u'月份', u'已汇款金额', u'未回款金额']
+    headings = [u'月份', u'已回款金额', u'未回款金额']
     data = []
     data.append([str(k + 1) + u'月' for k in range(len(client_params))])
 
