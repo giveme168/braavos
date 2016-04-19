@@ -332,20 +332,27 @@ def agents():
     info = request.values.get('info', '')
     if info:
         agents = [k for k in agents if info in k.name]
+    agent_data = []
     for agent in agents:
+        dict_agent = {}
+        dict_agent['id'] = agent.id
+        dict_agent['name'] = agent.name
+        dict_agent['group_name'] = agent.group.name
+        dict_agent['group_id'] = agent.group.id
         if str(agent.id) + '_2014' in agent_rebate_data:
-            agent.rebate_2014 = agent_rebate_data[str(agent.id) + '_2014']
+            dict_agent['rebate_2014'] = agent_rebate_data[str(agent.id) + '_2014']
         else:
-            agent.rebate_2014 = u'无'
+            dict_agent['rebate_2014'] = u'无'
         if str(agent.id) + '_2015' in agent_rebate_data:
-            agent.rebate_2015 = agent_rebate_data[str(agent.id) + '_2015']
+            dict_agent['rebate_2015'] = agent_rebate_data[str(agent.id) + '_2015']
         else:
-            agent.rebate_2015 = u'无'
+            dict_agent['rebate_2015'] = u'无'
         if str(agent.id) + '_2016' in agent_rebate_data:
-            agent.rebate_2016 = agent_rebate_data[str(agent.id) + '_2016']
+            dict_agent['rebate_2016'] = agent_rebate_data[str(agent.id) + '_2016']
         else:
-            agent.rebate_2016 = u'无'
-    return tpl('/client/agent/index.html', agents=agents, info=info)
+            dict_agent['rebate_2016'] = u'无'
+        agent_data.append(dict_agent)
+    return tpl('/client/agent/index.html', agents=agent_data, info=info)
 
 
 @client_bp.route('/<agent_id>/files/<aid>/delete', methods=['GET'])

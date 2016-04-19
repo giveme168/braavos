@@ -27,39 +27,18 @@
             <th>2016年返点</th>
             <th>操作</th>
             {% endif %}
-            
-            {#
-            {% if g.user.is_super_admin() %}
-            <th>媒体合同关联个数</t>
-            <th>直签豆瓣合同关联个数</t>
-            <th>框架合同关联个数</th>
-            <th>关联甲方返点发票个数</th>
-            <th></th>
-            {% endif %}
-            #}
         </tr>
         {% for a in agents %}
         <tr>
             <td>{{a.id}}</td>
             <td><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
-            <td><a href="{{url_for("client.group_detail", group_id=a.group.id)}}">{{a.group.name}}</a></td>
+            <td><a href="{{url_for("client.group_detail", group_id=a.group_id)}}">{{a.group_name}}</a></td>
             {% if g.user.is_contract() or g.user.is_super_leader() %}
                 <td>{{a.rebate_2014}}</td>
                 <td>{{a.rebate_2015}}</td>
                 <td>{{a.rebate_2016}}</td>
                 <td><a href="{{url_for('client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
             {% endif %}
-            
-            {#
-            {% if g.user.is_super_admin() %}
-                <th>{{a.get_client_order_count()}}</th>
-                <th>{{a.get_douban_order_count()}}</th>
-                <th>{{a.get_framework_order_count()}}</th>
-                <th>{{a.get_agent_invoice_count()}}</th>
-                <th><a href="{{url_for('client.agent_delete', agent_id=a.id)}}">删除</a></th>
-            {% endif %}
-            #}
-
         </tr>
         {% endfor %}
     </table>
