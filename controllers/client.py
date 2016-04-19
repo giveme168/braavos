@@ -226,8 +226,8 @@ def mediums():
     medium_rebate = MediumRebate.all()
     medium_rebate_data = {}
     for k in medium_rebate:
-        if str(k.medium.id)+'_'+str(k.year.year) not in medium_rebate_data:
-            medium_rebate_data[str(k.medium.id)+'_'+str(k.year.year)] = str(k.rebate)+'%'
+        if str(k.medium.id) + '_' + str(k.year.year) not in medium_rebate_data:
+            medium_rebate_data[str(k.medium.id) + '_' + str(k.year.year)] = str(k.rebate) + '%'
     medium_data = []
     for medium in Medium.all():
         dict_medium = {}
@@ -236,16 +236,16 @@ def mediums():
         dict_medium['id'] = medium.id
         dict_medium['name'] = medium.name
         dict_medium['level'] = medium.level or 100
-        if str(medium.id)+'_2014' in medium_rebate_data:
-            dict_medium['rebate_2014'] = medium_rebate_data[str(medium.id)+'_2014']
+        if str(medium.id) + '_2014' in medium_rebate_data:
+            dict_medium['rebate_2014'] = medium_rebate_data[str(medium.id) + '_2014']
         else:
             dict_medium['rebate_2014'] = u'无'
-        if str(medium.id)+'_2015' in medium_rebate_data:
-            dict_medium['rebate_2015'] = medium_rebate_data[str(medium.id)+'_2015']
+        if str(medium.id) + '_2015' in medium_rebate_data:
+            dict_medium['rebate_2015'] = medium_rebate_data[str(medium.id) + '_2015']
         else:
             dict_medium['rebate_2015'] = u'无'
-        if str(medium.id)+'_2016' in medium_rebate_data:
-            dict_medium['rebate_2016'] = medium_rebate_data[str(medium.id)+'_2016']
+        if str(medium.id) + '_2016' in medium_rebate_data:
+            dict_medium['rebate_2016'] = medium_rebate_data[str(medium.id) + '_2016']
         else:
             dict_medium['rebate_2016'] = u'无'
         medium_data.append(dict_medium)
@@ -327,22 +327,22 @@ def agents():
     agent_rebate = AgentRebate.all()
     agent_rebate_data = {}
     for k in agent_rebate:
-        if str(k.agent.id)+'_'+str(k.year.year) not in agent_rebate_data:
-            agent_rebate_data[str(k.agent.id)+'_'+str(k.year.year)] = str(k.inad_rebate) + '%'
+        if str(k.agent.id) + '_' + str(k.year.year) not in agent_rebate_data:
+            agent_rebate_data[str(k.agent.id) + '_' + str(k.year.year)] = str(k.inad_rebate) + '%'
     info = request.values.get('info', '')
     if info:
         agents = [k for k in agents if info in k.name]
     for agent in agents:
-        if str(agent.id)+'_2014' in agent_rebate_data:
-            agent.rebate_2014 = agent_rebate_data[str(agent.id)+'_2014']
+        if str(agent.id) + '_2014' in agent_rebate_data:
+            agent.rebate_2014 = agent_rebate_data[str(agent.id) + '_2014']
         else:
             agent.rebate_2014 = u'无'
-        if str(agent.id)+'_2015' in agent_rebate_data:
-            agent.rebate_2015 = agent_rebate_data[str(agent.id)+'_2015']
+        if str(agent.id) + '_2015' in agent_rebate_data:
+            agent.rebate_2015 = agent_rebate_data[str(agent.id) + '_2015']
         else:
             agent.rebate_2015 = u'无'
-        if str(agent.id)+'_2016' in agent_rebate_data:
-            agent.rebate_2016 = agent_rebate_data[str(agent.id)+'_2016']
+        if str(agent.id) + '_2016' in agent_rebate_data:
+            agent.rebate_2016 = agent_rebate_data[str(agent.id) + '_2016']
         else:
             agent.rebate_2016 = u'无'
     return tpl('/client/agent/index.html', agents=agents, info=info)
