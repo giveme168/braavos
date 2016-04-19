@@ -26,19 +26,26 @@ def _parse_dict_order(order):
     d_order['medium_money2'] = order.medium_money2
     medium_rebate = order.order.medium_rebate_by_year(d_order['month_day'])
     agent_rebate = order.client_order.agent_rebate
-    d_order['medium_rebate_value'] = d_order['medium_money2'] * medium_rebate / 100
+    d_order['medium_rebate_value'] = d_order[
+        'medium_money2'] * medium_rebate / 100
     # 单笔返点
     try:
         self_agent_rebate = order.client_order.self_agent_rebate
         d_order['self_agent_rebate'] = float(self_agent_rebate.split('-')[0])
-        d_order['self_agent_rebate_value'] = float(self_agent_rebate.split('-')[1])
+        d_order['self_agent_rebate_value'] = float(
+            self_agent_rebate.split('-')[1])
     except:
         d_order['self_agent_rebate'] = 0
         d_order['self_agent_rebate_value'] = 0
     if d_order['self_agent_rebate']:
-        d_order['agent_rebate_value'] = d_order['self_agent_rebate_value'] * d_order['sale_money'] / d_order['money']
+        if d_order['money']:
+            d_order['agent_rebate_value'] = d_order[
+                'self_agent_rebate_value'] * d_order['sale_money'] / d_order['money']
+        else:
+            d_order['agent_rebate_value'] = 0
     else:
-        d_order['agent_rebate_value'] = d_order['sale_money'] * agent_rebate / 100
+        d_order['agent_rebate_value'] = d_order[
+            'sale_money'] * agent_rebate / 100
     d_order['status'] = order.status
     return d_order
 
@@ -59,7 +66,8 @@ def index():
     ex_medium_orders = MediumOrderExecutiveReport.query.filter(
         MediumOrderExecutiveReport.month_day >= start_date_month,
         MediumOrderExecutiveReport.month_day <= end_date_month)
-    ex_medium_orders = [_parse_dict_order(k) for k in ex_medium_orders if k.status == 1]
+    ex_medium_orders = [_parse_dict_order(
+        k) for k in ex_medium_orders if k.status == 1]
     ex_medium_orders = [k for k in ex_medium_orders if k[
         'contract_status'] not in [0, 7, 8, 9] and k['status'] == 1]
 
@@ -88,9 +96,11 @@ def index():
                             'medium_money2_data': medium_money2_data,
                             'medium_rebate_data': medium_rebate_data,
                             'agent_rebate_data': agent_rebate_data})
-    medium_data = sorted(medium_data, key=operator.itemgetter('level'), reverse=False)
+    medium_data = sorted(
+        medium_data, key=operator.itemgetter('level'), reverse=False)
     if request.values.get('action', '') == 'download':
         return write_client_excel(medium_data, year)
     return tpl('/data_query/medium/index.html', medium_data=medium_data, medium_id=medium_id,
-               year=year, params="?medium_id=%s&year=%s" % (medium_id, str(year)),
+               year=year, params="?medium_id=%s&year=%s" % (
+                   medium_id, str(year)),
                s_mediums=Medium.all())

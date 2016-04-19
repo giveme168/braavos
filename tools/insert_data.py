@@ -6,19 +6,18 @@ sys.path.append('/Users/guoyu1/workspace/inad/braavos')
 
 from app import app
 
-from models.client import Agent, AgentRebate
+from models.client import AgentRebate
 from models.user import User
 
 if __name__ == '__main__':
-    agent_rebates = AgentRebate.query.filter_by(
-        year=datetime.datetime.strptime('2015', '%Y'))
+    year_2015 = datetime.datetime.strptime('2015', '%Y').date()
+    year_2016 = datetime.datetime.strptime('2016', '%Y').date()
+    agent_rebates = AgentRebate.query.filter_by(year=year_2015)
     for k in agent_rebates:
-        try:
-            AgentRebate.add(agent=Agent.get(k.agent_id),
-                            year=datetime.datetime.strptime('2016', '%Y'),
+        if not AgentRebate.query.filter_by(agent=k.agent, year=year_2016).first():
+            AgentRebate.add(agent=k.agent,
+                            year=year_2016,
                             inad_rebate=k.inad_rebate,
                             douban_rebate=k.douban_rebate,
                             creator=User.get(95),
                             create_time=datetime.datetime.now())
-        except Exception, e:
-            print e

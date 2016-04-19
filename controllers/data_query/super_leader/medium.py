@@ -97,9 +97,11 @@ def _get_medium_moneys(orders, pre_monthes, medium_ids, o_type='zhiqian_order', 
                     for l_order in location_orders:
 
                         if int(l_order['self_agent_rebate']):
-                            a_rebate += float(l_order['self_agent_rebate_value']) * \
-                                float(
+                            if float(l_order['money']):
+                                a_rebate += float(l_order['self_agent_rebate_value']) * float(
                                     l_order['sale_money']) / float(l_order['money']) / len(l_order['locations'])
+                            else:
+                                a_rebate += 0
                         else:
                             if l_order['is_c_douban'] and agent_rebate_obj:
                                 if int(l_order['medium_id']) in agent_rebate_obj:
