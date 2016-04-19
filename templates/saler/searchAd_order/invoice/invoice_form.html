@@ -1,5 +1,5 @@
 {% from '/form.html' import form_field %}
-{% macro invoice_form(order, form, INVOICE_TYPE_CN, invoice=None) -%}
+{% macro invoice_form(order, form, INVOICE_TYPE_CN, invoice=None, add_old=False) -%}
 {% if invoice %}
 {% if order.can_admin(g.user) and invoice.invoice_status in [1, 2, 4] %}
     <div class="well">
@@ -90,7 +90,11 @@
 {% endif %}
 {% else %}
     <div class="well">
+        {% if add_old %}
+        <form class="form form-horizontal" method="POST" action="{{url_for('searchAd_saler_client_order_invoice.add_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
+        {% else %}
         <form class="form form-horizontal" method="POST" action="{{url_for('searchAd_saler_client_order_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
+        {% endif %}
         {{form.csrf_token}}
         {{ form_field(form.client_order)}}
         {{ form_field(form.company) }}
@@ -99,6 +103,14 @@
         {{ form_field(form.phone) }}
         {{ form_field(form.bank_id) }}
         {{ form_field(form.bank) }}
+        {% if add_old %}
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">发票号 : </label>
+          <div class="col-sm-4">
+            <input type="text" id="invoice_num" name="invoice_num" value="{{form.invoice_num.data}}" class="form-control bra-form-control">
+          </div>
+        </div>
+        {% endif %}
         {{ form_field(form.detail) }}
         {{ form_field(form.money) }}
         {{ form_field(form.invoice_type) }}

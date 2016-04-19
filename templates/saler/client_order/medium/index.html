@@ -35,13 +35,17 @@
       <th width="5%">操作</th>
     </tr>
     {% for invoice in invoices %}
-    <tr>
-      <td>{{invoice.medium.name}}</td>
+    {% if invoice.invoice_num == '88888888' %}
+      <tr style="border:2px solid #FF8888;">
+    {% else %}
+      <tr>
+    {% endif %}
+      <td>{{invoice.medium.name}}{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
       <td>{{invoice.company}}</td>
       <td>{{invoice.tax_id}}</td>
       <td>{{invoice.money}}元</td>
       <td>{{invoice.get_pay_money}}元</td>
-      <td>{{invoice.get_apply_pay_money}}元</td>
+      <td {% if invoice.get_apply_pay_money >0 %} style="color:red;" {% endif %}>{{invoice.get_apply_pay_money}}元</td>
       <td>{{invoice.get_unpay_money}}元</td>
       <td>{{invoice.add_time_cn}}</td>
       <td>{{invoice.invoice_type_cn}}</td>
@@ -67,9 +71,11 @@
       </div>
     </div>
   </div>
-  {% if g.user.is_super_leader() %}
+  <!--
+  {% if g.user.is_contract() or g.user.is_media() %}
   <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写发票</button>
   {% endif %}
+  -->
 </div>
 <script>
 showInvoice = function(ele) {
@@ -116,7 +122,7 @@ $(function() {
 {%- endmacro %}
 {% block content%}
   {% include "/order/order_base.html" %}
-  <div class="container bra-box">
+  <div class="container bra-box" style="width:1400px;">
     <h4> {{ order.name }} </h4>
     <div>
       {% include "saler/client_order/nav_base.html" %}

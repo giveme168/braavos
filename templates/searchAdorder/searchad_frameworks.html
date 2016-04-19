@@ -5,6 +5,7 @@
 <table class="table table-bordered table-striped">
     <tr>
         <th>直客/代理</th>
+        <th>客户</td>
         <th>合同金额</th>
         <th>合同号</th>
         <th>销售</th>
@@ -17,6 +18,7 @@
     {% for o in orders %}
     <tr>
         <td>{{o.agent.name}}</td>
+        <td>{% if o.client %}{{o.client.name}}{% else %}无{% endif %}</td>
         <td>{{o.money}}</td>
         <td><a href="{{url_for('searchAd_order.framework_order_info', order_id=o.id)}}">{{o.contract or "无合同号"}}</a></td>
         <td>{{o.sales_names}}</td>
@@ -47,11 +49,23 @@
 
 {% block content%}
 {% include "/searchAdorder/searchad_order_base.html" %}
-<div class="container bra-box">
+<div class="container bra-box" style="width:1400px;">
     <h3> {{title}}
         <!--<input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">-->
-        <a class="btn btn-sm btn-success" href="{{url_for('searchAd_order.new_framework_order')}}">新建框架订单</a>
     </h3>
+    <form class="form-inline">
+      <div class="form-group">
+        <label for="">执行年</label>
+        <select class="form-control" id="year" name="year">
+            {% for k in range(5) %}
+                <option value="{{2014+k}}">{{2014+k}}年度</option>
+            {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-default">搜索</button>
+      <a class="btn btn-sm btn-success" href="{{url_for('searchAd_order.new_framework_order')}}">新建框架订单</a>
+    </form>
+    <br/>
     {{ all_items(orders) }}
     {% set pages = orders %}
     {% include "pagination.html" %}
@@ -61,5 +75,9 @@ function download(){
     window.location.href = window.location.pathname +
       '?action=download';
 }
+$(function(){
+    $('#year').val('{{year}}');
+    $("#year").trigger("chosen:updated");
+})
 </script>
 {% endblock %}

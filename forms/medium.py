@@ -5,13 +5,15 @@ from libs.wtf import Form
 from models.user import Team
 from models.medium import (AdSize, AdPosition, AdUnit, Medium,
                            STATUS_CN, TARGET_CN, POSITION_LEVEL_CN, AD_TYPE_CN,
-                           AD_TYPE_NORMAL, AD_TYPE_CPD, LAUNCH_STRATEGY, MediumProductPC, MediumProductApp, MediumProductDown)
+                           AD_TYPE_NORMAL, AD_TYPE_CPD, LAUNCH_STRATEGY, MediumProductPC,
+                           LEVEL_CN, MediumProductApp, MediumProductDown)
 
 
 class NewMediumForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
     abbreviation = TextField(u'公司全称', [validators.Required(u"请输入媒体全称.")])
     owner = SelectField(u'管理团队', coerce=int)
+    level = SelectField(u'级别', coerce=int)
     tax_num = TextField(u'公司税号')
     address = TextField(u'公司地址')
     phone_num = TextField(u'公司电话')
@@ -22,6 +24,7 @@ class NewMediumForm(Form):
         super(NewMediumForm, self).__init__(*args, **kwargs)
         self.owner.choices = [(t.id, t.name)
                               for t in Team.all() if t.is_medium()]
+        self.level.choices = LEVEL_CN.items()
 
 
 class NewMediumProductPCForm(Form):

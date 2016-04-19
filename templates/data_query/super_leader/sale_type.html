@@ -1,0 +1,217 @@
+{% extends "/base.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+<style type="text/css">  
+.loading_img{  
+    position: absolute;  
+    top:50%;  
+    left:45%;  
+}  
+</style>
+{% include "/data_query/super_leader/super_leader_base.html" %}
+<div style="width:100%; height:100%; z-index:9999;position: absolute;background-color: #000;opacity: 0.2; display:none;" id="loading">
+    <img class="loading_img" src="/static/imgs/loading.gif"></div>
+</div>
+<div class="container bra-box" id="medium_box" style="width:1000px;">
+    <ul class="nav nav-tabs">
+      <li id="_client_order_"class=""><a href="{{url_for('data_query_super_leader_sale_type.client_order')}}">新媒体订单</a></li>
+      <li id="_douban_order_" class=""><a href="{{url_for('data_query_super_leader_sale_type.douban_order')}}">直签豆瓣订单</a></li>
+      <li id="_search_" class=""><a href="{{url_for('data_query_super_leader_sale_type.search')}}">效果业务</a></li>
+    </ul>
+    <h3>{{title}}</h3>
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="exampleInputEmail2">查询时间</label>
+            <select class="col-md-12" id="start_year" name="start_year" style="width:100px;">
+                {% for k in range(5) %}
+                <option value='{{2014+k}}'>{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="col-md-12" id="start_month" name="start_month" style="width:70px;">
+                {% for k in range(12) %}
+                    {% if k < 9 %}
+                        <option value='0{{1+k}}'>0{{1+k}}月</option>
+                    {% else %}
+                        <option value='{{1+k}}'>{{1+k}}月</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail2">&nbsp;至&nbsp;</label>
+            <select class="col-md-12" id="end_year" name="end_year" style="width:100px;">
+                {% for k in range(5) %}
+                <option value='{{2014+k}}'>{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="col-md-12" id="end_month" name="end_month" style="width:70px;">
+                {% for k in range(12) %}
+                    {% if k < 9 %}
+                        <option value='0{{1+k}}'>0{{1+k}}月</option>
+                    {% else %}
+                        <option value='{{1+k}}'>{{1+k}}月</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail2">区域：</label>
+            <select class="col-md-12" id="location" name="location" style="width:70px;">
+                <option value='0'>全部</option>
+                <option value='1'>华北</option>
+                <option value='2'>华东</option>
+                <option value='3'>华南</option>
+            </select>
+        </div>
+        <a href="javascript:search();" class="btn btn-info">查询</a>
+        <a href="javascript:download();" class="btn btn-default">导出</a>
+    </form>
+    <br>
+    <div id="container" style="min-height:400px;"></div>
+    <div id="container_list">
+        
+    </div>
+<div>
+<script src="/static/js/highcharts/highcharts.js"></script>
+<script src="/static/js/highcharts/themes/grid-light.js"></script>
+<script src="/static/js/numeral.min.js"></script>
+<script>
+    $(document).ready(function(){
+        var pathname = window.location.pathname;
+        var path_name = pathname.split("/")
+        $("#_" + path_name[4]+'_').addClass("active");
+        Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+            return {
+                radialGradient: {
+                    cx: 0.5,
+                    cy: 0.3,
+                    r: 0.7
+                },
+                stops: [
+                    [0, color],
+                    [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+                ]
+            };
+        });
+        var now_date = new Date();
+        var year = now_date.getFullYear();
+        $('#start_year').val(year-1);
+        $('#start_month').val('01');
+        $('#end_year').val(year-1);
+        $('#end_month').val('12');
+        $("#start_year").trigger("chosen:updated");
+        $("#start_month").trigger("chosen:updated");
+        $("#end_year").trigger("chosen:updated");
+        $("#end_month").trigger("chosen:updated");
+        search()
+    })
+
+    function search(){
+        var start_year = parseInt($('#start_year').val());
+        var start_month = parseInt($('#start_month').val());
+        var end_year = parseInt($('#end_year').val());
+        var end_month = parseInt($('#end_month').val());
+        var location = parseInt($('#location').val());
+        if (end_year - start_year < 0){
+            alert('时间选择错误，请重新选择')
+            return
+        }
+        if (end_year - start_year > 1){
+            alert('选择的时间段不能超过一年')
+            return
+        }else if (end_year - start_year == 1){
+            if (end_month - start_month > 0){
+                alert('选择的时间段不能超过一年')
+                return
+            }
+        }else{
+            if (end_month - start_month == 0){
+                alert('请选择大于一个月的时间段')
+                return
+            }
+        }
+        $('#loading').show();
+        var type = '{{type}}';
+        if (type == 'client'){
+            var url = "{{url_for('data_query_super_leader_sale_type.client_order_json')}}"
+        }else if (type == 'search'){
+            var url = "{{url_for('data_query_super_leader_sale_type.search_json')}}"
+        }else{
+            var url = "{{url_for('data_query_super_leader_sale_type.douban_order_json')}}"
+        }
+        
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {start_year: start_year, start_month: start_month, end_year:end_year, end_month:end_month, location:location},
+            dataType: 'json',
+            success: function(data, err){
+                load_chart(data['title'], data['data'])
+                load_list_container(data['data'][0]['data'], data['total'])
+                $('#loading').hide()
+            }
+
+        })
+    }
+    function load_list_container(data, total){
+        $('#container_list').html('');
+        var start_table = "<table class='table table-bordered'><thead><tr>\
+                        <th>#</th><th>售卖类型</th><th>执行额</th><th>占比</th></tr>\
+                    </thead>\
+                    <tbody>"
+        var end_table = "</tbody></table>"
+        var list_container_table = ""
+        for(var i=0; i<data.length; i++){
+            list_container_table += "<tr><th scope='row'>"+(i+1)+"</th><td>"+data[i]['name']+"</td><td>"+numeral(data[i]['y']).format('0,0.00')+"</td><td>"+numeral(data[i]["percent"]).format('0,0.00')+"%</td></tr>"
+        }
+        list_container_table += "<tr><th scope='row' colspan=2 style='text-align: center;'>总计</th><td>"+numeral(total).format('0,0.00')+"</td><td>100.00%</td></tr>"
+        $('#container_list').html(start_table+list_container_table+end_table)
+    }
+    function load_chart(title, data) {    
+        // Build the chart
+        var chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'container',
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: title
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                        style: {
+                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                        },
+                        connectorColor: 'silver'
+                    }
+                }
+            },
+            series: data
+        });
+    };
+    function download(){
+        var start_year = $('#start_year').val();
+        var start_month = $('#start_month').val();
+        var end_year = $('#end_year').val();
+        var end_month = $('#end_month').val();
+        var location = $('#location').val();
+        params = '?action=excel&start_year='+start_year+'&start_month='+start_month+'&end_year='+end_year+'&end_month='+end_month+'&location='+location;
+        window.location.href = window.location.pathname + params;
+    }
+</script>
+{% endblock %}

@@ -5,7 +5,7 @@ from flask import Blueprint, abort, url_for, current_app
 from flask import redirect, flash, g, request, render_template as tpl
 
 from models.douban_order import DoubanOrder, BackMoney, BackInvoiceRebate
-from libs.signals import back_money_apply_signal
+from libs.email_signals import back_money_apply_signal
 
 saler_douban_order_back_money_bp = Blueprint(
     'saler_douban_order_back_money', __name__, template_folder='../../templates/saler/douban_order')
@@ -40,6 +40,18 @@ def back_money(order_id):
                 apply_context = {
                     'order': order,
                     'num': 0,
+                    'type': 'end',
+                }
+                back_money_apply_signal.send(
+                    current_app._get_current_object(), apply_context=apply_context)
+            elif int(back_money_status) == -1:
+                order.back_money_status = int(back_money_status)
+                order.save()
+                flash(u'该项目为划账!', 'success')
+                order.add_comment(g.user, u"坏账项目", msg_channel=4)
+                apply_context = {
+                    'order': order,
+                    'num': -1,
                     'type': 'end',
                 }
                 back_money_apply_signal.send(

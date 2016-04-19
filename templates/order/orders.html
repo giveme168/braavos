@@ -10,6 +10,8 @@
         <th>合同金额</th>
         <th>合同号</th>
         <th>回款比例</th>
+        <th>回款总金额</th>
+        <th>客户发票总金额</th>
         <th>回款日期</th>
         <th>直客销售</th>
         <th>渠道销售</th>
@@ -17,7 +19,7 @@
         <th>直签/代理</th>
         <th>媒体订单</th>
         <th>媒体订单状态</th>
-        <th>分成金额</th>
+        <th>媒体金额</th>
         <th>合同号</th>
         <th>预估ECPM</th>
         <th>添加时间</th>
@@ -41,6 +43,8 @@
         <td>{{o.money}}</td>
         <td><a href="{{o.info_path()}}">{{o.contract or "无合同号"}}</a></td>
         <td>{{o.back_money_percent}}%</td>
+        <td>{{o.back_moneys}}</td>
+        <td>{{o.invoice_pass_sum}}</td>
         <td>{{o.reminde_date_cn}}</td>
         <td>{{o.direct_sales_names}}</td>
         <td>{{o.agent_sales_names}}</td>
@@ -60,7 +64,7 @@
         </td>
         <td>
             {% for mo in o.medium_orders %}    
-            {{mo.medium_money}}
+            {{mo.medium_money2}}
             <br><br>
             {% endfor %}
         </td>
@@ -136,10 +140,17 @@
 
 {% block content %}
 {% include "order_base.html" %}
-<div class="container bra-box" style="width:2000px;">
+<div class="container bra-box" style="width:2200px;">
     <h3> {{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
+        <div class="col-md-1" style="padding:0;margin:0 5px;">
+            <select class="col-md-12" id="year" name="year" placeholder="年份">
+                {% for k in range(5) %}
+                <option value="{{2014+k}}">{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
             <select class="col-md-12" id="search_location" name="location" placeholder="区域">
                 {% for v, m in locations %}
@@ -161,6 +172,10 @@
                     {% endif %}
                 {% endfor %}
                 <option value="30">媒体订单已归档</option>
+                <option value="31">已完成回款</option>
+                <option value="32">未完成回款</option>
+                <option value="33">未完成客户发票</option>
+                <option value="34">已完成户发票</option>
             </select>
         </div>
         <div class="col-md-1" style="padding:0;margin-right:5px;">
@@ -210,7 +225,8 @@ function sort(value){
     var params = '?sortby='+sortby+'&orderby='+orderby+
     '&searchinfo='+encodeURIComponent($('#search_info').val())+
     '&selected_location='+encodeURIComponent($('#search_location').val())+
-    '&selected_status='+encodeURIComponent($('#search_status').val());
+    '&selected_status='+encodeURIComponent($('#search_status').val())+
+    '&year='+$('#year').val();
     {% if g.user.is_media() %}
         params += '&start_time='+$('#start_time').val()+
         '&end_time='+$('#end_time').val()+
@@ -223,7 +239,8 @@ function search(){
     var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
       '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val())+
-      '&orderby=' + ($('#orderby').val());
+      '&orderby=' + ($('#orderby').val())+
+      '&year='+$('#year').val();
     {% if g.user.is_media() %}
         params += '&start_time='+$('#start_time').val()+
         '&end_time='+$('#end_time').val()+
@@ -238,6 +255,7 @@ function download(){
       '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val()) +
       '&orderby=' + ($('#orderby').val())+
+      '&year='+$('#year').val()+
       '&action=download';
     {% if g.user.is_media() %}
         params += '&start_time='+$('#start_time').val()+
@@ -269,6 +287,8 @@ $(function(){
     $("#search_medium option[value='{{search_medium}}']").attr("selected","selected");  
     $("#search_medium").trigger("chosen:updated");
     {% endif %}
+    $('#year').val('{{year}}');
+    $("#year").trigger("chosen:updated");
 });
 
 $(document).ready(function(){

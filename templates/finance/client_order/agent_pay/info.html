@@ -32,8 +32,12 @@
         <th width="20%">操作</th>
       </tr>
       {% for invoice in invoices %}
-      <tr>
-        <td>{{invoice.money}}元</td>
+        {% if invoice.invoice_num == '88888888' %}
+          <tr style="border:2px solid #FF8888;">
+        {% else %}
+          <tr>
+        {% endif %}
+        <td>{{invoice.money}}元{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
         <td>{{invoice.get_pay_money}}元</td>
         {% if invoice.get_apply_pay_money > 0 %}
           <td style="color:red;">{{invoice.get_apply_pay_money}}元</td>
@@ -46,7 +50,8 @@
         <td>{{invoice.invoice_num}}</td>
         <td>{{invoice.detail}}</td>
         <td>
-            <a href="{{url_for('finance_client_order_agent_pay.pay_info', invoice_id=invoice.id)}}">查看</a>
+            <a href="{{url_for('finance_client_order_agent_pay.pay_info', invoice_id=invoice.id)}}">查看</a>&nbsp;&nbsp;&nbsp;
+            <a href="{{url_for('finance_client_order_agent_pay.invoice_delete', invoice_id=invoice.id)}}">删除</a>
         </td>
       </tr>
       {% endfor %}

@@ -258,7 +258,7 @@ def apply_pay(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
+    apply_context = {"to_other": emails,
                      "title": action_msg,
                      "to": to_emails,
                      "action_msg": action_msg,

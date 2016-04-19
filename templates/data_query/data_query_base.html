@@ -7,18 +7,23 @@
               <li id="_order_" >月度订单金额</li>
             </a>
             {% endif %}
+            {% if g.user.is_super_leader() or g.user.is_media_leader() %}
+            <a href="{{url_for('data_query_weekly.medium_index')}}">
+              <li id="_weeklymedium_" >媒体周报（新）</li>
+            </a>
+            {% endif %}
             <a href="{{url_for('data_query_weekly.index')}}">
               <li id="_weekly_" >媒体订单周报</li>
             </a>
             <a href="{{url_for('data_query_weekly.douban_index')}}">
               <li id="_weeklydouban_" >直签豆瓣订单周报</li>
             </a>
-            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+            {% if g.user.is_super_leader() or g.user.is_media_leader() %}
             <a href="{{url_for('data_query_medium.index')}}">
               <li id="_medium_" >媒体执行额</li>
             </a>
             {% endif %}
-            {% if g.user.is_operater_leader() or g.user.is_super_leader() %}
+            {% if g.user.is_operater_leader() or g.user.is_super_leader() or g.user.is_aduit() %}
             <a href="{{url_for('data_query_outsource.index')}}">
               <li id="_outsource_" >外包成本</li>
             </a>
@@ -26,7 +31,15 @@
               <li id="_outsourceinfo_" >外包成本详情</li>
             </a>
             {% endif %}
-            {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_media_leader() %}
+            {% if g.user.is_operater_leader() or g.user.is_super_leader() %}
+            <a href="{{url_for('data_query_outsource_cost.index')}}">
+              <li id="_outsource_cost_" >外包成本(含尚典)</li>
+            </a>
+            <a href="{{url_for('data_query_outsource_cost.info')}}">
+              <li id="_outsource_costinfo_" >外包成本详情(含尚典)</li>
+            </a>
+            {% endif %}
+            {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_aduit() %}
             <a href="{{url_for('data_query_profit.client_order')}}">
               <li id="_profitclient_order_" >媒体订单执行成本</li>
             </a>
@@ -37,7 +50,7 @@
               <li id="_ordercost_" >媒体订单发票与款项</li>
             </a>
             {% endif %}
-            {% if g.user.is_super_leader() %}
+            {% if g.user.is_super_leader() or g.user.is_aduit() %}
             <a href="{{url_for('data_query_super_leader_medium.money')}}">
               <li id="_super_leadermedium_" >媒体清单</li>
             </a>

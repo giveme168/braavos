@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 from collections import defaultdict
-from flask import url_for
+from flask import url_for, json
 from xlwt import Utils
 
 from models import db, BaseModelMixin
@@ -9,9 +9,9 @@ from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from models.item import (ITEM_STATUS_CN, SALE_TYPE_CN,
-                   ITEM_STATUS_LEADER_ACTIONS, OCCUPY_RESOURCE_STATUS,
-                   ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS, ITEM_STATUS_ORDER_APPLY,
-                   ITEM_STATUS_ORDER)
+                         ITEM_STATUS_LEADER_ACTIONS, OCCUPY_RESOURCE_STATUS,
+                         ITEM_STATUS_PRE, ITEM_STATUS_PRE_PASS,
+                         ITEM_STATUS_ORDER_APPLY, ITEM_STATUS_ORDER)
 from .client_order import table_medium_orders, searchAdClientOrder
 from models.excel import (
     ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
@@ -26,6 +26,8 @@ ORDER_TYPE_NORMAL = 0         # 标准广告
 ORDER_TYPE_CN = {
     ORDER_TYPE_NORMAL: u"标准广告(CPM, CPD)",
 }
+
+CHANNEL_TYPE_CN = [u"其他", u"360", u"百度", u"小米"]
 
 DISCOUNT_70 = 70
 DISCOUNT_60 = 60
@@ -79,9 +81,11 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     campaign = db.Column(db.String(100))  # 活动名称
-    medium_id = db.Column(db.Integer, db.ForeignKey('searchAd_medium.id'))  # 投放媒体
+    medium_id = db.Column(db.Integer, db.ForeignKey(
+        'searchAd_medium.id'))  # 投放媒体
     medium = db.relationship(
         'searchAdMedium', backref=db.backref('orders', lazy='dynamic'))
+    channel_type = db.Column(db.Integer)  # 推广类型
     order_type = db.Column(db.Integer)  # 订单类型: CPM
 
     client_orders = db.relationship(
@@ -109,7 +113,7 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_generate = True
     kind = "searchAd-medium-order"
 
-    def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
+    def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL, channel_type=0,
                  medium_contract="", medium_money=0, sale_money=0, medium_money2=0,
                  medium_CPM=0, sale_CPM=0,
                  discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
@@ -118,7 +122,7 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.campaign = campaign
         self.medium = medium
         self.order_type = order_type
-
+        self.channel_type = channel_type
         self.medium_contract = medium_contract
         self.medium_money = medium_money
         self.medium_money2 = medium_money2
@@ -186,6 +190,10 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def order_type_cn(self):
         return ORDER_TYPE_CN[self.order_type]
+
+    @property
+    def channel_type_cn(self):
+        return CHANNEL_TYPE_CN[self.channel_type]
 
     @property
     def email_info(self):
@@ -354,7 +362,7 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def delete(self):
         self.delete_comments()
         self.delete_attachments()
-        #for ao in self.associated_douban_orders:
+        # for ao in self.associated_douban_orders:
         #    ao.delete()
         db.session.delete(self)
         db.session.commit()
@@ -609,7 +617,8 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(self.start_date_cn, '%Y-%m-%d'),
                                                   datetime.datetime.strptime(self.end_date_cn, '%Y-%m-%d'))
             pre_month_money_data = 0
-            search_pro_month = datetime.datetime.strptime(year + '-' + month, "%Y-%m")
+            search_pro_month = datetime.datetime.strptime(
+                year + '-' + month, "%Y-%m")
             for k in pre_month_days:
                 if k['month'] == search_pro_month:
                     pre_month_money_data = round(pre_money * k['days'], 2)
@@ -635,6 +644,11 @@ class searchAdMediumOrderExecutiveReport(db.Model, BaseModelMixin):
     month_day = db.Column(db.DateTime)
     days = db.Column(db.Integer)
     create_time = db.Column(db.DateTime)
+    # 合同文件打包
+    order_json = db.Column(db.Text(), default=json.dumps({}))
+    medium_order_json = db.Column(db.Text(), default=json.dumps({}))
+    status = db.Column(db.Integer, index=True)
+    contract_status = db.Column(db.Integer, index=True)
     __table_args__ = (db.UniqueConstraint(
         'client_order_id', 'order_id', 'month_day', name='_searchAd_medium_order_month_day'),)
     __mapper_args__ = {'order_by': month_day.desc()}
@@ -649,6 +663,35 @@ class searchAdMediumOrderExecutiveReport(db.Model, BaseModelMixin):
         self.month_day = month_day or datetime.date.today()
         self.days = days
         self.create_time = create_time or datetime.date.today()
+        # 合同文件打包
+        self.status = client_order.status
+        self.contract_status = client_order.contract_status
+        # 获取相应合同字段
+        dict_order = {}
+        dict_order['client_name'] = client_order.client.name
+        dict_order['agent_name'] = client_order.agent.name
+        dict_order['contract'] = client_order.contract
+        dict_order['campaign'] = client_order.campaign
+        dict_order['industry_cn'] = client_order.client.industry_cn
+        dict_order['locations'] = client_order.locations
+        dict_order['sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.direct_sales]
+        dict_order['salers_ids'] = [k['id']
+                                    for k in (dict_order['sales'])]
+        dict_order['get_saler_leaders'] = [
+            k.id for k in client_order.get_saler_leaders()]
+        dict_order['resource_type_cn'] = client_order.resource_type_cn
+        dict_order['operater_users'] = [
+            {'id': k.id, 'name': k.name}for k in client_order.operater_users]
+        dict_order['client_start'] = client_order.client_start.strftime(
+            '%Y-%m-%d')
+        dict_order['client_end'] = client_order.client_end.strftime('%Y-%m-%d')
+        self.order_json = json.dumps(dict_order)
+        # 媒体合同
+        dict_medium_order = {'medium_id': order.medium_id,
+                             'sale_money': order.sale_money,
+                             'medium_money2': order.medium_money2}
+        self.medium_order_json = json.dumps(dict_medium_order)
 
     @property
     def month_cn(self):
@@ -657,10 +700,6 @@ class searchAdMediumOrderExecutiveReport(db.Model, BaseModelMixin):
     @property
     def locations(self):
         return self.client_order.locations
-
-    @property
-    def status(self):
-        return self.client_order.status
 
 
 class StyleTypes(object):

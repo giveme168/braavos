@@ -53,6 +53,7 @@ def send_html_mail(subject, recipients, body=''):
     with mail.app.app_context():
         mail.send_message(subject, recipients=recipients, body='', html=body)
 
+
 @async
 def send_attach_mail(subject, recipients, body='', file_paths=None):
     if not recipients:
@@ -73,14 +74,15 @@ def send_attach_mail(subject, recipients, body='', file_paths=None):
                     msg.attach(os.path.basename(f.name).encode('gb2312'), ctype, f.read(), 'attachment')
         mail.send(msg)
 
+
 def check_auth_by_mail(username, password):
-    host="smtp.exmail.qq.com"
-    smtp=smtplib.SMTP(host)
+    host = "smtp.exmail.qq.com"
+    smtp = smtplib.SMTP(host)
     try:
-        ret = smtp.login(username,password)
+        ret = smtp.login(username, password)
         smtp.close()
         if ret[0] == 235:
             return True
-    except Exception,e:
+    except:
         pass
     return False

@@ -1,5 +1,5 @@
 {% extends "/base.html" %}
-{% block title %} 媒体返点信息列表{% endblock %}
+{% block title %}修改 {{agent.name}} 返点信息{% endblock %}
 
 {% block content %}
 {% include "/client/client_base.html" %}
@@ -30,8 +30,8 @@
             <span style="color:red;" class="tips">%</span>
           </div>
         </div>
-        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
         <a href="{{url_for('client.agent_rebate', agent_id=agent.id)}}" class="btn btn-primary btn-sm col-md-offset-2">返回</a>
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
     </from>
 </div>
 <script>

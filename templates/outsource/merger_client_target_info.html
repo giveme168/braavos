@@ -86,6 +86,60 @@
         </div>
     </div>
 {%- endmacro %}
+{% macro merger_outsources_paid_table(outsources) %}
+<div class="panel-group" id="accordion-outsource">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion-outsource">
+                      已打款
+                      的外包信息
+                    </a>
+                </h4>
+            </div>
+            <div class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>申请打款金额</th>
+                            <th>是否有发票</th>
+                            <th>发票信息</th>
+                            <th>申请时间</th>
+                            <th>客户名称</t>
+                            <th>客户合同号</th>
+                            <th>媒体订单</th>
+                            <th>媒体合同号</th>
+                            <th>外包金额</th>
+                            <th>备注</th>
+                        </tr>
+                        {% for t in outsources %}
+                        <tr>
+                            <td rowspan="{{t.outsources|length + 2}}">{{t.pay_num}}</td>
+                            <td rowspan="{{t.outsources|length + 2}}">{% if t.invoice %}有{%else%}无{%endif%}</td>
+                            <td rowspan="{{t.outsources|length + 2}}">{{ t.remark }}</td>
+                            <td rowspan="{{t.outsources|length + 2}}">{{ t.create_time_cn }}</td>
+                        </tr>
+                          {% for o in t.outsources %}
+                          <tr>
+                              <td>{{o.medium_order.client_order.name}}</td>
+                              <td>{{o.medium_order.client_order.contract}}</td>
+                              <td>{{o.medium_order.name}}</td>
+                              <td>{{o.medium_order.contract}}</td>
+                              <td>{{o.pay_num}}</td>
+                              <td>{{o.remark}}</td>
+                          </tr>
+                          {% endfor %}
+                          <tr>
+                            <td colspan=4>合计</td>
+                            <td> {{t.outsources|sum(attribute='pay_num')}}</td>
+                          </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+</div>
+{%- endmacro %}
 {% macro merger_outsources_table(outsources, status)-%}
 <div class="panel-group" id="accordion-outsource">
         <div class="panel panel-default">
@@ -271,7 +325,7 @@
     <!--正在打款信息结束-->
     <!--正在打款信息开始-->
     {% if paid_outsources %}
-      {{ merger_outsources_table(paid_outsources, 4) }}
+      {{ merger_outsources_paid_table(paid_outsources) }}
     {% endif %}
     <!--正在打款信息结束-->
 </div>

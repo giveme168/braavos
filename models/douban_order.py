@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
-from flask import url_for, g
+from flask import url_for, g, json
 
 from . import db, BaseModelMixin
 from .user import User, TEAM_LOCATION_CN
@@ -69,11 +69,13 @@ STATUS_CN = {
     STATUS_ON: u'正常',
 }
 
+BACK_MONEY_STATUS_BREAK = -1
 BACK_MONEY_STATUS_END = 0
 BACK_MONEY_STATUS_NOW = 1
 BACK_MONEY_STATUS_CN = {
     BACK_MONEY_STATUS_END: u'回款完成',
     BACK_MONEY_STATUS_NOW: u'正在回款',
+    BACK_MONEY_STATUS_BREAK: u'坏账'
 }
 
 direct_sales = db.Table('douban_order_direct_sales',
@@ -95,6 +97,13 @@ replace_sales = db.Table('douban_order_replace_sales',
                          db.Column(
                              'douban_order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
                          )
+
+assistant_sales = db.Table('douban_order_assistant_sales',
+                           db.Column(
+                               'assistant_sale_id', db.Integer, db.ForeignKey('user.id')),
+                           db.Column(
+                               'douban_order_id', db.Integer, db.ForeignKey('bra_douban_order.id'))
+                           )
 
 operater_users = db.Table('douban_order_users_operater',
                           db.Column(
@@ -129,17 +138,20 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     campaign = db.Column(db.String(100))  # 活动名称
 
     contract = db.Column(db.String(100))  # 豆瓣合同号
-    money = db.Column(db.Integer)  # 客户合同金额
+    money = db.Column(db.Float())  # 客户合同金额
     medium_CPM = db.Column(db.Integer)  # 实际CPM
     sale_CPM = db.Column(db.Integer)  # 下单CPM
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
     reminde_date = db.Column(db.Date)  # 最迟回款日期
 
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
     replace_sales = db.relationship('User', secondary=replace_sales)
+    assistant_sales = db.relationship('User', secondary=assistant_sales)
 
     operaters = db.relationship('User', secondary=operater_users)
     designers = db.relationship('User', secondary=designer_users)
@@ -157,7 +169,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)
     finish_time = db.Column(db.DateTime)   # 合同归档时间
     back_money_status = db.Column(db.Integer)
-
+    self_agent_rebate = db.Column(db.String(20))  # 单笔返点
     contract_generate = False
     media_apply = False
     kind = "douban-order"
@@ -166,9 +178,9 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def __init__(self, agent, client, campaign, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  medium_CPM=0, sale_CPM=0, finish_time=None,
-                 back_money_status=BACK_MONEY_STATUS_NOW,
+                 back_money_status=BACK_MONEY_STATUS_NOW, self_agent_rebate='0-0',
                  client_start=None, client_end=None, reminde_date=None,
-                 direct_sales=None, agent_sales=None, replace_sales=[],
+                 direct_sales=None, agent_sales=None, replace_sales=[], assistant_sales=[],
                  operaters=None, designers=None, planers=None,
                  resource_type=RESOURCE_TYPE_AD, sale_type=SALE_TYPE_AGENT,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
@@ -184,11 +196,14 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
         self.reminde_date = reminde_date or datetime.date.today()
 
         self.direct_sales = direct_sales or []
         self.agent_sales = agent_sales or []
         self.replace_sales = replace_sales
+        self.assistant_sales = assistant_sales
 
         self.operaters = operaters or []
         self.designers = designers or []
@@ -203,6 +218,11 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.contract_status = contract_status
         self.status = status
         self.back_money_status = back_money_status
+        self.self_agent_rebate = self_agent_rebate
+
+    @property
+    def salers(self):
+        return list(set(self.direct_sales + self.agent_sales))
 
     @classmethod
     def get_all(cls):
@@ -262,6 +282,10 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.replace_sales])
 
     @property
+    def assistant_sales_names(self):
+        return ",".join([u.name for u in self.assistant_sales])
+
+    @property
     def operater_names(self):
         return ",".join([u.name for u in self.operaters])
 
@@ -275,7 +299,7 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def leaders(self):
-        return list(set([l for u in self.direct_sales + self.agent_sales + self.replace_sales
+        return list(set([l for u in self.direct_sales + self.agent_sales + self.replace_sales + self.assistant_sales
                          for l in u.user_leaders] + User.super_leaders()))
 
     @property
@@ -284,10 +308,16 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        admin_users = self.direct_sales + self.agent_sales + \
-            [self.creator] + self.replace_sales
-        return user.is_leader() or user.is_admin() or user.is_contract() or \
+        salers = self.direct_sales + self.agent_sales + self.replace_sales + self.assistant_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        admin_users = salers + [self.creator] + list(set(leaders))
+        return user.is_leader() or user.is_contract() or user.is_media() or\
             user.is_media_leader() or user in admin_users
+
+    def can_media_leader_action(self, user):
+        return False
 
     def path(self):
         return self.info_path()
@@ -328,9 +358,13 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         直客销售: %s
         渠道销售: %s
         执行: %s
+        执行开始时间: %s
+        执行结束时间: %s
+        豆瓣合同号: %s
         """ % (self.client.name, self.agent.name, self.campaign, self.money,
                self.sale_CPM or 0, self.direct_sales_names,
-               self.agent_sales_names, self.operater_names)
+               self.agent_sales_names, self.operater_names,
+               self.start_date_cn, self.end_date_cn, self.contract)
 
     @property
     def search_info(self):
@@ -434,8 +468,12 @@ by %s\n
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales + self.replace_sales +\
-            [self.creator] + [k for k in self.operaters]
+        salers = self.direct_sales + self.agent_sales + self.replace_sales + self.assistant_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        owner = salers + [self.creator] + \
+            self.operater_users + list(set(leaders))
         return user.is_admin() or user in owner
 
     @classmethod
@@ -688,7 +726,7 @@ by %s\n
 
     @property
     def back_money_status_cn(self):
-        if self.back_money_status == 0:
+        if self.back_money_status in [-1, 0]:
             return BACK_MONEY_STATUS_CN[BACK_MONEY_STATUS_END]
         else:
             return BACK_MONEY_STATUS_CN[self.back_money_status or 1]
@@ -697,6 +735,8 @@ by %s\n
     def back_money_percent(self):
         if self.back_money_status == 0:
             return 100
+        elif self.back_money_status == -1:
+            return 0
         else:
             return int(float(self.back_moneys) / self.money * 100) if self.money else 0
 
@@ -727,6 +767,15 @@ by %s\n
         except:
             return ''
 
+    @property
+    def self_agent_rebate_value(self):
+        if self.self_agent_rebate:
+            p_self_agent_rebate = self.self_agent_rebate.split('-')
+        else:
+            p_self_agent_rebate = ['0', '0.0']
+        return {'status': p_self_agent_rebate[0],
+                'value': p_self_agent_rebate[1]}
+
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_douban_order_executive_report'
@@ -739,6 +788,11 @@ class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     month_day = db.Column(db.DateTime)
     days = db.Column(db.Integer)
     create_time = db.Column(db.DateTime)
+    # 合同文件打包
+    order_json = db.Column(db.Text(), default=json.dumps({}))
+    status = db.Column(db.Integer, index=True)
+    contract_status = db.Column(db.Integer, index=True)
+
     __table_args__ = (db.UniqueConstraint(
         'douban_order_id', 'month_day', name='_douban_order_month_day'),)
     __mapper_args__ = {'order_by': month_day.desc()}
@@ -749,6 +803,32 @@ class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
         self.month_day = month_day or datetime.date.today()
         self.days = days
         self.create_time = create_time or datetime.date.today()
+        # 合同文件打包
+        self.status = douban_order.status
+        self.contract_status = douban_order.contract_status
+        # 获取相应合同字段
+        dict_order = {}
+        dict_order['client_name'] = douban_order.client.name
+        dict_order['agent_name'] = douban_order.agent.name
+        dict_order['contract'] = douban_order.contract
+        dict_order['campaign'] = douban_order.campaign
+        dict_order['industry_cn'] = douban_order.client.industry_cn
+        dict_order['locations'] = douban_order.locations
+        dict_order['direct_sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in douban_order.direct_sales]
+        dict_order['agent_sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in douban_order.agent_sales]
+        dict_order['salers_ids'] = [k['id']
+                                    for k in (dict_order['direct_sales'] + dict_order['agent_sales'])]
+        dict_order['get_saler_leaders'] = [
+            k.id for k in douban_order.get_saler_leaders()]
+        dict_order['resource_type_cn'] = douban_order.resource_type_cn
+        dict_order['operater_users'] = [
+            {'id': k.id, 'name': k.name}for k in douban_order.operater_users]
+        dict_order['client_start'] = douban_order.client_start.strftime(
+            '%Y-%m-%d')
+        dict_order['client_end'] = douban_order.client_end.strftime('%Y-%m-%d')
+        self.order_json = json.dumps(dict_order)
 
     @property
     def month_cn(self):
@@ -757,10 +837,6 @@ class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     @property
     def locations(self):
         return self.douban_order.locations
-
-    @property
-    def status(self):
-        return self.douban_order.status
 
     def get_money_by_user(self, user, sale_type):
         if len(set(self.douban_order.locations)) > 1:
@@ -777,7 +853,8 @@ class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
             else:
                 count = len(self.douban_order.direct_sales)
         elif user.team.location == 3 and len(self.locations) == 1:
-            count = len(self.douban_order.agent_sales + self.douban_order.direct_sales)
+            count = len(self.douban_order.agent_sales +
+                        self.douban_order.direct_sales)
         return self.money / count / l_count
 
 
@@ -832,6 +909,10 @@ class BackMoney(db.Model, BaseModelMixin):
     def order(self):
         return self.douban_order
 
+    @property
+    def real_back_money_diff_time(self):
+        return (self.back_time.date() - self.douban_order.reminde_date).days
+
 
 class BackInvoiceRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_douban_order_back_invoice_rebate'
@@ -860,3 +941,51 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime(DATE_FORMAT)
+
+
+TARGET_TYPE_FLASH = 2
+TARGET_TYPE_KOL = 3
+TARGET_TYPE_H5 = 7
+TARGET_TYPE_VIDEO = 5
+
+TARGET_TYPE_CN = {
+    TARGET_TYPE_FLASH: u"Flash",
+    TARGET_TYPE_KOL: u"KOL",
+    TARGET_TYPE_VIDEO: u"视频",
+    TARGET_TYPE_H5: u"H5",
+}
+
+
+class OtherCost(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_douban_order_other_cost'
+    id = db.Column(db.Integer, primary_key=True)
+    douban_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_douban_order.id'))  # 客户合同
+    douban_order = db.relationship(
+        'DoubanOrder', backref=db.backref('douban_order_other_cost', lazy='dynamic'))
+    money = db.Column(db.Float())
+    type = db.Column(db.Integer)
+    invoice = db.Column(db.String(100))  # 发票号
+    on_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': on_time.desc()}
+
+    def __init__(self, douban_order, invoice, type, money=0.0, create_time=None, on_time=None):
+        self.douban_order = douban_order
+        self.money = money
+        self.type = type
+        self.invoice = invoice
+        self.create_time = create_time or datetime.date.today()
+        self.on_time = on_time or datetime.date.today()
+
+    @property
+    def on_time_cn(self):
+        return self.on_time.strftime(DATE_FORMAT)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
+    @property
+    def type_cn(self):
+        return TARGET_TYPE_CN[self.type]

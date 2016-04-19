@@ -1,0 +1,151 @@
+{% extends "/base.html" %}
+{% from 'form.html' import form_field %}
+{% block title %}填写洽谈中的订单{% endblock %}
+
+{% block content %}
+{% include "order_base.html" %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+    }
+</style>
+<div class="container bra-box">
+    <h3>填写洽谈中的订单</h3>
+    <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">投放媒体 : </label>
+          <div class="col-sm-4">
+            <select id="medium_id" name="medium_id" class="form-control bra-form-control">
+                <option value="0">豆瓣</option>
+                {% for k in mediums %}
+                <option value='{{k.id}}'>{{k.name}}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">代理/直客(甲方全称) : </label>
+          <div class="col-sm-4" id="agent_div">
+            <select id="agent" name="agent" class="form-control bra-form-control" onchange="check_input(this, 'agent')">
+                {% for k in agent %}
+                <option value='{{k.name}}'>{{k.name}}</option>
+                {% endfor %}
+                <option value='1000'>其他</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">客户名称 : </label>
+          <div class="col-sm-4" id="client_div">
+            <select id="client" name="client" class="form-control bra-form-control" onchange="check_input(this, 'client')">
+                {% for k in client %}
+                <option value='{{k.name}}'>{{k.name}}</option>
+                {% endfor %}
+                <option value='1000'>其他</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">Campaign名称 : </label>
+          <div class="col-sm-4">
+             <input type="text" id="campaign" name="campaign" value="" class="form-control bra-form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">预估程度 : </label>
+          <div class="col-sm-4">
+            <select id="complete_percent" name="complete_percent" class="form-control bra-form-control">
+                {% for k, v in COMPLETE_PERCENT_CN.items() %}
+                <option value='{{k}}'>{{v}}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">预估金额 : </label>
+          <div class="col-sm-4">
+             <input type="text" id="money" name="money" value="" class="form-control bra-form-control">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
+          <div class="col-sm-8">
+            <input type="text" id="client_start" name="client_start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
+          <div class="col-sm-8">
+            <input type="text" id="client_end" name="client_end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+          </div>
+        </div>
+        {{ form_field(direct_form.direct_sales) }}
+        {{ form_field(agent_form.agent_sales) }}
+        
+        <a class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('order.intention_order')}}"/>返回</a>
+        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2" name="action"/>添加</button>
+    </form>
+</div>
+<script>
+Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+function checkform(obj){
+    if (obj.campaign.value == ''){
+        alert('请输入Campaign名称')
+        obj.campaign.focus()
+        return false
+    }
+    if (obj.money.value == ''){
+        alert('请输入预估金额')
+        obj.money.focus()
+        return false
+    }
+    if (obj.client_start.value == ''){
+        alert('请选择执行开始时间')
+        obj.client_start.focus()
+        return false
+    }
+    return true;
+}
+
+function check_input(obj, type){
+    if(parseInt(obj.value)==1000){
+        $('#'+type+'_div').empty()
+        $('#'+type+'_div').html('<input type="text" id="'+type+'" name="'+type+'" value="" class="form-control bra-form-control">')
+    }
+}
+
+$(function(){
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2,
+    });
+    $("#client_start").change(function(e){
+        var end_date = $('#client_end').val()
+        if (end_date == ''){
+            //var endDate = new Date($('#start_time').val());
+            //endDate.setDate(endDate.getDate()); 
+            $('#client_end').val($('#client_start').val())
+            $('#client_end').datetimepicker('setStartDate', $('#client_start').val());
+        }
+    });
+})
+</script>
+{% endblock %}

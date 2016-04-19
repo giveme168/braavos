@@ -5,8 +5,8 @@
 
 {% block content %}
 {% include "/finance/finance_base.html" %}
-<div class="container bra-box">
-    <h4>{{ order.agent.name }}-{{order.name}} 媒体订单发票及打款情况</h4>
+<div class="container bra-box" style="width:1400px;">
+    <h4>{{ order.agent.name }}-{{order.name}} 媒体订单发票及打款情况 <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">客户订单收款详情</a></h4>
     <table class="table table-bordered table-striped">
       <tr>
         <th>媒体总金额</th>
@@ -28,6 +28,7 @@
         <th>已打款金额</th>
         <th>申请中打款金额</th>
         <th>未打款金额</th>
+        <th>返点发票总金额</th>
         <th>开票时间</th>
         <th>发票类型</th>
         <th>发票号</th>
@@ -35,8 +36,12 @@
         <th width="20%">操作</th>
       </tr>
       {% for invoice in invoices %}
-      <tr>
-        <td>{{invoice.money}}元</td>
+        {% if invoice.invoice_num == '88888888' %}
+          <tr style="border:2px solid #FF8888;">
+        {% else %}
+          <tr>
+        {% endif %}
+        <td>{{invoice.money}}元 {% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
         <td>{{invoice.get_pay_money}}元</td>
         {% if invoice.get_apply_pay_money > 0 %}
           <td style="color:red;">{{invoice.get_apply_pay_money}}元</td>
@@ -44,6 +49,7 @@
           <td>{{invoice.get_apply_pay_money}}元</td>
         {% endif %}
         <td>{{invoice.get_unpay_money}}元</td>
+        <td>{{invoice.rebate_invoice}}元</td>
         <td>{{invoice.add_time_cn}}</td>
         <td>{{invoice.invoice_type_cn}}</td>
         <td>{{invoice.invoice_num}}</td>

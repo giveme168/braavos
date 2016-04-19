@@ -1,0 +1,50 @@
+{% extends "/base.html" %}
+{% block title %} 新建 {{agent.name}} 的媒体返点信息{% endblock %}
+
+{% block content %}
+{% include "/client/client_base.html" %}
+<div class="container bra-box">
+    <h3>新建 {{agent.name}} 的媒体返点信息</h3>
+    <form class="form form-horizontal" method="POST" action="{{url_for('client.agent_medium_rebate_create', agent_id=agent.id)}}" onsubmit="return check_form(this);">
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">所属媒体 : </label>
+          <div class="col-sm-4">
+            <select name="medium" id="medium" style="width:120px;">
+                {% for k in mediums %}
+                <option value="{{k.id}}">{{k.name}}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">执行年 : </label>
+          <div class="col-sm-4">
+            <select name="year" id="year" style="width:120px;">
+                {% for k in range(0, 10) %}
+                <option value="{{2014+k}}">{{2014+k}}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="client_start" class="col-sm-2 control-label">返点信息 : </label>
+          <div class="col-sm-6">
+            <input type="number" name="rebate" id="rebate" class="form-control bra-form-control" placeholder="请输入数字" />
+            <span style="color:red;" class="tips">%</span>
+          </div>
+        </div>
+        <a href="{{url_for('client.agent_rebate', agent_id=agent.id)}}" class="btn btn-primary btn-sm col-md-offset-2">返回</a>
+        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+    </from>
+</div>
+<script>
+function check_form(obj){
+    if (obj.rebate.value == ''){
+        alert('请输入致趣返点信息')
+        obj.rebate.focus()
+        return false;
+    }
+    return true;
+}
+</script>
+{% endblock %}

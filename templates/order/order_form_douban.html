@@ -11,25 +11,26 @@
     {{ form_field(form.sale_CPM) }}
     {{ form_field(form.medium_CPM) }}
     <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
+      <label for="" class="col-sm-2 control-label">执行开始 : </label>
       <div class="col-sm-4">
         <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
       </div>
     </div>
     <div class="form-group">
-      <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
+      <label for="" class="col-sm-2 control-label">执行结束 : </label>
       <div class="col-sm-4">
         <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
       </div>
     </div>
     <div class="form-group">
-      <label for="reminde_date" class="col-sm-2 control-label">回款日期 : </label>
+      <label for="" class="col-sm-2 control-label">回款日期 : </label>
       <div class="col-sm-4">
         <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
       </div>
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
+    {{ form_field(form.assistant_sales) }}
     {{ form_field(form.operaters) }}
     {{ form_field(form.designers) }}
     {{ form_field(form.planers) }}
@@ -49,25 +50,26 @@
     {{ form_field(form.sale_CPM) }}
     {{ form_field(form.medium_CPM) }}
     <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
+      <label for="" class="col-sm-2 control-label">执行开始 : </label>
       <div class="col-sm-4">
         <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
       </div>
     </div>
     <div class="form-group">
-      <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
+      <label for="" class="col-sm-2 control-label">执行结束 : </label>
       <div class="col-sm-4">
         <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
       </div>
     </div>
     <div class="form-group">
-      <label for="reminde_date" class="col-sm-2 control-label">回款日期 : </label>
+      <label for="" class="col-sm-2 control-label">回款日期 : </label>
       <div class="col-sm-4">
         <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
       </div>
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
+    {{ form_field(form.assistant_sales) }}
     {{ form_field(form.operaters) }}
     {{ form_field(form.designers) }}
     {{ form_field(form.planers) }}
@@ -75,6 +77,21 @@
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}
     {{ form_field(replace_saler_form.replace_salers) }}
+    {% if douban_order %}
+    <div class="form-group" {% if g.user.is_super_leader() or g.user.is_leader() or douban_order.can_media_leader_action(g.user) %}{% else %} style="display:none;"{% endif %}>
+      <label class="col-sm-2 control-label" style="color:red;">单笔返点 : </label>
+      <div class="col-sm-4" id="self_rebate_status">
+        <select name="self_rebate" id="self_rebate" style="width:300px;">
+          <option value="0">无单笔返点</option>
+          <option value="1">有单笔返点</option>
+        </select>
+      </div>
+      <div class="col-sm-10" id="self_rebate_value" style="display:none;">
+        <input type="text" id="self_rabate_value" name="self_rabate_value" class="form-control bra-form-control" value='0'>
+        <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
+      </div>
+    </div>
+    {% endif %}
     <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
 </form>
 {% elif douban_order and douban_order.can_admin(g.user) and douban_order.contract_status in [0, 1]%}
@@ -88,25 +105,26 @@
     {{ form_field(form.sale_CPM) }}
     {{ form_field(form.medium_CPM) }}
     <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
+      <label for="" class="col-sm-2 control-label">执行开始 : </label>
       <div class="col-sm-4">
         <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
       </div>
     </div>
     <div class="form-group">
-      <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
+      <label for="" class="col-sm-2 control-label">执行结束 : </label>
       <div class="col-sm-4">
         <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
       </div>
     </div>
     <div class="form-group">
-      <label for="reminde_date" class="col-sm-2 control-label">回款日期 : </label>
+      <label for="" class="col-sm-2 control-label">回款日期 : </label>
       <div class="col-sm-4">
         <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
       </div>
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
+    {{ form_field(form.assistant_sales) }}
     {{ form_field(form.operaters) }}
     {{ form_field(form.designers) }}
     {{ form_field(form.planers) }}
@@ -173,6 +191,10 @@
             <th>渠道销售</th>
             <td>{{douban_order.agent_sales_names}}</td>
           </tr>
+          <tr>
+            <th>销售助理</th>
+            <td>{{douban_order.assistant_sales_names}}</td>
+          </tr>
            <tr>
             <th>执行人员 </th>
             <td>{{douban_order.operater_names}}</td>
@@ -201,6 +223,16 @@
             <th>替代销售</th>
             <td>{{douban_order.replace_sales_names}}</td>
           </tr>
+          {% if (g.user.is_super_leader() or g.user.is_leader() or douban_order.can_media_leader_action(g.user)) and douban_order %}
+          <tr>
+            <th style="color:red;">单笔返点</th>
+            <td>{% if douban_order.self_agent_rebate_value.status == '0' %}
+                无单笔返点
+              {% else %}
+                {{douban_order.self_agent_rebate_value.value}}元
+              {% endif %}</td>
+          </tr>
+          {% endif %}
         </table>
         {% if g.user.is_operater %}
         <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
@@ -237,6 +269,59 @@ $(document).ready(function(){
       endDate.setDate(endDate.getDate() + 90); 
       $('#reminde_date').val(endDate.Format("yyyy-MM-dd"))
     });
+    {% if douban_order %}
+    $("#self_rebate").change(function(e){
+      var self_rebate = $('#self_rebate').val()
+      if(self_rebate==1){
+        $('#self_rebate_status').css('display', 'none');
+        $('#self_rebate_value').css('display', 'block');
+      }else{
+        $('#self_rebate_value').css('display', 'none');
+        $('#self_rebate_status').css('display', 'block');
+      }
+      set_default_rebate()
+    })
+    var self_agent_rebate = "{{douban_order.self_agent_rebate}}";
+    var p_self_agent_rebate = self_agent_rebate.split('-')
+    $('#self_rebate').val(p_self_agent_rebate[0]);
+    $('#self_rabate_value').val(p_self_agent_rebate[1]);
+    $("#self_rebate").trigger("chosen:updated");
+    if (p_self_agent_rebate[0] == '0'){
+      $('#self_rebate_value').css('display', 'none');
+      $('#self_rebate_status').css('display', 'block');
+    }else{
+      $('#self_rebate_value').css('display', 'block');
+      $('#self_rebate_status').css('display', 'none');
+    }
+    /**
+    $('#agent').change(function(){
+      set_default_rebate();
+    })
+    $('#client_start').change(function(){
+      set_default_rebate();
+    })**/
+    {% endif %}
 });
+function set_default_rebate(){
+  $.ajax({
+    type: 'POST',
+    url: "/clients/agent/get_rebate_json",
+    data: {'agent_id':$('#agent').val(), 'year': $('#client_start').val()},
+    dataType: 'json',
+    success:function(data) {
+        var rebate = data['rebate'];
+        var money = $('#money').val();
+        var rebate_money = parseFloat(rebate / 100) * parseFloat(money)
+        $('#self_rabate_value').val(parseInt(rebate_money))
+    }
+  });
+}
+function default_rebate(){
+    $('#self_rebate').val(0);
+    $('#self_rabate_value').val('0');
+    $("#self_rebate").trigger("chosen:updated");
+    $('#self_rebate_value').css('display', 'none');
+    $('#self_rebate_status').css('display', 'block');
+}
 </script>
 {%- endmacro %}

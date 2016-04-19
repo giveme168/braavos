@@ -25,8 +25,9 @@
   {{ form_field(form.level) }}
   <div class="form-group">
     <label for="client_end" class="col-sm-2 control-label">完成时间 : </label>
-    <div class="col-sm-4">
+    <div class="col-sm-10">
       <input type="text" id="get_time" name="get_time" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh">
+      <span class="tips" style="color:red;">请点选方案提交时间</span>
     </div>
   </div>
   <h4 class="page-header">补充说明</h4>
@@ -240,6 +241,7 @@
                     {% endif %}
                     {% if g.user.id == bref.to_id or g.user.is_super_admin() %}
                       <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="100">完成</button>
+                      <a href="https://pan.baidu.com" target="_blank" class="btn btn-sm btn-default">百度网盘</a>
                     {% endif %}
                   {% elif bref.status == 10 %}
                     {% if g.user == bref.creator or g.user.is_super_admin() %}
@@ -248,6 +250,7 @@
                   {% elif bref.status == 0 %}
                     {% if g.user.id == bref.to_id or g.user.is_super_admin() %}
                       <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="100">修改策划单地址</button>
+                      <a href="https://pan.baidu.com" target="_blank" class="btn btn-sm btn-default">百度网盘</a>
                     {% endif %}
                   {% endif %}
                 </div>
@@ -335,6 +338,10 @@ $(function(){
   $('#toer').val('{{bref.to_id}}');
   $('#toer').trigger("chosen:updated");
   $('#url').val('{{bref.url}}')
+
+  var cc = '{{bref.cc}}'.split('|')
+  $('#contract-email').val(cc)
+  $('#contract-email').trigger("chosen:updated");
 })
 </script>
 {% endblock %}

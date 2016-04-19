@@ -1,0 +1,214 @@
+{% extends "/base.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+<style type="text/css">  
+.loading_img{  
+    position: absolute;  
+    top:50%;  
+    left:45%;  
+}  
+</style>
+{% include "/data_query/super_leader/super_leader_base.html" %}
+<div style="width:100%; height:100%; z-index:9999;position: absolute;background-color: #000;opacity: 0.2; display:none;" id="loading">
+    <img class="loading_img" src="/static/imgs/loading.gif"></div>
+</div>
+<div class="container bra-box" id="medium_box" style="width:1000px;">
+    <ul class="nav nav-tabs">
+      <li id="_client_order_"class=""><a href="{{url_for('data_query_super_leader_back_money.client_order')}}">新媒体订单</a></li>
+      <li id="_douban_order_" class=""><a href="{{url_for('data_query_super_leader_back_money.douban_order')}}">直签豆瓣订单</a></li>
+      <li id="_search_" class=""><a href="{{url_for('data_query_super_leader_back_money.search')}}">效果业务</a></li>
+    </ul>
+    <h3>{{title}}</h3>
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="exampleInputEmail2">查询时间</label>
+            <select class="col-md-12" id="year" name="year" style="width:100px;">
+                {% for k in range(5) %}
+                <option value='{{2014+k}}'>{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail2">区域：</label>
+            <select class="col-md-12" id="location" name="location" style="width:70px;">
+                <option value='0'>全部</option>
+                <option value='1'>华北</option>
+                <option value='2'>华东</option>
+                <option value='3'>华南</option>
+            </select>
+        </div>
+        <a href="javascript:search();" class="btn btn-info">查询</a>
+        <a href="javascript:download();" class="btn btn-default">导出</a>
+    </form>
+    <br>
+    <div id="container" style="min-height:400px;"></div>
+    <div id="container_list">
+        
+    </div>
+<div>
+<script src="/static/js/highcharts/highcharts.js"></script>
+<script src="/static/js/highcharts/themes/grid-light.js"></script>
+<script src="/static/js/numeral.min.js"></script>
+<script>
+    $(document).ready(function(){
+        var pathname = window.location.pathname;
+        var path_name = pathname.split("/")
+        $("#_" + path_name[4]+'_').addClass("active");
+        Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+            return {
+                radialGradient: {
+                    cx: 0.5,
+                    cy: 0.3,
+                    r: 0.7
+                },
+                stops: [
+                    [0, color],
+                    [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+                ]
+            };
+        });
+        Highcharts.setOptions({
+            global : {
+                    useUTC : false
+            },
+            lang: {
+                shortMonths: ['一月', '二月', '三月', '四月', '五月', '六月',  '七月', '八月', '九月', '十月', '十一月', '十二月']
+                
+            }
+        });
+        Highcharts.createElement('link', {
+           href: '//fonts.googleapis.com/css?family=Dosis:400,600',
+           rel: 'stylesheet',
+           type: 'text/css'
+        }, null, document.getElementsByTagName('head')[0]);
+
+        Highcharts.theme = {
+           colors: ["#7cb5ec", "#f7a35c", "#90ee7e", "#7798BF", "#aaeeee", "#ff0066", "#eeaaee","#55BF3B", "#DF5353", "#7798BF", "#aaeeee"]
+        };
+        Highcharts.setOptions(Highcharts.theme);
+        var now_date = new Date();
+        var year = now_date.getFullYear();
+        $('#year').val(year);
+        $("#year").trigger("chosen:updated");
+        search()
+    })
+
+    function search(){
+        $('#loading').show()
+        var year = parseInt($('#year').val());
+        var location = parseInt($('#location').val());
+        var type = '{{type}}';
+        if (type == 'client'){
+            var url = "{{url_for('data_query_super_leader_back_money.client_order_json')}}"
+        }else if (type == 'search'){
+            var url = "{{url_for('data_query_super_leader_back_money.search_json')}}"
+        }else{
+            var url = "{{url_for('data_query_super_leader_back_money.douban_order_json')}}"
+        }
+        
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {year: year, location:location},
+            dataType: 'json',
+            success: function(data, err){
+                load_chart(data['title'], data['data'])
+                load_list_container(data['data'])
+                $('#loading').hide()
+            }
+
+        })
+    }
+    function load_list_container(data){
+        $('#container_list').html('');
+        var start_table = "<table class='table table-bordered'><thead><tr><th>月份</th><th>已回款金额</th><th>未回款金额</th></tr></thead><tbody>"
+        var client_count_data = data[0]['data']
+        var client_money_data = data[1]['data']
+        var client_count_total = 0
+        var client_money_total = 0
+        var list_container_table = ""
+        for (var i=0; i<client_count_data.length; i++){
+            client_count_total += client_count_data[i][1]
+            client_money_total += client_money_data[i][1]
+            list_container_table += "<tr><th scope='row'>"+(i+1)+"月</th><td>"+numeral(client_count_data[i][1]).format('0,0.00')+"</td><td>"+numeral(client_money_data[i][1]).format('0,0.00')+"</td></tr>"
+        }
+        var total_th = "<tr><th scope='row'>总计</th><td>"+numeral(client_count_total).format('0,0.00')+"</td><td>"+numeral(client_money_total).format('0,0.00')+"</td></tr>" 
+        var end_table = "</tbody></table>"
+        $('#container_list').html(start_table+list_container_table+total_th+end_table)
+    }
+    function load_chart(title, data) {    
+        $('#container').highcharts({
+            global : {
+                useUTC : false
+            },
+            chart: {
+                type: 'spline'
+            },
+            title: {
+                text: title
+            },
+            subtitle: {
+                text: ''
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: { // don't display the dummy year
+                    month: '%b',
+                    year: '%b'
+                },
+                title: {
+                    text: ''
+                }
+            },
+            yAxis: [{ // left y axis
+                title: {
+                    text: ''
+                },
+                labels: {
+                    align: 'left',
+                    x: 3,
+                    y: 16,
+                    format: '{value:.,2f}'
+                },
+                showFirstLabel: false
+            }, { // right y axis
+                linkedTo: 0,
+                gridLineWidth: 0,
+                opposite: true,
+                title: {
+                    text: null
+                },
+                labels: {
+                    align: 'right',
+                    x: -3,
+                    y: 16,
+                    format: '{value:.,2f}'
+                },
+                showFirstLabel: false
+            }],
+            tooltip: {
+                headerFormat: '<b>当月客户成单数据</b><br>',
+                shared: true,
+                crosshairs: true,
+                valueDecimals: 2
+            },
+
+            plotOptions: {
+                spline: {
+                    marker: {
+                        enabled: true
+                    }
+                }
+            },
+
+            series: data
+        });
+    };
+    function download(){
+        var year = parseInt($('#year').val());
+        var location = parseInt($('#location').val());
+        params = '?action=excel&year='+year+'&location='+location;
+        window.location.href = window.location.pathname + params;
+    }
+</script>
+{% endblock %}

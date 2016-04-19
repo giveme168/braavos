@@ -8,12 +8,14 @@
         <table class="table table-bordered">
             <tr>
                 <th>媒体名称</th>
+                <th>级别</th>
                 <th>最后更新时间</td>
                 <th>操作</th>
             </tr>
             {% for k in mediums %}
             <tr id="tr_{{k.id}}">
                 <td><a href="{{url_for('mediums_files.info', mid=k.id)}}">{{k.name}}</a></td>
+                <td>{{k.level_cn}}</td>
                 <td>{{k.files_update_time}}</td>
                 <td><a href="{{url_for('mediums_files.info', mid=k.id)}}">查看</a></td>
             </tr>

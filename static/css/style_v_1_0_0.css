@@ -1,0 +1,372 @@
+*{padding: 0;
+list-style: none;
+margin:; 0;
+font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
+
+.row{width: 100%;}
+
+.nav{width: 100%;
+    height:80px;
+    background: #484848;
+    border-radius: none;}
+
+.nav .navigation-content{width:958px;
+                        margin: 0 auto;
+                        text-align: center;
+                        height: 80px;}
+
+.nav .navigation-content .logo img{margin-top:25px;
+                                    float: left;}
+
+.nav .navigation-content-list{height: 80px;
+                            float: right;}
+
+.nav .navigation-content-list ul li{float: left;
+                                    font-size: 14px;}
+
+.nav .navigation-content-list ul li a{color: #dcdcdc;
+                                    cursor: pointer;
+                                    text-decoration: none;
+                                    }
+
+.nav .navigation-content-list ul li a:hover{color:#b2b2b2;}
+
+.nav .navigation-content-list ul  .mail-list{margin-top:33px;
+                                            margin-right: 31px;}
+
+.nav .navigation-content-list ul  .head-portrait{width:36px;
+                                                height:36px;
+                                                overflow: hidden;
+                                                margin-top:25px;
+                                                border-radius:100%;
+                                                background: #0ff;
+                                                margin-right:7px;}
+
+.nav .navigation-content-list ul .dropdown{margin-top:33px;
+                                        }
+.nav .navigation-content-list ul .dropdown-menu{margin-top: 26px;}
+
+.nav .navigation-content-list ul .dropdown ul li{width: 100%;
+                                                }
+
+.nav .navigation-content-list ul .dropdown ul li a{color: #484848;
+                                                    text-align: center;
+                                                    width:100%;}
+
+
+.introduction{width: 958px;
+            height:216px;
+            margin-top:34px;}
+
+.introduction .intro-all{padding-right: 0px;
+            padding-left: 0px;
+            float: left;
+            width: 20%;
+            position: relative}
+
+.introduction .means{margin-top: 10px;}
+
+.introduction .means p{color: #555555;
+            font-size: 12px;}
+
+.introduction .means span{color: #555555;
+        font-size: 12px;}
+
+.introduction .sculpture{left: 0;
+            float: left;
+            padding-right: 0px;
+            padding-left: 0px;
+            position: relative;
+            z-index: 999;
+            margin-top: 35px;}
+
+.introduction .head-icon{width:136px;
+            height: 136px;
+            background: #fff;
+            margin-right:15px;
+            position: relative;
+            overflow: hidden;}  
+
+.introduction .head-icon img{width:135px;}      
+
+
+.introduction .module-box{width: 400px;
+        height: 175px;
+        overflow: hidden;
+        position:absolute;}
+
+.introduction .intro-all .sculpture .own-name{
+            margin-top: 32px;
+            cursor: pointer;
+            display: inline-block;
+            background: #919191;
+            border-radius: 20px;
+            position: relative;
+            }
+.introduction .intro-all .sculpture .own-name:hover{
+            background: #eb3341;
+            }
+.introduction .intro-all .sculpture .own-name p{color: #fff;
+            text-align: center;
+            font-size: 12px;
+            margin-top: 3px;
+            margin-bottom: 3px;;
+            padding:0 30px 0px 10px}
+.introduction .intro-all .sculpture .own-name img{position: absolute;bottom:3px;right:5px;}
+
+.introduction .intro-all .module-box .message{position: absolute;
+        background: #000;
+        opacity: 0.8;
+        overflow: hidden;
+        width: 270px;
+        display: none;
+        border: 1px solid #ccc;
+        padding-right: 10px;
+        height:135px;
+        z-index: 99;
+        margin-top: 35px;
+        padding-top: 18px;}
+
+.introduction .intro-all .module-box .set {
+    width:23px ;
+    height:23px ;
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    bottom:5px;
+    }
+
+.introduction .intro-all .module-box .set img{
+    display: block;
+}
+
+.introduction .intro-all .module-box .message p,.introduction .intro-all .module-box .message span{font-size: 12px;
+                        color: #e0e0e0;
+                        line-height: 16px;
+                        margin-left: 10px;}
+
+
+.introduction .winbox{float: left;
+        width: 40%;
+        margin-top: 10px;
+        background: url(../image/homepage_icon/103_03.png) repeat-y;}
+
+
+.introduction .winbox .dynamic{width:100%;}
+
+.introduction .winbox .dynamic-img,.introduction .winbox .dynamic-msg{
+                                                                    width:75%;
+                                                                    z-index: 33;
+                                                                    height: 65px;
+                                                                    position:relative;}
+
+.introduction .winbox .dynamic-img img{float: left;
+                                        padding: 0 0 ;
+                                        background: #fff;
+                                        border: none;
+                                        margin-right: 15px;
+                                        margin-left: -4px;
+                                        margin-bottom: 10px;}
+
+.introduction .winbox .dynamic-msg span,.introduction .winbox .dynamic-img span{font-size:  12px;
+                                                                                color:#d3d3d3;
+                                                                                -webkit-transform:scale(0.9);}
+
+.introduction .winbox .dynamic-msg p,.introduction .winbox .dynamic-img p{font-size: 12px;
+                                                                            line-height: 15px;
+                                                                            margin-left: 30px;
+                                                                            color:#919191;
+                                                                            font-weight: normal;}
+
+
+.introduction .winbox .dynamic-img p a,.introduction .winbox .dynamic-msg p a{color: #909090;
+                                                                                line-height: 17px;
+                                                                                text-decoration: none;}
+
+.introduction .winbox .dynamic-img p a:hover,.introduction .winbox .dynamic-msg p a:hover{text-decoration: none;}
+
+.introduction .winbox .dynamic-msg img{float: left;
+                                        margin-right: 15px;
+                                        margin-bottom: 10px;}
+
+.introduction .winbox .dynamic .more{cursor:pointer;
+                                    width:106px;
+                                    margin-bottom: 10px;
+                                    height:22px;
+                                    line-height: 22px;
+                                    float: right;
+                                    padding-left: 3px;
+                                    position: relative;
+                                    background: #919191;
+                                    border-radius: 20px;}
+.introduction .winbox .dynamic .more img{position: absolute;
+                                        right:5px;
+                                        bottom:2px;}
+.introduction .winbox .dynamic .more:hover{
+                                    background: #eb3341;}
+                                    
+
+.introduction .winbox .dynamic .more a{
+                                color:#fff;
+                                width:96px;
+                                height:20px;
+                                margin-left:5px;
+                                text-decoration: none;
+                                font-size: 12px}
+
+
+.introduction .line-1{width: 100%;
+                    border-bottom: 1px solid #c8c8c8;
+                    clear: both;
+                    }
+
+.main{width: 958px;
+    height: 322px;}
+
+
+.main.title{width: 100%;
+            height:36px;
+            margin-bottom: 19px;
+            margin-bottom:8px;}
+
+
+.main .title h1{font-size: 17px;
+        color: #424242;
+        margin-bottom: 2px;}
+
+.main .title span{color: #919191;           
+            font-size: 14px;}
+
+.main #tab1{height:247px;
+            margin:10px auto;
+            width:100%;}
+
+.main #tab1 #nav-title{border:1px solid #ccc;
+                        border-bottom:none;
+                        background:#fff;}
+
+.main #nav-title li{width:25%;
+           text-align:center;
+           height:20px;
+           line-height:20px;
+           float:left;
+           border-right:1px solid #ccc;
+           background: #e6e6e6;
+           cursor:pointer;}
+
+.main #nav-title li.on{background: #484848;
+                color: #fff;
+                border-left: 1px solid #ccc
+              }
+
+
+.main #con1{clear:both;
+        background: #f9f9f9;
+          border-top:none;}
+
+.main #con1 ul{display:none;}
+
+.main #con1 .select{display:block;}
+
+.main .quarter, .year, .living-quarter{
+    height: 65px;
+    border-bottom: 1px solid #c6c6c6;
+    margin-bottom: 10px;}
+.living-quarter{border-bottom:none;}
+.main .ser-task{float: left;
+        width:33.3%;}
+
+.main .ser-task h5{float: left;
+            margin-top: 24px;
+            font-size: 14px;
+            margin-left: 5%;
+            margin-right: 5%;}
+
+.main .ser-task  p{margin-top: 20px;}
+
+.main .ser-task p strong,.main .ser-task p span{font-size: 16px;
+                        font-weight: normal;
+                        color: #ac575c;}
+
+
+.main .progress{background: #919191;}
+.main .completion{width:33.3%;
+            float: left;}
+.main .completion p{margin-top: 10px;
+                font-size: 12px;
+                float: left;
+                margin-bottom: 4px;}
+.main .completion span{float: left;
+                font-size: 12px;
+                color:#970a1a;
+                margin-top: 5px;
+                margin-left: 50%;}
+.main .progress{clear: both;
+        margin-top: 30px;}
+.main .received h5{float: left;
+            margin-top: 24px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-left: 100px;}
+
+.main .received{width:33.3%;
+        float: left;}
+.main .received  p{margin-top: 20px;}
+
+.main .received p strong,.main .received p span{font-size: 16px;
+                    font-weight: normal;
+                    color: #ac575c;}
+
+.main .received p span{font-size: 14px;}
+
+.main .living-quarter .pad-box{width:33.3%;
+                                float:left;}
+
+.main .living-quarter p{font-size: 14px;
+                        color: #545454;
+                        margin-top: 20px;
+                        margin-left: 20px;}
+
+.main .living-quarter p strong{margin-left: 20px;}
+
+.main .living-quarter p strong,.main .living-quarter p span{
+                                                        font-weight: normal;
+                                                        color: #ac575c;
+                                                        font-size: 16px;}
+
+.main .living-quarter p span{margin-left: 0px;}
+
+.main .all-doll p{margin-left: 100px;}
+
+.business-modular .title-bussess{border-top: 1px solid #ccc;
+                                margin-top: 20px;}
+
+.business-modular .title-bussess h1{font-size: 17px;
+                                    color: #484848;
+                                    margin-bottom:2px;}
+
+.business-modular .title-bussess span{font-size: 14px;
+                                    color: #919191}
+
+.business-modular .bussess-box{width:810px;
+                            margin-top: 10px;
+                            margin-left: 75px;}
+
+.business-modular .bussess-box ul{float: left;
+                                width:160px;
+                                height:200px;
+                                }
+
+.business-modular .bussess-box .administration{margin-left:10px;}
+
+.business-modular .bussess-box ul li{text-align: center;
+                                    cursor: pointer;}
+
+.business-modular .bussess-box ul li h5{font-size: 17px;
+                                        color: #484848;
+                                        margin-top: 11px;
+                                        }
+
+.business-modular .bussess-box ul li a:hover{text-decoration:none;}
+.nav .open>a, .nav .open>a:focus, .nav .open>a:hover{background: none;}
+

@@ -23,7 +23,7 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
         'Order', backref=db.backref('associated_douban_orders', lazy='dynamic'))
     campaign = db.Column(db.String(100))  # 活动名称
     contract = db.Column(db.String(100))  # 豆瓣合同号
-    money = db.Column(db.Integer)  # 客户合同金额
+    money = db.Column(db.Float())  # 客户合同金额
 
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship('User')
@@ -101,9 +101,10 @@ class AssociatedDoubanOrder(db.Model, BaseModelMixin, AttachmentMixin):
     def email_info(self):
         return u"""
         关联媒体: %s
-        Campaign: %s (元)
+        Campaign: %s
         金额: %s (元)
-""" % (self.medium_order.medium.name, self.campaign, self.money or 0)
+        豆瓣合同号: %s
+""" % (self.medium_order.medium.name, self.campaign, self.money or 0, self.contract)
 
     def can_admin(self, user):
         """是否可以修改该订单"""
@@ -186,3 +187,7 @@ by %s\n
     @property
     def operaters(self):
         return self.medium_order.operaters
+
+    @property
+    def client_order(self):
+        return self.medium_order.client_order

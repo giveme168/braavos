@@ -1,5 +1,3 @@
-[![Build Status](http://ci.inad.com/github.com/borngods/braavos/status.svg?branch=master)](http://ci.inad.com/github.com/borngods/braavos)
-
 ## Braavos
 
 ### Develop Dependence

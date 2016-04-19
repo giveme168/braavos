@@ -19,8 +19,12 @@
       <th>发票内容</th>
       <th width="5%">操作</th>
     </tr>
-    <tr>
-      <td>{{invoice.company}}</td>
+    {% if invoice.invoice_num == '88888888' %}
+      <tr style="border:2px solid #FF8888;">
+    {% else %}
+      <tr>
+    {% endif %}
+      <td>{{invoice.company}}{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
       <td>{{invoice.tax_id}}</td>
       <td>{{invoice.money}}元</td>
       <td>{{invoice.get_pay_money}}元</td>
@@ -35,6 +39,40 @@
       </td>
     </tr>
   </table>
+  <div class="panel panel-default" id="non-invoice">
+      <div class="panel-heading">
+          <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 公司信息 </a>
+          </h4>
+      </div>
+      <div id="collapse-invoice-0" class="panel-collapse collapse in">
+          <div class="panel-body">
+              
+              <div class="col-md-12">
+                  <div class="col-md-21" style="">
+                      <table class="table table-bordered table-striped">
+                        <tr>
+                          <th>公司名称</th>
+                          <th>公司税号</th>
+                          <th>公司地址</th>
+                          <th>公司电话</th>
+                          <th>开户行</th>
+                          <th>银行账号</th>
+                        </tr>
+                        <tr>
+                          <td>{{invoice.agent.name}}</td>
+                          <td>{{invoice.agent.tax_num}}</td>
+                          <td>{{invoice.agent.address}}</td>
+                          <td>{{invoice.agent.phone_num}}</td>
+                          <td>{{invoice.agent.bank}}</td>
+                          <td>{{invoice.agent.bank_num}}</td>
+                        </tr>
+                      </table>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
   <div class="well" id="invoice_from" style="display:none;">
       <h4>
           {{invoice.client_order.name}}-{{ invoice.agent.name }}-{{ invoice.money }}元
@@ -225,7 +263,7 @@ $(function() {
 {%- endmacro %}
 {% block content%}
 {% include "/order/order_base.html" %}
-  <div class="container bra-box">
+  <div class="container bra-box" style="width:1400px;">
     <h4> {{ invoice.client_order.name }} </h4>
     <div>
       {% set order = invoice.client_order %}

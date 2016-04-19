@@ -4,6 +4,10 @@
 {% block content %}
 {% include "/finance/finance_base.html" %}
 <div class="container bra-box" style="width:1200px;">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="{{url_for('finance_client_order_medium_pay.apply')}}">申请中的媒体付款</a></li>
+        <li class=""><a href="{{url_for('finance_client_order_medium_pay.index')}}">所有媒体付款</a></li>
+    </ul>
     <h3>{{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
@@ -37,10 +41,7 @@
         <tr>
             <th>客户名称</th>
             <th>合同号</th>
-            <th>媒体总金额</th>
-            <th>收到发票金额</th>
-            <th>发票已打款金额</th>
-            <th>申请中的打款金额</th>
+            <th>待打款媒体金额</th>
             <th>投放媒体</th>
             <th>请款中</th>
             <th>已打款</th>
@@ -50,9 +51,6 @@
         <tr>
             <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">{{order.medium_invoice.client_order.name}}</a></td>
             <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">{{order.medium_invoice.client_order.contract}}</a></td>
-            <td>{{order.medium_invoice.client_order.mediums_money2|format_price}} 元</td>
-            <td>{{order.medium_invoice.money|format_price}} 元</td>
-            <td>{{order.medium_invoice.get_pay_money|format_price}} 元</td>
             <td>{{order.money|format_price}} 元</td>
             <td>{{order.medium_invoice.medium.name}}</td>
             {% if order.apply_num %}
@@ -66,9 +64,6 @@
         {% endfor %}
         <tr>
             <td colspan=2 style="text-align: center;">总计</td>
-            <td>{{orders|sum(attribute='medium_invoice.client_order.mediums_money2')|format_price}}元</td>
-            <td>{{orders|sum(attribute='medium_invoice.money')|format_price}}元</td>
-            <td>{{orders|sum(attribute='medium_invoice.get_pay_money')|format_price}}元</td>
             <td>{{orders|sum(attribute='money')|format_price}}元</td>
             <td colspan=4></td>
         </tr>

@@ -3,6 +3,7 @@
         <div class="list">
             <ul>
                 <a href="{{url_for('account_kpi.index')}}"><li id="__">我的绩效考核</li></a>
+                <a href="{{url_for('account_kpi.personnal')}}"><li id="_personnal_">同事的绩效打分</li></a>
                 {% if g.user.is_kpi_leader or g.user.is_HR_leader() or g.user.is_super_leader() %}
                 <a href="{{url_for('account_kpi.underling')}}"><li id="_underling_">下属的绩效考核</li></a>
                 {% endif %}
@@ -17,7 +18,10 @@
     $(function(){
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
+
         if (p_pathname[3]=='underling'){
+            $('#_'+p_pathname[3]+'_').addClass("on");
+        }else if(p_pathname[3]=='personnal'){
             $('#_'+p_pathname[3]+'_').addClass("on");
         }else{
             $('#__').addClass("on");

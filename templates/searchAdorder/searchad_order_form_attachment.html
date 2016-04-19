@@ -71,7 +71,26 @@
 <a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">查看历史版本</a>
 </div>
 {%- endmacro %}
-
+{% macro finish_attachment(order, finish_contract_path) -%}
+<hr>
+<form method="POST" action="{{finish_contract_path}}" enctype="multipart/form-data">
+  <input class="hide" type="text" name="order" value="{{order.id}}">
+  <input class="file-widget-input hide" type="file" name="file">
+  <button class="file-widget-btn btn btn-sm btn-primary">
+    <span>上传合同扫描件</span>
+  </button>
+  {% set schedule = order.get_last_finish() %}
+  {% if schedule %}
+  <a href="{{schedule.path}}">
+    {{schedule.filename}}
+  </a>
+    <a href="{{schedule.path}}" class="btn btn-sm btn-default">下载</a>
+  {% endif %}
+</form>
+{% if schedule %}
+<a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">查看所有</a>
+{% endif %}
+{%- endmacro  %}
 {% macro base_attachment_script() -%}
 <style>
   .file-widget-btn{margin: 10px;}
@@ -114,5 +133,19 @@ $(function(){
     {{ base_attachment_script() }}
 {%- endmacro %}
 
+{% macro finish_client_order_attachment(order) %}
+    {{ finish_attachment(order, url_for('files.finish_searchAd_client_order_upload')) }}
+{%- endmacro %}
 
+{% macro finish_medium_order_attachment(order) %}
+    {{ finish_attachment(order, url_for('files.finish_searchAd_medium_order_upload')) }}
+{%- endmacro %}
+
+{% macro finish_rebate_order_attachment(order) %}
+    {{ finish_attachment(order, url_for('files.finish_searchAd_rebate_order_upload')) }}
+{%- endmacro %}
+
+{% macro finish_framework_order_attachment(order) %}
+    {{ finish_attachment(order, url_for('files.finish_searchAd_framework_order_upload')) }}
+{%- endmacro %}
 

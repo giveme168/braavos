@@ -7,7 +7,7 @@ from models.planning import Bref, BREF_STATUS_CN
 from models.user import User, TEAM_TYPE_PLANNER
 from forms.planning import BrefForm
 
-from libs.signals import planning_bref_signal
+from libs.email_signals import planning_bref_signal
 from libs.paginator import Paginator
 
 planning_bref_bp = Blueprint(
@@ -18,13 +18,14 @@ planning_bref_bp = Blueprint(
 def index():
     brefs = list(Bref.all())
     if g.user.is_leader() or g.user.is_operater_leader():
-        brefs = [k for k in brefs if k.creator.location == g.user.location]
+        brefs = [k for k in brefs if k.creator.location == g.user.location and k.status != 1]
     elif g.user.is_planner():
-        brefs = brefs
-    elif g.user.is_super_leader():
-        brefs = brefs
+        brefs = [k for k in brefs if k.status != 1]
     else:
         brefs = [k for k in brefs if k.creator == g.user]
+
+    if g.user.team.type in [0, 14]:
+        brefs = list(Bref.all())
 
     page = int(request.values.get('p', 1))
     location = int(request.values.get('location', 0))
@@ -192,10 +193,11 @@ def status(bid):
             bref.add_comment(g.user, u"完成了策划单:%s \n\r%s" %
                              (bref.title, msg), msg_channel=7)
         bref.update_time = datetime.datetime.now()
+        bref.cc = '|'.join(emails)
         bref.save()
         apply_context = {"sender": g.user,
                          "status": action,
-                         "to": emails,
+                         "to_other": emails,
                          "msg": msg,
                          "bref": bref}
         planning_bref_signal.send(

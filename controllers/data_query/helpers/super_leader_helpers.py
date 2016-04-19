@@ -18,14 +18,16 @@ def _write_money_in_excel(worksheet, align_center, pre_monthes, th, money):
     return th
 
 
+# 导出媒体清单
 def write_medium_money_excel(pre_monthes, douban_money,
                              youli_money, wuxian_money,
                              momo_money, zhihu_money,
                              xiachufang_money, xueqiu_money,
                              huxiu_money, kecheng_money,
+                             weipiao_money, one_money,
                              midi_money, other_money,
                              searchAD_money, rebate_order_money,
-                             total):
+                             total, up_money):
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -38,12 +40,13 @@ def write_medium_money_excel(pre_monthes, douban_money,
         worksheet.set_column(k + 2, 2, 10)
     worksheet.set_column(1, 1, 30)
     # 设置高度
-    for k in range(0, 74):
+    for k in range(0, 76 + len(up_money) * 6):
         worksheet.set_row(k, 30)
 
     worksheet.merge_range(0, 0, 0, 1, u'时间', align_center)
     worksheet.merge_range(1, 0, 1, 1, u'媒体项目', align_center)
-    worksheet.merge_range(2, 0, 73, 0, u'致趣收入', align_center)
+    worksheet.merge_range(2, 0, 76 + len(up_money) *
+                          6, 0, u'致趣收入', align_center)
 
     locations = [u'华北', u'华东', u'华南']
     month_start, month_end = 2, 4
@@ -58,9 +61,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
     worksheet.write(0, len(pre_monthes) * 3 + 2, u'合计', align_center)
     worksheet.write(1, len(pre_monthes) * 3 + 2, '', align_center)
 
-    keys = [{'CCFF99': [u'豆瓣执行收入', u'豆瓣服务费收入计提', u'豆瓣返点成本', u'豆瓣毛利', '',
-                        u'豆瓣收入(优力互动)', u'豆瓣媒体合同金额(优力互动)', u'豆瓣媒体净成本(优力互动)', u'豆瓣代理成本(优力互动)', u'致趣豆瓣毛利(优力互动)', '',
-                        u'豆瓣收入(无线互联)', u'豆瓣媒体合同金额(无线互联)', u'豆瓣媒体净成本(无线互联)', u'豆瓣代理成本(无线互联)', u'致趣豆瓣毛利(无线互联)', '']},
+    keys = [{'CCFF99': [u'豆瓣执行收入', u'豆瓣服务费收入计提', u'豆瓣返点成本', u'豆瓣毛利', '']},
             {'33CCFF': [
                 u'陌陌收入', u'陌陌媒体执行金额', u'陌陌媒体净成本', u'陌陌代理成本', u'陌陌毛利', '']},
             {'0066FF': [
@@ -75,10 +76,15 @@ def write_medium_money_excel(pre_monthes, douban_money,
                 u'课程格子收入', u'课程格子媒体执行金额', u'课程格子媒体净成本', u'课程格子代理成本', u'课程格子毛利', '']},
             {'FFBB00': [
                 u'迷笛收入', u'迷笛媒体执行金额', u'迷笛媒体净成本', u'迷笛代理成本', u'迷笛毛利', '']},
-            {'AAAAAA': [
-                u'其他收入', u'其他媒体执行金额', u'其他媒体净成本', u'其他代理成本', u'其他毛利', '']},
-            {'FF0088': [
-                u'搜索部门收入', u'搜索部门返点收入', u'搜索部门执行金额', u'搜索部门净成本', u'搜索部门代理成本', u'搜索部门毛利']}]
+            {'FF3333': [
+                u'微票收入', u'微票媒体执行金额', u'微票媒体净成本', u'微票代理成本', u'微票毛利', '']},
+            {'E93EFF': [
+                u'ONE收入', u'One媒体执行金额', u'One媒体净成本', u'One代理成本', u'One毛利', '']}]
+    for k, v in up_money.items():
+        keys.append({'FF7F50': [k + u'收入', k + u'媒体执行金额',
+                                k + u'媒体净成本', k + u'代理成本', k + u'毛利', '']})
+    keys += [{'AAAAAA': [u'其他收入', u'其他媒体执行金额', u'其他媒体净成本', u'其他代理成本', u'其他毛利', '']},
+             {'FF0088': [u'效果业务收入', u'效果业务返点收入', u'效果业务执行金额', u'效果业务净成本', u'效果业务代理成本', u'效果业务毛利']}]
     th = 2
     for k in keys:
         for i in k[k.keys()[0]]:
@@ -95,37 +101,13 @@ def write_medium_money_excel(pre_monthes, douban_money,
     th = 2
     # 直签豆瓣
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['ex_money'])
+        worksheet, align_center, pre_monthes, th, douban_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['in_money'])
+        worksheet, align_center, pre_monthes, th, douban_money['money2'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['rebate'])
+        worksheet, align_center, pre_monthes, th, douban_money['a_rebate'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, douban_money['profit'])
-    th += 1
-    # 优利互助
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['sale_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['money2'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['m_ex_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['a_rebate'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, youli_money['profit'])
-    th += 1
-    # 无线互联
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['sale_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['money2'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['m_ex_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['a_rebate'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, wuxian_money['profit'])
     th += 1
     # 陌陌
     th = _write_money_in_excel(
@@ -211,6 +193,45 @@ def write_medium_money_excel(pre_monthes, douban_money,
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, midi_money['profit'])
     th += 1
+    # 微票
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, weipiao_money['sale_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, weipiao_money['money2'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, weipiao_money['m_ex_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, weipiao_money['a_rebate'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, weipiao_money['profit'])
+    th += 1
+    # One
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, one_money['sale_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, one_money['money2'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, one_money['m_ex_money'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, one_money['a_rebate'])
+    th = _write_money_in_excel(
+        worksheet, align_center, pre_monthes, th, one_money['profit'])
+    th += 1
+
+    # 大于100W的媒体
+    for k, v in up_money.items():
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, v['sale_money'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, v['money2'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, v['m_ex_money'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, v['a_rebate'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, v['profit'])
+        th += 1
+
     # 其他
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, other_money['sale_money'])
@@ -227,7 +248,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, searchAD_money['sale_money'])
     th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, rebate_order_money['ex_money'])
+        worksheet, align_center, pre_monthes, th, rebate_order_money['sale_money'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, searchAD_money['money2'])
     th = _write_money_in_excel(
@@ -244,6 +265,142 @@ def write_medium_money_excel(pre_monthes, douban_money,
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
                 ("媒体清单", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+COLUMN_LIST = ['A', 'B', 'C', 'D', 'E']
+
+
+# 导出可视化报表折线图
+def write_line_excel(obj):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+
+    bold = workbook.add_format({'bold': 1})
+
+    # Add the worksheet data that the charts will refer to.
+    headings = obj['headings']
+    data = obj['data']
+
+    worksheet.write_row('A1', headings, bold)
+    '''
+    worksheet.write_column('A2', data[0])
+    worksheet.write_column('B2', data[1])
+    worksheet.write_column('C2', data[2])
+    worksheet.write_column('D2', data[3])
+    '''
+    # Create a new chart object. In this case an embedded chart.
+    chart = workbook.add_chart({'type': 'line'})
+
+    # 循环插入每条线，并减去第一组数据（第一组数据为月份的显示）
+    for k in range(len(obj['data'])):
+        worksheet.write_column(COLUMN_LIST[k] + '2', data[k])
+        if k >= 1:
+            worksheet.set_column(k, k, 25)
+            chart.add_series({
+                'name': ['Sheet1', 0, k],
+                'categories': ['Sheet1', 1, 0, len(data[0]), 0],
+                'values': ['Sheet1', 1, k, len(data[k]), k],
+            })
+    # Add a chart title and some axis labels.
+    chart.set_title({'name': obj['title']})
+    # chart.set_x_axis({'name': 'Test number'})
+    # chart.set_y_axis({'name': 'Sample length (mm)'})
+
+    # Set an Excel chart style. Colors with white outline and shadow.
+    chart.set_style(10)
+
+    # Insert the chart into the worksheet (with an offset).
+    chart.set_size({'width': 600, 'height': 400})
+    worksheet.insert_chart('E2', chart, {'x_offset': 40, 'y_offset': 10})
+
+    workbook.close()
+
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                (str(obj['title']), datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+# 导出可视化报表饼图
+def write_pie_excel(obj):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+
+    worksheet.set_column(1, 1, 30)
+    worksheet.set_column(2, 2, 15)
+    worksheet.set_column(3, 3, 10)
+    bold = workbook.add_format({'bold': 1})
+
+    # Add the worksheet data that the charts will refer to.
+    headings = obj['headings']
+    data = obj['data']
+
+    worksheet.write_row('A1', headings, bold)
+    worksheet.write_column('A2', data[0])
+    worksheet.write_column('B2', data[1])
+    worksheet.write_column('C2', data[2])
+    worksheet.write_column('D2', data[3])
+
+    #######################################################################
+    #
+    # Create a new chart object.
+    #
+    chart = workbook.add_chart({'type': 'pie'})
+
+    # Configure the series. Note the use of the list syntax to define ranges:
+    chart.add_series({
+        'name': u'占比',
+        'categories': ['Sheet1', 1, 1, len(data[1]), 1],
+        'values': ['Sheet1', 1, 2, len(data[3]), 2],
+    })
+
+    # Add a title.
+    chart.set_title({'name': obj['title']})
+
+    # Set an Excel chart style. Colors with white outline and shadow.
+    chart.set_style(10)
+
+    # Insert the chart into the worksheet (with an offset).
+    chart.set_size({'width': 700, 'height': 500})
+    worksheet.insert_chart('E2', chart, {'x_offset': 25, 'y_offset': 10})
+    workbook.close()
+
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                (str(obj['title']), datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
     mimetype_tuple = mimetypes.guess_type(filename)
     response_headers = Headers({
         'Pragma': "public",

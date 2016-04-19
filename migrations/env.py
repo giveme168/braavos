@@ -30,7 +30,7 @@ from models.delivery import Delivery
 from models.outsource import OutSourceTarget, OutSource
 from models.invoice import Invoice, AgentInvoice, AgentInvoicePay, \
     MediumInvoice, MediumInvoicePay, MediumRebateInvoice
-from models.account.saler import * 
+from models.account.saler import *
 # target_metadata = mymodel.Base.metadata
 # models for searchAd
 from searchAd.models.client import searchAdClient, searchAdGroup, searchAdAgent, searchAdAgentRebate
@@ -41,6 +41,7 @@ from searchAd.models.invoice import searchAdInvoice, searchAdAgentInvoice, searc
     searchAdMediumInvoice, searchAdMediumInvoicePay, searchAdMediumRebateInvoice
 from searchAd.models.framework_order import *
 from models.account.data import *
+from models.other import *
 
 from flask import current_app
 config.set_main_option('sqlalchemy.url', current_app.config.get('SQLALCHEMY_DATABASE_URI'))

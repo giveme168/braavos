@@ -28,3 +28,26 @@ class Notice(db.Model, BaseModelMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d %H:%M')
+
+
+class PersonNotice(db.Model, BaseModelMixin):
+    __tablename__ = 'person_notice'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    content = db.Column(db.Text(), default="")
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship(
+        'User', backref=db.backref('person_notice_user', lazy='dynamic'),
+        foreign_keys=[user_id])
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, title, content, user, create_time=None):
+        self.title = title
+        self.content = content
+        self.user = user
+        self.create_time = create_time or datetime.date.today()
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime('%Y-%m-%d %H:%M')

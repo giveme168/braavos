@@ -3,7 +3,7 @@
 
 {% block content %}
 {% include "/account/account_base.html" %}
-<div class="container bra-box" style="width:1100px;">
+<div class="container bra-box" style="width:1300px;">
     <div>
         <div class="tab-content">
           <div class="tab-pane active" id="tab-1">
@@ -14,12 +14,21 @@
                         <input type="text" class="form-control" id="number" name="number" placeholder="编号">
                     </div>-->
                     <div class="form-group">
+                        <label for="">类型：</label>
+                        <select class="form-control" id="version" name="version" placeholder="选择类型">
+                            {% for k, v in P_VERSION_CN.items() %}
+                            <option value="{{k}}">{{v}}<option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="">状态：</label>
                         <select class="form-control" id="status" name="status" placeholder="选择状态">
                             <option value='0'>所有状态</option>
+                            <option value="6">员工评分中</option>
                             <option value="2">Leader审批中</option>
-                            <option value="3">HR整理中</option>
-                            <option value="4">归档</option>
+                            <option value="4">HR整理中</option>
+                            <option value="5">归档</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -47,18 +56,28 @@
             <table class="table table-bordered">
                 <tr>
                     <th>填写人</th>
+                    <th>类型</th>
                     <th>KR指标自评分/上级评分</th>
                     <th>改进提升自评分/上级评分</th>
                     <th>管理指标自评分/上级评分</th>
                     <th>胜任能力自评分/上级评分</th>
+                    <th>同事评分</th>
                     <th>绩效评估自评总分/上级评分</th>
                     <th>直属领导</th>
                     <th>状态</th>
-                    <th style="width:100px;">操作</th>
+                    <th style="width:150px;">员工评分状态</th>
+                    <th style="width:120px;">操作</th>
                 </tr>
                 {% for k in reports %}
                 <tr id="tr_{{k.id}}">
-                    <td><a href="{{url_for('account_kpi.info', r_id=k.id)}}">{{k.creator.name}}</a></td>
+                    <td>
+                        {% if k.version == 1 %}
+                        <a href="{{url_for('account_kpi.info', r_id=k.id)}}">{{k.creator.name}}</a>
+                        {% else %}
+                        <a href="{{url_for('account_kpi.info_v2', r_id=k.id)}}">{{k.creator.name}}</a>
+                        {% endif %}
+                    </td>
+                    <td>{{k.version_cn}}</td>
                     <td>{{k.self_KR_score}} / {% if k.status >= 3 %}{{k.KR_score}}{% else %}未评分{% endif %}</td>
                     <td>{{k.self_upper_score}} / {% if k.status >= 3 %}{{k.upper_score}}{% else %}未评分{% endif %}</td>
                     <td>{% if k.type == 2 %}
@@ -75,16 +94,34 @@
                         {% else %}
                             无
                         {% endif %}</td>
-                    <td>{{k.self_ability_score}} / {% if k.status>=3 %}{{k.ability_score}}{% else %}未评分{% endif %}</td>
-                    <td>{{k.self_total_score}} / {% if k.status>=3 %}{{k.total_score}}{% else %}未评分{% endif %}</td>
-                    <td>{% for k in k.creator.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
-                    <td>{{k.status_cn}}</td>
+                    <td>{{k.self_ability_score}} / {% if k.status>=3 %}{{k.ability_score}}{% else %}未评分{% endif %}
+                    </td>
+                    <td>{{k.personnal_score}}</td>
+                    <td>{{k.self_total_score + k.personnal_score}} / {% if k.status>=3 %}{{k.total_score+k.personnal_score}}{% else %}未评分{% endif %}
+                    </td>
                     <td>
-                        {% if k.status == 2 and g.user.is_kpi_leader%}
+                        {% for k in k.creator.team_leaders %}{{k.name}}<br/>{% endfor %}
+                    </td>
+                    <td>{{k.status_cn}}</td>
+                    {% if k.version == 1 %}
+                        <td>无</td>
+                    {% elif k.version ==2 %}
+                        <td>{{k.personnal_status_cn|safe}}</td>
+                    {% endif %}
+                    <td>
+                        {% if k.status == 2 and g.user.is_kpi_leader %}
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=1)}}">打回重填</a><br/>
+                            {% if k.version == 1 %}
                             <a href="{{url_for('account_kpi.check_apply', r_id=k.id)}}">审批</a><br/>
+                            {% elif k.version == 2 %}
+                            <a href="{{url_for('account_kpi.check_apply_v2', r_id=k.id)}}">审批</a><br/>
+                            {% endif %}
                         {% elif k.status == 3 and g.user.is_kpi_leader %}
-                        <a href="{{url_for('account_kpi.check_apply', r_id=k.id)}}">重新审批</a><br/>
+                            {% if k.version == 1 %}
+                            <a href="{{url_for('account_kpi.check_apply', r_id=k.id)}}">重新审批</a><br/>
+                            {% elif k.version == 2 %}
+                            <a href="{{url_for('account_kpi.check_apply_v2', r_id=k.id)}}">重新审批</a><br/>
+                            {% endif %}
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=4)}}">提交HR</a><br/>
                         {% elif k.status == 4 and g.user.is_HR_leader() %}
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=2)}}">打回重评</a><br/>
@@ -92,6 +129,11 @@
                         {% elif k.status == 5 and g.user.is_HR_leader() %}
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=4)}}">取消归档</a><br/>
                             <a href="{{url_for('account_kpi.info', r_id=k.id)}}?action=excel">下载</a><br/>
+                        {% elif k.status == 6 %}
+                            {% if g.user.is_HR_leader() or g.user.is_kpi_leader %}
+                                <a href="{{url_for('account_kpi.check_apply_v2', r_id=k.id)}}">重新审批</a><br/>
+                                <a href="javascript:notice('{{url_for('account_kpi.notice', r_id=k.id)}}')">发送提醒邮件</a><br/>
+                            {% endif %}
                         {% endif %}
                         {% if g.user.is_admin() %}
                             <a href="javascript:deletes('{{url_for('account_kpi.delete', r_id=k.id)}}', '{{k.creator.name}}')">删除</a><br/>
@@ -107,6 +149,11 @@
     </div>
 </div>
 <script>
+    function notice(url){
+        $.get(url, {}, function(data){
+            alert('提醒成功');
+        }, "json");
+    }
     function deletes(url, title){
         var flag=confirm("确定要删除:"+title+"这个人的绩效考核吗?");
         if(flag){
@@ -121,6 +168,8 @@
         $('#status').trigger("chosen:updated");
         $('#total_score').val('{{total_score}}')
         $('#total_score').trigger("chosen:updated");
+        $('#version').val('{{version}}')
+        $('#version').trigger("chosen:updated");
     })
 </script>
 {% endblock %}

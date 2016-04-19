@@ -51,7 +51,7 @@ def cost():
         search_date = datetime.datetime.strptime(
             str(year) + '-' + str(month), '%Y-%m')
         orders = set([k.client_order for k in ClientOrderExecutiveReport.query.filter_by(
-            month_day=search_date) if k.client_order.status == 1])
+            month_day=search_date) if k.status == 1])
     else:
         orders = [k for k in ClientOrder.all() if k.client_start.year == int(
             year) or k.client_end.year == int(year)]
@@ -169,7 +169,7 @@ def index():
         xls = write_excel(orders, query_type, th_obj)
         response = get_download_response(xls, filename)
         return response
-    return tpl('index.html',
+    return tpl('/data_query/order/index.html',
                orders=orders,
                page=page,
                query_type=query_type,

@@ -1,0 +1,40 @@
+<div class="container-fluid top_nav_fluid">
+    <div class="menu">
+        <div class="list">
+            <ul>
+                 {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
+                <a href="{{url_for('account_onduty.index')}}">
+                    <li id="__">员工考勤</li>
+                </a>
+                {% else %}
+                <a href="{{url_for('account_onduty.info', uid=g.user.id)}}">
+                    <li id="__">员工考勤</li>
+                </a>
+                {% endif %}
+                {% if g.user.is_super_leader() or g.user.email in ['huawei@inad.com', 'lixuezhi@inad.com', 'weizhaoting@inad.com', 'shiying@inad.com', 'yangqian@inad.com',
+                'yanyue@inad.com'] %}
+                <a href="{{url_for('account_onduty.unusual')}}">
+                    <li id="_unusual_">考勤异常（销售）</li>
+                </a>
+                {% endif %}
+                <div class="line" style="clear: both"></div>
+            </ul>
+        </div>
+    </div>
+    <div class="form-list">
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[3]=='info'){
+            $('#__').addClass("on");
+        }else if (p_pathname[3]=='unusual'){
+            $('#_'+p_pathname[3]+'_').addClass("on");
+        }else{
+            $('#__').addClass("on");
+        }
+        
+    })
+</script>

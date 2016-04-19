@@ -61,6 +61,7 @@ def create(type):
         brand = request.values.get('brand', '')
         industry = request.values.get('industry', '')
         desc = request.values.get('desc', '')
+        pwd = request.values.get('pwd', '')
         tags = request.values.get('tags', '').split(',')
         is_win = int(request.values.get('is_win', 0))
         if Case.query.filter_by(name=name, type=type).count() > 0:
@@ -69,7 +70,8 @@ def create(type):
         case = Case.add(name=name, url=url, medium=Medium.get(1),
                         mediums=Medium.gets(request.values.getlist('mediums')),
                         brand=brand, industry=industry, desc=desc,
-                        creator=g.user, type=type, is_win=is_win)
+                        creator=g.user, type=type, is_win=is_win,
+                        pwd=pwd)
         case = Case.get(case.id)
         for k in tags:
             if k:
@@ -102,6 +104,7 @@ def update(type, cid):
         desc = request.values.get('desc', '')
         tags = request.values.get('tags', '').split(',')
         is_win = int(request.values.get('is_win', 0))
+        pwd = request.values.get('pwd', '')
         case.name = name
         case.url = url
         case.medium = Medium.get(1)
@@ -112,6 +115,7 @@ def update(type, cid):
         case.is_win = is_win
         case.creator = g.user
         case.create_time = datetime.datetime.now()
+        case.pwd = pwd
         case.save()
         TagCase.query.filter_by(case=case).delete()
         for k in tags:

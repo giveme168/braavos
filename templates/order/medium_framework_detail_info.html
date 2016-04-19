@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from 'order_form_medium_framework.html' import order_medium_framework_form %}
+{% from 'order_form_contract.html' import order_contract_form %}
+{% from 'order_form_attachment.html' import medium_framework_order_attachment, finish_medium_framework_order_attachment %}
+{% from 'comments.html' import comments_box %}
+
+{% block content %}
+{% include "order_base.html" %}
+<div class="container bra-box">
+    <h4> {{ order.name }} </h4>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 媒体框架订单 </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {{ order_medium_framework_form(framework_form) }}
+                    <br><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {{ medium_framework_order_attachment(order) }}
+                    {% if order.contract_status == 20 %}
+                    <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {{ finish_medium_framework_order_attachment(order) }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 合同状态 </a>
+                </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {{order_contract_form(order, reminder_emails, False, now_date)}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>{{ comments_box(order) }}</div>
+</div>
+{% endblock %}

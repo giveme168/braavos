@@ -1,0 +1,30 @@
+{% extends "/base.html" %}
+{% block content%}
+{% include "/order/order_base.html" %}
+<div class="container bra-box">
+    <h4>收入成本</h4>
+    {% include "saler/douban_order/nav_base.html" %}
+    <table class="table table-bordered">
+      <tr>
+        <th>条目</th>
+        <th>预估</th>
+        <th>实际</th>
+      </tr>
+      <tr>
+        <td>客户回款</td>
+        <td>{{order.money|format_price}}</td>
+        <td>{{order.back_moneys|format_price}}</td>
+      </tr>
+      <tr>
+        <td>代理返点</td>
+        <td>{{(order.money*order.agent_rebate/100)|format_price}}</td>
+        <td>无此项</td>
+      </tr>
+      <tr>
+        <td>外包成本</td>
+        <td>无此项</td>
+        <td>{{order.outsources_sum|format_price}}</td>
+      </tr>
+    </table>
+</div>
+{% endblock %}

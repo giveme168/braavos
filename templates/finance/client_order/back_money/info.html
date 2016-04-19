@@ -14,6 +14,7 @@
             <th>渠道销售</th>
             <th>直客销售</th>
             <th>是否完成回款</th>
+            <th>客户发票</th>
         </tr>
         <tr>
             <td>{{order.money|format_price}} 元</td>
@@ -23,9 +24,10 @@
             <td>{{order.direct_sales_names}}</td>
             <td>{{order.agent_sales_names}}</td>
             <td>{{order.back_money_status_cn}}</td>
+            <td><a target="_blank" href="{{url_for('finance_client_order_invoice.info', order_id=order.id)}}">查看</a></td>
         </tr>
         <tr>
-            <td colspan="7">
+            <td colspan="8">
                 <div class="progress">
                     <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{order.back_money_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{order.back_money_percent}}%;">
                         {{order.back_money_percent}}%
@@ -121,9 +123,15 @@
                                     {% if order.back_money_status == 0 %}
                                       <option value="1">未完成</option>
                                       <option value="0" selected="selected">已完成</option>
+                                      <option value="-1">坏账</option>
+                                    {% elif order.back_money_status == -1 %}
+                                      <option value="1">未完成</option>
+                                      <option value="0">已完成</option>
+                                      <option value="-1" selected="selected">坏账</option>
                                     {% else %}
                                       <option value="1" selected="selected">未完成</option>
                                       <option value="0">已完成</option>
+                                      <option value="-1">坏账</option>
                                     {% endif %}
                                 </select>
                                 <span class="errors"></span>

@@ -51,7 +51,7 @@
     {% endif %}
   {% endif %}
 </form>
-{% if order.__tablename__ == 'bra_framework_order' %}
+{% if order.__tablename__ in ['bra_framework_order', 'bra_medium_framework_order'] %}
 <form method="POST" action="{{others_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
@@ -159,3 +159,11 @@ $(function(){
     {{ finish_attachment(order, url_for('files.finish_framework_order_upload')) }}
 {%- endmacro %}
 
+{% macro medium_framework_order_attachment(order) -%}
+    {{ base_order_attachment(order, url_for('files.medium_framework_contract_upload'), url_for('files.medium_framework_schedule_upload'), url_for('files.medium_framework_others_upload')) }}
+    {{ base_attachment_script() }}
+{%- endmacro %}
+
+{% macro finish_medium_framework_order_attachment(order) %}
+    {{ finish_attachment(order, url_for('files.finish_medium_framework_order_upload')) }}
+{%- endmacro %}

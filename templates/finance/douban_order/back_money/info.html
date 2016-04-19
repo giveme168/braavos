@@ -119,9 +119,15 @@
                                     {% if order.back_money_status == 0 %}
                                       <option value="1">未完成</option>
                                       <option value="0" selected="selected">已完成</option>
+                                      <option value="-1">坏账</option>
+                                    {% elif order.back_money_status == -1 %}
+                                      <option value="1">未完成</option>
+                                      <option value="0">已完成</option>
+                                      <option value="-1" selected="selected">坏账</option>
                                     {% else %}
                                       <option value="1" selected="selected">未完成</option>
                                       <option value="0">已完成</option>
+                                      <option value="-1">坏账</option>
                                     {% endif %}
                                 </select>
                                 <span class="errors"></span>

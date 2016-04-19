@@ -51,17 +51,33 @@
 {% include "order_base.html" %}
 <div class="container bra-box">
     <h3> {{title}}
-        <input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">
-        <a class="btn btn-sm btn-success" href="{{url_for('order.new_framework_order')}}">新建框架订单</a>
     </h3>
+    <form class="form-inline">
+      <div class="form-group">
+        <label for="">执行年</label>
+        <select class="form-control" id="year" name="year">
+            {% for k in range(5) %}
+                <option value="{{2014+k}}">{{2014+k}}年度</option>
+            {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-default">搜索</button>
+      <a class="btn btn-sm btn-success" href="{{url_for('order.new_framework_order')}}">新建框架订单</a>
+      <input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download_order();">
+    </form>
+    <br/>
     {{ all_items(orders) }}
     {% set pages = orders %}
     {% include "pagination.html" %}
 </div>
 <script>
-function download(){
+function download_order(){
     window.location.href = window.location.pathname +
-      '?action=download';
+      '?action=download'+'&year='+$('#year').val();
 }
+$(function(){
+    $('#year').val('{{year}}');
+    $("#year").trigger("chosen:updated");
+})
 </script>
 {% endblock %}

@@ -4,10 +4,12 @@ from flask import Blueprint, request, redirect, url_for, g
 from flask import render_template as tpl, flash, current_app
 from wtforms import SelectMultipleField
 
-from models.user import User, Out, OUT_STATUS_APPLY, OUT_STATUS_MEETED, OUT_STATUS_PASS, OUT_STATUS_MEETED_NOT_PASS
+from models.user import (User, Out, OutReport, OUT_STATUS_APPLY,
+                         OUT_STATUS_MEETED, OUT_STATUS_PASS,
+                         OUT_STATUS_MEETED_NOT_PASS)
 from models.client import Client, Agent
 from models.medium import Medium
-from libs.signals import apply_out_signal
+from libs.email_signals import account_out_apply_signal
 from libs.paginator import Paginator
 from controllers.account.helpers.out_helpers import write_outs_excel
 
@@ -152,11 +154,13 @@ def create():
         reason = request.values.get('reason', '')
         persions = request.values.get('persions', '')
         address = request.values.get('address', '')
+        joiners = User.gets(request.values.getlist('joiners'))
         out = Out.add(
-            start_time=datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M'),
+            start_time=datetime.datetime.strptime(
+                start_time, '%Y-%m-%d %H:%M'),
             end_time=datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M'),
             reason=reason,
-            joiners=User.gets(request.values.getlist('joiners')),
+            joiners=joiners,
             meeting_s='',
             persions=persions,
             address=address,
@@ -167,9 +171,28 @@ def create():
             creator=g.user,
             create_time=datetime.datetime.now()
         )
+        for k in list(set(joiners + [g.user])):
+            OutReport.add(
+                start_time=datetime.datetime.strptime(
+                    start_time, '%Y-%m-%d %H:%M'),
+                end_time=datetime.datetime.strptime(
+                    end_time, '%Y-%m-%d %H:%M'),
+                reason=reason,
+                out=out,
+                meeting_s='',
+                persions=persions,
+                address=address,
+                m_persion=m_persion,
+                m_persion_type=m_persion_type,
+                creator_type=creator_type,
+                status=int(request.values.get('action', 0)),
+                creator=k,
+                create_time=datetime.datetime.now()
+            )
+        # 从这开始写
         if int(request.values.get('action', 0)) == OUT_STATUS_APPLY:
             flash(u'已发送申请', 'success')
-            apply_out_signal.send(
+            account_out_apply_signal.send(
                 current_app._get_current_object(), out=out, status=1)
         else:
             flash(u'添加成功，请及时申请外出报备', 'success')
@@ -182,23 +205,31 @@ def status(oid):
     status = int(request.values.get('status', 1))
     out = Out.get(oid)
     if status == 10:
-        out.status = 0
+        o_status = 0
+        out.status = o_status
         msg = u'外出报备撤回'
     elif status == 11:
-        out.status = 0
+        o_status = 0
+        out.status = o_status
         msg = u'外出报备被驳回'
     elif status == 1:
-        out.status = 1
+        o_status = 1
+        out.status = o_status
         msg = u'外出报备，邮件已发出'
     elif status == 2:
-        out.status = 2
+        o_status = 2
+        out.status = o_status
         msg = u'外出报备通过'
     elif status == 14:
-        out.status = 3
+        o_status = 3
+        out.status = o_status
         msg = u'外出报备通过-会议纪要填写完毕'
     out.save()
+    for out_report in OutReport.query.filter_by(out=out):
+        out_report.status = o_status
+        out_report.save()
     flash(msg, 'success')
-    apply_out_signal.send(
+    account_out_apply_signal.send(
         current_app._get_current_object(), out=out, status=status)
     if g.user == out.creator:
         return redirect(url_for('account_out.index'))
@@ -208,6 +239,7 @@ def status(oid):
 
 @account_out_bp.route('/<oid>/delete')
 def delete(oid):
+    OutReport.query.filter_by(out_id=oid).delete()
     Out.get(oid).delete()
     flash(u'删除成功', 'success')
     return redirect(url_for('account_out.index'))
@@ -226,18 +258,25 @@ def meeting_s(oid):
         meeting_s = request.values.get('meeting_s', '')
         out.meeting_s = meeting_s
         if out.status == 1:
-            out.status = 4
+            o_status = 4
+            out.status = o_status
             status = 13
         elif out.status == 2:
-            out.status = 3
+            o_status = 3
+            out.status = o_status
             status = 4
         elif out.status == 3:
+            o_status = 3
             status = 3
         elif out.status == 4:
+            o_status = 4
             status = 13
         out.save()
+        for out_report in OutReport.query.filter_by(out=out):
+            out_report.status = o_status
+            out_report.save()
         flash(u'会议纪要填写完毕', 'success')
-        apply_out_signal.send(
+        account_out_apply_signal.send(
             current_app._get_current_object(), out=out, status=status)
         return redirect(url_for('account_out.index'))
     return tpl('/account/out/meeting_s.html', out=out)
@@ -270,12 +309,12 @@ def update(oid):
         reason = request.values.get('reason', '')
         persions = request.values.get('persions', '')
         address = request.values.get('address', '')
+        joiners = User.gets(request.values.getlist('joiners'))
         out.start_time = datetime.datetime.strptime(
             start_time, '%Y-%m-%d %H:%M')
         out.end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M')
         out.reason = reason
-
-        out.joiners = User.gets(request.values.getlist('joiners'))
+        out.joiners = joiners
         out.persions = persions
         out.address = address
         out.m_persion = m_persion
@@ -284,9 +323,30 @@ def update(oid):
         out.status = int(request.values.get('action', 0))
         out.create_time = datetime.datetime.now()
         out.save()
+        # 先删除外出报表，在从新添加
+        OutReport.query.filter_by(out_id=oid).delete()
+        for k in list(set(joiners + [out.creator])):
+            OutReport.add(
+                start_time=datetime.datetime.strptime(
+                    start_time, '%Y-%m-%d %H:%M'),
+                end_time=datetime.datetime.strptime(
+                    end_time, '%Y-%m-%d %H:%M'),
+                reason=reason,
+                out=out,
+                meeting_s='',
+                persions=persions,
+                address=address,
+                m_persion=m_persion,
+                m_persion_type=m_persion_type,
+                creator_type=creator_type,
+                status=int(request.values.get('action', 0)),
+                creator=k,
+                create_time=datetime.datetime.now()
+            )
+
         if int(int(request.values.get('action', 0))) == OUT_STATUS_APPLY:
             flash(u'已发送申请', 'success')
-            apply_out_signal.send(
+            account_out_apply_signal.send(
                 current_app._get_current_object(), out=out, status=1)
         else:
             flash(u'添加成功，请及时申请外出报备', 'success')

@@ -1,0 +1,179 @@
+{% extends "/base.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+{% include "/manage/apply/base.html" %}
+<div class="container bra-box" style="width:1600px;">
+    <ul class="nav nav-tabs">
+        <li id="__"><a href="{{url_for('manage_apply.order')}}">合同审批</a></li>
+        <li id="_del_"><a href="{{url_for('manage_apply.order_del')}}">撤单审批</a></li>
+        {% if g.user.is_super_leader() %}
+        <li id="_del_check_"><a href="{{url_for('manage_apply.order_del_check')}}">确认撤单审批</a></li>
+        <li id="_medium_pay_"><a href="{{url_for('manage_apply.medium_pay')}}">媒体打款审批</a></li>
+        <li id="_medium_rebate_invoice_"><a href="{{url_for('manage_apply.medium_rebate_invoice')}}">媒体返点发票审批</a></li>
+        <li id="_agent_pay_"><a href="{{url_for('manage_apply.agent_pay')}}">代理返点打款审批</a></li>
+        {% endif %}
+        <li id="_invoice_"><a href="{{url_for('manage_apply.invoice')}}">客户发票审批</a></li>
+        <li id="_outsource_"><a href="{{url_for('manage_apply.outsource')}}">外包费用报备审批</a></li>
+        {% if g.user.is_super_leader() %}
+        <li id="_outsource_pay_"><a href="{{url_for('manage_apply.outsource_pay')}}">对公外包费用付款审批</a></li>
+        <li id="_outsource_personal_pay_"><a href="{{url_for('manage_apply.outsource_personal_pay')}}">对个人外包费用付款审批</a></li>
+        {% endif %}
+    </ul>
+    <h3>{{title}}</h3>
+    <form class="form-inline">
+        <div class="form-group">
+            <label for="exampleInputName2"></label>
+            <input type="text" class="form-control" id="search_info" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail2">区域</label>
+            <select class="col-md-12" id="location" name="location" placeholder="区域">
+                <option value='0'>全部</option>
+                <option value='1'>华北</option>
+                <option value='2'>华东</option>
+                <option value='3'>华南</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-default">搜索</button>
+    </form>
+    <br/>
+    {% if a_type in ['outsource_pay', 'outsource_personal_pay'] %}
+    <table class="table table-bordered">
+        <tr>
+            <th>外包类型</th>
+            <th>打款时间</th>
+            <th>是否有发票</th>
+            <th>发票信息</th>
+            <th>申请打款总金额</th>
+            <th>收款方</th>
+            <th>开户行</th>    
+            <th>卡号</th>
+            <th>支付宝</th>
+            <th>订单名称</th>
+            <th>订单合同号</th>
+            <th>成本金额</th>
+            <th>打款金额</th>
+            <th>备注</th>
+        </tr>
+        {% for t in orders %}
+        <tr>
+            {% if t.__tablename__ in ['merger_out_source', 'merger_personal_out_source'] %}
+            <th rowspan="{{t.outsources|length + 1}}">新媒体外包</th>
+            {% else %}
+            <th rowspan="{{t.outsources|length + 1}}">直签豆瓣外包</th>
+            {% endif %}
+            <td rowspan="{{t.outsources|length + 1}}">{{ t.create_time_cn}}</td>
+            <td rowspan="{{t.outsources|length + 1}}">{% if t.invoice %}有{%else%}无{%endif%}</td>
+            <td rowspan="{{t.outsources|length + 1}}">{{ t.remark }}</td>
+            <td rowspan="{{t.outsources|length + 1}}" style="text-align: center;"><a href="{{t.merger_path}}" target="_blank">{{t.pay_num|format_price}}</a></td>
+        </tr>
+          {% for o in t.outsources %}
+          <tr>
+              <td><a href="{{t.merger_path}}" target="_blank">{{ o.target.name }}</a></td>
+              <td>{{ o.target.bank }}</td>
+              <td>{{ o.target.card }}</td>
+              <td>{{ o.target.alipay }}</td>
+              <td>{{o.order.name}}</td>
+              <td>{{o.order.contract}}</td>
+              <td style="text-align: center;">{{o.pay_num|format_price}}</td>
+              {% set ex_pay = o.pay_num*0.95 %}
+              <td style="text-align: center;">{% if t.invoice %}{{o.pay_num|format_price}}{% else %}{{ ex_pay|format_price }}{% endif %}</td>
+              <td>{{o.remark}}</td>
+          </tr>
+          {% endfor %}
+        {% endfor %}
+    </table>
+    {% else %}
+    <table class="table table-bordered">
+        <tr>
+            <th>区域</th>
+            <th>合同类型</th>
+            <th>代理/直客</th>
+            <th>客户</th>
+            <th>Campaign</th>
+            <th>合同金额</th>
+            <th>合同号</th>
+            <th>回款日期</th>
+            <th>直客销售</th>
+            <th>渠道销售</th>
+            <th>执行开始时间</th>
+            <th>执行结束时间</th>
+            {% if a_type != 'order' %}
+            <th>申请金额</th>
+            <th>申请个数</th>
+            {% endif %}
+        </tr>
+        {% for o in orders %}
+        {% if a_type == 'order' %}
+            {% set url = o.info_path() %}
+        {% elif a_type == 'invoice' %}
+            {% set url = "/saler/client_order/invoice/%s/order"%(o.id) %}
+        {% elif a_type == 'medium_pay' %}
+            {% set url = "/saler/client_order/medium_invoice/%s/order"%(o.id) %}
+        {% elif a_type == 'medium_rebate_invoice' %}
+            {% set url = "/saler/client_order/medium_rebate_invoice/%s/order"%(o.id) %}
+        {% elif a_type == 'agent_pay' %}
+            {% set url = "/saler/client_order/agent_invoice/%s/order"%(o.id) %}
+        {% elif a_type == 'outsource' %}
+            {% set url = o.outsource_path() %}
+        {% endif %}
+        <tr>
+            <td>{{o.locations_cn}}</td>
+            {% if o.__tablename__ == 'bra_client_order' %}
+            <td>新媒体订单</td>
+            {% else %}
+            <td>直签豆瓣订单</td>
+            {% endif %}
+            <td>{{o.agent.name}}</td>
+            <td>{{o.client.name}}</td>
+            <td><a href="{{url}}" target="_blank">{{o.campaign}}</a></td>
+            <td>{{o.money}}</td>
+            <td><a href="{{url}}" target="_blank">{{o.contract or "无合同号"}}</a></td>
+            <td>{{o.reminde_date_cn}}</td>
+            <td>{{o.direct_sales_names}}</td>
+            <td>{{o.agent_sales_names}}</td>
+            <td>{{o.start_date_cn}}</td>
+            <td>{{o.end_date_cn}}</td>
+            {% if a_type == 'medium_pay' %}
+                <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_medium_invoice_pay_by_status(2)|sum(attribute='money')|format_price}}元</a></td>
+                <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_medium_invoice_pay_by_status(2)|length}}</a></td>
+            {% elif a_type == 'medium_rebate_invoice' %}
+                <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_medium_rebate_invoice_by_status(2)|sum(attribute='money')|format_price}}元</a></td>
+                <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_medium_rebate_invoice_by_status(2)|length}}</a></td>
+            {% elif a_type == 'agent_pay' %}
+                <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_agent_invoice_pay_by_status(2)|sum(attribute='money')|format_price}}元</a></td>
+                <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_agent_invoice_pay_by_status(2)|length}}</a></td>
+            {% elif a_type == 'invoice' %}
+                <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_invoice_by_status(2)|sum(attribute='money')|format_price}}元</a></td>
+                <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_invoice_by_status(2)|length}}</a></td>
+            {% elif a_type == 'outsource' %}
+                {% if g.user.team.type == 9 %}
+                    <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_outsources_by_status(1)|sum(attribute='pay_num')|format_price}}元</a></td>
+                    <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_outsources_by_status(1)|length}}</a></td>
+                {% elif g.user.team.type == 14 %}
+                    <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_outsources_by_status(5)|sum(attribute='pay_num')|format_price}}元</a></td>
+                    <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_outsources_by_status(5)|length}}</a></td>
+                {% else %}
+                    <td><a href="{{url}}" target="_blank" style="color:red">1</a></td>
+                    <td><a href="{{url}}" target="_blank" style="color:red">1</a></td>
+                {% endif %}
+            {% endif %}
+         </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (typeof(p_pathname[4]) == 'undefined'){
+            $('#__').addClass("active");
+        }else{
+            $('#_'+p_pathname[4]+'_').addClass("active");
+        }
+        $('#location').val('{{location}}')
+        $('#location').trigger("chosen:updated");
+    })
+</script>
+{% endblock %}

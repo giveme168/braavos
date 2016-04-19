@@ -1,0 +1,74 @@
+{% extends "/base.html" %}
+{% block title %}销售异常考勤{% endblock %}
+
+{% block content %}
+{% include "/account/account_onduty_base.html" %}
+  <div class="container bra-box" style="min-width: 950px;">
+    <h3>考勤异常销售</h3>
+    <br/>
+    <form class="form-inline">
+      <div class="form-group">
+        <label for="exampleInputName2"></label>
+        <input type="text" class="datetimepicker form-control" id="start_date" name="start_date" placeholder="开始时间" value="{{start_date}}" data-date-format="yyyy-mm-dd">
+      </div>
+      <div class="form-group">
+        <label for="exampleInputName2">至</label>
+        <input type="text" class="datetimepicker form-control" id="end_date" name="end_date" placeholder="结束时间" value="{{start_date}}" data-date-format="yyyy-mm-dd">
+      </div>
+      <div class="form-group">
+        <label for="exampleInputName2">员工姓名</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="员工姓名" value="{{name}}">
+      </div>
+      <button type="submit" class="btn btn-info">查询</button>
+    </form>
+    <br/>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>员工编号</th>
+          <th>姓名</th>
+          <th>异常次数</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <th scope="row">{{user.user.sn or '无'}}</th>
+          <td>{{user.user.name}}</td>
+          <td {% if user.count > 0%} style="color:red;" {% endif %}>{{user.count}}</td>
+          <td><a target="_blank" href="{{url_for('account_onduty.info', uid=user.user.id)}}?start_time={{start_date}}&end_time={{end_date}}">查看</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+<script>
+  $('.file-widget-btn').click(function(e){
+    e.preventDefault();
+    $(this).parents("form").find('.file-widget-input').click();
+  });
+  $('.file-widget-input').change(function(e){
+    var filename = $(this).val(),
+      fileExt = filename.substring(filename.lastIndexOf('.')+1, filename.length);
+    if(fileExt == 'dat'){
+      $(this).parents("form").submit();
+    }else{
+      alert("请选择正确的文件");
+    }
+  });
+  $(function(){
+    $('#location').val('{{location}}')
+    $("#location").trigger("chosen:updated");
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn:true,
+        minView:2,
+        language: 'zh-CN'
+    });
+    $('#start_date').val('{{start_date}}');
+    $('#end_date').val('{{end_date}}');
+  })
+</script>
+{% endblock %}

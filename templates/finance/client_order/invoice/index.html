@@ -4,7 +4,34 @@
 {% block content %}
 {% include "/finance/finance_base.html" %}
 <div class="container bra-box">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="{{url_for('finance_client_order_invoice.index')}}">申请中的客户发票</a></li>
+        <li class=""><a href="{{url_for('finance_client_order_invoice.index_pass')}}">所有客户发票</a></li>
+    </ul>
     <h3>正在申请的发票</h3>
+    <div class="search">
+        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
+        <div class="col-md-1" style="padding:0;margin:0 5px;">
+            <select class="form-control" id="year" name="year">
+                {% for k in range(5) %}
+                    <option value="{{2014+k}}">{{2014+k}}年度</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
+            <select class="col-md-12" id="search_location" name="location" placeholder="区域">
+                {% for v, m in locations %}
+                    {% if v == location_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                    {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
+    </div>
+    <br/>
     <table class="table table-bordered table-striped">
         <tr>
             <th>名称</th>
@@ -24,10 +51,28 @@
             <td>{{ order.invoice_pass_sum }} 元</td>
             <td>{{ order.money - order.invoice_pass_sum }} 元</td>
             <td>{{ order.invoice_apply_sum }} 元</td>
-            <td>{{ order.get_invoice_by_status(3)|length }}</td>
+            <td>{{ order.apply_count }}</td>
             <td><a href="{{url_for('finance_client_order_invoice.info', order_id=order.id)}}">查看</a></td>
         </tr>
         {% endfor %}
+        <tr>
+            <td colspan=5 style="text-align:center">总计</td>
+            <td>{{orders|sum(attribute='invoice_apply_sum')|format_price}} 元</td>
+            <td>{{orders|sum(attribute='apply_count')}}</td>
+            <td></td>
+        </tr>
     </table>
 </div>
+<script>
+    function search() {
+        window.location.href = window.location.pathname +
+            '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&selected_location=' + ($('#search_location').val()) +
+            '&year='+$('#year').val();
+    }
+    $(function() {
+        $('#year').val('{{year}}');
+        $("#year").trigger("chosen:updated");
+    });
+</script>
 {% endblock %}

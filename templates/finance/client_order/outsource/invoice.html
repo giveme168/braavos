@@ -7,7 +7,14 @@
     <h3>新媒体订单外包发票详情</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
-        <div class="col-md-2" style="padding:0;margin:0 5px;" id="search-area">
+        <div class="col-md-1" style="padding:0;margin:0 5px;">
+            <select class="form-control" id="year" name="year">
+                {% for k in range(5) %}
+                    <option value="{{2014+k}}">{{2014+k}}年度</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
             <select class="col-md-12" id="search_location" name="location" placeholder="区域">
                 {% for v, m in locations %}
                     {% if v == location_id|int %}
@@ -27,6 +34,7 @@
         </div>
         <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
     </div>
+    <br/>
     <table class="table table-bordered">
         <tr>
             <th>代理/直客</th>
@@ -72,20 +80,20 @@
         }
         window.location.href = window.location.pathname + '?sortby=' + sortby + '&orderby=' + orderby +
             '&searchinfo=' + encodeURIComponent($('#search_info').val()) +
-            '&selected_location=' + encodeURIComponent($('#search_location').val());
+            '&selected_location=' + encodeURIComponent($('#search_location').val())+
+            '&year='+$('#year').val();
     }
 
     function search() {
         window.location.href = window.location.pathname +
             '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
             '&selected_location=' + ($('#search_location').val()) +
-            '&orderby=' + ($('#orderby').val());
+            '&orderby=' + ($('#orderby').val())+
+            '&year='+$('#year').val();
     }
     $(function() {
-        {% if g.user.is_super_leader() or g.user.is_finance() %} 
-        {% else %}
-            $("#search-area").hide() 
-        {% endif %}
+        $('#year').val('{{year}}');
+        $("#year").trigger("chosen:updated");
         $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
         $("#orderby").trigger("chosen:updated");
     });

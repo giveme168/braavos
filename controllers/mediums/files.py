@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import operator
 from flask import request, redirect, url_for, Blueprint, flash, g
 from flask import render_template as tpl
 
@@ -16,7 +17,11 @@ mediums_files_bp = Blueprint(
 
 @mediums_files_bp.route('/index', methods=['GET'])
 def index():
-    mediums = Medium.all()
+    mediums = [{'files_update_time': k.files_update_time,
+                'level_cn': k.level_cn,
+                'id': k.id, 'name': k.name, 'level': k.level or 100
+                }for k in Medium.all()]
+    mediums = sorted(mediums, key=operator.itemgetter('level'), reverse=False)
     return tpl('/mediums/files/index.html', mediums=mediums)
 
 

@@ -134,6 +134,7 @@
     </div>
     <div class="form-group">
         <label class="col-sm-2 control-label">操作 : </label>
+        <input type="hidden" value="{{order.__tablename__}}" id="table_name">
         <div class="col-sm-6">
             {% if order.media_apply %}
               {% if order.contract_status == 0 and order.can_admin(g.user) %}
@@ -174,6 +175,12 @@
             {% if order.contract_status == 5 and order.can_admin(g.user) %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="5">再次申请打印</button>
             {% endif %}
+            {% if order.contract_status == 5 and order.can_admin(g.user) %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="119">项目归档（预）</button>
+            {% endif %}
+            {% if order.contract_status in [5, 19] and g.user.is_contract() %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="120">项目归档（确认）</button>
+            {% endif %}
             {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 9]%}
               {% if order.can_edit_contract_time() %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">申请撤单</button>
@@ -203,6 +210,48 @@
         </div>
         -->
     </div>
+    <div class="modal fade" id="finish_time_form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">确认归档时间</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+                <input class="hide" name="invoice_id" id="invoice_id" value=""/>
+                <div class="form-group">
+                  <label for="client_start" class="col-sm-4 control-label">归档时间 : </label>
+                  <div class="col-sm-4">
+                    <input type="text" class="form-control bra-form-control" id="finish_time" name="finish_time" value="{{order.finish_time_cn}}" readonly="readonly"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="client_start" class="col-sm-4 control-label">留言信息 : </label>
+                  <div class="col-sm-4">
+                    <textarea class="form-control bra-form-control" id="finish_msg" name="finish_msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+                  </div>
+                </div>
+                
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            {% if order.contract_status == 5 and order.can_admin(g.user) %}
+              {% if g.user.is_contract() %}
+                <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="20">项目归档（确认）</button>
+              {% else %}
+                <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="19">项目归档（预）</button>
+              {% endif %}
+            {% endif %}
+            {% if order.contract_status == 19 and g.user.is_contract() %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="20">项目归档（确认）</button>
+            {% endif %}
+            <!--<input type="submit" class="btn btn-primary" value="归档"/>-->
+          </div>
+        </div>
+      </div>
+    </div>
   </form>
 </div>
 <script>
@@ -214,6 +263,27 @@
      if(msg == ""){
          e.preventDefault();
          alert("请填写理由！");
+      }
+   }
+   if (actionVal == '119' || actionVal == '120'){
+      $('#finish_time_form').modal();
+      //$('#finish_time').val(date);
+      $('#finish_time').datetimepicker({
+          autoclose: true,
+          todayHighlight: true,
+          language: 'zh-CN',
+          minView: 2,
+          format: 'yyyy-mm-dd',
+          todayBtn: true
+      });
+      e.preventDefault()
+   }
+   if (actionVal == '19' || actionVal == '20'){
+      var finish_time = $('#finish_time').val();
+      if (finish_time == ''){
+        alert("请选择归档时间")
+        $('#finish_time').focus();
+        e.preventDefault()
       }
    }
  });

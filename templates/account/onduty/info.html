@@ -1,0 +1,110 @@
+{% extends "/base.html" %}
+{% block title %}{{user.name}} - 考勤{% endblock %}
+
+{% block content %}
+{% include "/account/account_onduty_base.html" %}
+  <div class="container bra-box" style="min-width: 950px;">
+    <h3>{{user.name}} - 考勤</h3>
+    <form class="form-inline">
+      <div class="form-group">
+        <label for="exampleInputName2">开始时间</label>
+        <input type="text" class="datetimepicker form-control" id="start_time" name="start_time" data-date-format="yyyy-mm-dd" value="{{start_time}}">
+      </div>
+      <div class="form-group">
+        <label for="exampleInputEmail2">结束时间</label>
+        <input type="text" class="datetimepicker form-control" id="end_time" name="end_time" data-date-format="yyyy-mm-dd" value="{{end_time}}">
+      </div>
+      <button type="submit" class="btn btn-info">查询</button>
+    </form>
+    <br/>
+    {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
+    <form class="form-inline" method='POST'>
+      <div class="form-group">
+        <label for="exampleInputName2">打卡时间</label>
+        <input type="text" class="datetimepicker form-control" id="check_time" name="check_time" data-date-format="yyyy-mm-dd hh:ii:ss">
+      </div>
+      <button type="submit" class="btn btn-info">添加</button>
+    </form>
+    {% endif %}
+    <br/>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>日期</th>
+          <th>打卡时间(上班)</th>
+          <th>打开时间(下班)</th>
+          <th>详情</th>
+          <th>备注</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in dutys %}
+        <tr>
+          <th>{{d.date_cn}}</th>
+          <td>{{d.on_time}}</td>
+          <td>{{d.off_time}}</td>
+          <td>
+              <div class="dropdown">
+                <a class="btn btn-default"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  查看
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                  {% for i in d.dus %}
+                  <li style="width:300px;">
+                    {{i.check_time_cn}}
+                    {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
+                    <a href="{{url_for('account_onduty.onduty_delete', uid=user.id, did=i.id)}}" style="float:right;padding: 0px 10px;">删除</a> 
+                    {% endif %}
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+          </td>
+          <td>
+            {% if d.out_info %}
+              <a tabindex="0" class="btn btn-sm btn-info" role="button" data-toggle="popover" data-trigger="focus" title="外出详情" data-content="{{d.out_info|safe}}">外出</a><br/>
+            {% endif %}
+            {% if d.leave_info %}
+              <a tabindex="0" class="btn btn-sm btn-info" role="button" data-toggle="popover" data-trigger="focus" title="请假详情" data-content="{{d.leave_info|safe}}">请假</a><br/>
+            {% endif %}
+            {% if d.warning_info %}
+              <a tabindex="0" class="btn btn-sm btn-danger" role="button" data-toggle="popover" data-trigger="focus" title="异常详情" data-content="{{d.warning_info|safe}}">异常</a><br/>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</div>
+<script>
+$(function(){
+  $('.btn').popover({
+    html:true,
+    placement:'left',
+    template:'<div class="popover" role="tooltip" style="min-width:400px;"><div class="arrow"></div><div class="popover-content" style="min-width:400px;"></div></div>'
+  })
+  $('#start_time').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn:true,
+        minView:2,
+        language: 'zh-CN'
+  });
+  $('#end_time').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn:true,
+        minView:2,
+        language: 'zh-CN'
+  });
+  $('#check_time').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn:true,
+        minView:0,
+        minuteStep:1,
+        language: 'zh-CN'
+  });
+})
+</script>
+{% endblock %}

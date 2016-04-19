@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
-from flask import url_for, g
+from flask import url_for, g, json
 
 from models import db, BaseModelMixin
 from models.user import User, TEAM_LOCATION_CN
@@ -78,11 +78,11 @@ BACK_MONEY_STATUS_CN = {
 }
 
 sales = db.Table('searchad_rebate_order_sales',
-                        db.Column(
-                            'sale_id', db.Integer, db.ForeignKey('user.id')),
-                        db.Column(
-                            'searchad_rebate_order_id', db.Integer, db.ForeignKey('searchad_bra_rebate_order.id'))
-                        )
+                 db.Column(
+                     'sale_id', db.Integer, db.ForeignKey('user.id')),
+                 db.Column(
+                     'searchad_rebate_order_id', db.Integer, db.ForeignKey('searchad_bra_rebate_order.id'))
+                 )
 
 replace_sales = db.Table('searchad_rebate_order_replace_sales',
                          db.Column(
@@ -115,10 +115,12 @@ class searchAdRebateOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     __tablename__ = 'searchad_bra_rebate_order'
 
     id = db.Column(db.Integer, primary_key=True)
-    agent_id = db.Column(db.Integer, db.ForeignKey('searchAd_agent.id'))  # 客户合同甲方
+    agent_id = db.Column(db.Integer, db.ForeignKey(
+        'searchAd_agent.id'))  # 客户合同甲方
     agent = db.relationship(
         'searchAdAgent', backref=db.backref('searchad_rebate_order_agents', lazy='dynamic'))
-    client_id = db.Column(db.Integer, db.ForeignKey('searchAd_client.id'))  # 客户
+    client_id = db.Column(
+        db.Integer, db.ForeignKey('searchAd_client.id'))  # 客户
     client = db.relationship(
         'searchAdClient', backref=db.backref('searchad_rebate_order_clents', lazy='dynamic'))
     campaign = db.Column(db.String(100))  # 活动名称
@@ -130,6 +132,8 @@ class searchAdRebateOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
     reminde_date = db.Column(db.Date)  # 最迟回款日期
 
     sales = db.relationship('User', secondary=sales)
@@ -178,6 +182,8 @@ class searchAdRebateOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
 
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
         self.reminde_date = reminde_date or datetime.date.today()
 
         self.sales = sales or []
@@ -407,7 +413,6 @@ by %s\n
     def get_order_by_user(cls, user):
         """一个用户可以查看的所有订单"""
         return [o for o in cls.all() if o.have_owner(user) and o.status in [STATUS_ON, None]]
-
 
     def order_agent_owner(self, user):
         """是否可以查看该订单"""
@@ -643,7 +648,8 @@ by %s\n
     @property
     def agent_invoice_pass_sum(self):
         money = 0.0
-        invoices = searchAdRebateAgentInvoice.query.filter_by(rebate_order_id=self.id)
+        invoices = searchAdRebateAgentInvoice.query.filter_by(
+            rebate_order_id=self.id)
         for invoice in invoices:
             for invoice_pay in searchAdAgentInvoicePay.query.filter_by(pay_status=0, agent_invoice=invoice):
                 money += invoice_pay.money
@@ -671,6 +677,10 @@ class searchAdRebateOrderExecutiveReport(db.Model, BaseModelMixin):
     month_day = db.Column(db.DateTime)
     days = db.Column(db.Integer)
     create_time = db.Column(db.DateTime)
+    # 合同文件打包
+    order_json = db.Column(db.Text(), default=json.dumps({}))
+    status = db.Column(db.Integer, index=True)
+    contract_status = db.Column(db.Integer, index=True)
     __table_args__ = (db.UniqueConstraint(
         'rebate_order_id', 'month_day', name='_searchad_rebate_order_month_day'),)
     __mapper_args__ = {'order_by': month_day.desc()}
@@ -681,6 +691,29 @@ class searchAdRebateOrderExecutiveReport(db.Model, BaseModelMixin):
         self.month_day = month_day or datetime.date.today()
         self.days = days
         self.create_time = create_time or datetime.date.today()
+        # 合同文件打包
+        self.status = rebate_order.status
+        self.contract_status = rebate_order.contract_status
+        # 获取相应合同字段
+        dict_order = {}
+        dict_order['client_name'] = rebate_order.client.name
+        dict_order['agent_name'] = rebate_order.agent.name
+        dict_order['contract'] = rebate_order.contract
+        dict_order['campaign'] = rebate_order.campaign
+        dict_order['industry_cn'] = rebate_order.client.industry_cn
+        dict_order['locations'] = rebate_order.locations
+        dict_order['sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in rebate_order.sales]
+        dict_order['salers_ids'] = [k['id'] for k in dict_order['sales']]
+        dict_order['get_saler_leaders'] = [
+            k.id for k in rebate_order.get_saler_leaders()]
+        dict_order['resource_type_cn'] = rebate_order.resource_type_cn
+        dict_order['operater_users'] = [
+            {'id': k.id, 'name': k.name}for k in rebate_order.operater_users]
+        dict_order['client_start'] = rebate_order.client_start.strftime(
+            '%Y-%m-%d')
+        dict_order['client_end'] = rebate_order.client_end.strftime('%Y-%m-%d')
+        self.order_json = json.dumps(dict_order)
 
     @property
     def month_cn(self):
@@ -689,10 +722,6 @@ class searchAdRebateOrderExecutiveReport(db.Model, BaseModelMixin):
     @property
     def locations(self):
         return self.rebate_order.locations
-
-    @property
-    def status(self):
-        return self.rebate_order.status
 
     def get_money_by_user(self, user, sale_type):
         if len(set(self.rebate_order.locations)) > 1:
@@ -798,4 +827,3 @@ def contract_generator(framework, num):
     code = "%s-%03x" % (framework, num % 1000)
     code = code.upper()
     return code
-

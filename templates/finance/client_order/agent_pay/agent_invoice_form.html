@@ -155,7 +155,7 @@
     function check_agent(e){
       $.ajax({
         type: 'POST',
-        url: "/saler/agent_invoice/"+e.value+"/tax_info",
+        url: "/saler/client_order/agent_invoice/"+e.value+"/tax_info",
         data: {'id':e.value} ,
         dataType: 'json',
         success:function(data) {

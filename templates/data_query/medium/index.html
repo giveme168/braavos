@@ -7,6 +7,14 @@
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
         <div class="form-group">
+            <label for="exampleInputEmail2">查询时间</label>
+            <select class="col-md-12" id="year" name="year" style="width:100px;">
+                {% for k in range(5) %}
+                <option value='{{2014+k}}'>{{2014+k}}年</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
             <select class="form-control" id="medium_id" name="medium_id" placeholder="选择媒体">
                 <option value='0'>所有媒体</option>
                 {% for medium in s_mediums %}
@@ -24,44 +32,58 @@
             <th>媒体名称</th>
             <th width="8%">类别</th>
             {% for k in range(1,13) %}
-                <th>{{now_date.year}}-{{k}}</th>
+                <th>{{year}}-{{k}}</th>
             {% endfor %}
             <th>总计</th>
         </tr>
-        {% for medium in mediums.object_list %}
+        {% for medium in medium_data %}
         <tr>
-            <td>{{medium.name}}</td>
-            <td>
-                售卖金额<br/>
-                媒体金额<br/>
-                金额差
-            </td>
-                {% for k in range(1,13) %}
-                    <td>
-                        {{medium.sale_money_report_by_month(k)|format_price}}<br/>
-                        {{medium.medium_money2_report_by_month(k)|format_price}}<br/>
-                        {{(medium.sale_money_report_by_month(k)-medium.medium_money2_report_by_month(k))|format_price}}
-                    </td>
-                {% endfor %}
-            <td>
-                {{medium.sale_money_report_by_year()|format_price}}<br/>
-                {{medium.medium_money2_report_by_year()|format_price}}<br/>
-                {{(medium.sale_money_report_by_year()-medium.medium_money2_report_by_year())|format_price}}
-            </td>
+            <td rowspan=5>{{medium.name}}</td>
+        </tr>
+        <tr>
+            <td>售卖金额</td>
+            {% for i in medium.sale_money_data %}
+            <td>{{i|format_price}}</td>
+            {% endfor %}
+            <td>{{medium.sale_money_data|sum()|format_price}}</td>
+        </tr>
+        <tr>
+            <td>媒体金额</td>
+            {% for i in medium.medium_money2_data %}
+            <td>{{i|format_price}}</td>
+            {% endfor %}
+            <td>{{medium.medium_money2_data|sum()|format_price}}</td>
+        </tr>
+        <tr>
+            <td>媒体返点</td>
+            {% for i in medium.medium_rebate_data %}
+            <td>{{i|format_price}}</td>
+            {% endfor %}
+            <td>{{medium.medium_rebate_data|sum()|format_price}}</td>
+        </tr>
+        <tr>
+            <td>代理返点</td>
+            {% for i in medium.agent_rebate_data %}
+            <td>{{i|format_price}}</td>
+            {% endfor %}
+            <td>{{medium.agent_rebate_data|sum()|format_price}}</td>
         </tr>
         {% endfor %}
+
     </table>
     {% set pages = mediums %}
-    {% include "pagination.html" %}
 </div>
 <script>
     $(function(){
         $("#medium_id").val("{{medium_id}}")
         $("#medium_id").trigger("chosen:updated");
+        $("#year").val("{{year}}")
+        $("#year").trigger("chosen:updated");
     })
     function download(){
          window.location.href = window.location.pathname +
-          '?medium_id=' + $('#medium_id').val() + '&action=download';
+          '?year=' + $('#year').val() +
+          '&medium_id=' + $('#medium_id').val() + '&action=download';
     }
 </script>
 {% endblock %}

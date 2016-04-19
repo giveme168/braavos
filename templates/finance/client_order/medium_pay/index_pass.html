@@ -4,10 +4,21 @@
 {% block content %}
 {% include "/finance/finance_base.html" %}
 <div class="container bra-box">
+    <ul class="nav nav-tabs">
+        <li class=""><a href="{{url_for('finance_client_order_medium_pay.apply')}}">申请中的媒体付款</a></li>
+        <li class="active"><a href="{{url_for('finance_client_order_medium_pay.index')}}">所有媒体付款</a></li>
+    </ul>
     <h3>{{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
-        <div class="col-md-2" style="padding:0;margin:0 5px;" id="search-area">
+        <div class="col-md-1" style="padding:0;margin:0 5px;">
+            <select class="form-control" id="year" name="year">
+                {% for k in range(5) %}
+                    <option value="{{2014+k}}">{{2014+k}}年度</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
             <select class="col-md-12" id="search_location" name="location" placeholder="区域">
                 {% for v, m in locations %}
                     {% if v == location_id|int %}
@@ -29,7 +40,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-2" style="padding:0;margin-right:5px;">
+        <div class="col-md-2" style="padding:0;margin-right:5px; display:none;">
             <select class="col-md-12" id="orderby" name="orderby" placeholder="排序方式">
                 <option value="create_time">按添加时间排序</option>
                 <option value="reminde_date">按回款时间排序</option>
@@ -44,9 +55,6 @@
             <th>客户名称</th>
             <th>合同号</th>
             <th>媒体总金额</th>
-            <th>收到发票总金额</th>
-            <th>已打款发票金额</th>
-            <th>申请中的打款金额</th>
             <th>投放媒体</th>
             <th>请款中</th>
             <th>已打款</th>
@@ -57,9 +65,6 @@
             <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
             <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.contract}}</a></td>
             <td>{{order.mediums_money2}} 元</td>
-            <td>{{order.mediums_invoice_sum}} 元</td>
-            <td>{{order.mediums_invoice_pass_sum}} 元</td>
-            <td>{{order.mediums_invoice_apply_sum}} 元</td>
             <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
             {% if order.apply_num %}
             <td style="color:red;">{{order.apply_num}}</td>
@@ -91,7 +96,8 @@
         window.location.href = window.location.pathname + '?sortby=' + sortby + '&orderby=' + orderby +
             '&searchinfo=' + encodeURIComponent($('#search_info').val()) +
             '&selected_location=' + encodeURIComponent($('#search_location').val()) +
-            '&selected_status=' + encodeURIComponent($('#search_status').val());
+            '&selected_status=' + encodeURIComponent($('#search_status').val())+
+            '&year='+$('#year').val();
     }
 
     function search() {
@@ -99,7 +105,8 @@
             '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
             '&selected_location=' + ($('#search_location').val()) +
             '&selected_status=' + ($('#search_status').val())+
-            '&orderby=' + ($('#orderby').val());
+            '&orderby=' + ($('#orderby').val())+
+            '&year='+$('#year').val();
     }
 
     function download() {
@@ -107,7 +114,8 @@
             '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
             '&selected_location=' + ($('#search_location').val()) +
             '&selected_status=' + ($('#search_status').val()) +
-            '&action=download';
+            '&action=download'+
+            '&year='+$('#year').val();
     }
 
     function enter_search() {
@@ -117,10 +125,8 @@
         }
     }
     $(function() {
-        {% if g.user.is_super_leader() or g.user.is_finance() %} 
-        {% else %}
-            $("#search-area").hide() 
-        {% endif %}
+        $('#year').val('{{year}}');
+        $("#year").trigger("chosen:updated");
         $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
         $("#orderby").trigger("chosen:updated");
     });
