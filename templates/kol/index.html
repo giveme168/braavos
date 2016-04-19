@@ -2,7 +2,7 @@
 {% block title %}KOL资料{% endblock %}
 
 {% block content %}
-<div class="container" style="width: 1250px;min-height:700px;">
+<div class="container" style="width: 1300px;min-height:700px;">
     <h3 style="margin-top: 85px;">KOL资料</h3>
     <br/>
     <ul class="nav nav-tabs">
@@ -19,6 +19,8 @@
       <li id="_douban_"><a href="{{url_for('kol.index', type='douban')}}">豆瓣红人</a></li>
       <li id="_tech_"><a href="{{url_for('kol.index', type='tech')}}">科技类(含知乎)</a></li>
       <li id="_car_"><a href="{{url_for('kol.index', type='car')}}">汽车</a></li>
+      <li id="_zhihu_"><a href="{{url_for('kol.index', type='zhihu')}}">知乎红人</a></li>
+      <li id="_weichart_"><a href="{{url_for('kol.index', type='weichart')}}">微信红人</a></li>
     </ul>
     <table class="table table-bordered table-hover">
       <thead>
