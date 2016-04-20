@@ -384,7 +384,7 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     def completion(self, date):
         year = str(date.year)
         Q = check_month_get_Q(date.strftime('%m'))
-        completion = self.completion_user.filter_by(time=year+Q).first()
+        completion = self.completion_user.filter_by(time=year + Q).first()
         if completion:
             return completion.rate / 100
         return 0
