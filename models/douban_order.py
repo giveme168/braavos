@@ -942,6 +942,10 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
     def create_time_cn(self):
         return self.create_time.strftime(DATE_FORMAT)
 
+    @property
+    def order(self):
+        return self.douban_order
+
 
 TARGET_TYPE_FLASH = 2
 TARGET_TYPE_KOL = 3

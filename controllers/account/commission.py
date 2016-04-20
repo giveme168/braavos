@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 import datetime
 import calendar as cal
+import operator
 
 from flask import Blueprint, request, redirect, url_for, g, abort, jsonify
 from flask import render_template as tpl, flash
 
 from models.user import User, TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG, TEAM_LOCATION_HUANAN
 from models.account.saler import Commission
-from models.client_order import BackMoney
+from models.client_order import BackMoney, BackInvoiceRebate
 from models.douban_order import BackMoney as DoubanBackMoney
-from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q)
+from models.douban_order import BackInvoiceRebate as DoubanBackInvoiceRebate
+from libs.date_helpers import (
+    check_Q_get_monthes, check_month_get_Q, get_monthes_pre_days)
 
 
 account_commission_bp = Blueprint(
@@ -94,16 +97,261 @@ def delete(user_id, mid):
     return jsonify({'id': mid})
 
 
+# 账期区间, 根据账期获取账期提成比例
+def _back_day_rate(day):
+    day_rate = {}
+    # 0-30天返点120
+    for k in range(0, 31):
+        day_rate[k] = 1.2
+    for k in range(31, 61):
+        day_rate[k] = 1.1
+    for k in range(61, 91):
+        day_rate[k] = 1
+    for k in range(91, 101):
+        day_rate[k] = 0.98
+    for k in range(101, 121):
+        day_rate[k] = 0.96
+    for k in range(121, 151):
+        day_rate[k] = 0.94
+    for k in range(151, 181):
+        day_rate[k] = 0.92
+    for k in range(181, 361):
+        day_rate[k] = 0.9
+    if day in day_rate:
+        return day_rate[day]
+    return 0.5
+
+
+# 根据摸个合同获取最后一次回款时间，及当季度总回款金额
+def _order_back_money_by_Q(order_id, start_Q_month, back_moneys, now_Q_back_moneys):
+    now_Q_back_money_obj = [
+        k for k in now_Q_back_moneys if k['order_id'] == order_id]
+    now_Q_back_moneys = sum([k['money'] for k in now_Q_back_money_obj])
+    now_Q_back_money_obj = sorted(
+        now_Q_back_money_obj, key=operator.itemgetter('back_time'), reverse=True)
+    if now_Q_back_money_obj:
+        now_Q_back_money_last_time = now_Q_back_money_obj[
+            0]['back_time'].strftime('%Y-%m-%d')
+    else:
+        now_Q_back_money_last_time = u'无'
+    # 获取本季度之前的所有回款
+    before_Q_back_money_obj = [k for k in now_Q_back_money_obj if k[
+        'order_id'] == order_id and k['back_time'] < start_Q_month]
+    before_Q_back_moneys = sum([k.money for k in before_Q_back_money_obj])
+
+    return {'last_time': now_Q_back_money_last_time,
+            'now_Q_back_moneys': now_Q_back_moneys,
+            'before_Q_back_moneys': before_Q_back_moneys}
+
+
+# 计算某个合同执行额
+def _order_executive_reports(money, start, end):
+    if money:
+        pre_money = float(money) / ((start - start).days + 1)
+    else:
+        pre_money = 0
+    pre_month_days = get_monthes_pre_days(datetime.datetime.strptime(start.strftime('%Y-%m-%d'), '%Y-%m-%d'),
+                                          datetime.datetime.strptime(end.strftime('%Y-%m-%d'), '%Y-%m-%d'))
+    pre_month_money_data = []
+    for k in pre_month_days:
+        pre_month_money_data.append(
+            {'money': pre_money * k['days'], 'month_day': k['month'], 'days': k['days']})
+    return pre_month_money_data
+
+
+# 计算某个合同中每个月的回款数，该合同所属回款季度
+def _belong_time_by_back_money(money, start, end, back_money_obj):
+    # 获取合同执行额
+    report_money = _order_executive_reports(money, start, end)
+    now_Q_back_moneys = back_money_obj['now_Q_back_moneys']
+    t_report_money = 0
+    report_times = []
+    for k in range(len(report_money)):
+        t_report_money += report_money[k]['money']
+        if now_Q_back_moneys <= 0:
+            break
+        if report_money[k]['money'] < now_Q_back_moneys:
+            report_times.append(
+                (report_money[k]['month_day'], report_money[k]['money']))
+        else:
+            report_times.append(
+                (report_money[k]['month_day'], now_Q_back_moneys))
+        now_Q_back_moneys -= report_money[k]['money']
+    if report_times:
+        if len(report_times) > 1:
+            start = report_times[0][0].strftime(
+                '%Y') + '.' + check_month_get_Q(report_times[0][0].strftime('%m'))
+            end = report_times[-1][0].strftime('%Y') + '.' + check_month_get_Q(
+                report_times[-1][0].strftime('%m'))
+            if start == end:
+                return {'back_moneys': report_times, 'belong_time': end}
+            return {'back_moneys': report_times, 'belong_time': start + u' 至 ' + end}
+        start = report_times[0][0].strftime(
+            '%Y') + '.' + check_month_get_Q(report_times[0][0].strftime('%m'))
+        return {'back_moneys': report_times, 'belong_time': start}
+    return {'back_moneys': [], 'belong_time': u'无'}
+
+
+# 格式化合同
+def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_moneys):
+    dict_order = {}
+    dict_order['client_name'] = order.client.name
+    dict_order['money'] = order.money
+    dict_order['agent_name'] = order.agent.name
+    dict_order['contract'] = order.contract
+    dict_order['campaign'] = order.campaign
+    dict_order['locations'] = order.locations
+    dict_order['locations_cn'] = order.locations_cn
+    dict_order['resource_type_cn'] = order.resource_type_cn
+    dict_order['contract_status'] = order.contract_status
+    dict_order['status'] = order.status
+    # 获取合同回款信息
+    dict_order['back_money_obj'] = _order_back_money_by_Q(
+        order.id, start_Q_month, back_moneys, now_Q_back_moneys)
+    # 根据回款信息确定合同所属时间
+    dict_order['belong_time'] = _belong_time_by_back_money(
+        order.money, order.client_start, order.client_end, dict_order['back_money_obj'])
+    # 获取规定时间最后一次回款时间及回款总金额
+    money_time = [k['back_time'].strftime(
+        '%Y-%m-%d') for k in now_Q_back_moneys if k['type'] == 'money' and k['order'] == order]
+    money_time.reverse()
+    if money_time:
+        dict_order['money_time'] = money_time[-1]
+    else:
+        dict_order['money_time'] = None
+    dict_order['money_sum'] = sum([k['money'] for k in now_Q_back_moneys if k[
+                                  'type'] == 'money' and k['order'] == order])
+    # 获取规定时间最后一次返点发票时间及返点发票总金额
+    invoice_time = [k['back_time'].strftime(
+        '%Y-%m-%d') for k in now_Q_back_moneys if k['type'] == 'invoice' and k['order'] == order]
+    invoice_time.reverse()
+    if invoice_time:
+        dict_order['invoice_time'] = invoice_time[-1]
+    else:
+        dict_order['invoice_time'] = None
+    dict_order['invoice_sum'] = sum([k['money'] for k in now_Q_back_moneys if k[
+                                    'type'] == 'invoice' and k['order'] == order])
+    dict_order['direct_sales'] = []
+    dict_order['total_commission_money'] = 0
+    dict_order['client_start'] = order.client_start
+    dict_order['client_end'] = order.client_end
+    for saler in order.direct_sales:
+        d_saler = {}
+        d_saler['id'] = saler.id
+        d_saler['name'] = saler.name
+        d_saler['location_cn'] = saler.location_cn
+        d_saler['commission'] = saler.get_commission(dict_order['belong_time'])
+        d_saler['completion'] = saler.get_completion(dict_order['belong_time'])
+        positive_date_cn = saler.positive_date_cn
+        quit_date_cn = saler.quit_date_cn
+        end_order_date = dict_order['client_end'] - datetime.timedelta(days=90)
+        # 离职后超过90天没提成，试用期没有提成
+        if not positive_date_cn:
+            d_saler['color'] = 'FFBB00'
+        elif quit_date_cn > end_order_date.strftime('%Y-%m-%d'):
+            d_saler['color'] = 'FF0000'
+        # 判断销售是否有平分金额
+        if len(set(order.locations)) > 1:
+            l_count = len(set(order.locations))
+        else:
+            l_count = 1
+        count = len(order.direct_sales)
+        if saler.team.location == 3 and len(order.locations) > 1:
+            count = len(order.direct_sales)
+        elif saler.team.location == 3 and len(order.locations) == 1:
+            count = len(order.agent_sales + order.direct_sales)
+
+        d_saler['str_formula'] = ""
+        commission_money = 0
+        for b_money_obj in dict_order['belong_time']['back_moneys']:
+            b_money = b_money_obj[1] / count / l_count
+            day = b_money_obj[0]
+            day_rate = _back_day_rate(
+                (dict_order['client_end'] - day.date()).days + 1)
+            Q = check_month_get_Q(day.strftime('%m'))
+            if day.strftime('%Y') in d_saler['commission']:
+                commission = d_saler['commission'][day.strftime('%Y')]
+            else:
+                commission = 0
+            if day.strftime('%Y') + Q in d_saler['completion']:
+                completion = d_saler['completion'][day.strftime('%Y') + Q]
+            else:
+                completion = 0
+            c_money = completion * commission * b_money * day_rate
+            commission_money += c_money
+            # 计算公式
+            d_saler['str_formula'] += u"%s * %s * %s * %s = %s &nbsp;&nbsp;(%s月 提成信息)<br/>" % (
+                str(completion), str(commission), str(b_money),
+                str(day_rate), '%.2f' % (c_money), day.strftime('%Y-%m'))
+        d_saler['commission_money'] = commission_money
+        dict_order['direct_sales'].append(d_saler)
+        dict_order['total_commission_money'] += commission_money
+    dict_order['agent_sales'] = []
+    for saler in order.agent_sales:
+        d_saler = {}
+        d_saler['id'] = saler.id
+        d_saler['name'] = saler.name
+        d_saler['location_cn'] = saler.location_cn
+        d_saler['commission'] = saler.get_commission(dict_order['belong_time'])
+        d_saler['completion'] = saler.get_completion(dict_order['belong_time'])
+        positive_date_cn = saler.positive_date_cn
+        quit_date_cn = saler.quit_date_cn
+        end_order_date = dict_order['client_end'] - datetime.timedelta(days=90)
+        # 离职后超过90天没提成，试用期没有提成
+        if not positive_date_cn:
+            d_saler['color'] = 'FFBB00'
+        elif quit_date_cn > end_order_date.strftime('%Y-%m-%d'):
+            d_saler['color'] = 'FF0000'
+        # 判断销售是否有平分金额
+        if len(set(order.locations)) > 1:
+            l_count = len(set(order.locations))
+        else:
+            l_count = 1
+        count = len(order.agent_sales)
+        if saler.team.location == 3 and len(order.locations) > 1:
+            count = len(order.agent_sales)
+        elif saler.team.location == 3 and len(order.locations) == 1:
+            count = len(order.agent_sales + order.direct_sales)
+
+        d_saler['str_formula'] = ""
+        commission_money = 0
+        for b_money_obj in dict_order['belong_time']['back_moneys']:
+            b_money = b_money_obj[1] / count / l_count
+            day = b_money_obj[0]
+            day_rate = _back_day_rate(
+                (dict_order['client_end'] - day.date()).days + 1)
+            Q = check_month_get_Q(day.strftime('%m'))
+            if day.strftime('%Y') in d_saler['commission']:
+                commission = d_saler['commission'][day.strftime('%Y')]
+            else:
+                commission = 0
+            if day.strftime('%Y') + Q in d_saler['completion']:
+                completion = d_saler['completion'][day.strftime('%Y') + Q]
+            else:
+                completion = 0
+            c_money = completion * commission * b_money * day_rate
+            commission_money += c_money
+            # 计算公式
+            d_saler['str_formula'] += u"%s * %s * %s * %s = %s &nbsp;&nbsp;(%s月 提成信息)<br/>" % (
+                str(completion), str(commission), str(b_money),
+                str(day_rate), '%.2f' % (c_money), day.strftime('%Y-%m'))
+        d_saler['commission_money'] = commission_money
+        dict_order['agent_sales'].append(d_saler)
+        dict_order['total_commission_money'] += commission_money
+    dict_order['salers_count'] = len(
+        dict_order['direct_sales'] + dict_order['agent_sales'])
+    return dict_order
+
+
 # 格式化回款
-def _dict_back_money(back_money):
+def _dict_back_money(back_money, type='money'):
     dict_back_money = {}
+    dict_back_money['type'] = type
     dict_back_money['money'] = back_money.money
     dict_back_money['back_time'] = back_money.back_time
     order = back_money.order
     dict_back_money['order'] = order
     dict_back_money['order_id'] = back_money.order.id
-    dict_back_money['order_start'] = order.client_start
-    dict_back_money['order_end'] = order.client_end
     return dict_back_money
 
 
@@ -124,14 +372,28 @@ def saler():
     d = cal.monthrange(int(now_year), int(Q_monthes[-1]))
     end_Q_month = datetime.datetime(
         int(now_year), int(Q_monthes[-1]), d[1]) + datetime.timedelta(days=1)
-    # 获取该季度所有回款
-    client_back_moneys = [_dict_back_money(k) for k in BackMoney.query.filter(
-        BackMoney.back_time >= start_Q_month, BackMoney.back_time < end_Q_month)]
-    douban_back_moneys = [_dict_back_money(k) for k in DoubanBackMoney.query.filter(
-        BackMoney.back_time >= start_Q_month, BackMoney.back_time < end_Q_month)]
-    # 回去当季度回款的所有合同
-    client_orders = list(set([k['order'] for k in client_back_moneys]))
-    douban_orders = list(set([k['order'] for k in douban_back_moneys]))
+
+    # 获取该季度及之前所有回款及返点发票
+    client_back_moneys = [_dict_back_money(
+        k, 'money') for k in BackMoney.query.filter(BackMoney.back_time < end_Q_month)]
+    client_back_moneys += [_dict_back_money(
+        k, 'invoice') for k in BackInvoiceRebate.query.filter(BackMoney.back_time < end_Q_month)]
+    douban_back_moneys = [_dict_back_money(
+        k, 'money') for k in DoubanBackMoney.query.filter(BackMoney.back_time < end_Q_month)]
+    douban_back_moneys += [_dict_back_money(
+        k, 'invoice') for k in DoubanBackInvoiceRebate.query.filter(BackMoney.back_time < end_Q_month)]
+    # 获取当前季度所有回款
+    now_Q_client_back_moneys = [
+        k for k in client_back_moneys if k['back_time'] >= start_Q_month]
+    now_Q_douban_back_moneys = [
+        k for k in douban_back_moneys if k['back_time'] >= start_Q_month]
+
+    # 获取当季度回款的所有合同
+    client_orders = list(set([k['order'] for k in now_Q_client_back_moneys]))
+    douban_orders = list(set([k['order'] for k in now_Q_douban_back_moneys]))
+    orders = [_order_to_dict(k, start_Q_month, end_Q_month, client_back_moneys, now_Q_client_back_moneys)
+              for k in client_orders if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
+    orders += [_order_to_dict(k, start_Q_month, end_Q_month, douban_back_moneys, now_Q_douban_back_moneys)
+               for k in douban_orders if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
     return tpl('/account/commission/saler.html', Q=now_Q, now_year=now_year,
-               Q_monthes=Q_monthes, location_id=location_id, client_orders=client_orders,
-               douban_orders=douban_orders)
+               Q_monthes=Q_monthes, location_id=location_id, orders=orders)

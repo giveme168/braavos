@@ -372,7 +372,8 @@ def money():
     rebate_order_money = _get_medium_moneys(
         searchAd_rebate_orders, pre_monthes, 0, 'zhiqian_order', None, year)
     # 搜索返点订单结束
-
+    # 搜索业务毛利+返点收入
+    searchAD_money['profit'] = numpy.array(searchAD_money['profit']) + numpy.array(rebate_order_money['sale_money'])
     # 豆瓣收入、服务费、返点、毛利为直签豆瓣+优力和无线总和
     douban_money['sale_money'] = numpy.array(
         douban_money['sale_money']) + numpy.array(ass_douban_money['money2'])

@@ -1297,6 +1297,10 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
     def create_time_cn(self):
         return self.create_time.strftime(DATE_FORMAT)
 
+    @property
+    def order(self):
+        return self.client_order
+
 
 class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_executive_report'

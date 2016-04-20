@@ -35,50 +35,58 @@
     <br>
     <table class="table table-bordered">
         <tr>
-            <th>客户</th>
+            <th>代理公司</th>
             <th>项目名称</th>
+            <th>类型</th>
+            <th>大区</th>
             <th>合同编号</th>
             <th>合同金额</th>
+            <th>执行开始</th>
+            <th>执行结束</th>
             <th>项目所属时间</th>
-            <th>返点时间</th>
-            <th>返点金额</th>
+            <th>发票时间</th>
+            <th>发票金额</th>
             <th>回款时间</th>
             <th>回款金额</th>
             <th>区域</th>
             <th>销售</th>
-            <th>计算公式（说明：完成率* 项目提成 * 回款金额 = 提成）</th>
+            <th>计算公式（说明：完成率* 提成比例 * 回款金额 * 项目账期系数 = 提成）</th>
             <th>提成金额</th>
         </tr>
         {% for k in orders %}
         <tr>
-            <td rowspan="{{k.salers_ids|length + 1}}">{{k.agent_name}}</td>
-            <td rowspan="{{k.salers_ids|length + 1}}">{{k.campaign}}</td>
-            <td rowspan="{{k.salers_ids|length + 1}}">{{k.contract}}</td>
-            <td rowspan="{{k.salers_ids|length + 1}}">{{k.money|format_price}}</td>
-            <td rowspan="{{k.salers_ids|length + 1}}">{{k.belong_time.belong_time}}</td>
-            <td rowspan="{{k.salers_ids|length + 1}}">{{k.last_rebate_agent_time}}</td>
-            <td rowspan="{{k.salers_ids|length + 1}}">{{k.last_rebate_agent_money|format_price}}</td>
-            <td rowspan="{{k.salers_ids|length + 1}}">{{k.back_money_obj.last_time}}</td>
-            <td rowspan="{{k.salers_ids|length + 1}}">{{k.back_money_obj.now_Q_back_moneys|format_price}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.agent_name}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.campaign}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.resource_type_cn}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.locations_cn}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.contract}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.money|format_price}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.client_start}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.client_end}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.belong_time.belong_time}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.invoice_time or '无'}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.invoice_sum|format_price}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.money_time or '无'}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.money_sum|format_price}}</td>
         </tr>
             {% for s in k.agent_sales+k.direct_sales %}
             <tr>
                 <td>{{s.location_cn}}</td>
-                <td>{{s.name}}</td>
+                <td style="color:#{{s.color}}">{{s.name}}</td>
                 <td>{{s.str_formula|safe}}</td>
                 <td>{{s.commission_money|format_price}}</td>
             </tr>
             {% endfor %}
         {% endfor %}
         <tr>
-            <td colspan=3 style="text-align: center;">合计</td>
+            <td colspan=5 style="text-align: center;">合计</td>
             <td>{{orders|sum(attribute='money')|format_price}}</td>
+            <td colspan=4></td>
+            <td>{{orders|sum(attribute='invoice_sum')|format_price}}</td>
             <td></td>
-            <td></td>
-            <td>{{orders|sum(attribute='last_rebate_agent_money')|format_price}}</td>
-            <td></td>
-            <td>{{orders|sum(attribute='back_money_obj.now_Q_back_moneys')|format_price}}</td>
+            <td>{{orders|sum(attribute='money_sum')|format_price}}</td>
             <td colspan=3 style="text-align: center;"></td>
+            <td>{{orders|sum(attribute='total_commission_money')|format_price}}</td>
         </tr>
     </table>
 </div>
