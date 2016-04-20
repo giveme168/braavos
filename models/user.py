@@ -420,7 +420,7 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         back_moneys = belong_time['back_moneys']
         for k in back_moneys:
             Q = check_month_get_Q(k[0].strftime('%m'))
-            completion_obj[str(k[0].year)+Q] = self.completion(k[0])
+            completion_obj[str(k[0].year) + Q] = self.completion(k[0])
         return completion_obj
 
     @property
