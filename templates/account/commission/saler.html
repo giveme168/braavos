@@ -43,7 +43,6 @@
             <th>合同金额</th>
             <th>执行开始</th>
             <th>执行结束</th>
-            <th>项目所属时间</th>
             <th>发票时间</th>
             <th>发票金额</th>
             <th>回款时间</th>
@@ -63,7 +62,6 @@
             <td rowspan="{{k.salers_count + 1}}">{{k.money|format_price}}</td>
             <td rowspan="{{k.salers_count + 1}}">{{k.client_start}}</td>
             <td rowspan="{{k.salers_count + 1}}">{{k.client_end}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.belong_time.belong_time}}</td>
             <td rowspan="{{k.salers_count + 1}}">{{k.invoice_time or '无'}}</td>
             <td rowspan="{{k.salers_count + 1}}">{{k.invoice_sum|format_price}}</td>
             <td rowspan="{{k.salers_count + 1}}">{{k.money_time or '无'}}</td>
@@ -81,7 +79,7 @@
         <tr>
             <td colspan=5 style="text-align: center;">合计</td>
             <td>{{orders|sum(attribute='money')|format_price}}</td>
-            <td colspan=4></td>
+            <td colspan=3></td>
             <td>{{orders|sum(attribute='invoice_sum')|format_price}}</td>
             <td></td>
             <td>{{orders|sum(attribute='money_sum')|format_price}}</td>
