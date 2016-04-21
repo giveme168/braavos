@@ -381,6 +381,14 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
             return commission.rate / 100
         return 0
 
+    def completion(self, date):
+        year = str(date.year)
+        Q = check_month_get_Q(date.strftime('%m'))
+        completion = self.completion_user.filter_by(time=year + Q).first()
+        if completion:
+            return completion.rate / 100
+        return 0
+
     def performance(self, year, Q):
         performance = self.performance_user.filter_by(
             year=int(year), q_month=Q).first()
@@ -406,6 +414,15 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
             commission_obj[str(k[0].year)] = self.commission(k[0].year)
         return commission_obj
 
+    # 销售提成 - 获取销售完成率（跨年度有可能是多个）
+    def get_completion(self, belong_time):
+        completion_obj = {}
+        back_moneys = belong_time['back_moneys']
+        for k in back_moneys:
+            Q = check_month_get_Q(k[0].strftime('%m'))
+            completion_obj[str(k[0].year) + Q] = self.completion(k[0])
+        return completion_obj
+
     @property
     def cellphone_cn(self):
         return self.cellphone or u'无'
@@ -429,21 +446,27 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
 
     @property
     def recruited_date_cn(self):
-        if self.recruited_date.strftime('%Y-%m-%m') == '1970-01-01':
-            return u'无'
-        return self.recruited_date.strftime('%Y-%m-%m')
+        if not self.recruited_date:
+            return None
+        elif self.recruited_date.strftime('%Y-%m-%d') == '1970-01-01':
+            return None
+        return self.recruited_date.strftime('%Y-%m-%d')
 
     @property
     def quit_date_cn(self):
-        if self.quit_date.strftime('%Y-%m-%m') == '1970-01-01':
-            return u'无'
-        return self.quit_date.strftime('%Y-%m-%m')
+        if not self.quit_date:
+            return None
+        elif self.quit_date.strftime('%Y-%m-%d') == '1970-01-01':
+            return None
+        return self.quit_date.strftime('%Y-%m-%d')
 
     @property
     def positive_date_cn(self):
-        if self.positive_date.strftime('%Y-%m-%m') == '1970-01-01':
-            return u'无'
-        return self.positive_date.strftime('%Y-%m-%m')
+        if not self.positive_date:
+            return None
+        elif self.positive_date.strftime('%Y-%m-%d') == '1970-01-01':
+            return None
+        return self.positive_date.strftime('%Y-%m-%d')
 
 team_admins = db.Table('team_admin_users',
                        db.Column(

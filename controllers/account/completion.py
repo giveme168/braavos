@@ -16,9 +16,9 @@ def index():
     if not (g.user.is_super_leader() or g.user.is_finance()):
         return abort(404)
     if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()):
-        users = [u for u in User.all() if u.is_search_saler and u.is_active()]
+        users = [u for u in User.all() if u.is_search_saler]
     else:
-        users = [u for u in User.all() if u.is_out_saler and u.is_active()]
+        users = [u for u in User.all() if u.is_out_saler]
     huabei_users = [u for u in users if u.location == TEAM_LOCATION_HUABEI]
     huadong_users = [u for u in users if u.location == TEAM_LOCATION_HUADONG]
     huanan_users = [u for u in users if u.location == TEAM_LOCATION_HUANAN]

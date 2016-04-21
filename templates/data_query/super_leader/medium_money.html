@@ -208,13 +208,14 @@
         {% endfor %}
         <td>{{ searchAD_money.money2|sum()|format_price }}</td>
     </tr>
+    <!--
     <tr>
         <td style="background-color:#FF0088;">效果业务净成本</td> 
         {% for k in searchAD_money.m_ex_money %}
         <td>{{k|format_price}}</td>
         {% endfor %}
         <td>{{ searchAD_money.m_ex_money|sum()|format_price }}</td>
-    </tr>
+    </tr>-->
     <tr>
         <td style="background-color:#FF0088;">效果业务代理成本</td> 
         {% for k in searchAD_money.a_rebate %}

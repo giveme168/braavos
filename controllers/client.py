@@ -223,13 +223,34 @@ def medium_detail(medium_id):
 
 @client_bp.route('/mediums', methods=['GET'])
 def mediums():
-    mediums = Medium.all()
-    mediums = [{'files_update_time': k.files_update_time,
-                'level_cn': k.level_cn, 'owner_name': k.owner.name,
-                'id': k.id, 'name': k.name, 'level': k.level or 100
-                }for k in Medium.all()]
-    mediums = sorted(mediums, key=operator.itemgetter('level'), reverse=False)
-    return tpl('/client/medium/index.html', mediums=mediums)
+    medium_rebate = MediumRebate.all()
+    medium_rebate_data = {}
+    for k in medium_rebate:
+        if str(k.medium.id) + '_' + str(k.year.year) not in medium_rebate_data:
+            medium_rebate_data[str(k.medium.id) + '_' + str(k.year.year)] = str(k.rebate) + '%'
+    medium_data = []
+    for medium in Medium.all():
+        dict_medium = {}
+        dict_medium['files_update_time'] = medium.files_update_time
+        dict_medium['level_cn'] = medium.level_cn
+        dict_medium['id'] = medium.id
+        dict_medium['name'] = medium.name
+        dict_medium['level'] = medium.level or 100
+        if str(medium.id) + '_2014' in medium_rebate_data:
+            dict_medium['rebate_2014'] = medium_rebate_data[str(medium.id) + '_2014']
+        else:
+            dict_medium['rebate_2014'] = u'无'
+        if str(medium.id) + '_2015' in medium_rebate_data:
+            dict_medium['rebate_2015'] = medium_rebate_data[str(medium.id) + '_2015']
+        else:
+            dict_medium['rebate_2015'] = u'无'
+        if str(medium.id) + '_2016' in medium_rebate_data:
+            dict_medium['rebate_2016'] = medium_rebate_data[str(medium.id) + '_2016']
+        else:
+            dict_medium['rebate_2016'] = u'无'
+        medium_data.append(dict_medium)
+    medium_data = sorted(medium_data, key=operator.itemgetter('level'), reverse=False)
+    return tpl('/client/medium/index.html', mediums=medium_data)
 
 
 @client_bp.route('/medium/<medium_id>/rebate')
@@ -303,10 +324,35 @@ def groups():
 @client_bp.route('/agents', methods=['GET'])
 def agents():
     agents = Agent.all()
+    agent_rebate = AgentRebate.all()
+    agent_rebate_data = {}
+    for k in agent_rebate:
+        if str(k.agent.id) + '_' + str(k.year.year) not in agent_rebate_data:
+            agent_rebate_data[str(k.agent.id) + '_' + str(k.year.year)] = str(k.inad_rebate) + '%'
     info = request.values.get('info', '')
     if info:
         agents = [k for k in agents if info in k.name]
-    return tpl('/client/agent/index.html', agents=agents, info=info)
+    agent_data = []
+    for agent in agents:
+        dict_agent = {}
+        dict_agent['id'] = agent.id
+        dict_agent['name'] = agent.name
+        dict_agent['group_name'] = agent.group.name
+        dict_agent['group_id'] = agent.group.id
+        if str(agent.id) + '_2014' in agent_rebate_data:
+            dict_agent['rebate_2014'] = agent_rebate_data[str(agent.id) + '_2014']
+        else:
+            dict_agent['rebate_2014'] = u'无'
+        if str(agent.id) + '_2015' in agent_rebate_data:
+            dict_agent['rebate_2015'] = agent_rebate_data[str(agent.id) + '_2015']
+        else:
+            dict_agent['rebate_2015'] = u'无'
+        if str(agent.id) + '_2016' in agent_rebate_data:
+            dict_agent['rebate_2016'] = agent_rebate_data[str(agent.id) + '_2016']
+        else:
+            dict_agent['rebate_2016'] = u'无'
+        agent_data.append(dict_agent)
+    return tpl('/client/agent/index.html', agents=agent_data, info=info)
 
 
 @client_bp.route('/<agent_id>/files/<aid>/delete', methods=['GET'])

@@ -84,7 +84,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
         keys.append({'FF7F50': [k + u'收入', k + u'媒体执行金额',
                                 k + u'媒体净成本', k + u'代理成本', k + u'毛利', '']})
     keys += [{'AAAAAA': [u'其他收入', u'其他媒体执行金额', u'其他媒体净成本', u'其他代理成本', u'其他毛利', '']},
-             {'FF0088': [u'效果业务收入', u'效果业务返点收入', u'效果业务执行金额', u'效果业务净成本', u'效果业务代理成本', u'效果业务毛利']}]
+             {'FF0088': [u'效果业务收入', u'效果业务返点收入', u'效果业务执行金额', u'效果业务代理成本', u'效果业务毛利']}]
     th = 2
     for k in keys:
         for i in k[k.keys()[0]]:
@@ -251,8 +251,8 @@ def write_medium_money_excel(pre_monthes, douban_money,
         worksheet, align_center, pre_monthes, th, rebate_order_money['sale_money'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, searchAD_money['money2'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, searchAD_money['m_ex_money'])
+    # th = _write_money_in_excel(
+    #     worksheet, align_center, pre_monthes, th, searchAD_money['m_ex_money'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, searchAD_money['a_rebate'])
     th = _write_money_in_excel(

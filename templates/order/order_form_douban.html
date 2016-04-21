@@ -39,7 +39,7 @@
     {{ form_field(form.sale_type) }}
     <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
 </form>
-{% elif g.user.is_super_leader() %}
+{% elif g.user.is_super_leader() or g.user.is_contract() %}
 <form class="form form-horizontal" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
@@ -78,7 +78,7 @@
     {{ form_field(form.sale_type) }}
     {{ form_field(replace_saler_form.replace_salers) }}
     {% if douban_order %}
-    <div class="form-group" {% if g.user.is_super_leader() or g.user.is_leader() or douban_order.can_media_leader_action(g.user) %}{% else %} style="display:none;"{% endif %}>
+    <div class="form-group" {% if g.user.is_super_leader() or g.user.is_leader() or douban_order.can_media_leader_action(g.user) or g.user.is_contract()%}{% else %} style="display:none;"{% endif %}>
       <label class="col-sm-2 control-label" style="color:red;">单笔返点 : </label>
       <div class="col-sm-4" id="self_rebate_status">
         <select name="self_rebate" id="self_rebate" style="width:300px;">

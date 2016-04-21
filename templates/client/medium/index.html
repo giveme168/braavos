@@ -12,8 +12,10 @@
             <th>#id</th>
             <th>名称</th>
             <th>级别</th>
-            <th>媒体团队</th>
             {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+            <th>2014年返点</th>
+            <th>2015年返点</th>
+            <th>2016年返点</th>
             <th>操作</th>
             {% endif %}
         </tr>
@@ -22,8 +24,10 @@
             <td>{{m.id}}</td>
             <td><a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
             <td>{{m.level_cn}}</td>
-            <td>{{m.owner_name}}</td>
             {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+                <td>{{m.rebate_2014}}</td>
+                <td>{{m.rebate_2015}}</td>
+                <td>{{m.rebate_2016}}</td>
                 <td><a href="{{url_for('client.medium_rebate', medium_id=m.id)}}">设置返点</a></td>
             {% endif %}
         </tr>

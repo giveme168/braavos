@@ -28,9 +28,9 @@
             <td>{{u.position or ''}}</td>
             <td>{{'有效' if u.status else '暂停'}}</td>
             <td>{% for k in u.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
-            <td>{{u.recruited_date_cn}}</td>
-            <td>{{u.positive_date_cn}}</td>
-            <td>{{u.quit_date_cn}}</td>
+            <td>{{u.recruited_date_cn or '无'}}</td>
+            <td>{{u.positive_date_cn or '无'}}</td>
+            <td>{{u.quit_date_cn or '无'}}</td>
         </tr>
         {% endfor %}
     </table>
