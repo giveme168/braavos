@@ -29,7 +29,7 @@
             </select>
         </div>
         <input type="submit" value="查询" class="btn btn-sm btn-info" >
-        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+        <!--<input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">-->
         </form>
     </div>
     <br>
@@ -48,6 +48,7 @@
             <th>回款时间</th>
             <th>回款金额</th>
             <th>区域</th>
+            <th>类型</th>
             <th>销售</th>
             <th>计算公式（说明：完成率* 提成比例 * 回款金额 * 项目账期系数 = 提成）</th>
             <th>提成金额</th>
@@ -70,6 +71,7 @@
             {% for s in k.agent_sales+k.direct_sales %}
             <tr>
                 <td>{{s.location_cn}}</td>
+                <td>{{s.type}}</td>
                 <td style="color:#{{s.color}}">{{s.name}}</td>
                 <td>{{s.str_formula|safe}}</td>
                 <td>{{s.commission_money|format_price}}</td>
@@ -83,7 +85,7 @@
             <td>{{orders|sum(attribute='invoice_sum')|format_price}}</td>
             <td></td>
             <td>{{orders|sum(attribute='money_sum')|format_price}}</td>
-            <td colspan=3 style="text-align: center;"></td>
+            <td colspan=4 style="text-align: center;"></td>
             <td>{{orders|sum(attribute='total_commission_money')|format_price}}</td>
         </tr>
     </table>
