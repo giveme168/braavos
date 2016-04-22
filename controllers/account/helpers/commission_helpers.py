@@ -23,7 +23,7 @@ def write_report_excel(Q, now_year, orders):
     text_format.set_text_wrap()
     keys = [u'代理公司', u'项目名称', u'类型', u'大区', u'合同编号', u'合同金额', u'执行开始',
             u'执行结束', u'发票时间', u'发票金额', u'回款时间', u'回款金额', u'区域', u'类型',
-            u'销售',  u'计算公式（说明：完成率* 提成比例 * 回款金额 * 项目账期系数 = 提成）', u'提成金额']
+            u'销售', u'计算公式（说明：完成率* 提成比例 * 回款金额 * 项目账期系数 = 提成）', u'提成金额']
     worksheet.set_column(0, len(keys), 20)
     worksheet.set_column(15, 15, 80)
     for k in range(len(keys)):
