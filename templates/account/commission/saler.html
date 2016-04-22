@@ -29,7 +29,7 @@
             </select>
         </div>
         <input type="submit" value="查询" class="btn btn-sm btn-info" >
-        <!--<input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">-->
+        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
         </form>
     </div>
     <br>
@@ -57,7 +57,7 @@
         <tr>
             <td rowspan="{{k.salers_count + 1}}">{{k.agent_name}}</td>
             <td rowspan="{{k.salers_count + 1}}">{{k.campaign}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.resource_type_cn}}</td>
+            <td rowspan="{{k.salers_count + 1}}">{{k.industry_cn}}</td>
             <td rowspan="{{k.salers_count + 1}}">{{k.locations_cn}}</td>
             <td rowspan="{{k.salers_count + 1}}">{{k.contract}}</td>
             <td rowspan="{{k.salers_count + 1}}">{{k.money|format_price}}</td>
