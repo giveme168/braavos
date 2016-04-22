@@ -46,9 +46,9 @@ def write_report_excel(Q, now_year, orders):
             worksheet.merge_range(
                 th, 5, th + salers_count - 1, 5, orders[k]['money'], align_left)
             worksheet.merge_range(
-                th, 6, th + salers_count - 1, 6, orders[k]['client_start'], align_left)
+                th, 6, th + salers_count - 1, 6, orders[k]['client_start'].strftime('%Y-%m-%d'), align_left)
             worksheet.merge_range(
-                th, 7, th + salers_count - 1, 7, orders[k]['client_end'], align_left)
+                th, 7, th + salers_count - 1, 7, orders[k]['client_end'].strftime('%Y-%m-%d'), align_left)
             worksheet.merge_range(
                 th, 8, th + salers_count - 1, 8, orders[k]['invoice_time'] or u'无', align_left)
             worksheet.merge_range(
@@ -61,7 +61,15 @@ def write_report_excel(Q, now_year, orders):
                 worksheet.write(th, 12, sale_data[i][
                                 'location_cn'], align_left)
                 worksheet.write(th, 13, sale_data[i]['type'], align_left)
-                worksheet.write(th, 14, sale_data[i]['name'], align_left)
+                if 'color' in sale_data[i]:
+                    color = '#' + sale_data[i]['color']
+                else:
+                    color = ''
+                color_align_left = workbook.add_format({'align': 'left',
+                                                        'valign': 'vcenter',
+                                                        'border': 1,
+                                                        'font_color': color})
+                worksheet.write(th, 14, sale_data[i]['name'], color_align_left)
                 str_formula = sale_data[i]['str_formula'].replace(
                     '<br/>', '\n').replace('&nbsp;', ' ')
                 worksheet.write(th, 15, str_formula, text_format)
@@ -88,7 +96,15 @@ def write_report_excel(Q, now_year, orders):
             worksheet.write(th, 11, orders[k]['money_sum'], align_left)
             worksheet.write(th, 12, sale_data[0]['location_cn'], align_left)
             worksheet.write(th, 13, sale_data[0]['type'], align_left)
-            worksheet.write(th, 14, sale_data[0]['name'], align_left)
+            if 'color' in sale_data[0]:
+                color = '#' + sale_data[0]['color']
+            else:
+                color = ''
+            color_align_left = workbook.add_format({'align': 'left',
+                                                    'valign': 'vcenter',
+                                                    'border': 1,
+                                                    'font_color': color})
+            worksheet.write(th, 14, sale_data[0]['name'], color_align_left)
             str_formula = sale_data[0]['str_formula'].replace(
                 '<br/>', '\n').replace('&nbsp;', ' ')
             worksheet.write(th, 15, str_formula, text_format)

@@ -469,6 +469,7 @@ def saler():
                for k in douban_orders if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
     if location_id:
         orders = [k for k in orders if location_id in k['locations']]
+    orders = sorted(orders, key=operator.itemgetter('client_start'), reverse=False)
     if request.values.get('action') == 'download':
         return write_report_excel(Q=now_Q, now_year=now_year, orders=orders)
     return tpl('/account/commission/saler.html', Q=now_Q, now_year=now_year,
