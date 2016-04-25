@@ -95,7 +95,7 @@
         {{ form_field(agent_form.agent_sales) }}
         
         <a class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('order.intention_order')}}" style="width:80px;"/>返回</a>
-        {% if intention_order.status != 3 %}
+        {% if intention_order.status != 1 %}
         <button type="submit" class="btn btn-primary btn-sm col-md-offset-2" name="action" style="width:80px;"/>确定</button>
         <button type="button" class="btn btn-primary btn-sm col-md-offset-2" onclick="check_order_in_real('{{intention_order.id}}')"/>一键下单</button>
         {% endif %}

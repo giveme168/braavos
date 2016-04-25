@@ -1783,8 +1783,9 @@ def intention_order_update(intention_id):
     if intention_order.ex_money:
         intention_order.ex_money_data = json.loads(intention_order.ex_money)
     else:
-        pre_month_days = get_monthes_pre_days(
-            intention_order.client_start, intention_order.client_end)
+        start_date = datetime.strptime(intention_order.start_date_cn, '%Y-%m-%d')
+        end_date = datetime.strptime(intention_order.end_date_cn, '%Y-%m-%d')
+        pre_month_days = get_monthes_pre_days(start_date, end_date)
         intention_order.ex_money_data = [{'money': 0, 'month_cn': k[
             'month'].strftime('%Y-%m')} for k in pre_month_days]
     return tpl('intention_update.html', direct_form=direct_form, intention_order=intention_order,

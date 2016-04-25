@@ -35,9 +35,6 @@ $(document).ready(function(){
             }
         });
   }
-
-//代码预览高亮
-  hljs.initHighlightingOnLoad();
   $('.datetimepicker').attr('readonly', 'readonly');
 });
 
