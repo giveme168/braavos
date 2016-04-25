@@ -164,13 +164,15 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
     creator = db.relationship(
         'User', backref=db.backref('intention_order_creator', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    order_id = db.Column(db.String(10))
 
     def __init__(self, agent, client, campaign, medium_id,
                  complete_percent=1, money=0.0,
                  client_start=None, client_end=None,
                  direct_sales=None, agent_sales=None,
                  creator=None, create_time=None,
-                 status=0, ex_money=json.dumps({})):
+                 status=0, ex_money=json.dumps({}),
+                 order_id='0-0'):
         self.agent = agent
         self.client = client
         self.campaign = campaign
@@ -189,6 +191,7 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
         self.create_time = create_time or datetime.datetime.now()
         self.status = status or 0
         self.ex_money = ex_money or json.dumps([])
+        self.order_id = order_id or '0-0'
 
     @property
     def locations(self):

@@ -1836,6 +1836,7 @@ def intention_order_in_real(iid):
                                 create_time=datetime.now(),
                                 finish_time=datetime.now())
         order.add_comment(g.user, u"新建了该直签豆瓣订单")
+        intention_order.order_id = '0-'+str(order.id)
     else:
         order = ClientOrder.add(agent=is_data_agent,
                                 client=is_data_client,
@@ -1872,6 +1873,7 @@ def intention_order_in_real(iid):
                           (mo.medium.name, intention_order.money))
         order.save()
         flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
+        intention_order.order_id = '1-'+str(order.id)
     intention_order.add_comment(g.user, '已完成一键下单', msg_channel=11)
     intention_order.status = 1
     intention_order.save()
