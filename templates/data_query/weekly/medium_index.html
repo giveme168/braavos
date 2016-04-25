@@ -10,10 +10,10 @@
     <td>{{(order.Delivered+order.Confirmed)|sum('money')|format_price}}</td>
     <td>{{(order.Delivered+order.Confirmed)|sum('medium_money2')|format_price}}</td>
     <td>{{(order.Delivered)|sum('now_Q_money_check')|format_price}}</td>
-    <td>{{(order.Delivered+order.Confirmed)|sum('now_Q_money_zhixing')|format_price}}</td>
-    <th>{{(order.Delivered+order.Confirmed)|sum('first_month_money')|format_price}}</th>
-    <td>{{(order.Delivered+order.Confirmed)|sum('second_month_money')|format_price}}</td>
-    <td>{{(order.Delivered+order.Confirmed)|sum('third_month_money')|format_price}}</td>
+    <td>{{(order.Delivered+order.Confirmed+order.Intention)|sum('now_Q_money_zhixing')|format_price}}</td>
+    <th>{{(order.Delivered+order.Confirmed+order.Intention)|sum('first_month_money')|format_price}}</th>
+    <td>{{(order.Delivered+order.Confirmed+order.Intention)|sum('second_month_money')|format_price}}</td>
+    <td>{{(order.Delivered+order.Confirmed+order.Intention)|sum('third_month_money')|format_price}}</td>
   </tr>
 {%- endmacro %}
 
@@ -150,15 +150,15 @@
         <td></td>
         <td></td>
         <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td>{{k.S_50|format_price}}</td>
-        <td>{{k.U_50|format_price}}</td>
-        <td>{{k.L_80|format_price}}</td>
+        <td>{{k.now_Q_money_zhixing|format_price}}</td>
+        <td>{{k.last_Q_money|format_price}}</td>
+        <td>{{k.after_Q_money|format_price}}</td>
+        <td>{{k.first_month_money|format_price}}</td>
+        <td>{{k.second_month_money|format_price}}</td>
+        <td>{{k.third_month_money|format_price}}</td>
+        <td>{% if k.S_80 %}{{k.S_80|format_price}}{% else %}{% endif %}</td>
+        <td>{% if k.U_50 %}{{k.U_50|format_price}}{% else %}{% endif %}</td>
+        <td>{% if k.L_50 %}{{k.L_50|format_price}}{% else %}{% endif %}</td>
         <td></td>
         <td></td>
         <td>{{k.client_start}}</td>

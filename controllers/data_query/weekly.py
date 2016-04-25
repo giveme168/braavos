@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 
-from flask import Blueprint, request, g
+from flask import Blueprint, request, g, json
 from flask import render_template as tpl
 
 from models.user import TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG, TEAM_LOCATION_HUANAN
@@ -664,7 +664,7 @@ def _new_medium_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_mont
     return dict_order
 
 
-def _new_intention_order_to_dict(order):
+def _new_intention_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_monthes):
     dict_order = {}
     dict_order['medium_id'] = order.medium_id
     dict_order['client_name'] = order.client
@@ -696,16 +696,32 @@ def _new_intention_order_to_dict(order):
     dict_order['medium_money2'] = ''
     dict_order['now_Q_money_check'] = ''
 
-    dict_order['now_Q_money_zhixing'] = ''
-    # 下季度执行金额
-    dict_order['after_Q_money'] = ''
-    # 上季度执行金额
-    dict_order['last_Q_money'] = ''
-    # 本季度按月执行额
+    if order.ex_money:
+        executive_report_data = json.loads(order.ex_money)
+    else:
+        executive_report_data = []
 
-    dict_order['first_month_money'] = ''
-    dict_order['second_month_money'] = ''
-    dict_order['third_month_money'] = ''
+    for k in executive_report_data:
+        k['month'] = datetime.datetime.strptime(k['month_cn'], '%Y-%m')
+    dict_order['now_Q_money_zhixing'] = sum(
+        [k['money'] for k in executive_report_data if k['month'].date() in now_Q_monthes])
+    # 下季度执行金额
+    dict_order['after_Q_money'] = sum(
+        [k['money'] for k in executive_report_data if k['month'].date() in after_Q_monthes])
+    # 上季度执行金额
+    dict_order['last_Q_money'] = sum(
+        [k['money'] for k in executive_report_data if k['month'].date() in last_Q_monthes])
+    # 本季度按月执行额
+    now_Q_date_param = {}
+    for k in now_Q_monthes:
+        now_Q_date_param[k] = 0
+    for k in executive_report_data:
+        if k['month'].date() in now_Q_date_param:
+            now_Q_date_param[k['month'].date()] += k['money']
+    now_Q_date_param = sorted(now_Q_date_param.iteritems(), key=lambda x: x[0])
+    dict_order['first_month_money'] = now_Q_date_param[0][1]
+    dict_order['second_month_money'] = now_Q_date_param[1][1]
+    dict_order['third_month_money'] = now_Q_date_param[2][1]
 
     dt_format = "%d%m%Y"
     start_datetime = datetime.datetime.strptime(
@@ -757,7 +773,7 @@ def medium_index():
     intention_orders = [k for k in IntentionOrder.query.filter(int(now_year) >= DoubanOrder.client_start_year,
                                                                int(now_year) <= DoubanOrder.client_end_year)]
     intention_orders = [_new_intention_order_to_dict(
-        k) for k in intention_orders]
+        k, last_Q_monthes, now_Q_monthes, after_Q_monthes) for k in intention_orders]
     intention_orders = [k for k in intention_orders if len(
         pre_month_days & k['pre_month_days']) > 0]
     if location_id:
@@ -955,7 +971,7 @@ def medium_index():
         k for k in medium_orders if k['medium_id'] in [12]
         and k['contract'] and k['contract_status'] != 20]
 
-    except_medium_ids = [3, 8, 5, 52, 51, 67, 9, 14, 57, 66, 4, 59, 7, 39, 12]
+    except_medium_ids = [0, 3, 8, 5, 52, 51, 67, 9, 14, 57, 66, 4, 59, 7, 39, 12]
     other_data = {'Delivered': [],
                   'Confirmed': [],
                   'Intention': [o for o in intention_orders if o['medium_id'] not in except_medium_ids]}
@@ -1053,127 +1069,188 @@ def medium_index():
 
     total_now_Q_money_zhixing = sum([k['now_Q_money_zhixing'] for k in douban_data['Delivered']]) + \
         sum([k['now_Q_money_zhixing'] for k in douban_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in douban_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in youli_data['Delivered']]) +\
         sum([k['now_Q_money_zhixing'] for k in youli_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in youli_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in wuxian_data['Delivered']]) +\
         sum([k['now_Q_money_zhixing'] for k in wuxian_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in wuxian_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in zhihu_data['Delivered']]) + \
         sum([k['now_Q_money_zhixing'] for k in zhihu_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in zhihu_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in weipiao_data['Delivered']]) + \
         sum([k['now_Q_money_zhixing'] for k in weipiao_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in weipiao_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in one_data['Delivered']]) +\
         sum([k['now_Q_money_zhixing'] for k in one_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in one_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in xueqiu_data['Delivered']]) +\
         sum([k['now_Q_money_zhixing'] for k in xueqiu_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in xueqiu_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in huxiu_data['Delivered']]) + \
         sum([k['now_Q_money_zhixing'] for k in huxiu_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in huxiu_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in ledongli_data['Delivered']]) + \
         sum([k['now_Q_money_zhixing'] for k in ledongli_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in ledongli_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in kecheng_data['Delivered']]) +\
         sum([k['now_Q_money_zhixing'] for k in kecheng_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in kecheng_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in xiecheng_data['Delivered']]) +\
         sum([k['now_Q_money_zhixing'] for k in xiecheng_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in xiecheng_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in momo_data['Delivered']]) + \
         sum([k['now_Q_money_zhixing'] for k in momo_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in momo_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in lama_data['Delivered']]) + \
         sum([k['now_Q_money_zhixing'] for k in lama_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in lama_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in nice_data['Delivered']]) + \
         sum([k['now_Q_money_zhixing'] for k in nice_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in nice_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in other_data['Confirmed']]) + \
+        sum([k['now_Q_money_zhixing'] for k in other_data['Intention']]) + \
         sum([k['now_Q_money_zhixing'] for k in other_data['Delivered']])
 
     total_first_month_money = sum([k['first_month_money'] for k in douban_data['Delivered']]) + \
         sum([k['first_month_money'] for k in douban_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in douban_data['Intention']]) + \
         sum([k['first_month_money'] for k in youli_data['Delivered']]) +\
         sum([k['first_month_money'] for k in youli_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in youli_data['Intention']]) + \
         sum([k['first_month_money'] for k in wuxian_data['Delivered']]) +\
         sum([k['first_month_money'] for k in wuxian_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in wuxian_data['Intention']]) + \
         sum([k['first_month_money'] for k in zhihu_data['Delivered']]) + \
         sum([k['first_month_money'] for k in zhihu_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in zhihu_data['Intention']]) + \
         sum([k['first_month_money'] for k in weipiao_data['Delivered']]) + \
         sum([k['first_month_money'] for k in weipiao_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in weipiao_data['Intention']]) + \
         sum([k['first_month_money'] for k in one_data['Delivered']]) +\
         sum([k['first_month_money'] for k in one_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in one_data['Intention']]) + \
         sum([k['first_month_money'] for k in xueqiu_data['Delivered']]) +\
         sum([k['first_month_money'] for k in xueqiu_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in xueqiu_data['Intention']]) + \
         sum([k['first_month_money'] for k in huxiu_data['Delivered']]) + \
         sum([k['first_month_money'] for k in huxiu_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in huxiu_data['Intention']]) + \
         sum([k['first_month_money'] for k in ledongli_data['Delivered']]) + \
         sum([k['first_month_money'] for k in ledongli_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in ledongli_data['Intention']]) + \
         sum([k['first_month_money'] for k in kecheng_data['Delivered']]) +\
         sum([k['first_month_money'] for k in kecheng_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in kecheng_data['Intention']]) + \
         sum([k['first_month_money'] for k in xiecheng_data['Delivered']]) +\
         sum([k['first_month_money'] for k in xiecheng_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in xiecheng_data['Intention']]) + \
         sum([k['first_month_money'] for k in momo_data['Delivered']]) + \
         sum([k['first_month_money'] for k in momo_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in momo_data['Intention']]) + \
         sum([k['first_month_money'] for k in lama_data['Delivered']]) + \
         sum([k['first_month_money'] for k in lama_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in lama_data['Intention']]) + \
         sum([k['first_month_money'] for k in nice_data['Delivered']]) + \
         sum([k['first_month_money'] for k in nice_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in nice_data['Intention']]) + \
         sum([k['first_month_money'] for k in other_data['Confirmed']]) + \
+        sum([k['first_month_money'] for k in other_data['Intention']]) + \
         sum([k['first_month_money'] for k in other_data['Delivered']])
 
     total_second_month_money = sum([k['second_month_money'] for k in douban_data['Delivered']]) + \
         sum([k['second_month_money'] for k in douban_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in douban_data['Intention']]) + \
         sum([k['second_month_money'] for k in youli_data['Delivered']]) +\
         sum([k['second_month_money'] for k in youli_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in youli_data['Intention']]) + \
         sum([k['second_month_money'] for k in wuxian_data['Delivered']]) +\
         sum([k['second_month_money'] for k in wuxian_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in wuxian_data['Intention']]) + \
         sum([k['second_month_money'] for k in zhihu_data['Delivered']]) + \
         sum([k['second_month_money'] for k in zhihu_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in zhihu_data['Intention']]) + \
         sum([k['second_month_money'] for k in weipiao_data['Delivered']]) + \
         sum([k['second_month_money'] for k in weipiao_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in weipiao_data['Intention']]) + \
         sum([k['second_month_money'] for k in one_data['Delivered']]) +\
         sum([k['second_month_money'] for k in one_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in one_data['Intention']]) + \
         sum([k['second_month_money'] for k in xueqiu_data['Delivered']]) +\
         sum([k['second_month_money'] for k in xueqiu_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in xueqiu_data['Intention']]) + \
         sum([k['second_month_money'] for k in huxiu_data['Delivered']]) + \
         sum([k['second_month_money'] for k in huxiu_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in huxiu_data['Intention']]) + \
         sum([k['second_month_money'] for k in ledongli_data['Delivered']]) + \
         sum([k['second_month_money'] for k in ledongli_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in ledongli_data['Intention']]) + \
         sum([k['second_month_money'] for k in kecheng_data['Delivered']]) +\
         sum([k['second_month_money'] for k in kecheng_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in kecheng_data['Intention']]) + \
         sum([k['second_month_money'] for k in xiecheng_data['Delivered']]) +\
         sum([k['second_month_money'] for k in xiecheng_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in xiecheng_data['Intention']]) + \
         sum([k['second_month_money'] for k in momo_data['Delivered']]) + \
         sum([k['second_month_money'] for k in momo_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in momo_data['Intention']]) + \
         sum([k['second_month_money'] for k in lama_data['Delivered']]) + \
         sum([k['second_month_money'] for k in lama_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in lama_data['Intention']]) + \
         sum([k['second_month_money'] for k in nice_data['Delivered']]) + \
         sum([k['second_month_money'] for k in nice_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in nice_data['Intention']]) + \
         sum([k['second_month_money'] for k in other_data['Confirmed']]) + \
+        sum([k['second_month_money'] for k in other_data['Intention']]) + \
         sum([k['second_month_money'] for k in other_data['Delivered']])
 
     total_third_month_money = sum([k['third_month_money'] for k in douban_data['Delivered']]) + \
         sum([k['third_month_money'] for k in douban_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in douban_data['Intention']]) + \
         sum([k['third_month_money'] for k in youli_data['Delivered']]) +\
         sum([k['third_month_money'] for k in youli_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in youli_data['Intention']]) + \
         sum([k['third_month_money'] for k in wuxian_data['Delivered']]) +\
         sum([k['third_month_money'] for k in wuxian_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in wuxian_data['Intention']]) + \
         sum([k['third_month_money'] for k in zhihu_data['Delivered']]) + \
         sum([k['third_month_money'] for k in zhihu_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in zhihu_data['Intention']]) + \
         sum([k['third_month_money'] for k in weipiao_data['Delivered']]) + \
         sum([k['third_month_money'] for k in weipiao_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in weipiao_data['Intention']]) + \
         sum([k['third_month_money'] for k in one_data['Delivered']]) +\
         sum([k['third_month_money'] for k in one_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in one_data['Intention']]) + \
         sum([k['third_month_money'] for k in xueqiu_data['Delivered']]) +\
         sum([k['third_month_money'] for k in xueqiu_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in xueqiu_data['Intention']]) + \
         sum([k['third_month_money'] for k in huxiu_data['Delivered']]) + \
         sum([k['third_month_money'] for k in huxiu_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in huxiu_data['Intention']]) + \
         sum([k['third_month_money'] for k in ledongli_data['Delivered']]) + \
         sum([k['third_month_money'] for k in ledongli_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in ledongli_data['Intention']]) + \
         sum([k['third_month_money'] for k in kecheng_data['Delivered']]) +\
         sum([k['third_month_money'] for k in kecheng_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in kecheng_data['Intention']]) + \
         sum([k['third_month_money'] for k in xiecheng_data['Delivered']]) +\
         sum([k['third_month_money'] for k in xiecheng_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in xiecheng_data['Intention']]) + \
         sum([k['third_month_money'] for k in momo_data['Delivered']]) + \
         sum([k['third_month_money'] for k in momo_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in momo_data['Intention']]) + \
         sum([k['third_month_money'] for k in lama_data['Delivered']]) + \
         sum([k['third_month_money'] for k in lama_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in lama_data['Intention']]) + \
         sum([k['third_month_money'] for k in nice_data['Delivered']]) + \
         sum([k['third_month_money'] for k in nice_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in nice_data['Intention']]) + \
         sum([k['third_month_money'] for k in other_data['Confirmed']]) + \
+        sum([k['third_month_money'] for k in other_data['Intention']]) + \
         sum([k['third_month_money'] for k in other_data['Delivered']])
+
     if request.values.get('action') == 'download':
         response = write_medium_index_excel(Q=now_Q, now_year=now_year,
                                             Q_monthes=Q_monthes, location_id=location_id,

@@ -640,13 +640,13 @@ def new_insert_total_table(worksheet, align_center, order, th, title):
     worksheet.write(th, 28, sum([k['now_Q_money_check']
                                  for k in order['Delivered']]), align_center)
     worksheet.write(th, 29, sum([k['now_Q_money_zhixing']
-                                 for k in order['Delivered'] + order['Confirmed']]), align_center)
+                                 for k in order['Delivered'] + order['Confirmed'] + order['Intention']]), align_center)
     worksheet.write(th, 30, sum([k['first_month_money']
-                                 for k in order['Delivered'] + order['Confirmed']]), align_center)
+                                 for k in order['Delivered'] + order['Confirmed'] + order['Intention']]), align_center)
     worksheet.write(th, 31, sum([k['second_month_money']
-                                 for k in order['Delivered'] + order['Confirmed']]), align_center)
+                                 for k in order['Delivered'] + order['Confirmed'] + order['Intention']]), align_center)
     worksheet.write(th, 32, sum([k['third_month_money']
-                                 for k in order['Delivered'] + order['Confirmed']]), align_center)
+                                 for k in order['Delivered'] + order['Confirmed'] + order['Intention']]), align_center)
     th += 1
     return th
 

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from flask import Blueprint, request, redirect, abort, url_for, g
-from flask import render_template as tpl, flash, current_app
+from flask import Blueprint, request, redirect, abort, url_for, g, jsonify
+from flask import json, render_template as tpl, flash, current_app
 
 from wtforms import SelectMultipleField
 from libs.wtf import Form
@@ -35,6 +35,7 @@ from libs.email_signals import zhiqu_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
 from controllers.helpers.order_helpers import write_client_excel
+from libs.date_helpers import get_monthes_pre_days
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
 
@@ -1608,11 +1609,12 @@ def intention_order():
     elif g.user.is_leader():
         orders = [o for o in orders if g.user.location in o.locations]
     else:
-        orders = [o for o in orders if g.user == o.creator]
+        orders = IntentionOrder.get_order_by_user(g.user)
 
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
-    orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
+    orders = [o for o in orders if o.client_start.year ==
+              int(year) or o.client_end.year == int(year)]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower().strip() in o.search_info.lower()]
@@ -1664,14 +1666,26 @@ class DirectForm(Form):
 def intention_order_create():
     if request.method == 'POST':
         now_date = datetime.now()
+        start_time = request.values.get(
+            'client_start', now_date.strftime('%Y-%m-%d'))
+        end_time = request.values.get(
+            'client_end', now_date.strftime('%Y-%m-%d'))
+        start_date = datetime.strptime(start_time, '%Y-%m-%d')
+        end_date = datetime.strptime(end_time, '%Y-%m-%d')
+        pre_month_days = get_monthes_pre_days(start_date, end_date)
+        ex_money_data = []
+        for k in pre_month_days:
+            month_cn = k['month'].strftime('%Y-%m')
+            money = float(request.values.get(month_cn + '_money', 0))
+            ex_money_data.append({'money': money, 'month_cn': month_cn})
         medium_id = int(request.values.get('medium_id'))
         agent = request.values.get('agent', '')
         client = request.values.get('client', '')
         campaign = request.values.get('campaign', '')
         complete_percent = int(request.values.get('complete_percent', 1))
-        money = float(request.values.get('money', 0.0))
-        client_start = request.values.get('client_start', now_date.strftime('%Y-%m-%d'))
-        client_end = request.values.get('client_end', now_date.strftime('%Y-%m-%d'))
+        money = sum([k['money'] for k in ex_money_data])
+        client_start = start_time
+        client_end = end_time
         direct_sales = request.values.getlist('direct_sales')
         agent_sales = request.values.getlist('agent_sales')
         intention_order = IntentionOrder.add(
@@ -1686,6 +1700,8 @@ def intention_order_create():
             direct_sales=User.gets(direct_sales),
             agent_sales=User.gets(agent_sales),
             creator=g.user,
+            status=0,
+            ex_money=json.dumps(ex_money_data),
             create_time=datetime.now()
         )
         msg = u"新建了洽谈订单:代理/直客：%s 客户：%s campaign：%s 预估程度：%s 预估金额：%s" % (
@@ -1707,26 +1723,41 @@ def intention_order_delete(intention_id):
 @order_bp.route('/intention_order/<intention_id>/update', methods=['GET', 'POST'])
 def intention_order_update(intention_id):
     intention_order = IntentionOrder.get(intention_id)
-    ex_user = list(intention_order.direct_sales) + list(intention_order.agent_sales) + [intention_order.creator]
+    ex_user = list(intention_order.direct_sales) + list(intention_order.agent_sales) + \
+        [intention_order.creator] + list(User.super_admin_leaders())
     if g.user not in ex_user:
         return abort(403)
     direct_form = DirectForm()
     agent_form = AgentForm()
-    direct_form.direct_sales.data = [u.id for u in intention_order.direct_sales]
+    direct_form.direct_sales.data = [
+        u.id for u in intention_order.direct_sales]
     agent_form.agent_sales.data = [u.id for u in intention_order.agent_sales]
 
     is_data_agent = Agent.query.filter_by(name=intention_order.agent).first()
-    is_data_client = Client.query.filter_by(name=intention_order.client).first()
+    is_data_client = Client.query.filter_by(
+        name=intention_order.client).first()
     if request.method == 'POST':
         now_date = datetime.now()
+        start_time = request.values.get(
+            'client_start', now_date.strftime('%Y-%m-%d'))
+        end_time = request.values.get(
+            'client_end', now_date.strftime('%Y-%m-%d'))
+        start_date = datetime.strptime(start_time, '%Y-%m-%d')
+        end_date = datetime.strptime(end_time, '%Y-%m-%d')
+        pre_month_days = get_monthes_pre_days(start_date, end_date)
+        ex_money_data = []
+        for k in pre_month_days:
+            month_cn = k['month'].strftime('%Y-%m')
+            money = float(request.values.get(month_cn + '_money', 0))
+            ex_money_data.append({'money': money, 'month_cn': month_cn})
         medium_id = int(request.values.get('medium_id'))
         agent = request.values.get('agent', '')
         client = request.values.get('client', '')
         campaign = request.values.get('campaign', '')
         complete_percent = int(request.values.get('complete_percent', 1))
-        money = float(request.values.get('money', 0.0))
-        client_start = request.values.get('client_start', now_date.strftime('%Y-%m-%d'))
-        client_end = request.values.get('client_end', now_date.strftime('%Y-%m-%d'))
+        money = sum([k['money'] for k in ex_money_data])
+        client_start = start_time
+        client_end = end_time
         direct_sales = request.values.getlist('direct_sales')
         agent_sales = request.values.getlist('agent_sales')
         intention_order.medium_id = medium_id
@@ -1735,11 +1766,13 @@ def intention_order_update(intention_id):
         intention_order.campaign = campaign
         intention_order.complete_percent = complete_percent
         intention_order.money = money
-        intention_order.client_start = datetime.strptime(client_start, '%Y-%m-%d')
+        intention_order.client_start = datetime.strptime(
+            client_start, '%Y-%m-%d')
         intention_order.client_end = datetime.strptime(client_end, '%Y-%m-%d')
         intention_order.direct_sales = User.gets(direct_sales)
         intention_order.agent_sales = User.gets(agent_sales)
         intention_order.creator = g.user
+        intention_order.ex_money = json.dumps(ex_money_data)
         intention_order.create_time = datetime.now()
         intention_order.save()
         msg = u"修改了洽谈订单:代理/直客：%s 客户：%s campaign：%s 预估程度：%s 预估金额：%s" % (
@@ -1747,7 +1780,99 @@ def intention_order_update(intention_id):
         intention_order.add_comment(g.user, msg, msg_channel=11)
         flash('修改成功', 'success')
         return redirect(url_for('order.intention_order_update', intention_id=intention_order.id))
+    if intention_order.ex_money:
+        intention_order.ex_money_data = json.loads(intention_order.ex_money)
+    else:
+        pre_month_days = get_monthes_pre_days(
+            intention_order.client_start, intention_order.client_end)
+        intention_order.ex_money_data = [{'money': 0, 'month_cn': k[
+            'month'].strftime('%Y-%m')} for k in pre_month_days]
     return tpl('intention_update.html', direct_form=direct_form, intention_order=intention_order,
                agent_form=agent_form, agent=Agent.all(), client=Client.all(),
                is_data_agent=is_data_agent, is_data_client=is_data_client,
                mediums=Medium.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN)
+
+
+@order_bp.route('/ex_time', methods=['GET'])
+def order_ex_time():
+    now_date = datetime.now().strftime('%Y-%m-%d')
+    start_time = request.values.get('start_time', now_date)
+    end_time = request.values.get('end_time', now_date)
+    start_time = datetime.strptime(start_time, '%Y-%m-%d')
+    end_time = datetime.strptime(end_time, '%Y-%m-%d')
+    pre_month_days = get_monthes_pre_days(start_time, end_time)
+    for k in pre_month_days:
+        k['month_cn'] = k['month'].strftime('%Y-%m')
+    return jsonify({'ret': True, 'data': pre_month_days})
+
+
+@order_bp.route('/intention_order/<iid>/in_real', methods=['GET'])
+def intention_order_in_real(iid):
+    intention_order = IntentionOrder.get(iid)
+    is_data_agent = Agent.query.filter_by(name=intention_order.agent).first()
+    is_data_client = Client.query.filter_by(
+        name=intention_order.client).first()
+    reminde_date = intention_order.client_start + timedelta(days=90)
+    if intention_order.medium_id == 0:
+        order = DoubanOrder.add(agent=is_data_agent,
+                                client=is_data_client,
+                                campaign=intention_order.campaign,
+                                money=float(intention_order.money),
+                                client_start=intention_order.client_start,
+                                client_end=intention_order.client_end,
+                                medium_CPM=0,
+                                sale_CPM=0,
+                                reminde_date=reminde_date,
+                                direct_sales=intention_order.direct_sales,
+                                agent_sales=intention_order.agent_sales,
+                                assistant_sales=[],
+                                operaters=[],
+                                designers=[],
+                                planers=[],
+                                contract_type=0,
+                                resource_type=0,
+                                sale_type=0,
+                                creator=g.user,
+                                create_time=datetime.now(),
+                                finish_time=datetime.now())
+        order.add_comment(g.user, u"新建了该直签豆瓣订单")
+    else:
+        order = ClientOrder.add(agent=is_data_agent,
+                                client=is_data_client,
+                                campaign=intention_order.campaign,
+                                money=float(intention_order.money),
+                                client_start=intention_order.client_start,
+                                client_end=intention_order.client_end,
+                                reminde_date=reminde_date,
+                                direct_sales=intention_order.direct_sales,
+                                agent_sales=intention_order.agent_sales,
+                                assistant_sales=[],
+                                contract_type=0,
+                                resource_type=0,
+                                sale_type=0,
+                                creator=g.user,
+                                create_time=datetime.now(),
+                                finish_time=datetime.now())
+        order.add_comment(g.user,
+                          u"新建了客户订单:%s - %s - %s" % (
+                              order.agent.name,
+                              order.client.name,
+                              order.campaign
+                          ))
+        mo = Order.add(campaign=order.campaign,
+                       medium=Medium.get(intention_order.medium_id),
+                       sale_money=intention_order.money,
+                       medium_money=0,
+                       medium_money2=intention_order.money,
+                       medium_start=order.client_start,
+                       medium_end=order.client_end,
+                       creator=g.user)
+        order.medium_orders = order.medium_orders + [mo]
+        order.add_comment(g.user, u"新建了媒体订单: %s %s元" %
+                          (mo.medium.name, intention_order.money))
+        order.save()
+        flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
+    intention_order.add_comment(g.user, '已完成一键下单', msg_channel=11)
+    intention_order.status = 1
+    intention_order.save()
+    return redirect(order.info_path())

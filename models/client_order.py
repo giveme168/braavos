@@ -159,6 +159,8 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
     direct_sales = db.relationship('User', secondary=intention_direct_sales)
     agent_sales = db.relationship('User', secondary=intention_agent_sales)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    status = db.Column(db.Integer)  # 状态
+    ex_money = db.Column(db.Text(), default=json.dumps([]))  # 月度执行金额
     creator = db.relationship(
         'User', backref=db.backref('intention_order_creator', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
@@ -167,7 +169,8 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
                  complete_percent=1, money=0.0,
                  client_start=None, client_end=None,
                  direct_sales=None, agent_sales=None,
-                 creator=None, create_time=None):
+                 creator=None, create_time=None,
+                 status=0, ex_money=json.dumps({})):
         self.agent = agent
         self.client = client
         self.campaign = campaign
@@ -184,6 +187,8 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
 
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
+        self.status = status or 0
+        self.ex_money = ex_money or json.dumps([])
 
     @property
     def locations(self):
@@ -241,6 +246,26 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
         for user in self.agent_sales + self.direct_sales:
             leaders += user.team_leaders
         return leaders
+
+    @classmethod
+    def get_order_by_user(cls, user):
+        """一个用户可以查看的所有订单"""
+        return [o for o in cls.all() if o.have_owner(user)]
+
+    def have_owner(self, user):
+        """是否可以查看该订单"""
+        salers = self.direct_sales + self.agent_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        owner = salers + [self.creator] + list(set(leaders))
+        return user.is_admin() or user in owner
+
+    @property
+    def status_cn(self):
+        if self.status == 1:
+            return u'已下单'
+        return u'未下单'
 
 
 class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):

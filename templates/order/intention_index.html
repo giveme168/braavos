@@ -17,6 +17,7 @@
         <th>开始</th>
         <th>结束</th>
         <th>修改时间</th>
+        <th>状态</th>
         <th>操作</th>
     </tr>
     {% for o in orders %}
@@ -34,6 +35,7 @@
         <td>{{o.start_date_cn}}</td>
         <td>{{o.end_date_cn}}</td>
         <td>{{o.create_time_cn}}</td>
+        <td>{{o.status_cn}}</td>
         <td>
             <a href="{{url_for('order.intention_order_update', intention_id=o.id)}}">修改</a>
             {% if g.user.is_super_admin() %}
