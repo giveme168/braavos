@@ -15,6 +15,7 @@
         <th>执行开始时间</th>
         <th>执行结束时间</th>
         <th>客户合同金额</th>
+        <th>售卖金额</th>
         <th>已开客户发票金额</th>
         <th>客户回款金额</th>
         <th>客户付返点发票金额</th>
@@ -43,6 +44,12 @@
         <td>{{o.start_date_cn}}</td>
         <td>{{o.end_date_cn}}</td>
         <td>{{o.money|format_price}}</td>
+        <td>
+            {% for mo in o.medium_orders %}    
+            {{mo.sale_money}}
+            <br><br>
+            {% endfor %}
+        </td>
         <td>{{o.pass_invoice_sum|format_price}}</td>
         <td>{{o.back_money_sum|format_price}}</td>
         <td>{{o.back_money_rebate_sum|format_price}}</td>
