@@ -79,32 +79,44 @@ def write_client_excel(orders):
                     worksheet.write(th, 4, orders[k].money, align_left)
                     worksheet.write(th, 5, orders[k].start_date_cn, align_left)
                     worksheet.write(th, 6, orders[k].end_date_cn, align_left)
-                    worksheet.write(th, 7, orders[k].reminde_date_cn, align_left)
+                    worksheet.write(
+                        th, 7, orders[k].reminde_date_cn, align_left)
                     worksheet.write(th, 8, orders[k].payable_time, align_left)
-                    worksheet.write(th, 9, str(orders[k].back_money_percent) + "%", align_left)
+                    worksheet.write(th, 9, str(
+                        orders[k].back_money_percent) + "%", align_left)
                     worksheet.write(th, 10, orders[k].back_moneys, align_left)
-                    worksheet.write(th, 11, orders[k].money-orders[k].back_moneys, align_left)
-                    worksheet.write(th, 12, orders[k].invoice_pass_sum, align_left)
+                    worksheet.write(
+                        th, 11, orders[k].money - orders[k].back_moneys, align_left)
+                    worksheet.write(
+                        th, 12, orders[k].invoice_pass_sum, align_left)
 
-                    worksheet.write(th, 13, orders[k].direct_sales_names, align_left)
-                    worksheet.write(th, 14, orders[k].agent_sales_names, align_left)
+                    worksheet.write(
+                        th, 13, orders[k].direct_sales_names, align_left)
+                    worksheet.write(
+                        th, 14, orders[k].agent_sales_names, align_left)
                     worksheet.write(th, 15, orders[k].locations_cn, align_left)
-                    worksheet.write(th, 16, orders[k].contract_type_cn, align_left)
-                    worksheet.write(th, 17, orders[k].resource_type_cn, align_left)
+                    worksheet.write(
+                        th, 16, orders[k].contract_type_cn, align_left)
+                    worksheet.write(
+                        th, 17, orders[k].resource_type_cn, align_left)
                     worksheet.write(th, 18, orders[k].sale_type_cn, align_left)
                     worksheet.write(th, 19, mediums[i].medium.name, align_left)
                     worksheet.write(
                         th, 20, mediums[i].finish_status_cn, align_left)
-                    worksheet.write(th, 21, mediums[i].medium_contract, align_left)
+                    worksheet.write(
+                        th, 21, mediums[i].medium_contract, align_left)
                     worksheet.write(th, 22, mediums[i].sale_money, align_left)
-                    worksheet.write(th, 23, mediums[i].medium_money2, align_left)
+                    worksheet.write(
+                        th, 23, mediums[i].medium_money2, align_left)
                     worksheet.write(th, 24, '', align_left)
                     worksheet.write(th, 25, '', align_left)
                     worksheet.write(th, 26, mediums[i].sale_CPM, align_left)
                     worksheet.write(th, 27, mediums[i].medium_CPM, align_left)
-                    worksheet.write(th, 28, mediums[i].start_date_cn, align_left)
+                    worksheet.write(
+                        th, 28, mediums[i].start_date_cn, align_left)
                     worksheet.write(th, 29, mediums[i].end_date_cn, align_left)
-                    worksheet.write(th, 30, mediums[i].operater_names, align_left)
+                    worksheet.write(
+                        th, 30, mediums[i].operater_names, align_left)
                     if mediums[i].associated_douban_order:
                         worksheet.write(
                             th, 31, mediums[i].associated_douban_order.name, align_left)
@@ -130,12 +142,16 @@ def write_client_excel(orders):
                 worksheet.write(th, 6, orders[k].end_date_cn, align_left)
                 worksheet.write(th, 7, orders[k].reminde_date_cn, align_left)
                 worksheet.write(th, 8, orders[k].payable_time, align_left)
-                worksheet.write(th, 9, str(orders[k].back_money_percent) + "%", align_left)
+                worksheet.write(th, 9, str(
+                    orders[k].back_money_percent) + "%", align_left)
                 worksheet.write(th, 10, orders[k].back_moneys, align_left)
-                worksheet.write(th, 11, orders[k].money-orders[k].back_moneys, align_left)
+                worksheet.write(
+                    th, 11, orders[k].money - orders[k].back_moneys, align_left)
                 worksheet.write(th, 12, orders[k].invoice_pass_sum, align_left)
-                worksheet.write(th, 13, orders[k].direct_sales_names, align_left)
-                worksheet.write(th, 14, orders[k].agent_sales_names, align_left)
+                worksheet.write(
+                    th, 13, orders[k].direct_sales_names, align_left)
+                worksheet.write(
+                    th, 14, orders[k].agent_sales_names, align_left)
                 worksheet.write(th, 15, orders[k].locations_cn, align_left)
                 worksheet.write(th, 16, orders[k].contract_type_cn, align_left)
                 worksheet.write(th, 17, orders[k].resource_type_cn, align_left)
