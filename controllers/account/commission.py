@@ -13,6 +13,7 @@ from models.douban_order import BackMoney as DoubanBackMoney
 from models.douban_order import BackInvoiceRebate as DoubanBackInvoiceRebate
 from libs.date_helpers import (
     check_Q_get_monthes, check_month_get_Q, get_monthes_pre_days)
+from controllers.account.helpers.commission_helpers import write_report_excel
 
 
 account_commission_bp = Blueprint(
@@ -270,7 +271,7 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
     dict_order['campaign'] = order.campaign
     dict_order['locations'] = order.locations
     dict_order['locations_cn'] = order.locations_cn
-    dict_order['resource_type_cn'] = order.resource_type_cn
+    dict_order['industry_cn'] = order.client.industry_cn
     dict_order['contract_status'] = order.contract_status
     dict_order['status'] = order.status
     order_back_money_data = _order_back_money_data(
@@ -468,5 +469,8 @@ def saler():
                for k in douban_orders if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
     if location_id:
         orders = [k for k in orders if location_id in k['locations']]
+    orders = sorted(orders, key=operator.itemgetter('client_start'), reverse=False)
+    if request.values.get('action') == 'download':
+        return write_report_excel(Q=now_Q, now_year=now_year, orders=orders)
     return tpl('/account/commission/saler.html', Q=now_Q, now_year=now_year,
                Q_monthes=Q_monthes, location_id=location_id, orders=orders)
