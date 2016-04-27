@@ -1,4 +1,4 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}{{title}}{% endblock %}
 {% block content %}
 <style type="text/css">  
@@ -8,21 +8,29 @@
     left:45%;  
 }  
 </style>
-{% include "/data_query/super_leader/super_leader_base.html" %}
+{% include "/data_query/super_leader/super_leader_base_v1_0_0.html" %}
 <div style="width:100%; height:100%; z-index:9999;position: absolute;background-color: #000;opacity: 0.2; display:none;" id="loading">
     <img class="loading_img" src="/static/imgs/loading.gif"></div>
 </div>
 <div class="container bra-box" id="medium_box" style="width:1000px;">
-    <ul class="nav nav-tabs">
-      <li id="_client_order_"class=""><a href="{{url_for('data_query_super_leader_back_money.client_order')}}">新媒体订单</a></li>
-      <li id="_douban_order_" class=""><a href="{{url_for('data_query_super_leader_back_money.douban_order')}}">直签豆瓣订单</a></li>
-      <li id="_search_" class=""><a href="{{url_for('data_query_super_leader_back_money.search')}}">效果业务</a></li>
-    </ul>
+    <div class="table-switch">
+        <ul>
+            <li id="_client_order_li">
+                <a id="_client_order_" href="{{url_for('data_query_super_leader_back_money.client_order')}}">新媒体订单</a>
+            </li>
+            <li id="_douban_order_li">
+                <a id="_douban_order_" href="{{url_for('data_query_super_leader_back_money.douban_order')}}">直签豆瓣订单</a>
+            </li>
+            <li id="_search_li">
+                <a id="_search_" href="{{url_for('data_query_super_leader_back_money.search')}}">效果业务</a>
+            </li>
+        </ul>
+    </div>
     <h3>{{title}}</h3>
     <form class="form-inline">
         <div class="form-group">
             <label for="exampleInputEmail2">查询时间</label>
-            <select class="col-md-12" id="year" name="year" style="width:100px;">
+            <select class="form-control" id="year" name="year" style="width:100px;">
                 {% for k in range(5) %}
                 <option value='{{2014+k}}'>{{2014+k}}年</option>
                 {% endfor %}
@@ -30,7 +38,7 @@
         </div>
         <div class="form-group">
             <label for="exampleInputEmail2">区域：</label>
-            <select class="col-md-12" id="location" name="location" style="width:70px;">
+            <select class="form-control" id="location" name="location" style="width:70px;">
                 <option value='0'>全部</option>
                 <option value='1'>华北</option>
                 <option value='2'>华东</option>
@@ -53,7 +61,8 @@
     $(document).ready(function(){
         var pathname = window.location.pathname;
         var path_name = pathname.split("/")
-        $("#_" + path_name[4]+'_').addClass("active");
+        $("#_" + path_name[4]+'_').addClass("on");
+        $("#_" + path_name[4]+'_li').addClass("actives");
         Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
             return {
                 radialGradient: {

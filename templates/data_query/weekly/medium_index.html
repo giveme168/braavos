@@ -1,7 +1,7 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}媒体周报（新）{% endblock %}
 {% block content %}
-{% include "/data_query/data_query_base.html" %}
+{% include "/data_query/data_query_base_v1_0_0.html" %}
 
 
 {% macro total_tr(order, title) -%}
@@ -254,7 +254,6 @@
         {{ total_tr(lama_data, '辣妈帮') }}
         {{ total_tr(nice_data, 'nice') }}
         {{ total_tr(other_data, '其他媒体') }}
-        {{ total_tr(meijie_data, '媒介下单') }}
         <tr>
           <th>总计</th>
           <td>{{total_money|format_price}}</td>
@@ -265,6 +264,7 @@
           <td>{{total_second_month_money|format_price}}</td>
           <td>{{total_third_month_money|format_price}}</td>
         </tr>
+        {{ total_tr(meijie_data, '其中媒介下单') }}
       </tbody>
     </table>
     <br/>

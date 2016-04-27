@@ -1,0 +1,389 @@
+*{padding: 0;
+list-style: none;
+margin:0;
+font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
+ /*级菜单 */
+.menu-bar{width: 100%;
+          margin-top: 10px;
+          /*height: 50px;*/}
+.menu-bar ul{width: 120px;
+            margin: 0 auto;
+            height: 30px;}
+
+.menu-bar ul li{float: left;
+                margin-right: 10px;
+                color: #afafaf;
+                width: 50px;
+                text-decoration: center;
+                line-height: 30px;}
+
+.menu-bar ul li a{text-decoration: none;
+                color: #afafaf;
+                margin-right: 15px;}
+
+.menu-bar ul li a:hover{color: #ec3341;}             
+.menu-bar li .on{color: #ec3341;}
+/*导航*/
+.top-nav-wrap{width:100%;
+            background: #e6e6e6;
+            position: fixed;
+            min-height: 85px;
+            top:60px;
+            float: left;
+            z-index:99999;
+           }
+
+.top-nav-wrap .top-nav{
+    float: left;
+    position: relative;
+    left: 50%;
+}
+.top-nav-wrap .top-nav ul{margin:0 auto;
+                    text-align: center;
+                    height:23px;
+                    margin :10px auto;
+                    position: relative;
+                    left: -50%; }
+
+.top-nav-wrap .top-nav ul li{float: left;
+                    line-height: 23px;
+                    background: #484848;
+                    width:160px;
+                    color:#fff;
+                    cursor: pointer;
+                    text-align: center;
+                    }
+.top-nav-wrap .top-nav ul .active{background: #ec3341}
+.top-nav-wrap .top-nav ul li a{color: #fff;
+                    text-decoration: none;}
+
+.top-nav-wrap .top-nav ul li span{float: right;
+                            color:#b4b4b4;
+                            }
+
+.top-nav-wrap .top-nav ul li:hover{background: #ec3341;}
+
+.top-nav-wrap .top-nav ul .nav-first{border-top-left-radius: 100px 100px;
+                            border-bottom-left-radius: 100px 100px;}
+
+.top-nav-wrap .top-nav ul .nav-last{border-top-right-radius: 100px 100px;
+                            border-bottom-right-radius: 100px 100px;}
+
+
+
+/*表格*/
+
+
+.tabulation{margin-top: 180px;}
+.tabulation h5{text-align: center;width: 100%;}
+.tabulation table{width:90%;
+                margin-left:5%;
+
+                border:1px solid #bebebe;}
+
+.tabulation table thead{background: #484848;
+                        color: #fff;
+                        }
+.tabulation table thead tr th,.tabulation table tbody tr td{padding-left: 10px; border:1px solid #bebebe;}
+
+.tabulation table tbody a{color: #484848;
+                            text-decoration: none;}
+
+.tabulation table tbody a:hover{color: #98091b;}
+.not-completed{background: #fde0e2;}
+/*table切换*/
+.table-switch{
+            margin-top: 20px;
+            width:100%;
+            height:25px;
+            border-bottom:1px solid #efefef;}
+
+
+.table-switch ul li{float: left;
+                    text-align: center;
+                    width:91px;
+                    line-height: 25px;
+                    height:25px;
+                    cursor:pointer;}
+.table-switch ul li a{color: #484848; text-decoration: none;}
+.table-switch ul li.actives{border-top:1px solid #ccc;
+                        border-left:1px solid #ccc;
+                        border-right:1px solid #ccc;
+                        color: #98091b;
+                        background: #fff;}
+
+.table-switch ul li a.on{
+                        color: #98091b;}
+/*搜索下拉菜单*/
+.search-bar{width:100%;height:30px;}
+.menu-btn-bar{float: right;
+                margin-right:20px;
+                height:28px;
+                margin-top:10px;
+                margin-bottom:10px;
+                padding-right:5px;
+                background: #484848;
+                border-radius: 30px;}
+
+.menu-btn-bar .select_option{float: left;
+                            margin-left:10px;}  
+
+.search-bar .chosen-single{height:22px !important; 
+                border-radius: 12px;
+                background: #fff !important;
+                margin-top:3px;}  
+
+.menu-btn-bar .select_option .control-label{color: #fff;
+                                            font-size: 14px;
+                                            margin-left:10px;
+                                            float: left;
+                                            line-height: 28px;
+                                            margin-right:10px;}
+.menu-btn-bar .select_option select{float: left;}
+.select_option{border-radius: 10px;}
+
+.search-bar .search-input{float: left;width:230px;position: relative;}  
+.search-bar .search-input input{width:230px;
+                    background:no-repeat 0 0 scroll #fff;
+                    border:none;
+                    outline:medium;
+                    height:22px;
+                    border-radius: 20px;
+                    margin-top:3px;
+                    border:1px solid #afafaf;
+                    padding-left: 5px;
+                    color: #afafaf;
+                    margin-left:5px;}   
+
+.search-bar .search-input img{position: absolute;top:4px;right:5px;}
+
+.menu-btn-bar .chosen-container-single .chosen-single{line-height: 22px !important;}
+.search-bar .return input{width:50px;
+                    background:no-repeat 0 0 scroll #fff;
+                    border:none;
+                    outline:medium;
+                    height:22px;
+                    border-radius: 20px;
+                    margin-top:3px;
+                    color: #afafaf;}
+
+.search-bar .return input:hover{background: #ec3341;color: #fff;}                    
+.search-bar .screen input{width:50px;
+                        background: #fff;
+                        border:1px solid #ad3944;
+                        outline:medium;
+                        height:22px;
+                        border-radius: 20px;
+                        margin-top:3px;
+                        color: #ad3944;}
+
+.begin-time input{width:130px;
+                    height:24px;
+                     margin-top:2px;
+                    border-top-left-radius:12px;
+                    border-bottom-left-radius:13px;
+                    background: #fff;}
+.end-time input{width:130px;
+                height:24px;
+                 margin-top:2px;
+                border-top-right-radius:12px;
+                border-bottom-right-radius:13px;
+                background: #fff;}
+
+input#end-date.form-control.form_datetime,input#start-date.form-control.form_datetime{font-weight: normal;font-size: 12px;}
+/*btn*/
+.state{margin-left: 30px;
+        width: 100%;
+        margin-top: 30px;
+        height: 50px;}
+        
+.state input{padding: 1px 25px 1px 25px;
+            background: #484848;
+            border:none;
+            margin-right: 10px;
+            float: left;
+            color: #fff;
+            font-size: 14px;
+            border-radius: 20px;
+
+            }
+
+.state input:hover{background: #ec3341;}
+
+.state .download{background: #919191;
+                }
+/*时间*/
+.time-data{margin-top: 30px;
+    margin-left: 30px;
+
+}
+.time-data .time{float: left;
+                margin-right: 20px;}
+
+
+.time-data .time input{border-radius: 20px;
+                        width:132px;
+                        font-size: 12px;
+                        height:24px;
+                        border: 1px solid #919191;
+                        background: #e6e6e6;}
+
+.time-data .time span{margin-right: 10px;}
+
+.time-data .search{position: absolute; 
+                    left: 500px;
+                    display: block;}
+
+.time-data .search input{
+        background: #484848;
+        border:none;
+        padding:3px 35px 3px 25px;
+        color: #fff;
+        display: block;
+        border-radius: 20px;}
+
+.time-data .search strong{width: 22px;
+                        height:22px;
+                        top:2px;
+                        right: 5px;
+                        position: absolute;}
+
+.time-data span{float: left;
+                margin-top: 3px;}
+
+.time-data .search input:hover{background: #ec3341;}
+
+/*外出请假异常*/
+.exception{margin-top: 100px;
+            clear: both;
+            height:40px;
+            margin-left: 30px;}
+
+
+.exception ul li{float: left;
+                width:100px;}
+
+
+.exception ul li span{margin-left: 10px;
+                    font-size: 14px;}
+
+
+/*input输入框*/
+.input-row-box{clear: both;
+            width: 100%;
+            margin-top: 30px;
+            height: 100px;
+            }
+
+.input-row-box .input-group-menu{width: 550px;
+                                margin: 0 auto;
+                                height: 30px;
+                                margin-bottom: 10px;}
+
+.input-row-box .input-group-menu .name{float: left;
+                                width:108px;
+                                line-height: 30px;
+                                font-size: 14px;}
+
+.input-row-box .input-group-menu input{width:350px;
+                                padding-left: 10px;
+                                height:28px;
+                                border:1px solid #e3e3e3;
+                                background: #e6e6e6;
+                                color: #808080;
+                                float: left;
+                                border-radius: 5px;
+                                outline: medium;}
+
+
+.input-row-box .input-email{width: 550px;
+                            margin: 0 auto;
+                            height: 24px;
+                            margin-bottom: 10px;}
+
+.input-row-box .input-email .email-name{float: left;
+                                        width:108px;
+                                        line-height: 24px;
+                                        font-size: 14px;}
+
+.input-row-box .input-email input{width:350px;
+                                padding-left: 10px;
+                                height:28px;
+                                border:1px solid #e3e3e3;
+                                background: #e6e6e6;
+                                color: #808080;
+                                float: left;
+                                border-radius: 5px;
+                                outline: medium;}
+
+
+.select-type-sale{width:100%;}
+
+.select-type-sale .select-row{width: 550px;
+                                margin: 0 auto;
+                                height: 100px;}
+
+.select-type-sale .select-row .select-down-content{float: left;
+                                                    line-height: 24px;
+                                                    width: 108px;
+                                                    font-size: 14px;}
+
+
+
+
+.select-type-sale select {width: 350px;
+                           font-size: 16px;
+                           border:none;
+                           height: 28px;
+                           outline: medium;
+                           color: #808080;
+                            background: #fff;
+                           font-size: 14px;
+                           -webkit-appearance: none; /*for chrome*/}
+
+
+a.chosen-single{background: #fff !important;}
+
+
+.page{width:100%;
+        height:30px;
+        }
+
+.page .page-region{width:195px;
+                    margin-left:20px;
+                    background: #919191;
+                    height:24px;
+                    border:1px solid #cbcac8;
+                    border-radius:12px;
+                    overflow: hidden;}
+
+.page .page-region li{float: left;
+                    width:24px;
+                    text-align: center;
+                    line-height: 24px;
+                    border-right:1px solid #cbcac8;
+                    height:24px;
+                    cursor: pointer;
+                    }
+
+
+.page .page-region span li{background: #fff;}
+
+.page .page-region span .current{background: #cacaca;
+                                color: #fff;}
+.page .page-region .next{float: right;
+                        border:none;
+                        }
+
+.page .page-region .next img,.page .page-region .prev img{margin-top:-3px;}
+div.container.bra-box{clear: both; padding-top: 170px;}
+
+
+
+
+
+
+
+
+
+

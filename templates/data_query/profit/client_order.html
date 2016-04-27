@@ -1,4 +1,4 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}媒体订单执行成本{% endblock %}
 {% macro all_items(orders) -%}
 <table class="table table-bordered">
@@ -29,46 +29,46 @@
     <tr>
         <td>{{order.locations_cn}}</td>
         <td>{{order.contract}}</td>
-        <td>{{order.client.name}}</td>
-        <td>{{order.agent.name}}</td>
+        <td>{{order.client_name}}</td>
+        <td>{{order.agent_name}}</td>
         <td>{{order.campaign}}</td>
         <td>{{order.money|format_price}}</td>
         <td>{{order.back_moneys|format_price}}</td>
-        <td>{{order.executive_report(g.user, year, [month], 'normal')[0]|format_price}}</td>
-        <td>{{order.rebate_agent_by_month(year, month)|format_price}}</td>
-        <td>{{order.real_rebate_agent_money_by_month(year, month)|format_price}}</td>
+        <td>{{order.now_month_money_zhixing|format_price}}</td>
+        <td>{{order.now_month_agent_rebate_money|format_price}}</td>
+        <td>{{order.now_month_agent_real_rebate_money|format_price}}</td>
         <td>
-            {% for k in order.medium_orders %}
+            {% for k in order.medium_data %}
             {{ k.name }}<br/>
             {% endfor %}
         </td>
         <td>
-            {% for k in order.medium_orders %}
-            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').sale_money|format_price }}<br/>
+            {% for k in order.medium_data %}
+            {{ k.now_month_money_kehu|format_price }}<br/>
             {% endfor %}
         </td>
         <td>
-            {% for k in order.medium_orders %}
+            {% for k in order.medium_data %}
             {{ k.medium_contract }}<br/>
             {% endfor %}
         </td>
         <td>
-            {% for k in order.medium_orders %}
+            {% for k in order.medium_data %}
             {{ k.medium_money2|format_price  or '0'}}<br/>
             {% endfor %}
         </td>
         <td>
-            {% for k in order.medium_orders %}
-            {{ k.get_executive_report_medium_money_by_month(year, month, 'normal').medium_money2|format_price }}<br/>
+            {% for k in order.medium_data %}
+            {{ k.now_month_money_zhixing|format_price }}<br/>
             {% endfor %}
         </td>
-        <td>{% for k in order.medium_orders %}
-            {{k.rebate_medium_by_month(year, month)|format_price}}<br/>
+        <td>{% for k in order.medium_data %}
+            {{k.now_month_medium_rebate_money|format_price}}<br/>
             {% endfor %}
         </td>
-        <td>{{order.real_rebate_mediums_money_by_month(year, month)|format_price}}</td>
-        <td>{{order.profit_money(year, month)|format_price}}</td>
-        <td>{{order.real_profit_money(year, month)|format_price}}</td>
+        <td>{{order.now_month_medium_real_rebate_money|format_price}}</td>
+        <td>{{order.profit_money|format_price}}</td>
+        <td>{{order.real_profit_money|format_price}}</td>
         <td>{{order.start_date_cn}}</td>
         <td>{{order.end_date_cn}}</td>
     </tr>
@@ -76,7 +76,7 @@
 </table>
 {%- endmacro %}
 {% block content %}
-{% include "/data_query/data_query_base.html" %}
+{% include "/data_query/data_query_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:2200px;">
     <h3>媒体订单执行成本</h3>
     <div class="search">
