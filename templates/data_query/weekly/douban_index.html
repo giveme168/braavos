@@ -1,5 +1,5 @@
-{% extends "/base.html" %}
-{% block title %}月度订单金额{% endblock %}
+{% extends "/base_v1_0_0.html" %}
+{% block title %}直签豆瓣订单周报{% endblock %}
 {% macro all_items(saler_orders, type) -%}
 <table class="table table-bordered">
     <tr>
@@ -87,7 +87,7 @@
 </table>
 {%- endmacro %}
 {% block content %}
-{% include "/data_query/data_query_base.html" %}
+{% include "/data_query/data_query_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:2200px;">
     <h3>直签豆瓣订单周报</h3>
     <div class="search">

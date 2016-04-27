@@ -1,14 +1,14 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}媒体执行额{% endblock %}
 {% block content %}
-{% include "/data_query/data_query_base.html" %}
+{% include "/data_query/data_query_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:2000px;">
     <h3>媒体执行额</h3>
     <div class="search">
         <form class="form-inline" role="form" action="" method='get'>
         <div class="form-group">
             <label for="exampleInputEmail2">查询时间</label>
-            <select class="col-md-12" id="year" name="year" style="width:100px;">
+            <select class="form-control" id="year" name="year" style="width:100px;">
                 {% for k in range(5) %}
                 <option value='{{2014+k}}'>{{2014+k}}年</option>
                 {% endfor %}

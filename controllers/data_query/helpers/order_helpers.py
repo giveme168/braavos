@@ -147,16 +147,21 @@ def write_order_excel(orders):
                 worksheet.write(th, 6, orders[k].contract, align_left)
                 worksheet.write(th, 7, orders[k].start_date_cn, align_left)
                 worksheet.write(th, 8, orders[k].end_date_cn, align_left)
-                worksheet.write(th, 9, orders[k].money, align_left)
+                if i == 0:
+                    worksheet.write(th, 9, orders[k].money, align_left)
+                    worksheet.write(th, 11, orders[k].pass_invoice_sum, align_left)
+                    worksheet.write(th, 12, orders[k].back_money_sum, align_left)
+                    worksheet.write(th, 13, orders[k].back_money_rebate_sum, align_left)
+                    worksheet.write(th, 14, orders[k].agent_invoice_sum, align_left)
+                    worksheet.write(th, 15, orders[k].agent_invoice_pay_sum, align_left)
+                else:
+                    worksheet.write(th, 9, '', align_left)
+                    worksheet.write(th, 11, '', align_left)
+                    worksheet.write(th, 12, '', align_left)
+                    worksheet.write(th, 13, '', align_left)
+                    worksheet.write(th, 14, '', align_left)
+                    worksheet.write(th, 15, '', align_left)
                 worksheet.write(th, 10, mediums[i].sale_money, align_left)
-                worksheet.write(th, 11, orders[k].pass_invoice_sum, align_left)
-                worksheet.write(th, 12, orders[k].back_money_sum, align_left)
-                worksheet.write(
-                    th, 13, orders[k].back_money_rebate_sum, align_left)
-                worksheet.write(
-                    th, 14, orders[k].agent_invoice_sum, align_left)
-                worksheet.write(
-                    th, 15, orders[k].agent_invoice_pay_sum, align_left)
                 worksheet.write(th, 16, mediums[i].medium.name, align_left)
                 worksheet.write(th, 17, mediums[i].medium_money2, align_left)
                 worksheet.write(
