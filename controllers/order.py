@@ -34,7 +34,7 @@ from models.download import (download_excel_table_by_doubanorders,
 from libs.email_signals import zhiqu_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
-from controllers.helpers.order_helpers import write_client_excel
+from controllers.helpers.order_helpers import write_client_excel, write_frameworkorder_excel
 from libs.date_helpers import get_monthes_pre_days
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
@@ -997,12 +997,7 @@ def framework_display_orders(orders, title):
     year = int(request.values.get('year', datetime.now().year))
     orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if 'download' == request.args.get('action', ''):
-        filename = (
-            "%s-%s.xls" % (u"代理框架订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
-        xls = Excel().write_excle(
-            download_excel_table_by_frameworkorders(orders))
-        response = get_download_response(xls, filename)
-        return response
+        return write_frameworkorder_excel(orders)
     else:
         paginator = Paginator(orders, ORDER_PAGE_NUM)
         try:

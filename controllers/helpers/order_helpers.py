@@ -3,7 +3,7 @@ import StringIO
 import mimetypes
 import datetime
 
-from flask import Response
+from flask import Response, g
 from werkzeug.datastructures import Headers
 import xlsxwriter
 
@@ -39,99 +39,160 @@ def write_client_excel(orders):
                     {'align': 'left', 'valign': 'vcenter', 'border': 1})
             mediums = orders[k].medium_orders
             if len(mediums) > 1:
-                '''
-                worksheet.merge_range(
-                    th, 0, th + len(orders[k].medium_orders) - 1, 0, orders[k].agent.name, align_left)
-                worksheet.merge_range(
-                    th, 1, th + len(orders[k].medium_orders) - 1, 1, orders[k].contract, align_left)
-                worksheet.merge_range(
-                    th, 2, th + len(orders[k].medium_orders) - 1, 2, orders[k].client.name, align_left)
-                worksheet.merge_range(
-                    th, 3, th + len(orders[k].medium_orders) - 1, 3, orders[k].campaign, align_left)
-                worksheet.merge_range(
-                    th, 4, th + len(orders[k].medium_orders) - 1, 4, orders[k].money, align_left)
-                worksheet.merge_range(
-                    th, 5, th + len(orders[k].medium_orders) - 1, 5, orders[k].start_date_cn, align_left)
-                worksheet.merge_range(
-                    th, 6, th + len(orders[k].medium_orders) - 1, 6, orders[k].end_date_cn, align_left)
-                worksheet.merge_range(
-                    th, 7, th + len(orders[k].medium_orders) - 1, 7, orders[k].reminde_date_cn, align_left)
-                worksheet.merge_range(
-                    th, 8, th + len(orders[k].medium_orders) - 1, 8, orders[k].client_back_moneys, align_left)
-                worksheet.merge_range(
-                    th, 9, th + len(orders[k].medium_orders) - 1, 9, orders[k].direct_sales_names, align_left)
-                worksheet.merge_range(
-                    th, 10, th + len(orders[k].medium_orders) - 1, 10, orders[k].agent_sales_names, align_left)
-                worksheet.merge_range(
-                    th, 11, th + len(orders[k].medium_orders) - 1, 11, orders[k].locations_cn, align_left)
-                worksheet.merge_range(
-                    th, 12, th + len(orders[k].medium_orders) - 1, 12, orders[k].contract_type_cn, align_left)
-                worksheet.merge_range(
-                    th, 13, th + len(orders[k].medium_orders) - 1, 13, orders[k].resource_type_cn, align_left)
-                worksheet.merge_range(
-                    th, 14, th + len(orders[k].medium_orders) - 1, 14, orders[k].sale_type_cn, align_left)
-                '''
-                for i in range(len(mediums)):
-                    worksheet.write(th, 0, orders[k].agent.name, align_left)
-                    worksheet.write(th, 1, orders[k].contract, align_left)
-                    worksheet.write(th, 2, orders[k].client.name, align_left)
-                    worksheet.write(th, 3, orders[k].campaign, align_left)
-                    worksheet.write(th, 4, orders[k].money, align_left)
-                    worksheet.write(th, 5, orders[k].start_date_cn, align_left)
-                    worksheet.write(th, 6, orders[k].end_date_cn, align_left)
-                    worksheet.write(
-                        th, 7, orders[k].reminde_date_cn, align_left)
-                    worksheet.write(th, 8, orders[k].payable_time, align_left)
-                    worksheet.write(th, 9, str(
-                        orders[k].back_money_percent) + "%", align_left)
-                    worksheet.write(th, 10, orders[k].back_moneys, align_left)
-                    worksheet.write(
-                        th, 11, orders[k].money - orders[k].back_moneys, align_left)
-                    worksheet.write(
-                        th, 12, orders[k].invoice_pass_sum, align_left)
+                if not g.user.is_media_leader():
+                    worksheet.merge_range(
+                        th, 0, th + len(orders[k].medium_orders) - 1, 0, orders[k].agent.name, align_left)
+                    worksheet.merge_range(
+                        th, 1, th + len(orders[k].medium_orders) - 1, 1, orders[k].contract, align_left)
+                    worksheet.merge_range(
+                        th, 2, th + len(orders[k].medium_orders) - 1, 2, orders[k].client.name, align_left)
+                    worksheet.merge_range(
+                        th, 3, th + len(orders[k].medium_orders) - 1, 3, orders[k].campaign, align_left)
+                    worksheet.merge_range(
+                        th, 4, th + len(orders[k].medium_orders) - 1, 4, orders[k].money, align_left)
+                    worksheet.merge_range(
+                        th, 5, th + len(orders[k].medium_orders) - 1, 5, orders[k].start_date_cn, align_left)
+                    worksheet.merge_range(
+                        th, 6, th + len(orders[k].medium_orders) - 1, 6, orders[k].end_date_cn, align_left)
+                    worksheet.merge_range(
+                        th, 7, th + len(orders[k].medium_orders) - 1, 7, orders[k].reminde_date_cn, align_left)
+                    worksheet.merge_range(
+                        th, 8, th + len(orders[k].medium_orders) - 1, 8, orders[k].payable_time, align_left)
 
-                    worksheet.write(
-                        th, 13, orders[k].direct_sales_names, align_left)
-                    worksheet.write(
-                        th, 14, orders[k].agent_sales_names, align_left)
-                    worksheet.write(th, 15, orders[k].locations_cn, align_left)
-                    worksheet.write(
-                        th, 16, orders[k].contract_type_cn, align_left)
-                    worksheet.write(
-                        th, 17, orders[k].resource_type_cn, align_left)
-                    worksheet.write(th, 18, orders[k].sale_type_cn, align_left)
-                    worksheet.write(th, 19, mediums[i].medium.name, align_left)
-                    worksheet.write(
-                        th, 20, mediums[i].finish_status_cn, align_left)
-                    worksheet.write(
-                        th, 21, mediums[i].medium_contract, align_left)
-                    worksheet.write(th, 22, mediums[i].sale_money, align_left)
-                    worksheet.write(
-                        th, 23, mediums[i].medium_money2, align_left)
-                    worksheet.write(th, 24, '', align_left)
-                    worksheet.write(th, 25, '', align_left)
-                    worksheet.write(th, 26, mediums[i].sale_CPM, align_left)
-                    worksheet.write(th, 27, mediums[i].medium_CPM, align_left)
-                    worksheet.write(
-                        th, 28, mediums[i].start_date_cn, align_left)
-                    worksheet.write(th, 29, mediums[i].end_date_cn, align_left)
-                    worksheet.write(
-                        th, 30, mediums[i].operater_names, align_left)
-                    if mediums[i].associated_douban_order:
+                    worksheet.merge_range(th, 9, th + len(orders[k].medium_orders) - 1, 9, str(
+                        orders[k].back_money_percent) + "%", align_left)
+                    worksheet.merge_range(
+                        th, 10, th + len(orders[k].medium_orders) - 1, 10, orders[k].back_moneys, align_left)
+                    worksheet.merge_range(th, 11, th + len(orders[k].medium_orders) - 1, 11, orders[
+                                          k].money - orders[k].back_moneys, align_left)
+                    worksheet.merge_range(
+                        th, 12, th + len(orders[k].medium_orders) - 1, 12, orders[k].invoice_pass_sum, align_left)
+
+                    worksheet.merge_range(
+                        th, 13, th + len(orders[k].medium_orders) - 1, 13, orders[k].direct_sales_names, align_left)
+                    worksheet.merge_range(
+                        th, 14, th + len(orders[k].medium_orders) - 1, 14, orders[k].agent_sales_names, align_left)
+                    worksheet.merge_range(
+                        th, 15, th + len(orders[k].medium_orders) - 1, 15, orders[k].locations_cn, align_left)
+                    worksheet.merge_range(
+                        th, 16, th + len(orders[k].medium_orders) - 1, 16, orders[k].contract_type_cn, align_left)
+                    worksheet.merge_range(
+                        th, 17, th + len(orders[k].medium_orders) - 1, 17, orders[k].resource_type_cn, align_left)
+                    worksheet.merge_range(
+                        th, 18, th + len(orders[k].medium_orders) - 1, 18, orders[k].sale_type_cn, align_left)
+                    for i in range(len(mediums)):
                         worksheet.write(
-                            th, 31, mediums[i].associated_douban_order.name, align_left)
+                            th, 19, mediums[i].medium.name, align_left)
                         worksheet.write(
-                            th, 32, mediums[i].associated_douban_order.contract, align_left)
+                            th, 20, mediums[i].finish_status_cn, align_left)
                         worksheet.write(
-                            th, 33, mediums[i].associated_douban_order.campaign, align_left)
+                            th, 21, mediums[i].medium_contract, align_left)
                         worksheet.write(
-                            th, 34, mediums[i].associated_douban_order.money, align_left)
-                    else:
-                        worksheet.write(th, 31, '', align_left)
-                        worksheet.write(th, 32, '', align_left)
-                        worksheet.write(th, 33, '', align_left)
-                        worksheet.write(th, 34, '', align_left)
-                    th += 1
+                            th, 22, mediums[i].sale_money, align_left)
+                        worksheet.write(
+                            th, 23, mediums[i].medium_money2, align_left)
+                        worksheet.write(th, 24, '', align_left)
+                        worksheet.write(th, 25, '', align_left)
+                        worksheet.write(
+                            th, 26, mediums[i].sale_CPM, align_left)
+                        worksheet.write(
+                            th, 27, mediums[i].medium_CPM, align_left)
+                        worksheet.write(
+                            th, 28, mediums[i].start_date_cn, align_left)
+                        worksheet.write(
+                            th, 29, mediums[i].end_date_cn, align_left)
+                        worksheet.write(
+                            th, 30, mediums[i].operater_names, align_left)
+                        if mediums[i].associated_douban_order:
+                            worksheet.write(
+                                th, 31, mediums[i].associated_douban_order.name, align_left)
+                            worksheet.write(
+                                th, 32, mediums[i].associated_douban_order.contract, align_left)
+                            worksheet.write(
+                                th, 33, mediums[i].associated_douban_order.campaign, align_left)
+                            worksheet.write(
+                                th, 34, mediums[i].associated_douban_order.money, align_left)
+                        else:
+                            worksheet.write(th, 31, '', align_left)
+                            worksheet.write(th, 32, '', align_left)
+                            worksheet.write(th, 33, '', align_left)
+                            worksheet.write(th, 34, '', align_left)
+                        th += 1
+                else:
+                    for i in range(len(mediums)):
+                        worksheet.write(
+                            th, 0, orders[k].agent.name, align_left)
+                        worksheet.write(th, 1, orders[k].contract, align_left)
+                        worksheet.write(
+                            th, 2, orders[k].client.name, align_left)
+                        worksheet.write(th, 3, orders[k].campaign, align_left)
+                        worksheet.write(th, 4, orders[k].money, align_left)
+                        worksheet.write(
+                            th, 5, orders[k].start_date_cn, align_left)
+                        worksheet.write(
+                            th, 6, orders[k].end_date_cn, align_left)
+                        worksheet.write(
+                            th, 7, orders[k].reminde_date_cn, align_left)
+                        worksheet.write(
+                            th, 8, orders[k].payable_time, align_left)
+                        worksheet.write(th, 9, str(
+                            orders[k].back_money_percent) + "%", align_left)
+                        worksheet.write(
+                            th, 10, orders[k].back_moneys, align_left)
+                        worksheet.write(
+                            th, 11, orders[k].money - orders[k].back_moneys, align_left)
+                        worksheet.write(
+                            th, 12, orders[k].invoice_pass_sum, align_left)
+
+                        worksheet.write(
+                            th, 13, orders[k].direct_sales_names, align_left)
+                        worksheet.write(
+                            th, 14, orders[k].agent_sales_names, align_left)
+                        worksheet.write(
+                            th, 15, orders[k].locations_cn, align_left)
+                        worksheet.write(
+                            th, 16, orders[k].contract_type_cn, align_left)
+                        worksheet.write(
+                            th, 17, orders[k].resource_type_cn, align_left)
+                        worksheet.write(
+                            th, 18, orders[k].sale_type_cn, align_left)
+                        worksheet.write(
+                            th, 19, mediums[i].medium.name, align_left)
+                        worksheet.write(
+                            th, 20, mediums[i].finish_status_cn, align_left)
+                        worksheet.write(
+                            th, 21, mediums[i].medium_contract, align_left)
+                        worksheet.write(
+                            th, 22, mediums[i].sale_money, align_left)
+                        worksheet.write(
+                            th, 23, mediums[i].medium_money2, align_left)
+                        worksheet.write(th, 24, '', align_left)
+                        worksheet.write(th, 25, '', align_left)
+                        worksheet.write(
+                            th, 26, mediums[i].sale_CPM, align_left)
+                        worksheet.write(
+                            th, 27, mediums[i].medium_CPM, align_left)
+                        worksheet.write(
+                            th, 28, mediums[i].start_date_cn, align_left)
+                        worksheet.write(
+                            th, 29, mediums[i].end_date_cn, align_left)
+                        worksheet.write(
+                            th, 30, mediums[i].operater_names, align_left)
+                        if mediums[i].associated_douban_order:
+                            worksheet.write(
+                                th, 31, mediums[i].associated_douban_order.name, align_left)
+                            worksheet.write(
+                                th, 32, mediums[i].associated_douban_order.contract, align_left)
+                            worksheet.write(
+                                th, 33, mediums[i].associated_douban_order.campaign, align_left)
+                            worksheet.write(
+                                th, 34, mediums[i].associated_douban_order.money, align_left)
+                        else:
+                            worksheet.write(th, 31, '', align_left)
+                            worksheet.write(th, 32, '', align_left)
+                            worksheet.write(th, 33, '', align_left)
+                            worksheet.write(th, 34, '', align_left)
+                        th += 1
             else:
                 worksheet.write(th, 0, orders[k].agent.name, align_left)
                 worksheet.write(th, 1, orders[k].contract, align_left)
@@ -201,6 +262,56 @@ def write_client_excel(orders):
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
                 (u"ClientOrders", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+def write_frameworkorder_excel(orders):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1})
+
+    keys = [u"FrameworkOrder ID", u"代理集团", u"备注",
+            u"合同金额", u"合同号", u"开始日期", u"结束日期",
+            u"回款日期", u"直客销售", u"渠道销售",
+            u"状态"]
+    for k in range(len(keys)):
+        worksheet.write(0, 0 + k, keys[k], align_left)
+        worksheet.set_column(0, 0 + k, 15)
+    th = 1
+    for order in orders:
+        worksheet.write(th, 0, order.id, align_left)
+        worksheet.write(th, 1, order.group.name or " ", align_left)
+        worksheet.write(th, 2, order.description or " ", align_left)
+        worksheet.write(th, 3, order.money or 0, align_left)
+        worksheet.write(th, 4, order.contract or u"无合同号", align_left)
+        worksheet.write(th, 5, order.start_date_cn or " ", align_left)
+        worksheet.write(th, 6, order.end_date_cn or " ", align_left)
+        worksheet.write(th, 7, order.reminde_date_cn or " ", align_left)
+        worksheet.write(th, 8, order.direct_sales_names or " ", align_left)
+        worksheet.write(th, 9, order.agent_sales_names or " ", align_left)
+        worksheet.write(th, 10, order.contract_status_cn or " ", align_left)
+        th += 1
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                (u"FOrders", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
     mimetype_tuple = mimetypes.guess_type(filename)
     response_headers = Headers({
         'Pragma': "public",

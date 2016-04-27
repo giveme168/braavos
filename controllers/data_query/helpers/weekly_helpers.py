@@ -734,8 +734,6 @@ def write_medium_index_excel(Q, now_year, Q_monthes, location_id, douban_data, y
         worksheet, align_center, nice_data, th, u'nice')
     th = new_insert_total_table(
         worksheet, align_center, other_data, th, u'其他媒体')
-    th = new_insert_total_table(
-        worksheet, align_center, meijie_data, th, u'媒介下单')
     # 合计展示
     worksheet.write(th, 25, u'总计', align_center)
     worksheet.write(th, 26, total_money, align_center)
@@ -745,6 +743,9 @@ def write_medium_index_excel(Q, now_year, Q_monthes, location_id, douban_data, y
     worksheet.write(th, 30, total_first_month_money, align_center)
     worksheet.write(th, 31, total_second_month_money, align_center)
     worksheet.write(th, 32, total_third_month_money, align_center)
+    th += 1
+    th = new_insert_total_table(
+        worksheet, align_center, meijie_data, th, u'其中媒介下单')
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s-%s-%s.xls" % (u"MediumWeekly",
