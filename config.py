@@ -18,7 +18,7 @@ class Config(object):
     MAIL_SUPPRESS_SEND = DEBUG
 
     SENTRY_DSN = ''
-    DOMAIN = 'http://z.inad.com'
+    DOMAIN = 'https://z.inad.com'
     UPLOADED_FILES_DEST = '/tmp/braavos/'
     UPLOADED_FILES_URL = '/files/files/'
     UPLOADED_ATTACHMENT_DEST = '/tmp/attachment/'

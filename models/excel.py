@@ -87,6 +87,7 @@ class Excel(object):
                 if cell.type == EXCEL_DATA_TYPE_STR:
                     self.sheet.write_merge(
                         row, row + cell.merge_row, col, col + cell.merge_col, cell.data, cell.style)
+                    print cell.data
                     if str_len(cell.data) > 11:
                         min_width = self.col_width * (str_len(cell.data) / 12 + 1)
                         self.sheet.col(col).width = (

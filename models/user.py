@@ -269,6 +269,10 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         return cls.gets_by_team_type(TEAM_TYPE_SUPER_LEADER)
 
     @classmethod
+    def super_admin_leaders(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_SUPER_ADMIN)
+
+    @classmethod
     def leaders(cls):
         return cls.gets_by_team_type(TEAM_TYPE_LEADER)
 

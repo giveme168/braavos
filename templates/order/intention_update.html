@@ -43,7 +43,7 @@
                 {% for k in client %}
                 <option value='{{k.name}}'>{{k.name}}</option>
                 {% endfor %}
-                <option value='1000'>其他</option>
+                <!--<option value='1000'>其他</option>-->
             </select>
           </div>
         </div>
@@ -63,7 +63,7 @@
             </select>
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="display:none;">
           <label for="client_end" class="col-sm-2 control-label">预估金额 : </label>
           <div class="col-sm-4">
              <input type="text" id="money" name="money" value="{{intention_order.money}}" class="form-control bra-form-control">
@@ -81,11 +81,24 @@
             <input type="text" id="client_end" name="client_end" value="{{intention_order.end_date_cn}}" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
           </div>
         </div>
+        <div id="ex_time_div">
+            {% for k in intention_order.ex_money_data %}
+                <div class="form-group">
+                  <label for="client_end" class="col-sm-2 control-label">{{k.month_cn}}月执行额 : </label>
+                  <div class="col-sm-8">
+                    <input type="text" id="{{k.month_cn}}_money" name="{{k.month_cn}}_money" value="{{k.money}}" class="form-control bra-form-control">
+                  </div>
+                </div>
+            {% endfor %}
+        </div>
         {{ form_field(direct_form.direct_sales) }}
         {{ form_field(agent_form.agent_sales) }}
         
-        <a class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('order.intention_order')}}"/>返回</a>
-        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2" name="action"/>确定</button>
+        <a class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('order.intention_order')}}" style="width:80px;"/>返回</a>
+        {% if intention_order.status != 1 %}
+        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2" name="action" style="width:80px;"/>确定</button>
+        <button type="button" class="btn btn-primary btn-sm col-md-offset-2" onclick="check_order_in_real('{{intention_order.id}}')"/>一键下单</button>
+        {% endif %}
     </form>
     <br/><br/>
     <div>{{ comments_box(intention_order, msg_channel=11) }}</div>
@@ -107,15 +120,18 @@ Date.prototype.Format = function (fmt) { //author: meizz
     return fmt;
 }
 
+function check_order_in_real(id){
+    var ret = window.confirm("确定一键下单吗?");
+    //当点击确定时 返回 true 
+    if(ret){
+        window.location.href="/orders/intention_order/"+id+"/in_real"
+    }
+}
+
 function checkform(obj){
     if (obj.campaign.value == ''){
         alert('请输入Campaign名称')
         obj.campaign.focus()
-        return false
-    }
-    if (obj.money.value == ''){
-        alert('请输入预估金额')
-        obj.money.focus()
         return false
     }
     if (obj.client_start.value == ''){
@@ -133,6 +149,28 @@ function check_input(obj, type){
     }
 }
 
+function get_ex_time(){
+    var start_date = $('#client_start').val()
+    var end_date = $('#client_end').val()
+    $.ajax({
+      url:"{{url_for('order.order_ex_time')}}?start_time="+start_date+"&end_time="+end_date,
+      dataType:'json',
+      type: 'GET',
+      success:function(req, msg){
+        var data = req['data']
+        var inner_html = ""
+        $('#ex_time_div').empty()
+        for (var i=0; i<data.length; i++){
+          inner_html += '<div class="form-group"><label for="client_end" class="col-sm-2 control-label">'+data[i]['month_cn']+'月执行额 : </label><div class="col-sm-4"><input type="text" id="'+data[i]['month_cn']+'_money" name="'+data[i]['month_cn']+'_money" value="" class="form-control bra-form-control"></div></div>'
+        }
+        $('#ex_time_div').html(inner_html)
+      },
+      error:function(req, msg){
+        alert('请选择正确的执行开始时间和结束时间')
+      }
+    })
+}
+
 $(function(){
     $('.datetimepicker').datetimepicker({
         autoclose: true,
@@ -147,8 +185,16 @@ $(function(){
             //endDate.setDate(endDate.getDate()); 
             $('#client_end').val($('#client_start').val())
             $('#client_end').datetimepicker('setStartDate', $('#client_start').val());
+        }else{
+            get_ex_time()
         }
     });
+    $('#client_end').change(function(e){
+        var start_date = $('#start_date').val()
+        if (start_date != ''){
+            get_ex_time()
+        }
+    })
     {% if is_data_agent %}
       $('#agent').val('{{intention_order.agent}}');
       $("#agent").trigger("chosen:updated");

@@ -776,6 +776,13 @@ by %s\n
         return {'status': p_self_agent_rebate[0],
                 'value': p_self_agent_rebate[1]}
 
+    @property
+    def payable_time(self):
+        if self.back_money_status == 0:
+            return 0
+        now_date = datetime.date.today()
+        return (now_date - self.client_end).days + 1
+
 
 class DoubanOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_douban_order_executive_report'

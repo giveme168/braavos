@@ -121,7 +121,7 @@ def write_order_excel(orders):
     align_center = workbook.add_format(
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
     keys = [u'代理/直客', u'客户', u'Campaign', u'直客销售', u'渠道销售', u'区域', u'合同号',
-            u'执行开始时间', u'执行结束时间', u'客户合同金额', u'已开客户发票金额',
+            u'执行开始时间', u'执行结束时间', u'客户合同金额', u'售卖金额', u'已开客户发票金额',
             u'客户回款金额', u'客户付返点发票金额', u'已开客户返点发票金额', u'已打款客户返点金额',
             u'媒体名称', u'媒体合同金额', u'已收媒体发票金额', u'付款给媒体金额', u'已开媒体返点发票金额']
     for k in range(len(keys)):
@@ -148,22 +148,23 @@ def write_order_excel(orders):
                 worksheet.write(th, 7, orders[k].start_date_cn, align_left)
                 worksheet.write(th, 8, orders[k].end_date_cn, align_left)
                 worksheet.write(th, 9, orders[k].money, align_left)
-                worksheet.write(th, 10, orders[k].pass_invoice_sum, align_left)
-                worksheet.write(th, 11, orders[k].back_money_sum, align_left)
+                worksheet.write(th, 10, mediums[i].sale_money, align_left)
+                worksheet.write(th, 11, orders[k].pass_invoice_sum, align_left)
+                worksheet.write(th, 12, orders[k].back_money_sum, align_left)
                 worksheet.write(
-                    th, 12, orders[k].back_money_rebate_sum, align_left)
+                    th, 13, orders[k].back_money_rebate_sum, align_left)
                 worksheet.write(
-                    th, 13, orders[k].agent_invoice_sum, align_left)
+                    th, 14, orders[k].agent_invoice_sum, align_left)
                 worksheet.write(
-                    th, 14, orders[k].agent_invoice_pay_sum, align_left)
-                worksheet.write(th, 15, mediums[i].medium.name, align_left)
-                worksheet.write(th, 16, mediums[i].medium_money2, align_left)
+                    th, 15, orders[k].agent_invoice_pay_sum, align_left)
+                worksheet.write(th, 16, mediums[i].medium.name, align_left)
+                worksheet.write(th, 17, mediums[i].medium_money2, align_left)
                 worksheet.write(
-                    th, 17, mediums[i].medium_invoice_sum, align_left)
+                    th, 18, mediums[i].medium_invoice_sum, align_left)
                 worksheet.write(
-                    th, 18, mediums[i].medium_invoice_pay_sum, align_left)
+                    th, 19, mediums[i].medium_invoice_pay_sum, align_left)
                 worksheet.write(
-                    th, 19, mediums[i].medium_invoice_rebate_invoice_sum, align_left)
+                    th, 20, mediums[i].medium_invoice_rebate_invoice_sum, align_left)
                 th += 1
         else:
             if medium_count == 1:
@@ -179,22 +180,23 @@ def write_order_excel(orders):
                 worksheet.write(th, 7, orders[k].start_date_cn, align_left)
                 worksheet.write(th, 8, orders[k].end_date_cn, align_left)
                 worksheet.write(th, 9, orders[k].money, align_left)
-                worksheet.write(th, 10, orders[k].pass_invoice_sum, align_left)
-                worksheet.write(th, 11, orders[k].back_money_sum, align_left)
+                worksheet.write(th, 10, mediums[0].sale_money, align_left)
+                worksheet.write(th, 11, orders[k].pass_invoice_sum, align_left)
+                worksheet.write(th, 12, orders[k].back_money_sum, align_left)
                 worksheet.write(
-                    th, 12, orders[k].back_money_rebate_sum, align_left)
+                    th, 13, orders[k].back_money_rebate_sum, align_left)
                 worksheet.write(
-                    th, 13, orders[k].agent_invoice_sum, align_left)
+                    th, 14, orders[k].agent_invoice_sum, align_left)
                 worksheet.write(
-                    th, 14, orders[k].agent_invoice_pay_sum, align_left)
-                worksheet.write(th, 15, mediums[0].medium.name, align_left)
-                worksheet.write(th, 16, mediums[0].medium_money2, align_left)
+                    th, 15, orders[k].agent_invoice_pay_sum, align_left)
+                worksheet.write(th, 16, mediums[0].medium.name, align_left)
+                worksheet.write(th, 17, mediums[0].medium_money2, align_left)
                 worksheet.write(
-                    th, 17, mediums[0].medium_invoice_sum, align_left)
+                    th, 18, mediums[0].medium_invoice_sum, align_left)
                 worksheet.write(
-                    th, 18, mediums[0].medium_invoice_pay_sum, align_left)
+                    th, 19, mediums[0].medium_invoice_pay_sum, align_left)
                 worksheet.write(
-                    th, 19, mediums[0].medium_invoice_rebate_invoice_sum, align_left)
+                    th, 20, mediums[0].medium_invoice_rebate_invoice_sum, align_left)
                 th += 1
             else:
                 worksheet.set_row(th, 30)    # 设置高度
@@ -219,27 +221,29 @@ def write_order_excel(orders):
                 worksheet.merge_range(
                     th, 9, th + medium_count - 1, 9, orders[k].money, align_left)
                 worksheet.merge_range(
-                    th, 10, th + medium_count - 1, 10, orders[k].pass_invoice_sum, align_left)
+                    th, 10, th + medium_count - 1, 11, orders[k].pass_invoice_sum, align_left)
                 worksheet.merge_range(
-                    th, 11, th + medium_count - 1, 11, orders[k].back_money_sum, align_left)
+                    th, 11, th + medium_count - 1, 12, orders[k].back_money_sum, align_left)
                 worksheet.merge_range(
-                    th, 12, th + medium_count - 1, 12, orders[k].back_money_rebate_sum, align_left)
+                    th, 12, th + medium_count - 1, 13, orders[k].back_money_rebate_sum, align_left)
                 worksheet.merge_range(
-                    th, 13, th + medium_count - 1, 13, orders[k].agent_invoice_sum, align_left)
+                    th, 13, th + medium_count - 1, 14, orders[k].agent_invoice_sum, align_left)
                 worksheet.merge_range(
-                    th, 14, th + medium_count - 1, 14, orders[k].agent_invoice_pay_sum, align_left)
+                    th, 14, th + medium_count - 1, 15, orders[k].agent_invoice_pay_sum, align_left)
                 for i in range(len(mediums)):
                     worksheet.set_row(th, 30)    # 设置高度
                     worksheet.write(
-                        th, 15, mediums[i].name, align_left)
+                        th, 10, mediums[i].sale_money, align_left)
                     worksheet.write(
-                        th, 16, mediums[i].medium_money2, align_left)
+                        th, 16, mediums[i].name, align_left)
                     worksheet.write(
-                        th, 17, mediums[i].medium_invoice_sum, align_left)
+                        th, 17, mediums[i].medium_money2, align_left)
                     worksheet.write(
-                        th, 18, mediums[i].medium_invoice_pay_sum, align_left)
+                        th, 18, mediums[i].medium_invoice_sum, align_left)
                     worksheet.write(
-                        th, 19, mediums[i].medium_invoice_rebate_invoice_sum, align_left)
+                        th, 19, mediums[i].medium_invoice_pay_sum, align_left)
+                    worksheet.write(
+                        th, 20, mediums[i].medium_invoice_rebate_invoice_sum, align_left)
                     th += 1
     workbook.close()
     response.data = output.getvalue()
