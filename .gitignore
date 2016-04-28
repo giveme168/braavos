@@ -11,4 +11,5 @@
 \#*#
 *.bak
 /build
+.idea/
 local_config.py.sample
