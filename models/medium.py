@@ -568,7 +568,7 @@ class MediumResource(db.Model, BaseModelMixin):
     medium = db.relationship(
         'Medium', backref=db.backref('medium_resource', lazy='dynamic'))
     type = db.Column(db.Integer, default=1)       # 资源类型
-    number = db.Column(db.String, default="")     # 编号
+    number = db.Column(db.String(20), default="")     # 编号
     shape = db.Column(db.Integer, default=1)      # 形态
     product = db.Column(db.Integer, default=0)    # 所属产品
     resource_type = db.Column(db.Integer)         # 资源形式
