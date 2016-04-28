@@ -223,10 +223,14 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_a
         dict_order['medium_data'].append(dict_medium)
     dict_order['now_month_medium_rebate_money'] = sum(
         [k['now_month_medium_rebate_money'] for k in dict_order['medium_data']])
-    dict_order['profit_money'] = dict_order['now_month_money_zhixing'] - dict_order[
-        'now_month_agent_rebate_money'] - dict_order['now_month_medium_rebate_money']
-    dict_order['real_profit_money'] = dict_order['now_month_money_zhixing'] - dict_order[
-        'now_month_agent_real_rebate_money'] - dict_order['now_month_medium_real_rebate_money']
+    dict_order['now_month_medium_money2_zhixing'] = sum(
+        [k['now_month_money_zhixing'] for k in dict_order['medium_data']])
+    dict_order['profit_money'] = dict_order['now_month_money_zhixing'] - dict_order['now_month_agent_rebate_money'] +\
+        dict_order['now_month_medium_rebate_money'] - \
+        dict_order['now_month_medium_money2_zhixing']
+    dict_order['real_profit_money'] = dict_order['now_month_money_zhixing'] - dict_order['now_month_agent_real_rebate_money'] +\
+        dict_order['now_month_medium_real_rebate_money'] - \
+        dict_order['now_month_medium_money2_zhixing']
     dict_order['status'] = client_order.status
     return dict_order
 

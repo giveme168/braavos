@@ -2,7 +2,7 @@
 import datetime
 import numpy
 
-from flask import Blueprint, request
+from flask import Blueprint, request, g
 from flask import render_template as tpl
 
 from libs.date_helpers import get_monthes_pre_days
@@ -398,19 +398,33 @@ def money():
         douban_money['profit'] = numpy.array(
             douban_money['money2']) - numpy.array(douban_money['a_rebate'])
     # 计算豆瓣收入、服务费、返点、毛利为直签豆瓣+优力和无线总和
-    total = numpy.array(douban_money['profit']) +\
-        numpy.array(momo_money['sale_money']) +\
-        numpy.array(zhihu_money['sale_money']) +\
-        numpy.array(xiachufang_money['sale_money']) +\
-        numpy.array(xueqiu_money['sale_money']) +\
-        numpy.array(huxiu_money['sale_money']) +\
-        numpy.array(kecheng_money['sale_money']) +\
-        numpy.array(midi_money['sale_money']) +\
-        numpy.array(weipiao_money['sale_money']) +\
-        numpy.array(one_money['sale_money']) +\
-        numpy.array(total_except_money) +\
-        numpy.array(searchAD_money['sale_money']) +\
-        numpy.array(rebate_order_money['sale_money'])
+    if g.user.is_aduit() and str(year) == '2014':
+        total = numpy.array(momo_money['sale_money']) +\
+            numpy.array(zhihu_money['sale_money']) +\
+            numpy.array(xiachufang_money['sale_money']) +\
+            numpy.array(xueqiu_money['sale_money']) +\
+            numpy.array(huxiu_money['sale_money']) +\
+            numpy.array(kecheng_money['sale_money']) +\
+            numpy.array(midi_money['sale_money']) +\
+            numpy.array(weipiao_money['sale_money']) +\
+            numpy.array(one_money['sale_money']) +\
+            numpy.array(total_except_money) +\
+            numpy.array(searchAD_money['sale_money']) +\
+            numpy.array(rebate_order_money['sale_money'])
+    else:
+        total = numpy.array(douban_money['profit']) +\
+            numpy.array(momo_money['sale_money']) +\
+            numpy.array(zhihu_money['sale_money']) +\
+            numpy.array(xiachufang_money['sale_money']) +\
+            numpy.array(xueqiu_money['sale_money']) +\
+            numpy.array(huxiu_money['sale_money']) +\
+            numpy.array(kecheng_money['sale_money']) +\
+            numpy.array(midi_money['sale_money']) +\
+            numpy.array(weipiao_money['sale_money']) +\
+            numpy.array(one_money['sale_money']) +\
+            numpy.array(total_except_money) +\
+            numpy.array(searchAD_money['sale_money']) +\
+            numpy.array(rebate_order_money['sale_money'])
     if request.values.get('action', '') == 'download':
         response = write_medium_money_excel(pre_monthes=pre_monthes, douban_money=douban_money,
                                             youli_money=youli_money, wuxian_money=wuxian_money,
@@ -420,7 +434,7 @@ def money():
                                             weipiao_money=weipiao_money, one_money=one_money,
                                             midi_money=midi_money, other_money=other_money,
                                             searchAD_money=searchAD_money, rebate_order_money=rebate_order_money,
-                                            total=total, up_money=up_money
+                                            total=total, up_money=up_money, year=str(year)
                                             )
         return response
     return tpl('/data_query/super_leader/medium_money.html',

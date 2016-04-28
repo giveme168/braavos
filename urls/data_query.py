@@ -6,6 +6,9 @@ from controllers.data_query.outsource_cost import data_query_outsource_cost_bp
 from controllers.data_query.finance import data_query_finance_bp
 from controllers.data_query.profit import data_query_profit_bp
 from controllers.data_query.commission import data_query_commission_bp
+from controllers.data_query.shenji.cost_income_client_order import cost_income_client_order_bp
+from controllers.data_query.shenji.cost_income_douban_order import cost_income_douban_order_bp
+from controllers.data_query.shenji.cost_income_search_order import cost_income_search_order_bp
 
 from controllers.data_query.super_leader.medium import data_query_super_leader_medium_bp
 from controllers.data_query.super_leader.industry import data_query_super_leader_industry_bp
@@ -36,3 +39,6 @@ def data_query_register_blueprint(app):
     app.register_blueprint(data_query_super_leader_client_info_bp, url_prefix='/data_query/super_leader/client_info')
     app.register_blueprint(data_query_super_leader_back_money_bp, url_prefix='/data_query/super_leader/back_money')
     app.register_blueprint(data_query_super_leader_medium_info_bp, url_prefix='/data_query/super_leader/medium_info')
+    app.register_blueprint(cost_income_client_order_bp, url_prefix='/data_query/shenji/cost_income_client_order')
+    app.register_blueprint(cost_income_douban_order_bp, url_prefix='/data_query/shenji/cost_income_douban_order')
+    app.register_blueprint(cost_income_search_order_bp, url_prefix='/data_query/shenji/cost_income_search_order')

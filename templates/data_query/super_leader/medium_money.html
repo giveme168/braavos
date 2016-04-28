@@ -74,6 +74,11 @@
         {% endfor %}
         <td></td>
     </tr>
+    {% if g.user.is_aduit() and year == '2014'%}
+    <tr>
+        <td rowspan='{{88 + up_money|length * 5}}'>致趣收入</td>
+    </tr>
+    {% else %}
     <tr>
         <td rowspan='{{88 + up_money|length * 5}}'>致趣收入</td>
         <td  style="background-color:#CCFF99;">豆瓣执行收入</td>
@@ -103,22 +108,10 @@
         {% endfor %}
         <td>{{ douban_money.profit|sum()|format_price }}</td>
     </tr>
-    <!--
     <tr>
         <td colspan=36 style="height:30px;"></td>
     </tr>
-
-    {{ medium_tr(youli_money, '优力互动', 'CCFF99') }}
-
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
-
-    {{ medium_tr(wuxian_money, '无线互联', 'CCFF99') }}
-    -->
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
+    {% endif %}
 
     {{ medium_tr(momo_money, '陌陌', '33CCFF') }}
     

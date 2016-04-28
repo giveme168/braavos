@@ -3,7 +3,7 @@ import StringIO
 import mimetypes
 import datetime
 
-from flask import Response
+from flask import Response, g
 from werkzeug.datastructures import Headers
 import xlsxwriter
 
@@ -27,7 +27,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
                              weipiao_money, one_money,
                              midi_money, other_money,
                              searchAD_money, rebate_order_money,
-                             total, up_money):
+                             total, up_money, year):
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -60,26 +60,28 @@ def write_medium_money_excel(pre_monthes, douban_money,
         month_start, month_end = month_end + 1, month_end + 3
     worksheet.write(0, len(pre_monthes) * 3 + 2, u'合计', align_center)
     worksheet.write(1, len(pre_monthes) * 3 + 2, '', align_center)
-
-    keys = [{'CCFF99': [u'豆瓣执行收入', u'豆瓣服务费收入计提', u'豆瓣返点成本', u'豆瓣毛利', '']},
-            {'33CCFF': [
-                u'陌陌收入', u'陌陌媒体执行金额', u'陌陌媒体净成本', u'陌陌代理成本', u'陌陌毛利', '']},
-            {'0066FF': [
-                u'知乎收入', u'知乎媒体执行金额', u'知乎媒体净成本', u'知乎代理成本', u'知乎毛利', '']},
-            {'AA7700': [
-                u'下厨房收入', u'下厨房媒体执行金额', u'下厨房媒体净成本', u'下厨房代理成本', u'下厨房毛利', '']},
-            {'007799': [
-                u'雪球收入', u'雪球媒体执行金额', u'雪球媒体净成本', u'雪球代理成本', u'雪球毛利', '']},
-            {'9F88FF': [
-                u'虎嗅收入', u'虎嗅媒体执行金额', u'虎嗅媒体净成本', u'虎嗅代理成本', u'虎嗅毛利', '']},
-            {'FF8888': [
-                u'课程格子收入', u'课程格子媒体执行金额', u'课程格子媒体净成本', u'课程格子代理成本', u'课程格子毛利', '']},
-            {'FFBB00': [
-                u'迷笛收入', u'迷笛媒体执行金额', u'迷笛媒体净成本', u'迷笛代理成本', u'迷笛毛利', '']},
-            {'FF3333': [
-                u'微票收入', u'微票媒体执行金额', u'微票媒体净成本', u'微票代理成本', u'微票毛利', '']},
-            {'E93EFF': [
-                u'ONE收入', u'One媒体执行金额', u'One媒体净成本', u'One代理成本', u'One毛利', '']}]
+    if g.user.is_aduit() and str(year) == '2014':
+        keys = []
+    else:
+        keys = [{'CCFF99': [u'豆瓣执行收入', u'豆瓣服务费收入计提', u'豆瓣返点成本', u'豆瓣毛利', '']}]
+    keys += [{'33CCFF': [
+        u'陌陌收入', u'陌陌媒体执行金额', u'陌陌媒体净成本', u'陌陌代理成本', u'陌陌毛利', '']},
+        {'0066FF': [
+            u'知乎收入', u'知乎媒体执行金额', u'知乎媒体净成本', u'知乎代理成本', u'知乎毛利', '']},
+        {'AA7700': [
+            u'下厨房收入', u'下厨房媒体执行金额', u'下厨房媒体净成本', u'下厨房代理成本', u'下厨房毛利', '']},
+        {'007799': [
+            u'雪球收入', u'雪球媒体执行金额', u'雪球媒体净成本', u'雪球代理成本', u'雪球毛利', '']},
+        {'9F88FF': [
+            u'虎嗅收入', u'虎嗅媒体执行金额', u'虎嗅媒体净成本', u'虎嗅代理成本', u'虎嗅毛利', '']},
+        {'FF8888': [
+            u'课程格子收入', u'课程格子媒体执行金额', u'课程格子媒体净成本', u'课程格子代理成本', u'课程格子毛利', '']},
+        {'FFBB00': [
+            u'迷笛收入', u'迷笛媒体执行金额', u'迷笛媒体净成本', u'迷笛代理成本', u'迷笛毛利', '']},
+        {'FF3333': [
+            u'微票收入', u'微票媒体执行金额', u'微票媒体净成本', u'微票代理成本', u'微票毛利', '']},
+        {'E93EFF': [
+            u'ONE收入', u'One媒体执行金额', u'One媒体净成本', u'One代理成本', u'One毛利', '']}]
     for k, v in up_money.items():
         keys.append({'FF7F50': [k + u'收入', k + u'媒体执行金额',
                                 k + u'媒体净成本', k + u'代理成本', k + u'毛利', '']})
@@ -99,16 +101,19 @@ def write_medium_money_excel(pre_monthes, douban_money,
 
     # 重置th
     th = 2
-    # 直签豆瓣
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['sale_money'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['money2'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['a_rebate'])
-    th = _write_money_in_excel(
-        worksheet, align_center, pre_monthes, th, douban_money['profit'])
-    th += 1
+    if g.user.is_aduit() and str(year) == '2014':
+        pass
+    else:
+        # 直签豆瓣
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, douban_money['sale_money'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, douban_money['money2'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, douban_money['a_rebate'])
+        th = _write_money_in_excel(
+            worksheet, align_center, pre_monthes, th, douban_money['profit'])
+        th += 1
     # 陌陌
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, momo_money['sale_money'])
@@ -252,7 +257,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, searchAD_money['money2'])
     # th = _write_money_in_excel(
-    #     worksheet, align_center, pre_monthes, th, searchAD_money['m_ex_money'])
+    # worksheet, align_center, pre_monthes, th, searchAD_money['m_ex_money'])
     th = _write_money_in_excel(
         worksheet, align_center, pre_monthes, th, searchAD_money['a_rebate'])
     th = _write_money_in_excel(
