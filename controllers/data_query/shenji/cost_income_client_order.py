@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 import operator
+import numpy
 
 from flask import request, g, abort
 from flask import render_template as tpl
@@ -37,7 +38,6 @@ def _all_medium_rebate():
     return medium_rebate_data
 
 
-# 新版媒体周报开始
 def pre_month_money(money, start, end):
     if money:
         pre_money = float(money) / ((end - start).days + 1)
@@ -83,22 +83,42 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
             dict_order['money_data'].append(money_ex_data[k['month']])
         else:
             dict_order['money_data'].append(0)
-    # 代理返点系数
-    agent_rebate_data = [k['inad_rebate'] for k in all_agent_rebate if client_order.agent.id == k[
-        'agent_id'] and pre_year_month[0]['month'].year == k['year'].year]
-    if agent_rebate_data:
-        agent_rebate = agent_rebate_data[0]
-    else:
-        agent_rebate = 0
+    # 单笔返点
+    try:
+        self_agent_rebate_data = client_order.self_agent_rebate
+        self_agent_rebate = self_agent_rebate_data.split('-')[0]
+        self_agent_rebate_value = float(self_agent_rebate_data.split('-')[1])
+    except:
+        self_agent_rebate = 0
+        self_agent_rebate_value = 0
     # 客户返点
-    dict_order['money_rebate_data'] = [
-        k * agent_rebate / 100 for k in dict_order['money_data']]
+    if int(self_agent_rebate):
+        dict_order['money_rebate_data'] = [k / dict_order['money'] * self_agent_rebate_value
+                                           for k in dict_order['money_data']]
+    else:
+        # 代理返点系数
+        agent_rebate_data = [k['inad_rebate'] for k in all_agent_rebate if client_order.agent.id == k[
+            'agent_id'] and pre_year_month[0]['month'].year == k['year'].year]
+        if agent_rebate_data:
+            agent_rebate = agent_rebate_data[0]
+        else:
+            agent_rebate = 0
+        dict_order['money_rebate_data'] = [
+            k * agent_rebate / 100 for k in dict_order['money_data']]
     dict_order['medium_data'] = []
+    # 初始化总计媒体执行金额
+    total_medium_money2_data = [0 for k in range(12)]
+    # 初始化总计媒体返点
+    total_medium_money2_rebate_data = [0 for k in range(12)]
+    dict_order['medium_sale_money'] = 0
+    dict_order['medium_medium_money2'] = 0
     for m in client_order.medium_orders:
         dict_medium = {}
         dict_medium['name'] = m.medium.name
         dict_medium['sale_money'] = m.sale_money
+        dict_order['medium_sale_money'] += dict_medium['sale_money']
         dict_medium['medium_money2'] = m.medium_money2
+        dict_order['medium_medium_money2'] += dict_medium['medium_money2']
         dict_medium['medium_contract'] = m.medium_contract
         medium_money2_ex_data = pre_month_money(m.medium_money2,
                                                 start_datetime,
@@ -120,7 +140,18 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
             medium_rebate = 0
         dict_medium['medium_money2_rebate_data'] = [
             k * medium_rebate / 100 for k in dict_medium['medium_money2_data']]
+
+        total_medium_money2_data = numpy.array(total_medium_money2_data) + \
+            numpy.array(dict_medium['medium_money2_data'])
+        total_medium_money2_rebate_data = numpy.array(total_medium_money2_rebate_data) + \
+            numpy.array(dict_medium['medium_money2_rebate_data'])
         dict_order['medium_data'].append(dict_medium)
+    # 合同利润
+    dict_order['profit_data'] = numpy.array(dict_order['money_data']) - \
+        numpy.array(dict_order['money_rebate_data']) - total_medium_money2_data + \
+        total_medium_money2_rebate_data
+    dict_order['total_medium_money2_data'] = total_medium_money2_data
+    dict_order['total_medium_money2_rebate_data'] = total_medium_money2_rebate_data
     return dict_order
 
 
@@ -154,6 +185,29 @@ def index():
     orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20]]
     orders = sorted(
         orders, key=operator.itemgetter('start_date_cn'), reverse=False)
+    total_money_data = [0 for k in range(12)]
+    total_money_rebate_data = [0 for k in range(12)]
+    total_profit_data = [0 for k in range(12)]
+    total_medium_money2_data = [0 for k in range(12)]
+    total_medium_money2_rebate_data = [0 for k in range(12)]
+    for k in orders:
+        total_money_data = numpy.array(
+            total_money_data) + numpy.array(k['money_data'])
+        total_money_rebate_data = numpy.array(
+            total_money_rebate_data) + numpy.array(k['money_rebate_data'])
+        total_profit_data = numpy.array(
+            total_profit_data) + numpy.array(k['profit_data'])
+        total_medium_money2_data = numpy.array(
+            total_medium_money2_data) + numpy.array(k['total_medium_money2_data'])
+        total_medium_money2_rebate_data = numpy.array(
+            total_medium_money2_rebate_data) + numpy.array(k['total_medium_money2_rebate_data'])
     if request.values.get('action') == 'excel':
-        return write_client_order_excel(orders=orders, year=year)
-    return tpl('/shenji/cost_income_client_order.html', orders=orders, year=year)
+        return write_client_order_excel(orders=orders, year=year, total_money_data=total_money_data,
+                                        total_money_rebate_data=total_money_rebate_data,
+                                        total_profit_data=total_profit_data,
+                                        total_medium_money2_data=total_medium_money2_data,
+                                        total_medium_money2_rebate_data=total_medium_money2_rebate_data)
+    return tpl('/shenji/cost_income_client_order.html', orders=orders, year=year, total_money_data=total_money_data,
+               total_money_rebate_data=total_money_rebate_data, total_profit_data=total_profit_data,
+               total_medium_money2_data=total_medium_money2_data,
+               total_medium_money2_rebate_data=total_medium_money2_rebate_data)

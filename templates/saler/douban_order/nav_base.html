@@ -4,7 +4,7 @@
     <li id="_back_money_" class=""><a href='{{url_for("saler_douban_order_back_money.index", order_id=order.id)}}'>客户回款</a></li>
     <li id="_outsource_"class=""><a href='{{url_for("saler_douban_order_outsource.index", order_id=order.id)}}'>外包成本</a></li>
     {% endif %}
-    {% if g.user.is_super_leader() or g.user.is_finance() or g.user.is_aduit() %}
+    {% if g.user.is_super_leader() or g.user.is_finance() %}
       <li id="_other_cost_"class=""><a href='{{url_for("saler_douban_order_other_cost.index", order_id=order.id)}}'>尚典外包</a></li>
       <li id="_money_"class=""><a href='{{url_for("saler_douban_order_money.index", order_id=order.id)}}'>收入成本</a></li>
     {% endif %}
