@@ -1,0 +1,39 @@
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        <ul>
+            <li id="_performance_" class="nav-first">
+              <a href="{{url_for('account_performance.index')}}">团队销售指标</a>
+              <span>|</span>
+            </li>
+            <li id="_commission_">
+              <a href="{{url_for('account_commission.index')}}">提成比例</a>
+              <span>|</span>
+            </li>
+            <li id="_completion_">
+              <a href="{{url_for('account_completion.index')}}">完成率</a>
+              <span>|</span>
+            </li>
+            
+            <li id="_saler_" class="nav-last">
+              <a href="{{url_for('account_commission.saler')}}">销售人员提成</a>
+              <span></span>
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if(p_pathname[3] != ''){
+            if (p_pathname[3] == 'saler'){
+                $('#_'+p_pathname[3]+'_').addClass("active");
+            }else{
+                $('#_'+p_pathname[2]+'_').addClass("active");
+            }
+            
+        }else{
+            $('#_'+p_pathname[2]+'_').addClass("active");
+        }
+    })
+</script>

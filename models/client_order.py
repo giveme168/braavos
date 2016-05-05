@@ -140,6 +140,10 @@ intention_agent_sales = db.Table('intention_order_agent_sales',
                                      'intent_order_id', db.Integer, db.ForeignKey('bra_intention_order.id'))
                                  )
 
+INTENTION_STATUS_DEL = -1
+INTENTION_STATUS_ON = 0
+INTENTION_STATUS_APPLE = 1
+
 
 # 销售洽谈中的订单
 class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
@@ -1447,8 +1451,8 @@ TARGET_TYPE_H5 = 7
 TARGET_TYPE_VIDEO = 5
 TARGET_TYPE_CN = {
     TARGET_TYPE_FLASH: u"Flash",
-    TARGET_TYPE_KOL: u"KOL",
-    TARGET_TYPE_VIDEO: u"视频",
+    TARGET_TYPE_KOL: u"网络公关运营",
+    TARGET_TYPE_VIDEO: u"设计",
     TARGET_TYPE_H5: u"H5",
 }
 

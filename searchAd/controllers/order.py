@@ -172,8 +172,7 @@ def new_searchAd_order():
                                         client=searchAdClient.get(
                                             form.client.data),
                                         campaign=form.campaign.data,
-                                        money=int(
-                                            round(float(form.money.data or 0))),
+                                        money=float(form.money.data or 0),
                                         client_start=form.client_start.data,
                                         client_end=form.client_end.data,
                                         reminde_date=form.reminde_date.data,
@@ -202,11 +201,9 @@ def new_searchAd_order():
                 mo = searchAdOrder.add(campaign=order.campaign,
                                        medium=medium,
                                        channel_type=int(channel_type_ids[x] or 0),
-                                       sale_money=int(
-                                           round(float(sale_moneys[x] or 0))),
+                                       sale_money=float(sale_moneys[x] or 0),
                                        medium_money=0,
-                                       medium_money2=int(
-                                           round(float(medium_money2s[x] or 0))),
+                                       medium_money2=float(medium_money2s[x] or 0),
                                        medium_start=order.client_start,
                                        medium_end=order.client_end,
                                        creator=g.user)
@@ -280,8 +277,7 @@ def order_info(order_id, tab_id=1):
                     order.framework_order_id = client_form.framework_order_id.data,
                     order.client = searchAdClient.get(client_form.client.data)
                     order.campaign = client_form.campaign.data
-                    order.money = int(
-                        round(float(client_form.money.data or 0)))
+                    order.money = float(client_form.money.data or 0)
                     order.client_start = client_form.client_start.data
                     order.client_end = client_form.client_end.data
                     order.client_start_year = client_form.client_start.data.year
@@ -355,12 +351,9 @@ def order_new_medium(order_id):
         mo = searchAdOrder.add(campaign=co.campaign,
                                medium=searchAdMedium.get(form.medium.data),
                                channel_type=int(form.channel_type.data or 0),
-                               medium_money=int(
-                                   round(float(form.medium_money.data or 0))),
-                               medium_money2=int(
-                                   round(float(form.medium_money2.data or 0))),
-                               sale_money=int(
-                                   round(float(form.sale_money.data or 0))),
+                               medium_money=float(form.medium_money.data or 0),
+                               medium_money2=float(form.medium_money2.data or 0),
+                               sale_money=float(form.sale_money.data or 0),
                                medium_CPM=form.medium_CPM.data,
                                sale_CPM=form.sale_CPM.data,
                                medium_start=form.medium_start.data,
@@ -389,9 +382,9 @@ def medium_order(mo_id):
     if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader():
         mo.medium = searchAdMedium.get(form.medium.data)
     mo.channel_type = int(form.channel_type.data or 0)
-    mo.medium_money = int(round(float(form.medium_money.data or 0)))
-    mo.medium_money2 = int(round(float(form.medium_money2.data or 0)))
-    mo.sale_money = int(round(float(form.sale_money.data or 0)))
+    mo.medium_money = float(form.medium_money.data or 0)
+    mo.medium_money2 = float(form.medium_money2.data or 0)
+    mo.sale_money = float(form.sale_money.data or 0)
     mo.medium_CPM = form.medium_CPM.data
     mo.sale_CPM = form.sale_CPM.data
     mo.medium_start = form.medium_start.data
@@ -780,8 +773,7 @@ def new_framework_order():
         order = searchAdFrameworkOrder.add(agent=searchAdAgent.get(form.agent.data),
                                            client_id=form.client_id.data,
                                            description=form.description.data,
-                                           money=int(
-                                               float(form.money.data or 0)),
+                                           money=float(form.money.data or 0),
                                            client_start=form.client_start.data,
                                            client_end=form.client_end.data,
                                            reminde_date=form.reminde_date.data,

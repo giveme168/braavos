@@ -1,35 +1,45 @@
-{% extends "base.html" %}
-{% from 'form.html' import form_tpl %}
+{% extends "base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_tpl %}
 {% block title %}角色管理{% endblock %}
 
 {% block content %}
-{% include "user_base.html" %}
+{% include "user_base_v1_0_0.html" %}
 <div class="container bra-box" style="min-width: 950px;">
     <h3>角色 - {{team.name}}</h3>
     {{ form_tpl(form) }}
     <h3>角色列表</h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>#id</th>
-            <th>名称</th>
-            <th>邮箱</th>
-            <th>角色</th>
-            <th>状态</th>
-            <th>Leader</th>
-        </tr>
-        {% for u in team.users %}
-        <tr>
-            <td>{{u.id}}</td>
-            <td><a href="{{url_for('user.user_detail', user_id=u.id)}}">{{u.name}}</a></td>
-            <td>{{u.email}}</td>
-            <td><a href="{{url_for('user.team_detail', team_id=u.team.id)}}">{{u.team.name}}</a></td>
-            <td>{{'有效' if u.status else '暂停'}}</td>
-            <td>{% for k in u.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
-        </tr>
-        {% endfor %}
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>#id</th>
+                    <th>名称</th>
+                    <th>邮箱</th>
+                    <th>角色</th>
+                    <th>状态</th>
+                    <th>Leader</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in team.users %}
+                <tr>
+                    <td>{{u.id}}</td>
+                    <td><a href="{{url_for('user.user_detail', user_id=u.id)}}">{{u.name}}</a></td>
+                    <td>{{u.email}}</td>
+                    <td><a href="{{url_for('user.team_detail', team_id=u.team.id)}}">{{u.team.name}}</a></td>
+                    <td>{{'有效' if u.status else '暂停'}}</td>
+                    <td>{% for k in u.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
     </table>
 </div>
 <style>
     .form-control{width: 300px;}
 </style>
+<script>
+    $(document).ready(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+    })
+</script>
 {% endblock %}

@@ -1,98 +1,111 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}销售提成{% endblock %}
 {% block content %}
-{% include "/account/account_performance_base.html" %}
+{% include "/account/account_performance_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:2500px;">
     <h3>销售提成</h3>
-    <div class="search">
-        <form class="form-inline" role="form" action="" method='get'>
-        <div class="form-group">
-            <select class="form-control" name="year" id="year" placeholder="选择执行年" style="width:200px;">
-                {% for k in range(5) %}
-                <option value="{{2014+k}}">{{2014+k}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <select class="form-control" name="Q" id="Q" style="width:80px;" placeholder="选择执行月" style="width:200px;">
-                {% for k in range(1,5) %}
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label"></label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                    <option value='{{2014+k}}'>{{2014+k}}年</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label"></label>
+                <select class="form-control special_sale" name="Q" id="Q" style="width:100px;">
+                    {% for k in range(1,5) %}
                     <option value='Q{{k}}'>Q{{k}}</option>
                 {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <select class="form-control" id="location_id" name="location_id" placeholder="选择区域" style="width:200px;">
-                <option value='0'>所有区域</option>
-                <option value="1">华北区</option>
-                <option value="2">华东区</option>
-                <option value="3">华南区</option>
-            </select>
-        </div>
-        <input type="submit" value="查询" class="btn btn-sm btn-info" >
-        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label"></label>
+                <select class="form-control special_sale" name="location_id" id="location_id" style="width:100px;">
+                    <option value='0'>所有区域</option>
+                    <option value="1">华北区</option>
+                    <option value="2">华东区</option>
+                    <option value="3">华南区</option>
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
         </form>
     </div>
     <br>
-    <table class="table table-bordered">
-        <tr>
-            <th>代理公司</th>
-            <th>项目名称</th>
-            <th>类型</th>
-            <th>大区</th>
-            <th>合同编号</th>
-            <th>合同金额</th>
-            <th>执行开始</th>
-            <th>执行结束</th>
-            <th>发票时间</th>
-            <th>发票金额</th>
-            <th>回款时间</th>
-            <th>回款金额</th>
-            <th>区域</th>
-            <th>类型</th>
-            <th>销售</th>
-            <th>计算公式（说明：完成率* 提成比例 * 回款金额 * 项目账期系数 = 提成）</th>
-            <th>提成金额</th>
-        </tr>
-        {% for k in orders %}
-        <tr>
-            <td rowspan="{{k.salers_count + 1}}">{{k.agent_name}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.campaign}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.industry_cn}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.locations_cn}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.contract}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.money|format_price}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.client_start}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.client_end}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.invoice_time or '无'}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.invoice_sum|format_price}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.money_time or '无'}}</td>
-            <td rowspan="{{k.salers_count + 1}}">{{k.money_sum|format_price}}</td>
-        </tr>
-            {% for s in k.agent_sales+k.direct_sales %}
-            <tr>
-                <td>{{s.location_cn}}</td>
-                <td>{{s.type}}</td>
-                <td style="color:#{{s.color}}">{{s.name}}</td>
-                <td>{{s.str_formula|safe}}</td>
-                <td>{{s.commission_money|format_price}}</td>
-            </tr>
-            {% endfor %}
-        {% endfor %}
-        <tr>
-            <td colspan=5 style="text-align: center;">合计</td>
-            <td>{{orders|sum(attribute='money')|format_price}}</td>
-            <td colspan=3></td>
-            <td>{{orders|sum(attribute='invoice_sum')|format_price}}</td>
-            <td></td>
-            <td>{{orders|sum(attribute='money_sum')|format_price}}</td>
-            <td colspan=4 style="text-align: center;"></td>
-            <td>{{orders|sum(attribute='total_commission_money')|format_price}}</td>
-        </tr>
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>代理公司</th>
+                    <th>项目名称</th>
+                    <th>类型</th>
+                    <th>大区</th>
+                    <th>合同编号</th>
+                    <th>合同金额</th>
+                    <th>执行开始</th>
+                    <th>执行结束</th>
+                    <th>发票时间</th>
+                    <th>发票金额</th>
+                    <th>回款时间</th>
+                    <th>回款金额</th>
+                    <th>区域</th>
+                    <th>类型</th>
+                    <th>销售</th>
+                    <th>计算公式（说明：完成率* 提成比例 * 回款金额 * 项目账期系数 = 提成）</th>
+                    <th>提成金额</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in orders %}
+                <tr>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.agent_name}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.campaign}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.industry_cn}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.locations_cn}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.contract}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.money|format_price}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.client_start}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.client_end}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.invoice_time or '无'}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.invoice_sum|format_price}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.money_time or '无'}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.money_sum|format_price}}</td>
+                </tr>
+                    {% for s in k.agent_sales+k.direct_sales %}
+                    <tr>
+                        <td>{{s.location_cn}}</td>
+                        <td>{{s.type}}</td>
+                        <td style="color:#{{s.color}}">{{s.name}}</td>
+                        <td>{{s.str_formula|safe}}</td>
+                        <td>{{s.commission_money|format_price}}</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+                <tr>
+                    <td colspan=5 style="text-align: center;">合计</td>
+                    <td>{{orders|sum(attribute='money')|format_price}}</td>
+                    <td colspan=3></td>
+                    <td>{{orders|sum(attribute='invoice_sum')|format_price}}</td>
+                    <td></td>
+                    <td>{{orders|sum(attribute='money_sum')|format_price}}</td>
+                    <td colspan=4 style="text-align: center;"></td>
+                    <td>{{orders|sum(attribute='total_commission_money')|format_price}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 <script>
     $(function(){
-        //$("#Q option[value='{{Q}}']").attr("selected","selected");
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
         $("#Q").val('{{Q}}')
         $("#Q").trigger("chosen:updated");
         //$("#year option[value='{{now_year}}']").attr("selected","selected");  

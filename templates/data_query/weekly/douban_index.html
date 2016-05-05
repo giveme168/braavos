@@ -1,136 +1,149 @@
 {% extends "/base_v1_0_0.html" %}
 {% block title %}直签豆瓣订单周报{% endblock %}
 {% macro all_items(saler_orders, type) -%}
-<table class="table table-bordered">
-    <tr>
-        {% if type == 'agent' %}
-        <th>渠道销售</th>
-        {% else %}
-        <th>直客销售</th>
-        {% endif %}
-        <th>状态</th>
-        <th>客户名称</th>
-        <th>合同号（代理下单号）</th>
-        <th>代理简称</th>
-        <th>项目名称</th>
-        <th>行业</th>
-        <th>直客销售</th>
-        <th>渠道销售</th>
-        <th>合同金额</th>
-        <th>本季度确认额</th>
-        <th>本季度执行额</th>
-        <th>上季度执行额</th>
-        <th>下季度执行额</th>
-        {% for k in Q_monthes %}
-        <th>{{k}}月执行额</th>
-        {% endfor %}
-        <th>类型</th>
-        <th>AE</th>
-        <th>合同开始</th> 
-        <th>合同结束</th> 
-    </tr>
-    {% for k in saler_orders %}
-    {% if k.orders %}
-    <tr>
-        <td rowspan="{{k.orders|length + 3}}">{{k.user.name}}</td>
-        <td rowspan="{{k.orders|length + 1}}">确认</td>
-
-    </tr>
-        {% for i in k.orders %}
+<div class='tabulation'>
+    <table border='1'>
+        <thead>
             <tr>
-                <td>{{i.order.client_name}}</td>
-                <td>{{i.order.contract}}</td>
-                <td>{{i.order.agent_name}}</td>
-                <td>{{i.order.campaign}}</td>
-                <td>{{i.order.industry_cn}}</td>
-                <td>{% for u in i.order.direct_sales %}{{u.name}}<br/>{% endfor %}</td>
-                <td>{% for u in i.order.agent_sales %}{{u.name}}<br/>{% endfor %}</td>
                 {% if type == 'agent' %}
-                <td>{{i.order.zhixing_money[0]|format_price}}</td>
+                <th>渠道销售</th>
                 {% else %}
-                <td>{{i.order.zhixing_money[1]|format_price}}</td>
+                <th>直客销售</th>
                 {% endif %}
-                <td></td>
-                <td>{{i.now_Q_money|format_price}}</td>
-                <td>{{i.last_Q_money|format_price}}</td>
-                <td>{{i.after_Q_money|format_price}}</td>
-                {% for k in i.moneys %}
-                <td>{{k|format_price}}</td>
+                <th>状态</th>
+                <th>客户名称</th>
+                <th>合同号（代理下单号）</th>
+                <th>代理简称</th>
+                <th>项目名称</th>
+                <th>行业</th>
+                <th>直客销售</th>
+                <th>渠道销售</th>
+                <th>合同金额</th>
+                <th>本季度确认额</th>
+                <th>本季度执行额</th>
+                <th>上季度执行额</th>
+                <th>下季度执行额</th>
+                {% for k in Q_monthes %}
+                <th>{{k}}月执行额</th>
                 {% endfor %}
-                <td>{{i.order.resource_type_cn}}</td>
-                <td>{% for o in i.order.operater_users %}{{o.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
-                <td>{{i.order.client_start}}</td>
-                <td>{{i.order.client_end}}</td>
+                <th>类型</th>
+                <th>AE</th>
+                <th>合同开始</th> 
+                <th>合同结束</th> 
             </tr>
-        {% endfor %}
-        <tr>
-            <td colspan="8">Total</td>
-            <td>{{k.total_order_money|format_price}}</td>
-            <td></td>
-            <td>{{k.total_now_Q_money|format_price}}</td>
-            <td>{{k.total_last_Q_money|format_price}}</td>
-            <td>{{k.total_after_Q_money|format_price}}</td>
-            <td>{{k.total_frist_month_money|format_price}}</td>
-            <td>{{k.total_second_month_money|format_price}}</td>
-            <td>{{k.total_third_month_money|format_price}}</td>
-            <td colspan="4"></td>
-        </tr>
-        <tr>
-            <td colspan="2">{{Q}}任务</td>
-            <td></td>
-            <td colspan="2">预估完成率</td>
-            <td></td>
-            <td colspan="14"></td>
-        </tr>
-    {% endif %}
-    {% endfor %}
-</table>
+        </thead>
+        <tbody>
+            {% for k in saler_orders %}
+            {% if k.orders %}
+            <tr>
+                <td rowspan="{{k.orders|length + 3}}">{{k.user.name}}</td>
+                <td rowspan="{{k.orders|length + 1}}">确认</td>
+
+            </tr>
+                {% for i in k.orders %}
+                    <tr>
+                        <td>{{i.order.client_name}}</td>
+                        <td>{{i.order.contract}}</td>
+                        <td>{{i.order.agent_name}}</td>
+                        <td>{{i.order.campaign}}</td>
+                        <td>{{i.order.industry_cn}}</td>
+                        <td>{% for u in i.order.direct_sales %}{{u.name}}<br/>{% endfor %}</td>
+                        <td>{% for u in i.order.agent_sales %}{{u.name}}<br/>{% endfor %}</td>
+                        {% if type == 'agent' %}
+                        <td>{{i.order.zhixing_money[0]|format_price}}</td>
+                        {% else %}
+                        <td>{{i.order.zhixing_money[1]|format_price}}</td>
+                        {% endif %}
+                        <td></td>
+                        <td>{{i.now_Q_money|format_price}}</td>
+                        <td>{{i.last_Q_money|format_price}}</td>
+                        <td>{{i.after_Q_money|format_price}}</td>
+                        {% for k in i.moneys %}
+                        <td>{{k|format_price}}</td>
+                        {% endfor %}
+                        <td>{{i.order.resource_type_cn}}</td>
+                        <td>{% for o in i.order.operater_users %}{{o.name}}&nbsp;&nbsp;<br/>{% endfor %}</td>
+                        <td>{{i.order.client_start}}</td>
+                        <td>{{i.order.client_end}}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="8">Total</td>
+                    <td>{{k.total_order_money|format_price}}</td>
+                    <td></td>
+                    <td>{{k.total_now_Q_money|format_price}}</td>
+                    <td>{{k.total_last_Q_money|format_price}}</td>
+                    <td>{{k.total_after_Q_money|format_price}}</td>
+                    <td>{{k.total_frist_month_money|format_price}}</td>
+                    <td>{{k.total_second_month_money|format_price}}</td>
+                    <td>{{k.total_third_month_money|format_price}}</td>
+                    <td colspan="4"></td>
+                </tr>
+                <tr>
+                    <td colspan="2">{{Q}}任务</td>
+                    <td></td>
+                    <td colspan="2">预估完成率</td>
+                    <td></td>
+                    <td colspan="14"></td>
+                </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {%- endmacro %}
 {% block content %}
 {% include "/data_query/data_query_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:2200px;">
-    <h3>直签豆瓣订单周报</h3>
-    <div class="search">
-        <form class="form-inline" role="form" action="" method='get'>
-        <div class="form-group">
-            <select class="form-control" name="year" id="year" placeholder="选择执行年" style="width:150px;">
-                {% for k in range(5) %}
-                <option value="{{2014+k}}">{{2014+k}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <select class="form-control" name="Q" id="Q" style="width:80px;" placeholder="选择执行月">
-                {% for k in range(1,5) %}
-                    <option value='Q{{k}}'>Q{{k}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <select class="form-control" id="location_id" name="location_id" placeholder="选择区域">
-                <option value='0'>所有区域</option>
-                <option value="1">华北区</option>
-                <option value="2">华东区</option>
-                <option value="3">华南区</option>
-            </select>
-        </div>
-        <input type="submit" value="查询" class="btn btn-sm btn-info" >
-        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+    <h3 {% if g.user.is_super_leader() %}style="margin-top: 50px;"{% endif %}>豆瓣订单周报</h3>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float: left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">执行年</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:150px;">
+                    {% for k in range(5) %}
+                    <option value="{{2014+k}}">{{2014+k}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">季度</label>
+                <select class="form-control special_sale" name="Q" id="Q">
+                    {% for k in range(1,5) %}
+                        <option value='Q{{k}}'>Q{{k}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">区域</label>
+                <select class="form-control special_sale" name="location_id" id="location_id" style="width:100px;">
+                    <option value='0'>全部</option>
+                    <option value='1'>华北</option>
+                    <option value='2'>华东</option>
+                    <option value='3'>华南</option>
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
         </form>
     </div>
     <br>
     {% if huabei_agent_salers_orders or huabei_direct_salers_orders %}
-    <h4>华北区</h4>
+    <h5>华北区</h5>
     {{ all_items(huabei_agent_salers_orders, 'agent') }}
     {{ all_items(huabei_direct_salers_orders, 'direct')}}
     {% endif %}
     {% if huadong_agent_salers_orders or huadong_direct_salers_orders %}
-    <h4>华东区</h4>
+    <h5>华东区</h5>
     {{ all_items(huadong_agent_salers_orders, 'agent') }}
     {{ all_items(huadong_direct_salers_orders, 'direct')}}
     {% endif %}
     {% if huanan_agent_salers_orders or huanan_direct_salers_orders %}
-    <h4>华南区</h4>
+    <h5>华南区</h5>
     {{ all_items(huanan_agent_salers_orders, 'agent') }}
     {{ all_items(huanan_direct_salers_orders, 'direct')}}
     {% endif %}
@@ -138,7 +151,7 @@
 
 <script>
     $(function(){
-        //$("#Q option[value='{{Q}}']").attr("selected","selected");
+        $('select').chosen({disable_search: true});
         $("#Q").val('{{Q}}')
         $("#Q").trigger("chosen:updated");
         //$("#year option[value='{{now_year}}']").attr("selected","selected");  

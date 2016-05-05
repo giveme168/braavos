@@ -75,9 +75,12 @@ def _douban_order_to_dict(douban_order, all_back_moneys, all_agent_rebate, month
     dict_order['money'] = douban_order.money
     # 直签豆瓣订单客户金额与媒体进个相同
     dict_order['status'] = douban_order.status
-    if month_day.year < 2016:
+    if month_day.year == 2015:
         dict_order['profit_money'] = dict_order[
             'now_month_money_zhixing'] * 0.4 - dict_order['now_month_agent_rebate_money']
+    elif month_day.year == 2014:
+        dict_order['profit_money'] = dict_order[
+            'now_month_money_zhixing'] * 0.426 - dict_order['now_month_agent_rebate_money']
     else:
         dict_order['profit_money'] = dict_order[
             'now_month_money_zhixing'] * 0.18

@@ -19,6 +19,7 @@ from controllers.data_query.super_leader.money import data_query_super_leader_mo
 from controllers.data_query.super_leader.client_info import data_query_super_leader_client_info_bp
 from controllers.data_query.super_leader.back_money import data_query_super_leader_back_money_bp
 from controllers.data_query.super_leader.medium_info import data_query_super_leader_medium_info_bp
+from controllers.data_query.accrued import data_query_accrued_bp
 
 
 def data_query_register_blueprint(app):
@@ -42,3 +43,4 @@ def data_query_register_blueprint(app):
     app.register_blueprint(cost_income_client_order_bp, url_prefix='/data_query/shenji/cost_income_client_order')
     app.register_blueprint(cost_income_douban_order_bp, url_prefix='/data_query/shenji/cost_income_douban_order')
     app.register_blueprint(cost_income_search_order_bp, url_prefix='/data_query/shenji/cost_income_search_order')
+    app.register_blueprint(data_query_accrued_bp, url_prefix='/data_query/accrued')

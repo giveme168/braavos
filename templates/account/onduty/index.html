@@ -1,8 +1,8 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}员工考勤{% endblock %}
 
 {% block content %}
-{% include "/account/account_onduty_base.html" %}
+{% include "/account/account_onduty_base_v1_0_0.html" %}
   <div class="container bra-box" style="min-width: 950px;">
     <h3>员工考勤</h3>
      {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
@@ -15,60 +15,68 @@
     </form>
     {% endif %}
     <br/>
-    <form class="form-inline">
-      <div class="form-group">
-        <label for="exampleInputName2">员工姓名</label>
-        <input type="text" class="form-control" id="name" name="name" placeholder="员工姓名" value="{{name}}">
-      </div>
-      <div class="form-group">
-        <label for="exampleInputEmail2">区域</label>
-        <select class="form-control" id="location" name='location' style="width:150px;">
-          <option value='0'>全部</option>
-          <option value='1'>华北</option>
-          <option value='2'>华东</option>
-          <option value='3'>华南</option>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-info">查询</button>
-    </form>
+
+    <div class="search-bar">
+        <div class="menu-btn-bar">
+            <form style="float:left;">
+                <div class="search-input">
+                    <input type="text" id="name" name="name" placeholder="员工姓名" value="{{name}}">
+                </div>
+                <div class="select_option">
+                    <label for="sale_type" class="control-label">区域</label>
+                    <select class="form-control special_sale" name="location" id="location" style="width:100px;">
+                        <option value='0'>全部</option>
+                        <option value='1'>华北</option>
+                        <option value='2'>华东</option>
+                        <option value='3'>华南</option>
+                    </select>
+                </div>
+                <div class="select_option screen">
+                    <input type="submit" value="筛选">
+                </div>
+            </form>
+            {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
+            <form style="float:left;" method="POST">
+                <input type='hidden' value="excel" name="action">
+                <div class="search-input" style="width:160px;">
+                    <input type="text" class="datetimepicker" id="start_date" name="start_date" data-date-format="yyyy-mm-dd" value="{{start_date}}" style="width:150px;">
+                </div>
+                <div class="search-input" style="width:190px;">
+                    <label for="sale_type" class="control-label">至</label>
+                    <input type="text" class="datetimepicker" id="end_date" name="end_date" data-date-format="yyyy-mm-dd" value="{{end_date}}" style="width:150px;">
+                </div>
+                <div class="select_option return">
+                    <input type="submit" value="导出">
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
     <br/>
-    {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
-    <form class="form-inline" method="POST">
-      <input type='hidden' value="excel" name="action">
-      <div class="form-group">
-        <label for="exampleInputName2"></label>
-        <input type="text" class="datetimepicker form-control" id="start_date" name="start_date" data-date-format="yyyy-mm-dd" value="{{start_date}}">
-      </div>
-      <div class="form-group">
-        <label for="exampleInputEmail2">至</label>
-        <input type="text" class="datetimepicker form-control" id="end_date" name="end_date" data-date-format="yyyy-mm-dd" value="{{end_date}}">
-      </div>
-      <button type="submit" class="btn btn-info">导出考勤</button>
-    </form>
-    {% endif %}
-    <br/>
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th>员工编号</th>
-          <th>姓名</th>
-          <th>区域</th>
-          <th>最后一次打卡时间</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for user in users %}
-        <tr>
-          <th scope="row">{{user.sn or '无'}}</th>
-          <td>{{user.name}}</td>
-          <td>{{user.location_cn}}</td>
-          <td>{{user.last_check_time}}</td>
-          <td><a target="_blank" href="{{url_for('account_onduty.info', uid=user.id)}}">查看</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+          <thead>
+            <tr>
+              <th>员工编号</th>
+              <th>姓名</th>
+              <th>区域</th>
+              <th>最后一次打卡时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>{{user.sn or '无'}}</td>
+              <td>{{user.name}}</td>
+              <td>{{user.location_cn}}</td>
+              <td>{{user.last_check_time}}</td>
+              <td><a target="_blank" href="{{url_for('account_onduty.info', uid=user.id)}}">查看</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
 </div>
 <script>
   $('.file-widget-btn').click(function(e){
@@ -85,6 +93,7 @@
     }
   });
   $(function(){
+    $('select').chosen({disable_search: true});
     $('#location').val('{{location}}')
     $("#location").trigger("chosen:updated");
 

@@ -43,198 +43,211 @@
 {%- endmacro %}
 
 <div class="container bra-box" id="medium_box" style="width:1000px;">
-    <h3>媒体清单</h3>
-    <form class="form-inline">
-        <div class="form-group">
-            <label for="exampleInputEmail2">时间</label>
-            <select class="form-control bra-form-control" id="year" name="year" placeholder="时间">
-                {% for k in range(10) %}
-                <option value='{{2014+k}}'>{{2014+k}}年</option>
-                {% endfor %}
-            </select>
-        </div>
-        <button type="submit" class="btn btn-default">搜索</button>
-        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
-    </form>
+    <h3 {% if g.user.is_super_leader() %}style="margin-top: 50px;"{% endif %}>媒体清单</h3>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float: left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">执行年</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:150px;">
+                    {% for k in range(5) %}
+                    <option value="{{2014+k}}">{{2014+k}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
+        </form>
+    </div>
     <br>
-    <table class="table table-bordered">
-    <tr>
-        <td colspan=2 style="width:8%;">时间</td>
-        {% for k in pre_monthes %}
-        <td colspan=3>{{k.month.month}}月</td>
-        {% endfor %}
-        <td>总计</td>
-    </tr>
-    <tr>
-        <td colspan=2>媒体项目</td>
-        {% for k in pre_monthes %}
-        <td>华北</td>
-        <td>华东</td>
-        <td>华南</td>
-        {% endfor %}
-        <td></td>
-    </tr>
-    {% if g.user.is_aduit() and year == '2014'%}
-    <tr>
-        <td rowspan='{{88 + up_money|length * 5}}'>致趣收入</td>
-    </tr>
-    {% else %}
-    <tr>
-        <td rowspan='{{88 + up_money|length * 5}}'>致趣收入</td>
-        <td  style="background-color:#CCFF99;">豆瓣执行收入</td>
-        {% for k in douban_money.sale_money %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ douban_money.sale_money|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td  style="background-color:#CCFF99;">豆瓣服务费收入计提</td> 
-        {% for k in douban_money.money2 %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ douban_money.money2|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td  style="background-color:#CCFF99;">豆瓣返点成本</td> 
-        {% for k in douban_money.a_rebate %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ douban_money.a_rebate|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td  style="background-color:#CCFF99;">豆瓣毛利</td> 
-        {% for k in douban_money.profit %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ douban_money.profit|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
-    {% endif %}
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <td colspan=2 style="width:8%;">时间</td>
+                    {% for k in pre_monthes %}
+                    <td colspan=3>{{k.month.month}}月</td>
+                    {% endfor %}
+                    <td>总计</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan=2>媒体项目</td>
+                    {% for k in pre_monthes %}
+                    <td>华北</td>
+                    <td>华东</td>
+                    <td>华南</td>
+                    {% endfor %}
+                    <td></td>
+                </tr>
+                {% if g.user.is_aduit() and year == '2014'%}
+                <tr>
+                    <td rowspan='{{88 + up_money|length * 5}}'>致趣收入</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td rowspan='{{88 + up_money|length * 5}}'>致趣收入</td>
+                    <td  style="background-color:#CCFF99;">豆瓣执行收入</td>
+                    {% for k in douban_money.sale_money %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ douban_money.sale_money|sum()|format_price }}</td>
+                </tr>
+                <tr>
+                    <td  style="background-color:#CCFF99;">豆瓣服务费收入计提</td> 
+                    {% for k in douban_money.money2 %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ douban_money.money2|sum()|format_price }}</td>
+                </tr>
+                <tr>
+                    <td  style="background-color:#CCFF99;">豆瓣返点成本</td> 
+                    {% for k in douban_money.a_rebate %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ douban_money.a_rebate|sum()|format_price }}</td>
+                </tr>
+                <tr>
+                    <td  style="background-color:#CCFF99;">豆瓣毛利</td> 
+                    {% for k in douban_money.profit %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ douban_money.profit|sum()|format_price }}</td>
+                </tr>
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
+                {% endif %}
 
-    {{ medium_tr(momo_money, '陌陌', '33CCFF') }}
-    
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
+                {{ medium_tr(momo_money, '陌陌', '33CCFF') }}
+                
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
 
-    {{ medium_tr(zhihu_money, '知乎', '0066FF') }}
+                {{ medium_tr(zhihu_money, '知乎', '0066FF') }}
 
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
 
-    {{ medium_tr(xiachufang_money, '下厨房', 'AA7700') }}
+                {{ medium_tr(xiachufang_money, '下厨房', 'AA7700') }}
 
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
 
-    {{ medium_tr(xueqiu_money, '雪球', '007799') }}
+                {{ medium_tr(xueqiu_money, '雪球', '007799') }}
 
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
 
-    {{ medium_tr(huxiu_money, '虎嗅', '9F88FF') }}
+                {{ medium_tr(huxiu_money, '虎嗅', '9F88FF') }}
 
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
 
-    {{ medium_tr(kecheng_money, '课程格子', 'FF8888') }}
+                {{ medium_tr(kecheng_money, '课程格子', 'FF8888') }}
 
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
 
-    {{ medium_tr(midi_money, '迷笛', 'FFBB00') }}
+                {{ medium_tr(midi_money, '迷笛', 'FFBB00') }}
 
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
 
-    {{ medium_tr(weipiao_money, '微票', 'FF3333') }}
+                {{ medium_tr(weipiao_money, '微票', 'FF3333') }}
 
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
-    {{ medium_tr(one_money, 'ONE', 'E93EFF') }}
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
+                {{ medium_tr(one_money, 'ONE', 'E93EFF') }}
 
 
-    {% for k, v in up_money.items() %}
-        <tr>
-            <td colspan=36 style="height:30px;"></td>
-        </tr>
-        {{ medium_tr(v, k, 'FF7F50') }}
-    {% endfor %}
+                {% for k, v in up_money.items() %}
+                    <tr>
+                        <td colspan=36 style="height:30px;"></td>
+                    </tr>
+                    {{ medium_tr(v, k, 'FF7F50') }}
+                {% endfor %}
 
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
 
-    {{ medium_tr(other_money, '其他', 'AAAAAA') }}
+                {{ medium_tr(other_money, '其他', 'AAAAAA') }}
 
-    <tr>
-        <td colspan=36 style="height:30px;"></td>
-    </tr>
+                <tr>
+                    <td colspan=36 style="height:30px;"></td>
+                </tr>
 
-    <tr>
-        <td style="background-color:#FF0088;">效果业务收入</td>
-        {% for k in searchAD_money.sale_money %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ searchAD_money.sale_money|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td style="background-color:#FF0088;">效果业务返点收入</td>
-        {% for k in rebate_order_money.sale_money %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ rebate_order_money.sale_money|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td style="background-color:#FF0088;">效果业务执行金额</td>
-        {% for k in searchAD_money.money2 %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ searchAD_money.money2|sum()|format_price }}</td>
-    </tr>
-    <!--
-    <tr>
-        <td style="background-color:#FF0088;">效果业务净成本</td> 
-        {% for k in searchAD_money.m_ex_money %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ searchAD_money.m_ex_money|sum()|format_price }}</td>
-    </tr>-->
-    <tr>
-        <td style="background-color:#FF0088;">效果业务代理成本</td> 
-        {% for k in searchAD_money.a_rebate %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ searchAD_money.a_rebate|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td style="background-color:#FF0088;">效果业务毛利</td> 
-        {% for k in searchAD_money.profit %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ searchAD_money.profit|sum()|format_price }}</td>
-    </tr>
-    <tr>
-        <td>合计</td>
-        {% for k in total %}
-        <td>{{k|format_price}}</td>
-        {% endfor %}
-        <td>{{ total|sum()|format_price }}</td>
-    </tr>
-</table>
+                <tr>
+                    <td style="background-color:#FF0088;">效果业务收入</td>
+                    {% for k in searchAD_money.sale_money %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ searchAD_money.sale_money|sum()|format_price }}</td>
+                </tr>
+                <tr>
+                    <td style="background-color:#FF0088;">效果业务返点收入</td>
+                    {% for k in rebate_order_money.sale_money %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ rebate_order_money.sale_money|sum()|format_price }}</td>
+                </tr>
+                <tr>
+                    <td style="background-color:#FF0088;">效果业务执行金额</td>
+                    {% for k in searchAD_money.money2 %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ searchAD_money.money2|sum()|format_price }}</td>
+                </tr>
+                <!--
+                <tr>
+                    <td style="background-color:#FF0088;">效果业务净成本</td> 
+                    {% for k in searchAD_money.m_ex_money %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ searchAD_money.m_ex_money|sum()|format_price }}</td>
+                </tr>-->
+                <tr>
+                    <td style="background-color:#FF0088;">效果业务代理成本</td> 
+                    {% for k in searchAD_money.a_rebate %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ searchAD_money.a_rebate|sum()|format_price }}</td>
+                </tr>
+                <tr>
+                    <td style="background-color:#FF0088;">效果业务毛利</td> 
+                    {% for k in searchAD_money.profit %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ searchAD_money.profit|sum()|format_price }}</td>
+                </tr>
+                <tr>
+                    <td>合计</td>
+                    {% for k in total %}
+                    <td>{{k|format_price}}</td>
+                    {% endfor %}
+                    <td>{{ total|sum()|format_price }}</td>
+                </tr>
+            <tbody>
+        </table>
+    </div>
 </div>
 
 <script>
     $(function(){
+        $('select').chosen({disable_search: true}); 
         var width = 110*(parseInt('{{other_money.profit|length}}')+3)
         $("#medium_box").width(width);
         $("#year").val("{{year}}");

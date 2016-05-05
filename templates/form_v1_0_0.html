@@ -1,0 +1,64 @@
+<style>
+  .errors {
+    color: #CC6655;
+  }
+  .tips {
+    color: #CC6655;
+  }
+</style>
+{% macro form_field(field) -%}
+    {% if field.hidden %}
+      <div class="input-group-menu" style="display: none;">
+    {% else %}
+      <div class="input-group-menu">
+    {% endif %}
+        <div class="name">{{field.label.text}} : </div>
+          {% if field.readonly %}
+            {{field(class_='surname', placeholder=field.label.text, readonly="readonly", style="width:300px;")}}
+          {% elif field.disabled %}
+	           {{field(class_='surname', placeholder=field.label.text, disabled="disabled")}}
+          {% else %}
+            {{field(class_='surname', placeholder=field.label.text, style="width:300px;")}}
+          {% endif %}
+            <span class="errors">{{','.join(field.errors)}}</span>
+            <span class="tips">{{field.description}}</span>
+      </div>
+{%- endmacro %}
+
+{% macro form_tpl(form) -%}
+    <form class="input-row-box" method="POST">
+      {{form.csrf_token}}
+      {% for field in form %}
+        {% if field != form.csrf_token %}
+          {{ form_field(field) }}
+        {% endif %}
+      {% endfor %}
+      <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+      </div>
+    </form>
+{%- endmacro %}
+
+{% macro form_tpl_ex_form(form) -%}
+    {{form.csrf_token}}
+    {% for field in form %}
+      {% if field != form.csrf_token %}
+        {{ form_field(field) }}
+      {% endif %}
+    {% endfor %}
+{%- endmacro %}
+
+{% macro upload_field(field) -%}
+      <div class="form-group file-widget">
+        <label for="name" class="col-sm-2 control-label">{{field.label.text}} : </label>
+        <div class="col-sm-10">
+            {{field(class_='form-control bra-form-control', placeholder=field.label.text)}}
+            <button class="file-widget-wrapper btn btn-default">
+              <span>上传</span>
+              <input class="file-widget-button" type="file" name="file" id="file"/>
+            </button>
+            <span class="tips">{{field.description}}</span>
+            <span class="errors">{{','.join(field.errors)}}</span>
+        </div>
+      </div>
+{%- endmacro %}
