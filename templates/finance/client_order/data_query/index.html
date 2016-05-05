@@ -178,10 +178,18 @@
                 {{o.client_order.contract}}</a>
             </td>
             <td>
-                {% for mo in o.client_order.medium_orders %}    
-                {{mo.medium.name}}
-                <br><br>
-                {% endfor %}
+                {% if t_type == 'pay_medium_invoice' %}
+                    {{ o.medium_invoice.company}}
+                {% elif t_type == 'medium_invoice' %}
+                    {{ o.company}}
+                {% elif t_type == 'medium_rebate_invoice' %}
+                    {{o.company}}
+                {% else %}
+                    {% for mo in o.client_order.medium_orders %}    
+                    {{mo.medium.name}}
+                    <br><br>
+                    {% endfor %}
+                {% endif %}
             </td>
             <td>{{o.client_order.start_date_cn}}</td>
             <td>{{o.client_order.end_date_cn}}</td>

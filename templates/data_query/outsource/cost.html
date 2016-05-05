@@ -51,7 +51,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <th rowspan=10>外包项目</th>
+                    <th rowspan=12>外包项目</th>
                 </tr>
                 <tr>
                     <th>奖品</th>
@@ -104,6 +104,22 @@
                 <tr>
                     <th>H5开发</th>
                     {% for k in monthes_data['7'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>网络公关运营</th>
+                    {% for k in monthes_data['8'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>设计</th>
+                    {% for k in monthes_data['9'] %}
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
                     <th>{{k.huanan|format_price}}</th>

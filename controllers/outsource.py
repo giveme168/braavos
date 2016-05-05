@@ -10,7 +10,7 @@ from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.order import Order
 from models.douban_order import DoubanOrder
 from models.user import (User, TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER, TEAM_LOCATION_CN,
-                         TEAM_TYPE_LEADER, TEAM_LOCATION_HUANAN, TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG)
+                         TEAM_TYPE_LEADER, TEAM_LOCATION_HUANAN)
 from models.outsource import (OUTSOURCE_STATUS_NEW, OUTSOURCE_STATUS_APPLY_LEADER,
                               OUTSOURCE_STATUS_PASS, OUTSOURCE_STATUS_APPLY_MONEY,
                               OUTSOURCE_STATUS_EXCEED, INVOICE_RATE, OUTSOURCE_STATUS_PAIED,
@@ -143,7 +143,7 @@ def display_orders(orders, template, title, operaters):
     else:
         status_id = -1
     orderby = request.args.get('orderby', '')
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strp()
     location_id = int(request.args.get('selected_location', '-1'))
     status = request.args.get('status', '')
     page = int(request.args.get('p', 1))
@@ -152,11 +152,6 @@ def display_orders(orders, template, title, operaters):
     if g.user.team.type == TEAM_TYPE_LEADER:
         status = 'apply'
         location_id = g.user.team.location
-
-    # 盖新的查看内容
-    if int(g.user.id) == 15:
-        status = 'apply_upper'
-        location_id = [TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG]
 
     # Oscar的查看内容
     if int(g.user.id) == 16:
@@ -345,6 +340,9 @@ def new_outsource():
     except:
         flash(u'保存失败，金额必须为数字!', 'danger')
         return redirect(url_for("outsource.client_outsources", order_id=order.client_order.id))
+    status = 0
+    if g.user.is_super_leader():
+        status = 2
     outsource = OutSource.add(target=OutSourceTarget.get(form.target.data),
                               medium_order=order,
                               num=form.num.data,
@@ -352,6 +350,7 @@ def new_outsource():
                               subtype=form.subtype.data,
                               remark=form.remark.data,
                               invoice=False,
+                              status=status,
                               pay_num=form.num.data,)
     flash(u'新建外包成功!', 'success')
     outsource.client_order.add_comment(g.user,
@@ -369,6 +368,9 @@ def new_douban_outsource():
     except:
         flash(u'保存失败，金额必须为数字!', 'danger')
         return redirect(url_for("outsource.douban_outsources", order_id=order.id))
+    status = 0
+    if g.user.is_super_leader():
+        status = 2
     outsource = DoubanOutSource.add(target=OutSourceTarget.get(form.target.data),
                                     douban_order=order,
                                     num=form.num.data,
@@ -376,6 +378,7 @@ def new_douban_outsource():
                                     subtype=form.subtype.data,
                                     remark=form.remark.data,
                                     invoice=False,
+                                    status=status,
                                     pay_num=form.num.data)
     flash(u'新建外包成功!', 'success')
     outsource.douban_order.add_comment(g.user,
