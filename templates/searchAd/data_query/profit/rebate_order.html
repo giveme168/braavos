@@ -1,59 +1,71 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}返点订单执行成本{% endblock %}
 {% macro all_items(orders) -%}
-<table class="table table-bordered">
-    <tr>
-        <th>区域</th>
-        <th style="width:165px;">合同号</th>
-        <th>客户名称</th>
-        <th>代理/直客</th>
-        <th>项目名称</th>
-        <th>客户合同总金额</th>
-        <th>回款总金额</th>
-        <th>客户{{month}}月执行额</th>
-        <th>{{month}}月合同利润</th>
-        <th>合同开始</th> 
-        <th>合同结束</th> 
-    </tr>
-    {% for order in orders %}
-    <tr>
-        <td>{{order.locations_cn}}</td>
-        <td>{{order.contract}}</td>
-        <td>{{order.client.name}}</td>
-        <td>{{order.agent.name}}</td>
-        <td>{{order.campaign}}</td>
-        <td>{{order.money|format_price}}</td>
-        <td>{{order.back_moneys|format_price}}</td>
-        <td>{{order.executive_report(g.user, year, [month], 'normal')[0]|format_price}}</td>
-        <td>{{order.executive_report(g.user, year, [month], 'normal')[0]|format_price}}</td>
-        <td>{{order.start_date_cn}}</td>
-        <td>{{order.end_date_cn}}</td>
-    </tr>
-    {% endfor %}
-</table>
+<div class='tabulation'>
+    <table border='1'>
+        <thead>
+            <tr>
+                <th>区域</th>
+                <th style="width:165px;">合同号</th>
+                <th>客户名称</th>
+                <th>代理/直客</th>
+                <th>项目名称</th>
+                <th>客户合同总金额</th>
+                <th>回款总金额</th>
+                <th>客户{{month}}月执行额</th>
+                <th>{{month}}月合同利润</th>
+                <th>合同开始</th> 
+                <th>合同结束</th> 
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{order.locations_cn}}</td>
+                <td>{{order.contract}}</td>
+                <td>{{order.client.name}}</td>
+                <td>{{order.agent.name}}</td>
+                <td>{{order.campaign}}</td>
+                <td>{{order.money|format_price}}</td>
+                <td>{{order.back_moneys|format_price}}</td>
+                <td>{{order.executive_report(g.user, year, [month], 'normal')[0]|format_price}}</td>
+                <td>{{order.executive_report(g.user, year, [month], 'normal')[0]|format_price}}</td>
+                <td>{{order.start_date_cn}}</td>
+                <td>{{order.end_date_cn}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {%- endmacro %}
 {% block content %}
-{% include "/searchAd/data_query/data_query_base.html" %}
+{% include "/searchAd/data_query/data_query_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:1350px;">
     <h3>返点订单执行成本</h3>
-    <div class="search">
-        <form class="form-inline" role="form" action="" method='get'>
-        <div class="form-group">
-            <select class="form-control" name="year" id="year" placeholder="选择执行年" style="width:100px;">
-                {% for k in range(0, 10) %}
-                <option value="{{2014+k}}">{{2014+k}}年</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <select class="form-control" name="month" id="month" placeholder="选择执行月" style="width:80px;">
-                {% for k in range(1, 13) %}
-                <option value="{{k}}">{{k}}月</option>
-                {% endfor %}
-            </select>
-        </div>
-        <input type="submit" value="查询" class="btn btn-sm btn-info" >
-        <input type="button" value="导出Excel" class="btn btn-sm btn-default" onclick="javascript:download();">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">查询时间：</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                    <option value='{{2014+k}}'>{{2014+k}}年</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">月：</label>
+                <select class="form-control special_sale" name="month" id="month" style="width:100px;">
+                    {% for k in range(1, 13) %}
+                    <option value="{{k}}">{{k}}月</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
         </form>
     </div>
     <br>
@@ -61,7 +73,7 @@
 </div>
 <script>
     $(function(){
-        //$("#year option[value='{{year}}']").attr("selected","selected");  
+        $('select').chosen({disable_search: true}); 
         $("#year").val("{{year}}");
         $("#year").trigger("chosen:updated");
         $("#month").val("{{month}}")

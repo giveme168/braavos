@@ -354,19 +354,13 @@ def info(uid):
     else:
         start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d')
         end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d')
-    now_date_a = datetime.datetime.now()
     outs = [k for k in _format_out() if k['creator_id'] == int(uid)]
-    print u'获取所有外出', (datetime.datetime.now() - now_date_a).total_seconds()
     leaves = [k for k in _format_leave() if k['creator_id'] == int(uid)]
-    print u'获取所有请假', (datetime.datetime.now() - now_date_a).total_seconds()
     # 打卡最后一次时间
     last_onduty_date = _get_last_onduty_date()
-    print u'获取上一次打卡时间', (datetime.datetime.now() - now_date_a).total_seconds()
     all_dus = _format_onduty(start_time, end_time)
-    print u'获取所有凯芹', (datetime.datetime.now() - now_date_a).total_seconds()
     dutys = _get_onduty(all_dus, outs, leaves, user,
                         start_time, end_time, last_onduty_date)
-    print u'结果', (datetime.datetime.now() - now_date_a).total_seconds()
     return tpl('/account/onduty/info.html', user=user,
                start_time=start_time.strftime('%Y-%m-%d'),
                end_time=end_time.strftime('%Y-%m-%d'),

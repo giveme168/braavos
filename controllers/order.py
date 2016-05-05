@@ -1090,7 +1090,7 @@ def get_medium_framework_form(order):
 
 @order_bp.route('/my_medium_framework_orders', methods=['GET'])
 def my_medium_framework_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or\
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media_leader() or\
             g.user.is_contract() or g.user.is_aduit():
         orders = MediumFrameworkOrder.all()
         if g.user.is_admin() or g.user.is_contract() or g.user.is_finance():
@@ -1098,8 +1098,8 @@ def my_medium_framework_orders():
         elif g.user.is_super_leader():
             orders = [o for o in orders if o.contract_status ==
                       CONTRACT_STATUS_APPLYCONTRACT]
-        elif g.user.is_media() or g.user.is_media_leader():
-            orders = [o for o in MediumFrameworkOrder.all() if g.user.location in o.locations]
+        elif g.user.is_media_leader():
+            pass
     else:
         orders = MediumFrameworkOrder.get_order_by_user(g.user)
     return medium_framework_display_orders(orders, u'我的媒体框架订单')
@@ -1592,7 +1592,7 @@ def attachment_status_email(order, attachment):
 
 @order_bp.route('/intention_order', methods=['GET'])
 def intention_order():
-    orders = IntentionOrder.all()
+    orders = [k for k in IntentionOrder.all() if k.status == 0]
     year = str(request.values.get('year', datetime.now().year))
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
@@ -1711,7 +1711,9 @@ def intention_order_create():
 
 @order_bp.route('/intention_order/<intention_id>/delete', methods=['GET', 'POST'])
 def intention_order_delete(intention_id):
-    IntentionOrder.get(intention_id).delete()
+    order = IntentionOrder.get(intention_id)
+    order.status = -1
+    order.save()
     return redirect(url_for('order.intention_order'))
 
 

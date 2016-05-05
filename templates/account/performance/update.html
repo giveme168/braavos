@@ -1,65 +1,58 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'form.html' import form_field %}
 {% block title %}新建销售计划{% endblock %}
 
 {% block content %}
-{% include "/account/account_performance_base.html" %}
+{% include "/account/account_performance_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h4>{{performance.location_cn}}{{performance.year}}{{performance.q_month}}销售计划</h4>
-    <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
-        <div class="form-group">
-          <label for="client_start" class="col-sm-3 control-label">所属区域 : </label>
-          <div class="col-sm-6">
-            <label class="control-label">{{performance.location_cn}}</label>
-          </div>
+    <form class="input-row-box" method="POST" onsubmit="return checkform(this)">
+        <div class="input-group-menu">
+            <div class="name">所属区域 : </div>
+            <div class="name">{{performance.location_cn}}</div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-3 control-label">执行年 : </label>
-          <div class="col-sm-6">
-            <select id='year' name='year' class="form-control bra-form-control">
-                {% for k in range(2014, 2031) %}
-                <option value="{{k}}">{{k}}</option>
+        <div class="input-group-menu">
+            <div class="name">执行年 : </div>
+            <select id='year' name='year' class="surname" style="width:300px;">
+                {% for k in range(5) %}
+                <option value="{{2014+k}}">{{2014+k}}</option>
                 {% endfor %}
             </select>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-3 control-label">执行季度 : </label>
-          <div class="col-sm-6">
-            <select id='q_month' name='q_month' class="form-control bra-form-control">
+        <div class="input-group-menu">
+            <div class="name">执行季度 : </div>
+            <select id='q_month' name='q_month' class="surname" style="width:300px;">
                 <option value="Q1">Q1</option>
                 <option value="Q2">Q2</option>
                 <option value="Q3">Q3</option>
                 <option value="Q4">Q4</option>
             </select>
-          </div>
         </div>
         <li role="presentation" class="dropdown-header">下属的销售目标</li>
         <div id='location_users'>
             {% for k in performance.performance_user_money %}
-            <div class="form-group">
-              <label for="client_end" class="col-sm-3 control-label">{{k.user.name}}的销售目标 : </label>
-              <div class="col-sm-6">
-                <input type="number" id="money_{{k.user.id}}" name="money_{{k.user.id}}" value="{{k.money}}" class="form-control bra-form-control">
+            <div class="input-group-menu">
+                <div class="name">{{k.user.name}}:</div>
+                <input type="number" id="money_{{k.user.id}}" name="money_{{k.user.id}}" value="{{k.money}}" class="surname" style="width:300px;">
                 <span class="tips" style="color:red;">万元</span>
-              </div>
             </div>
             {% endfor %}
         </div>
         <li role="presentation" class="dropdown-header">区域销售目标总计</li>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-3 control-label">销售目标总计 : </label>
-          <div class="col-sm-6">
-            <input type="number" id="t_money" name="t_money" value="0" class="form-control bra-form-control">
+        <div class="input-group-menu">
+            <div class="name">销售目标总计 : </div>
+            <input type="number" id="t_money" name="t_money" value="0" class="surname" style="width:300px;">
             <span class="tips" style="color:red;">万元</span>
-          </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2"/>保存</button>
-        <a class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_performance.index')}}"/>返回</a>
+        <div class="state" style="margin-left:40%;">
+            <a href="{{url_for('account_performance.index')}}"><input type="button" value="返回"></a>
+            <input type="submit" value="保存">
+        </div>
     </form>
 </div>
 <script>
 $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     $('#location').val(parseInt('{{performance.location}}'));
     $('#location').trigger("chosen:updated");
     $('#year').val(parseInt('{{performance.year}}'));
@@ -75,15 +68,15 @@ function check_locations(){
     var user_html = ""
     if (location == 1){
         {% for k in huabei_users %}
-            user_html += '<div class="form-group"><label for="client_end" class="col-sm-3 control-label">{{k.name}}的销售目标 : </label><div class="col-sm-6"><input type="number" id="money_{{k.id}}" name="money_{{k.id}}" value="0" class="form-control bra-form-control"><span class="tips" style="color:red;">万元</span></div></div>'
+            user_html += '<div class="input-group-menu"><div class="name">{{k.name}}:</div><input type="number" id="money_{{k.id}}" name="money_{{k.id}}" value="0" class="surname" style="width:300px;"><span class="tips" style="color:red;">万元</span></div>'
         {% endfor %}
     }else if(location == 2){
         {% for k in huadong_users %}
-            user_html += '<div class="form-group"><label for="client_end" class="col-sm-3 control-label">{{k.name}}的销售目标 : </label><div class="col-sm-6"><input type="number" id="money_{{k.id}}" name="money_{{k.id}}" value="0" class="form-control bra-form-control"><span class="tips" style="color:red;">万元</span></div></div>'
+            user_html += '<div class="input-group-menu"><div class="name">{{k.name}}:</div><input type="number" id="money_{{k.id}}" name="money_{{k.id}}" value="0" class="surname" style="width:300px;"><span class="tips" style="color:red;">万元</span></div>'
         {% endfor %}
     }else if(location == 3){
         {% for k in huanan_users %}
-            user_html += '<div class="form-group"><label for="client_end" class="col-sm-3 control-label">{{k.name}}的销售目标 : </label><div class="col-sm-6"><input type="number" id="money_{{k.id}}" name="money_{{k.id}}" value="0" class="form-control bra-form-control"><span class="tips" style="color:red;">万元</span></div></div>'
+            user_html += '<div class="input-group-menu"><div class="name">{{k.name}}:</div><input type="number" id="money_{{k.id}}" name="money_{{k.id}}" value="0" class="surname" style="width:300px;"><span class="tips" style="color:red;">万元</span></div>'
         {% endfor %}
     }
     $('#location_users').html(user_html)

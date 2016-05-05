@@ -1,31 +1,33 @@
-{% extends "base.html" %}
+{% extends "base_v1_0_0.html" %}
 {% block title %}员工通讯录{% endblock %}
 
 {% block content %}
 <div class="container" style="min-width: 950px;">
     <h3 style="margin-top: 85px;">员工通讯录</h3>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>姓名</th>
-          <th>区域</th>
-          <th>职位</th>
-          <th>邮箱</th>
-          <th>联系方式</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for user in users %}
-        <tr>
-          <td>{{user.name}}</td>
-          <td>{{user.team.location_cn}}</td>
-          <td>{{user.position or ''}}</td>
-          <td>{{user.email}}</td>
-          <td>{{user.cellphone_cn}}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>区域</th>
+                <th>职位</th>
+                <th>邮箱</th>
+                <th>联系方式</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+              <tr>
+                <td>{{user.name}}</td>
+                <td>{{user.team.location_cn}}</td>
+                <td>{{user.position or ''}}</td>
+                <td>{{user.email}}</td>
+                <td>{{user.cellphone_cn}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 <script>
     $(function(){

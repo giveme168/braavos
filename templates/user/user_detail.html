@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% from 'form.html' import form_tpl, form_tpl_ex_form %}
+{% extends "base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_tpl, form_tpl_ex_form %}
 {% block title %}用户 - {{user.name}}{% endblock %}
 
 {% block content %}
@@ -15,14 +15,14 @@
     height: 100px;
 }
 </style>
-{% include "user_base.html" %}
+{% include "user_base_v1_0_0.html" %}
 <div class="container bra-box" style="min-width: 950px;">
     <h3>用户 - {{user.name}}</h3>
     {% if g.user.team.is_admin() or g.user==user or g.user.is_HR_leader() or g.user.is_HR() %}
-        <div class="form-horizontal">
-          <div class="form-group">
-            <label class="col-sm-2 control-label">头像</label>
-            <div class="col-sm-10">
+        <div class="input-row-box">
+          <div class="input-group-menu">
+            <div class="name">头像</div>
+            <div class="">
               <div class="pic-icon">
                 {% set schedule = user.get_last_user_pic_file()  %}
                 {% if schedule %}
@@ -40,20 +40,23 @@
             </div>
           </div>
         </div>
-        <form class="form form-horizontal" method="POST" action="{{url_for('user.user_detail', user_id=user.id)}}">
+        <form class="input-row-box" method="POST" action="{{url_for('user.user_detail', user_id=user.id)}}">
             {{ form_tpl_ex_form(form) }}
             <br/><br/>
-            <a href="{{url_for('user.users')}}" class="btn btn-primary btn-sm col-md-offset-2">返回</a>
-            <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+            <div class="state" style="margin-left:40%;">
+                <a href="{{url_for('user.users')}}"><input type="button" value="返回"></a>
+                <input type="submit" value="保存">
+            </div>
         </form>
     {% else %}
-    <table class="table table-bordered table-striped">
-        <tr><th>名称</th><td>{{user.name}}</td></tr>
-        <tr><th>邮箱</th><td>{{user.email}}</td></tr>
-        <tr><th>角色</th><td>{{user.team.name}}</td></tr>
-    </table>
+        <table class="table table-bordered table-striped">
+            <tr><th>名称</th><td>{{user.name}}</td></tr>
+            <tr><th>邮箱</th><td>{{user.email}}</td></tr>
+            <tr><th>角色</th><td>{{user.team.name}}</td></tr>
+        </table>
     {% endif %}
     {% if g.user.team.is_admin() or g.user.is_HR() or g.user.is_HR_leader() %}
+    <br/>
     <div style="margin-top: 30px;">
         * 重设密码统一设置为 {{DEFAULT_PASSWORD}}
         <a href="{{url_for('user.pwd_reset', user_id=user.id)}}" class="btn btn-danger btn-sm"> 重设为默认密码</a>
@@ -77,6 +80,7 @@ Date.prototype.Format = function (fmt) { //author: meizz
     return fmt;
 }
 $(document).ready(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     $('#birthday').datetimepicker({
         autoclose: true,
         todayHighlight: true,

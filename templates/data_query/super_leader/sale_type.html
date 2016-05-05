@@ -26,60 +26,65 @@
             </li>
         </ul>
     </div>
-    <h3>{{title}}</h3>
-    <form class="form-inline">
-        <div class="form-group">
-            <label for="exampleInputEmail2">查询时间</label>
-            <select class="form-control" id="start_year" name="start_year" style="width:100px;">
-                {% for k in range(5) %}
-                <option value='{{2014+k}}'>{{2014+k}}年</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <select class="form-control" id="start_month" name="start_month" style="width:70px;">
-                {% for k in range(12) %}
-                    {% if k < 9 %}
-                        <option value='0{{1+k}}'>0{{1+k}}月</option>
-                    {% else %}
-                        <option value='{{1+k}}'>{{1+k}}月</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="exampleInputEmail2">&nbsp;至&nbsp;</label>
-            <select class="form-control" id="end_year" name="end_year" style="width:100px;">
-                {% for k in range(5) %}
-                <option value='{{2014+k}}'>{{2014+k}}年</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <select class="form-control" id="end_month" name="end_month" style="width:70px;">
-                {% for k in range(12) %}
-                    {% if k < 9 %}
-                        <option value='0{{1+k}}'>0{{1+k}}月</option>
-                    {% else %}
-                        <option value='{{1+k}}'>{{1+k}}月</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="exampleInputEmail2">区域：</label>
-            <select class="form-control" id="location" name="location" style="width:70px;">
-                <option value='0'>全部</option>
-                <option value='1'>华北</option>
-                <option value='2'>华东</option>
-                <option value='3'>华南</option>
-            </select>
-        </div>
-        <a href="javascript:search();" class="btn btn-info">查询</a>
-        <a href="javascript:download();" class="btn btn-default">导出</a>
-    </form>
-    <br>
     <div id="container" style="min-height:400px;"></div>
+    <div class="search-bar">
+        <div class="menu-btn-bar">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">查询时间：</label>
+                <select class="form-control special_sale" name="start_year" id="start_year" style="width:100px;">
+                    {% for k in range(5) %}
+                    <option value='{{2014+k}}'>{{2014+k}}年</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <select class="form-control special_sale" id="start_month" name="start_month" style="width:70px;">
+                    {% for k in range(12) %}
+                        {% if k < 9 %}
+                            <option value='0{{1+k}}'>0{{1+k}}月</option>
+                        {% else %}
+                            <option value='{{1+k}}'>{{1+k}}月</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">&nbsp;至&nbsp;</label>
+                <select class="form-control special_sale"  id="end_year" name="end_year" style="width:100px;">
+                    {% for k in range(5) %}
+                    <option value='{{2014+k}}'>{{2014+k}}年</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <select class="form-control special_sale"  id="end_month" name="end_month" style="width:70px;">
+                {% for k in range(12) %}
+                    {% if k < 9 %}
+                        <option value='0{{1+k}}'>0{{1+k}}月</option>
+                    {% else %}
+                        <option value='{{1+k}}'>{{1+k}}月</option>
+                    {% endif %}
+                {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">区域</label>
+                <select class="form-control special_sale"  id="location" name="location" style="width:70px;">
+                    <option value='0'>全部</option>
+                    <option value='1'>华北</option>
+                    <option value='2'>华东</option>
+                    <option value='3'>华南</option>
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
+        </div>
+    </div>
+    <br>
     <div id="container_list">
         
     </div>
@@ -89,6 +94,7 @@
 <script src="/static/js/numeral.min.js"></script>
 <script>
     $(document).ready(function(){
+        $('select').chosen({disable_search: true});
         var pathname = window.location.pathname;
         var path_name = pathname.split("/")
         $("#_" + path_name[4]+'_').addClass("on");
@@ -168,7 +174,7 @@
     }
     function load_list_container(data, total){
         $('#container_list').html('');
-        var start_table = "<table class='table table-bordered'><thead><tr>\
+        var start_table = "<div class='tabulation'><table border='1'><thead><tr>\
                         <th>#</th><th>售卖类型</th><th>执行额</th><th>占比</th></tr>\
                     </thead>\
                     <tbody>"

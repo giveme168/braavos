@@ -160,7 +160,7 @@ def index():
     if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
         abort(403)
     now_date = datetime.datetime.now()
-    year = (request.values.get('year', now_date.year))
+    year = int(request.values.get('year', now_date.year))
     # 获取整年月份
     pre_year_month = get_monthes_pre_days(datetime.datetime.strptime(str(year) + '-01', '%Y-%m'),
                                           datetime.datetime.strptime(str(year) + '-12', '%Y-%m'))
@@ -171,12 +171,10 @@ def index():
     # 获取媒体返点系数
     all_medium_rebate = _all_medium_rebate()
     # 获取当年合同
-    orders = ClientOrder.query.filter(ClientOrder.client_start_year >= year,
-                                      ClientOrder.client_end_year <= year,
-                                      ClientOrder.status == 1,
+    orders = ClientOrder.query.filter(ClientOrder.status == 1,
                                       ClientOrder.contract != '')
     # 去重合同
-    orders = list(set(orders))
+    orders = [k for k in orders if k.client_start.year == year]
     # 格式化合同
     orders = [_client_order_to_dict(k, back_money_data, all_agent_rebate,
                                     all_medium_rebate, pre_year_month

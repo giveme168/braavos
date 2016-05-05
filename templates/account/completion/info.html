@@ -1,29 +1,35 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}销售人员完成率{% endblock %}
 
 {% block content %}
-{% include "/account/account_performance_base.html" %}
+{% include "/account/account_performance_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>{{user.name}}  的提成情况&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-sm btn-default" href="{{url_for('account_completion.create',user_id = user.id)}}">新建完成率</a></h3>
     <br/>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>所属季度</th>
-            <th>完成率</th>
-            <th>最后修改人</th>
-            <th>操作</th>
-        </tr>
-        {% for k in comp %}
-        <tr id="tr_{{k.id}}">
-            <td>{{k.time}}</td>
-            <td>{{k.rate}}%</td>
-            <td>{{k.creator.name}}</td>
-            <td><a href="{{url_for('account_completion.update', user_id=user.id, mid=k.id)}}">修改</a><br/>
-                <a href="javascript:deletes('{{url_for('account_completion.delete', user_id=user.id, mid=k.id)}}', '{{k.year}}')">删除</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>所属季度</th>
+                    <th>完成率</th>
+                    <th>最后修改人</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for k in comp %}
+            <tr id="tr_{{k.id}}">
+                <td>{{k.time}}</td>
+                <td>{{k.rate}}%</td>
+                <td>{{k.creator.name}}</td>
+                <td><a href="{{url_for('account_completion.update', user_id=user.id, mid=k.id)}}">修改</a><br/>
+                    <a href="javascript:deletes('{{url_for('account_completion.delete', user_id=user.id, mid=k.id)}}', '{{k.year}}')">删除</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 <script>
 function deletes(delete_url, year){

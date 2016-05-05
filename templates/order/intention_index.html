@@ -18,7 +18,7 @@
         <th>结束</th>
         <th>修改时间</th>
         <th>状态</th>
-        <th>操作</th>
+        <th width="6%">操作</th>
     </tr>
     {% for o in orders %}
     <tr>
@@ -38,9 +38,7 @@
         <td>{{o.status_cn}}</td>
         <td>
             <a href="{{url_for('order.intention_order_update', intention_id=o.id)}}">修改</a>
-            {% if g.user.is_super_admin() %}
-            <a href="{{url_for('order.intention_order_delete', intention_id=o.id)}}">删除</a>
-            {% endif %}
+            <a href="javascript:delete_order('{{o.id}}')">删除</a>
         </td>
     </tr>
     {% endfor %}
@@ -49,7 +47,7 @@
 
 {% block content %}
 {% include "order_base.html" %}
-<div class="container bra-box" style="width:1400px;">
+<div class="container bra-box" style="width:1500px;">
     <h3> {{title}}</h3>
     <div class="search">
         <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
@@ -89,6 +87,14 @@
     {% include "pagination.html" %}
 </div>
 <script>
+
+function delete_order(id){
+    var ret = window.confirm("确定要删除该订单吗?");
+    if(ret){
+        window.location.href="/orders/intention_order/"+id+"/delete"
+    }
+}
+
 
 function search(){
     var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +

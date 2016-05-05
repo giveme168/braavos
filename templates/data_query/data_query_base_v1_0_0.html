@@ -1,6 +1,6 @@
 <!--导航-->
 <div class="top-nav-wrap">
-    {% if g.user.is_super_leader() %}
+    {% if g.user.is_super_leader() or g.user.is_finance() %}
     <!--一级菜单-->
     <div class="menu-bar">
         <ul>
@@ -9,7 +9,7 @@
         </ul>
     </div>
     {% endif %}
-    <div class="top-nav" {% if not g.user.is_super_leader() %}style="top: 20px;"{% endif %}>
+    <div class="top-nav" {% if not (g.user.is_super_leader() or g.user.is_finance()) %}style="top: 20px;"{% endif %}>
         {% if g.user.is_super_leader() %}
         <ul>
             <li id="_weeklymedium_" class="nav-first">
@@ -60,6 +60,16 @@
             </li>
             <li class="nav-last" id="_super_leadermedium_">
               <a href="{{url_for('data_query_super_leader_medium.money')}}">媒体清单</a>
+              <span></span>
+            </li>
+        </ul>
+        <ul>
+            <li class="nav-first" id="_accruedclient_order_">
+              <a href="{{url_for('data_query_accrued.client_order')}}">新媒体订单收入计提</a>
+              <span>|</span>
+            </li>
+            <li class="nav-last" id="_accrueddouban_order_">
+              <a href="{{url_for('data_query_accrued.douban_order')}}">豆瓣订单收入计提</a>
               <span></span>
             </li>
         </ul>
@@ -123,8 +133,16 @@
               <a href="{{url_for('data_query_profit.douban_order')}}">豆瓣订单执行成本</a>
               <span>|</span>
             </li>
-            <li class="nav-last" id="_ordercost_">
+            <li id="_ordercost_">
               <a href="{{url_for('data_query_order.cost')}}">媒体订单发票与款项</a>
+              <span>|</span>
+            </li>
+            <li id="_accruedclient_order_">
+              <a href="{{url_for('data_query_accrued.client_order')}}">新媒体订单收入计提</a>
+              <span>|</span>
+            </li>
+            <li class="nav-last" id="_accrueddouban_order_">
+              <a href="{{url_for('data_query_accrued.douban_order')}}">豆瓣订单收入计提</a>
               <span></span>
             </li>
         </ul>
@@ -181,7 +199,6 @@
         {% endif %}
     </div>
 </div>
-
 <script>
     $(function(){
         var pathname = window.location.pathname;

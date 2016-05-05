@@ -1,10 +1,15 @@
-{% extends "base.html" %}
-{% from 'form.html' import form_tpl %}
+{% extends "base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_tpl %}
 {% block title %}新建角色{% endblock %}
 {% block content %}
-{% include "user_base.html" %}
+{% include "user_base_v1_0_0.html" %}
 <div class="container bra-box" style="min-width: 950px;">
     <h3>新建角色</h3>
     {{ form_tpl(form) }}
 </div>
+<script>
+    $(document).ready(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+    })
+</script>
 {% endblock %}

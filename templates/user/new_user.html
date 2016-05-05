@@ -1,16 +1,18 @@
-{% extends "base.html" %}
-{% from 'form.html' import form_tpl, form_tpl_ex_form %}
+{% extends "base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_tpl, form_tpl_ex_form %}
 {% block title %}新建用户{% endblock %}
 
 {% block content %}
-{% include "user_base.html" %}
-<div class="container bra-box" style="min-width: 950px;">
+{% include "user_base_v1_0_0.html" %}
+<div class="container bra-box" style="min-width: 950px; min-height:800px;">
     <h3>新建用户</h3>
-    <form class="form form-horizontal" method="POST" action="" onsubmit="">
+    <form class="input-row-box" method="POST" action="" onsubmit="">
         {{ form_tpl_ex_form(form) }}
         <br/><br/>
-        <a href="{{url_for('user.users')}}" class="btn btn-primary btn-sm col-md-offset-2">返回</a>
-        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        <div class="state" style="margin-left:40%;">
+            <a href="{{url_for('user.users')}}"><input type="button" value="返回"></a>
+            <input type="submit" value="保存">
+        </div>
     </form>
 </div>
 <script>
@@ -30,6 +32,7 @@ Date.prototype.Format = function (fmt) { //author: meizz
     return fmt;
 }
 $(document).ready(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     $('#birthday').datetimepicker({
         autoclose: true,
         todayHighlight: true,

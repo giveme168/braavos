@@ -74,10 +74,10 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 /*表格*/
 
 
-.tabulation{margin-top: 180px;}
+.tabulation{/*margin-top: 180px;*/}
 .tabulation h5{text-align: center;width: 100%;}
-.tabulation table{width:90%;
-                margin-left:5%;
+.tabulation table{width:99%;
+                /*margin-left:5%;*/
 
                 border:1px solid #bebebe;}
 
@@ -134,6 +134,12 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
                 margin-top:3px;}  
 
 .menu-btn-bar .select_option .control-label{color: #fff;
+                                            font-size: 14px;
+                                            margin-left:10px;
+                                            float: left;
+                                            line-height: 28px;
+                                            margin-right:10px;}
+.menu-btn-bar .search-input .control-label{color: #fff;
                                             font-size: 14px;
                                             margin-left:10px;
                                             float: left;
@@ -208,7 +214,20 @@ input#end-date.form-control.form_datetime,input#start-date.form-control.form_dat
 
             }
 
+.state button{padding: 1px 25px 1px 25px;
+            background: #484848;
+            border:none;
+            margin-right: 10px;
+            float: left;
+            color: #fff;
+            font-size: 14px;
+            border-radius: 20px;
+
+            }
+
+
 .state input:hover{background: #ec3341;}
+.state button:hover{background: #ec3341;}
 
 .state .download{background: #919191;
                 }
@@ -272,7 +291,7 @@ input#end-date.form-control.form_datetime,input#start-date.form-control.form_dat
 .input-row-box{clear: both;
             width: 100%;
             margin-top: 30px;
-            height: 100px;
+            height: 100%;
             }
 
 .input-row-box .input-group-menu{width: 550px;
@@ -281,7 +300,7 @@ input#end-date.form-control.form_datetime,input#start-date.form-control.form_dat
                                 margin-bottom: 10px;}
 
 .input-row-box .input-group-menu .name{float: left;
-                                width:108px;
+                                width:158px;
                                 line-height: 30px;
                                 font-size: 14px;}
 
@@ -291,7 +310,7 @@ input#end-date.form-control.form_datetime,input#start-date.form-control.form_dat
                                 border:1px solid #e3e3e3;
                                 background: #e6e6e6;
                                 color: #808080;
-                                float: left;
+                                /*float: left*/;
                                 border-radius: 5px;
                                 outline: medium;}
 

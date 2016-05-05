@@ -779,7 +779,7 @@ def medium_index():
     if location_id:
         intention_orders = [
             k for k in intention_orders if location_id in k['locations']]
-    if g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or \
+    if g.user.is_contract() or g.user.is_super_leader() or \
             g.user.is_finance() or g.user.is_media_leader():
         intention_orders = intention_orders
     elif g.user.is_leader():

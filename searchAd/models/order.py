@@ -92,9 +92,9 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         'searchAdClientOrder', secondary=table_medium_orders)
 
     medium_contract = db.Column(db.String(100))  # 媒体合同号
-    medium_money = db.Column(db.Integer)  # 无效字段
-    medium_money2 = db.Column(db.Integer)  # 给媒体/供应商下单金额
-    sale_money = db.Column(db.Integer)  # 客户下单金额
+    medium_money = db.Column(db.Float())  # 无效字段
+    medium_money2 = db.Column(db.Float())  # 给媒体/供应商下单金额
+    sale_money = db.Column(db.Float())  # 客户下单金额
     medium_CPM = db.Column(db.Integer)  # 实际CPM
     sale_CPM = db.Column(db.Integer)  # 下单CPM
     discount = db.Column(db.Integer)  # 折扣类型

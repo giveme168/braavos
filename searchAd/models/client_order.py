@@ -53,6 +53,9 @@ AD_PROMOTION_TYPE_CN = {
     6: 'CPT',
     7: 'CPC',
     8: 'CPD',
+    9: 'CPM',
+    10: 'CPS',
+    99: u'其他'
 }
 
 CONTRACT_STATUS_NEW = 0
@@ -134,7 +137,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     campaign = db.Column(db.String(100))  # 活动名称
 
     contract = db.Column(db.String(100))  # 客户合同号
-    money = db.Column(db.Integer)  # 客户合同金额
+    money = db.Column(db.Float())  # 客户合同金额
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
