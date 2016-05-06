@@ -735,6 +735,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return sum([k.money for k in MediumInvoicePay.all() if
                     k.pay_status == 0 and k.medium_invoice in medium_invoices])
 
+    def get_outsources_by_status(self, outsource_status):
+        return [o for o in self.outsources if o.status == outsource_status]
+
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_order_executive_report'

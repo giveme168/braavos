@@ -170,8 +170,15 @@ def write_order_excel(orders, t_type):
             worksheet.write(
                 th, 5, orders[k].client_order.locations_cn, align_left)
             worksheet.write(th, 6, orders[k].client_order.contract, align_left)
-            worksheet.write(
-                th, 7, ','.join([m.name for m in orders[k].client_order.medium_orders]), align_left)
+            if t_type == 'pay_medium_invoice':
+                worksheet.write(th, 7, orders[k].medium_invoice.company, align_left)
+            elif t_type == 'medium_invoice':
+                worksheet.write(th, 7, orders[k].company, align_left)
+            elif t_type == 'medium_rebate_invoice':
+                worksheet.write(th, 7, orders[k].company, align_left)
+            else:
+                worksheet.write(
+                    th, 7, ','.join([m.name for m in orders[k].client_order.medium_orders]), align_left)
             worksheet.write(
                 th, 8, orders[k].client_order.start_date_cn, align_left)
             worksheet.write(

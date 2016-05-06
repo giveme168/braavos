@@ -51,7 +51,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <th rowspan=10>外包项目</th>
+                    <th rowspan=12>外包项目</th>
                 </tr>
                 <tr>
                     <th>奖品</th>
@@ -110,6 +110,22 @@
                     {% endfor %}
                 </tr>
                 <tr>
+                    <th>网络公关运营</th>
+                    {% for k in monthes_data['8'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>设计</th>
+                    {% for k in monthes_data['9'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
                     <th>区域总计</th>
                     {% for k in monthes_data['t_locataion'] %}
                     <th>{{k.huadong|format_price}}</th>
@@ -125,7 +141,7 @@
                 </tr>
                 <tr>
                     <th colspan=2>总计</th>
-                    <th colspan=50>{{monthes_data['t_month']|sum()}}</th>
+                    <th colspan=50>{{monthes_data['t_month']|sum()|format_price}}</th>
                 </tr>
             </tbody>
         </table>

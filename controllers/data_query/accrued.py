@@ -183,6 +183,7 @@ def _douban_order_to_dict(douban_order, all_back_moneys, pre_year_month, locatio
 
 def _medium_order_to_dict(order, all_back_moneys, pre_year_month, location):
     dict_order = {}
+    dict_order['client_order'] = order.client_order.id
     dict_order['locations_cn'] = order.client_order.locations_cn
     dict_order['client_name'] = order.client_order.client.name
     dict_order['agent_name'] = order.medium.name
@@ -268,10 +269,11 @@ def client_order():
                                       ClientOrder.contract != '')
     # 获取当前执行年合同
     if location:
-        orders = [k for k in orders if k.client_start.year ==
-                  year and location in k.locations]
+        orders = [k for k in orders if (
+            k.client_start.year == year or k.client_end.year == year) and location in k.locations]
     else:
-        orders = [k for k in orders if k.client_start.year == year]
+        orders = [k for k in orders if (
+            k.client_start.year == year or k.client_end.year == year)]
     # 格式化合同
     orders = [_client_order_to_dict(k, back_money_data, pre_year_month, location
                                     ) for k in orders]
@@ -320,7 +322,8 @@ def douban_order():
     orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20]]
     # 获取关联豆瓣合同
     medium_orders = [_medium_order_to_dict(k, client_back_money_data, pre_year_month, location)
-                     for k in Order.all() if k.medium_start.year == year and k.associated_douban_order]
+                     for k in Order.all() if (k.medium_start.year == year or k.medium_end.year == year)
+                     and k.associated_douban_order]
     if location:
         orders += [k for k in medium_orders if k['contract_status']
                    in [2, 4, 5, 19, 20] and k['status'] == 1 and location in k['locations']]

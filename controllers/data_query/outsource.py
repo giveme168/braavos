@@ -26,8 +26,12 @@ def outsource_to_dict(outsource):
             dict_outsource['month_day'] = outsource.month_day
             dict_outsource['type'] = outsource.type
             dict_outsource['locations'] = list(set(dict_outsource['order'].locations))
-            dict_outsource['pay_num'] = outsource.pay_num
-            dict_outsource['l_pre_pay_num'] = outsource.pay_num / len(dict_outsource['locations'])
+            if outsource.target.id == 271:
+                dict_outsource['pay_num'] = 0
+                dict_outsource['l_pre_pay_num'] = 0
+            else:
+                dict_outsource['pay_num'] = outsource.pay_num
+                dict_outsource['l_pre_pay_num'] = outsource.pay_num / len(dict_outsource['locations'])
     except:
         dict_outsource['order_status'] = 0
     return dict_outsource
@@ -55,7 +59,7 @@ def index():
     outsources = [k for k in outsources if k['order_status'] == 1]
 
     # 所有外包分类
-    types = [1, 2, 3, 4, 5, 6, 7]
+    types = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
     monthes_data = {}
     for k in types:
@@ -123,13 +127,13 @@ def info():
     for i in orders:
         o_money = []
         o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q1_monthes[0] and o[
-            'month_day'] <= Q1_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
+            'month_day'] <= Q1_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 10)]
         o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q2_monthes[0] and o[
-            'month_day'] <= Q2_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
+            'month_day'] <= Q2_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 10)]
         o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q3_monthes[0] and o[
-            'month_day'] <= Q3_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
+            'month_day'] <= Q3_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 10)]
         o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q4_monthes[0] and o[
-            'month_day'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
+            'month_day'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 10)]
         i.o_money = o_money
         total += sum(o_money)
     '''
