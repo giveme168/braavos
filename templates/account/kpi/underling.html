@@ -1,59 +1,58 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}下属绩效考核{% endblock %}
 
 {% block content %}
-{% include "/account/account_base.html" %}
-<div class="container bra-box" style="width:1300px;">
-    <div>
-        <div class="tab-content">
-          <div class="tab-pane active" id="tab-1">
-            <div class="search">
-                <form class="form-inline" role="form" action="{{url_for('account_kpi.underling')}}?{{params}}" method='get'>
-                    <!--
-                    <div class="form-group">
-                        <input type="text" class="form-control" id="number" name="number" placeholder="编号">
-                    </div>-->
-                    <div class="form-group">
-                        <label for="">类型：</label>
-                        <select class="form-control" id="version" name="version" placeholder="选择类型">
-                            {% for k, v in P_VERSION_CN.items() %}
-                            <option value="{{k}}">{{v}}<option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="">状态：</label>
-                        <select class="form-control" id="status" name="status" placeholder="选择状态">
-                            <option value='0'>所有状态</option>
-                            <option value="6">员工评分中</option>
-                            <option value="2">Leader审批中</option>
-                            <option value="4">HR整理中</option>
-                            <option value="5">归档</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="">评分：</label>
-                        <select class="form-control" id="total_score" name="total_score" placeholder="选择评分">
-                            <option value='0'>所有评分</option>
-                            <option value='5'>杰出</option>
-                            <option value="4.5-5">持续一贯地超出期望</option>
-                            <option value="4-4.5">超出期望</option>
-                            <option value="3.75-4">部分超出期望</option>
-                            <option value="3.5-3.75">符合期望</option>
-                            <option value="3.25-3.5">基本符合期望，还需提高</option>
-                            <option value="3-3.25">达到最低要求，有待改进</option>
-                            <option value="2.5-3">基本不能胜任</option>
-                            <option value="0-2.5">不合格</option>
-                        </select>
-                    </div>
-                    <input type="submit" value="查询" class="btn btn-sm btn-info" style="width:80px;">
-                    {% if g.user.is_HR_leader() or g.user.is_super_leader() %}
-                    <a class="btn btn-sm btn-info" style="width:80px;" href="?action=excel">导出总表</a>
-                    {% endif %}
-                </form>
+{% include "/account/account_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:1500px;">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:right;" action="{{url_for('account_kpi.underling')}}?{{params}}">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">版本</label>
+                <select class="form-control special_sale" name="version" id="version" style="width:120px;">
+                    {% for k, v in P_VERSION_CN.items() %}
+                    <option value="{{k}}">{{v}}<option>
+                    {% endfor %}
+                </select>
             </div>
-            <br/>
-            <table class="table table-bordered">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">状态</label>
+                <select class="form-control special_sale" name="status" id="status" style="width:120px;">
+                    <option value='0'>所有状态</option>
+                    <option value="6">员工评分中</option>
+                    <option value="2">Leader审批中</option>
+                    <option value="4">HR整理中</option>
+                    <option value="5">归档</option>
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">评分</label>
+                <select class="form-control special_sale" name="total_score" id="total_score" style="width:120px;">
+                    <option value='0'>所有评分</option>
+                    <option value='5'>杰出</option>
+                    <option value="4.5-5">持续一贯地超出期望</option>
+                    <option value="4-4.5">超出期望</option>
+                    <option value="3.75-4">部分超出期望</option>
+                    <option value="3.5-3.75">符合期望</option>
+                    <option value="3.25-3.5">基本符合期望，还需提高</option>
+                    <option value="3-3.25">达到最低要求，有待改进</option>
+                    <option value="2.5-3">基本不能胜任</option>
+                    <option value="0-2.5">不合格</option>
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            {% if g.user.is_HR_leader() or g.user.is_super_leader() %}
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
+            {% endif %}
+        </form>
+    </div>
+    <br/>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
                 <tr>
                     <th>填写人</th>
                     <th>类型</th>
@@ -68,14 +67,16 @@
                     <th style="width:150px;">员工评分状态</th>
                     <th style="width:120px;">操作</th>
                 </tr>
+            </thead>
+            <tbody>
                 {% for k in reports %}
                 <tr id="tr_{{k.id}}">
                     <td>
-                        {% if k.version == 1 %}
+                    {% if k.version == 1 %}
                         <a href="{{url_for('account_kpi.info', r_id=k.id)}}">{{k.creator.name}}</a>
-                        {% else %}
+                    {% else %}
                         <a href="{{url_for('account_kpi.info_v2', r_id=k.id)}}">{{k.creator.name}}</a>
-                        {% endif %}
+                    {% endif %}
                     </td>
                     <td>{{k.version_cn}}</td>
                     <td>{{k.self_KR_score}} / {% if k.status >= 3 %}{{k.KR_score}}{% else %}未评分{% endif %}</td>
@@ -141,18 +142,20 @@
                     </td>
                 </tr>
                 {% endfor %}
-            </table>
-            {% set pages = reports %}
-            {% include "pagination.html" %}
-          </div>
-        </div>
+            </tbody>
+        </table>
     </div>
+    {% set pages = reports %}
+    {% include "pagination.html" %}
 </div>
 <script>
     function notice(url){
         $.get(url, {}, function(data){
             alert('提醒成功');
         }, "json");
+    }
+    function download(){
+        window.location.href="?action=excel"
     }
     function deletes(url, title){
         var flag=confirm("确定要删除:"+title+"这个人的绩效考核吗?");
@@ -164,6 +167,7 @@
         }
     }
     $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
         $('#status').val('{{status}}')
         $('#status').trigger("chosen:updated");
         $('#total_score').val('{{total_score}}')

@@ -1,9 +1,9 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
 {% block title %}外出报备表{% endblock %}
 
 {% block content %}
-{% include "/account/account_out_base.html" %}
+{% include "/account/account_out_base_v1_0_0.html" %}
 <style>
     pre {
         background-color:#ffffff;
@@ -12,69 +12,53 @@
 </style>
 <div class="container bra-box">
     <h3>外出报备表</h3>
-    <form class="form form-horizontal">
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">报备人 : </label>
-          <div class="col-sm-8">
+    <form class="input-row-box">
+        <div class="input-group-menu">
+          <div class="name">报备人 : </div>
             <pre>{{out.creator.name}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">执行开始 : </div>
             <pre>{{out.start_time_cn}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">执行结束 : </div>
             <pre>{{out.end_time_cn}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">公司名称 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">公司名称 : </div>
             <pre>{{out.m_persion_cn}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">会见人 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">会见人 : </div>
             <pre>{{out.persions}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">地址 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">地址 : </div>
             <pre>{{out.address}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">参会人（公司内部）: </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">参会人（公司内部）: </div>
             <pre>{% for k in out.joiners %}{{k.name}},{% endfor %}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">外出原因 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">外出原因 : </div>
             <pre>{{out.reason}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">会议纪要 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">会议纪要 : </div>
             <pre>{{out.meeting_s}}</pre>
-          </div>
         </div>
         <br/>
-        <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="javascript:history.go(-1);">返回</a>
-        {% if out.status == 1 %}
-          {% if g.user in out.creator.team_leaders or g.user.is_super_admin() %}
-             <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_out.status', oid=out.id)}}?status=2">同意</a>
-             <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_out.status', oid=out.id)}}?status=11">不同意</a>
-          {% endif %}
-        {% endif %}
+        <div class="state" style="margin-left:25%;margin-top:50px;">
+            <a href="javascript:history.go(-1);"><input type="button" value="返回"></a>
+            {% if out.status == 1 %}
+              {% if g.user in out.creator.team_leaders or g.user.is_super_admin() %}
+                      <a style="width:100px;" href="{{url_for('account_out.status', oid=out.id)}}?status=2"><button type="button" style="margin-left: 100px;"/>同意</button></a>
+                      <a style="width:100px;" href="{{url_for('account_out.status', oid=out.id)}}?status=11"><button type="button" style="margin-left: 100px;"/>不同意</button></a>
+              {% endif %}
+            {% endif %}
+        </div>
     </form>
 </div>
 {% endblock %}

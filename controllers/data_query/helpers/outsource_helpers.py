@@ -7,6 +7,77 @@ from flask import Response
 from werkzeug.datastructures import Headers
 import xlsxwriter
 
+from models.outsource import OutSourceExecutiveReport
+
+
+def outsource_to_dict(outsource):
+    dict_outsource = {}
+    dict_outsource['target_id'] = int(outsource.target.id)
+    dict_outsource['money'] = outsource.pay_num
+    dict_outsource['month_day'] = outsource.month_day
+    dict_outsource['status'] = outsource.order.status
+    return dict_outsource
+
+
+def write_target_info(targets):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1})
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    keys = [u'名称', u'外包性质', u'类型', u'开户行', u'卡号', u'支付宝', u'联系方式',
+            u'2014年成本', u'2015年成本', u'2016年成本', u'总计']
+    # 设置高度
+    # for k in range(1000):
+    #    worksheet.set_row(k, 25)
+    outsources = [outsource_to_dict(k) for k in OutSourceExecutiveReport.all()]
+    outsources = [k for k in outsources if k['status'] == 1]
+
+    for k in range(len(keys)):
+        worksheet.write(0, k, keys[k], align_center)
+        worksheet.set_column(0, k, 30)
+    targets = list(targets)
+    th = 1
+    for k in range(len(targets)):
+        worksheet.write(th, 0, targets[k].name, align_left)
+        worksheet.write(th, 1, targets[k].otype_cn, align_left)
+        worksheet.write(th, 2, targets[k].type_cn, align_left)
+        worksheet.write(th, 3, targets[k].bank, align_left)
+        worksheet.write(th, 4, targets[k].card, align_left)
+        worksheet.write(th, 5, targets[k].alipay, align_left)
+        worksheet.write(th, 6, targets[k].contract, align_left)
+        worksheet.write(th, 7, sum([o['money'] for o in outsources if o['target_id'] == int(
+            targets[k].id) and int(o['month_day'].year) == 2014]), align_left)
+        worksheet.write(th, 8, sum([o['money'] for o in outsources if o['target_id'] == int(
+            targets[k].id) and int(o['month_day'].year) == 2015]), align_left)
+        worksheet.write(th, 9, sum([o['money'] for o in outsources if o['target_id'] == int(
+            targets[k].id) and int(o['month_day'].year) == 2016]), align_left)
+        worksheet.write(th, 10, sum([o['money'] for o in outsources if o[
+                        'target_id'] == int(targets[k].id)]), align_left)
+        th += 1
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                ("供应商详情", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
 
 def write_outsource_excel(monthes, data):
     response = Response()
@@ -63,13 +134,13 @@ def write_outsource_excel(monthes, data):
         worksheet.write(8, 3 + k * 3, data['7'][k]['huabei'], align_left)
         worksheet.write(8, 4 + k * 3, data['7'][k]['huanan'], align_left)
     for k in range(len(data['8'])):
-        worksheet.write(9, 2 + k * 3, data['7'][k]['huadong'], align_left)
-        worksheet.write(9, 3 + k * 3, data['7'][k]['huabei'], align_left)
-        worksheet.write(9, 4 + k * 3, data['7'][k]['huanan'], align_left)
+        worksheet.write(9, 2 + k * 3, data['8'][k]['huadong'], align_left)
+        worksheet.write(9, 3 + k * 3, data['8'][k]['huabei'], align_left)
+        worksheet.write(9, 4 + k * 3, data['8'][k]['huanan'], align_left)
     for k in range(len(data['9'])):
-        worksheet.write(10, 2 + k * 3, data['7'][k]['huadong'], align_left)
-        worksheet.write(10, 3 + k * 3, data['7'][k]['huabei'], align_left)
-        worksheet.write(10, 4 + k * 3, data['7'][k]['huanan'], align_left)
+        worksheet.write(10, 2 + k * 3, data['9'][k]['huadong'], align_left)
+        worksheet.write(10, 3 + k * 3, data['9'][k]['huabei'], align_left)
+        worksheet.write(10, 4 + k * 3, data['9'][k]['huanan'], align_left)
     for k in range(len(data['t_locataion'])):
         worksheet.write(
             11, 2 + k * 3, data['t_locataion'][k]['huadong'], align_left)
@@ -79,11 +150,13 @@ def write_outsource_excel(monthes, data):
             11, 4 + k * 3, data['t_locataion'][k]['huanan'], align_left)
     start, end = 2, 4
     for k in range(len(monthes)):
-        worksheet.merge_range(12, start, 12, end, data['t_month'][k], align_left)
+        worksheet.merge_range(12, start, 12, end, data[
+                              't_month'][k], align_left)
         start = end + 1
         end = start + 2
     worksheet.merge_range(13, 0, 13, 1, u'总计', align_left)
-    worksheet.merge_range(13, 2, 13, 3 * len(monthes), sum(data['t_month']) + 1, align_left)
+    worksheet.merge_range(13, 2, 13, 3 * len(monthes),
+                          sum(data['t_month']) + 1, align_left)
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
@@ -197,7 +270,8 @@ def write_outsource_info_excel(now_year, orders, total, r_outsource_pay):
     worksheet.merge_range(th, 0, th, 3, u'合计', align_center)
     worksheet.write(th, 4, r_outsource_pay, align_center)
     worksheet.write(th, 5, '', align_center)
-    worksheet.write(th, 6, sum([k.outsources_paied_sum for k in orders]), align_center)
+    worksheet.write(th, 6, sum(
+        [k.outsources_paied_sum for k in orders]), align_center)
     worksheet.merge_range(th, 7, th, 42, total, align_center)
     workbook.close()
     response.data = output.getvalue()
@@ -394,31 +468,43 @@ def write_client_excel(orders):
                     worksheet.write(th, 4, orders[k].money, align_left)
                     worksheet.write(th, 5, orders[k].start_date_cn, align_left)
                     worksheet.write(th, 6, orders[k].end_date_cn, align_left)
-                    worksheet.write(th, 7, orders[k].reminde_date_cn, align_left)
-                    worksheet.write(th, 8, str(orders[k].back_money_percent) + "%", align_left)
+                    worksheet.write(
+                        th, 7, orders[k].reminde_date_cn, align_left)
+                    worksheet.write(th, 8, str(
+                        orders[k].back_money_percent) + "%", align_left)
                     worksheet.write(th, 9, orders[k].back_moneys, align_left)
-                    worksheet.write(th, 10, orders[k].invoice_pass_sum, align_left)
+                    worksheet.write(
+                        th, 10, orders[k].invoice_pass_sum, align_left)
 
-                    worksheet.write(th, 11, orders[k].direct_sales_names, align_left)
-                    worksheet.write(th, 12, orders[k].agent_sales_names, align_left)
+                    worksheet.write(
+                        th, 11, orders[k].direct_sales_names, align_left)
+                    worksheet.write(
+                        th, 12, orders[k].agent_sales_names, align_left)
                     worksheet.write(th, 13, orders[k].locations_cn, align_left)
-                    worksheet.write(th, 14, orders[k].contract_type_cn, align_left)
-                    worksheet.write(th, 15, orders[k].resource_type_cn, align_left)
+                    worksheet.write(
+                        th, 14, orders[k].contract_type_cn, align_left)
+                    worksheet.write(
+                        th, 15, orders[k].resource_type_cn, align_left)
                     worksheet.write(th, 16, orders[k].sale_type_cn, align_left)
                     worksheet.write(th, 17, mediums[i].medium.name, align_left)
                     worksheet.write(
                         th, 18, mediums[i].finish_status_cn, align_left)
-                    worksheet.write(th, 19, mediums[i].medium_contract, align_left)
+                    worksheet.write(
+                        th, 19, mediums[i].medium_contract, align_left)
                     worksheet.write(th, 20, mediums[i].sale_money, align_left)
-                    worksheet.write(th, 21, mediums[i].medium_money2, align_left)
-                    worksheet.write(th, 22, mediums[i].medium_money, align_left)
+                    worksheet.write(
+                        th, 21, mediums[i].medium_money2, align_left)
+                    worksheet.write(
+                        th, 22, mediums[i].medium_money, align_left)
                     worksheet.write(th, 23, '', align_left)
                     worksheet.write(th, 24, '', align_left)
                     worksheet.write(th, 25, mediums[i].sale_CPM, align_left)
                     worksheet.write(th, 26, mediums[i].medium_CPM, align_left)
-                    worksheet.write(th, 27, mediums[i].start_date_cn, align_left)
+                    worksheet.write(
+                        th, 27, mediums[i].start_date_cn, align_left)
                     worksheet.write(th, 28, mediums[i].end_date_cn, align_left)
-                    worksheet.write(th, 29, mediums[i].operater_names, align_left)
+                    worksheet.write(
+                        th, 29, mediums[i].operater_names, align_left)
                     if mediums[i].associated_douban_order:
                         worksheet.write(
                             th, 30, mediums[i].associated_douban_order.name, align_left)
@@ -443,11 +529,14 @@ def write_client_excel(orders):
                 worksheet.write(th, 5, orders[k].start_date_cn, align_left)
                 worksheet.write(th, 6, orders[k].end_date_cn, align_left)
                 worksheet.write(th, 7, orders[k].reminde_date_cn, align_left)
-                worksheet.write(th, 8, str(orders[k].back_money_percent) + "%", align_left)
+                worksheet.write(th, 8, str(
+                    orders[k].back_money_percent) + "%", align_left)
                 worksheet.write(th, 9, orders[k].back_moneys, align_left)
                 worksheet.write(th, 10, orders[k].invoice_pass_sum, align_left)
-                worksheet.write(th, 11, orders[k].direct_sales_names, align_left)
-                worksheet.write(th, 12, orders[k].agent_sales_names, align_left)
+                worksheet.write(
+                    th, 11, orders[k].direct_sales_names, align_left)
+                worksheet.write(
+                    th, 12, orders[k].agent_sales_names, align_left)
                 worksheet.write(th, 13, orders[k].locations_cn, align_left)
                 worksheet.write(th, 14, orders[k].contract_type_cn, align_left)
                 worksheet.write(th, 15, orders[k].resource_type_cn, align_left)

@@ -1,19 +1,15 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}我的绩效考核{% endblock %}
 
 {% block content %}
-{% include "/account/account_base.html" %}
-<div class="container bra-box" style="width:1300px;">
-    <div>
-        <div class="tab-content">
-          <div class="tab-pane active" id="tab-1">
-            <div class="search">
-                <form class="form-inline" role="form" action="{{url_for('account_kpi.index')}}" method='get'>
-                    <a href="{{url_for('account_kpi.create_v2')}}" class="btn btn-sm btn-info" style="width:110px;">填写绩效考核表</a>
-                </form>
-            </div>
-            <br/>
-            <table class="table table-bordered">
+{% include "/account/account_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:1500px;">
+    <h3>绩效考核
+        <a href="{{url_for('account_kpi.create_v2')}}" class="btn btn-sm btn-default" style="width:110px;">填写绩效考核表</a>
+    </h3>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
                 <tr>
                     <th>填写人</th>
                     <th>类型</th>
@@ -27,6 +23,8 @@
                     <th>状态</th>
                     <th width="8%">操作</th>
                 </tr>
+            </thead>
+            <tbody>
                 {% for k in reports %}
                 <tr>
                     <td>
@@ -83,12 +81,12 @@
                     </td>
                 </tr>
                 {% endfor %}
-            </table>
-            {% set pages = reports %}
-            {% include "pagination.html" %}
-          </div>
-        </div>
+            </tbody>
+        </table>
     </div>
+    </br>
+    {% set pages = reports %}
+    {% include "pagination.html" %}
 </div>
 <script>
     function deletes(delete_url, title){

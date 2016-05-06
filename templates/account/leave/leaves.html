@@ -1,8 +1,8 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}请假列表{% endblock %}
 
 {% block content %}
-{% include "/account/account_leave_base.html" %}
+{% include "/account/account_leave_base_v1_0_0.html" %}
 <style>
     pre {
         background-color:#ffffff;
@@ -11,11 +11,11 @@
 </style>
 <div class="container bra-box" style="width:1300px;">
     <h3>{{title}}</h3>
-    <div class="search">
-        <form class="form-inline" method="GET">
-            <div class="form-group">
-                <label for="">类型</label>
-                <select id="type" name="type" placeholder="类型" style="width:150px;">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:right;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">类型</label>
+                <select class="form-control special_sale" name="type" id="type" style="width:120px;">
                     <option value="0">全部</value>
                     <option value="1">事假</value>
                     <option value="2">年假</value>
@@ -26,84 +26,93 @@
                     <option value="7">调休</value>
                 </select>
             </div>
-            <div class="form-group">
-                <label for="">状态</label>
-                <select id="status" name="status" placeholder="状态" style="width:150px;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">状态</label>
+                <select class="form-control special_sale" name="status" id="status" style="width:120px;">
                     <option value="100">所有状态</option>
                     <option value="2">申请中</value>
                     <option value="3">通过申请</value>
                 </select>
             </div>
-            <div class="form-group">
-                <label for="">下属</label>
-                <select id="user_id" name="user_id" placeholder="下属" style="width:150px;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">下属</label>
+                <select class="form-control special_sale" name="user_id" id="user_id" style="width:120px;">
                     <option value="0">全部</value>
                     {% for k in under_users %}
                     <option value="{{k.uid}}">{{k.name}}</value>
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group">
-                <label for="">开始时间</label>
-                <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+            <div class='select_option begin-time'>
+                <label for="sale_type" class="control-label">时间</label>
+                <label><input size="16" type="text" readonly class="datetimepicker form-control form_datetime" id="start" name="start" data-date-format="yyyy-mm-dd hh:ii"></label>
             </div>
-            <div class="form-group">
-                <label for="">结束时间</label>
-                <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+            <div class='select_option end-time' style="margin-left:5px;">
+                <label><input size="16" type="text" readonly class="datetimepicker form-control form_datetime" id="end" name="end" data-date-format="yyyy-mm-dd hh:ii"></label>
             </div>
-            <button type="submit" class="btn btn-sm btn-info">查询</button>
-            <a href="?action=excel" class="btn btn-sm btn-info">导出</a>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
         </form>
     </div>
     <br/>
-    <table class="table table-bordered">
-        <tr>
-            <th>请假类型</th>
-            <th>请假人</th>
-            <th>开始时间</th>
-            <th>结束时间</th>
-            <th>请假时长</th>
-            <th>抄送人</th>
-            <th>审批人</th>
-            <th width="30%">原因</th>
-            <th>状态</th>
-            <th style="width:130px;">操作</th>
-        </tr>
-        {% for l in leaves %}
-        <tr>
-            <td>{{l.type_cn}}</td>
-            <td><a href="{{url_for('account_leave.info', lid=l.id)}}">{{l.creator.name}}</a></td>
-            <td>{{l.start_time_cn}}</td>
-            <td>{{l.end_time_cn}}</td>
-            <td>{{l.rate_day_cn}}</td>
-            <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
-            <td>{% if l.is_long_leave() %}黄亮{% else %}{% for k in l.creator.team_leaders %}{{k.name}}</br>{% endfor %}{% endif %}</td>
-            <td><pre title="{{l.reason}}">{{l.reason|truncate_html(30)}}</pre></td>
-            <td>{{l.status_cn}}</td>
-            <td>
-                {% if title == '所有请假申请列表' %}
-                    {% if g.user.is_OPS() %}
-                        <a href="javascript:back('{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=0','{{l.creator.name}}')">取消请假</a><br/>
-                    {% endif %}
-                {% else %}
-                    {% if l.status != 3 %}
-                        {% if l.is_long_leave() %}
-                            {% if g.user.is_super_leader() %}
-                                <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
-                                <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>请假类型</th>
+                    <th>请假人</th>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>请假时长</th>
+                    <th>抄送人</th>
+                    <th>审批人</th>
+                    <th width="30%">原因</th>
+                    <th>状态</th>
+                    <th style="width:130px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in leaves %}
+                <tr>
+                    <td>{{l.type_cn}}</td>
+                    <td><a href="{{url_for('account_leave.info', lid=l.id)}}">{{l.creator.name}}</a></td>
+                    <td>{{l.start_time_cn}}</td>
+                    <td>{{l.end_time_cn}}</td>
+                    <td>{{l.rate_day_cn}}</td>
+                    <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
+                    <td>{% if l.is_long_leave() %}黄亮{% else %}{% for k in l.creator.team_leaders %}{{k.name}}</br>{% endfor %}{% endif %}</td>
+                    <td><pre title="{{l.reason}}">{{l.reason|truncate_html(30)}}</pre></td>
+                    <td>{{l.status_cn}}</td>
+                    <td>
+                        {% if title == '所有请假申请列表' %}
+                            {% if g.user.is_OPS() %}
+                                <a href="javascript:back('{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=0','{{l.creator.name}}')">取消请假</a><br/>
                             {% endif %}
                         {% else %}
-                            {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}
-                                <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
-                                <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
+                            {% if l.status != 3 %}
+                                {% if l.is_long_leave() %}
+                                    {% if g.user.is_super_leader() %}
+                                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
+                                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
+                                    {% endif %}
+                                {% else %}
+                                    {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}
+                                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
+                                        <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
+                                    {% endif %}
+                                {% endif %}
                             {% endif %}
                         {% endif %}
-                    {% endif %}
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% set pages = leaves %}
     {% include "pagination.html" %}
 </div>
@@ -125,7 +134,7 @@ Date.prototype.Format = function (fmt) { //author: meizz
 }
 
 $(function(){
-    //$("#type option[value='{{type}}']").attr("selected","selected");  
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     $("#type").val("{{type}}")
     $("#type").trigger("chosen:updated");
     $("#status").val("{{status}}")
@@ -148,6 +157,9 @@ $(function(){
         }
     });
 })
+function download(){
+    window.location.href = '?action=excel'
+}
 function back(url, name){
     var flag=confirm("确定要取消:"+name+"的请假吗?");
     if(flag){
