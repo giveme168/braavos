@@ -15,7 +15,10 @@ def outsource_to_dict(outsource):
     dict_outsource['target_id'] = int(outsource.target.id)
     dict_outsource['money'] = outsource.pay_num
     dict_outsource['month_day'] = outsource.month_day
-    dict_outsource['status'] = outsource.order.status
+    try:
+        dict_outsource['status'] = outsource.order.status
+    except:
+        dict_outsource['status'] = 1
     return dict_outsource
 
 

@@ -1,7 +1,7 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}策划案例{% endblock %}
 {% block content%}
-{% include "/mediums/mediums_base.html" %}
+{% include "/mediums/mediums_base_v1_0_0.html" %}
 <style>
   .glyphicon-plus {
     color: #FF9900;
@@ -9,81 +9,94 @@
 </style>
 <div class="container bra-box" style="width:1200px;">
   <!--<h4>{{title}}</h4>-->
-  <div>
-    <ul class="nav nav-tabs">
-      <li id="_1_" class=""><a href="{{url_for('mediums_planning.index', type=1)}}">策划案</a></li>
-      <li id="_2_" class=""><a href="{{url_for('mediums_planning.index', type=2)}}">包装案例</a></li>
-      <li id="_3_" class=""><a href="{{url_for('mediums_planning.index', type=3)}}">结案报告</a></li>
-    </ul>
+  <div class="table-switch">
+      <ul>
+          <li id="_1_li"><a id="_1_" href="{{url_for('mediums_planning.index', type=1)}}">策划案</a></li>
+          <li id="_2_li"><a id="_2_" href="{{url_for('mediums_planning.index', type=2)}}">包装案例</a></li>
+          <li id="_3_li"><a id="_3_" href="{{url_for('mediums_planning.index', type=3)}}">结案报告</a></li>
+      </ul>
+  </div>
+  <div class="search-bar">
+      <form class="menu-btn-bar">
+          <div class="search-input"><input type="text" placeholder="名称/品牌" value="{{info}}" name="info" id="info">
+              <img src="/static/image/search.png" alt="#">
+          </div>
+          <div class="select_option">
+              <label for="sale_type" class="control-label">行业</label>
+              <select class="form-control special_sale" name="industry" id="industry" style="width:100px;">
+                  <option value=''>全部</option>
+                  {% for k in INDUSTRY %}
+                  <option value='{{k}}'>{{k}}</option>
+                  {% endfor %}
+              </select>
+          </div>
+          <div class="select_option">
+              <label for="sale_type" class="control-label">媒体</label>
+              <select class="form-control special_sale" name="medium" id="medium" style="width:100px;">
+                  <option value="0">全部</option>
+                  {% for k in mediums %}
+                  <option value="{{k.id}}">{{k.name}}</option>
+                  {% endfor %}
+              </select>
+          </div>
+          <div class="select_option screen">
+              <input type="submit" value="筛选">
+          </div>
+          {% if g.user.is_planner() and type != '3' %}
+          <div class="select_option return">
+              <a href="{{url_for('mediums_planning.create', type=type)}}"><input type="button" value="添加"></a>
+          </div>
+          {% elif g.user.is_operater() and type == '3'%}
+          <div class="select_option return">
+              <a href="{{url_for('mediums_planning.create', type=type)}}"><input type="button" value="添加"></a>
+          </div>
+          {% endif %}
+      </form>
   </div>
     <br/>
-  <form class="form-inline">
-        <div class="form-group">
-            <label for="exampleInputName2">关键字</label>
-            <input class="form-control bra-form-control" type="text" id="info" name="info" value="{{info}}" placeholder="名称/品牌" style="width:250px;">
-        </div>&nbsp;&nbsp;&nbsp;
-        <div class="form-group">
-            <label for="exampleInputName2">行业</label>
-            <select name='industry' id='industry'  class="form-control bra-form-control" style="width:100px;">
-              <option value=''>全部</option>
-              {% for k in INDUSTRY %}
-              <option value='{{k}}'>{{k}}</option>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+              <tr>
+                  <th>名称</th>
+                  <th>所属媒体</th>
+                  <th>品牌</th>
+                  <th>行业</th>
+                  <!--<th>标签</th>-->
+                  <th>修改时间</th>
+                  <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in cases.object_list %}
+              <tr>
+                  <td><a href="{{url_for('mediums_planning.info', type=type, cid=c.id)}}">{{c.name}}</a>{% if type == '2' and c.is_win == 1 %}&nbsp;<span class="glyphicon glyphicon-thumbs-up glyphicon-plus" aria-hidden="true"></span>{% endif %}</td>
+                  <td>{{c.mediums_name}}</td>
+                  <td>{{c.brand}}</td>
+                  <td>{{c.industry}}</td>
+                  <!--<td>{{c.tags}}</td>-->
+                  <td>{{c.create_time_cn}}</td>
+                  <td>
+                    <a href="{{c.url}}" target="_blank">下载</a></br>
+                    {% if g.user.is_planner() and type != '3' %}
+                    <a href="{{url_for('mediums_planning.update', type=type, cid=c.id)}}">修改</a></br>
+                    <a href="javascript:delete_case('{{url_for('mediums_planning.delete', type=type, cid=c.id)}}', '{{c.name}}')">删除</a>
+                    {% elif g.user.is_operater() and type == '3' %}
+                    <a href="{{url_for('mediums_planning.update', type=type, cid=c.id)}}">修改</a></br>
+                    <a href="javascript:delete_case('{{url_for('mediums_planning.delete', type=type, cid=c.id)}}', '{{c.name}}')">删除</a>
+                    {% endif %}
+                  </td>
+              </tr>
               {% endfor %}
-            </select>
-        </div>&nbsp;&nbsp;&nbsp;
-        <div class="form-group">
-            <label for="exampleInputName2">选择媒体</label>
-            <select class="form-control bra-form-control" id="medium" name="medium" style="width:100px;">
-                <option value="0">全部</option>
-                {% for k in mediums %}
-                <option value="{{k.id}}">{{k.name}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <input type="submit" name="search" value="搜索" class="btn btn-sm btn-info" style="width:100px;"/>
-        {% if g.user.is_planner() and type != '3' %}
-        &nbsp;&nbsp;<a href="{{url_for('mediums_planning.create', type=type)}}" class="btn btn-default col-md-offset-1" style="width:100px;">添加</a>
-        {% elif g.user.is_operater() and type == '3' %}
-        &nbsp;&nbsp;<a href="{{url_for('mediums_planning.create', type=type)}}" class="btn btn-default col-md-offset-1" style="width:100px;">添加</a>
-        {% endif %}
-    </form>
-    <br/>
-    <table class="table table-bordered">
-      <tr>
-          <th>名称</th>
-          <th>所属媒体</th>
-          <th>品牌</th>
-          <th>行业</th>
-          <!--<th>标签</th>-->
-          <th>修改时间</th>
-          <th>操作</th>
-      </tr>
-      {% for c in cases.object_list %}
-      <tr>
-          <td><a href="{{url_for('mediums_planning.info', type=type, cid=c.id)}}">{{c.name}}</a>{% if type == '2' and c.is_win == 1 %}&nbsp;<span class="glyphicon glyphicon-thumbs-up glyphicon-plus" aria-hidden="true"></span>{% endif %}</td>
-          <td>{{c.mediums_name}}</td>
-          <td>{{c.brand}}</td>
-          <td>{{c.industry}}</td>
-          <!--<td>{{c.tags}}</td>-->
-          <td>{{c.create_time_cn}}</td>
-          <td>
-            <a href="{{c.url}}" target="_blank">下载</a></br>
-            {% if g.user.is_planner() and type != '3' %}
-            <a href="{{url_for('mediums_planning.update', type=type, cid=c.id)}}">修改</a></br>
-            <a href="javascript:delete_case('{{url_for('mediums_planning.delete', type=type, cid=c.id)}}', '{{c.name}}')">删除</a>
-            {% elif g.user.is_operater() and type == '3' %}
-            <a href="{{url_for('mediums_planning.update', type=type, cid=c.id)}}">修改</a></br>
-            <a href="javascript:delete_case('{{url_for('mediums_planning.delete', type=type, cid=c.id)}}', '{{c.name}}')">删除</a>
-            {% endif %}
-          </td>
-      </tr>
-      {% endfor %}
-    </table>
+          </tbody>
+        </table>
+    </div>
     {% set pages = cases %}
     {% include "pagination.html" %}
 </div>
 <script>
 $(document).ready(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     $('#medium').val('{{medium}}');
     $("#medium").trigger("chosen:updated");
     $('#industry').val('{{industry}}');
@@ -91,7 +104,8 @@ $(document).ready(function(){
 
     var pathname = window.location.pathname;
     var path_name = pathname.split("/")
-    $("#_" + path_name[3]+'_').addClass("active");
+    $("#_" + path_name[3]+'_li').addClass("actives");
+    $("#_" + path_name[3]+'_').addClass("on");
 })
 function delete_case(url, name){
     var flag=confirm("确定要删除:"+name+"吗?");

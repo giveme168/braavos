@@ -180,6 +180,29 @@
               <span></span>
             </li>
         </ul>
+        {% elif g.user.is_contract() %}
+        <ul>
+            <li id="_weeklymedium_" class="nav-first">
+              <a href="{{url_for('data_query_weekly.medium_index')}}">媒体周报（新）</a>
+              <span>|</span>
+            </li>
+            <li id="_weekly_">
+              <a href="{{url_for('data_query_weekly.index')}}">媒体订单周报</a>
+              <span>|</span>
+            </li>
+            <li id="_weeklydouban_">
+              <a href="{{url_for('data_query_weekly.douban_index')}}">豆瓣订单周报</a>
+              <span>|</span>
+            </li>
+            <li id="_accruedclient_order_">
+              <a href="{{url_for('data_query_accrued.client_order')}}">新媒体订单收入计提</a>
+              <span>|</span>
+            </li>
+            <li class="nav-last" id="_accrueddouban_order_">
+              <a href="{{url_for('data_query_accrued.douban_order')}}">豆瓣订单收入计提</a>
+              <span></span>
+            </li>
+        </ul>
         {% else %}
         <ul>
             <li class="nav-first" id="_weeklymedium_">

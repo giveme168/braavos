@@ -253,7 +253,7 @@ def _medium_order_to_dict(order, all_back_moneys, pre_year_month, location):
 
 @data_query_accrued_bp.route('/client_order', methods=['GET'])
 def client_order():
-    if not (g.user.is_super_leader() or g.user.is_finance()):
+    if not (g.user.is_super_leader() or g.user.is_finance() or g.user.is_contract()):
         abort(403)
     now_date = datetime.datetime.now()
     location = int(request.values.get('location', 0))
@@ -293,7 +293,7 @@ def client_order():
 
 @data_query_accrued_bp.route('/douban_order', methods=['GET'])
 def douban_order():
-    if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
+    if not (g.user.is_super_leader() or g.user.is_contract() or g.user.is_finance()):
         abort(403)
     location = int(request.values.get('location', 0))
     now_date = datetime.datetime.now()
@@ -310,10 +310,10 @@ def douban_order():
                                       DoubanOrder.contract != '')
     # 获取当前执行年合同
     if location:
-        orders = [k for k in orders if k.client_start.year ==
-                  year and location in k.locations]
+        orders = [k for k in orders if (k.client_start.year ==
+                  year or k.client_end.year == year) and location in k.locations]
     else:
-        orders = [k for k in orders if k.client_start.year == year]
+        orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
 
     # 格式化合同
     orders = [_douban_order_to_dict(k, back_money_data, pre_year_month, location
