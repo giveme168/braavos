@@ -26,8 +26,12 @@ def outsource_to_dict(outsource):
             dict_outsource['month_day'] = outsource.month_day
             dict_outsource['type'] = outsource.type
             dict_outsource['locations'] = list(set(dict_outsource['order'].locations))
-            dict_outsource['pay_num'] = outsource.pay_num
-            dict_outsource['l_pre_pay_num'] = outsource.pay_num / len(dict_outsource['locations'])
+            if outsource.target.id == 271:
+                dict_outsource['pay_num'] = 0
+                dict_outsource['l_pre_pay_num'] = 0
+            else:
+                dict_outsource['pay_num'] = outsource.pay_num
+                dict_outsource['l_pre_pay_num'] = outsource.pay_num / len(dict_outsource['locations'])
     except:
         dict_outsource['order_status'] = 0
     return dict_outsource

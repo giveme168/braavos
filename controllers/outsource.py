@@ -143,7 +143,7 @@ def display_orders(orders, template, title, operaters):
     else:
         status_id = -1
     orderby = request.args.get('orderby', '')
-    search_info = request.args.get('searchinfo', '').strp()
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     status = request.args.get('status', '')
     page = int(request.args.get('p', 1))
@@ -356,6 +356,8 @@ def new_outsource():
     outsource.client_order.add_comment(g.user,
                                        u"""新建外包:\n\r %s""" % outsource.name,
                                        msg_channel=2)
+    if g.user.is_super_leader():
+        _insert_executive_report(order, rtype='reload')
     return redirect(outsource.info_path())
 
 
@@ -384,6 +386,8 @@ def new_douban_outsource():
     outsource.douban_order.add_comment(g.user,
                                        u"""新建外包:\n\r %s""" % outsource.name,
                                        msg_channel=2)
+    if g.user.is_super_leader():
+        _insert_executive_report(order, rtype='reload')
     return redirect(outsource.info_path())
 
 
@@ -392,8 +396,10 @@ def outsource_delete(outsource_id):
     type = request.values.get('type', '')
     if type == 'douban':
         outsource = DoubanOutSource.get(outsource_id)
+        order = outsource.douban_order
     else:
         outsource = OutSource.get(outsource_id)
+        order = outsource.medium_order
 
     if type == "douban":
         outsource.douban_order.add_comment(g.user,
@@ -405,6 +411,7 @@ def outsource_delete(outsource_id):
                                            msg_channel=2)
     url = outsource.info_path()
     outsource.delete()
+    _insert_executive_report(order, rtype='reload')
     return redirect(url)
 
 

@@ -29,8 +29,8 @@ def outsource_to_dict(outsource):
             dict_outsource['type'] = outsource.type
             dict_outsource['locations'] = list(
                 set(dict_outsource['order'].locations))
-            # 清除外包项中的KOL金额，加入尚典KOL进行计算
-            if outsource.target.type != 1:
+            # 清除个人外包项
+            if outsource.target.otype != 1:
                 dict_outsource['pay_num'] = 0
                 dict_outsource['l_pre_pay_num'] = 0
             else:
