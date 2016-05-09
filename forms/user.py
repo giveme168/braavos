@@ -1,16 +1,17 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 import datetime
 from wtforms import TextField, DateField, validators, PasswordField, SelectField, SelectMultipleField, TextAreaField
 
 from libs.wtf import Form
 from models.user import (User, Team,
                          TEAM_TYPE_CN, TEAM_LOCATION_CN, USER_STATUS_CN, TEAM_TYPE_MEDIUM,
-                         TEAM_LOCATION_DEFAULT, LEAVE_TYPE_CN, DEFAULT_BIRTHDAY, DEFAULT_RECRUITED_DATE)
+                         TEAM_LOCATION_DEFAULT, LEAVE_TYPE_CN, DEFAULT_BIRTHDAY, DEFAULT_RECRUITED_DATE,
+                         OKR_P_OBJECTIVE_CN, OKR_P_KEY_RESULT)
 
 
 class LoginForm(Form):
     email = TextField(u'邮箱', [validators.Required(u"请输入邮箱地址."),
-                                  validators.Email(u"请输入正确的邮箱地址.")])
+                              validators.Email(u"请输入正确的邮箱地址.")])
     password = PasswordField(u'密码', [validators.Required(u"请输入您的密码.")])
 
     def validate(self):
@@ -57,7 +58,7 @@ class NewTeamForm(Form):
 class NewUserForm(Form):
     name = TextField(u'名字', [validators.Required(u"请输入名字.")])
     email = TextField(u'邮箱', [validators.Required(u"请输入邮箱."),
-                                  validators.Email(u"请输入正确的邮箱地址.")])
+                              validators.Email(u"请输入正确的邮箱地址.")])
     status = SelectField(u'状态', coerce=int, default=1)
     team = SelectField(u'角色', coerce=int)
     team_leaders = SelectMultipleField(u'直属领导', coerce=int)
@@ -94,3 +95,16 @@ class UserLeaveForm(Form):
         super(UserLeaveForm, self).__init__(*args, **kwargs)
         self.type.choices = LEAVE_TYPE_CN.items()
         self.senders.choices = [(m.id, m.name) for m in User.all()]
+
+
+class OkrForm(Form):
+    #type = TextAreaField(u'目标')
+    objective = TextAreaField(u'目标')
+    p_objective = SelectField(u'目标优先级', coerce=int, default=1)
+    key_result = TextAreaField(u'主要成绩')
+    p_key_result = SelectField(u'成绩优先级', coerce=int, default=1)
+
+    def __init__(self, *args, **kwargs):
+        super(OkrForm, self).__init__(*args, **kwargs)
+        self.p_objective.choices = OKR_P_OBJECTIVE_CN.items()
+        self.p_key_result.choices = OKR_P_KEY_RESULT.items()

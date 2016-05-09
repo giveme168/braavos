@@ -8,8 +8,8 @@ from . import db, BaseModelMixin
 from models.mixin.attachment import AttachmentMixin
 from libs.date_helpers import check_month_get_Q
 
-USER_STATUS_ON = 1         # 有效
-USER_STATUS_OFF = 0        # 停用
+USER_STATUS_ON = 1  # 有效
+USER_STATUS_OFF = 0  # 停用
 
 USER_STATUS_CN = {
     USER_STATUS_OFF: u"停用",
@@ -19,26 +19,26 @@ TEAM_TYPE_AUDIT = 24  # 审计
 TEAM_TYPE_OUT_INAD = 23  # 外部其他
 TEAM_TYPE_SEARCH_AD_LEADER = 22  # 360搜索广告销售Leader
 TEAM_TYPE_SEARCH_AD_SELLER = 21  # 360搜索广告销售
-TEAM_TYPE_MEDIA_LEADER = 20       # 内部-媒介Leader
+TEAM_TYPE_MEDIA_LEADER = 20  # 内部-媒介Leader
 TEAM_TYPE_OPS_LEADER = 19  # 行政-Leader
 TEAM_TYPE_OPS = 18  # 行政
 TEAM_TYPE_HR_LEADER = 17  # 人力-Leader
 TEAM_TYPE_HR = 16  # 人力
-TEAM_TYPE_OPERATER_LEADER = 15       # 执行-Leader
-TEAM_TYPE_SUPER_LEADER = 14       # Super-Leader
-TEAM_TYPE_FINANCE = 13       # 内部-财务
-TEAM_TYPE_MEDIA = 12       # 内部-媒介
-TEAM_TYPE_DOUBAN_CONTRACT = 11       # 豆瓣-合同管理员
-TEAM_TYPE_CONTRACT = 10       # 內部-合同管理员
-TEAM_TYPE_LEADER = 9       # 内部-销售Leader
-TEAM_TYPE_MEDIUM = 8       # 媒体
-TEAM_TYPE_DESIGNER = 7       # 內部-设计
-TEAM_TYPE_PLANNER = 6       # 內部-策划
-TEAM_TYPE_OPERATER = 5     # 內部-執行
-TEAM_TYPE_AGENT_SELLER = 4       # 內部-渠道銷售
-TEAM_TYPE_DIRECT_SELLER = 3       # 內部-直客銷售
-TEAM_TYPE_INAD = 2         # 内部-其他
-TEAM_TYPE_ADMIN = 1        # 系统管理员
+TEAM_TYPE_OPERATER_LEADER = 15  # 执行-Leader
+TEAM_TYPE_SUPER_LEADER = 14  # Super-Leader
+TEAM_TYPE_FINANCE = 13  # 内部-财务
+TEAM_TYPE_MEDIA = 12  # 内部-媒介
+TEAM_TYPE_DOUBAN_CONTRACT = 11  # 豆瓣-合同管理员
+TEAM_TYPE_CONTRACT = 10  # 內部-合同管理员
+TEAM_TYPE_LEADER = 9  # 内部-销售Leader
+TEAM_TYPE_MEDIUM = 8  # 媒体
+TEAM_TYPE_DESIGNER = 7  # 內部-设计
+TEAM_TYPE_PLANNER = 6  # 內部-策划
+TEAM_TYPE_OPERATER = 5  # 內部-執行
+TEAM_TYPE_AGENT_SELLER = 4  # 內部-渠道銷售
+TEAM_TYPE_DIRECT_SELLER = 3  # 內部-直客銷售
+TEAM_TYPE_INAD = 2  # 内部-其他
+TEAM_TYPE_ADMIN = 1  # 系统管理员
 TEAM_TYPE_SUPER_ADMIN = 0  # 程序管理员
 
 TEAM_TYPE_CN = {
@@ -105,10 +105,10 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     team_leaders = db.relationship('User', secondary=team_leaders, primaryjoin=id == team_leaders.c.user_id,
                                    secondaryjoin=id == team_leaders.c.leader_id,
                                    backref="user_ids")
-    birthday = db.Column(db.DateTime)        # 生日
+    birthday = db.Column(db.DateTime)  # 生日
     recruited_date = db.Column(db.DateTime)  # 入职时间
-    quit_date = db.Column(db.DateTime)       # 离职时间
-    positive_date = db.Column(db.DateTime)   # 转正时间
+    quit_date = db.Column(db.DateTime)  # 离职时间
+    positive_date = db.Column(db.DateTime)  # 转正时间
     cellphone = db.Column(db.String(20))
     position = db.Column(db.String(100))
     sn = db.Column(db.String(10), index=True)
@@ -472,6 +472,7 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
             return None
         return self.positive_date.strftime('%Y-%m-%d')
 
+
 team_admins = db.Table('team_admin_users',
                        db.Column(
                            'user_id', db.Integer, db.ForeignKey('user.id')),
@@ -527,7 +528,6 @@ send_users = db.Table('leave_send_users',
                           'leave_id', db.Integer, db.ForeignKey('user_leave.id'))
                       )
 
-
 LEAVE_TYPE_NORMAL = 1
 LEAVE_TYPE_ANNUAL = 2
 LEAVE_TYPE_SICK = 3
@@ -559,6 +559,83 @@ LEAVE_STATUS_CN = {
     LEAVE_STATUS_PASS: u'通过申请',
     LEAVE_STATUS_APPLYBACK: u'不通过',
 }
+
+OKR_P_OBJECTIVE_HIGH = 0
+OKR_P_OBJECTIVE_MIDDLE = 1
+OKR_P_OBJECTIVE_LOW = 2
+
+OKR_P_OBJECTIVE_CN = {
+    OKR_P_OBJECTIVE_HIGH: u'P0',
+    OKR_P_OBJECTIVE_MIDDLE: u'P1',
+    OKR_P_OBJECTIVE_LOW: u'P2'
+}
+OKR_P_KEY_RESULT_HIGH = 0
+OKR_P_KEY_RESULT_MIDDLE = 1
+OKR_P_KEY_RESULT_LOW = 2
+
+OKR_P_KEY_RESULT = {
+    OKR_P_KEY_RESULT_HIGH: u'P0',
+    OKR_P_KEY_RESULT_MIDDLE: u'P1',
+    OKR_P_KEY_RESULT_LOW: u'P2'
+}
+
+OKR_SEASON_SPRING = 1
+OKR_SEASON_SUNMMER = 2
+OKR_SEASON_FALL = 3
+OKR_SEASON_WINTER = 4
+
+OKR_SEASON_CN = {
+    OKR_SEASON_SPRING: u'春',
+    OKR_SEASON_SUNMMER: u'夏',
+    OKR_SEASON_FALL: u'秋',
+    OKR_SEASON_WINTER: u'冬'
+}
+
+OKR_STATUS_BACK = 0
+OKR_STATUS_NORMAL = 1
+OKR_STATUS_APPLY = 2
+OKR_STATUS_PASS = 3
+OKR_STATUS_APPLYBACK = 4
+
+OKR_STATUS_CN = {
+    OKR_STATUS_BACK: u'撤销申请',
+    OKR_STATUS_NORMAL: u'待申请',
+    OKR_STATUS_APPLY: u'申请中',
+    OKR_STATUS_PASS: u'通过申请',
+    OKR_STATUS_APPLYBACK: u'不通过',
+}
+
+
+class Okr(db.Model, BaseModelMixin):
+    __tablename__ = 'okr'
+    id = db.Column(db.Integer, primary_key=True, default=0)
+    year = db.Column(db.Integer)
+    season = db.Column(db.Integer)  # 相当于type,四个季度区分
+    o_kr = db.Column(db.Text())
+    status = db.Column(db.Integer)
+    # senders = db.relationship('User', secondary=send_users)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('creator_okr', lazy='dynamic'))
+    __mapper_args__ = {'order_by': id.desc()}
+
+    def __init__(self, o_kr, season,
+                 # senders=None,
+                 creator, year=datetime.datetime.now().year, status=1):
+        self.o_kr = o_kr
+        self.season = season
+        self.year = year
+        # self.senders = senders or []
+        self.creator = creator
+        self.status = status
+
+        @property
+        def season_cn(self):
+            return OKR_SEASON_CN[self.type]
+
+        @property
+        def status_cn(self):
+            return OKR_STATUS_CN[self.status]
 
 
 class Leave(db.Model, BaseModelMixin):
@@ -690,7 +767,6 @@ OUT_STATUS_CN = {
 OUT_M_PERSION_TYPE_NORMAL = 1
 OUT_M_PERSION_TYPE_OTHER = 2
 
-
 out_joiners = db.Table('out_joiners',
                        db.Column(
                            'user_id', db.Integer, db.ForeignKey('user.id')),
@@ -720,12 +796,12 @@ class Out(db.Model, BaseModelMixin):
     start_time = db.Column(db.DateTime, index=True)
     end_time = db.Column(db.DateTime, index=True)
     address = db.Column(db.String(300))
-    reason = db.Column(db.Text())             # 外出原因
-    meeting_s = db.Column(db.Text())          # 会议纪要
-    persions = db.Column(db.String(300))      # 会见人
-    m_persion = db.Column(db.String(200))     # 公司名称
-    m_persion_type = db.Column(db.Integer)    # 公司名称类型
-    creator_type = db.Column(db.Integer)      # 创建人类型：销售 or 普通
+    reason = db.Column(db.Text())  # 外出原因
+    meeting_s = db.Column(db.Text())  # 会议纪要
+    persions = db.Column(db.String(300))  # 会见人
+    m_persion = db.Column(db.String(200))  # 公司名称
+    m_persion_type = db.Column(db.Integer)  # 公司名称类型
+    creator_type = db.Column(db.Integer)  # 创建人类型：销售 or 普通
     status = db.Column(db.Integer)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
@@ -791,12 +867,12 @@ class OutReport(db.Model, BaseModelMixin):
     start_time = db.Column(db.DateTime, index=True)
     end_time = db.Column(db.DateTime, index=True)
     address = db.Column(db.String(300))
-    reason = db.Column(db.Text())             # 外出原因
-    meeting_s = db.Column(db.Text())          # 会议纪要
-    persions = db.Column(db.String(300))      # 会见人
-    m_persion = db.Column(db.String(200))     # 公司名称
-    m_persion_type = db.Column(db.Integer)    # 公司名称类型
-    creator_type = db.Column(db.Integer)      # 创建人类型：销售 or 普通
+    reason = db.Column(db.Text())  # 外出原因
+    meeting_s = db.Column(db.Text())  # 会议纪要
+    persions = db.Column(db.String(300))  # 会见人
+    m_persion = db.Column(db.String(200))  # 公司名称
+    m_persion_type = db.Column(db.Integer)  # 公司名称类型
+    creator_type = db.Column(db.Integer)  # 创建人类型：销售 or 普通
     status = db.Column(db.Integer)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(

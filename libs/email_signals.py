@@ -32,6 +32,9 @@ account_kpi_apply_signal = braavos_signals.signal('account_kpi_apply')
 back_money_apply_signal = braavos_signals.signal('back_money_apply')
 medium_back_money_apply_signal = braavos_signals.signal('medium_back_money_apply')
 
+account_okr_apply_signal = braavos_signals.signal('account_okr_apply')
+
+
 
 def _get_active_user(send_users):
     active_users = User.all_active()
@@ -769,7 +772,7 @@ def account_leave_apply(sender, leave):
 请假人: %s
 请假日期: %s - %s，共%s
 请假类型: %s
-请假原因: 
+请假原因:
 %s
 
 请批准，谢谢
@@ -945,7 +948,7 @@ def planning_bref(sender, apply_context):
 <h3>补充说明:</h3>
 品牌意向媒体:  %s
 建议:  %s
-备注:  
+备注:
 %s
 
 by:
@@ -979,7 +982,7 @@ Dear %s:
 
 请您为 %s 的绩效考核打分。
 
-附注: 
+附注:
     KPI链接地址: %s
 
     """ % (to_names, user_name, url)
@@ -1000,7 +1003,7 @@ Dear %s:
 
 您的绩效考核被打回请重新修改后提交领导审批。
 
-附注: 
+附注:
     KPI链接地址: %s
 
     """ % (to_names, url)
@@ -1021,7 +1024,7 @@ Dear %s:
 
 %s 的绩效已提交给您，请查看并归档。
 
-附注: 
+附注:
     KPI链接地址: %s
 
     """ % (to_names, user_name, url)
@@ -1042,7 +1045,7 @@ Dear %s:
 
 您的绩效已归档，请通过下边链接查看评分。
 
-附注: 
+附注:
     KPI链接地址: %s
 
     """ % (to_names, url)
@@ -1057,7 +1060,7 @@ Dear %s:
 
 请您为同事的绩效考核打分，请通过下边链接进行打分。
 
-附注: 
+附注:
     KPI链接地址: %s
 
     """ % (to_names, url)

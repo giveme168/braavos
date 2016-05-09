@@ -1,0 +1,33 @@
+<div class="container-fluid top_nav_fluid">
+    <div class="menu">
+        <div class="list">
+            <ul>
+                <a href="{{url_for('account_okr.index',user_id = g.user.id)}}">
+                    <li id="__">我的OKR</li>
+                </a>
+                {% if g.user.is_kpi_leader %}
+                <a href="{{url_for('account_okr.underling')}}">
+                    <li id="_underling_">下属的OKR</li>
+                </a>
+                {% endif %}
+                <div class="line" style="clear: both"></div>
+            </ul>
+        </div>
+    </div>
+    <div class="form-list">
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[3]=='outs'){
+            $('#_'+p_pathname[3]+'_').addClass("on");
+        }else if (p_pathname[3]=='underling'){
+            $('#_'+p_pathname[3]+'_').addClass("on");
+        }else{
+            $('#__').addClass("on");
+        }
+
+    })
+</script>

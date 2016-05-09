@@ -28,7 +28,7 @@
                             <a href="{{url_for('user.user_detail', user_id=g.user.id)}}"><img src="/static/image/homepage_icon/edit icon.png" alt=""></a>
                         </div>
                     </div>
-                </div>  
+                </div>
             </div>
 
             <div class="winbox">
@@ -44,7 +44,7 @@
                         <p><a href="#">{{k.title}}</a></p>
                     </div>
                     {% endfor %}
-                    
+
                     <div class="more">
                         <a href="#">更多个人信息</a>
                     </div>
@@ -95,7 +95,7 @@
               <span>60%</span>
               <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
                 <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
-                   
+
                 </div>
               </div>
              </div>
@@ -114,7 +114,7 @@
               <span>60%</span>
               <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
                 <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
-                   
+
                 </div>
               </div>
              </div>
@@ -122,7 +122,7 @@
               <h5>年度回款</h5>
                   <p><strong>300K</strong></p>
              </div>
-              </div> 
+              </div>
               <div class="living-quarter">
                 <div class="quarter－see pad-box">
               <p>季度会见<strong>30</strong><span>次</span></p>
@@ -147,7 +147,7 @@
               <span>60%</span>
               <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
                 <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
-                   
+
                 </div>
               </div>
              </div>
@@ -166,7 +166,7 @@
               <span>60%</span>
               <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
                 <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
-                   
+
                 </div>
               </div>
              </div>
@@ -174,7 +174,7 @@
               <h5>年度回款</h5>
                   <p><strong>300K</strong></p>
              </div>
-              </div> 
+              </div>
               <div class="living-quarter">
                 <div class="quarter－see pad-box">
               <p>季度会见<strong>30</strong><span>次</span></p>
@@ -198,7 +198,7 @@
               <span>60%</span>
               <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
                 <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
-                   
+
                 </div>
               </div>
              </div>
@@ -217,7 +217,7 @@
               <span>60%</span>
               <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
                 <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
-                   
+
                 </div>
               </div>
              </div>
@@ -225,7 +225,7 @@
               <h5>年度回款</h5>
                   <p><strong>300K</strong></p>
              </div>
-              </div> 
+              </div>
               <div class="living-quarter">
                 <div class="quarter－see pad-box">
               <p>季度会见<strong>30</strong><span>次</span></p>
@@ -249,7 +249,7 @@
               <span>60%</span>
               <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
                 <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
-                   
+
                 </div>
               </div>
              </div>
@@ -268,7 +268,7 @@
               <span>60%</span>
               <div class="progress" style="background: #919191;height: 10px;line-height: 10px;width: 70%;">
                 <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 40%; background:#ec3341">
-                   
+
                 </div>
               </div>
              </div>
@@ -276,7 +276,7 @@
               <h5>年度回款</h5>
                   <p><strong>300K</strong></p>
              </div>
-              </div> 
+              </div>
               <div class="living-quarter">
                 <div class="quarter－see pad-box">
               <p>季度会见<strong>30</strong><span>次</span></p>
@@ -298,7 +298,7 @@
             <span>BUSINESS</span>
         </div>
         <div class="bussess-box">
-            
+
             {% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract())%}
             <!--搜索部门-->
             <ul class="bussess administration">
@@ -442,7 +442,7 @@
                 </li>
             </ul>
         </div>
-    </div>  
+    </div>
     <div class="row business-modular">
         <div class="title title-bussess" >
             <h1>公司模块</h1>
@@ -488,6 +488,21 @@
                         <h5>绩效管理</h5>
                     </a></li>
             </ul>
+            <!--##############################Tree?那个url_for后面的index怎么用的?-->
+            <ul class="bussess">
+                <li>
+                    <a href="{{url_for('account_okr.index',user_id = g.user.id)}}" targer="_blank">
+                       <img src="/static/image/homepage_icon/icon11.png" alt="">
+                    </a>
+                </li>
+                <li>
+                    <a href="{{url_for('account_okr.index',user_id = g.user.id)}}" targer="_blank">
+                        <h5><font color="red">OKR管理</font> </h5>
+                        </a>
+                </li>
+            </ul>
+        <!--############-->
+
             {% if not g.user.is_other_person() %}
             <ul class="bussess">
                 <li>
@@ -703,7 +718,7 @@
         </div>
     </div>
     {% endif %}
-</div> 
+</div>
 <script>
     $(function(){
         $('#index').addClass('active')
