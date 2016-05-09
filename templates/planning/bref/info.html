@@ -1,11 +1,11 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
 {% from 'comments.html' import comments_box %}
 {% block title %}策划单-{{bref.title}}{% endblock %}
 {% block content %}
-{% include "/planning/base.html" %}
+{% include "/planning/base_v1_0_0.html" %}
 {% macro edit_bref_form(form, data) -%}
-<form class="form form-horizontal" method="POST" action="{{url_for('planning_bref.update', bid=data.id)}}">
+<form class="input-row-box" method="POST" action="{{url_for('planning_bref.update', bid=data.id)}}">
   {{ form.csrf_token }} 
   <h4 class="page-header">基本信息</h4>
   {{ form_field(form.title) }}
@@ -23,18 +23,18 @@
   {{ form_field(form.agent_type) }}
   {{ form_field(form.use_type) }}
   {{ form_field(form.level) }}
-  <div class="form-group">
-    <label for="client_end" class="col-sm-2 control-label">完成时间 : </label>
-    <div class="col-sm-10">
-      <input type="text" id="get_time" name="get_time" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh">
+  <div class="input-group-menu">
+      <div class="name">完成时间 : </div>
+      <input type="text" id="get_time" name="get_time" value="" readonly="readonly" class="datetimepicker surname" data-date-format="yyyy-mm-dd hh" style="width:300px;">
       <span class="tips" style="color:red;">请点选方案提交时间</span>
-    </div>
   </div>
   <h4 class="page-header">补充说明</h4>
   {{ form_field(form.intent_medium) }}
   {{ form_field(form.suggest) }}
   {{ form_field(form.desc) }}
-  <button type="submit" class="btn btn-primary btn-sm col-md-offset-4" name="status" value="1"/>保存</button>
+  <div class="state" style="margin-left:40%;">
+      <input type="submit" value="保存" name="status" value="1">
+  </div>
 </form>
 <br/>
 <script>
@@ -161,12 +161,11 @@
     }
 </style>
 <div class="container bra-box">
-  <h4>策划单-{{bref.title}}</h4>
   <div class="panel-group" id="accordion">
     <div class="panel panel-default">
       <div class="panel-heading">
         <h4 class="panel-title">
-          <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 策划单详情 </a>
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 策划单详情-{{bref.title}}</a>
         </h4>
       </div>
       <div id="collapseOne" class="panel-collapse collapse in">
@@ -194,69 +193,64 @@
       </div>
       <div id="collapse3" class="panel-collapse collapse in">
         <div class="panel-body">
-          <div class="col-md-8">
-            <form class="form form-horizontal" id="contract-form" method="POST" action="{{url_for('planning_bref.status' ,bid=bref.id)}}">
-              <div class="form-group">
-                <label for="email" class="col-sm-2 control-label">状态 : </label>
-                <div class="col-sm-10">
+          <div class="col-md-12">
+            <div class="col-md-10" style="margin-left: 20px;">
+            <form class="input-row-box" id="contract-form" method="POST" action="{{url_for('planning_bref.status' ,bid=bref.id)}}">
+              <div class="input-group-menu">
+                <div class="name">状态 : </div>
                   <p class="form-control-static">{{bref.status_cn}}</p>
-                </div>
               </div>
-              <div class="form-group">
-                <label for="email" class="col-sm-2 control-label">邮箱 : </label>
-                <div class="col-sm-10">
-                  <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要通知人员的邮箱">
+              <div class="input-group-menu">
+                <div class="name">邮箱 : </div>
+                  <select class="surname" id="contract-email" multiple="" name="email" placeholder="请输入需要通知人员的邮箱" style="width:300px;">
                         {% for u in reminder_emails %}
                         <option value="{{u[1]}}">{{u[0]}}</option>
                         {% endfor %}
                   </select>
-                </div>
               </div>
-              <div class="form-group">
-                <label for="msg" class="col-sm-2 control-label">留言 : </label>
-                <div class="col-sm-10">
-                  <textarea class="form-control bra-form-control" id="msg"
-                      name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
-                </div>
+              <div class="input-group-menu">
+                <div class="name">留言 : </div>
+                  <textarea class="surname" id="msg"
+                      name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..." style="width:300px;"></textarea>
               </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">操作 : </label>
-                <div class="col-sm-6">
-                  {% if bref.status == 1 %}
-                    {% if g.user == bref.creator or g.user.is_super_admin() %}
-                    <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请</button>
+              <div class="input-group-menu">
+                <div class="name">操作 : </div>
+                  <div class="state" style="margin-top:15%;">
+                    {% if bref.status == 1 %}
+                      {% if g.user == bref.creator or g.user.is_super_admin() %}
+                      <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请</button>
+                      {% endif %}
+                    {% elif bref.status == 2 %}
+                      {% if g.user == bref.creator or g.user.is_super_admin() %}
+                      <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="10">取消</button>
+                      {% endif %}
+                      {% if (g.user.location == bref.creator.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
+                      <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="103">分配</button>
+                      <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="10">取消</button>
+                      <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="1">打回</button>
+                      {% endif %}
+                    {% elif bref.status == 3 %}
+                      {% if (g.user.location == bref.creator.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
+                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="103">再分配</button>
+                      {% endif %}
+                      {% if g.user.id == bref.to_id or g.user.is_super_admin() %}
+                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="100">完成</button>
+                        <a href="https://pan.baidu.com" target="_blank" class="btn btn-sm btn-default">百度网盘</a>
+                      {% endif %}
+                    {% elif bref.status == 10 %}
+                      {% if g.user == bref.creator or g.user.is_super_admin() %}
+                      <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请</button>
+                      {% endif %}
+                    {% elif bref.status == 0 %}
+                      {% if g.user.id == bref.to_id or g.user.is_super_admin() %}
+                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="100">修改策划单地址</button>
+                        <a href="https://pan.baidu.com" target="_blank" class="btn btn-sm btn-default">百度网盘</a>
+                      {% endif %}
                     {% endif %}
-                  {% elif bref.status == 2 %}
-                    {% if g.user == bref.creator or g.user.is_super_admin() %}
-                    <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="10">取消</button>
-                    {% endif %}
-                    {% if (g.user.location == bref.creator.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
-                    <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="103">分配</button>
-                    <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="10">取消</button>
-                    <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="1">打回</button>
-                    {% endif %}
-                  {% elif bref.status == 3 %}
-                    {% if (g.user.location == bref.creator.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
-                      <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="103">再分配</button>
-                    {% endif %}
-                    {% if g.user.id == bref.to_id or g.user.is_super_admin() %}
-                      <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="100">完成</button>
-                      <a href="https://pan.baidu.com" target="_blank" class="btn btn-sm btn-default">百度网盘</a>
-                    {% endif %}
-                  {% elif bref.status == 10 %}
-                    {% if g.user == bref.creator or g.user.is_super_admin() %}
-                    <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请</button>
-                    {% endif %}
-                  {% elif bref.status == 0 %}
-                    {% if g.user.id == bref.to_id or g.user.is_super_admin() %}
-                      <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="100">修改策划单地址</button>
-                      <a href="https://pan.baidu.com" target="_blank" class="btn btn-sm btn-default">百度网盘</a>
-                    {% endif %}
-                  {% endif %}
-                </div>
+                  </div>
               </div>
               <!--分配策划模块开始-->
-                <div class="modal fade" id="planning_form_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal fade" id="planning_form_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="margin-top: 180px;">
                   <div class="modal-dialog">
                     <div class="modal-content">
                       <div class="modal-header">
@@ -265,22 +259,18 @@
                       </div>
                       <div class="modal-body">
                         <div class="row">
-                            <div class="form-group" id="planning_url" style="display:none;">
-                              <label for="client_start" class="col-sm-4 control-label">策划案地址 : </label>
-                              <div class="col-sm-4">
-                                <input type="text" id="url" name="url" class="form-control bra-form-control"/>
-                              </div>
+                            <div class="input-group-menu" id="planning_url" style="display:none;">
+                              <div class="name">策划案地址 : </div>
+                              <input type="text" id="url" name="url" class="surname" style="width:300px;"/>
                             </div>
-                            <div class="form-group" id="planning_toer" style="display:none;">
-                              <label for="client_start" class="col-sm-4 control-label">选择策划 : </label>
-                              <div class="col-sm-4">
-                                <select class="form-control bra-form-control" id="toer"name="toer" placeholder="">
+                            <div class="input-group-menu" id="planning_toer" style="display:none;">
+                              <div class="name">选择策划 : </div>
+                              <select class="surname" id="toer"name="toer" placeholder="" style="width:300px;">
                                   <option value='0'>请选择</option>
                                   {% for u in planner_emails %}
                                     <option value="{{u[1]}}">{{u[0]}}</option>
                                   {% endfor %}
-                                </select>
-                              </div>
+                              </select>
                             </div>
                         </div>
                       </div>
@@ -291,6 +281,7 @@
                     </div>
                   </div>
                 </div>
+              </div>
               <!--分配策划模块结束-->
             </form>
           </div>  
@@ -335,6 +326,7 @@ $(".contract-submit").click(function(e){
    }
 });
 $(function(){
+  $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
   $('#toer').val('{{bref.to_id}}');
   $('#toer').trigger("chosen:updated");
   $('#url').val('{{bref.url}}')

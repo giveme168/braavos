@@ -1,27 +1,33 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'comments.html' import comments_box %}
 {% block content%}
-{% include "/mediums/mediums_base.html" %}
+{% include "/mediums/mediums_base_v1_0_0.html" %}
 <div class="container bra-box">
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>所有{{title}}资料</th>
-            <th>上传日期</th>
-            <th>操作</th>
-        </tr>
-        {% for attachment in medium.get_medium_files_by_type(type)  %}
-        <tr>
-            <td>{{attachment.filename}}</td>
-            <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
-            <td>
-                <a href="{{attachment.medium_path}}">下载</a>&nbsp;&nbsp;
-                {% if g.user.is_media() %}
-                    <a href="{{url_for('mediums_files.files_delete', mid=medium.id, aid=attachment.id)}}">删除</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>所有{{title}}资料</th>
+                    <th>上传日期</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attachment in medium.get_medium_files_by_type(type)  %}
+                <tr>
+                    <td>{{attachment.filename}}</td>
+                    <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                    <td>
+                        <a href="{{attachment.medium_path}}">下载</a>&nbsp;&nbsp;
+                        {% if g.user.is_media() %}
+                            <a href="{{url_for('mediums_files.files_delete', mid=medium.id, aid=attachment.id)}}">删除</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     <div>{{ comments_box(medium, msg_channel=6) }}</div>
 </div>
 {% endblock %}

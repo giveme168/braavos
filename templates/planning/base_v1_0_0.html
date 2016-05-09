@@ -1,8 +1,9 @@
+            
 <div class="top-nav-wrap">
     <div class="top-nav" style="top: 15px;">
         <ul>
-            <li id="_client_orderdata_query_">
-              <a href="{{url_for('media_client_order_data_query.medium_invoice')}}">媒体合同数据</a>
+            <li id="_bref_">
+              <a href="{{url_for('planning_bref.index')}}">策划单</a>
             </li>
         </ul>
     </div>
@@ -11,6 +12,6 @@
     $(function(){
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
-        $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass("active");
+        $('#_'+p_pathname[2]+'_').addClass("active");
     })
 </script>

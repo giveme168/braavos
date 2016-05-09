@@ -149,7 +149,7 @@ def rebate_agent_invoice():
     return tpl('/finance/client_order/data_query/index.html',
                orders=orders, location=location,
                year=year, month=month, info=info,
-               title=u"已收客户返点发票", t_type='rebate_agent_invoice')
+               title=u"客户付款返点发票", t_type='rebate_agent_invoice')
 
 
 @finance_client_order_data_query_bp.route('/pay_rebate_agent_invoice', methods=['GET'])

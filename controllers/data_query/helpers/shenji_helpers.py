@@ -353,7 +353,8 @@ def write_search_order_excel(orders, year, total_money_data, medium_medium_money
     for k in range(12):
         worksheet.write(1, 29 + k, str(k + 1) + u'月', align_center)
     worksheet.write(1, 41, u'总计', align_center)
-    worksheet.merge_range(0, 42, 1, 42, u'媒体返点', align_center)
+    worksheet.merge_range(0, 42, 1, 42, u'客户确认收入', align_center)
+    worksheet.merge_range(0, 43, 1, 43, u'媒体返点', align_center)
     # 设置宽度为30
     for k in range(80):
         worksheet.set_column(k, 0, 15)
@@ -392,7 +393,9 @@ def write_search_order_excel(orders, year, total_money_data, medium_medium_money
             worksheet.merge_range(
                 th, 24, th + len(medium_data) - 1, 24, sum(money_data), money_align_left)
             worksheet.merge_range(
-                th, 42, th + len(medium_data) - 1, 42, orders[k]['medium_rebate_money'], money_align_left)
+                th, 42, th + len(medium_data) - 1, 42, orders[k]['client_firm_money'], money_align_left)
+            worksheet.merge_range(
+                th, 43, th + len(medium_data) - 1, 43, orders[k]['medium_rebate_money'], money_align_left)
             for m in medium_data:
                 worksheet.write(th, 25, m['name'], align_left)
                 worksheet.write(th, 26, m['medium_contract'], align_left)
@@ -424,6 +427,8 @@ def write_search_order_excel(orders, year, total_money_data, medium_medium_money
             for i in range(len(money_data)):
                 worksheet.write(th, 12 + i, money_data[i], money_align_left)
             worksheet.write(th, 24, sum(money_data), money_align_left)
+            worksheet.write(th, 42, orders[k][
+                            'client_firm_money'], money_align_left)
             worksheet.write(th, 42, orders[k][
                             'medium_rebate_money'], money_align_left)
             if medium_data:
@@ -462,7 +467,9 @@ def write_search_order_excel(orders, year, total_money_data, medium_medium_money
     for k in range(len(medium_medium_money2_data)):
         worksheet.write(th, 29 + k, total_money_data[k], money_align_left)
     worksheet.write(th, 41, sum(medium_medium_money2_data), money_align_left)
-    worksheet.write(th, 42, sum([k['medium_rebate_money']
+    worksheet.write(th, 42, sum([k['client_firm_money']
+                                 for k in orders]), money_align_left)
+    worksheet.write(th, 43, sum([k['medium_rebate_money']
                                  for k in orders]), money_align_left)
     workbook.close()
     response.data = output.getvalue()

@@ -9,93 +9,101 @@
         border:1px solid #ffffff;
     }
 </style>
-<div class="container bra-box"  style="width:1500px;">
+<div class="container bra-box"  style="width:1600px;">
     <h3>{{title}}</h3>
-    <div class="search">
-        <form class="form-inline" method="GET">
-            <div class="form-group">
-                <label for="">下属</label>
-                <select id="user_id" name="user_id" placeholder="下属" style="width:150px;">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:right;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">下属：</label>
+                <select class="form-control special_sale" name="user_id" id="user_id" style="width:120px;">
                     <option value="0">全部</value>
                     {% for k in under_users %}
                     <option value="{{k.uid}}">{{k.name}}</value>
                     {% endfor %}
                 </select>
             </div>
-            
-            <div class="form-group">
-                <label for="">状态</label>
-                <select id="status" name="status" style="width:150px;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">状态</label>
+                <select class="form-control special_sale" name="status" id="status" style="width:120px;">
                     <option value="0">全部</value>
                     <option value="1">申请中</value>
                     <option value="2">申请通过</value>
                     <option value="3">已填写会议纪要</value>
                 </select>
             </div>
-            <div class="form-group">
-                <label for="">开始时间</label>
-                <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:ii">
+            <div class='select_option begin-time'>
+                <label for="sale_type" class="control-label">时间</label>
+                <label><input size="16" type="text" readonly class="datetimepicker form-control form_datetime" id="start" name="start" data-date-format="yyyy-mm-dd hh:ii"></label>
             </div>
-            <div class="form-group">
-                <label for="">结束时间</label>
-                <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh:ii">
+            <div class='select_option end-time' style="margin-left:5px;">
+                <label><input size="16" type="text" readonly class="datetimepicker form-control form_datetime" id="end" name="end" data-date-format="yyyy-mm-dd hh:ii"></label>
             </div>
-            <button type="submit" class="btn btn-sm btn-info">查询</button>
-            <a href="?action=excel" class="btn btn-sm btn-info">导出</a>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
         </form>
     </div>
     <br/>
-    <table class="table table-bordered">
-        <tr>
-            <th style="width: 60px;">创建人</th>
-            <th>Leader</th>
-            <th>开始时间</th>
-            <th>结束时间</th>
-            <th>公司名称</th>
-            <th>地点</th>
-            <th style="width: 60px;">参会人</th>
-            <th>原因</th>
-            <th>状态</th>
-            <th style="width:130px;">操作</th>
-        </tr>
-        {% for o in outs %}
-        <tr>
-            <td><a href="{{url_for('account_out.info', oid=o.id)}}">{{o.creator.name}}</a></td>
-            <td>{% for k in o.creator.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
-            <td>{{o.start_time_cn}}</td>
-            <td>{{o.end_time_cn}}</td>
-            <td>{{o.m_persion_cn}}</td>
-            <td>{{o.address|truncate_html(15)}}</td>
-            <td>{% for k in o.joiners %}{{k.name}}<br/>{% endfor %}</td>
-            <td><pre title="{{o.reason}}">{{o.reason|truncate_html(20)}}</td>
-            <td>{{o.status_cn}}</td>
-            <td>
-                {% if title == '所有外出报备列表' %}
-                    {% if g.user.is_OPS() %}
-                    <a href="javascript:back('{{url_for('account_out.status', oid=o.id)}}?status=10', '{{o.creator.name}}')">撤回</a><br/>
-                    {% endif %}
-                    <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a>
-                {% else %}
-                    {% if o.status == 1 %}
-                        {% if g.user in o.creator.team_leaders or g.user.is_super_leader() %}
-                            <a href="{{url_for('account_out.status', oid=o.id)}}?status=2">同意</a><br/>
-                            <a href="{{url_for('account_out.status', oid=o.id)}}?status=11">不同意</a><br/>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th style="width: 60px;">创建人</th>
+                    <th>Leader</th>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>公司名称</th>
+                    <th>地点</th>
+                    <th style="width: 60px;">参会人</th>
+                    <th>原因</th>
+                    <th>状态</th>
+                    <th style="width:130px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for o in outs %}
+                <tr>
+                    <td><a href="{{url_for('account_out.info', oid=o.id)}}">{{o.creator.name}}</a></td>
+                    <td>{% for k in o.creator.team_leaders %}{{k.name}}<br/>{% endfor %}</td>
+                    <td>{{o.start_time_cn}}</td>
+                    <td>{{o.end_time_cn}}</td>
+                    <td>{{o.m_persion_cn}}</td>
+                    <td>{{o.address|truncate_html(15)}}</td>
+                    <td>{% for k in o.joiners %}{{k.name}}<br/>{% endfor %}</td>
+                    <td><pre title="{{o.reason}}">{{o.reason|truncate_html(20)}}</td>
+                    <td>{{o.status_cn}}</td>
+                    <td>
+                        {% if title == '所有外出报备列表' %}
+                            {% if g.user.is_OPS() %}
+                            <a href="javascript:back('{{url_for('account_out.status', oid=o.id)}}?status=10', '{{o.creator.name}}')">撤回</a><br/>
+                            {% endif %}
+                            <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a>
+                        {% else %}
+                            {% if o.status == 1 %}
+                                {% if g.user in o.creator.team_leaders or g.user.is_super_leader() %}
+                                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=2">同意</a><br/>
+                                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=11">不同意</a><br/>
+                                {% endif %}
+                            <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
+                            {% elif o.status == 4 %}
+                                {% if g.user in o.creator.team_leaders or g.user.is_super_leader() %}
+                                    <a href="{{url_for('account_out.status', oid=o.id)}}?status=14">同意</a><br/>
+                                {% endif %}
+                            <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
+                            {% else %}
+                            <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
+                            {% endif %}
                         {% endif %}
-                    <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
-                    {% elif o.status == 4 %}
-                        {% if g.user in o.creator.team_leaders or g.user.is_super_leader() %}
-                            <a href="{{url_for('account_out.status', oid=o.id)}}?status=14">同意</a><br/>
-                        {% endif %}
-                    <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
-                    {% else %}
-                    <a href="{{url_for('account_out.info', oid=o.id)}}">查看</a><br/>
-                    {% endif %}
-                {% endif %}
-                
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+                        
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% set pages = outs %}
     {% include "pagination.html" %}
 </div>
@@ -117,7 +125,7 @@ Date.prototype.Format = function (fmt) { //author: meizz
 }
 
 $(function(){
-    //$("#type option[value='{{type}}']").attr("selected","selected");  
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     $("#user_id").val("{{user_id}}")
     $("#user_id").trigger("chosen:updated");
     $("#status").val("{{status}}")
@@ -138,6 +146,9 @@ $(function(){
         }
     });
 })
+function download(){
+    window.location.href = '?action=excel'
+}
 function back(url, name){
     var flag=confirm("确定要撤销:"+name+"的外出报备吗?");
     if(flag){

@@ -214,12 +214,11 @@ def index():
     all_agent_rebate = _all_agent_rebate()
 
     # 获取当年豆瓣合同
-    orders = DoubanOrder.query.filter(DoubanOrder.client_start_year >= year,
-                                      DoubanOrder.client_end_year <= year,
-                                      DoubanOrder.status == 1,
+    orders = DoubanOrder.query.filter(DoubanOrder.status == 1,
                                       DoubanOrder.contract != '')
     # 去重合同
-    orders = list(set(orders))
+    orders = [k for k in orders if k.client_start.year ==
+              year or k.client_end.year == year]
     # 格式化合同
     orders = [_douban_order_to_dict(k, back_money_data, all_agent_rebate, pre_year_month
                                     ) for k in orders]
@@ -228,7 +227,8 @@ def index():
     # 获取关联豆瓣合同
     medium_orders = [_medium_order_to_dict(k, client_back_money_data,
                                            all_agent_rebate, pre_year_month)
-                     for k in Order.all() if k.medium_start.year == year and k.associated_douban_order]
+                     for k in Order.all() if (k.medium_start.year == year or k.medium_end.year == year)
+                     and k.associated_douban_order]
     orders += [k for k in medium_orders if k['contract_status']
                in [2, 4, 5, 19, 20] and k['status'] == 1]
     # 获取关联豆瓣合同结束

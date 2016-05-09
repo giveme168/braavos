@@ -34,7 +34,6 @@
             </li>
             <li class="nav-last" id="_outsourceinfo_">
               <a href="{{url_for('data_query_outsource.info')}}">外包成本详情</a>
-              <span></span>
             </li>
           </ul>
           <ul>
@@ -60,7 +59,6 @@
             </li>
             <li class="nav-last" id="_super_leadermedium_">
               <a href="{{url_for('data_query_super_leader_medium.money')}}">媒体清单</a>
-              <span></span>
             </li>
         </ul>
         <ul>
@@ -70,7 +68,6 @@
             </li>
             <li class="nav-last" id="_accrueddouban_order_">
               <a href="{{url_for('data_query_accrued.douban_order')}}">豆瓣订单收入计提</a>
-              <span></span>
             </li>
         </ul>
         {% elif g.user.is_media_leader() %}
@@ -93,7 +90,6 @@
             </li>
             <li class="nav-last" id="_ordercost_">
               <a href="{{url_for('data_query_order.cost')}}">媒体订单发票与款项</a>
-              <span></span>
             </li>
         </ul>
         {% elif g.user.is_operater_leader() %}
@@ -116,7 +112,6 @@
             </li>
             <li class="nav-last" id="_outsource_costinfo_">
               <a href="{{url_for('data_query_outsource_cost.info')}}">外包成本详情(含尚典)</a>
-              <span></span>
             </li>
         </ul>
         {% elif g.user.is_finance() %}
@@ -143,7 +138,23 @@
             </li>
             <li class="nav-last" id="_accrueddouban_order_">
               <a href="{{url_for('data_query_accrued.douban_order')}}">豆瓣订单收入计提</a>
-              <span></span>
+            </li>
+        </ul>
+        <ul>
+            <li id="_outsource_" class="nav-first">
+              <a href="{{url_for('data_query_outsource.index')}}">外包成本</a>
+              <span>|</span>
+            </li>
+            <li id="_outsourceinfo_">
+              <a href="{{url_for('data_query_outsource.info')}}">外包成本详情</a>
+              <span>|</span>
+            </li>
+            <li id="_outsource_cost_">
+              <a href="{{url_for('data_query_outsource_cost.index')}}">外包成本(含尚典)</a>
+              <span>|</span>
+            </li>
+            <li class="nav-last" id="_outsource_costinfo_">
+              <a href="{{url_for('data_query_outsource_cost.info')}}">外包成本详情(含尚典)</a>
             </li>
         </ul>
         {% elif g.user.is_aduit() %}
@@ -163,7 +174,6 @@
 
             <li class="nav-last" id="_ordercost_">
               <a href="{{url_for('data_query_order.cost')}}">媒体订单发票与款项</a>
-              <span></span>
             </li>
         </ul>
         <ul>
@@ -177,7 +187,28 @@
             </li>
             <li class="nav-last" id="_super_leadermedium_">
               <a href="{{url_for('data_query_super_leader_medium.money')}}">媒体清单</a>
-              <span></span>
+            </li>
+        </ul>
+        {% elif g.user.is_contract() %}
+        <ul>
+            <li id="_weeklymedium_" class="nav-first">
+              <a href="{{url_for('data_query_weekly.medium_index')}}">媒体周报（新）</a>
+              <span>|</span>
+            </li>
+            <li id="_weekly_">
+              <a href="{{url_for('data_query_weekly.index')}}">媒体订单周报</a>
+              <span>|</span>
+            </li>
+            <li id="_weeklydouban_">
+              <a href="{{url_for('data_query_weekly.douban_index')}}">豆瓣订单周报</a>
+              <span>|</span>
+            </li>
+            <li id="_accruedclient_order_">
+              <a href="{{url_for('data_query_accrued.client_order')}}">新媒体订单收入计提</a>
+              <span>|</span>
+            </li>
+            <li class="nav-last" id="_accrueddouban_order_">
+              <a href="{{url_for('data_query_accrued.douban_order')}}">豆瓣订单收入计提</a>
             </li>
         </ul>
         {% else %}
@@ -192,7 +223,6 @@
             </li>
             <li class="nav-last" id="_weeklydouban_">
               <a href="{{url_for('data_query_weekly.douban_index')}}">豆瓣订单周报</a>
-              <span></span>
             </li>
         </ul>
 

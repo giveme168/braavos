@@ -1,31 +1,37 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %} 搜索广告-媒体列表{% endblock %}
 
 {% block content %}
-{% include "/searchAdclient/searchAd_client_base.html" %}
+{% include "/searchAdclient/searchAd_client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3> 媒体列表
         <a class="btn btn-default btn-sm" href="{{url_for('searchAd_client.new_medium')}}">新建</a>
     </h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>#id</th>
-            <th>名称</th>
-            <th>媒体团队</th>
-            {% if g.user.is_searchad_leader() %}
-            <th>操作</th>
-            {% endif %}
-        </tr>
-        {% for m in mediums %}
-        <tr>
-            <td>{{m.id}}</td>
-            <td><a href="{{url_for('searchAd_client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
-            <td>{{m.owner.name}}</td>
-            {% if g.user.is_searchad_leader() %}
-                <td><a href="{{url_for('searchAd_client.medium_rebate', medium_id=m.id)}}">设置返点</a></td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>#id</th>
+                    <th>名称</th>
+                    <th>媒体团队</th>
+                    {% if g.user.is_searchad_leader() %}
+                    <th>操作</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mediums %}
+                <tr>
+                    <td>{{m.id}}</td>
+                    <td><a href="{{url_for('searchAd_client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
+                    <td>{{m.owner.name}}</td>
+                    {% if g.user.is_searchad_leader() %}
+                        <td><a href="{{url_for('searchAd_client.medium_rebate', medium_id=m.id)}}">设置返点</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

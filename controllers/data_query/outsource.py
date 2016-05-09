@@ -51,11 +51,13 @@ def index():
         now_year + '-' + str(Q_monthes[0]), '%Y-%m')
     end_month_day = datetime.datetime.strptime(
         now_year + '-' + str(Q_monthes[-1]), '%Y-%m')
-
-    outsources = [outsource_to_dict(k) for k in OutSourceExecutiveReport.query.filter(
-        OutSourceExecutiveReport.month_day >= start_month_day,
-        OutSourceExecutiveReport.month_day <= end_month_day)]
+    outsources = OutSourceExecutiveReport.all()
+    if now_Q == '00':
+        outsources = [k for k in outsources if int(k.month_day.year) == int(now_year)]
+    else:
+        outsources = [k for k in outsources if k.month_day >= start_month_day and k.month_day <= end_month_day]
     # 踢掉删除的合同
+    outsources = [outsource_to_dict(k) for k in outsources]
     outsources = [k for k in outsources if k['order_status'] == 1]
 
     # 所有外包分类
@@ -95,19 +97,10 @@ def index():
 
 @data_query_outsource_bp.route('/info', methods=['GET'])
 def info():
-    now_year = request.values.get('year', datetime.datetime.now().year)
-    now_year_date = datetime.datetime.strptime(str(now_year), '%Y')
-    start_date = now_year_date
-    end_date = now_year_date.replace(month=12, day=31)
-
-    # outsources = [{'order': k.order, 'month': k.month_day, 'pay_num': k.pay_num,
-    #                'type': k.type} for k in OutSourceExecutiveReport.query.filter(
-    #     OutSourceExecutiveReport.month_day >= start_date,
-    #     OutSourceExecutiveReport.month_day <= end_date) if k.order]
-
-    outsources = [outsource_to_dict(k) for k in OutSourceExecutiveReport.query.filter(
-        OutSourceExecutiveReport.month_day >= start_date,
-        OutSourceExecutiveReport.month_day <= end_date)]
+    now_year = int(request.values.get('year', datetime.datetime.now().year))
+    outsources = OutSourceExecutiveReport.all()
+    outsources = [outsource_to_dict(k) for k in outsources if int(k.month_day.year) == int(now_year)]
+    # 踢掉删除的合同
     outsources = [k for k in outsources if k['order_status'] == 1]
     r_outsource_pay = sum([k['pay_num'] for k in outsources])
     # pre_monthes = get_monthes_pre_days(start_date, end_date)

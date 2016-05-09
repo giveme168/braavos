@@ -61,6 +61,8 @@ def _search_order_to_dict(search_order, all_back_moneys, confirm_money_data, pre
     dict_order['money'] = search_order.money
     dict_order['medium_rebate_money'] = sum(
         [k['rebate'] for k in confirm_money_data if k['order_id'] == search_order.id])
+    dict_order['client_firm_money'] = sum(
+        [k['money'] for k in confirm_money_data if k['order_id'] == search_order.id])
     dict_order['back_moneys'] = sum(
         [k['money'] for k in all_back_moneys if k['order_id'] == search_order.id])
     dt_format = "%d%m%Y"
@@ -112,7 +114,7 @@ def index():
     if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
         abort(403)
     now_date = datetime.datetime.now()
-    year = (request.values.get('year', now_date.year))
+    year = int(request.values.get('year', now_date.year))
     # 获取整年月份
     pre_year_month = get_monthes_pre_days(datetime.datetime.strptime(str(year) + '-01', '%Y-%m'),
                                           datetime.datetime.strptime(str(year) + '-12', '%Y-%m'))
@@ -121,12 +123,10 @@ def index():
     # 获取所有媒体返点
     confirm_money_data = _all_confirm_money()
     # 获取当年合同
-    orders = searchAdClientOrder.query.filter(searchAdClientOrder.client_start_year >= year,
-                                              searchAdClientOrder.client_end_year <= year,
-                                              searchAdClientOrder.status == 1,
+    orders = searchAdClientOrder.query.filter(searchAdClientOrder.status == 1,
                                               searchAdClientOrder.contract != '')
     # 去重合同
-    orders = list(set(orders))
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     # 格式化合同
     orders = [_search_order_to_dict(k, back_money_data, confirm_money_data, pre_year_month
                                     ) for k in orders]

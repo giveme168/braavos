@@ -1,60 +1,66 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}请假列表{% endblock %}
 
 {% block content %}
-{% include "/account/account_leave_base.html" %}
+{% include "/account/account_leave_base_v1_0_0.html" %}
 <style>
     pre {
         background-color:#ffffff;
         border:1px solid #ffffff;
     }
 </style>
-<div class="container bra-box"  style="width:1300px;">
+<div class="container bra-box"  style="width:1600px;">
     <h3>我的请假列表
         <a class="btn btn-sm btn-default" href="{{url_for('account_leave.create',user_id = g.user.id)}}">申请请假</a>
     </h3>
-    <table class="table table-bordered">
-        <tr>
-            <th>请假类型</th>
-            <th>开始时间</th>
-            <th>结束时间</th>
-            <th>请假时长</th>
-            <th>抄送人</th>
-            <th>审批人</th>
-            <th width="30%">原因</th>
-            <th>状态</th>
-            <th style="width:130px;">操作</th>
-        </tr>
-        {% for l in leaves %}
-        <tr>
-            <td>{{l.type_cn}}</td>
-            <td>{{l.start_time_cn}}</td>
-            <td>{{l.end_time_cn}}</td>
-            <td>{{l.rate_day_cn}}</td>
-            <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
-            <td>{% if l.is_long_leave() %}黄亮{% else %}{% for k in l.creator.team_leaders %}{{k.name}}</br>{% endfor %}{% endif %}</td>
-            <td><pre title="{{l.reason}}">{{l.reason|truncate_html(30)}}</pre></td>
-            <td>{{l.status_cn}}</td>
-            <td>
-                {% if l.status in [0, 1] %}
-                    <a href="{{url_for('account_leave.update', user_id=g.user.id, lid=l.id)}}">修改</a><br/>
-                    <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=2">发送申请</a><br>
-                    <a href="javascript:check_del('{{url_for('account_leave.delete', user_id=g.user.id, lid=l.id)}}')">删除</a>
-                {% elif l.status == 2 %}
-                    <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=0">取消请假</a><br/>
-                    <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=2">再次发送申请</a>
-                {% elif l.status == 4 %}
-                    <a href="{{url_for('account_leave.update', user_id=g.user.id, lid=l.id)}}">修改</a><br/>
-                    <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=2">发送申请</a><br/>
-                    <a href="javascript:check_del('{{url_for('account_leave.delete', user_id=g.user.id, lid=l.id)}}')">删除</a>
-                {% endif %}
-                {% if g.user.is_super_admin() %}
-                    <br/><br/><a href="javascript:check_del('{{url_for('account_leave.delete', user_id=g.user.id, lid=l.id)}}')">删除</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>请假类型</th>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>请假时长</th>
+                    <th>抄送人</th>
+                    <th>审批人</th>
+                    <th width="30%">原因</th>
+                    <th>状态</th>
+                    <th style="width:130px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in leaves %}
+                <tr>
+                    <td>{{l.type_cn}}</td>
+                    <td>{{l.start_time_cn}}</td>
+                    <td>{{l.end_time_cn}}</td>
+                    <td>{{l.rate_day_cn}}</td>
+                    <td>{% for k in l.senders %}{{k.name}}</br>{% endfor %}</td>
+                    <td>{% if l.is_long_leave() %}黄亮{% else %}{% for k in l.creator.team_leaders %}{{k.name}}</br>{% endfor %}{% endif %}</td>
+                    <td><pre title="{{l.reason}}">{{l.reason|truncate_html(30)}}</pre></td>
+                    <td>{{l.status_cn}}</td>
+                    <td>
+                        {% if l.status in [0, 1] %}
+                            <a href="{{url_for('account_leave.update', user_id=g.user.id, lid=l.id)}}">修改</a><br/>
+                            <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=2">发送申请</a><br>
+                            <a href="javascript:check_del('{{url_for('account_leave.delete', user_id=g.user.id, lid=l.id)}}')">删除</a>
+                        {% elif l.status == 2 %}
+                            <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=0">取消请假</a><br/>
+                            <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=2">再次发送申请</a>
+                        {% elif l.status == 4 %}
+                            <a href="{{url_for('account_leave.update', user_id=g.user.id, lid=l.id)}}">修改</a><br/>
+                            <a href="{{url_for('account_leave.status', user_id=g.user.id, lid=l.id)}}?status=2">发送申请</a><br/>
+                            <a href="javascript:check_del('{{url_for('account_leave.delete', user_id=g.user.id, lid=l.id)}}')">删除</a>
+                        {% endif %}
+                        {% if g.user.is_super_admin() %}
+                            <br/><br/><a href="javascript:check_del('{{url_for('account_leave.delete', user_id=g.user.id, lid=l.id)}}')">删除</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tboby>
+        </table>
+    </div>
     {% set pages = leaves %}
     {% include "pagination.html" %}
 </div>

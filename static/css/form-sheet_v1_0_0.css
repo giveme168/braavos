@@ -58,7 +58,9 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
                     text-decoration: none;}
 
 .top-nav-wrap .top-nav ul li span{float: right;
-                            color:#b4b4b4;
+                            background:#b4b4b4;
+                            height: 23px;
+                            width: 1px;
                             }
 
 .top-nav-wrap .top-nav ul li:hover{background: #ec3341;}
@@ -84,7 +86,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 .tabulation table thead{background: #484848;
                         color: #fff;
                         }
-.tabulation table thead tr th,.tabulation table tbody tr td{padding-left: 10px; border:1px solid #bebebe;}
+.tabulation table thead tr th,.tabulation table tbody tr td{padding-left: 10px; border:1px solid #bebebe;padding-right: 10px;}
 
 .tabulation table tbody a{color: #484848;
                             text-decoration: none;}
@@ -158,7 +160,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
                     margin-top:3px;
                     border:1px solid #afafaf;
                     padding-left: 5px;
-                    color: #afafaf;
+                    /*color: #afafaf*/;
                     margin-left:5px;}   
 
 .search-bar .search-input img{position: absolute;top:4px;right:5px;}
@@ -294,10 +296,10 @@ input#end-date.form-control.form_datetime,input#start-date.form-control.form_dat
             height: 100%;
             }
 
-.input-row-box .input-group-menu{width: 550px;
+.input-row-box .input-group-menu{width: 650px;
                                 margin: 0 auto;
                                 height: 30px;
-                                margin-bottom: 10px;}
+                                margin-bottom: 15px;}
 
 .input-row-box .input-group-menu .name{float: left;
                                 width:158px;
