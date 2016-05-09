@@ -40,6 +40,7 @@
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">售卖类型</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">代理/直客</th>
                 <th colspan=13 style="vertical-align: middle;text-align: center;">客户执行金额</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">客户确认收入</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体返点</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">投放媒体</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体合同号</th>
@@ -78,6 +79,7 @@
                     <td rowspan='{{k.medium_data|length+1}}'>{{i|format_price}}</td>
                     {% endfor %}
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.money_data|sum|format_price}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.client_firm_money|format_price}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.medium_rebate_money|format_price}}</td>
                 </tr>
                 {% for m in k.medium_data %}
@@ -102,6 +104,7 @@
                 <td colspan=2 style="vertical-align: middle;text-align: center;"></td>
                 {% for i in total_money_data %}<td>{{i|format_price}}</td>{% endfor %}
                 <td>{{total_money_data|sum|format_price}}</td>
+                <td>{{orders|sum('client_firm_money')|format_price}}</td>
                 <td>{{orders|sum('medium_rebate_money')|format_price}}</td>
                 <td colspan=2></td>
                 <td>{{orders|sum('medium_sale_money')}}</td>

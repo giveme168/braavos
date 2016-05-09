@@ -1,29 +1,38 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
 
 {% block content %}
-{% include "/client/client_base.html" %}
+{% include "/client/client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>{{ title }}</h3>
-    <form class="form form-horizontal" method="POST">
-      {{ form.csrf_token }}
-      {{ form_field(form.name) }}
-      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+    <form class="input-row-box" method="POST">
+        {{ form.csrf_token }}
+        {{ form_field(form.name) }}
+        <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+        </div>
+      
     </form>
     {% if group %}
     <h3>集团旗下代理公司</h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>#id</th>
-            <th>代理公司</th>
-        </tr>
-        {% for a in group.agents %}
-        <tr>
-            <td>{{a.id}}</td>
-            <td><a href="{{url_for('client.agent_detail', agent_id=a.id)}}">{{a.name}}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>#id</th>
+                    <th>代理公司</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in group.agents %}
+                <tr>
+                    <td>{{a.id}}</td>
+                    <td><a href="{{url_for('client.agent_detail', agent_id=a.id)}}">{{a.name}}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% endif %}
 </div>
 {% endblock %}

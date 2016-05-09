@@ -1,46 +1,54 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}代理/直客全称{% endblock %}
 
 {% block content %}
-{% include "/client/client_base.html" %}
+{% include "/client/client_base_v1_0_0.html" %}
 <div class="container bra-box">
-    <h3> 代理公司
-        
-    </h3>
-    <form class="form-inline">
-        <div class="form-group">
-            <label for="exampleInputName2">关键字</label>
-            <input class="form-control bra-form-control" type="text" id="info" name="info" value="{{info}}" placeholder="名称" style="width:250px;">
-        </div>&nbsp;&nbsp;&nbsp;
-        <input type="submit" value="搜索" class="btn btn-sm btn-info" style="width:100px;"/>
-        {% if g.user.is_contract() %}<a class="btn btn-default col-md-offset-1" href="{{url_for('client.new_agent')}}">新建</a>{% endif %}
-    </form>
-    <br/>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>#id</th>
-            <th>名称</th>
-            <th>所属集团</th>
-            {% if g.user.is_contract() or g.user.is_super_leader()%}
-            <th>2014年返点</th>
-            <th>2015年返点</th>
-            <th>2016年返点</th>
-            <th>操作</th>
-            {% endif %}
-        </tr>
-        {% for a in agents %}
-        <tr>
-            <td>{{a.id}}</td>
-            <td><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
-            <td><a href="{{url_for("client.group_detail", group_id=a.group_id)}}">{{a.group_name}}</a></td>
-            {% if g.user.is_contract() or g.user.is_super_leader() %}
-                <td>{{a.rebate_2014}}</td>
-                <td>{{a.rebate_2015}}</td>
-                <td>{{a.rebate_2016}}</td>
-                <td><a href="{{url_for('client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="search-bar">
+      <form class="menu-btn-bar" style="float:right;">
+          <div class="search-input">
+              <input type="text" placeholder="客户名称" value="{{info}}" name="info" id="info">
+              <img src="/static/image/search.png" alt="#">
+          </div>
+          <div class="select_option screen">
+              <input type="submit" value="筛选">
+          </div>
+          <div class="select_option return">
+              {% if g.user.is_contract() %}<a href="{{url_for('client.new_agent')}}"><input type="button" value="添加"></a>{% endif %}
+          </div>
+      </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>#id</th>
+                    <th>名称</th>
+                    <th>所属集团</th>
+                    {% if g.user.is_contract() or g.user.is_super_leader()%}
+                    <th>2014年返点</th>
+                    <th>2015年返点</th>
+                    <th>2016年返点</th>
+                    <th>操作</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in agents %}
+                <tr>
+                    <td>{{a.id}}</td>
+                    <td><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
+                    <td><a href="{{url_for("client.group_detail", group_id=a.group_id)}}">{{a.group_name}}</a></td>
+                    {% if g.user.is_contract() or g.user.is_super_leader() %}
+                        <td>{{a.rebate_2014}}</td>
+                        <td>{{a.rebate_2015}}</td>
+                        <td>{{a.rebate_2016}}</td>
+                        <td><a href="{{url_for('client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

@@ -1,9 +1,9 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
 {% block title %}外出报备表{% endblock %}
 
 {% block content %}
-{% include "/account/account_out_base.html" %}
+{% include "/account/account_out_base_v1_0_0.html" %}
 <style>
     pre {
         background-color:#ffffff;
@@ -12,57 +12,43 @@
 </style>
 <div class="container bra-box">
     <h3>外出报备表</h3>
-    <form class="form form-horizontal" method="POST" onsubmit="return checkform(this);">
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">报备人 : </label>
-          <div class="col-sm-8">
+    <form class="input-row-box" method="POST" onsubmit="return checkform(this);">
+        <div class="input-group-menu">
+          <div class="name">报备人 : </div>
             <pre>{{out.creator.name}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">执行开始 : </div>
             <pre>{{out.start_time_cn}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">执行结束 : </div>
             <pre>{{out.end_time_cn}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">公司名称 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">公司名称 : </div>
             <pre>{{out.m_persion_cn}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">会见人 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">会见人 : </div>
             <pre>{{out.persions}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">地址 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">地址 : </div>
             <pre>{{out.address}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">外出原因 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">外出原因 : </div>
             <pre>{{out.reason}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">会议纪要 : </label>
-          <div class="col-sm-8">
-            <textarea style="width:100%; height:100px;" name="meeting_s" id="meeting_s" type="text" placeholder="请填写会议纪要"class="form-control">{{out.meeting_s}}</textarea>
-          </div>
+        <div class="input-group-menu" style="height:80px;padding-top: 20px;">
+          <div class="name">会议纪要 : </div>
+            <textarea style="width:100%; height:100px;" name="meeting_s" id="meeting_s" type="text" placeholder="请填写会议纪要">{{out.meeting_s}}</textarea>
         </div>
-        <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="javascript:history.go(-1);">返回</a>
-        <input type='submit' class="btn btn-primary btn-sm col-md-offset-2" value="提交会议纪要" />
+        <div class="state" style="margin-left:35%; margin-top: 120px;">
+            <a href="javascript:history.go(-1);"><input type="button" value="返回"></a>
+            <button type="submit"/>提交会议纪要</button>
+        </div>
     </form>
 </div>
 <script>

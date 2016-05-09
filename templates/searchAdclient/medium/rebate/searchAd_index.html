@@ -1,39 +1,45 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %} 媒体列表{% endblock %}
 
 {% block content %}
-{% include "/searchAdclient/searchAd_client_base.html" %}
+{% include "/searchAdclient/searchAd_client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3> {{medium.name}} -- 返点信息
         <a class="btn btn-sm btn-info" href="{{url_for('searchAd_client.medium_rebate_create', medium_id=medium.id)}}">新建</a>
         <a class="btn btn-default btn-sm" href="{{url_for('searchAd_client.mediums')}}">返回</a>
     </h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>执行年</th>
-            <th>返点</th>
-            <th>最后修改人</th>
-            <th>最后修改时间</th>
-            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader()%}
-            <th>操作</th>
-            {% endif %}
-        </tr>
-        {% for r in rebates %}
-        <tr>
-            <td>{{r.year.year}}</td>
-            <td>{{r.rebate}}%</td>
-            <td>{{r.creator.name}}</td>
-            <td>{{r.create_time_cn}}</td>
-            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
-                <td>
-                    <a href="{{url_for('searchAd_client.medium_rebate_update', medium_id=medium.id, rebate_id=r.id)}}">修改</a>&nbsp;&nbsp;
-                    {% if g.user.is_admin() %}
-                    <a href="{{url_for('searchAd_client.medium_rebate_delete', medium_id=medium.id, rebate_id=r.id)}}">删除</a>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>执行年</th>
+                    <th>返点</th>
+                    <th>最后修改人</th>
+                    <th>最后修改时间</th>
+                    {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader()%}
+                    <th>操作</th>
                     {% endif %}
-                </td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in rebates %}
+                <tr>
+                    <td>{{r.year.year}}</td>
+                    <td>{{r.rebate}}%</td>
+                    <td>{{r.creator.name}}</td>
+                    <td>{{r.create_time_cn}}</td>
+                    {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+                        <td>
+                            <a href="{{url_for('searchAd_client.medium_rebate_update', medium_id=medium.id, rebate_id=r.id)}}">修改</a>&nbsp;&nbsp;
+                            {% if g.user.is_admin() %}
+                            <a href="{{url_for('searchAd_client.medium_rebate_delete', medium_id=medium.id, rebate_id=r.id)}}">删除</a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

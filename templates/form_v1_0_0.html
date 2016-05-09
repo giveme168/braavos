@@ -1,18 +1,10 @@
-<style>
-  .errors {
-    color: #CC6655;
-  }
-  .tips {
-    color: #CC6655;
-  }
-</style>
 {% macro form_field(field) -%}
     {% if field.hidden %}
       <div class="input-group-menu" style="display: none;">
     {% else %}
       <div class="input-group-menu">
     {% endif %}
-        <div class="name">{{field.label.text}} : </div>
+        <div class="name">{{field.label.text}}: </div>
           {% if field.readonly %}
             {{field(class_='surname', placeholder=field.label.text, readonly="readonly", style="width:300px;")}}
           {% elif field.disabled %}

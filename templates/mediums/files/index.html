@@ -1,25 +1,29 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}媒体资料{% endblock %}
 
 {% block content%}
-{% include "/mediums/mediums_base.html" %}
+{% include "/mediums/mediums_base_v1_0_0.html" %}
 <div class="container bra-box">
-    <div>
-        <table class="table table-bordered">
-            <tr>
-                <th>媒体名称</th>
-                <th>级别</th>
-                <th>最后更新时间</td>
-                <th>操作</th>
-            </tr>
-            {% for k in mediums %}
-            <tr id="tr_{{k.id}}">
-                <td><a href="{{url_for('mediums_files.info', mid=k.id)}}">{{k.name}}</a></td>
-                <td>{{k.level_cn}}</td>
-                <td>{{k.files_update_time}}</td>
-                <td><a href="{{url_for('mediums_files.info', mid=k.id)}}">查看</a></td>
-            </tr>
-            {% endfor %}
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>媒体名称</th>
+                    <th>级别</th>
+                    <th>最后更新时间</td>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in mediums %}
+                <tr id="tr_{{k.id}}">
+                    <td><a href="{{url_for('mediums_files.info', mid=k.id)}}">{{k.name}}</a></td>
+                    <td>{{k.level_cn}}</td>
+                    <td>{{k.files_update_time}}</td>
+                    <td><a href="{{url_for('mediums_files.info', mid=k.id)}}">查看</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
 </div>

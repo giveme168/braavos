@@ -1,62 +1,95 @@
-{% extends "base.html" %}
+{% extends "base_v1_0_0.html" %}
 {% block title %}KOL资料{% endblock %}
 
 {% block content %}
 <div class="container" style="width: 1300px;min-height:700px;">
     <h3 style="margin-top: 85px;">KOL资料</h3>
-    <br/>
-    <ul class="nav nav-tabs">
-      <li id="_design_"><a href="{{url_for('kol.index', type='design')}}">设计</a></li>
-      <li id="_photo_"><a href="{{url_for('kol.index', type='photo')}}">摄影</a></li>
-      <li id="_topic_"><a href="{{url_for('kol.index', type='topic')}}">文字评论</a></li>
-      <li id="_trip_"><a href="{{url_for('kol.index', type='trip')}}">旅游</a></li>
-      <li id="_beauty_"><a href="{{url_for('kol.index', type='beauty')}}">美妆</a></li>
-      <li id="_food_"><a href="{{url_for('kol.index', type='food')}}">美食生活方式</a></li>
-      <li id="_fashion_"><a href="{{url_for('kol.index', type='fashion')}}">时尚搭配</a></li>
-      <li id="_muisc_"><a href="{{url_for('kol.index', type='muisc')}}">音乐</a></li>
-      <li id="_decoration_"><a href="{{url_for('kol.index', type='decoration')}}">家居装潢</a></li>
-      <li id="_sport_"><a href="{{url_for('kol.index', type='sport')}}">运动健身</a></li>
-      <li id="_douban_"><a href="{{url_for('kol.index', type='douban')}}">豆瓣红人</a></li>
-      <li id="_tech_"><a href="{{url_for('kol.index', type='tech')}}">科技类(含知乎)</a></li>
-      <li id="_car_"><a href="{{url_for('kol.index', type='car')}}">汽车</a></li>
-      <li id="_zhihu_"><a href="{{url_for('kol.index', type='zhihu')}}">知乎红人</a></li>
-      <li id="_weichart_"><a href="{{url_for('kol.index', type='weichart')}}">微信红人</a></li>
-    </ul>
-    <table class="table table-bordered table-hover">
-      <thead>
-        <tr>
-          <th>编号</th>
-          <th>ID</th>
-          <th>主页</th>
-          <th>所在地</th>
-          <th>粉丝数</th>
-          <th>介绍</th>
-          <th>合作意向</th>
-          <th>是否有合作</th>
-          <th>综合评分</th>
-          <th>详情</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for k in kols %}
-        <tr>
-          <td>{{loop.index}}</td>
-          <td>{{k.name}}</td>
-          <td><a href="{{k.url}}" target="_blank">访问</a></td>
-          <td>{{k.location}}</td>
-          <td>{{k.fans}}</td>
-          <td>{{k.des|truncate_html(20)}}</td>
-          <td>{{k.is_to_work}}</td>
-          <td>{{k.is_work}}</td>
-          <td>{{k.score}}</td>
-          <td><a href="javascript:on_show('{{k.name}}', '{{k.url}}', '{{k.location}}', '{{k.fans}}', '{{k.des}}', '{{k.is_to_work}}', '{{k.is_work}}', '{{k.score}}', '{{k.contact}}', '{{k.other_des}}');">查看</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="table-switch">
+        <ul>
+            <li id="_design_li" style="width:60px;" >
+                <a id="_design_" href="{{url_for('kol.index', type='design')}}">设计</a>
+            </li>
+            <li id="_photo_li"style="width:60px;">
+                <a id="_photo_" href="{{url_for('kol.index', type='photo')}}">摄影</a>
+            </li>
+            <li id="_topic_li">
+                <a id="_topic_" href="{{url_for('kol.index', type='topic')}}">文字评论</a>
+            </li>
+            <li id="_trip_li" style="width:60px;">
+                <a id="_trip_" href="{{url_for('kol.index', type='trip')}}">旅游</a>
+            </li>
+            <li id="_beauty_li" style="width:60px;">
+                <a id="_beauty_" href="{{url_for('kol.index', type='beauty')}}">美妆</a>
+            </li>
+            <li id="_food_li">
+                <a id="_food_" href="{{url_for('kol.index', type='food')}}">美食生活方式</a>
+            </li>
+            <li id="_fashion_li">
+                <a id="_fashion_" href="{{url_for('kol.index', type='fashion')}}">时尚搭配</a>
+            </li>
+            <li id="_muisc_li" style="width:60px;">
+                <a id="_muisc_" href="{{url_for('kol.index', type='muisc')}}">音乐</a>
+            </li>
+            <li id="_decoration_li">
+                <a id="_decoration_" href="{{url_for('kol.index', type='decoration')}}">家居装潢</a>
+            </li>
+            <li id="_sport_li">
+                <a id="_sport_" href="{{url_for('kol.index', type='sport')}}">运动健身</a>
+            </li>
+            <li id="_douban_li">
+                <a id="_douban_" href="{{url_for('kol.index', type='douban')}}">豆瓣红人</a>
+            </li>
+            <li id="_tech_li" style="width:110px;">
+                <a id="_tech_" href="{{url_for('kol.index', type='tech')}}">科技类(含知乎)</a>
+            </li>
+            <li id="_car_li" style="width:60px;">
+                <a id="_car_" href="{{url_for('kol.index', type='car')}}">汽车</a>
+            </li>
+            <li id="_zhihu_li">
+                <a id="_zhihu_" href="{{url_for('kol.index', type='zhihu')}}">知乎红人</a>
+            </li>
+            <li id="_weichart_li">
+                <a id="_weichart_" href="{{url_for('kol.index', type='weichart')}}">微信红人</a>
+            </li>
+        </ul>
+    </div>
+     <div class='tabulation'>
+        <table border='1'>
+            <thead>
+              <tr>
+                <th>编号</th>
+                <th>ID</th>
+                <th>主页</th>
+                <th>所在地</th>
+                <th>粉丝数</th>
+                <th>介绍</th>
+                <th>合作意向</th>
+                <th>是否有合作</th>
+                <th>综合评分</th>
+                <th>详情</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for k in kols %}
+              <tr>
+                <td>{{loop.index}}</td>
+                <td>{{k.name}}</td>
+                <td><a href="{{k.url}}" target="_blank">访问</a></td>
+                <td>{{k.location}}</td>
+                <td>{{k.fans}}</td>
+                <td>{{k.des|truncate_html(20)}}</td>
+                <td>{{k.is_to_work}}</td>
+                <td>{{k.is_work}}</td>
+                <td>{{k.score}}</td>
+                <td><a href="javascript:on_show('{{k.name}}', '{{k.url}}', '{{k.location}}', '{{k.fans}}', '{{k.des}}', '{{k.is_to_work}}', '{{k.is_work}}', '{{k.score}}', '{{k.contact}}', '{{k.other_des}}');">查看</a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="margin-top: 50px;">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -93,7 +126,8 @@
   $(document).ready(function(){
     var pathname = window.location.pathname;
     var path_name = pathname.split("/")
-    $('#_'+path_name[2]+'_').addClass('active');
+    $('#_'+path_name[2]+'_li').addClass('actives');
+    $('#_'+path_name[2]+'_').addClass('on');
   })
   function on_show(name, url, location, fans, des, is_to_work, is_work, score, contact, other_des){
     $('#myModal').modal();

@@ -18,6 +18,7 @@ from models.outsource import (OUTSOURCE_STATUS_NEW, OUTSOURCE_STATUS_APPLY_LEADE
 from forms.outsource import OutSourceTargetForm, OutsourceForm, DoubanOutsourceForm, MergerOutSourceForm
 from libs.email_signals import outsource_distribute_signal, outsource_apply_signal, merger_outsource_apply_signal
 from libs.paginator import Paginator
+from controllers.data_query.helpers.outsource_helpers import write_target_info
 
 outsource_bp = Blueprint(
     'outsource', __name__, template_folder='../templates/outsource/')
@@ -210,6 +211,8 @@ def index():
 @outsource_bp.route('/targets', methods=['GET'])
 def targets():
     targets = OutSourceTarget.all()
+    if request.values.get('action') == 'excel':
+        return write_target_info(targets)
     return tpl('targets.html', targets=targets)
 
 

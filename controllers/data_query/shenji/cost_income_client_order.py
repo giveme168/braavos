@@ -174,7 +174,7 @@ def index():
     orders = ClientOrder.query.filter(ClientOrder.status == 1,
                                       ClientOrder.contract != '')
     # 去重合同
-    orders = [k for k in orders if k.client_start.year == year]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     # 格式化合同
     orders = [_client_order_to_dict(k, back_money_data, all_agent_rebate,
                                     all_medium_rebate, pre_year_month

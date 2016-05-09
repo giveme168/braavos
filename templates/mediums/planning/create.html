@@ -1,71 +1,57 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
 {% block title %}策划案例{% endblock %}
 {% block content%}
-{% include "/mediums/mediums_base.html" %}
+{% include "/mediums/mediums_base_v1_0_0.html" %}
 <link rel="stylesheet" href="/static/css/bootstrap-tagsinput.css" type="text/css">
 
 <div class="container bra-box" style="width:1200px;">
   <h4>新建{{title}}</h4>
-  <form class="form form-horizontal" method="POST" action="{{url_for('mediums_planning.create', type=type)}}" onsubmit="return check_form(this);">
-    <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">名称 : </label>
-      <div class="col-sm-8">
-        <input type="text" id="name" name="name" class="form-control bra-form-control">
-      </div>
+  <form class="input-row-box" method="POST" action="{{url_for('mediums_planning.create', type=type)}}" onsubmit="return check_form(this);">
+    <div class="input-group-menu">
+        <div class="name">名称 : </div>
+        <input type="text" id="name" name="name" class="surname" style="width:300px;">
     </div>
-    <div class="form-group" {% if type != '2' %} style="display:none;" {% endif %}>
+    <div class="input-group-menu" {% if type != '2' %} style="display:none;" {% endif %}>
       <label for="client_start" class="col-sm-2 control-label">是否获奖 : </label>
-      <div class="col-sm-8">
-        <select id="is_win" name="is_win" class="form-control bra-form-control">
+        <select id="is_win" name="is_win" class="surname" style="width:300px;">
            <option value='0'>未获奖</option>
            <option value='1'>获奖</option>
         </select>
-      </div>
     </div>
-    <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">网盘地址 : </label>
-      <div class="col-sm-8">
-        <input type="text" id="url" name="url" class="form-control bra-form-control">
-      </div>
+    <div class="input-group-menu">
+        <div class="name">网盘地址 : </div>
+        <input type="text" id="url" name="url" class="surname" style="width:300px;">
     </div>
-    <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">网盘密码 : </label>
-      <div class="col-sm-8">
-        <input type="text" id="pwd" name="pwd" class="form-control bra-form-control">
-      </div>
+    <div class="input-group-menu">
+        <div class="name">网盘密码 : </div>
+        <input type="text" id="pwd" name="pwd" class="surname" style="width:300px;">
     </div>
     {{ form_field(mediums_form.mediums) }}
-    <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">品牌 : </label>
-      <div class="col-sm-8">
-        <input type="text" id="brand" name="brand" class="form-control bra-form-control">
-      </div>
+    <div class="input-group-menu">
+        <div class="name">品牌 : </div>
+        <input type="text" id="brand" name="brand" class="surname" style="width:300px;">
     </div>
-    <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">行业 : </label>
-      <div class="col-sm-8">
-        <select id="industry" name="industry" class="form-control bra-form-control">
+    <div class="input-group-menu">
+        <div class="name">行业 : </div>
+        <select id="industry" name="industry" class="surname" style="width:300px;">
           {% for k in INDUSTRY %}
           <option value="{{k}}">{{k}}</option>
           {% endfor %}
         </select>
-      </div>
     </div>
-    <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">描述 : </label>
-      <div class="col-sm-8">
-        <textarea type="text" id="desc" name="desc" class="form-control bra-form-control" style="resize: none;height:100px;"></textarea>
-      </div>
+    <div class="input-group-menu">
+        <div class="name">描述 : </div>
+        <textarea type="text" id="desc" name="desc" class="surname" style="resize: none;height:100px;width:300px;"></textarea>
     </div>
-    <div class="form-group" style="display:none;">
-      <label for="client_end" class="col-sm-2 control-label">标签 : </label>
-      <div class="col-sm-8">
-        <input type="text" id='tags' name="tags" value="" data-role="tagsinput" style="width:100px;"/>
-      </div>
+    <div class="input-group-menu" style="margin-top: 80px;">
+        <div class="name">标签 : </div>
+        <input type="text" id='tags' name="tags" value="" data-role="tagsinput" class="surname" style="width:100px;"/>
     </div>
-    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
-    <a href="{{url_for('mediums_planning.index', type=type)}}" class="btn btn-primary btn-sm col-md-offset-2"/>返回</a>
+    <div class="state" style="margin-left:40%;margin-top:50px;">
+        <a href="{{url_for('mediums_planning.index', type=type)}}"><input type="button" value="返回"></a>
+        <button type="submit"/>保存</button>
+    </div>
   </form>
 </div>
 <script>
@@ -91,6 +77,9 @@
       }
       //return false
   }
+  $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+  })
 </script>
 <script src="/static/js/bootstrap-tagsinput.min.js"></script>
 {% endblock %}
