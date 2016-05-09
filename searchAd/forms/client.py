@@ -8,7 +8,7 @@ from ..models.client import searchAdGroup, CLIENT_INDUSTRY_CN
 class NewClientForm(Form):
     name = TextField(u'客户名字',
                      [validators.Required(u"请输入名字.")],
-                     description=u"新建之前请确认是否已存在，不要重复创建")
+                     description=u"请不要重复创建已存在客户")
     industry = SelectField(u'行业', coerce=int)
 
     def __init__(self, *args, **kwargs):
@@ -19,7 +19,7 @@ class NewClientForm(Form):
 class NewAgentForm(Form):
     name = TextField(u'代理/直客',
                      [validators.Required(u"请输入名字.")],
-                     description=u"务必填写公司全称, 不要重复创建")
+                     description=u"请填写公司全称")
     group = SelectField(u'所属集团', coerce=int)
     tax_num = TextField(u'公司税号')
     address = TextField(u'公司地址')
@@ -35,4 +35,4 @@ class NewAgentForm(Form):
 class NewGroupForm(Form):
     name = TextField(u'集团名称',
                      [validators.Required(u"请输入名字.")],
-                     description=u"新建之前请确认是否已存在，不要重复创建")
+                     description=u"请不要重复创建相同集团")

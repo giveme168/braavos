@@ -15,10 +15,14 @@ def outsource_to_dict(outsource):
     dict_outsource['target_id'] = int(outsource.target.id)
     dict_outsource['money'] = outsource.pay_num
     dict_outsource['month_day'] = outsource.month_day
+    dict_outsource['otype'] = outsource.otype
     try:
-        dict_outsource['status'] = outsource.order.status
+        if dict_outsource['otype'] != 1 and outsource.order.id == 629:
+            dict_outsource['status'] = 0
+        else:
+            dict_outsource['status'] = outsource.order.status
     except:
-        dict_outsource['status'] = 1
+        dict_outsource['status'] = 0
     return dict_outsource
 
 

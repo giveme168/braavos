@@ -1,31 +1,37 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}搜索广告-代理/直客全称{% endblock %}
 
 {% block content %}
-{% include "/searchAdclient/searchAd_client_base.html" %}
+{% include "/searchAdclient/searchAd_client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3> 代理公司
         <a class="btn btn-default btn-sm" href="{{url_for('searchAd_client.new_agent')}}">新建</a>
     </h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>#id</th>
-            <th>名称</th>
-            <th>所属集团</th>
-            {% if g.user.is_searchad_leader() %}
-            <th>操作</th>
-            {% endif %}
-        </tr>
-        {% for a in agents %}
-        <tr>
-            <td>{{a.id}}</td>
-            <td><a href="{{url_for("searchAd_client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
-            <td><a href="{{url_for("searchAd_client.group_detail", group_id=a.group.id)}}">{{a.group.name}}</a></td>
-            {% if g.user.is_searchad_leader() %}
-                <td><a href="{{url_for('searchAd_client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>#id</th>
+                    <th>名称</th>
+                    <th>所属集团</th>
+                    {% if g.user.is_searchad_leader() %}
+                    <th>操作</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in agents %}
+                <tr>
+                    <td>{{a.id}}</td>
+                    <td><a href="{{url_for("searchAd_client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
+                    <td><a href="{{url_for("searchAd_client.group_detail", group_id=a.group.id)}}">{{a.group.name}}</a></td>
+                    {% if g.user.is_searchad_leader() %}
+                        <td><a href="{{url_for('searchAd_client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

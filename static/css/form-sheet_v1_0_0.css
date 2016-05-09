@@ -58,7 +58,9 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
                     text-decoration: none;}
 
 .top-nav-wrap .top-nav ul li span{float: right;
-                            color:#b4b4b4;
+                            background:#b4b4b4;
+                            height: 23px;
+                            width: 1px;
                             }
 
 .top-nav-wrap .top-nav ul li:hover{background: #ec3341;}
@@ -158,7 +160,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
                     margin-top:3px;
                     border:1px solid #afafaf;
                     padding-left: 5px;
-                    color: #afafaf;
+                    /*color: #afafaf*/;
                     margin-left:5px;}   
 
 .search-bar .search-input img{position: absolute;top:4px;right:5px;}

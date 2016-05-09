@@ -1,35 +1,41 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}搜索广告-甲方集团{% endblock %}
 
 {% block content %}
-{% include "/searchAdclient/searchAd_client_base.html" %}
+{% include "/searchAdclient/searchAd_client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3> 代理集团
         <a class="btn btn-sm btn-default" href="{{url_for("searchAd_client.new_group")}}">新建</a>
     </h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>#id</th>
-            <th>名称</th>
-            {% if g.user.is_super_leader() %}
-            <th>关联代理个数</th>
-            <th>操作</th>
-            {% endif %}
-        </tr>
-        {% for group in groups %}
-        <tr>
-            <td>{{group.id}}</td>
-            <td><a href="{{url_for("searchAd_client.group_detail", group_id=group.id)}}">{{group.name}}</a></td>
-            {% if g.user.is_super_leader() %}
-            <td>{{group.get_agent_count()}}</td>
-            <td>
-                {% if group.get_agent_count() == 0 %}
-                    <a href="{{url_for("searchAd_client.group_delete", group_id=group.id)}}">删除</a>
-                {% endif %}
-            </td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>#id</th>
+                    <th>名称</th>
+                    {% if g.user.is_super_leader() %}
+                    <th>关联代理个数</th>
+                    <th>操作</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in groups %}
+                <tr>
+                    <td>{{group.id}}</td>
+                    <td><a href="{{url_for("searchAd_client.group_detail", group_id=group.id)}}">{{group.name}}</a></td>
+                    {% if g.user.is_super_leader() %}
+                    <td>{{group.get_agent_count()}}</td>
+                    <td>
+                        {% if group.get_agent_count() == 0 %}
+                            <a href="{{url_for("searchAd_client.group_delete", group_id=group.id)}}">删除</a>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

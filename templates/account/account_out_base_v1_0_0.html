@@ -14,7 +14,6 @@
             {% if g.user.is_HR_leader() or g.user.is_OPS() or g.user.is_super_leader() or g.user.email in ['huhui@inad.com'] %}
             <li id="_outs_">
               <a href="{{url_for('account_out.outs')}}">所有外出报备列表</a>
-              <span></span>
             </li>
             {% endif %}
             

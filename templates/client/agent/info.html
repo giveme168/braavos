@@ -1,8 +1,8 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_tpl %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_tpl %}
 
 {% block content %}
-{% include "/client/client_base.html" %}
+{% include "/client/client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>{{ title }}</h3>
     {{ form_tpl(form) }}
@@ -23,28 +23,35 @@
         </div>
     </div>
     {% if agent.get_agent_attachments().count() > 0 %}
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>资料名称</th>
-            <th>上传日期</th>
-            <th>操作</th>
-        </tr>
-        {% for attachment in agent.get_agent_attachments() %}
-        <tr>
-            <td>{{attachment.filename}}</td>
-            <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
-            <td>
-                <a href="{{attachment.agent_path}}">下载</a>&nbsp;&nbsp;
-                {% if g.user.is_contract() %}
-                    <a href="{{url_for('client.agent_files_delete', agent_id=agent.id, aid=attachment.id)}}">删除</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>资料名称</th>
+                    <th>上传日期</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attachment in agent.get_agent_attachments() %}
+                <tr>
+                    <td>{{attachment.filename}}</td>
+                    <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                    <td>
+                        <a href="{{attachment.agent_path}}">下载</a>&nbsp;&nbsp;
+                        {% if g.user.is_contract() %}
+                            <a href="{{url_for('client.agent_files_delete', agent_id=agent.id, aid=attachment.id)}}">删除</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% endif %}
     <script>
     $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
         $('.file-widget-btn').click(function(e){
             e.preventDefault();
             $(this).parents("form").find('.file-widget-input').click();

@@ -1,25 +1,31 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %} 搜索广告-客户列表{% endblock %}
 
 {% block content %}
-{% include "/searchAdclient/searchAd_client_base.html" %}
+{% include "/searchAdclient/searchAd_client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>客户列表
         <a class="btn btn-default btn-sm" href="{{url_for('searchAd_client.new_client')}}">新建</a>
     </h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>#id</th>
-            <th>名称</th>
-            <th>行业</th>
-        </tr>
-        {% for c in clients %}
-        <tr>
-            <td>{{c.id}}</td>
-            <td><a href="{{url_for("searchAd_client.client_detail", client_id=c.id)}}">{{c.name}}</a></td>
-            <td>{{c.industry_cn}}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>#id</th>
+                    <th>名称</th>
+                    <th>行业</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in clients %}
+                <tr>
+                    <td>{{c.id}}</td>
+                    <td><a href="{{url_for("searchAd_client.client_detail", client_id=c.id)}}">{{c.name}}</a></td>
+                    <td>{{c.industry_cn}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

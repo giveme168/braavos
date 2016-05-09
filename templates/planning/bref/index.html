@@ -1,94 +1,86 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}策划单{% endblock %}
 {% block content %}
-{% include "/planning/base.html" %}
+{% include "/planning/base_v1_0_0.html" %}
 <style>
   .glyphicon-plus {
     color: #FF9900;
   }
 </style>
 <div class="container bra-box" style="width:1400px;">
-  <h4>全部策划单</h4>
-  <form class="form-inline">
-        <div class="form-group">
-            <label for="exampleInputName2">关键字</label>
-            <input class="form-control bra-form-control" type="text" id="info" name="info" value="{{info}}" placeholder="名称/品牌/产品" style="width:250px;">
-        </div>&nbsp;&nbsp;&nbsp;
-        <div class="form-group">
-            <label for="exampleInputName2">区域</label>
-            <select name='location' id='location'  class="form-control bra-form-control" style="width:100px;">
-              <option value='0'>全部</option>
-              <option value='1'>华北</option>
-              <option value='2'>华东</option>
-              <option value='3'>华南</option>
-            </select>
-        </div>&nbsp;&nbsp;&nbsp;
-        <div class="form-group">
-            <label for="exampleInputName2">状态</label>
-            <select name='status' id='status'  class="form-control bra-form-control" style="width:100px;">
-              <option value='100'>全部</option>
-              {% for k, v in BREF_STATUS_CN.items() %}
-              <option value='{{k}}'>{{v}}</option>
+      <div class="search-bar">
+        <form class="menu-btn-bar" style="float:right;">
+            <div class="search-input">
+                <input type="text" placeholder="名称/品牌/产品" value="{{info}}" name="info" id="info">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">区域</label>
+                <select class="form-control special_sale" name="location" id="location" style="width:120px;">
+                    <option value='0'>全部</option>
+                    <option value='1'>华北</option>
+                    <option value='2'>华东</option>
+                    <option value='3'>华南</option>
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">状态</label>
+                <select class="form-control special_sale" name="status" id="status" style="width:120px;">
+                    <option value='100'>全部</option>
+                    {% for k, v in BREF_STATUS_CN.items() %}
+                    <option value='{{k}}'>{{v}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <a href="{{url_for('planning_bref.create')}}"><input type="button" value="添加"></a>
+            </div>
+        </form>
+      </div>
+      <br/>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+              <tr>
+                  <th>区域</th>
+                  <th>名称</th>
+                  <th>品牌</th>
+                  <th>产品</th>
+                  <th>状态</td>
+                  <th>分配给</th>
+                  <th>完成时间</th>
+                  <th>最后修改时间</th>
+                  <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for b in brefs.object_list %}
+              <tr>
+                  <td>{{b.creator.location_cn}}</td>
+                  <td><a href="{{url_for('planning_bref.info', bid=b.id)}}">{{b.title|truncate_html(30)}}</a> {% if b.level_status %}<span class="glyphicon glyphicon-flash glyphicon-plus" aria-hidden="true"></span>{% endif %}</td>
+                  <td>{{b.brand}}</td>
+                  <td>{{b.product}}</td>
+                  <td>{{b.status_cn}}</td>
+                  <td>{% if b.to_id == 0 %}无{% else %}{{b.toer.name}}{% endif %}</td>
+                  <td>{{b.get_time_cn}}点</td>
+                  <td>{{b.update_time_cn}}点</td>
+                  <td>
+                    <a href="{{url_for('planning_bref.info', bid=b.id)}}">查看</a>
+                  </td>
+              </tr>
               {% endfor %}
-            </select>
-        </div>&nbsp;&nbsp;&nbsp;
-        <!--
-        <div class="form-group">
-            <label for="exampleInputName2">行业</label>
-            <select name='industry' id='industry'  class="form-control bra-form-control" style="width:100px;">
-              <option value=''>全部</option>
-              {% for k in INDUSTRY %}
-              <option value='{{k}}'>{{k}}</option>
-              {% endfor %}
-            </select>
-        </div>&nbsp;&nbsp;&nbsp;
-        <div class="form-group">
-            <label for="exampleInputName2">选择媒体</label>
-            <select class="form-control bra-form-control" id="medium" name="medium" style="width:100px;">
-                <option value="0">全部</option>
-                {% for k in mediums %}
-                <option value="{{k.id}}">{{k.name}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        -->
-        <input type="submit" value="搜索" class="btn btn-sm btn-info" style="width:100px;"/>
-        <a href="{{url_for('planning_bref.create')}}" class="btn btn-default col-md-offset-1" style="width:100px;">添加</a>
-    </form>
-    <br/>
-    <table class="table table-bordered">
-      <tr>
-          <th>区域</th>
-          <th>名称</th>
-          <th>品牌</th>
-          <th>产品</th>
-          <th>状态</td>
-          <th>分配给</th>
-          <th>完成时间</th>
-          <th>最后修改时间</th>
-          <th>操作</th>
-      </tr>
-      {% for b in brefs.object_list %}
-      <tr>
-          <td>{{b.creator.location_cn}}</td>
-          <td><a href="{{url_for('planning_bref.info', bid=b.id)}}">{{b.title|truncate_html(30)}}</a> {% if b.level_status %}<span class="glyphicon glyphicon-flash glyphicon-plus" aria-hidden="true"></span>{% endif %}</td>
-          <td>{{b.brand}}</td>
-          <td>{{b.product}}</td>
-          <td>{{b.status_cn}}</td>
-          <td>{% if b.to_id == 0 %}无{% else %}{{b.toer.name}}{% endif %}</td>
-          <td>{{b.get_time_cn}}点</td>
-          <td>{{b.update_time_cn}}点</td>
-          <td>
-            <a href="{{url_for('planning_bref.info', bid=b.id)}}">查看</a>
-          </td>
-      </tr>
-      {% endfor %}
-    </table>
+            </tbody>
+        </table>
+    </div>
     {% set pages = brefs %}
     {% include "pagination.html" %}
 </div>
     <script>
       $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
         $('#location').val('{{location}}');
         $('#location').trigger("chosen:updated");
         $('#status').val('{{status}}');

@@ -1,21 +1,16 @@
-<div class="container-fluid top_nav_fluid">
-    <div class="menu">
-        <div class="list">
-            <ul>
-                {% if g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %}
-                <a href="{{url_for('media_client_order_data_query.medium_invoice')}}"><li id="_client_orderdata_query_">媒体合同数据</li></a>
-                {% endif %}
-                <div class="line" style="clear: both"></div>
-            </ul>
-        </div>
-    </div>
-    <div class="form-list">
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        <ul>
+            <li id="_client_orderdata_query_">
+              <a href="{{url_for('media_client_order_data_query.medium_invoice')}}">媒体合同数据</a>
+            </li>
+        </ul>
     </div>
 </div>
 <script>
     $(function(){
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
-        $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass("on");
+        $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass("active");
     })
 </script>

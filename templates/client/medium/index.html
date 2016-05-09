@@ -1,37 +1,43 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %} 媒体列表{% endblock %}
 
 {% block content %}
-{% include "/client/client_base.html" %}
+{% include "/client/client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3> 媒体列表
         {% if g.user.is_media_leader() %}<a class="btn btn-default btn-sm" href="{{url_for('client.new_medium')}}">新建</a>{% endif %}
     </h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>#id</th>
-            <th>名称</th>
-            <th>级别</th>
-            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
-            <th>2014年返点</th>
-            <th>2015年返点</th>
-            <th>2016年返点</th>
-            <th>操作</th>
-            {% endif %}
-        </tr>
-        {% for m in mediums %}
-        <tr>
-            <td>{{m.id}}</td>
-            <td><a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
-            <td>{{m.level_cn}}</td>
-            {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
-                <td>{{m.rebate_2014}}</td>
-                <td>{{m.rebate_2015}}</td>
-                <td>{{m.rebate_2016}}</td>
-                <td><a href="{{url_for('client.medium_rebate', medium_id=m.id)}}">设置返点</a></td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>#id</th>
+                    <th>名称</th>
+                    <th>级别</th>
+                    {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+                    <th>2014年返点</th>
+                    <th>2015年返点</th>
+                    <th>2016年返点</th>
+                    <th>操作</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mediums %}
+                <tr>
+                    <td>{{m.id}}</td>
+                    <td><a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
+                    <td>{{m.level_cn}}</td>
+                    {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+                        <td>{{m.rebate_2014}}</td>
+                        <td>{{m.rebate_2015}}</td>
+                        <td>{{m.rebate_2016}}</td>
+                        <td><a href="{{url_for('client.medium_rebate', medium_id=m.id)}}">设置返点</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

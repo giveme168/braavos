@@ -61,6 +61,8 @@ def _search_order_to_dict(search_order, all_back_moneys, confirm_money_data, pre
     dict_order['money'] = search_order.money
     dict_order['medium_rebate_money'] = sum(
         [k['rebate'] for k in confirm_money_data if k['order_id'] == search_order.id])
+    dict_order['client_firm_money'] = sum(
+        [k['money'] for k in confirm_money_data if k['order_id'] == search_order.id])
     dict_order['back_moneys'] = sum(
         [k['money'] for k in all_back_moneys if k['order_id'] == search_order.id])
     dt_format = "%d%m%Y"

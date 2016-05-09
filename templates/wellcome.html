@@ -318,7 +318,7 @@
                     <li class="order-management"><a href="{{url_for('order.my_orders')}}" target="_blank"><img src="/static/image/homepage_icon/icon5.png" alt="#"></a></li>
                     <li class="manage"><a href="{{url_for('order.my_orders')}}" target="_blank"><h5>订单管理-致趣</h5></a></li>
                 </ul>
-              {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit()%}
+              {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit() or g.user.is_finance() %}
               <!--搜索部门-->
                 <ul class="bussess administration">
                     <li class="order-management"><a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank"><img src="/static/image/homepage_icon/icon5.png" alt="#"></a></li>

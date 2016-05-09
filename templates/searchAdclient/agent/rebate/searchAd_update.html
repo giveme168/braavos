@@ -1,41 +1,38 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %} 代理/直客-返点信息列表{% endblock %}
 
 {% block content %}
-{% include "/searchAdclient/searchAd_client_base.html" %}
+{% include "/searchAdclient/searchAd_client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>修改 {{agent.name}} 返点信息</h3>
-    <form class="form form-horizontal" method="POST" action="{{url_for('searchAd_client.agent_rebate_update', agent_id=agent.id, rebate_id=rebate.id)}}" onsubmit="return check_form(this);">
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">执行年 : </label>
-          <div class="col-sm-4">
-            <select name="year" id="year" style="width:120px;">
+    <form class="input-row-box" method="POST" action="{{url_for('searchAd_client.agent_rebate_update', agent_id=agent.id, rebate_id=rebate.id)}}" onsubmit="return check_form(this);">
+        <div class="input-group-menu">
+          <div class="name">执行年 : </div>
+            <select name="year" id="year" class="usrname" style="width:300px;">
                 {% for k in range(0, 10) %}
                 <option value="{{2014+k}}">{{2014+k}}</option>
                 {% endfor %}
             </select>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">致趣返点信息 : </label>
-          <div class="col-sm-6">
-            <input type="number" name="inad_rebate" step="any" id="inad_rebate" class="form-control bra-form-control" placeholder="请输入数字" value="{{rebate.inad_rebate}}"/>
+        <div class="input-group-menu">
+          <div class="name">致趣返点信息 : </div>
+            <input type="number" name="inad_rebate" step="any" id="inad_rebate" class="usrname" style="width:300px;" placeholder="请输入数字" value="{{rebate.inad_rebate}}"/>
             <span style="color:red;" class="tips">%</span>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">豆瓣返点信息 : </label>
-          <div class="col-sm-6">
-            <input type="number" name="douban_rebate" step="any" id="douban_rebate" class="form-control bra-form-control" placeholder="请输入数字" value="{{rebate.douban_rebate}}"/>
+        <div class="input-group-menu">
+          <div class="name">豆瓣返点信息 : </div>
+            <input type="number" name="douban_rebate" step="any" id="douban_rebate" class="usrname" style="width:300px;" placeholder="请输入数字" value="{{rebate.douban_rebate}}"/>
             <span style="color:red;" class="tips">%</span>
-          </div>
         </div>
-        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
-        <a href="{{url_for('searchAd_client.agent_rebate', agent_id=agent.id)}}" class="btn btn-primary btn-sm col-md-offset-2">返回</a>
+        <div class="state" style="margin-left:40%;">
+            <a href="{{url_for('searchAd_client.agent_rebate', agent_id=agent.id)}}"><input type="button" value="返回"></a>
+            <input type="submit" value="保存">
+        </div>
     </from>
 </div>
 <script>
 $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
    $('#year').val('{{rebate.year.year}}')
    $("#year").trigger("chosen:updated");
 })

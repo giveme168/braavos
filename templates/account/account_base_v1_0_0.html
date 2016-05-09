@@ -12,7 +12,6 @@
             {% if g.user.is_kpi_leader or g.user.is_HR_leader() or g.user.is_super_leader() %}
             <li id="_underling_">
               <a href="{{url_for('account_kpi.underling')}}">下属的绩效考核</a>
-              <span></span>
             </li>
             {% endif %}
             

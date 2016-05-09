@@ -1,10 +1,15 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_tpl %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_tpl %}
 
 {% block content %}
-{% include "/client/client_base.html" %}
+{% include "/client/client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>{{ title }}</h3>
     {{ form_tpl(form) }}
 </div>
+<script>
+    $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+    })
+</script>
 {% endblock %}
