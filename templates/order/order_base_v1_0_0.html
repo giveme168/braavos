@@ -1,0 +1,50 @@
+<!--导航-->
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        <ul>
+            <li id="_my_orders_" class="nav-first">
+              <a href="{{url_for('order.my_orders')}}">新媒体订单</a>
+              <span>|</span>
+            </li>
+            <li id="_my_douban_orders_">
+              <a href="{{url_for('order.my_douban_orders')}}">直签豆瓣订单</a>
+              <span>|</span>
+            </li>
+            <li id="_my_framework_orders_">
+              <a href="{{url_for('order.my_framework_orders')}}">代理框架订单</a>
+              <span>|</span>
+            </li>
+            {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_finance() %}
+            <li id="_my_medium_framework_orders_">
+              <a href="{{url_for('order.my_medium_framework_orders')}}">媒体框架订单</a>
+              <span>|</span>
+            </li>
+            {% endif %}
+            <li id="_intention_order_" class="nav-last">
+              <a href="{{url_for('order.intention_order')}}">洽谈中的订单</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[3] == 'data_query'){
+            $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass("active");
+        }else{
+            $('#_'+p_pathname[2]+'_').addClass("active");
+            if(['douban_order', 'new_douban_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_douban_orders_').addClass("active");
+            }
+            if(['order', 'client_order', 'new_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_orders_').addClass("active");
+            }
+            if(['medium_framework_order', 'new_medium_framework_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_medium_framework_orders_').addClass("active");
+            }else if(['framework_order', 'new_framework_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_framework_orders_').addClass("active");
+            }
+        }
+    })
+</script>

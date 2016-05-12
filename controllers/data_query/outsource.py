@@ -4,9 +4,13 @@ import datetime
 from flask import Blueprint, request
 from flask import render_template as tpl
 
-from models.outsource import OutSourceExecutiveReport
+from models.client_order import ClientOrder
+from models.douban_order import DoubanOrder
+from models.outsource import OutSourceExecutiveReport, OutSource, DoubanOutSource
 from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q)
-from controllers.data_query.helpers.outsource_helpers import write_outsource_excel, write_outsource_info_excel
+from controllers.data_query.helpers.outsource_helpers import (write_outsource_excel,
+                                                              write_outsource_info_excel,
+                                                              write_outsource_order_info_excel)
 
 
 data_query_outsource_bp = Blueprint(
@@ -16,22 +20,20 @@ data_query_outsource_bp = Blueprint(
 def outsource_to_dict(outsource):
     dict_outsource = {}
     try:
-
         dict_outsource['otype'] = outsource.otype
         dict_outsource['order'] = outsource.order
-        if dict_outsource['otype'] != 1 and outsource.order.id == 629:
-            dict_outsource['order_status'] = 0
+        dict_outsource['order_status'] = dict_outsource['order'].status
+        dict_outsource['month_day'] = outsource.month_day
+        dict_outsource['type'] = outsource.type
+        dict_outsource['locations'] = list(
+            set(dict_outsource['order'].locations))
+        if outsource.target.id == 271:
+            dict_outsource['pay_num'] = 0
+            dict_outsource['l_pre_pay_num'] = 0
         else:
-            dict_outsource['order_status'] = dict_outsource['order'].status
-            dict_outsource['month_day'] = outsource.month_day
-            dict_outsource['type'] = outsource.type
-            dict_outsource['locations'] = list(set(dict_outsource['order'].locations))
-            if outsource.target.id == 271:
-                dict_outsource['pay_num'] = 0
-                dict_outsource['l_pre_pay_num'] = 0
-            else:
-                dict_outsource['pay_num'] = outsource.pay_num
-                dict_outsource['l_pre_pay_num'] = outsource.pay_num / len(dict_outsource['locations'])
+            dict_outsource['pay_num'] = outsource.pay_num
+            dict_outsource['l_pre_pay_num'] = outsource.pay_num / \
+                len(dict_outsource['locations'])
     except:
         dict_outsource['order_status'] = 0
     return dict_outsource
@@ -53,9 +55,11 @@ def index():
         now_year + '-' + str(Q_monthes[-1]), '%Y-%m')
     outsources = OutSourceExecutiveReport.all()
     if now_Q == '00':
-        outsources = [k for k in outsources if int(k.month_day.year) == int(now_year)]
+        outsources = [k for k in outsources if int(
+            k.month_day.year) == int(now_year)]
     else:
-        outsources = [k for k in outsources if k.month_day >= start_month_day and k.month_day <= end_month_day]
+        outsources = [k for k in outsources if k.month_day >=
+                      start_month_day and k.month_day <= end_month_day]
     # 踢掉删除的合同
     outsources = [outsource_to_dict(k) for k in outsources]
     outsources = [k for k in outsources if k['order_status'] == 1]
@@ -69,7 +73,8 @@ def index():
     monthes_data['t_locataion'] = []
     monthes_data['t_month'] = []
     for k in Q_monthes:
-        month_day = datetime.datetime.strptime(now_year + '-' + str(k), '%Y-%m')
+        month_day = datetime.datetime.strptime(
+            now_year + '-' + str(k), '%Y-%m')
         t_huabei_num = 0
         t_huadong_num = 0
         t_huanan_num = 0
@@ -99,7 +104,8 @@ def index():
 def info():
     now_year = int(request.values.get('year', datetime.datetime.now().year))
     outsources = OutSourceExecutiveReport.all()
-    outsources = [outsource_to_dict(k) for k in outsources if int(k.month_day.year) == int(now_year)]
+    outsources = [outsource_to_dict(k) for k in outsources if int(
+        k.month_day.year) == int(now_year)]
     # 踢掉删除的合同
     outsources = [k for k in outsources if k['order_status'] == 1]
     r_outsource_pay = sum([k['pay_num'] for k in outsources])
@@ -129,98 +135,69 @@ def info():
             'month_day'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 10)]
         i.o_money = o_money
         total += sum(o_money)
-    '''
-    # 获取每个月的合同信息
-    pre_month_orders = {}
-    for k in pre_monthes:
-        pre_month_orders[str(k['month'].month)] = list(
-            set([s['order'] for s in outsources if s['month_day'] == k['month']]))
-    # 获取单个合同每个季度的单项外包数据
-    for k in range(len(pre_month_orders.values())):
-        orders = pre_month_orders[str(k+1)]
-        for i in orders:
-            o_money = []
-
-            if k == 0:
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q1_monthes[0] and o[
-                    'month_day'] <= Q1_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-                o_money += [0.0 for d in range(21)]
-            elif k == 1:
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q1_monthes[0] and o[
-                    'month_day'] <= Q1_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-                o_money += [0.0 for d in range(21)]
-            elif k == 2:
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q1_monthes[0] and o[
-                    'month_day'] <= Q1_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-                o_money += [0.0 for d in range(21)]
-            elif k == 3:
-                o_money += [0.0 for d in range(7)]
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q2_monthes[0] and o[
-                    'month_day'] <= Q2_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-                o_money += [0.0 for d in range(14)]
-            elif k == 4:
-                o_money += [0.0 for d in range(7)]
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q2_monthes[0] and o[
-                    'month_day'] <= Q2_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-                o_money += [0.0 for d in range(14)]
-            elif k == 5:
-                o_money += [0.0 for d in range(7)]
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q2_monthes[0] and o[
-                    'month_day'] <= Q2_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-                o_money += [0.0 for d in range(14)]
-            elif k == 6:
-                o_money += [0.0 for d in range(14)]
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q3_monthes[0] and o[
-                    'month_day'] <= Q3_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-                o_money += [0.0 for d in range(7)]
-            elif k == 7:
-                o_money += [0.0 for d in range(14)]
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q3_monthes[0] and o[
-                    'month_day'] <= Q3_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-                o_money += [0.0 for d in range(7)]
-            elif k == 8:
-                o_money += [0.0 for d in range(14)]
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q3_monthes[0] and o[
-                    'month_day'] <= Q3_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-                o_money += [0.0 for d in range(7)]
-            elif k == 9:
-                o_money += [0.0 for d in range(21)]
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q4_monthes[0] and o[
-                    'month_day'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-            elif k == 10:
-                o_money += [0.0 for d in range(21)]
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q4_monthes[0] and o[
-                    'month_day'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-            elif k == 11:
-                o_money += [0.0 for d in range(21)]
-                o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q4_monthes[0] and o[
-                    'month_day'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-            # o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q1_monthes[0] and o[
-            #     'month_day'] <= Q1_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-            # o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q2_monthes[0] and o[
-            #     'month_day'] <= Q2_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-            # o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q3_monthes[0] and o[
-            #     'month_day'] <= Q3_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-            # o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q4_monthes[0] and o[
-            #    'month_day'] <= Q4_monthes[2] and o['type'] == t and o['order'] == i])) for t in range(1, 8)]
-            i.o_money = o_money
-    total_Q_data = {}
-    total_Q_data['first'] = numpy.array([float(0) for k in range(28)])
-    total_Q_data['second'] = numpy.array([float(0) for k in range(28)])
-    total_Q_data['third'] = numpy.array([float(0) for k in range(28)])
-    total_Q_data['forth'] = numpy.array([float(0) for k in range(28)])
-    for k in pre_month_orders['1'] + pre_month_orders['2'] + pre_month_orders['3']:
-        total_Q_data['first'] += numpy.array(k.o_money)
-    for k in pre_month_orders['4'] + pre_month_orders['5'] + pre_month_orders['6']:
-        total_Q_data['second'] += numpy.array(k.o_money)
-    for k in pre_month_orders['7'] + pre_month_orders['8'] + pre_month_orders['9']:
-        total_Q_data['third'] += numpy.array(k.o_money)
-    for k in pre_month_orders['10'] + pre_month_orders['11'] + pre_month_orders['12']:
-        total_Q_data['forth'] += numpy.array(k.o_money)
-    total = sum(total_Q_data['first']+total_Q_data['second']+total_Q_data['third']+total_Q_data['forth'])
-    '''
-
     if request.values.get('action', '') == 'download':
         return write_outsource_info_excel(now_year, orders, total, r_outsource_pay)
     return tpl('/data_query/outsource/info.html', now_year=now_year, orders=orders,
                total=total, r_outsource_pay=r_outsource_pay)
+
+
+def _target_outsource_to_dict(outsource, type):
+    dict_outsource = {}
+    if type == 'douban_order':
+        dict_outsource['order_type'] = 'douban_order'
+        dict_outsource['order_status'] = outsource.douban_order.status
+        dict_outsource['order_id'] = outsource.douban_order.id
+    else:
+        dict_outsource['order_type'] = 'client_order'
+        dict_outsource[
+            'order_status'] = outsource.medium_order.client_order.status
+        dict_outsource['order_id'] = outsource.medium_order.client_order.id
+    dict_outsource['type'] = outsource.type
+    dict_outsource['money'] = outsource.num
+    dict_outsource['status'] = int(outsource.status)
+    dict_outsource['target_id'] = outsource.target.id
+    dict_outsource['target_name'] = outsource.target.name
+    dict_outsource['target_bank'] = outsource.target.bank
+    dict_outsource['target_card'] = outsource.target.card
+    dict_outsource['target_alipay'] = outsource.target.alipay
+    dict_outsource['target_otype'] = outsource.target.otype
+    dict_outsource['target_otype_cn'] = outsource.target.otype_cn
+    if dict_outsource['target_id'] == 271 or dict_outsource['status'] not in [2, 3, 4] or \
+            dict_outsource['order_status'] == 0:
+        dict_outsource = {}
+    return dict_outsource
+
+
+@data_query_outsource_bp.route('/order_info', methods=['GET'])
+def order_info():
+    now_year = int(request.values.get('year', datetime.datetime.now().year))
+    outsources = [_target_outsource_to_dict(
+        k, 'client_order') for k in OutSource.all()]
+    outsources += [_target_outsource_to_dict(k, 'douban_order')
+                   for k in DoubanOutSource.all()]
+    outsources = [k for k in outsources if k]
+    orders = [k for k in ClientOrder.all() if (k.client_start.year ==
+                                               now_year or k.client_end.year == now_year) and k.status == 1]
+    orders += [k for k in DoubanOrder.all() if (k.client_start.year ==
+                                                now_year or k.client_end.year == now_year) and k.status == 1]
+    order_obj = []
+    for k in orders:
+        order_dict = {}
+        if k.__tablename__ == 'bra_client_order':
+            order_dict['outsource_obj'] = [o for o in outsources if o[
+                'order_type'] == 'client_order' and o['order_id'] == k.id]
+        else:
+            order_dict['outsource_obj'] = [o for o in outsources if o[
+                'order_type'] == 'douban_order' and o['order_id'] == k.id]
+        order_dict['contract'] = k.contract
+        order_dict['campaign'] = k.campaign
+        order_dict['money'] = k.money
+        order_dict['locations_cn'] = k.locations_cn
+        order_dict['outsources_sum'] = k.outsources_sum
+        order_dict['outsources_percent'] = k.outsources_percent
+        order_dict['outsources_paied_sum'] = k.outsources_paied_sum_by_shenji('all')
+        if order_dict['outsource_obj']:
+            order_obj.append(order_dict)
+    if request.values.get('action', '') == 'download':
+        return write_outsource_order_info_excel(order_obj)
+    return tpl('/data_query/outsource/order_info.html', orders=order_obj, now_year=now_year)

@@ -2,7 +2,7 @@
 {% block title %}首页{% endblock %}
 {% block content %}
 <div class="container" style="width:958px;">
-    <div class="row">
+    <div class="row" style="margin-top: 55px;">
         <div class="introduction">
             <div class="intro-all">
                 <div class="sculpture">
@@ -624,7 +624,7 @@
                 </li>
             </ul>
             {% endif %}
-            {% if g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()%}
+            {% if g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance() or g.user.is_contract() %}
             <ul class="bussess">
                 <li>
                     <a href="{{url_for('data_query_super_leader_industry.client_order')}}" target="_blank">
@@ -704,10 +704,5 @@
     </div>
     {% endif %}
 </div> 
-<script>
-    $(function(){
-        $('#index').addClass('active')
-    })
-</script>
 <script src="/static/js/index_v1_0_0.js" type="text/javascript"></script>
 {% endblock %}

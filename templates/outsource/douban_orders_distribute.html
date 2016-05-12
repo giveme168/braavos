@@ -1,93 +1,109 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}我的客户订单{% endblock %}
 
 {% block content %}
-{% include "/outsource/outsource_base.html" %}
-<div class="container bra-box">
+{% include "/outsource/outsource_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:1300px;">
     <h3>{{title}}</h3>
-    <div class="search">
-        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
-        <div class="col-md-1" style="padding:0;margin:0 5px;">
-            <select class="form-control" id="year" name="year">
-                {% for k in range(5) %}
-                    <option value="{{2014+k}}">{{2014+k}}年度</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
-            <select class="col-md-12" id="search_location" name="location" placeholder="区域">
-                {% for v, m in locations %}
-                    {% if v == location_id|int %}
-                    <option selected="" value="{{v}}">{{m}}</option>
-                    {% else %}
-                    <option value="{{v}}">{{m}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2" style="padding:0;margin-right:5px;">
-            <select class="col-md-12" id="search_status" name="status" placeholder="合同状态">
-                {% for v, m in statuses %}
-                    {% if v == status_id|int %}
-                    <option selected="" value="{{v}}">{{m}}</option>
-                    {% else %}
-                    <option value="{{v}}">{{m}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2" style="padding:0;margin-right:5px;">
-            <select class="col-md-12" id="orderby" name="orderby" placeholder="排序方式">
-                <option value="create_time">按添加时间排序</option>
-                <option value="client_start">按执行开始时间排序</option>
-                <option value="client_end">按执行结束时间排序</option>
-                <option value="contract">按合同号排序</option>
-            </select>
-        </div>
-        <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input"><input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info" id="search_info">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">年度</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                        <option value="{{2014+k}}">{{2014+k}}年度</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">区域</label>
+                <select class="form-control special_sale" name="location" id="search_location" style="width:100px;">
+                    {% for v, m in locations %}
+                        {% if v == location_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                        {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">合同状态</label>
+                <select class="form-control special_sale" name="status" id="search_status" style="width:120px;">
+                    {% for v, m in statuses %}
+                        {% if v == status_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                        {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">排序方式</label>
+                <select class="form-control special_sale" name="orderby" id="orderby" style="width:120px;">
+                    <option value="create_time">按添加时间</option>
+                    <option value="client_start">按执行开始时间</option>
+                    <option value="client_end">按执行结束时间</option>
+                    <option value="contract">按合同号排序</option>
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+        </form>
     </div>
     <br>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>合同名称</th>
-            <th>合同号</th>
-            <th>所属区域</th>
-            <th>合同总金额</th>
-            <th>外包应付总金额</th>
-            <th>外包占比</th>
-            <th>开始时间</th>
-            <th>开始时间</th>
-            <th>未报备</th>
-            <th>报备中</th>
-            <th>已报备</th>
-            <th>项目经理</th>
-            <th width='5%'>操作</th>
-        </tr>
-        {% for order in orders %}
-        <tr>
-            <td><a href="{{url_for('outsource.douban_outsources', order_id=order.id)}}">{{order.name}}</a></td>
-            <td><a href="{{url_for('outsource.douban_outsources', order_id=order.id)}}">{{order.contract or '无合同号'}}</a></td>
-            <td>{{order.locations_cn}}</td>
-            <td>{{order.money}} 元</td>
-            <td>{{order.outsources_sum}} 元</td>
-            <td>{{order.outsources_percent}} %</td>
-            <td>{{order.start_date_cn}}</td>
-            <td>{{order.end_date_cn}}</td>
-            <td>{{order.get_outsources_by_status(0)|length}}</td>
-            <td>{{order.get_outsources_by_status(1)|length + order.get_outsources_by_status(5)|length}}</td>
-            <td>{{order.get_outsources_by_status(2)|length}}</td>
-            <td>{{order.operater_names}}</td>
-            <td><a href="javascript:edit_operator('{{order.id}}','{{order.operater_ids}}')">修改</a></td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>合同名称</th>
+                    <th>合同号</th>
+                    <th>所属区域</th>
+                    <th>合同总金额</th>
+                    <th>外包应付总金额</th>
+                    <th>外包占比</th>
+                    <th>开始时间</th>
+                    <th>开始时间</th>
+                    <th>未报备</th>
+                    <th>报备中</th>
+                    <th>已报备</th>
+                    <th>项目经理</th>
+                    <th width='5%'>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><a href="{{url_for('outsource.douban_outsources', order_id=order.id)}}">{{order.name}}</a></td>
+                    <td><a href="{{url_for('outsource.douban_outsources', order_id=order.id)}}">{{order.contract or '无合同号'}}</a></td>
+                    <td>{{order.locations_cn}}</td>
+                    <td>{{order.money}} 元</td>
+                    <td>{{order.outsources_sum}} 元</td>
+                    <td>{{order.outsources_percent}} %</td>
+                    <td>{{order.start_date_cn}}</td>
+                    <td>{{order.end_date_cn}}</td>
+                    <td>{{order.get_outsources_by_status(0)|length}}</td>
+                    <td>{{order.get_outsources_by_status(1)|length + order.get_outsources_by_status(5)|length}}</td>
+                    <td>{{order.get_outsources_by_status(2)|length}}</td>
+                    <td>{{order.operater_names}}</td>
+                    <td><a href="javascript:edit_operator('{{order.id}}','{{order.operater_ids}}')">修改</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% set pages = orders %}
     {% include "pagination.html" %}
 </div>
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <form class="form form-horizontal" method="POST" action="" onsubmit="return checkform()">
-  <div class="modal-dialog">
+  <div class="modal-dialog" style="margin-top:200px;">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -99,8 +115,8 @@
             <input class="hide" name="operater_ids" id="operater_ids" value=""/>
             <div class="form-group">
               <label for="client_start" class="col-sm-4 control-label">选着项目经理 : </label>
-              <div class="col-sm-4">
-                <select data-placeholder="请选择..." multiple class="form-control bra-form-control" id="operater" name="operaters">
+              <div class="col-sm-6">
+                <select data-placeholder="请选择..." multiple class="form-control bra-form-control" id="operater" name="operaters" style="width:250px;">
                 </select>
               </div>
             </div>
@@ -116,6 +132,7 @@
 </div>
 <script>
     $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
         rest_chose()
         $("#operater").chosen(); 
         //$("#orderby option[value='{{orderby}}']").attr("selected","selected");  

@@ -1,7 +1,7 @@
-{% from 'form.html' import form_field %}
+{% from 'form_v1_0_0.html' import form_field %}
 {% macro order_douban_form(form, douban_order=None, replace_saler_form=None) -%}
 {% if form and not douban_order %}
-<form class="form form-horizontal" method="POST">
+<form class="input-row-box" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
     {{ form_field(form.agent) }}
@@ -10,23 +10,17 @@
     {{ form_field(form.money) }}
     {{ form_field(form.sale_CPM) }}
     {{ form_field(form.medium_CPM) }}
-    <div class="form-group">
-      <label for="" class="col-sm-2 control-label">执行开始 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行开始 : </div>
+        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="" class="col-sm-2 control-label">执行结束 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行结束 : </div>
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="" class="col-sm-2 control-label">回款日期 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">回款日期 : </div>
+        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
@@ -37,10 +31,12 @@
     {{ form_field(form.contract_type) }}
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}
-    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="保存">
+    </div>
 </form>
 {% elif g.user.is_super_leader() or g.user.is_contract() %}
-<form class="form form-horizontal" method="POST">
+<form class="input-row-box" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
     {{ form_field(form.agent) }}
@@ -49,23 +45,17 @@
     {{ form_field(form.money) }}
     {{ form_field(form.sale_CPM) }}
     {{ form_field(form.medium_CPM) }}
-    <div class="form-group">
-      <label for="" class="col-sm-2 control-label">执行开始 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行开始 : </div>
+        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="" class="col-sm-2 control-label">执行结束 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行结束 : </div>
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="" class="col-sm-2 control-label">回款日期 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">回款日期 : </div>
+        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
@@ -78,24 +68,26 @@
     {{ form_field(form.sale_type) }}
     {{ form_field(replace_saler_form.replace_salers) }}
     {% if douban_order %}
-    <div class="form-group" {% if g.user.is_super_leader() or g.user.is_leader() or douban_order.can_media_leader_action(g.user) or g.user.is_contract()%}{% else %} style="display:none;"{% endif %}>
-      <label class="col-sm-2 control-label" style="color:red;">单笔返点 : </label>
-      <div class="col-sm-4" id="self_rebate_status">
-        <select name="self_rebate" id="self_rebate" style="width:300px;">
+    <div class="input-group-menu" {% if g.user.is_super_leader() or g.user.is_leader() or douban_order.can_media_leader_action(g.user) or g.user.is_contract()%}{% else %} style="display:none;"{% endif %}>
+      <div class="name" style="color:red;">单笔返点 : </div>
+      <div id="self_rebate_status">
+        <select name="self_rebate" id="self_rebate"  class="surname" style="width:300px;">
           <option value="0">无单笔返点</option>
           <option value="1">有单笔返点</option>
         </select>
       </div>
-      <div class="col-sm-10" id="self_rebate_value" style="display:none;">
-        <input type="text" id="self_rabate_value" name="self_rabate_value" class="form-control bra-form-control" value='0'>
+      <div id="self_rebate_value" style="display:none;">
+        <input type="text" id="self_rabate_value" name="self_rabate_value" class=" surname" style="width:300px;" value='0'>
         <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
       </div>
     </div>
     {% endif %}
-    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="保存">
+    </div>
 </form>
 {% elif douban_order and douban_order.can_admin(g.user) and douban_order.contract_status in [0, 1]%}
-<form class="form form-horizontal" method="POST">
+<form class="input-row-box" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
     {{ form_field(form.agent) }}
@@ -104,23 +96,17 @@
     {{ form_field(form.money) }}
     {{ form_field(form.sale_CPM) }}
     {{ form_field(form.medium_CPM) }}
-    <div class="form-group">
-      <label for="" class="col-sm-2 control-label">执行开始 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行开始 : </div>
+        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="" class="col-sm-2 control-label">执行结束 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行结束 : </div>
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="" class="col-sm-2 control-label">回款日期 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">回款日期 : </div>
+        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.agent_sales) }}
@@ -131,7 +117,9 @@
     {{ form_field(form.contract_type) }}
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}
-    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="保存">
+    </div>
 </form>
 {% else %}
 <div class="col-md-12">
@@ -258,6 +246,7 @@ Date.prototype.Format = function (fmt) { //author: meizz
     return fmt;
 }
 $(document).ready(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     $('.datetimepicker').datetimepicker({
         autoclose: true,
         todayHighlight: true,

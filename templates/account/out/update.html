@@ -15,11 +15,11 @@
     <form class="input-row-box" method="POST" onsubmit="return checkform(this)">
         <input type="hidden" value="1" name="m_persion_type" id="m_persion_type">
         <div class="input-group-menu">
-          <div class="name">执行开始 : </div>
+          <div class="name">开始 : </div>
             <input type="text" id="start_time" name="start_time" readonly="readonly" value="{{out.start_time_cn}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd hh:ii">
         </div>
         <div class="input-group-menu">
-          <div class="name">执行结束 : </div>
+          <div class="name">结束 : </div>
             <input type="text" id="end_time" name="end_time" value="{{out.end_time_cn}}" readonly="readonly" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd hh:ii">
         </div>
         <div class="input-group-menu">
@@ -144,7 +144,7 @@ $(function(){
             //var endDate = new Date($('#start_time').val());
             //endDate.setDate(endDate.getDate()); 
             $('#end_time').val($('#start_time').val())
-            $('#end_time').datetimepicker('setStartDate', $('#start_time').val());
+            //$('#end_time').datetimepicker('setStartDate', $('#start_time').val());
         }
     });
 })

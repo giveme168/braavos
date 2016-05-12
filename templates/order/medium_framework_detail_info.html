@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "base_v1_0_0.html" %}
 {% from 'order_form_medium_framework.html' import order_medium_framework_form %}
 {% from 'order_form_contract.html' import order_contract_form %}
 {% from 'order_form_attachment.html' import medium_framework_order_attachment, finish_medium_framework_order_attachment %}
 {% from 'comments.html' import comments_box %}
 
 {% block content %}
-{% include "order_base.html" %}
+{% include "order_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h4> {{ order.name }} </h4>
     <div class="panel-group" id="accordion">

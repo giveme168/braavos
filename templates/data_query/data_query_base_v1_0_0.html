@@ -32,8 +32,12 @@
               <a href="{{url_for('data_query_outsource.index')}}">外包成本</a>
               <span>|</span>
             </li>
-            <li class="nav-last" id="_outsourceinfo_">
+            <li id="_outsourceinfo_">
               <a href="{{url_for('data_query_outsource.info')}}">外包成本详情</a>
+              <span>|</span>
+            </li>
+            <li class="nav-last" id="_outsourceorder_info_">
+              <a href="{{url_for('data_query_outsource.order_info')}}">外包合同详情</a>
             </li>
           </ul>
           <ul>
@@ -43,6 +47,10 @@
             </li>
             <li id="_outsource_costinfo_">
               <a href="{{url_for('data_query_outsource_cost.info')}}">外包成本详情(含尚典)</a>
+              <span>|</span>
+            </li>
+            <li id="_outsource_costorder_info_">
+              <a href="{{url_for('data_query_outsource_cost.order_info')}}">外包合同详情(含尚典)</a>
               <span>|</span>
             </li>
             <li id="_profitclient_order_">
@@ -149,12 +157,20 @@
               <a href="{{url_for('data_query_outsource.info')}}">外包成本详情</a>
               <span>|</span>
             </li>
+            <li id="_outsourceorder_info_">
+              <a href="{{url_for('data_query_outsource.order_info')}}">外包合同详情</a>
+              <span>|</span>
+            </li>
             <li id="_outsource_cost_">
               <a href="{{url_for('data_query_outsource_cost.index')}}">外包成本(含尚典)</a>
               <span>|</span>
             </li>
-            <li class="nav-last" id="_outsource_costinfo_">
+            <li id="_outsource_costinfo_">
               <a href="{{url_for('data_query_outsource_cost.info')}}">外包成本详情(含尚典)</a>
+              <span>|</span>
+            </li>
+            <li class="nav-last" id="_outsource_costorder_info_">
+              <a href="{{url_for('data_query_outsource_cost.order_info')}}">外包合同详情(含尚典)</a>
             </li>
         </ul>
         {% elif g.user.is_aduit() %}
@@ -163,15 +179,18 @@
               <a href="{{url_for('data_query_weekly.medium_index')}}">媒体周报（新）</a>
               <span>|</span>
             </li>
-            <li id="_outsource_">
-              <a href="{{url_for('data_query_outsource.index')}}">外包成本</a>
+            <li id="_outsource_cost_">
+              <a href="{{url_for('data_query_outsource_cost.index')}}">外包成本</a>
               <span>|</span>
             </li>
-            <li id="_outsourceinfo_">
-              <a href="{{url_for('data_query_outsource.info')}}">外包成本详情</a>
+            <li id="_outsource_costinfo_">
+              <a href="{{url_for('data_query_outsource_cost.info')}}">外包成本详情</a>
               <span>|</span>
             </li>
-
+            <li id="_outsource_costorder_info_">
+              <a href="{{url_for('data_query_outsource_cost.order_info')}}">外包合同详情</a>
+              <span>|</span>
+            </li>
             <li class="nav-last" id="_ordercost_">
               <a href="{{url_for('data_query_order.cost')}}">媒体订单发票与款项</a>
             </li>

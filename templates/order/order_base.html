@@ -77,9 +77,9 @@
             if(['order', 'client_order'].indexOf(p_pathname[2]) >= 0 ){
                 $('#_my_orders_').addClass("on");
             }
-            if(['medium_framework_order'].indexOf(p_pathname[2]) >= 0 ){
+            if(['medium_framework_order', 'new_medium_framework_order'].indexOf(p_pathname[2]) >= 0 ){
                 $('#_my_medium_framework_orders_').addClass("on");
-            }else if(['framework_order'].indexOf(p_pathname[2]) >= 0 ){
+            }else if(['framework_order', 'new_framework_order'].indexOf(p_pathname[2]) >= 0 ){
                 $('#_my_framework_orders_').addClass("on");
             }
         }

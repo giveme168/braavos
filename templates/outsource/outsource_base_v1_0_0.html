@@ -1,0 +1,54 @@
+<!--导航-->
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        <ul>
+            <li id="_client_orders_" class="nav-first">
+              <a href="{{url_for('outsource.client_orders')}}">我的媒体订单</a>
+              <span>|</span>
+            </li>
+            <li id="_douban_orders_">
+              <a href="{{url_for('outsource.douban_orders')}}">我的直签豆瓣订单</a>
+              <span>|</span>
+            </li>
+            {% if g.user.is_operater_leader() %}
+            <li id="_client_orders_distribute_">
+              <a href="{{url_for('outsource.client_orders_distribute')}}">媒体订单分配</a>
+              <span>|</span>
+            </li>
+            <li id="_douban_orders_distribute_">
+              <a href="{{url_for('outsource.douban_orders_distribute')}}">直签豆瓣订单分配</a>
+              <span>|</span>
+            </li>
+            {% if g.user.email.find('fenghaiyan') >= 0 or g.user.is_super_admin() %}
+            <li id="_merger_client_target_">
+              <a href="{{url_for('outsource.merger_client_target')}}">媒体订单合并付款</a>
+              <span>|</span>
+            </li>
+            <li id="_merger_douban_target_">
+              <a href="{{url_for('outsource.merger_douban_target')}}">直签豆瓣订单付款</a>
+              <span>|</span>
+            </li>
+            {% endif %}
+            {% endif %}
+            <li id="_targets_" class="nav-last">
+              <a href="{{url_for('outsource.targets')}}">收款方管理</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[2]+'_').addClass("active");
+        if(['targets', 'client'].indexOf(p_pathname[2]) >= 0 ){
+            $('#_targets_').addClass("active");
+        }
+        if(['client_orders', 'client_order'].indexOf(p_pathname[2]) >= 0 ){
+            $('#_client_orders_').addClass("active");
+        }
+        if(['douban_orders', 'douban_order'].indexOf(p_pathname[2]) >= 0 ){
+            $('#_douban_orders_').addClass("active");
+        }
+    })
+</script>

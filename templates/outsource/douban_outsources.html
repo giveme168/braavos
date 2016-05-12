@@ -1,4 +1,4 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'outsource_form.html' import outsource_form %}
 {% from 'comments.html' import comments_box %}
 
@@ -7,28 +7,22 @@
    <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
    {% endif %}
 
-   <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.outsource_status', order_id=order.id)}}?type=douban">
+   <form class="input-row-box outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.outsource_status', order_id=order.id)}}?type=douban">
     <input type="hidden" name="outsource_json" id="outsource_json">
-     <div class="form-group">
-        <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
-        <div class="col-sm-10">
-            <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+     <div class="input-group-menu">
+        <div class="name">提醒邮箱 : </div>
+        <select class="surname" style="width:300px;" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
               {% for u in reminder_emails %}
               <option value="{{u[1]}}">{{u[0]}}</option>
               {% endfor %}
             </select>
-        </div>
      </div>
-     <div class="form-group">
-        <label for="msg" class="col-sm-2 control-label">留言 : </label>
-        <div class="col-sm-10">
-            <textarea class="form-control bra-form-control" id="msg"
+     <div class="input-group-menu">
+        <div class="name">留言 : </div>
+        <textarea class="usrname" style="width:300px;" id="msg"
             name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
-        </div>
      </div>
-     <div class="form-group">
-        <label class="col-sm-2 control-label">操作 : </label>
-        <div class="col-sm-10">
+     <div class="state" style="margin-left:20%; margin-top:70px;">
           {% if outsource_status == 1 and outsource.can_admin(g.user)  %}
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="0">再次申请审批</button>
           {% elif outsource_status == 3 and outsource.can_admin(g.user)  %}
@@ -56,13 +50,12 @@
           <button class="btn btn-sm btn-primary outsource-btn" name="action" type="submit" value="100">保存及重新申请</button>
           {% endif %}
           <!--<button class="btn btn-sm btn-default outsource-btn" name="action" type="submit" value="4">提醒</button>-->
-        </div>
-     </div>
+      </div>
    </form>
 {%- endmacro %}
 
 {% block content %}
-{% include "/outsource/outsource_base.html" %}
+{% include "/outsource/outsource_base_v1_0_0.html" %}
 <div class="container bra-box">
 <h3><a target="_blank" href="{{order.order_path}}">{{order.name}}</a></h3>
 <table class="table table-bordered">
@@ -156,6 +149,7 @@
     $(e).parent().find(".outsource-id").trigger("change");
   }
   $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
     showOutSource = function(e){
       $(e).hide();
       $("#new-outsource").show();
