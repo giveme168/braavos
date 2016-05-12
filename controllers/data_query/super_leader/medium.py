@@ -621,19 +621,6 @@ def money():
             numpy.array(total_except_money) +\
             numpy.array(searchAD_money['sale_money']) +\
             numpy.array(rebate_order_money['sale_money'])
-    aa = sum([k['money_rebate_data'] for k in medium_orders])
-    bb = numpy.array(momo_money['a_rebate']) + \
-        numpy.array(zhihu_money['a_rebate']) + \
-        numpy.array(xiachufang_money['a_rebate']) +\
-        numpy.array(xueqiu_money['a_rebate']) + \
-        numpy.array(huxiu_money['a_rebate']) +\
-        numpy.array(kecheng_money['a_rebate']) +\
-        numpy.array(midi_money['a_rebate']) +\
-        numpy.array(weipiao_money['a_rebate']) +\
-        numpy.array(one_money['a_rebate']) +\
-        numpy.array(total_except_money)
-    print aa
-    print aa - sum(bb)
     if request.values.get('action', '') == 'download':
         response = write_medium_money_excel(pre_monthes=pre_monthes, douban_money=douban_money,
                                             youli_money=youli_money, wuxian_money=wuxian_money,
