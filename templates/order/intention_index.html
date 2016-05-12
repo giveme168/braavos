@@ -1,87 +1,105 @@
-{% extends "base.html" %}
+{% extends "base_v1_0_0.html" %}
 {% block title %}洽谈中的订单列表{% endblock %}
 
 {% macro all_items(orders) -%}
-<table class="table table-bordered">
-    <tr>
-        <th>所属媒体</th>
-        <th>代理/直客</th>
-        <th>客户</th>
-        <th>Campaign</th>
-        <th>直客销售</th>
-        <th>渠道销售</th>
-        <th>区域</th>
-        <th>80%预估</th>
-        <th>50%以上预估</th>
-        <th>50%以下预估</th>
-        <th>开始</th>
-        <th>结束</th>
-        <th>修改时间</th>
-        <th>状态</th>
-        <th width="6%">操作</th>
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td>{{o.medium_cn}}</td>
-        <td>{{o.agent}}</td>
-        <td>{{o.client}}</td>
-        <td><a href="{{url_for('order.intention_order_update', intention_id=o.id)}}">{{o.campaign}}</a></td>
-        <td>{{o.direct_sales_names}}</td>
-        <td>{{o.agent_sales_names}}</td>
-        <td>{{o.locations_cn}}</td>
-        <td>{{o.S_80|format_price}}</td>
-        <td>{{o.U_50|format_price}}</td>
-        <td>{{o.L_50|format_price}}</td>
-        <td>{{o.start_date_cn}}</td>
-        <td>{{o.end_date_cn}}</td>
-        <td>{{o.create_time_cn}}</td>
-        <td>{{o.status_cn}}</td>
-        <td>
-            <a href="{{url_for('order.intention_order_update', intention_id=o.id)}}">修改</a>
-            <a href="javascript:delete_order('{{o.id}}')">删除</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<div class='tabulation'>
+    <table border='1'>
+        <thead>
+            <tr>
+                <th>所属媒体</th>
+                <th>代理/直客</th>
+                <th>客户</th>
+                <th>Campaign</th>
+                <th>直客销售</th>
+                <th>渠道销售</th>
+                <th>区域</th>
+                <th>80%预估</th>
+                <th>50%以上预估</th>
+                <th>50%以下预估</th>
+                <th>开始</th>
+                <th>结束</th>
+                <th>修改时间</th>
+                <th>状态</th>
+                <th width="6%">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in orders %}
+            <tr>
+                <td>{{o.medium_cn}}</td>
+                <td>{{o.agent}}</td>
+                <td>{{o.client}}</td>
+                <td><a href="{{url_for('order.intention_order_update', intention_id=o.id)}}">{{o.campaign}}</a></td>
+                <td>{{o.direct_sales_names}}</td>
+                <td>{{o.agent_sales_names}}</td>
+                <td>{{o.locations_cn}}</td>
+                <td>{{o.S_80|format_price}}</td>
+                <td>{{o.U_50|format_price}}</td>
+                <td>{{o.L_50|format_price}}</td>
+                <td>{{o.start_date_cn}}</td>
+                <td>{{o.end_date_cn}}</td>
+                <td>{{o.create_time_cn}}</td>
+                <td>{{o.status_cn}}</td>
+                <td>
+                    <a href="{{url_for('order.intention_order_update', intention_id=o.id)}}">修改</a>
+                    <a href="javascript:delete_order('{{o.id}}')">删除</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {%- endmacro %}
 
 {% block content %}
-{% include "order_base.html" %}
+{% include "order_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:1500px;">
-    <h3> {{title}}</h3>
-    <div class="search">
-        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
-        <div class="col-md-1" style="padding:0;margin:0 5px;">
-            <select class="col-md-12" id="year" name="year" placeholder="年份">
-                {% for k in range(5) %}
-                <option value="{{2014+k}}">{{2014+k}}年</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
-            <select class="col-md-12" id="medium_id" name="medium_id" placeholder="所属媒体">
-                <option value="-1">全部媒体</option>
-                <option value="0">豆瓣</option>
-                {% for k in mediums %}
-                    <option value="{{k.id}}">{{k.name}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
-            <select class="col-md-12" id="search_location" name="location" placeholder="区域">
-                {% for v, m in locations %}
-                    {% if v == location_id|int %}
-                    <option selected="" value="{{v}}">{{m}}</option>
-                    {% else %}
-                    <option value="{{v}}">{{m}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
-        <a class="btn btn-sm btn-success" href="{{url_for('order.intention_order_create')}}">新建洽谈中的订单</a>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input">
+                <input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">年度</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                        <option value="{{2014+k}}">{{2014+k}}年度</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">区域</label>
+                <select class="form-control special_sale" name="location" id="search_location" style="width:100px;">
+                    {% for v, m in locations %}
+                        {% if v == location_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                        {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">媒体</label>
+                <select class="form-control special_sale" name="medium_id" id="medium_id" style="width:120px;">
+                    <option value="-1">全部媒体</option>
+                    <option value="0">豆瓣</option>
+                    {% for k in mediums %}
+                        <option value="{{k.id}}">{{k.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+            <div class="select_option return">
+                <a href="{{url_for('order.intention_order_create')}}">
+                    <input type="button" value="添加">
+                </a>
+            </div>
+        </form>
     </div>
-    <br>
     {{ all_items(orders.object_list) }}
     {% set pages = orders %}
     {% include "pagination.html" %}
@@ -110,6 +128,7 @@ function enter_search(){
     }
 }
 $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
     $('#medium_id').val('{{medium_id}}')
     $("#medium_id").trigger("chosen:updated");
     $('#year').val('{{year}}');

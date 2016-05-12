@@ -80,7 +80,7 @@ class AssociatedDoubanOrderForm(Form):
 class FrameworkOrderForm(Form):
     group = SelectField(u'代理集团', coerce=int)
     agents = SelectMultipleField(u'代理/直客', coerce=int)
-    description = TextAreaField(u'备注', description=u"请填写返点政策/配送政策等信息")
+    description = TextAreaField(u'备注', description=u"返点政策/配送政策等信息")
     money = FloatField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
     client_end = DateField(u'执行结束')
@@ -89,8 +89,8 @@ class FrameworkOrderForm(Form):
     agent_sales = SelectMultipleField(u'渠道销售', coerce=int)
     assistant_sales = SelectMultipleField(u'销售助理', coerce=int)
     contract_type = SelectField(u'合同模板类型', coerce=int)
-    inad_rebate = FloatField(u'致趣返点信息', default=0, description=u"%,请预估全年可能达成的返点阶梯比例")
-    douban_rebate = FloatField(u'豆瓣返点信息', default=0, description=u"%,请预估全年可能达成的返点阶梯比例")
+    inad_rebate = FloatField(u'致趣返点信息', default=0, description=u"%,请预估全年最高比例")
+    douban_rebate = FloatField(u'豆瓣返点信息', default=0, description=u"%,请预估全年最高比例")
 
     def __init__(self, *args, **kwargs):
         super(FrameworkOrderForm, self).__init__(*args, **kwargs)
@@ -113,13 +113,13 @@ class FrameworkOrderForm(Form):
 
 class MediumFrameworkOrderForm(Form):
     mediums = SelectMultipleField(u'媒体', coerce=int)
-    description = TextAreaField(u'备注', description=u"请填写返点政策/配送政策等信息")
+    description = TextAreaField(u'备注', description=u"返点政策/配送政策等信息")
     money = FloatField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
     client_end = DateField(u'执行结束')
     medium_users = SelectMultipleField(u'媒介人员', coerce=int)
     contract_type = SelectField(u'合同模板类型', coerce=int)
-    inad_rebate = FloatField(u'致趣返点信息', default=0, description=u"%,请预估全年可能达成的返点阶梯比例")
+    inad_rebate = FloatField(u'致趣返点信息', default=0, description=u"%,请预估全年最高比例")
 
     def __init__(self, *args, **kwargs):
         super(MediumFrameworkOrderForm, self).__init__(*args, **kwargs)

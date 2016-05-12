@@ -1,34 +1,26 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'comments.html' import comments_box %}
-{% from 'form.html' import form_field %}
+{% from 'form_v1_0_0.html' import form_field %}
 {% block title %}填写洽谈中的订单{% endblock %}
 
 {% block content %}
-{% include "order_base.html" %}
-<style>
-    pre {
-        background-color:#ffffff;
-        border:1px solid #ffffff;
-    }
-</style>
+{% include "order_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>填写洽谈中的订单</h3>
-    <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">投放媒体 : </label>
-          <div class="col-sm-4">
-            <select id="medium_id" name="medium_id" class="form-control bra-form-control">
+    <form class="input-row-box" method="POST" onsubmit="return checkform(this)">
+        <div class="input-group-menu">
+          <div class="name">投放媒体 : </div>
+            <select id="medium_id" name="medium_id" class="surname" style="width:300px;">
                 <option value="0">豆瓣</option>
                 {% for k in mediums %}
                 <option value='{{k.id}}'>{{k.name}}</option>
                 {% endfor %}
             </select>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">代理/直客(甲方全称) : </label>
-          <div class="col-sm-4" id="agent_div">
-            <select id="agent" name="agent" class="form-control bra-form-control" onchange="check_input(this, 'agent')">
+        <div class="input-group-menu">
+          <div class="name">代理/直客(甲方全称) : </div>
+          <div id="agent_div">
+            <select id="agent" name="agent" class="surname" style="width:300px;" onchange="check_input(this, 'agent')">
                 {% for k in agent %}
                 <option value='{{k.name}}'>{{k.name}}</option>
                 {% endfor %}
@@ -36,10 +28,10 @@
             </select>
           </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">客户名称 : </label>
-          <div class="col-sm-4" id="client_div">
-            <select id="client" name="client" class="form-control bra-form-control" onchange="check_input(this, 'client')">
+        <div class="input-group-menu">
+          <div class="name">客户名称 : </div>
+          <div id="client_div">
+            <select id="client" name="client" class="surname" style="width:300px;" onchange="check_input(this, 'client')">
                 {% for k in client %}
                 <option value='{{k.name}}'>{{k.name}}</option>
                 {% endfor %}
@@ -47,58 +39,48 @@
             </select>
           </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">Campaign名称 : </label>
-          <div class="col-sm-4">
-             <input type="text" id="campaign" name="campaign" value="{{intention_order.campaign}}" class="form-control bra-form-control">
-          </div>
+        <div class="input-group-menu">
+          <div class="name">Campaign名称 : </div>
+             <input type="text" id="campaign" name="campaign" value="{{intention_order.campaign}}" class="surname" style="width:300px;">
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">预估程度 : </label>
-          <div class="col-sm-4">
-            <select id="complete_percent" name="complete_percent" class="form-control bra-form-control">
+        <div class="input-group-menu">
+          <div class="name">预估程度 : </div>
+            <select id="complete_percent" name="complete_percent" class="surname" style="width:300px;">
                 {% for k, v in COMPLETE_PERCENT_CN.items() %}
                 <option value='{{k}}'>{{v}}</option>
                 {% endfor %}
             </select>
-          </div>
         </div>
-        <div class="form-group" style="display:none;">
-          <label for="client_end" class="col-sm-2 control-label">预估金额 : </label>
-          <div class="col-sm-4">
-             <input type="text" id="money" name="money" value="{{intention_order.money}}" class="form-control bra-form-control">
-          </div>
+        <div class="input-group-menu">
+          <div class="name">预估金额 : </div>
+             <input type="text" id="money" name="money" value="{{intention_order.money}}" class="surname" style="width:300px;">
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
-          <div class="col-sm-8">
-            <input type="text" id="client_start" name="client_start" readonly="readonly" value="{{intention_order.start_date_cn}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-          </div>
+        <div class="input-group-menu">
+          <div class="name">执行开始 : </div>
+            <input type="text" id="client_start" name="client_start" readonly="readonly" value="{{intention_order.start_date_cn}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
-          <div class="col-sm-8">
-            <input type="text" id="client_end" name="client_end" value="{{intention_order.end_date_cn}}" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-          </div>
+        <div class="input-group-menu">
+          <div class="name">执行结束 : </div>
+            <input type="text" id="client_end" name="client_end" value="{{intention_order.end_date_cn}}" readonly="readonly" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
         </div>
         <div id="ex_time_div">
             {% for k in intention_order.ex_money_data %}
-                <div class="form-group">
-                  <label for="client_end" class="col-sm-2 control-label">{{k.month_cn}}月执行额 : </label>
-                  <div class="col-sm-8">
-                    <input type="text" id="{{k.month_cn}}_money" name="{{k.month_cn}}_money" value="{{k.money}}" class="form-control bra-form-control">
-                  </div>
+                <div class="input-group-menu">
+                  <div class="name">{{k.month_cn}}月执行额 : </div>
+                    <input type="text" id="{{k.month_cn}}_money" name="{{k.month_cn}}_money" value="{{k.money}}" class="surname" style="width:300px;">
                 </div>
             {% endfor %}
         </div>
         {{ form_field(direct_form.direct_sales) }}
         {{ form_field(agent_form.agent_sales) }}
+        <div class="state" style="margin-left:30%;">
+            <a href="{{url_for('order.intention_order')}}"><input type="button" value="返回"></a>
+          {% if intention_order.status != 1 %}
+          <button type="submit" name="action">确定</button>
+          <button type="button" onclick="check_order_in_real('{{intention_order.id}}')"/>一键下单</button>
+          {% endif %}
+        </div>
         
-        <a class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('order.intention_order')}}" style="width:80px;"/>返回</a>
-        {% if intention_order.status != 1 %}
-        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2" name="action" style="width:80px;"/>确定</button>
-        <button type="button" class="btn btn-primary btn-sm col-md-offset-2" onclick="check_order_in_real('{{intention_order.id}}')"/>一键下单</button>
-        {% endif %}
     </form>
     <br/><br/>
     <div>{{ comments_box(intention_order, msg_channel=11) }}</div>
@@ -161,7 +143,7 @@ function get_ex_time(){
         var inner_html = ""
         $('#ex_time_div').empty()
         for (var i=0; i<data.length; i++){
-          inner_html += '<div class="form-group"><label for="client_end" class="col-sm-2 control-label">'+data[i]['month_cn']+'月执行额 : </label><div class="col-sm-4"><input type="text" id="'+data[i]['month_cn']+'_money" name="'+data[i]['month_cn']+'_money" value="" class="form-control bra-form-control"></div></div>'
+          inner_html += '<div class="input-group-menu"><div class="name">'+data[i]['month_cn']+'月执行额 : </div><input type="text" id="'+data[i]['month_cn']+'_money" name="'+data[i]['month_cn']+'_money" value="" class="usrname" style="width:300px;"></div>'
         }
         $('#ex_time_div').html(inner_html)
       },
@@ -172,6 +154,7 @@ function get_ex_time(){
 }
 
 $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
     $('.datetimepicker').datetimepicker({
         autoclose: true,
         todayHighlight: true,

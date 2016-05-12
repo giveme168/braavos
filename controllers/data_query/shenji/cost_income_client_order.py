@@ -52,6 +52,7 @@ def pre_month_money(money, start, end):
 
 def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_medium_rebate, pre_year_month):
     dict_order = {}
+    dict_order['order_id'] = client_order.id
     dict_order['locations_cn'] = client_order.locations_cn
     dict_order['client_name'] = client_order.client.name
     dict_order['agent_name'] = client_order.agent.name
@@ -73,38 +74,9 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
         client_order.client_start.strftime(dt_format), dt_format)
     end_datetime = datetime.datetime.strptime(
         client_order.client_end.strftime(dt_format), dt_format)
-    money_ex_data = pre_month_money(client_order.money,
-                                    start_datetime,
-                                    end_datetime)
     # 客户执行金额
-    dict_order['money_data'] = []
-    for k in pre_year_month:
-        if k['month'] in money_ex_data:
-            dict_order['money_data'].append(money_ex_data[k['month']])
-        else:
-            dict_order['money_data'].append(0)
-    # 单笔返点
-    try:
-        self_agent_rebate_data = client_order.self_agent_rebate
-        self_agent_rebate = self_agent_rebate_data.split('-')[0]
-        self_agent_rebate_value = float(self_agent_rebate_data.split('-')[1])
-    except:
-        self_agent_rebate = 0
-        self_agent_rebate_value = 0
-    # 客户返点
-    if int(self_agent_rebate):
-        dict_order['money_rebate_data'] = [k / dict_order['money'] * self_agent_rebate_value
-                                           for k in dict_order['money_data']]
-    else:
-        # 代理返点系数
-        agent_rebate_data = [k['inad_rebate'] for k in all_agent_rebate if client_order.agent.id == k[
-            'agent_id'] and pre_year_month[0]['month'].year == k['year'].year]
-        if agent_rebate_data:
-            agent_rebate = agent_rebate_data[0]
-        else:
-            agent_rebate = 0
-        dict_order['money_rebate_data'] = [
-            k * agent_rebate / 100 for k in dict_order['money_data']]
+    dict_order['money_data'] = [0 for k in pre_year_month]
+    # 初始化媒体数据容器
     dict_order['medium_data'] = []
     # 初始化总计媒体执行金额
     total_medium_money2_data = [0 for k in range(12)]
@@ -120,6 +92,13 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
         dict_medium['medium_money2'] = m.medium_money2
         dict_order['medium_medium_money2'] += dict_medium['medium_money2']
         dict_medium['medium_contract'] = m.medium_contract
+        start_datetime = datetime.datetime.strptime(
+            m.medium_start.strftime(dt_format), dt_format)
+        end_datetime = datetime.datetime.strptime(
+            m.medium_end.strftime(dt_format), dt_format)
+        sale_money_ex_data = pre_month_money(m.sale_money,
+                                             start_datetime,
+                                             end_datetime)
         medium_money2_ex_data = pre_month_money(m.medium_money2,
                                                 start_datetime,
                                                 end_datetime)
@@ -131,6 +110,15 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
                     medium_money2_ex_data[k['month']])
             else:
                 dict_medium['medium_money2_data'].append(0)
+        # 媒体售卖执行金额
+        dict_medium['sale_money_data'] = []
+        for k in pre_year_month:
+            if k['month'] in sale_money_ex_data:
+                dict_medium['sale_money_data'].append(
+                    sale_money_ex_data[k['month']])
+            else:
+                dict_medium['sale_money_data'].append(0)
+        dict_order['money_data'] = numpy.array(dict_order['money_data']) + numpy.array(dict_medium['sale_money_data'])
         # 媒体返点系数
         medium_rebate_data = [k['rebate'] for k in all_medium_rebate if m.medium.id == k[
             'medium_id'] and pre_year_month[0]['month'].year == k['year'].year]
@@ -146,6 +134,32 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
         total_medium_money2_rebate_data = numpy.array(total_medium_money2_rebate_data) + \
             numpy.array(dict_medium['medium_money2_rebate_data'])
         dict_order['medium_data'].append(dict_medium)
+
+    # 单笔返点
+    try:
+        self_agent_rebate_data = client_order.self_agent_rebate
+        self_agent_rebate = self_agent_rebate_data.split('-')[0]
+        self_agent_rebate_value = float(self_agent_rebate_data.split('-')[1])
+    except:
+        self_agent_rebate = 0
+        self_agent_rebate_value = 0
+    # 客户返点
+    if int(self_agent_rebate):
+        if dict_order['money']:
+            dict_order['money_rebate_data'] = [k / dict_order['money'] * self_agent_rebate_value
+                                               for k in dict_order['money_data']]
+        else:
+            dict_order['money_rebate_data'] = [0 for k in dict_order['money_data']]
+    else:
+        # 代理返点系数
+        agent_rebate_data = [k['inad_rebate'] for k in all_agent_rebate if client_order.agent.id == k[
+            'agent_id'] and pre_year_month[0]['month'].year == k['year'].year]
+        if agent_rebate_data:
+            agent_rebate = agent_rebate_data[0]
+        else:
+            agent_rebate = 0
+        dict_order['money_rebate_data'] = [
+            k * agent_rebate / 100 for k in dict_order['money_data']]
     # 合同利润
     dict_order['profit_data'] = numpy.array(dict_order['money_data']) - \
         numpy.array(dict_order['money_rebate_data']) - total_medium_money2_data + \
@@ -174,13 +188,16 @@ def index():
     orders = ClientOrder.query.filter(ClientOrder.status == 1,
                                       ClientOrder.contract != '')
     # 去重合同
-    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
+    orders = [k for k in orders if k.client_start.year ==
+              year or k.client_end.year == year]
     # 格式化合同
     orders = [_client_order_to_dict(k, back_money_data, all_agent_rebate,
                                     all_medium_rebate, pre_year_month
                                     ) for k in orders]
     # 去掉撤单、申请中的合同
     orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20]]
+    aa = [k['order_id'] for k in orders]
+    aa.sort()
     orders = sorted(
         orders, key=operator.itemgetter('start_date_cn'), reverse=False)
     total_money_data = [0 for k in range(12)]

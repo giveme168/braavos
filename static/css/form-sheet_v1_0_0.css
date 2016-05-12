@@ -366,12 +366,11 @@ input#end-date.form-control.form_datetime,input#start-date.form-control.form_dat
 a.chosen-single{background: #fff !important;}
 
 
-.page{width:100%;
+.page{display: inline-block;
         height:30px;
         }
 
-.page .page-region{width:195px;
-                    margin-left:20px;
+.page .page-region{margin-left:0px;
                     background: #919191;
                     height:24px;
                     border:1px solid #cbcac8;
@@ -389,9 +388,12 @@ a.chosen-single{background: #fff !important;}
 
 
 .page .page-region span li{background: #fff;}
+.page .page-region span .ellipsis{line-height: 17px;}
+.page .page-region span li a{color: #000;}
 
 .page .page-region span .current{background: #cacaca;
                                 color: #fff;}
+.page .page-region span .current a{color: #fff;}
 .page .page-region .next{float: right;
                         border:none;
                         }

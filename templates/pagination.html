@@ -1,41 +1,37 @@
-<style>
-.center_pagination {
-    margin:0 auto;
-    width:100%;
-}
-</style>
-<nav>
-    <ul class="pagination center_pagination">
+<br/>
+<div class="page">
+    <ul class="page-region">
         {% if pages.has_previous() %}
-        <li><a href="?p={{ pages.previous_page_number() }}{{params}}">«</a></li>
+        <li class="prev"><a href="?p={{ pages.previous_page_number() }}{{params}}"><img src="/static/image/arrow-left.png" alt="#"></a></li>
         {% else %}
-        <li class="disabled"><a href="#">«</a></li>
+        <li class="prev"><a href="#"><img src="/static/image/arrow-left.png" alt="#"></a></li>
         {% endif %}
+        <span>
+            {% if 1 not in pages|page_recipe %}
+            <li><a href="?p=1{{params}}">1</a></li>
+            <li class="ellipsis"><a>...</a></li>
+            {% endif %}
 
-        {% if 1 not in pages|page_recipe %}
-        <li><a href="?p=1{{params}}">1</a></span>
-        <li class="disabled"><a href="#">...</a></li>
-        {% endif %}
+            {% for number in pages|page_recipe %}
+            <li id="page{{number}}"><a href="?p={{number}}{{params}}">{{ number }}</a></li>
+            {% endfor %}
 
-        {% for number in pages|page_recipe %}
-        <li id="page{{number}}"><a href="?p={{number}}{{params}}"><span>{{ number }} <span class="sr-only">(current)</span></span></a></li>
-        {% endfor %}
-
-        {% if pages.paginator.num_pages not in pages|page_recipe %}
-        <li class="disabled"><a href="#">...</a></li>
-        <li><a href="?p={{ pages.paginator.num_pages }}{{params}}">{{ pages.paginator.num_pages }}</a></span>
-        {% endif %}
-
+            {% if pages.paginator.num_pages not in pages|page_recipe %}
+            <li class="ellipsis"><a>...</a></li>
+            <li><a href="?p={{ pages.paginator.num_pages }}{{params}}">{{ pages.paginator.num_pages }}</a></li>
+            {% endif %}
+        </span>
         {% if pages.has_next() %}
-        <li><a href="?p={{ pages.next_page_number() }}{{params}}">»</a></li>
+        <li class="next"><a href="?p={{ pages.next_page_number() }}{{params}}"><img src="/static/image/arrow-right.png" alt=""></a></li>
         {% else %}
-        <li class="disabled"><a href="#">»</a></li>
+        <li class="next"><a href="#"><img src="/static/image/arrow-right.png" alt=""></a></li>
         {% endif %}
+        
     </ul>
-</nav>
+</div>
 <script>
     $(document).ready(function(){
-        $("#page" + {{ pages.number}}).addClass("active");
+        $("#page" + {{ pages.number}}).addClass("current");
     });
 </script>
 

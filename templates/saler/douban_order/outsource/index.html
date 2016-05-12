@@ -1,27 +1,33 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'comments.html' import comments_box %}
 {% block content %}
-  {% include "/order/order_base.html" %}
+  {% include "/order/order_base_v1_0_0.html" %}
   <div class="container bra-box">
-    <h4> {{ order.name }} 外包情况</h4>
-    {% include "saler/douban_order/nav_base.html" %}
+    {% include "saler/douban_order/nav_base_v1_0_0.html" %}
     <div class="tab-content">
       <div class="tab-pane active" id="tab-2">
         <div class="container" style="width:100%;">
-          <table class="table table-bordered">
-              <tr>
-                  <th>客户订单总金额</th>
-                  <th>外包应付总金额</th>
-                  <th>外包占比</th>
-                  <th>收到发票总金额</th>
-              </tr>
-              <tr>
-                  <td>{{order.money}} 元</td>
-                  <td>{{order.outsources_sum}} 元</td>
-                  <td>{{order.outsources_percent}} %</td>
-                  <td>{{invoices|sum(attribute='ex_money')}}元</td>
-              </tr>
-          </table>
+          <div class='tabulation'>
+                  <table border='1'>
+                    <thead>
+                      <tr>
+                          <th>客户订单总金额</th>
+                          <th>外包应付总金额</th>
+                          <th>外包占比</th>
+                          <th>收到发票总金额</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                          <td>{{order.money}} 元</td>
+                          <td>{{order.outsources_sum}} 元</td>
+                          <td>{{order.outsources_percent}} %</td>
+                          <td>{{invoices|sum(attribute='ex_money')}}元</td>
+                      </tr>
+                    </tbody>
+                  </table>
+              </div>
+          <br/>
           <div class="panel panel-default" id="non-invoice">
             <div class="panel-heading">
               <h4 class="panel-title">
@@ -31,14 +37,16 @@
             <div id="collapse-invoice-0" class="panel-collapse collapse in">
               <div class="panel-body">
                 
-                <div class="col-md-12">
-                  <div class="col-md-21" style="">
-                    <table class="table table-bordered">
+                <div class='tabulation'>
+                  <table border='1'>
+                    <thead>
                       <tr>
                         <th>外包供应商</th>
                         <th>外包类型</th>
                         <th>金额</th>
                       </tr>
+                    </thead>
+                    <tbody>
                       {% for outsource in outsources %}
                         <tr>
                           <td>{{outsource.target.name}}</td>
@@ -50,8 +58,8 @@
                         <td colspan=2 style="text-align: center;">合计</td>
                         <td>{{outsources|sum(attribute='pay_num')}}</td>
                       </tr>
+                    </tbody>
                     </table>
-                  </div>
                 </div>
               </div>
             </div>
@@ -64,10 +72,9 @@
               </div>
               <div id="collapse-invoice-0" class="panel-collapse collapse in">
                   <div class="panel-body">
-                      
-                      <div class="col-md-12">
-                          <div class="col-md-21" style="">
-                              <table class="table table-bordered">
+                      <div class='tabulation'>
+                        <table border='1'>
+                            <thead>
                                 <tr>
                                   <th>公司名称</th>
                                   <th>开票时间</th>
@@ -75,6 +82,8 @@
                                   <th>发票金额</th>
                                   <th>拆分金额</th>
                                 </tr>
+                            </thead>
+                            <tbody>
                                 {% for invoice in invoices %}
                                 <tr>
                                   <td>{{invoice.company}}</td>
@@ -89,8 +98,8 @@
                                     <td>{{invoices|sum(attribute='money')}}</td>
                                     <td>{{invoices|sum(attribute='ex_money')}}</td>
                                 </tr>
-                              </table>
-                          </div>
+                            </tbody>
+                          </table>
                       </div>
                   </div>
               </div>

@@ -762,3 +762,77 @@ def write_searchAd_client_excel(orders):
     response.headers = response_headers
     response.set_cookie('fileDownload', 'true', path='/')
     return response
+
+
+def write_outsource_order_info_excel(orders):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1})
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    worksheet.merge_range(0, 0, 0, 6, u'合同信息', align_center)
+    worksheet.merge_range(0, 7, 0, 9, u'合同信息', align_center)
+    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'应付小计',
+            u'所占比重', u'实付金额', u'供应商名称', u'开户行', u'外包金额']
+    for k in range(len(keys)):
+        worksheet.write(1, 0 + k, keys[k], align_center)
+        worksheet.set_column(0, 0 + k, 15)
+    th = 2
+    for k in range(len(orders)):
+        out_obj = orders[k]['outsource_obj']
+        if len(out_obj) > 1:
+            worksheet.merge_range(
+                th, 0, th + len(out_obj) - 1, 0, orders[k]['contract'], align_left)
+            worksheet.merge_range(
+                th, 1, th + len(out_obj) - 1, 1, orders[k]['campaign'], align_left)
+            worksheet.merge_range(
+                th, 2, th + len(out_obj) - 1, 2, orders[k]['money'], align_left)
+            worksheet.merge_range(
+                th, 3, th + len(out_obj) - 1, 3, orders[k]['locations_cn'], align_left)
+            worksheet.merge_range(
+                th, 4, th + len(out_obj) - 1, 4, orders[k]['outsources_sum'], align_left)
+            worksheet.merge_range(th, 5, th + len(out_obj) - 1, 5,
+                                  str(orders[k]['outsources_percent']) + '%', align_left)
+            worksheet.merge_range(
+                th, 6, th + len(out_obj) - 1, 6, orders[k]['outsources_paied_sum'], align_left)
+            for i in range(len(out_obj)):
+                worksheet.write(th, 7, out_obj[i]['target_name'], align_left)
+                worksheet.write(th, 8, out_obj[i]['target_bank'], align_left)
+                worksheet.write(th, 9, out_obj[i]['money'], align_left)
+                th += 1
+        else:
+            worksheet.write(th, 0, orders[k]['contract'], align_left)
+            worksheet.write(th, 1, orders[k]['campaign'], align_left)
+            worksheet.write(th, 2, orders[k]['money'], align_left)
+            worksheet.write(th, 3, orders[k]['locations_cn'], align_left)
+            worksheet.write(th, 4, orders[k]['outsources_sum'], align_left)
+            worksheet.write(th, 5, str(
+                orders[k]['outsources_percent']) + '%', align_left)
+            worksheet.write(th, 6, orders[k][
+                            'outsources_paied_sum'], align_left)
+            worksheet.write(th, 7, out_obj[0]['target_name'], align_left)
+            worksheet.write(th, 8, out_obj[0]['target_bank'], align_left)
+            worksheet.write(th, 9, out_obj[0]['money'], align_left)
+            th += 1
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                (u"outsource_order_info", datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
