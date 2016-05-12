@@ -171,7 +171,7 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
 
 @cost_income_client_order_bp.route('/', methods=['GET'])
 def index():
-    if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
+    if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance() or g.user.is_contract()):
         abort(403)
     now_date = datetime.datetime.now()
     year = int(request.values.get('year', now_date.year))

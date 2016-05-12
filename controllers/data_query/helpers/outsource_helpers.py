@@ -239,12 +239,12 @@ def write_outsource_info_excel(now_year, orders, total, r_outsource_pay):
     for k in range(1000):
         worksheet.set_row(k, 25)
 
-    worksheet.merge_range(0, 0, 1, 6, u'合同信息', align_center_color)
-    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'应付小计', u'所占比重', u'实付金额']
+    worksheet.merge_range(0, 0, 1, 4, u'合同信息', align_center_color)
+    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'实付金额']
     for k in range(len(keys)):
         worksheet.write(2, k, keys[k], align_center_color)
 
-    start, end = 7, 15
+    start, end = 5, 13
     for k in range(4):
         worksheet.merge_range(0, start, 0, end, u'项目成本', align_center_color)
         worksheet.merge_range(
@@ -253,7 +253,7 @@ def write_outsource_info_excel(now_year, orders, total, r_outsource_pay):
 
     keys = [u'奖品', u'Flash', u'劳务(KOL、线下活动等)', u'效果优化', u'其他(视频等)',
             u'flash&H5开发', u'H5开发', u'网络公关运营', u'设计']
-    td = 7
+    td = 5
     for i in range(4):
         for k in keys:
             worksheet.write(2, td, k, align_center_color)
@@ -265,21 +265,16 @@ def write_outsource_info_excel(now_year, orders, total, r_outsource_pay):
         worksheet.write(th, 1, k.campaign, align_center)
         worksheet.write(th, 2, k.money, align_center)
         worksheet.write(th, 3, k.locations_cn, align_center)
-        worksheet.write(th, 4, float(k.outsources_sum), align_center)
-        worksheet.write(
-            th, 5, str(float(k.outsources_percent)) + '%', align_center)
-        worksheet.write(th, 6, float(k.outsources_paied_sum), align_center)
+        worksheet.write(th, 4, float(k.outsources_paied_sum), align_center)
         o_money = k.o_money
         for i in range(len(o_money)):
-            worksheet.write(th, 7 + i, o_money[i], align_center)
+            worksheet.write(th, 5 + i, o_money[i], align_center)
         th += 1
 
     worksheet.merge_range(th, 0, th, 3, u'合计', align_center)
-    worksheet.write(th, 4, r_outsource_pay, align_center)
-    worksheet.write(th, 5, '', align_center)
-    worksheet.write(th, 6, sum(
+    worksheet.write(th, 4, sum(
         [k.outsources_paied_sum for k in orders]), align_center)
-    worksheet.merge_range(th, 7, th, 42, total, align_center)
+    worksheet.merge_range(th, 5, th, 40, total, align_center)
     workbook.close()
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
@@ -774,10 +769,9 @@ def write_outsource_order_info_excel(orders):
         {'align': 'left', 'valign': 'vcenter', 'border': 1})
     align_center = workbook.add_format(
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
-    worksheet.merge_range(0, 0, 0, 6, u'合同信息', align_center)
-    worksheet.merge_range(0, 7, 0, 9, u'合同信息', align_center)
-    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'应付小计',
-            u'所占比重', u'实付金额', u'供应商名称', u'开户行', u'外包金额']
+    worksheet.merge_range(0, 0, 0, 4, u'合同信息', align_center)
+    worksheet.merge_range(0, 5, 0, 7, u'外包信息', align_center)
+    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'实付金额', u'供应商名称', u'开户行', u'外包金额']
     for k in range(len(keys)):
         worksheet.write(1, 0 + k, keys[k], align_center)
         worksheet.set_column(0, 0 + k, 15)
@@ -794,29 +788,22 @@ def write_outsource_order_info_excel(orders):
             worksheet.merge_range(
                 th, 3, th + len(out_obj) - 1, 3, orders[k]['locations_cn'], align_left)
             worksheet.merge_range(
-                th, 4, th + len(out_obj) - 1, 4, orders[k]['outsources_sum'], align_left)
-            worksheet.merge_range(th, 5, th + len(out_obj) - 1, 5,
-                                  str(orders[k]['outsources_percent']) + '%', align_left)
-            worksheet.merge_range(
-                th, 6, th + len(out_obj) - 1, 6, orders[k]['outsources_paied_sum'], align_left)
+                th, 4, th + len(out_obj) - 1, 4, orders[k]['outsources_paied_sum'], align_left)
             for i in range(len(out_obj)):
-                worksheet.write(th, 7, out_obj[i]['target_name'], align_left)
-                worksheet.write(th, 8, out_obj[i]['target_bank'], align_left)
-                worksheet.write(th, 9, out_obj[i]['money'], align_left)
+                worksheet.write(th, 5, out_obj[i]['target_name'], align_left)
+                worksheet.write(th, 6, out_obj[i]['target_bank'], align_left)
+                worksheet.write(th, 7, out_obj[i]['money'], align_left)
                 th += 1
         else:
             worksheet.write(th, 0, orders[k]['contract'], align_left)
             worksheet.write(th, 1, orders[k]['campaign'], align_left)
             worksheet.write(th, 2, orders[k]['money'], align_left)
             worksheet.write(th, 3, orders[k]['locations_cn'], align_left)
-            worksheet.write(th, 4, orders[k]['outsources_sum'], align_left)
-            worksheet.write(th, 5, str(
-                orders[k]['outsources_percent']) + '%', align_left)
-            worksheet.write(th, 6, orders[k][
+            worksheet.write(th, 4, orders[k][
                             'outsources_paied_sum'], align_left)
-            worksheet.write(th, 7, out_obj[0]['target_name'], align_left)
-            worksheet.write(th, 8, out_obj[0]['target_bank'], align_left)
-            worksheet.write(th, 9, out_obj[0]['money'], align_left)
+            worksheet.write(th, 5, out_obj[0]['target_name'], align_left)
+            worksheet.write(th, 6, out_obj[0]['target_bank'], align_left)
+            worksheet.write(th, 7, out_obj[0]['money'], align_left)
             th += 1
     workbook.close()
     response.data = output.getvalue()

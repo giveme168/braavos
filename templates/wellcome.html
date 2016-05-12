@@ -624,7 +624,7 @@
                 </li>
             </ul>
             {% endif %}
-            {% if g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()%}
+            {% if g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance() or g.user.is_contract() %}
             <ul class="bussess">
                 <li>
                     <a href="{{url_for('data_query_super_leader_industry.client_order')}}" target="_blank">

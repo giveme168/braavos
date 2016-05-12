@@ -28,6 +28,7 @@ def write_client_excel(agents):
         worksheet.write(th, 2, agents[k]['rebate_2014'], align_left)
         worksheet.write(th, 3, agents[k]['rebate_2015'], align_left)
         worksheet.write(th, 4, agents[k]['rebate_2016'], align_left)
+        th += 1
     workbook.close()
     response.data = output.getvalue()
     filename = ("代理详情.xls")
@@ -68,6 +69,7 @@ def write_medium_excel(mediums):
         worksheet.write(th, 2, mediums[k]['rebate_2014'], align_left)
         worksheet.write(th, 3, mediums[k]['rebate_2015'], align_left)
         worksheet.write(th, 4, mediums[k]['rebate_2016'], align_left)
+        th += 1
     workbook.close()
     response.data = output.getvalue()
     filename = ("媒体详情.xls")

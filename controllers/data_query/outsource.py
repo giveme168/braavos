@@ -195,7 +195,7 @@ def order_info():
         order_dict['locations_cn'] = k.locations_cn
         order_dict['outsources_sum'] = k.outsources_sum
         order_dict['outsources_percent'] = k.outsources_percent
-        order_dict['outsources_paied_sum'] = k.outsources_paied_sum
+        order_dict['outsources_paied_sum'] = k.outsources_paied_sum_by_shenji('all')
         if order_dict['outsource_obj']:
             order_obj.append(order_dict)
     if request.values.get('action', '') == 'download':

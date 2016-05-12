@@ -427,6 +427,20 @@ class DoubanOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def outsources_paied_sum(self):
         return sum([o.pay_num for o in self.douban_outsources if o.status == 4]) if self.douban_outsources else 0
 
+    def outsources_paied_sum_by_shenji(self, type='dg'):
+        total_money = 0
+        for o in self.douban_outsources:
+            if o.status == 4:
+                if type == 'dg':
+                    if o.target.otype_cn == u'对公':
+                        total_money += o.pay_num
+                else:
+                    if o.target.otype_cn != u'对公':
+                        total_money += o.pay_num
+            if type == 'dg' and o.target.id == 271 and o.status != 4:
+                total_money += o.pay_num
+        return total_money
+
     @property
     def outsources_percent(self):
         return "%.1f" % (self.outsources_sum * 100 / float(self.money)) if self.money else "0"
