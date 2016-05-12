@@ -6,6 +6,9 @@
 <div class="container bra-box">
     <h3> 媒体列表
         {% if g.user.is_media_leader() %}<a class="btn btn-default btn-sm" href="{{url_for('client.new_medium')}}">新建</a>{% endif %}
+        {% if g.user.is_super_leader() %}
+        <a class="btn btn-default btn-sm" href="?action=excel">导出</a>
+        {% endif %}
     </h3>
     <div class='tabulation'>
         <table border='1'>

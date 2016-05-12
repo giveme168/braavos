@@ -11,6 +11,7 @@ from models.attachment import Attachment
 from forms.client import NewClientForm, NewGroupForm, NewAgentForm
 from forms.medium import NewMediumForm
 from models.user import Team
+from controllers.helpers.client_helpers import write_client_excel, write_medium_excel
 
 client_bp = Blueprint('client', __name__,
                       template_folder='../templates/client')
@@ -250,6 +251,8 @@ def mediums():
             dict_medium['rebate_2016'] = u'无'
         medium_data.append(dict_medium)
     medium_data = sorted(medium_data, key=operator.itemgetter('level'), reverse=False)
+    if request.values.get('action') == 'excel':
+        return write_medium_excel(mediums=medium_data)
     return tpl('/client/medium/index.html', mediums=medium_data)
 
 
@@ -352,6 +355,8 @@ def agents():
         else:
             dict_agent['rebate_2016'] = u'无'
         agent_data.append(dict_agent)
+    if request.values.get('action') == 'excel':
+        return write_client_excel(agents=agent_data)
     return tpl('/client/agent/index.html', agents=agent_data, info=info)
 
 

@@ -64,9 +64,9 @@
                     <td>{{k.agent_name}}</td>
                     <td>
                         {% if k.type == 'douban_order' %}
-                        <a href="{{url_for('order.douban_order_info', order_id=k.order_id)}}">
+                        <a href="{{url_for('order.douban_order_info', order_id=k.order_id, tab_id=1)}}">
                         {% else %}
-                        <a href="{{url_for('order.order_info', order_id=k.order_id)}}">
+                        <a href="{{url_for('order.order_info', order_id=k.order_id, tab_id=1)}}">
                         {% endif %}
                         {{k.contract}}
                         </a>
