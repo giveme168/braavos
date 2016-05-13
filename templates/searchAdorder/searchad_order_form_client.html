@@ -1,4 +1,4 @@
-{% from 'form.html' import form_field %}
+{% from 'form_v1_0_0.html' import form_field %}
 
 {% macro order_client_form(form, client_order) -%}
   {% if g.user.is_super_leader() or g.user.is_searchad_leader() %}
@@ -79,7 +79,7 @@
 {%- endmacro %}
 
 {% macro order_client_edited_form(form, mediums=None) -%}
-<form class="form form-horizontal" method="POST">
+<form class="input-row-box" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
     {{ form_field(form.framework_order_id) }}
@@ -87,23 +87,17 @@
     {{ form_field(form.client) }}
     {{ form_field(form.campaign) }}
     {{ form_field(form.money) }}
-    <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行开始 : </div>
+      <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行结束 : </div>
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker surname" style="width:300px;"  data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="reminde_date" class="col-sm-2 control-label">回款日期 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">回款日期 : </div>
+        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker surname" style="width:300px;"  data-date-format="yyyy-mm-dd">
     </div>
     {{ form_field(form.direct_sales) }}
     {{ form_field(form.contract_type) }}
@@ -116,39 +110,41 @@
     <button class="btn btn-sm btn-default add-new-medium"><span class="glyphicon glyphicon-plus"></span>  投放媒体 </button>
     {% endif %}
     <hr/>
-    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="保存">
+    </div>
 </form>
 
 {% if mediums %}
 <script type="txt/template" id="medium-tpl">
  <div id="order-form">
-  <div class="form-group">
-    <label class="medium-control">投放媒体 : </label>
-    <select name="medium" type="text" class="form-control medium-control">
-      {% for m in mediums %}
-        <option value="{{m[0]}}">{{m[1]}}</option>
-      {% endfor %}
-    </select>
+  <div class="input-group-menu">
+      <div class="name">投放媒体 : </div>
+        <select name="medium" type="text" class="form-control medium-control" style="width:300px;">
+          {% for m in mediums %}
+            <option value="{{m[0]}}">{{m[1]}}</option>
+          {% endfor %}
+        </select>
   </div>
-  <div class="form-group">
-    <label class="medium-control">最终推广渠道 : </label>
-    <select name="channel_type" type="text" class="form-control medium-control">
+  <div class="input-group-menu">
+      <div class="name">最终推广渠道 : </div>
+    <select name="channel_type" type="text" class="form-control medium-control" style="width:300px;">
       <option value="0">其他</option>
       <option value="1">360</option>
       <option value="2">百度</option>
       <option value="3">小米</option>
     </select>
   </div>
-  <div class="form-group">
-    <label class="medium-control">客户下单金额(元) : </label>
-    <input name="sale_money" type="text" class="form-control medium-control" placeholder="客户下单金额(元)" value="0"/>
+  <div class="input-group-menu">
+      <div class="name">客户下单金额(元) : </div>
+    <input name="sale_money" type="text" class="surname" style="width:300px;" placeholder="客户下单金额(元)" value="0"/>
   </div>
-  <div class="form-group">
-    <label class="medium-control">给媒体/供应商下单金额(元) : </label>
-    <input name="medium_money2" type="text" class="form-control medium-control" placeholder="给媒体/供应商下单金额(元)" value="0"/>
+  <div class="input-group-menu">
+      <div class="name">给媒体/供应商下单金额(元) : </div>
+    <input name="medium_money2" type="text" class="surname" style="width:300px;" placeholder="给媒体/供应商下单金额(元)" value="0"/>
   </div>
-  <div class="form-group">
-    <label class="medium-control"></label>
+  <div class="input-group-menu">
+      <div class="name"></div>
     <button class="btn btn-sm btn-default medium-remove"> 取消 </button>
   </div>
  </div>

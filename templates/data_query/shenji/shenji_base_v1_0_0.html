@@ -15,6 +15,12 @@
               <a href="{{url_for('data_query_shenji_cost_income_search_order.index')}}">效果订单</a>
             </li>
         </ul>
+        {% elif g.user.is_searchad_member() %}
+        <ul>
+            <li id="_cost_income_search_order_">
+              <a href="{{url_for('data_query_shenji_cost_income_search_order.index')}}">效果订单</a>
+            </li>
+        </ul>
         {% endif %}
     </div>
 </div>

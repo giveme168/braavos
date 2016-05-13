@@ -394,6 +394,7 @@ def _search_order_to_dict(order):
     dict_order = {}
     dict_order['month_day'] = order.month_day
     search_order = order.client_order
+    dict_order['order_id'] = search_order.id
     dict_order['locations'] = search_order.locations
     dict_order['contract_status'] = search_order.contract_status
     dict_order['contract'] = search_order.contract
@@ -549,9 +550,9 @@ def money():
         searchAdMediumOrderExecutiveReport.month_day >= start_date_month,
         searchAdMediumOrderExecutiveReport.month_day <= end_date_month)
     searchAd_medium_orders = [_search_order_to_dict(
-        k) for k in searchAd_medium_orders if k.status == 1]
+        k) for k in searchAd_medium_orders]
     searchAd_medium_orders = [k for k in searchAd_medium_orders if k[
-        'contract_status'] in [2, 4, 5, 19, 20]]
+        'contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
     searchAD_money = _get_medium_moneys(
         searchAd_medium_orders, pre_monthes, 0, 's_medium_order', year)
     # 搜索直签订单结束

@@ -1,24 +1,30 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from '/saler/searchAd_order/invoice/invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 
 {% macro contract_box(order) -%}
 <div class="container" style="width:100%;">
-    <h4>发票情况</h4>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>总金额</th>
-            <th>已开发票总金额</th>
-            <th>已申请发票总金额</th>
-            <th>未开发票总金额</th>
-        </tr>
-        <tr>
-            <td>{{order.money}} 元</td>
-            <td>{{order.invoice_pass_sum}} 元</td>
-            <td>{{order.invoice_apply_sum}} 元</td>
-            <td>{{order.money - order.invoice_pass_sum}} 元</td>
-        </tr>
-    </table>
+    <h4>{{ order.name }} 发票情况</h4>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+              <tr>
+                  <th>总金额</th>
+                  <th>已开发票总金额</th>
+                  <th>已申请发票总金额</th>
+                  <th>未开发票总金额</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                  <td>{{order.money}} 元</td>
+                  <td>{{order.invoice_pass_sum}} 元</td>
+                  <td>{{order.invoice_apply_sum}} 元</td>
+                  <td>{{order.money - order.invoice_pass_sum}} 元</td>
+              </tr>
+            </tbody>
+        </table>
+    </div>
     {% for k in range(5) %}
       {% if k == 0 %}
           {% set invoices = invoices_data.PASS %}
@@ -96,6 +102,7 @@
     $(e).parent().find(".invoice-id").trigger("change");
   }
   $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     $(".invoice-id").change(function(e){
       if($(this).prop("checked")){
         if($("#form-invoice-"+$(this).val()).length < 1){
@@ -131,11 +138,10 @@
 {%- endmacro %}
 
 {% block content%}
-{% include "/searchAdorder/searchad_order_base.html" %}
+{% include "/searchAdorder/searchad_order_base_v1_0_0.html" %}
 <div class="container bra-box">
-  <h4> {{ order.name }} </h4>
   <div>
-    {% include "saler/searchAd_order/nav_base.html" %}
+    {% include "saler/searchAd_order/nav_base_v1_0_0.html" %}
     <div class="tab-content">
       <div class="tab-pane active" id="tab-2">
         {{ contract_box(order) }}

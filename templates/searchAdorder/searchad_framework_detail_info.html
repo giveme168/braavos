@@ -1,18 +1,17 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'searchad_order_form_framework.html' import order_framework_form %}
 {% from 'searchad_order_form_contract.html' import order_contract_form %}
 {% from 'searchad_order_form_attachment.html' import framework_order_attachment, finish_framework_order_attachment %}
 {% from 'comments.html' import comments_box %}
 
 {% block content%}
-{% include "/searchAdorder/searchad_order_base.html" %}
+{% include "/searchAdorder/searchad_order_base_v1_0_0.html" %}
 <div class="container bra-box">
-    <h4> {{ order.name }} </h4>
     <div class="panel-group" id="accordion">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 框架订单 </a>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> {{ order.name }} 框架订单 </a>
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">
@@ -44,4 +43,9 @@
     </div>
     <div>{{ comments_box(order) }}</div>
 </div>
+<script>
+    $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    })
+</script>
 {% endblock %}

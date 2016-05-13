@@ -1,10 +1,10 @@
-{% extends "/base.html" %}
-{% from '/form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from '/form_v1_0_0.html' import form_field %}
 {% from '/saler/searchAd_order/agent/agent_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 {% macro contract_box(order) -%}
 <div class="container" style="width:100%;">
-  <h4>发票详情</h4>
+  <h4>{{ invoice.client_order.name }} 发票详情</h4>
   <table class="table table-bordered table-striped">
     <tr>
       <th>公司名称</th>
@@ -40,7 +40,7 @@
           {{invoice.client_order.name}}-{{ invoice.agent.name }}-{{ invoice.money }}元
       </h4>
       {% if g.user.is_super_leader() or invoice.client_order.can_admin(g.user)%}
-      <form class="form form-horizontal" method="POST" action="{{url_for('searchAd_saler_client_order_agent_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+      <form class="input-row-box" method="POST" action="{{url_for('searchAd_saler_client_order_agent_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
       {{form.csrf_token}}
       {{ form_field(form.client_order)}}
       {{ form_field(form.agent)}}
@@ -54,14 +54,14 @@
       {{ form_field(form.money) }}
       {{ form_field(form.invoice_num) }}
       {{ form_field(form.invoice_type) }}
-      <div class="form-group">
-        <label for="client_start" class="col-sm-2 control-label">开票时间 : </label>
-        <div class="col-sm-4">
-          <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-        </div>
+      <div class="input-group-menu">
+          <div class="name">开票时间 : </div>
+          <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
       </div>
       {{ form_field(form.bool_invoice) }}
-      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+      <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+        </div>
       </form>
       {% endif %}
   </div>
@@ -199,6 +199,7 @@ function check_all(e) {
   $(e).parent().find(".invoice-id").trigger("change");
 }
 $(function() {
+  $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
   $(".invoice-id").change(function(e) {
     if ($(this).prop("checked")) {
       if ($("#form-invoice-" + $(this).val()).length < 1) {
@@ -232,12 +233,11 @@ $(function() {
 </script>
 {%- endmacro %}
 {% block content%}
-{% include "/searchAdorder/searchad_order_base.html" %}
+{% include "/searchAdorder/searchad_order_base_v1_0_0.html" %}
   <div class="container bra-box">
-    <h4> {{ invoice.client_order.name }} </h4>
     <div>
       {% set order = invoice.client_order %}
-      {% include "saler/searchAd_order/nav_base.html" %}
+      {% include "saler/searchAd_order/nav_base_v1_0_0.html" %}
       <div class="tab-content">
         <div class="tab-pane active" id="tab-2">
           {{ contract_box(invoice.client_order) }}
