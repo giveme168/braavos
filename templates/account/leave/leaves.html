@@ -16,30 +16,30 @@
             <div class="select_option">
                 <label for="sale_type" class="control-label">类型</label>
                 <select class="form-control special_sale" name="type" id="type" style="width:120px;">
-                    <option value="0">全部</value>
-                    <option value="1">事假</value>
-                    <option value="2">年假</value>
-                    <option value="3">病假</value>
-                    <option value="4">婚假</value>
-                    <option value="5">产假</value>
-                    <option value="6">丧假</value>
-                    <option value="7">调休</value>
+                    <option value="0" selected>全部</option>
+                    <option value="1">事假</option>
+                    <option value="2">年假</option>
+                    <option value="3">病假</option>
+                    <option value="4">婚假</option>
+                    <option value="5">产假</option>
+                    <option value="6">丧假</option>
+                    <option value="7">调休</option>
                 </select>
             </div>
             <div class="select_option">
                 <label for="sale_type" class="control-label">状态</label>
                 <select class="form-control special_sale" name="status" id="status" style="width:120px;">
-                    <option value="100">所有状态</option>
-                    <option value="2">申请中</value>
-                    <option value="3">通过申请</value>
+                    <option value="100" selected>所有状态</option>
+                    <option value="2">申请中</option>
+                    <option value="3">通过申请</option>
                 </select>
             </div>
             <div class="select_option">
                 <label for="sale_type" class="control-label">下属</label>
                 <select class="form-control special_sale" name="user_id" id="user_id" style="width:120px;">
-                    <option value="0">全部</value>
+                    <option value="0" selected>全部</option>
                     {% for k in under_users %}
-                    <option value="{{k.uid}}">{{k.name}}</value>
+                    <option value="{{k.uid}}">{{k.name}}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -116,15 +116,15 @@
     {% include "pagination.html" %}
 </div>
 <script>
-Date.prototype.Format = function (fmt) { //author: meizz 
+Date.prototype.Format = function (fmt) { //author: meizz
     var o = {
-        "M+": this.getMonth() + 1, //月份 
-        "d+": this.getDate(), //日 
-        "h+": this.getHours(), //小时 
-        "m+": this.getMinutes(), //分 
-        "s+": this.getSeconds(), //秒 
-        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
-        "S": this.getMilliseconds() //毫秒 
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "h+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+        "S": this.getMilliseconds() //毫秒
     };
     if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
     for (var k in o)

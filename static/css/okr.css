@@ -1,0 +1,72 @@
+*{padding: 0;
+list-style: none;
+margin: 0;
+font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
+.wrapper {width:95%;
+        margin: 10px auto;}
+
+.wrapper  #year{width: 300px;float: left;
+                margin-right: 10px;
+                border-bottom:none;
+                margin-bottom:10px;}
+
+.wrapper  #year label{float: left;
+                    width:90px;
+                    margin-top:3px;
+                    }
+
+.wrapper  #year select{float: left;width: 200px;}
+
+
+.wrapper  #quarter{width:300px;float: left;
+                    border-bottom:none;}
+.wrapper  #quarter label{float: left;
+                    margin-top:3px;
+                    width:90px;
+                    }
+.wrapper  #quarter select{float: left;width: 200px;}
+
+.wrapper table{border:1px solid #ccc;}
+
+.wrapper table thead tr th{text-align: center;color: #fff;background: #484848 !important;}
+.wrapper table tbody select{float: left;}
+.wrapper table tbody{border-bottom:1px solid #ccc;}
+
+.wrapper table tbody .key_result,.wrapper table tbody .kr_weighted{margin-bottom:10px;}
+.wrapper table tbody .weighted{width: 100px;}
+
+.wrapper table tbody .weighted select{width: 100px;
+                                        height: 53px;
+                                        margin-bottom:12px;}
+
+.wrapper table tbody .delete_okr{margin-left:10px;
+                                margin-top:10px;}
+
+.add, .commit{background: #333 !important;
+            border:1px solid #ccc !important;
+            border-radius: 30px !important;
+            color: #fff !important;
+            height:24px !important;
+            font-size: 12px !important;
+            line-height: 24px !important;
+            padding: 0px 12px !important;
+            margin-bottom:10px !important;}
+
+.add_kr, .delete, .delete_okr{background: #fff;color: #000 !important;
+                            border:1px solid #ccc !important;
+                            border-radius: 30px !important;
+                            height:24px !important;
+                            font-size: 12px !important;
+                            line-height: 24px !important;
+                            padding: 0px 12px !important;
+                            margin-bottom:10px !important;
+                            }
+
+.btn:hover{color: #fff;
+    background: #ec3343;}
+
+.wrapper table .OKR .edit_objective_area,
+.wrapper table .OKR .edit_kr_area {
+    border: none;
+    width: 100%;
+}
