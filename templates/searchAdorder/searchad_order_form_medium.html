@@ -1,4 +1,4 @@
-{% from 'form.html' import form_field %}
+{% from 'form_v1_0_0.html' import form_field %}
 
 {% macro order_medium_form(form, medium_order) -%}
   {% if g.user.is_super_leader() or g.user.is_searchad_leader() %}
@@ -83,39 +83,34 @@
 
 {% macro order_medium_edited_form(form, medium_order=None, order=None) -%}
 {% if medium_order %}
-<form class="form form-horizontal" method="POST" action="{{medium_order.edit_path()}}">
+<form class="input-row-box" method="POST" action="{{medium_order.edit_path()}}">
   {% if g.user.is_super_leader() or g.user.is_searchad_leader() %}
   <a style="color:red;" href="{{url_for('searchAd_order.medium_order_delete', order_id=medium_order.client_order.id, medium_id=medium_order.id)}}">删除媒体订单</a>
   {% endif %}
 {% else %}
-<form class="form form-horizontal" method="POST" action="{{url_for('searchAd_order.order_new_medium', order_id=order.id)}}">
+<form class="input-row-box" method="POST" action="{{url_for('searchAd_order.order_new_medium', order_id=order.id)}}">
 {% endif %}
     {{form.csrf_token}}
     {{ form_field(form.medium) }}
     {{ form_field(form.channel_type) }}
     {{ form_field(form.sale_money) }}
     {{ form_field(form.medium_money2) }}
-    {#
-    {{ form_field(form.medium_money) }}
-    #}
     {{ form_field(form.sale_CPM) }}
     {{ form_field(form.medium_CPM) }}
-    <div class="form-group">
-      <label for="medium_start" class="col-sm-2 control-label">执行开始 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="medium_start" name="medium_start" value="{{form.medium_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行开始 : </div>
+        <input type="text" id="medium_start" name="medium_start" value="{{form.medium_start.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="medium_end" class="col-sm-2 control-label">执行结束 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="medium_end" name="medium_end" value="{{form.medium_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行结束 : </div>
+        <input type="text" id="medium_end" name="medium_end" value="{{form.medium_end.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
     {{ form_field(form.operaters) }}
     {{ form_field(form.designers) }}
     {{ form_field(form.planers) }}
     {{ form_field(form.discount) }}
-    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="保存">
+    </div>
 </form>
 {%- endmacro %}

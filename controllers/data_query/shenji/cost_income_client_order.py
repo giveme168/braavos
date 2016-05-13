@@ -196,8 +196,6 @@ def index():
                                     ) for k in orders]
     # 去掉撤单、申请中的合同
     orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20]]
-    aa = [k['order_id'] for k in orders]
-    aa.sort()
     orders = sorted(
         orders, key=operator.itemgetter('start_date_cn'), reverse=False)
     total_money_data = [0 for k in range(12)]

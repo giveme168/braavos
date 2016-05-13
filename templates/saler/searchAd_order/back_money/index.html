@@ -1,39 +1,45 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'comments.html' import comments_box %}
 {% block content%}
-{% include "/searchAdorder/searchad_order_base.html" %}
+{% include "/searchAdorder/searchad_order_base_v1_0_0.html" %}
   <div class="container bra-box">
-    <h4> {{ order.name }} 回款情况</h4>
-    {% include "saler/searchAd_order/nav_base.html" %}
+    {% include "saler/searchAd_order/nav_base_v1_0_0.html" %}
     <div class="tab-content">
       <div class="tab-pane active" id="tab-2">
         <div class="container" style="width:100%;">
-          <h4>回款进度</h4>
-          <table class="table table-bordered">
-            <tr>
-              <th>订单总金额</th>
-              <th>已回款金额</th>
-              <th>未回款金额</th>
-              <th>回款状态</th>
-              <th>最迟回款时间</th>
-            </tr>
-            <tr>
-              <td>{{order.money}} 元</td>
-              <td>{{order.back_moneys}} 元</td>
-              <td>{{order.money-order.back_moneys}} 元</td>
-              <td>{{order.back_money_status_cn}}</td>
-              <td>{{order.reminde_date_cn}}</td>
-            </tr>
-            <tr>
-              <td colspan="5">
-                <div class="progress">
-                  <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{order.back_money_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{order.back_money_percent}}%;">
-                    {{order.back_money_percent}}%
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </table>
+          <h4>{{ order.name }}  回款进度</h4>
+          <div class='tabulation'>
+            <table border='1'>
+              <thead>
+                <tr>
+                  <th>订单总金额</th>
+                  <th>已回款金额</th>
+                  <th>未回款金额</th>
+                  <th>回款状态</th>
+                  <th>最迟回款时间</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{order.money}} 元</td>
+                  <td>{{order.back_moneys}} 元</td>
+                  <td>{{order.money-order.back_moneys}} 元</td>
+                  <td>{{order.back_money_status_cn}}</td>
+                  <td>{{order.reminde_date_cn}}</td>
+                </tr>
+                <tr>
+                  <td colspan="5">
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{order.back_money_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{order.back_money_percent}}%;">
+                        {{order.back_money_percent}}%
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <br/>
           <div class="panel panel-default" id="non-invoice">
             <div class="panel-heading">
               <h4 class="panel-title">
@@ -42,10 +48,9 @@
             </div>
             <div id="collapse-invoice-0" class="panel-collapse collapse in">
               <div class="panel-body">
-                
-                <div class="col-md-12">
-                  <div class="col-md-21" style="">
-                    <table class="table table-bordered">
+                <div class='tabulation'>
+                  <table border='1'>
+                    <thead>
                       <tr>
                         <th>回款时间</th>
                         <th>金额</th>
@@ -53,6 +58,8 @@
                         <th>操作</th>
                         {% endif %}
                       </tr>
+                    </thead>
+                    <tbody>
                       {% for back in order.back_money_list %}
                         <tr>
                           <td>{{back.back_time_cn}}</td>
@@ -67,8 +74,8 @@
                         <td>{{order.back_money_list|sum(attribute='money')}}</td>
                         <td></td>
                       </tr>
-                    </table>
-                  </div>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -81,35 +88,36 @@
               </div>
               <div id="collapse-invoice-0" class="panel-collapse collapse in">
                   <div class="panel-body">
-                      
-                      <div class="col-md-12">
-                          <div class="col-md-21" style="">
-                              <table class="table table-bordered">
-                                <tr>
-                                  <th>开票时间</th>
-                                  <th>发票金额</th>
-                                  <th>发票号</th>
-                                  {% if g.user.is_searchad_leader() or g.user.is_finance() %}
-                                  <th>操作</th>
-                                  {% endif %}
-                                </tr>
-                                {% for back in order.back_invoice_rebate_list %}
-                                <tr>
-                                  <td>{{back.back_time_cn}}</td>
-                                  <td>{{back.money}}</td>
-                                  <td>{{back.num}}</td>
-                                  {% if g.user.is_searchad_leader() or g.user.is_finance() %}
-                                  <td><a href="{{url_for('searchAd_saler_client_order_back_money.delete_invoice',order_id=order.id,bid=back.id)}}">删除</a></td>
-                                  {% endif %}
-                                </tr>
-                                {% endfor %}
-                                <tr>
-                                  <td>合计</td>
-                                  <td>{{order.back_invoice_rebate_list|sum(attribute='money')}}</td>
-                                  <td colspan=2></td>
-                                </tr>
-                              </table>
-                          </div>
+                      <div class='tabulation'>
+                        <table border='1'>
+                          <thead>
+                            <tr>
+                              <th>开票时间</th>
+                              <th>发票金额</th>
+                              <th>发票号</th>
+                              {% if g.user.is_searchad_leader() or g.user.is_finance() %}
+                              <th>操作</th>
+                              {% endif %}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for back in order.back_invoice_rebate_list %}
+                            <tr>
+                              <td>{{back.back_time_cn}}</td>
+                              <td>{{back.money}}</td>
+                              <td>{{back.num}}</td>
+                              {% if g.user.is_searchad_leader() or g.user.is_finance() %}
+                              <td><a href="{{url_for('searchAd_saler_client_order_back_money.delete_invoice',order_id=order.id,bid=back.id)}}">删除</a></td>
+                              {% endif %}
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                              <td>合计</td>
+                              <td>{{order.back_invoice_rebate_list|sum(attribute='money')}}</td>
+                              <td colspan=2></td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                   </div>
               </div>

@@ -1,10 +1,15 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'searchad_order_form_framework.html' import order_framework_form %}
 
 {% block content%}
-{% include "/searchAdorder/searchad_order_base.html" %}
+{% include "/searchAdorder/searchad_order_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>新建框架</h3>
      {{ order_framework_form(form) }}
 </div>
+<script>
+    $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    })
+</script>
 {% endblock %}

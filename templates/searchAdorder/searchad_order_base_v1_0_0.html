@@ -1,0 +1,46 @@
+<!--导航-->
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        <ul>
+            <li id="_my_framework_orders_" class="nav-first">
+              <a href="{{url_for('searchAd_order.my_framework_orders')}}">框架订单</a>
+              <span>|</span>
+            </li>
+            <li id="_my_orders_">
+              <a href="{{url_for('searchAd_order.my_searchAd_orders')}}">普通订单</a>
+              <span>|</span>
+            </li>
+            <li id="_data_query_" class="nav-last">
+              <a href="{{url_for('searchAd_saler_client_order_data_query.agent_invoice')}}">普通订单数据</a>
+              <span>|</span>
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[3] == 'data_query'){
+            if (p_pathname[2] == 'searchAd_rebate_order'){
+                $('#_searchAd_rebate_order_data_query_').addClass("active");
+            }else{
+                $('#_'+p_pathname[3]+'_').addClass("active");
+            }
+            
+        }else{
+            $('#_'+p_pathname[2]+'_').addClass("active");
+            if(['order', 'searchAd_order', 'new_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_orders_').addClass("active");
+            }
+            if(['searchAd_rebate_order', 'rebate_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_rebate_orders_').addClass("active");
+            }
+            if(['framework_order', 'new_framework_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_framework_orders_').addClass("active");
+            }
+        }
+        
+    })
+
+</script>

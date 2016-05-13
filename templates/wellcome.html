@@ -307,7 +307,7 @@
                 </li>
                 <li class="manage">
                   <h5>
-                    <a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank">订单管理-效果</a>
+                    <a href="{{url_for('searchAd_order.my_searchAd_orders')}}" target="_blank"><h5>订单管理-效果</h5></a>
                   </h5>
                 </li>
             </ul>
@@ -610,7 +610,7 @@
                     </ul>
                 {% endif %}
             {% endif %}
-            {% if g.user.is_leader() or g.user.is_super_leader() %}
+            {% if g.user.is_leader() or g.user.is_super_leader()%}
             <ul class="bussess">
                 <li>
                     <a href="{{url_for('manage_apply.order')}}" target="_blank">
@@ -624,7 +624,7 @@
                 </li>
             </ul>
             {% endif %}
-            {% if g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance() or g.user.is_contract() %}
+            {% if g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()%}
             <ul class="bussess">
                 <li>
                     <a href="{{url_for('data_query_super_leader_industry.client_order')}}" target="_blank">
@@ -637,18 +637,35 @@
                     </a>
                 </li>
             </ul>
-            <ul class="bussess">
-                <li>
-                    <a href="{{url_for('data_query_shenji_cost_income_client_order.index')}}" target="_blank">
-                        <img src="/static/image/homepage_icon/icon16.png" alt="">
-                    </a>
-                </li>
-                <li class="manage">
-                    <a href="{{url_for('data_query_shenji_cost_income_client_order.index')}}" target="_blank">
-                        <h5>审计报表</h5>
-                    </a>
-                </li>
-            </ul>
+            {% endif %}
+            {% if g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance() or g.user.is_contract() or g.user.is_searchad_member() %}
+                {% if g.user.is_searchad_member() and not g.user.is_super_leader() %}
+                  <ul class="bussess">
+                      <li>
+                          <a href="{{url_for('data_query_shenji_cost_income_search_order.index')}}" target="_blank">
+                              <img src="/static/image/homepage_icon/icon16.png" alt="">
+                          </a>
+                      </li>
+                      <li class="manage">
+                          <a href="{{url_for('data_query_shenji_cost_income_search_order.index')}}" target="_blank">
+                              <h5>审计报表</h5>
+                          </a>
+                      </li>
+                  </ul>
+                {% else %}
+                  <ul class="bussess">
+                      <li>
+                          <a href="{{url_for('data_query_shenji_cost_income_client_order.index')}}" target="_blank">
+                              <img src="/static/image/homepage_icon/icon16.png" alt="">
+                          </a>
+                      </li>
+                      <li class="manage">
+                          <a href="{{url_for('data_query_shenji_cost_income_client_order.index')}}" target="_blank">
+                              <h5>审计报表</h5>
+                          </a>
+                      </li>
+                  </ul>
+                {% endif %}
             {% endif %}
         </div>
     </div>

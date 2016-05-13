@@ -1,4 +1,4 @@
-{% from '/form.html' import form_field %}
+{% from '/form_v1_0_0.html' import form_field %}
 {% macro invoice_form(order, form, INVOICE_TYPE_CN, AGENT_INVOICE_BOOL_PAY_CN, invoice=None) -%}
 {% if invoice %}
 {% if order.can_admin(g.user) and invoice.invoice_status == 1 %}
@@ -7,7 +7,7 @@
             <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
             {{invoice.client_order.name}}-{{ invoice.agent.name }}-{{ invoice.money }}元
         </h4>
-        <form class="form form-horizontal" method="POST" action="{{url_for('searchAd_saler_client_order_agent_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+        <form class="input-row-box" method="POST" action="{{url_for('searchAd_saler_client_order_agent_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
         {{ form_field(form.client_order)}}
         {{ form_field(form.agent)}}
@@ -28,7 +28,9 @@
           </div>
         </div>
         {{ form_field(form.bool_invoice) }}
-        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+        </div>
         </form>
     </div>
 {% else %}
@@ -109,20 +111,18 @@
 {% endif %}
 {% else %}
     <div class="well">
-        <form class="form form-horizontal" method="POST" action="{{url_for('searchAd_saler_client_order_agent_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
+        <form class="input-row-box" method="POST" action="{{url_for('searchAd_saler_client_order_agent_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
         {{ form_field(form.client_order)}}
-        <div class="form-group">
-          <label for="name" class="col-sm-2 control-label">甲方: </label>
-          <div class="col-sm-10">
-            <select class="form-control bra-form-control" id="new_agent" name="agent" onchange="check_agent(this)">
+        <div class="input-group-menu">
+          <div class="name">甲方: </div>
+            <select class="surname" style="width:300px;" id="new_agent" name="agent" onchange="check_agent(this)">
               {% for agent in order.agents %}
               <option value="{{agent.id}}">{{agent.name}}</option>
               {% endfor %}
             </select>
             <span class="errors"></span>
             <span class="tips"></span>
-          </div>
         </div>
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
@@ -135,14 +135,14 @@
         {{ form_field(form.invoice_num) }}
         {{ form_field(form.invoice_type) }}
         
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">开票时间 : </label>
-          <div class="col-sm-4">
-            <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-          </div>
+        <div class="input-group-menu">
+          <div class="name">开票时间 : </div>
+            <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
         </div>
         {{ form_field(form.bool_invoice) }}
-        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+        </div>
         </form>
     </div>
     <script>
