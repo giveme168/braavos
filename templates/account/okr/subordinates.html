@@ -1,0 +1,110 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}OKR列表{% endblock %}
+
+{% block content %}
+{% include "/account/account_okr_base.html" %}
+<style>
+    pre {
+        background-color:#ffffff;
+        border:1px solid #ffffff;
+    }
+</style>
+<div class="container bra-box" style="width:900px;">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">状态</label>
+                <select class="form-control special_sale" name="status" id="status" style="width:120px;">
+                    <option value="100" selected>所有状态</option>
+                    <option value="2">申请中</option>
+                    <option value="3">通过申请</option>
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">下属</label>
+                <select class="form-control special_sale" name="user_id" id="user_id" style="width:120px;">
+                    <option value="0" selected>全部</option>
+                    {% for k in under_users %}
+                    <option value="{{k.uid}}">{{k.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+        </form>
+    </div>
+    <br/>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>申请人(点击显示详细内容)</th>
+                    <th>年度</th>
+                    <th>季度</th>
+                    <th>状态</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for l in okrs %}
+                <tr>
+                    <td><a href="{{url_for('account_okr.info', lid=l.id)}}">{{l.creator.name}}</a></td>
+                    <td>{{l.year}}</td>
+                    <td>{{l.quarter_cn}}</td>
+                    <td>{{l.status_cn}}</td>
+                    <td>
+                        {% if title == '所有OKR列表' %}
+                            {% if g.user.is_OPS() %}
+                                <a href="javascript:back('{{url_for('account_okr.index', user_id=g.user.id, lid=l.id)}}?status=0','{{l.creator.name}}')">取消OKR审核申请</a><br/>
+                            {% endif %}
+                        {% else %}
+                            {% if l.status != 3 %}
+                                    {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}
+                                        <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
+                                        <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
+                                    {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+Date.prototype.Format = function (fmt) { //author: meizz
+    var o = {
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "h+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+        "S": this.getMilliseconds() //毫秒
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+$(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+    $("#status").val("{{status}}")
+    $("#status").trigger("chosen:updated");
+    $("#user_id").val("{{user_id}}")
+    $("#user_id").trigger("chosen:updated");
+})
+function download(){
+    window.location.href = '?action=excel'
+}
+function back(url, name){
+    var flag=confirm("确定要取消:"+name+"的请假吗?");
+    if(flag){
+        window.location.href=url
+    }
+}
+</script>
+{% endblock %}

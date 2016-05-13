@@ -1,209 +1,86 @@
-{% extends "/base.html" %}
+<link rel="stylesheet" href="/static/css/okr.css"/>
+{% extends "/base_v1_0_0.html" %}
 {% from 'form.html' import form_tpl, form_tpl_ex_form %}
+
 {% block title %}填写OKR列表{% endblock %}
 
 {% block content %}
-{% include "/account/account_okr_base.html" %}
-<style>
-    pre {
-        background-color:#ffffff;
-        border:1px solid #ffffff;
-    }
-</style>
-
-
-<div class="container bra-box" style="min-width: 950px;">
-    <h3>新建OKR</h3>
-    <form class="form form-horizontal" method="POST" action="{{url_for('account_okr.create')}}" onsubmit="return okr_form(this)">
-        <!--<input type="hidden" value=""-->
-        <table class="table table-bordered">
-            <tr style="background-color: #AAAAAA;">
-                <th colspan="5" style="text-align:center;">目标 OBJECTIVE</th>
-                <th style="text-align:center;">目标优先级：</th>
-                <th colspan="5" style="text-align:center">主要成绩:KEY RESULT</th>
-                <th stytle="text-align":center>成绩优先级</th>
-            </tr>
-            <tr >
-                <th rowspan= 4 colspan="5" style="vertical-align: middle; horiz-align:center"><textarea style="height: 80%; width: 90%" id="objective_1" name="objective_1" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th rowspan="4" style="vertical-align:middle">
-                    <select id="p_objective_1" style="width:100px;" name="p_objective_1">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
+    {% include "/account/account_okr_base.html" %}
+    <div class="container bra-box" style="min-width: 950px;">
+        <h3>新建OKR</h3>
+        <form method="POST">
+            <input type="hidden" name="okr_json" id="okr_json">
+            <div class="wrapper">
+                <div class="year" id="year">
+                    <label for="">年份：</label>
+                    <select form-control class="form-control input-sm">
+                        {% for y in year_list %}
+                        <option value="{{ y }}" {% if year==y %} selected {% endif %} >{{ y }}</option>
+                        {% endfor %}
                     </select>
-                </th>
-
-             </tr>
-            <tr>
-                <th colspan="5"><textarea id="o1_kr1" name="o1_kr1" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th >
-                    <select id="p_o1_kr1" style="width:100px;" name="p_o1_kr1">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
+                </div>
+                <div class="quarter" id="quarter">
+                    <label for="">季度：</label>
+                    <select form-control class="form-control input-sm">
+                        {% for key,q in quarters.items() %}
+                        <option value="{{ key }}" {% if quarter==key %} selected {% endif %}>{{ q }}</option>
+                        {% endfor %}
                     </select>
-                </th>
-            </tr>
+                </div>
 
-            <tr>
-                <th colspan="5"><textarea id="o1_kr2" name="o1_kr2" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th >
-                    <select id="p_o1_kr2" style="width:100px;" name="p_o1_kr2">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
-                    </select>
-                </th>
-            </tr>
-            <tr>
-                <th colspan="5"><textarea id="o1_kr3" name="o1_kr3" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th >
-                    <select id="p_o1_kr3" style="width:100px;" name="p_o1_kr3">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
-                    </select>
-                </th>
-            </tr>
+                <table border='1' class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>季度目标(O)</th>
+                        <th style="width:150px;">优先级 P(O)</th>
+                        <th>主要成绩(KR)</th>
+                        <th style="width:200px;">优先级 P(KR)</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody class="OKR">
+                    <tr class="okr_item">
+                        <td rowspan="1" class="merge_row">
+                            <textarea class="form-control objective" rows="8" name="comment"></textarea>
+                        </td>
+                        <td rowspan="1" class="merge_row">
+                            <select form-control class="form-control input-sm obj_weight">
+                                {% for priority in priority_list %}
+                                <option value="{{ priority }}">{{ priority }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="remove_row">
+                            <button type="button" class="btn add_kr" style="float:right">添加KR</button>
+                            <textarea class="form-control key_result" rows="2"></textarea>
+                        </td>
+                        <td class="remove_row">
+                            <select form-control class="form-control input-sm weighted">
+                                {% for priority in priority_list %}
+                                <option value="{{ priority }}">{{ priority }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td rowspan="1" class="merge_row">
+                            <button type="button" class="btn delete">删除</button>
+                        </td>
+                    </tr>
 
+                    </tbody>
+                </table>
 
+                <button type="button" class="btn add">添加</button>
+            </div>
+            <div class="state" style="margin-left:25%;margin-top:50px;">
+                <a href="{{ url_for('account_okr.index', user_id=g.user.id) }}"><input type="button" value="返回"></a>
+                <button type="submit" name="status" value='1' class="btn commit"/>保存不发申请</button>
+                <button type="submit" name="status" value='2' class="btn commit"/>保存并发送报备邮件</button>
+            </div>
 
+        </form>
+    </div>
 
-
-            <!--ssssssssskkkkkkkkk目标2222222222222-->
-              <tr >
-                <th rowspan= 4 colspan="5" style="vertical-align: middle; horiz-align:center" ><textarea style="height:80%; width:90%"id="objective_2" name="objective_2" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th rowspan="4" style="vertical-align: middle">
-                    <select id="p_objective_2" style="width:100px;" name="p_objective_2">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
-                    </select>
-                </th>
-
-             </tr>
-            <tr>
-                <th colspan="5"><textarea id="o2_kr1" name="o2_kr1" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th >
-                    <select id="p_o2_kr1" style="width:100px;" name="p_o2_kr1">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
-                    </select>
-                </th>
-            </tr>
-
-            <tr>
-                <th colspan="5"><textarea id="o2_kr2" name="o2_kr2" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th >
-                    <select id="p_o2_kr2" style="width:100px;" name="p_o2_kr2">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
-                    </select>
-                </th>
-            </tr>
-            <tr>
-                <th colspan="5"><textarea id="o2_kr3" name="o2_kr3" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th >
-                    <select id="p_o2_kr3" style="width:100px;" name="p_o2_kr3">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
-                    </select>
-                </th>
-            </tr>
-
-
-            <!--ssssssssskkkkkkk目标333333333333333333333-->
-              <tr >
-                <th rowspan= 4 colspan="5" style="vertical-align: middle; horiz-align:center" ><textarea style="height:80%; width:90%"id="objective_3" name="objective_3" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th rowspan="4" style="vertical-align: middle">
-                    <select id="p_objective_3" style="width:100px;" name="p_objective_3">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
-                    </select>
-                </th>
-
-             </tr>
-            <tr>
-                <th colspan="5"><textarea id="o3_kr1" name="o3_kr1" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th >
-                    <select id="p_o3_kr1" style="width:100px;" name="p_o3_kr1">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
-                    </select>
-                </th>
-            </tr>
-
-            <tr>
-                <th colspan="5"><textarea id="o3_kr2" name="o3_kr2" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th >
-                    <select id="p_o3_kr2" style="width:100px;" name="p_o3_kr2">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
-                    </select>
-                </th>
-            </tr>
-            <tr>
-                <th colspan="5"><textarea id="o3_kr3" name="o3_kr3" class="form-control bra-form-control" style="resize:none; width:100%;"></textarea></th>
-                <th >
-                    <select id="p_o3_kr3" style="width:100px;" name="p_o3_kr3">
-                            <option value="0">P0</option>
-                            <option value="1">P1</option>
-                            <option value="2">P2</option>
-                    </select>
-                </th>
-            </tr>
-        </table>
-        <input type="hidden" name="OKR" id="OKR">
-        <input type="submit" style="width: 150px; height: 40px" value="SAVE" />
-    </form>
-</div>
-
-
-    <script>
-    function okr_form() {
-        var objective_1 = $("#objective_1").val();
-        var p_objective_1 = document.getElementById("p_objective_1").value;
-        var o1_kr1 = document.getElementById("o1_kr1").value;
-        var o1_kr2 = document.getElementById("o1_kr2").value;
-        var o1_kr3 = document.getElementById("o1_kr3").value;
-        var p_o1_kr1 = document.getElementById("p_o1_kr1").value;
-        var p_o1_kr2 = document.getElementById("p_o1_kr2").value;
-        var p_o1_kr3 = document.getElementById("p_o1_kr3").value;
-
-        var objective_2 = $("#objective_2").val();
-        var p_objective_2 = document.getElementById("p_objective_2").value;
-        var o2_kr1 = document.getElementById("o2_kr1").value;
-        var o2_kr2 = document.getElementById("o2_kr2").value;
-        var o2_kr3 = document.getElementById("o2_kr3").value;
-        var p_o2_kr1 = document.getElementById("p_o2_kr1").value;
-        var p_o2_kr2 = document.getElementById("p_o2_kr2").value;
-        var p_o2_kr3 = document.getElementById("p_o2_kr3").value;
-
-        var objective_3 = $("#objective_3").val();
-        var p_objective_3 = document.getElementById("p_objective_3").value;
-        var o3_kr1 = document.getElementById("o3_kr1").value;
-        var o3_kr2 = document.getElementById("o3_kr2").value;
-        var o3_kr3 = document.getElementById("o3_kr3").value;
-        var p_o3_kr1 = document.getElementById("p_o3_kr1").value;
-        var p_o3_kr2 = document.getElementById("p_o3_kr2").value;
-        var p_o3_kr3 = document.getElementById("p_o3_kr3").value;
-
-        var okr = [{'objective_1':objective_1, 'p_objective_1':p_objective_1, 'o1_kr':[{'o1_kr1':o1_kr1, 'p_o1_kr1':p_o1_kr1},{'o1_kr2':o1_kr2,'p_o1_kr2':p_o1_kr2},{'o1_kr3':o1_kr3,'p_o1_kr3':p_o1_kr3}]},
-                 {'objective_2':objective_2, 'p_objective_2':p_objective_2, 'o2_kr':[{'o2_kr1':o2_kr1, 'p_o2_kr1':p_o2_kr1},{'o2_kr2':o2_kr2,'p_o2_kr2':p_o2_kr2},{'o2_kr3':o2_kr3,'p_o2_kr3':p_o2_kr3}]},
-                 {'objective_3':objective_3, 'p_objective_3':p_objective_3, 'o3_kr':[{'o3_kr1':o3_kr1, 'p_o3_kr1':p_o3_kr1},{'o3_kr2':o3_kr2,'p_o3_kr2':p_o3_kr2},{'o3_kr3':o3_kr3,'p_o3_kr3':p_o3_kr3}]}
-                ];
-        var j_okr = $.toJSON(okr);
-        $('#OKR').val(j_okr);
-        return true
-    }
-
-    </script>
+    <script src="/static/js/okr.js" type="text/javascript"></script>
 {% endblock %}
 
 

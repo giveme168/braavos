@@ -560,35 +560,16 @@ LEAVE_STATUS_CN = {
     LEAVE_STATUS_APPLYBACK: u'不通过',
 }
 
-OKR_P_OBJECTIVE_HIGH = 0
-OKR_P_OBJECTIVE_MIDDLE = 1
-OKR_P_OBJECTIVE_LOW = 2
+OKR_QUARTER_SPRING = 1
+OKR_QUARTER_SUMMER = 2
+OKR_QUARTER_FALL = 3
+OKR_QUARTER_WINTER = 4
 
-OKR_P_OBJECTIVE_CN = {
-    OKR_P_OBJECTIVE_HIGH: u'P0',
-    OKR_P_OBJECTIVE_MIDDLE: u'P1',
-    OKR_P_OBJECTIVE_LOW: u'P2'
-}
-OKR_P_KEY_RESULT_HIGH = 0
-OKR_P_KEY_RESULT_MIDDLE = 1
-OKR_P_KEY_RESULT_LOW = 2
-
-OKR_P_KEY_RESULT = {
-    OKR_P_KEY_RESULT_HIGH: u'P0',
-    OKR_P_KEY_RESULT_MIDDLE: u'P1',
-    OKR_P_KEY_RESULT_LOW: u'P2'
-}
-
-OKR_SEASON_SPRING = 1
-OKR_SEASON_SUNMMER = 2
-OKR_SEASON_FALL = 3
-OKR_SEASON_WINTER = 4
-
-OKR_SEASON_CN = {
-    OKR_SEASON_SPRING: u'春',
-    OKR_SEASON_SUNMMER: u'夏',
-    OKR_SEASON_FALL: u'秋',
-    OKR_SEASON_WINTER: u'冬'
+OKR_QUARTER_CN = {
+    OKR_QUARTER_SPRING: u'Q1',
+    OKR_QUARTER_SUMMER: u'Q2',
+    OKR_QUARTER_FALL: u'Q3',
+    OKR_QUARTER_WINTER: u'Q4'
 }
 
 OKR_STATUS_BACK = 0
@@ -608,9 +589,9 @@ OKR_STATUS_CN = {
 
 class Okr(db.Model, BaseModelMixin):
     __tablename__ = 'okr'
-    id = db.Column(db.Integer, primary_key=True, default=0)
+    id = db.Column(db.Integer, primary_key=True)
     year = db.Column(db.Integer)
-    season = db.Column(db.Integer)  # 相当于type,四个季度区分
+    quarter = db.Column(db.Integer)  # 相当于type,四个季度区分
     o_kr = db.Column(db.Text())
     status = db.Column(db.Integer)
     # senders = db.relationship('User', secondary=send_users)
@@ -619,23 +600,23 @@ class Okr(db.Model, BaseModelMixin):
         'User', backref=db.backref('creator_okr', lazy='dynamic'))
     __mapper_args__ = {'order_by': id.desc()}
 
-    def __init__(self, o_kr, season,
+    def __init__(self, o_kr, quarter,
                  # senders=None,
-                 creator, year=datetime.datetime.now().year, status=1):
+                 creator, year, status=1):
         self.o_kr = o_kr
-        self.season = season
+        self.quarter = quarter
         self.year = year
         # self.senders = senders or []
         self.creator = creator
         self.status = status
 
-        @property
-        def season_cn(self):
-            return OKR_SEASON_CN[self.type]
+    @property
+    def quarter_cn(self):
+        return OKR_QUARTER_CN[self.quarter]
 
-        @property
-        def status_cn(self):
-            return OKR_STATUS_CN[self.status]
+    @property
+    def status_cn(self):
+        return OKR_STATUS_CN[self.status]
 
 
 class Leave(db.Model, BaseModelMixin):

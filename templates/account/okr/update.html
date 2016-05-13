@@ -1,10 +1,187 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<link rel="stylesheet" href="/static/css/okr.css"/>
+{% extends "/base.html" %}
+{% from 'form.html' import form_tpl, form_tpl_ex_form %}
 
-</body>
-</html>
+{% block title %}我的OKR-{{ okr.year+okr.quarter }}{% endblock %}
+
+{% block content %}
+    {% include "/account/account_okr_base.html" %}
+    <div class="container bra-box" style="min-width: 950px;">
+        <h3>我的OKR{{ okr.year }}{{ okr.quarter_cn }}</h3>
+        <form method="POST">
+            <input type="hidden" name="okr_json" id="okr_json">
+            <div class="wrapper">
+                <div class="year" id="year">
+                    <label for="disabledSelect">年份：</label>
+                    <select name="" form-control class="form-control input-sm">
+                        {% if okr.year==2016 %}
+                            <option value="2016" selected="selected">2016</option>
+                        {% else %}
+                            <option value="2016">2016</option>
+                        {% endif %}
+
+                        {% if okr.year==2017 %}
+                            <option value="2017" selected="selected">2017</option>
+                        {% else %}
+                            <option value="2017">2017</option>
+                        {% endif %}
+
+                        {% if okr.year==2018 %}
+                            <option value="2018" selected="selected">2018</option>
+                        {% else %}
+                            <option value="2018">2018</option>
+                        {% endif %}
+
+                        {% if okr.year==2019 %}
+                            <option value="2019" selected="selected">2019</option>
+                        {% else %}
+                            <option value="2019">2019</option>
+                        {% endif %}
+
+                        {% if okr.year==2020 %}
+                            <option value="2020" selected="selected">2020</option>
+                        {% else %}
+                            <option value="2020">2020</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="quarter" id="quarter">
+                    <label for="disabledSelect">季度：</label>
+                    <select name="" form-control class="form-control input-sm">
+                        {% if  okr.quarter==1 %}
+                            <option value="1" selected="selected">Q1</option>
+                        {% else %}
+                            <option value="1">Q1</option>
+                        {% endif %}
+                        {% if  okr.quarter==2 %}
+                            <option value="2" selected="selected">Q2</option>
+                        {% else %}
+                            <option value="2">Q2</option>
+                        {% endif %}
+                        {% if  okr.quarter==3 %}
+                            <option value="3" selected="selected">Q3</option>
+                        {% else %}
+                            <option value="3">Q3</option>
+                        {% endif %}
+                        {% if  okr.quarter==4 %}
+                            <option value="4" selected="selected">Q4</option>
+                        {% else %}
+                            <option value="4">Q4</option>
+                        {% endif %}
+                    </select>
+
+
+                </div>
+                <table border='1' class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>O</th>
+                        <th style="width:150px;">P(O)</th>
+                        <th>KR</th>
+                        <th style="width:200px;">P(KR)</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    {% for okr in okrlist %}
+                        <tbody class="OKR">
+                        {% for kr in okr['kr_items'] %}
+
+                            <tr class="okr_item">
+                                {% if loop.index == 1 %}
+                                    <td rowspan="{{ okr['kr_items']|length }}" class="merge_row">
+                                        <textarea class="form-control objective" rows="8" name="comment"
+                                        >{{ okr['objective'] }}</textarea>
+                                    </td>
+                                    <td rowspan="{{ okr['kr_items']|length }}" class="merge_row">
+                                        <select name="" form-control class="form-control input-sm obj_weight">
+                                            {% if okr['priority']=='P1' %}
+                                                <option value="P1" selected="selected">P1</option>
+                                            {% else %}
+                                                <option value="P1">P1</option>
+                                            {% endif %}
+                                            {% if okr['priority']=='P2' %}
+                                                <option value="P2" selected="selected">P2</option>
+                                            {% else %}
+                                                <option value="P2">P2</option>
+                                            {% endif %}
+                                            {% if okr['priority']=='P3' %}
+                                                <option value="P3" selected="selected">P3</option>
+                                            {% else %}
+                                                <option value="P3">P3</option>
+                                            {% endif %}
+                                            {% if okr['priority']=='P4' %}
+                                                <option value="P4" selected="selected">P4</option>
+                                            {% else %}
+                                                <option value="P4">P4</option>
+                                            {% endif %}
+                                        </select>
+                                    </td>
+                                {% endif %}
+                                <td class="remove_row">
+                                    <button type="button" class="btn add_kr" style="float:right">添加KR</button>
+                                    <textarea class="form-control key_result" rows="2">{{ kr['results'] }}</textarea>
+                                </td>
+                                <td class="remove_row">
+
+                                    <select name="" id="" form-control class="form-control input-sm weighted">
+                                        {% if kr['results_PKR']=='P0' %}
+                                            <option value="P0" selected="selected">P0</option>
+                                        {% else %}
+                                            <option value="P0">P0</option>
+                                        {% endif %}
+                                        {% if kr['results_PKR']=='P1' %}
+                                            <option value="P1" selected="selected">P1</option>
+                                        {% else %}
+                                            <option value="P1">P1</option>
+                                        {% endif %}
+                                        {% if kr['results_PKR']=='P2' %}
+                                            <option value="P2" selected="selected">P2</option>
+                                        {% else %}
+                                            <option value="P2">P2</option>
+                                        {% endif %}
+                                        {% if kr['results_PKR']=='P3' %}
+                                            <option value="P3" selected="selected">P3</option>
+                                        {% else %}
+                                            <option value="P3">P3</option>
+                                        {% endif %}
+                                    </select>
+                                </td>
+                                {% if loop.index == 1 %}
+                                    <td rowspan="{{ okr['kr_items']|length }}" class="merge_row">
+                                        <button type="button" class="btn delete">删除</button>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    {% endfor %}
+
+
+                </table>
+
+                <button type="button" class="btn add">添加</button>
+                <!--<button type="submit" class="btn commit">提交</button>
+              -->
+            </div>
+            <div class="state" style="margin-left:25%;margin-top:50px;">
+                <a href="{{ url_for('account_okr.index', user_id=g.user.id) }}"><input type="button" value="返回"></a>
+                <button type="submit" name="status" value='1' class="btn commit"/>
+                保存不发申请</button>
+                <button type="submit" name="status" value='2' class="btn commit"/>
+                保存并发送报备邮件</button>
+            </div>
+
+        </form>
+    </div>
+
+    <script src="/static/js/okr.js" type="text/javascript"></script>
+{% endblock %}
+
+
+
+
+
+
+
+
+

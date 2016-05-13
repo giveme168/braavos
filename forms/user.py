@@ -6,7 +6,7 @@ from libs.wtf import Form
 from models.user import (User, Team,
                          TEAM_TYPE_CN, TEAM_LOCATION_CN, USER_STATUS_CN, TEAM_TYPE_MEDIUM,
                          TEAM_LOCATION_DEFAULT, LEAVE_TYPE_CN, DEFAULT_BIRTHDAY, DEFAULT_RECRUITED_DATE,
-                         OKR_P_OBJECTIVE_CN, OKR_P_KEY_RESULT)
+                         )
 
 
 class LoginForm(Form):
@@ -97,14 +97,3 @@ class UserLeaveForm(Form):
         self.senders.choices = [(m.id, m.name) for m in User.all()]
 
 
-class OkrForm(Form):
-    #type = TextAreaField(u'目标')
-    objective = TextAreaField(u'目标')
-    p_objective = SelectField(u'目标优先级', coerce=int, default=1)
-    key_result = TextAreaField(u'主要成绩')
-    p_key_result = SelectField(u'成绩优先级', coerce=int, default=1)
-
-    def __init__(self, *args, **kwargs):
-        super(OkrForm, self).__init__(*args, **kwargs)
-        self.p_objective.choices = OKR_P_OBJECTIVE_CN.items()
-        self.p_key_result.choices = OKR_P_KEY_RESULT.items()

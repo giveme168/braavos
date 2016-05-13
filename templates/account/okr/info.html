@@ -1,0 +1,83 @@
+<link rel="stylesheet" href="/static/css/okr.css"/>
+{% extends "/base_v1_0_0.html" %}
+{% from 'form.html' import form_tpl, form_tpl_ex_form %}
+
+{% block title %}填写OKR列表{% endblock %}
+
+{% block content %}
+    {% include "/account/account_okr_base.html" %}
+    <div class="container bra-box" style="min-width: 950px;">
+        <h3>{{ okr.creator.name }}的OKR</h3>
+        <div class="wrapper">
+            <div class="year" id="year">
+                <label for="disabledSelect">年份：</label>
+                <span>{{ okr.year }}</span>
+            </div>
+            <div class="quarter" id="quarter">
+                <label for="disabledSelect">季度：</label>
+                <span>{{ okr.quarter_cn }}</span>
+            </div>
+
+            <table border='1' class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>O</th>
+                    <th style="width:150px;">P(O)</th>
+                    <th>KR</th>
+                    <th style="width:200px;">P(KR)</th>
+                </tr>
+                </thead>
+                {% for okr in okrlist %}
+                <tbody class="OKR">
+                {% for kr in okr['kr_items'] %}
+
+                      <tr class="okr_item">
+                      {% if loop.index == 1 %}
+                          <td rowspan="{{ okr['kr_items']|length }}" class="merge_row">
+                            <textarea class="edit_objective_area" rows="8" name="comment" readonly>{{ okr['objective'] }}</textarea>
+                          </td>
+                          <td rowspan="{{ okr['kr_items']|length }}" class="merge_row">
+                            <span>{{ okr['priority'] }}</span>
+                          </td>
+                      {% endif %}
+                          <td class="remove_row">
+                            <textarea class="edit_kr_area" rows="2" readonly>{{ kr['results'] }}</textarea>
+                          </td>
+                          <td class="remove_row">
+                            <span>{{ kr['results_PKR'] }}</span>
+                          </td>
+                      </tr>
+                    {% endfor %}
+                </tbody>
+                {% endfor %}
+
+            </table>
+        </div>
+        <div class="state" style="margin-left:25%;margin-top:50px;">
+            <a href="javascript:history.go(-1);"><input type="button" value="返回"></a>
+            {% if okr.status == 2 %}
+                {% if g.user in okr.creator.team_leaders or g.user.is_super_admin() %}
+                    <a style="width:100px; margin-left: 100px;"
+                       href="{{ url_for('account_okr.index', user_id=g.user.id, lid=okr.id) }}?status=3">
+                        <button type="button" style="margin-left: 100px;">通过</button>
+                    </a>
+                    <a style="width:100px; margin-left: 100px;"
+                       href="{{ url_for('account_okr.index', user_id=g.user.id, lid=okr.id) }}?status=4">
+                        <button type="button" style="margin-left: 100px;">不通过</button>
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="/static/js/okr.js" type="text/javascript"></script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
