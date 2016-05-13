@@ -13,9 +13,14 @@
           <div class="select_option screen">
               <input type="submit" value="筛选">
           </div>
+          {% if g.user.is_contract() %}
           <div class="select_option return">
-              {% if g.user.is_contract() %}<a href="{{url_for('client.new_agent')}}"><input type="button" value="添加"></a>{% endif %}
+              <a href="{{url_for('client.new_agent')}}"><input type="button" value="添加"></a>
           </div>
+          <div class="select_option return">
+              <a href="?action=excel"><input type="button" value="导出"></a>
+          </div>
+          {% endif %}
       </form>
     </div>
     <div class='tabulation'>

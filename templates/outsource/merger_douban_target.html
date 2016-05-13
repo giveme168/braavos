@@ -1,76 +1,88 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}收款方{% endblock %}
 
 {% block content %}
-{% include "/outsource/outsource_base.html" %}
-<div class="container bra-box" style="width:1100px;">
+{% include "/outsource/outsource_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:1300px;">
     <h3>直签豆瓣订单对公外包收款方</h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>外包名称</th>
-            <th>类型</th>
-            <th>开户行</th>
-            <th>卡号</th>
-            <th>支付宝</th>
-            <th>联系方式</th>
-            <th>已付款个数</th>
-            <th>正在打款个数</th>
-            <th>待申请打款个数</th>
-        </tr>
-        {% for t in targets %}
-        {% set pass_count = t.douban_outsources_by_status(OUTSOURCE_STATUS_PASS) %}
-        <tr>
-            <td>{{t.name}}</td>
-            <td>{{t.type_cn}}</td>
-            <td>{{t.bank}}</td>
-            <td>{{t.card}}</td>
-            <td>{{t.alipay}}</td>
-            <td>{{t.contract}}</td>
-            <td><a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PAIED)}}">{{t.douban_outsources_by_status(OUTSOURCE_STATUS_PAIED) | length }}</a></td>
-            <td><a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_APPLY_MONEY)}}">{{t.douban_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY) | length }}</a></td>
-            <td>
-                {% if  pass_count|length > 0 %}
-                <a style="color:red;" href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PASS)}}">{{pass_count | length }}</a>
-                {% else %}
-                <a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PASS)}}">{{pass_count | length }}</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>外包名称</th>
+                    <th>类型</th>
+                    <th>开户行</th>
+                    <th>卡号</th>
+                    <th>支付宝</th>
+                    <th>联系方式</th>
+                    <th>已付款个数</th>
+                    <th>正在打款个数</th>
+                    <th>待申请打款个数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in targets %}
+                {% set pass_count = t.douban_outsources_by_status(OUTSOURCE_STATUS_PASS) %}
+                <tr>
+                    <td>{{t.name}}</td>
+                    <td>{{t.type_cn}}</td>
+                    <td>{{t.bank}}</td>
+                    <td>{{t.card}}</td>
+                    <td>{{t.alipay}}</td>
+                    <td>{{t.contract}}</td>
+                    <td><a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PAIED)}}">{{t.douban_outsources_by_status(OUTSOURCE_STATUS_PAIED) | length }}</a></td>
+                    <td><a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_APPLY_MONEY)}}">{{t.douban_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY) | length }}</a></td>
+                    <td>
+                        {% if  pass_count|length > 0 %}
+                        <a style="color:red;" href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PASS)}}">{{pass_count | length }}</a>
+                        {% else %}
+                        <a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PASS)}}">{{pass_count | length }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     <h3>直签豆瓣订单个人外包收款方&nbsp;&nbsp;<a href="{{url_for('outsource.merget_douban_target_personal_info')}}">个人外包合并付款</a></h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>外包名称</th>
-            <th>类型</th>
-            <th>开户行</th>
-            <th>卡号</th>
-            <th>支付宝</th>
-            <th>联系方式</th>
-            <th>已付款个数</th>
-            <th>正在打款个数</th>
-            <th>待申请打款个数</th>
-        </tr>
-        {% for t in personal_targets %}
-        {% set pass_count = t.douban_outsources_by_status(OUTSOURCE_STATUS_PASS) %}
-        <tr>
-            <td>{{t.name}}</td>
-            <td>{{t.type_cn}}</td>
-            <td>{{t.bank}}</td>
-            <td>{{t.card}}</td>
-            <td>{{t.alipay}}</td>
-            <td>{{t.contract}}</td>
-            <td><a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PAIED)}}">{{t.douban_outsources_by_status(OUTSOURCE_STATUS_PAIED) | length }}</a></td>
-            <td><a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_APPLY_MONEY)}}">{{t.douban_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY) | length }}</a></td>
-            <td>
-                {% if  pass_count|length > 0 %}
-                <a style="color:red;" href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PASS)}}">{{pass_count | length }}</a>
-                {% else %}
-                <a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PASS)}}">{{pass_count | length }}</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>外包名称</th>
+                    <th>类型</th>
+                    <th>开户行</th>
+                    <th>卡号</th>
+                    <th>支付宝</th>
+                    <th>联系方式</th>
+                    <th>已付款个数</th>
+                    <th>正在打款个数</th>
+                    <th>待申请打款个数</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in personal_targets %}
+                {% set pass_count = t.douban_outsources_by_status(OUTSOURCE_STATUS_PASS) %}
+                <tr>
+                    <td>{{t.name}}</td>
+                    <td>{{t.type_cn}}</td>
+                    <td>{{t.bank}}</td>
+                    <td>{{t.card}}</td>
+                    <td>{{t.alipay}}</td>
+                    <td>{{t.contract}}</td>
+                    <td><a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PAIED)}}">{{t.douban_outsources_by_status(OUTSOURCE_STATUS_PAIED) | length }}</a></td>
+                    <td><a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_APPLY_MONEY)}}">{{t.douban_outsources_by_status(OUTSOURCE_STATUS_APPLY_MONEY) | length }}</a></td>
+                    <td>
+                        {% if  pass_count|length > 0 %}
+                        <a style="color:red;" href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PASS)}}">{{pass_count | length }}</a>
+                        {% else %}
+                        <a href="{{url_for('outsource.merget_douban_target_info', target_id=t.id, status=OUTSOURCE_STATUS_PASS)}}">{{pass_count | length }}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

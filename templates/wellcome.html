@@ -2,7 +2,7 @@
 {% block title %}首页{% endblock %}
 {% block content %}
     <div class="container" style="width:958px;">
-        <div class="row">
+        <div class="row" style="margin-top: 55px;">
             <div class="introduction">
                 <div class="intro-all">
                     <div class="sculpture">
@@ -329,7 +329,8 @@
                         </li>
                         <li class="manage">
                             <h5>
-                                <a href="{{ url_for('searchAd_order.my_searchAd_orders') }}" target="_blank">订单管理-效果</a>
+                                <a href="{{ url_for('searchAd_order.my_searchAd_orders') }}" target="_blank"><h5>
+                                    订单管理-效果</h5></a>
                             </h5>
                         </li>
                     </ul>
@@ -515,7 +516,6 @@
                             <h5>绩效管理</h5>
                         </a></li>
                 </ul>
-                <!--##############################Tree?那个url_for后面的index怎么用的?-->
                 <ul class="bussess">
                     <li>
                         <a href="{{ url_for('account_okr.index',user_id = g.user.id) }}" targer="_blank">
@@ -528,7 +528,7 @@
                         </a>
                     </li>
                 </ul>
-                <!--############-->
+
 
                 {% if not g.user.is_other_person() %}
                     <ul class="bussess">
@@ -683,18 +683,39 @@
                             </a>
                         </li>
                     </ul>
-                    <ul class="bussess">
-                        <li>
-                            <a href="{{ url_for('data_query_shenji_cost_income_client_order.index') }}" target="_blank">
-                                <img src="/static/image/homepage_icon/icon16.png" alt="">
-                            </a>
-                        </li>
-                        <li class="manage">
-                            <a href="{{ url_for('data_query_shenji_cost_income_client_order.index') }}" target="_blank">
-                                <h5>审计报表</h5>
-                            </a>
-                        </li>
-                    </ul>
+                {% endif %}
+                {% if g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance() or g.user.is_contract() or g.user.is_searchad_member() %}
+                    {% if g.user.is_searchad_member() and not g.user.is_super_leader() %}
+                        <ul class="bussess">
+                            <li>
+                                <a href="{{ url_for('data_query_shenji_cost_income_search_order.index') }}"
+                                   target="_blank">
+                                    <img src="/static/image/homepage_icon/icon16.png" alt="">
+                                </a>
+                            </li>
+                            <li class="manage">
+                                <a href="{{ url_for('data_query_shenji_cost_income_search_order.index') }}"
+                                   target="_blank">
+                                    <h5>审计报表</h5>
+                                </a>
+                            </li>
+                        </ul>
+                    {% else %}
+                        <ul class="bussess">
+                            <li>
+                                <a href="{{ url_for('data_query_shenji_cost_income_client_order.index') }}"
+                                   target="_blank">
+                                    <img src="/static/image/homepage_icon/icon16.png" alt="">
+                                </a>
+                            </li>
+                            <li class="manage">
+                                <a href="{{ url_for('data_query_shenji_cost_income_client_order.index') }}"
+                                   target="_blank">
+                                    <h5>审计报表</h5>
+                                </a>
+                            </li>
+                        </ul>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
@@ -750,10 +771,5 @@
             </div>
         {% endif %}
     </div>
-    <script>
-        $(function () {
-            $('#index').addClass('active')
-        })
-    </script>
     <script src="/static/js/index_v1_0_0.js" type="text/javascript"></script>
 {% endblock %}

@@ -511,6 +511,19 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
                 "".join([mo.medium.name + mo.medium_contract for mo in self.medium_orders]))
 
     @property
+    def search_invoice_info(self):
+        search_info = self.search_info
+        search_info += ''.join(
+            [k.invoice_num for k in searchAdInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in searchAdMediumRebateInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in searchAdMediumInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in searchAdAgentInvoice.query.filter_by(client_order=self)])
+        return search_info
+
+    @property
     def email_info(self):
         return u"""
     类型:搜索广告订单

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_v1_0_0.html" %}
 {% from 'order_form_client.html' import order_client_form %}
 {% from 'order_form_medium.html' import order_medium_form %}
 {% from 'order_form_medium.html' import new_order_medium_form %}
@@ -12,7 +12,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 客户订单 </a>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 客户订单 {{ order.name }}  </a>
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">
@@ -36,7 +36,6 @@
             <div id="collapse2" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {% for mf in medium_forms %}
-                    <div class="well">
                         {{ order_medium_form(mf[0], mf[1]) }}
                         {{ medium_order_attachment(mf[1]) }}
                         <hr><div style="color:#999;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
@@ -46,7 +45,6 @@
                         {% if order.contract_status == 20 %}
                             {{ finish_medium_order_attachment(mf[1]) }}
                         {% endif %}
-                    </div>
                     {% endfor %}
                     <div class="well" id="new-medium" style="display:none;">
                       <h4>新建媒体订单</h4>
@@ -69,14 +67,12 @@
             <div id="collapse4" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {% for ado in order.associated_douban_orders %}
-                    <div class="well">
                     {{ order_associated_douban_form(ado.form, ado) }}
                     {{ associated_douban_attachment(ado) }}
                     <hr><div style="color:#999;">创建者: {{ado.creator.name}} 创建时间: {{ado.create_time.date()}}</div>
                     {% if order.contract_status == 20 %}
                         {{ finish_associated_order_attachment(ado) }}
                     {% endif %}
-                    </div>
                     {% endfor %}
                     <div class="well" id="new-associated-douban" style="display:none;">
                       <h4>新建豆瓣关联订单</h4>
@@ -121,11 +117,10 @@
 {%- endmacro %}
 
 {% block content %}
-{% include "order_base.html" %}
+{% include "order_base_v1_0_0.html" %}
 <div class="container bra-box">
-  <h4> {{ order.name }} </h4>
   <div>
-    {% include "saler/client_order/nav_base.html" %}
+    {% include "saler/client_order/nav_base_v1_0_0.html" %}
     <div class="tab-content">
       <div class="tab-pane active" id="tab-1">
         {{ contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, reminder_emails) }}

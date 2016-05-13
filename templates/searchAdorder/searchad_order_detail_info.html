@@ -1,4 +1,4 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'searchad_order_form_client.html' import order_client_form %}
 {% from 'searchad_order_form_medium.html' import order_medium_form %}
 {% from 'searchad_order_form_medium.html' import new_order_medium_form %}
@@ -10,7 +10,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#client_accordion" href="#collapseOne"> 客户订单 </a>
+                    <a data-toggle="collapse" data-parent="#client_accordion" href="#collapseOne"> {{ order.name }} 客户订单 </a>
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">
@@ -75,7 +75,9 @@
                             <input class="form-control bra-form-control" name="rebate" id="income_rebate" value="0">
                           </div>
                         </div>
-                        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="添加"/>
+                        <div class="state" style="margin-left:40%;">
+                            <input type="submit" value="保存">
+                        </div>
                     </form>
                     <br/>
                     <!--searchad_confirm_client_order-->
@@ -151,6 +153,7 @@
     <div>{{ comments_box(order) }}</div>
 <script>
   $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
     showNewMedium = function(ele){
       $(ele).hide();
       $("#new-medium").show();
@@ -164,11 +167,10 @@
 {%- endmacro %}
 
 {% block content%}
-{% include "/searchAdorder/searchad_order_base.html" %}
+{% include "/searchAdorder/searchad_order_base_v1_0_0.html" %}
 <div class="container bra-box">
-  <h4> {{ order.name }} </h4>
   <div>
-    {% include "saler/searchAd_order/nav_base.html" %}
+    {% include "saler/searchAd_order/nav_base_v1_0_0.html" %}
     <div class="tab-content">
       <div class="tab-pane active" id="tab-1">
         {{ contract_box(order, client_form, new_medium_form, medium_forms, reminder_emails) }}

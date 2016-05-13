@@ -708,24 +708,7 @@ def my_orders():
 
 
 def display_orders(orders, title, status_id=-1):
-    start_time = request.args.get('start_time', '')
-    end_time = request.args.get('end_time', '')
-    search_medium = int(request.args.get('search_medium', 0))
     year = str(request.values.get('year', datetime.now().year))
-    if start_time and not end_time:
-        start_time = datetime.strptime(start_time, '%Y-%m-%d').date()
-        orders = [k for k in orders if k.create_time.date() >= start_time]
-    elif not start_time and end_time:
-        end_time = datetime.strptime(end_time, '%Y-%m-%d').date()
-        orders = [k for k in orders if k.create_time.date() <= end_time]
-    elif start_time and end_time:
-        start_time = datetime.strptime(start_time, '%Y-%m-%d').date()
-        end_time = datetime.strptime(end_time, '%Y-%m-%d').date()
-        orders = [k for k in orders if k.create_time.date(
-        ) >= start_time and k.create_time.date() <= end_time]
-
-    if search_medium > 0:
-        orders = [k for k in orders if search_medium in k.medium_ids]
     orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
@@ -766,14 +749,13 @@ def display_orders(orders, title, status_id=-1):
         except:
             orders = paginator.page(paginator.num_pages)
         params = '&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s\
-        &start_time=%s&end_time=%s&search_medium=%s&year=%s' % (
-            orderby, search_info, location_id, status_id, start_time, end_time, search_medium, str(year))
+        &year=%s' % (
+            orderby, search_info, location_id, status_id, str(year))
         return tpl('orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
-                   search_info=search_info, page=page, mediums=Medium.all(),
+                   search_info=search_info, page=page,
                    orderby=orderby, now_date=datetime.now().date(),
-                   start_time=start_time, end_time=end_time, search_medium=search_medium,
                    params=params, year=year)
 
 

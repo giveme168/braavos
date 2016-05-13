@@ -1,15 +1,15 @@
-{% from 'form.html' import form_field %}
+{% from 'form_v1_0_0.html' import form_field %}
 {% macro outsource_form(form, outsource=None, order=None) -%}
 {% if outsource %}
     {% if outsource.can_admin(g.user) and outsource.status not in [3,4] %}
     <div class="well">
         {% if order.__tablename__ == 'bra_douban_order' %}
-        <form class="form form-horizontal" method="POST" id="outsource_form_{{outsource.id}}" action="{{outsource.edit_path()}}?type=douban">
+        <form class="input-row-box" method="POST" id="outsource_form_{{outsource.id}}" action="{{outsource.edit_path()}}?type=douban">
             {% if g.user.is_super_admin() %}
             <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}?type=douban" style="color:red;">删除外包</a>
             {% endif %}
         {% else %}
-        <form class="form form-horizontal" method="POST" id="outsource_form_{{outsource.id}}" action="{{outsource.edit_path()}}">
+        <form class="input-row-box" method="POST" id="outsource_form_{{outsource.id}}" action="{{outsource.edit_path()}}">
             {% if g.user.is_super_admin() %}
             <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}" style="color:red;">删除外包</a>
             {% endif %}
@@ -80,9 +80,9 @@
 {% else %}
     <div class="well">
     {% if order.__tablename__ == 'bra_douban_order' %}
-    <form class="form form-horizontal" method="POST" action="{{url_for('outsource.new_douban_outsource')}}">
+    <form class="input-row-box" method="POST" action="{{url_for('outsource.new_douban_outsource')}}">
     {% else %}
-    <form class="form form-horizontal" method="POST" action="{{url_for('outsource.new_outsource')}}">
+    <form class="input-row-box" method="POST" action="{{url_for('outsource.new_outsource')}}">
     {% endif %}
     {{form.csrf_token}}
     {% if order.__tablename__ == 'bra_douban_order' %}
@@ -95,7 +95,9 @@
     {{ form_field(form.subtype) }}
     {{ form_field(form.num) }}
     {{ form_field(form.remark) }}
-    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+    <div class="state" style="margin-left:40%;">
+      <input type="submit" value="保存"/>
+    </div>
     </form>
     </div>
 {% endif %}

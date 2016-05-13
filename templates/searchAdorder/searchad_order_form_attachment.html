@@ -6,11 +6,11 @@
 <form method="POST" action="{{contract_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
-  <button class="file-widget-btn btn btn-sm btn-primary">
+  <button class="file-widget-btn btn btn-sm btn-primary" style="border-radius: 20px;">
   {% if order.__tablename__ == 'bra_framework_order'%}
-    <span>上传致趣合同</span>
+    <span>上传致趣合同</span style="border-radius: 20px;">
   {% else %}
-    <span>上传合同</span>
+    <span>上传合同</span style="border-radius: 20px;">
   {% endif %}
   </button>
   {% set contract = order.get_last_contract() %}
@@ -28,13 +28,13 @@
 </form>
 <form method="POST" action="{{schedule_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
-  <input class="file-widget-input hide" type="file" name="file">
+  <input class="file-widget-input hide" type="file" name="file" style="border-radius: 20px;">
   {% if order.__tablename__ == 'bra_framework_order' %}
-  <button class="file-widget-btn btn btn-sm btn-primary">
+  <button class="file-widget-btn btn btn-sm btn-primary" style="border-radius: 20px;">
     <span>上传豆瓣合同</span>
   </button>
   {% else %}
-  <button class="file-widget-btn btn btn-sm btn-info">
+  <button class="file-widget-btn btn btn-sm btn-info" style="border-radius: 20px;">
     <span>上传排期</span>
   </button>
   {% endif %}
@@ -54,7 +54,7 @@
 {% if order.__tablename__ == 'bra_framework_order' %}
 <form method="POST" action="{{others_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
-  <input class="file-widget-input hide" type="file" name="file">
+  <input class="file-widget-input hide" type="file" name="file" style="border-radius: 20px;">
   <button class="file-widget-btn btn btn-sm btn-info">
     <span>其他附件</span>
   </button>
@@ -75,7 +75,7 @@
 <hr>
 <form method="POST" action="{{finish_contract_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
-  <input class="file-widget-input hide" type="file" name="file">
+  <input class="file-widget-input hide" type="file" name="file" style="border-radius: 20px;">
   <button class="file-widget-btn btn btn-sm btn-primary">
     <span>上传合同扫描件</span>
   </button>

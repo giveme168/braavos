@@ -66,13 +66,6 @@ def _client_order_to_dict(client_order, all_back_moneys, pre_year_month, locatio
     dict_order['back_moneys'] = sum(
         [k['money'] for k in all_back_moneys if k['order_id'] == client_order.id])
     dt_format = "%d%m%Y"
-    start_datetime = datetime.datetime.strptime(
-        client_order.client_start.strftime(dt_format), dt_format)
-    end_datetime = datetime.datetime.strptime(
-        client_order.client_end.strftime(dt_format), dt_format)
-    money_ex_data = pre_month_money(client_order.money,
-                                    start_datetime,
-                                    end_datetime)
     # 计算跨区系数
     if location == 0:
         rate = 1
@@ -104,13 +97,27 @@ def _client_order_to_dict(client_order, all_back_moneys, pre_year_month, locatio
         else:
             rate = 0
     # 客户执行金额
-    dict_order['money_data'] = []
-    for k in pre_year_month:
-        if k['month'] in money_ex_data:
-            dict_order['money_data'].append(money_ex_data[k['month']] * rate)
-        else:
-            dict_order['money_data'].append(0)
-    dict_order['medium_data'] = []
+    dict_order['money_data'] = [0 for k in pre_year_month]
+    for m in client_order.medium_orders:
+        dict_medium = {}
+        dict_medium['sale_money'] = m.sale_money
+        dict_medium['medium_money2'] = m.medium_money2
+        start_datetime = datetime.datetime.strptime(
+            m.medium_start.strftime(dt_format), dt_format)
+        end_datetime = datetime.datetime.strptime(
+            m.medium_end.strftime(dt_format), dt_format)
+        sale_money_ex_data = pre_month_money(m.sale_money,
+                                             start_datetime,
+                                             end_datetime)
+        # 媒体售卖执行金额
+        dict_medium['sale_money_data'] = []
+        for k in pre_year_month:
+            if k['month'] in sale_money_ex_data:
+                dict_medium['sale_money_data'].append(
+                    sale_money_ex_data[k['month']])
+            else:
+                dict_medium['sale_money_data'].append(0)
+        dict_order['money_data'] = numpy.array(dict_order['money_data']) + numpy.array(dict_medium['sale_money_data'])
     return dict_order
 
 
