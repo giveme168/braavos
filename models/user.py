@@ -588,7 +588,7 @@ OKR_STATUS_CN = {
 
 
 class Okr(db.Model, BaseModelMixin):
-    __tablename__ = 'okr'
+    __tablename__ = 'user_okr'
     id = db.Column(db.Integer, primary_key=True)
     year = db.Column(db.Integer)
     quarter = db.Column(db.Integer)  # 相当于type,四个季度区分
