@@ -150,8 +150,8 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 .menu-btn-bar .select_option select{float: left;}
 .select_option{border-radius: 10px;}
 
-.search-bar .search-input{float: left;width:230px;position: relative;}  
-.search-bar .search-input input{width:230px;
+.search-bar .search-input{float: left;width:250px;position: relative;}  
+.search-bar .search-input input{width:250px;
                     background:no-repeat 0 0 scroll #fff;
                     border:none;
                     outline:medium;
@@ -309,9 +309,9 @@ input#end-date.form-control.form_datetime,input#start-date.form-control.form_dat
 .input-row-box .input-group-menu input{width:350px;
                                 padding-left: 10px;
                                 height:28px;
-                                border:1px solid #e3e3e3;
-                                background: #e6e6e6;
-                                color: #808080;
+                                border:1px solid #aaa;
+                                /*background: #e6e6e6;*/
+                                color: #484848;
                                 /*float: left*/;
                                 border-radius: 5px;
                                 outline: medium;}
@@ -401,7 +401,20 @@ a.chosen-single{background: #fff !important;}
 .page .page-region .next img,.page .page-region .prev img{margin-top:-3px;}
 div.container.bra-box{clear: both; padding-top: 170px;}
 
+button.btn.btn-sm{
+    padding: 1px 25px 1px 25px;
+    background: #484848;
+    border: none;
+    margin-right: 10px;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 20px;
+    font-weight: normal;
+}
 
+button.btn.btn-sm:hover{
+    background: #ec3341;
+}
 
 
 

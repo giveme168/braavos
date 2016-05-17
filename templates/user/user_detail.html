@@ -20,20 +20,20 @@
     <h3>用户 - {{user.name}}</h3>
     {% if g.user.team.is_admin() or g.user==user or g.user.is_HR_leader() or g.user.is_HR() %}
         <div class="input-row-box">
-          <div class="input-group-menu">
+          <div class="input-group-menu" style="height:80px;">
             <div class="name">头像</div>
             <div class="">
               <div class="pic-icon">
                 {% set schedule = user.get_last_user_pic_file()  %}
                 {% if schedule %}
-                <img src="{{schedule.all_file_path}}" alt="＃">
+                <img src="{{schedule.all_file_path}}" alt="">
                 {% else %}
-                 <img src="/static/imgs/head-pic.png" alt="＃">
+                 <img src="/static/imgs/head-pic.png" alt="">
                 {% endif %}
               </div>
               <form method="POST" action="{{url_for('user.pic_upload', uid=user.id)}}" enctype="multipart/form-data" style="float: left;">
                   <input class="file-widget-input hide" type="file" name="file">
-                  <button class="file-widget-btn btn btn-sm btn-primary">
+                  <button class="btn btn-sm">
                     <span>上传头像</span>
                   </button>
                 </form>
@@ -57,7 +57,7 @@
     {% endif %}
     {% if g.user.team.is_admin() or g.user.is_HR() or g.user.is_HR_leader() %}
     <br/>
-    <div style="margin-top: 30px;">
+    <div style="margin-top: 30px; text-align:center;">
         * 重设密码统一设置为 {{DEFAULT_PASSWORD}}
         <a href="{{url_for('user.pwd_reset', user_id=user.id)}}" class="btn btn-danger btn-sm"> 重设为默认密码</a>
     </div>

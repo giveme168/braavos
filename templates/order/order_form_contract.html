@@ -137,7 +137,7 @@
     <div class="form-group">
         <label class="col-sm-2 control-label">操作 : </label>
         <input type="hidden" value="{{order.__tablename__}}" id="table_name">
-        <div class="col-sm-6 state" style="width:50%; margin-top:0;">
+        <div class="col-sm-8 state" style="float: initial; margin-top:5px;">
             {% if order.media_apply %}
               {% if order.contract_status == 0 and order.can_admin(g.user) %}
               <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请利润分配</button>

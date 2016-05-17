@@ -9,13 +9,14 @@
                         <div class="head-icon">
                             {% set schedule = g.user.get_last_user_pic_file() %}
                             {% if schedule %}
-                                <img src="{{ schedule.all_file_path }}" alt="＃">
+                                <img src="{{ schedule.all_file_path }}" alt="">
                             {% else %}
                                 <img src="/static/image/homepage_icon/head-pic.png" alt="＃">
                             {% endif %}
                         </div>
                         <div class="own-name">
                             <p>{{ g.user.name }}</p>
+                            <img src="/static/image/homepage_icon/more.png" alt="#">
                         </div>
                     </div>
                     <div class="module-box">
@@ -50,6 +51,7 @@
 
                         <div class="more">
                             <a href="#">更多个人信息</a>
+                            <img src="/static/image/homepage_icon/more.png" alt="#">
                         </div>
                     </div>
                 </div>
@@ -70,6 +72,7 @@
                         {% endfor %}
                         <div class="more">
                             <a href="{{ url_for('account_notice.index') }}" target="_blank">更多公司信息</a>
+                            <img src="/static/image/homepage_icon/more.png" alt="#">
                         </div>
                     </div>
                 </div>
