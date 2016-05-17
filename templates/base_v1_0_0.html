@@ -8,10 +8,9 @@
     <title>{% block title %}AD{% endblock %} - InAD</title>
     <link rel="shortcut icon" href="/static/imgs/favicon.ico" type="image/x-icon"/>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/css/bootstrap-datetimepicker.css" type="text/css"/>
     <link rel="stylesheet" href="/static/css/style_v1_0_0.css">
     <link rel="stylesheet" href="/static/css/form-sheet_v1_0_0.css">
-    <link rel="stylesheet" href="/static/css/bootstrap-datetimepicker.min.css" type="text/css"/>
-    <link rel="stylesheet" href="/static/css/bootstrap-datepicker3.standalone.min.css"/>
     <link rel="stylesheet" href="/static/css/chosen_v1_0_0.css">
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/jquery.json.min.js"></script>
@@ -37,6 +36,10 @@
         .tips {
           color: #CC6655;
         }
+        ul.bs-docs-footer-links.text-muted{
+          margin: 0 auto;
+          width: 600px;
+        }
     </style>
 </head>
 <body>
@@ -53,9 +56,9 @@
                 <li class='head-portrait'>
                     {% set schedule = g.user.get_last_user_pic_file()  %}
                     {% if schedule %}
-                    <img src="{{schedule.all_file_path}}" alt="＃">
+                    <img src="{{schedule.all_file_path}}" alt="" style="width: 36px;height: 36px;">
                     {% else %}
-                     <img src="/static/imgs/head-pic.png" alt="＃">
+                     <img src="/static/imgs/head-pic.png" alt="">
                     {% endif %}
                 </li>
                 <li class="dropdown">
@@ -85,7 +88,6 @@
 {% block content %}{% endblock %}
 <hr>
 <footer>
-  <div class="container">
     <ul class="bs-docs-footer-links text-muted">
       <li>设计开发：产品开发部门</li>
       <li>·</li>
@@ -112,7 +114,6 @@
                 firstScript.parentNode.insertBefore(newScript, firstScript);
           })(this);
         </script>
-      </div>
     </div>
 </footer>
 <br><br/>
