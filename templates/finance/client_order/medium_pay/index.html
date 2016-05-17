@@ -1,73 +1,93 @@
-{% extends "/base.html" %}
-{% block title %}申请中的媒体打款{% endblock %}
+{% extends "/base_v1_0_0.html" %}
+{% block title %}媒体付款{% endblock %}
 
 {% block content %}
-{% include "/finance/finance_base.html" %}
+{% include "/finance/finance_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:1200px;">
-    <ul class="nav nav-tabs">
-        <li class="active"><a href="{{url_for('finance_client_order_medium_pay.apply')}}">申请中的媒体付款</a></li>
-        <li class=""><a href="{{url_for('finance_client_order_medium_pay.index')}}">所有媒体付款</a></li>
-    </ul>
-    <h3>{{title}}</h3>
-    <div class="search">
-        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/媒体/合同号/Campaign" onkeypress="javascript:enter_search();">
-        <div class="col-md-2" style="padding:0;margin:0 5px;" id="search-area">
-            <select class="col-md-12" id="search_location" name="location" placeholder="区域">
-                {% for v, m in locations %}
-                    {% if v == location_id|int %}
-                        <option selected="" value="{{v}}">{{m}}</option>
-                    {% else %}
-                        <option value="{{v}}">{{m}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2" style="padding:0;margin-right:5px;">
-            <select class="col-md-12" id="medium_id" name="medium_id" placeholder="媒体">
-                <option value='0'>全部</option>
-                {% for v, m in mediums %}
-                    {% if v == medium_id|int %}
-                        <option selected="" value="{{v}}">{{m}}</option>
-                    {% else %}
-                        <option value="{{v}}">{{m}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
+    <div class="table-switch">
+        <ul>
+            <li class="actives" style="width:150px;">
+                <a class="on" href="{{url_for('finance_client_order_medium_pay.apply')}}">申请中的媒体付款</a>
+            </li>
+            <li style="width:150px;">
+                <a href="{{url_for('finance_client_order_medium_pay.index')}}">所有媒体付款</a>
+            </li>
+        </ul>
     </div>
-    <br>
-    <table class="table table-bordered">
-        <tr>
-            <th>客户名称</th>
-            <th>合同号</th>
-            <th>待打款媒体金额</th>
-            <th>投放媒体</th>
-            <th>请款中</th>
-            <th>已打款</th>
-            <th>查看</th>
-        </tr>
-        {% for order in orders %}
-        <tr>
-            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">{{order.medium_invoice.client_order.name}}</a></td>
-            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">{{order.medium_invoice.client_order.contract}}</a></td>
-            <td>{{order.money|format_price}} 元</td>
-            <td>{{order.medium_invoice.medium.name}}</td>
-            {% if order.apply_num %}
-            <td style="color:red;">{{order.apply_num}}</td>
-            {% else %}
-            <td>0</td>
-            {% endif %}
-            <td>{{order.pay_num}}</td>
-            <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">查看</a></td>
-        </tr>
-        {% endfor %}
-        <tr>
-            <td colspan=2 style="text-align: center;">总计</td>
-            <td>{{orders|sum(attribute='money')|format_price}}元</td>
-            <td colspan=4></td>
-        </tr>
-    </table>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input">
+                <input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">媒体</label>
+                <select class="form-control special_sale" name="medium_id" id="medium_id" style="width:150px;">
+                    <option value='0'>全部</option>
+                    {% for v, m in mediums %}
+                        {% if v == medium_id|int %}
+                            <option selected="" value="{{v}}">{{m}}</option>
+                        {% else %}
+                            <option value="{{v}}">{{m}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">区域</label>
+                <select class="form-control special_sale" name="location" id="search_location" style="width:100px;">
+                    {% for v, m in locations %}
+                        {% if v == location_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                        {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="select_option screen">
+                <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+        </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>客户名称</th>
+                    <th>合同号</th>
+                    <th>待打款媒体金额</th>
+                    <th>投放媒体</th>
+                    <th>请款中</th>
+                    <th>已打款</th>
+                    <th>查看</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">{{order.medium_invoice.client_order.name}}</a></td>
+                    <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">{{order.medium_invoice.client_order.contract}}</a></td>
+                    <td>{{order.money|format_price}} 元</td>
+                    <td>{{order.medium_invoice.medium.name}}</td>
+                    {% if order.apply_num %}
+                    <td style="color:red;">{{order.apply_num}}</td>
+                    {% else %}
+                    <td>0</td>
+                    {% endif %}
+                    <td>{{order.pay_num}}</td>
+                    <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">查看</a></td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan=2 style="text-align: center;">总计</td>
+                    <td>{{orders|sum(attribute='money')|format_price}}元</td>
+                    <td colspan=4></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     {% set pages = orders %}
     {% include "pagination.html" %}
 </div>
@@ -86,6 +106,7 @@
         }
     }
     $(function() {
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
         $('#medium_id').val('{{medium_id}}')
         $("#medium_id").trigger("chosen:updated");
     });

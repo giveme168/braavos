@@ -319,7 +319,6 @@
                 <span>BUSINESS</span>
             </div>
             <div class="bussess-box">
-
                 {% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract()) %}
                     <!--搜索部门-->
                     <ul class="bussess administration">
@@ -330,7 +329,7 @@
                         <li class="manage">
                             <h5>
                                 <a href="{{ url_for('searchAd_order.my_searchAd_orders') }}" target="_blank"><h5>
-                                    订单管理-效果</h5></a>
+                                    订单管理</h5></a>
                             </h5>
                         </li>
                     </ul>
@@ -340,20 +339,9 @@
                     <ul class="bussess">
                         <li class="order-management"><a href="{{ url_for('order.my_orders') }}" target="_blank"><img
                                 src="/static/image/homepage_icon/icon5.png" alt="#"></a></li>
-                        <li class="manage"><a href="{{ url_for('order.my_orders') }}" target="_blank"><h5>订单管理-致趣</h5>
+                        <li class="manage"><a href="{{ url_for('order.my_orders') }}" target="_blank"><h5>订单管理</h5>
                         </a></li>
                     </ul>
-                    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit() or g.user.is_finance() %}
-                        <!--搜索部门-->
-                        <ul class="bussess administration">
-                            <li class="order-management"><a href="{{ url_for('searchAd_order.my_searchAd_orders') }}"
-                                                            target="_blank"><img
-                                    src="/static/image/homepage_icon/icon5.png" alt="#"></a></li>
-                            <li class="manage"><a href="{{ url_for('searchAd_order.my_searchAd_orders') }}"
-                                                  target="_blank"><h5>订单管理-效果</h5></a></li>
-                        </ul>
-                        <!--搜索部门结束-->
-                    {% endif %}
                     <!--致趣订单结束-->
                 {% endif %}
                 {% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract()) %}
@@ -366,7 +354,7 @@
                         </li>
                         <li class="manage">
                             <a href="{{ url_for('searchAd_client.agents') }}" target="_blank">
-                                <h5>客户管理-效果</h5>
+                                <h5>客户管理</h5>
                             </a>
                         </li>
                     </ul>
@@ -381,26 +369,10 @@
                         </li>
                         <li class="manage">
                             <a href="{{ url_for('client.agents') }}" target="_blank">
-                                <h5>客户管理-致趣</h5>
+                                <h5>客户管理</h5>
                             </a>
                         </li>
                     </ul>
-                    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_admin() or g.user.is_aduit() %}
-                        <!--搜索部门-->
-                        <ul class="bussess">
-                            <li>
-                                <a href="{{ url_for('searchAd_client.agents') }}" target="_blank">
-                                    <img src="/static/image/homepage_icon/icon6.png" alt="">
-                                </a>
-                            </li>
-                            <li class="manage">
-                                <a href="{{ url_for('searchAd_client.agents') }}" target="_blank">
-                                    <h5>客户管理-效果</h5>
-                                </a>
-                            </li>
-                        </ul>
-                        <!--搜索部门结束-->
-                    {% endif %}
                     <!--致趣订单结束-->
                 {% endif %}
                 {% if g.user.is_operater() or g.user.is_operater_leader() or g.user.is_super_leader() or (g.user.is_leader() and (not g.user.is_searchad_leader())) %}
@@ -518,12 +490,12 @@
                 </ul>
                 <ul class="bussess">
                     <li>
-                        <a href="{{ url_for('account_okr.index',user_id = g.user.id) }}" targer="_blank">
+                        <a target="_blank" href="{{ url_for('account_okr.index',user_id = g.user.id) }}">
                             <img src="/static/image/homepage_icon/icon11.png" alt="">
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url_for('account_okr.index',user_id = g.user.id) }}" targer="_blank">
+                        <a target="_blank" href="{{ url_for('account_okr.index',user_id = g.user.id) }}">
                             <h5>OKR管理 </h5>
                         </a>
                     </li>
@@ -562,7 +534,7 @@
                         </li>
                         <li class="manage">
                             <a href="{{ url_for('searchAd_data_query_profit.client_order') }}" target="_blank">
-                                <h5>数据管理-效果</h5>
+                                <h5>数据管理</h5>
                             </a>
                         </li>
                     </ul>
@@ -577,26 +549,10 @@
                         </li>
                         <li class="manage">
                             <a href="{{ url_for('data_query_weekly.douban_index') }}" target="_blank">
-                                <h5>数据管理-致趣</h5>
+                                <h5>数据管理</h5>
                             </a>
                         </li>
                     </ul>
-                    {% if g.user.is_super_leader() or g.user.is_finance() or g.user.is_aduit() %}
-                        <!--搜索部门-->
-                        <ul class="bussess">
-                            <li class="order-management">
-                                <a href="{{ url_for('searchAd_data_query_profit.client_order') }}" target="_blank">
-                                    <img src="/static/image/homepage_icon/icon16.png" alt="#">
-                                </a>
-                            </li>
-                            <li class="manage">
-                                <a href="{{ url_for('searchAd_data_query_profit.client_order') }}" target="_blank">
-                                    <h5>数据管理-效果</h5>
-                                </a>
-                            </li>
-                        </ul>
-                        <!--搜索部门结束-->
-                    {% endif %}
                     <!--致趣订单结束-->
                 {% endif %}
                 {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_aduit() %}

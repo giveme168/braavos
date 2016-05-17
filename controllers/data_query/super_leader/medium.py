@@ -274,6 +274,7 @@ def _douban_order_to_dict(order, all_agent_rebate):
             agent_rebate = 0
         dict_order['money_rebate_data'] = dict_order[
             'sale_money'] * agent_rebate / 100
+    dict_order['status'] = douban_order.status
     return dict_order
 
 
@@ -465,7 +466,7 @@ def money():
     douban_orders = [_douban_order_to_dict(k, all_agent_rebate)
                      for k in douban_orders if k.status == 1]
     douban_orders = [k for k in douban_orders if k[
-        'contract_status'] in [2, 4, 5, 19, 20]]
+        'contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
     douban_money = _get_medium_moneys(
         douban_orders, pre_monthes, 0, 'zhiqian_order', year)
     # 直签豆瓣订单结束
@@ -478,7 +479,7 @@ def money():
     ass_douban_order = [_ass_medium_order_to_dict(
         k, all_agent_rebate, all_medium_rebate) for k in medium_orders if k.order.associated_douban_order]
     ass_douban_order = [k for k in ass_douban_order if k[
-        'contract_status'] in [2, 4, 5, 19, 20]]
+        'contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
     ass_douban_money = _get_medium_moneys(
         ass_douban_order, pre_monthes, 0, 'medium_order', year)
     # 关联豆瓣订单结束

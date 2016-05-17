@@ -87,7 +87,7 @@ def _search_order_to_dict(search_order, all_back_moneys, confirm_money_data, pre
     dict_order['medium_medium_money2_data'] = [0 for k in range(12)]
     for m in search_order.medium_orders:
         dict_medium = {}
-        dict_medium['name'] = m.medium.name
+        dict_medium['name'] = m.medium.abbreviation
         dict_medium['sale_money'] = m.sale_money
         dict_order['medium_sale_money'] += dict_medium['sale_money']
         dict_medium['medium_money2'] = m.medium_money2

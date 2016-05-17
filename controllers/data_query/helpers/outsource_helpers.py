@@ -770,8 +770,8 @@ def write_outsource_order_info_excel(orders):
     align_center = workbook.add_format(
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
     worksheet.merge_range(0, 0, 0, 4, u'合同信息', align_center)
-    worksheet.merge_range(0, 5, 0, 7, u'外包信息', align_center)
-    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'实付金额', u'供应商名称', u'开户行', u'外包金额']
+    worksheet.merge_range(0, 5, 0, 10, u'外包信息', align_center)
+    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'实付金额', u'供应商名称', u'类别' u'开户行', u'是否付款', u'付款时间', u'外包金额']
     for k in range(len(keys)):
         worksheet.write(1, 0 + k, keys[k], align_center)
         worksheet.set_column(0, 0 + k, 15)
@@ -791,8 +791,11 @@ def write_outsource_order_info_excel(orders):
                 th, 4, th + len(out_obj) - 1, 4, orders[k]['outsources_paied_sum'], align_left)
             for i in range(len(out_obj)):
                 worksheet.write(th, 5, out_obj[i]['target_name'], align_left)
-                worksheet.write(th, 6, out_obj[i]['target_bank'], align_left)
-                worksheet.write(th, 7, out_obj[i]['money'], align_left)
+                worksheet.write(th, 6, out_obj[i]['type_cn'], align_left)
+                worksheet.write(th, 7, out_obj[i]['target_bank'], align_left)
+                worksheet.write(th, 8, out_obj[i]['pay_status_cn'], align_left)
+                worksheet.write(th, 9, out_obj[i]['pay_time_cn'], align_left)
+                worksheet.write(th, 10, out_obj[i]['money'], align_left)
                 th += 1
         else:
             worksheet.write(th, 0, orders[k]['contract'], align_left)
@@ -802,8 +805,11 @@ def write_outsource_order_info_excel(orders):
             worksheet.write(th, 4, orders[k][
                             'outsources_paied_sum'], align_left)
             worksheet.write(th, 5, out_obj[0]['target_name'], align_left)
-            worksheet.write(th, 6, out_obj[0]['target_bank'], align_left)
-            worksheet.write(th, 7, out_obj[0]['money'], align_left)
+            worksheet.write(th, 6, out_obj[0]['type_cn'], align_left)
+            worksheet.write(th, 7, out_obj[0]['target_bank'], align_left)
+            worksheet.write(th, 8, out_obj[0]['pay_status_cn'], align_left)
+            worksheet.write(th, 9, out_obj[0]['pay_time_cn'], align_left)
+            worksheet.write(th, 10, out_obj[0]['money'], align_left)
             th += 1
     workbook.close()
     response.data = output.getvalue()

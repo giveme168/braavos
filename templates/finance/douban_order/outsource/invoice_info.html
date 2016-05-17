@@ -1,24 +1,31 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'comments.html' import comments_box %}
 
 {% block content %}
-{% include "/finance/finance_base.html" %}
+{% include "/finance/finance_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>{{order.agent.name}}-{{order.name}}外包发票情况</h3>
-    <table class="table table-bordered">
-        <tr>
-            <th>订单总金额</th>
-            <th>已打款外包金额</th>
-            <th>申请通过的外包金额(未打款)</th>
-            <th>已收外包发票金额</th>
-        </tr>
-        <tr>
-            <td>{{order.money|format_price}} 元</td>
-            <td>{{outsources|sum(attribute='pay_num')|format_price}}</td>
-            <td>{{apply_outsources|sum(attribute='pay_num')|format_price}}</td>
-            <td>{{invoices|sum(attribute='ex_money')|format_price}}</td>
-        </tr>
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>订单总金额</th>
+                    <th>已打款外包金额</th>
+                    <th>申请通过的外包金额(未打款)</th>
+                    <th>已收外包发票金额</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{order.money|format_price}} 元</td>
+                    <td>{{outsources|sum(attribute='pay_num')|format_price}}</td>
+                    <td>{{apply_outsources|sum(attribute='pay_num')|format_price}}</td>
+                    <td>{{invoices|sum(attribute='ex_money')|format_price}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <br/>
     <div class="panel panel-default" id="non-invoice">
         <div class="panel-heading">
             <h4 class="panel-title">
@@ -27,27 +34,29 @@
         </div>
         <div id="collapse-invoice-0" class="panel-collapse collapse in">
             <div class="panel-body">
-                <div class="col-md-12">
-                    <div class="col-md-21" style="">
-                        <table class="table table-bordered">
-                          <tr>
-                            <th>外包供应商</th>
-                            <th>外包类型</th>
-                            <th>金额</th>
-                          </tr>
-                          {% for outsource in outsources %}
+                <div class='tabulation'>
+                    <table border='1'>
+                        <thead>
                             <tr>
-                              <td>{{outsource.target.name}}</td>
-                              <td>{{outsource.type_cn}}</td>
-                              <td>{{outsource.pay_num|format_price}}</td>
+                                <th>外包供应商</th>
+                                <th>外包类型</th>
+                                <th>金额</th>
                             </tr>
-                          {% endfor %}
-                          <tr>
-                            <td colspan=2 style="text-align: center;">合计</td>
-                            <td>{{outsources|sum(attribute='pay_num')|format_price}}</td>
-                          </tr>
-                        </table>
-                    </div>
+                        </thead>
+                        <tbody>
+                            {% for outsource in outsources %}
+                            <tr>
+                                <td>{{outsource.target.name}}</td>
+                                <td>{{outsource.type_cn}}</td>
+                                <td>{{outsource.pay_num|format_price}}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan=2 style="text-align: center;">合计</td>
+                                <td>{{outsources|sum(attribute='pay_num')|format_price}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -60,27 +69,29 @@
         </div>
         <div id="collapse-invoice-0" class="panel-collapse collapse in">
             <div class="panel-body">
-                <div class="col-md-12">
-                    <div class="col-md-21" style="">
-                        <table class="table table-bordered">
-                          <tr>
-                            <th>外包供应商</th>
-                            <th>外包类型</th>
-                            <th>金额</th>
-                          </tr>
-                          {% for outsource in apply_outsources %}
+                <div class='tabulation'>
+                    <table border='1'>
+                        <thead>
                             <tr>
-                              <td>{{outsource.target.name}}</td>
-                              <td>{{outsource.type_cn}}</td>
-                              <td>{{outsource.pay_num|format_price}}</td>
+                                <th>外包供应商</th>
+                                <th>外包类型</th>
+                                <th>金额</th>
                             </tr>
-                          {% endfor %}
-                          <tr>
-                            <td colspan=2 style="text-align: center;">合计</td>
-                            <td>{{apply_outsources|sum(attribute='pay_num')|format_price}}</td>
-                          </tr>
-                        </table>
-                    </div>
+                        </thead>
+                        <tbody>
+                            {% for outsource in apply_outsources %}
+                            <tr>
+                                <td>{{outsource.target.name}}</td>
+                                <td>{{outsource.type_cn}}</td>
+                                <td>{{outsource.pay_num|format_price}}</td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan=2 style="text-align: center;">合计</td>
+                                <td>{{apply_outsources|sum(attribute='pay_num')|format_price}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -93,36 +104,37 @@
         </div>
         <div id="collapse-invoice-0" class="panel-collapse collapse in">
             <div class="panel-body">
-                
-                <div class="col-md-12">
-                    <div class="col-md-21" style="">
-                        <table class="table table-bordered">
-                          <tr>
-                            <th>公司名称</th>
-                            <th>开票时间</th>
-                            <th>发票号</th>
-                            <th>发票金额</th>
-                            <th>拆分金额</th>
-                            <th>操作</th>
-                          </tr>
-                          {% for invoice in invoices %}
-                          <tr>
-                            <td>{{invoice.company}}</td>
-                            <td>{{invoice.add_time_cn}}</td>
-                            <td>{{invoice.invoice_num}}</td>
-                            <td>{{invoice.money|format_price}}</td>
-                            <td>{{invoice.ex_money|format_price}}</td>
-                            <td><a href="{{url_for('finance_douban_order_outsource_invoice.delete', order_id=order.id, invoice_id=invoice.id)}}">删除</a></td>
-                          </tr>
-                          {% endfor %}
-                          <tr>
-                              <td colspan=3 style="text-align: center;">合计</td>
-                              <td>{{invoices|sum(attribute='money')|format_price}}</td>
-                              <td>{{invoices|sum(attribute='ex_money')|format_price}}</td>
-                              <td></td>
-                          </tr>
-                        </table>
-                    </div>
+                <div class='tabulation'>
+                    <table border='1'>
+                        <thead>
+                            <tr>
+                                <th>公司名称</th>
+                                <th>开票时间</th>
+                                <th>发票号</th>
+                                <th>发票金额</th>
+                                <th>拆分金额</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in invoices %}
+                            <tr>
+                                <td>{{invoice.company}}</td>
+                                <td>{{invoice.add_time_cn}}</td>
+                                <td>{{invoice.invoice_num}}</td>
+                                <td>{{invoice.money|format_price}}</td>
+                                <td>{{invoice.ex_money|format_price}}</td>
+                                <td><a href="{{url_for('finance_douban_order_outsource_invoice.delete', order_id=order.id, invoice_id=invoice.id)}}">删除</a></td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td colspan=3 style="text-align: center;">合计</td>
+                                <td>{{invoices|sum(attribute='money')|format_price}}</td>
+                                <td>{{invoices|sum(attribute='ex_money')|format_price}}</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
