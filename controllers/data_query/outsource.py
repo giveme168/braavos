@@ -162,6 +162,13 @@ def _target_outsource_to_dict(outsource, type):
     dict_outsource['target_alipay'] = outsource.target.alipay
     dict_outsource['target_otype'] = outsource.target.otype
     dict_outsource['target_otype_cn'] = outsource.target.otype_cn
+    dict_outsource['type_cn'] = outsource.type_cn
+    if outsource.status == 4:
+        dict_outsource['pay_status_cn'] = u'已付款'
+        dict_outsource['pay_time_cn'] = outsource.create_time.strftime('%Y-%m-%d')
+    else:
+        dict_outsource['pay_status_cn'] = u'未付款'
+        dict_outsource['pay_time_cn'] = u'无'
     if dict_outsource['target_id'] == 271 or dict_outsource['status'] not in [2, 3, 4] or \
             dict_outsource['order_status'] == 0:
         dict_outsource = {}

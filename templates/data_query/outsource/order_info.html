@@ -27,7 +27,7 @@
             <thead>
                 <tr>
                     <th colspan=5 >合同信息</th>
-                    <th colspan=3 >外包详情</th>
+                    <th colspan=6 >外包详情</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,7 +38,10 @@
                     <th>大区</th>
                     <th>实付金额</th>
                     <th>供应商名称</th>
+                    <th>类别</th>
                     <th>开户行</th>
+                    <th>是否付款</th>
+                    <th>付款时间</th>
                     <th>外包金额</th>
                 </tr>
                 {% for k in  orders %}
@@ -52,7 +55,10 @@
                     {% for o in k.outsource_obj %}
                         <tr>
                             <td>{{o.target_name}}</td>
+                            <td>{{o.type_cn}}</td>
                             <td>{{o.target_bank}}</td>
+                            <td>{{o.pay_status_cn}}</td>
+                            <td>{{o.pay_time_cn}}</td>
                             <td>{{o.money}}</td>
                         </tr>
                     {% endfor %}

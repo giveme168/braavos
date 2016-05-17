@@ -1,5 +1,14 @@
 <div class="top-nav-wrap">
-    <div class="top-nav" style="top: 15px;">
+    {% if g.user.is_super_leader() or g.user.is_contract() %}
+    <!--一级菜单-->
+    <div class="menu-bar">
+        <ul>
+            <li><a href="{{url_for('client.clients')}}">致趣</a><span>|</span></li>
+            <li><a href="{{url_for('searchAd_client.clients')}}"  class="on">效果</a><span></span></li>
+        </ul>
+    </div>
+    {% endif %}
+    <div class="top-nav" {% if not (g.user.is_super_leader() or g.user.is_contract()) %}style="top: 20px;"{% endif %}>
         <ul>
             <li id="_clients_" class="nav-first">
               <a href="{{url_for('searchAd_client.clients')}}">客户</a>

@@ -45,4 +45,9 @@
     </div>
     <div>{{ comments_box(order) }}</div>
 </div>
+<script>
+    $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    })
+</script>
 {% endblock %}

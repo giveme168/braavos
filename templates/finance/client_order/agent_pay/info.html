@@ -1,61 +1,84 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from '/finance/client_order/agent_pay/agent_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 
 {% block content %}
-{% include "/finance/finance_base.html" %}
+{% include "/finance/finance_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h4>{{ order.agent.name }}-{{order.name}} 甲方发票及打款情况</h4>
-    <table class="table table-bordered table-striped">
-      <tr>
-        <th>甲方总金额</th>
-        <th>发票总金额</th>
-        <th>已打款金额</th>
-      </tr>
-      <tr>
-        <td>{{order.agents_rebate_money}}元</td>
-        <td>{{order.agents_invoice_sum}}元</td>
-        <td>{{order.agents_invoice_pass_sum}}元</td>
-      </tr>
-    </table>
-    <h4>发票详情</h4>
-    <table class="table table-bordered table-striped">
-      <tr>
-        <th>发票金额</th>
-        <th>已打款金额</th>
-        <th>申请中打款金额</th>
-        <th>未打款金额</th>
-        <th>开票时间</th>
-        <th>发票类型</th>
-        <th>发票号</th>
-        <th>发票内容</th>
-        <th width="20%">操作</th>
-      </tr>
-      {% for invoice in invoices %}
-        {% if invoice.invoice_num == '88888888' %}
-          <tr style="border:2px solid #FF8888;">
-        {% else %}
+    <div class='tabulation'>
+      <table border='1'>
+        <thead>
           <tr>
-        {% endif %}
-        <td>{{invoice.money}}元{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
-        <td>{{invoice.get_pay_money}}元</td>
-        {% if invoice.get_apply_pay_money > 0 %}
-          <td style="color:red;">{{invoice.get_apply_pay_money}}元</td>
-        {% else %}
-          <td>{{invoice.get_apply_pay_money}}元</td>
-        {% endif %}
-        <td>{{invoice.get_unpay_money}}元</td>
-        <td>{{invoice.add_time_cn}}</td>
-        <td>{{invoice.invoice_type_cn}}</td>
-        <td>{{invoice.invoice_num}}</td>
-        <td>{{invoice.detail}}</td>
-        <td>
-            <a href="{{url_for('finance_client_order_agent_pay.pay_info', invoice_id=invoice.id)}}">查看</a>&nbsp;&nbsp;&nbsp;
-            <a href="{{url_for('finance_client_order_agent_pay.invoice_delete', invoice_id=invoice.id)}}">删除</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </table>
+            <th>甲方总金额</th>
+            <th>发票总金额</th>
+            <th>已打款金额</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{order.agents_rebate_money}}元</td>
+            <td>{{order.agents_invoice_sum}}元</td>
+            <td>{{order.agents_invoice_pass_sum}}元</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <br/>
+    <div class="panel panel-default" id="non-invoice">
+      <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 发票详情 </a>
+        </h4>
+      </div>
+      <div id="collapse-invoice-0" class="panel-collapse collapse in">
+        <div class="panel-body">
+          <div class='tabulation'>
+            <table border='1'>
+              <thead>
+                <tr>
+                  <th>发票金额</th>
+                  <th>已打款金额</th>
+                  <th>申请中打款金额</th>
+                  <th>未打款金额</th>
+                  <th>开票时间</th>
+                  <th>发票类型</th>
+                  <th>发票号</th>
+                  <th>发票内容</th>
+                  <th width="20%">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for invoice in invoices %}
+                  {% if invoice.invoice_num == '88888888' %}
+                    <tr style="border:2px solid #FF8888;">
+                  {% else %}
+                    <tr>
+                  {% endif %}
+                  <td>{{invoice.money}}元{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
+                  <td>{{invoice.get_pay_money}}元</td>
+                  {% if invoice.get_apply_pay_money > 0 %}
+                    <td style="color:red;">{{invoice.get_apply_pay_money}}元</td>
+                  {% else %}
+                    <td>{{invoice.get_apply_pay_money}}元</td>
+                  {% endif %}
+                  <td>{{invoice.get_unpay_money}}元</td>
+                  <td>{{invoice.add_time_cn}}</td>
+                  <td>{{invoice.invoice_type_cn}}</td>
+                  <td>{{invoice.invoice_num}}</td>
+                  <td>{{invoice.detail}}</td>
+                  <td>
+                      <a href="{{url_for('finance_client_order_agent_pay.pay_info', invoice_id=invoice.id)}}">查看</a>&nbsp;&nbsp;&nbsp;
+                      <a href="{{url_for('finance_client_order_agent_pay.invoice_delete', invoice_id=invoice.id)}}">删除</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   <div class="panel panel-default" id="new-invoice" style="display:none;">
     <div class="panel-heading">
       <h4 class="panel-title">
@@ -84,6 +107,7 @@ function check_all(e) {
   $(e).parent().find(".invoice-id").trigger("change");
 }
 $(function() {
+  $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
   $(".invoice-id").change(function(e) {
     if ($(this).prop("checked")) {
       if ($("#form-invoice-" + $(this).val()).length < 1) {

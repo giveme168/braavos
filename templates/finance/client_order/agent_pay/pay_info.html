@@ -1,10 +1,10 @@
-{% extends "/base.html" %}
-{% from '/form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from '/form_v1_0_0.html' import form_field %}
 {% from '/finance/client_order/agent_pay/agent_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 
 {% block content %}
-{% include "/finance/finance_base.html" %}
+{% include "/finance/finance_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>{{ invoice.client_order.agent.name }}-{{invoice.client_order.name}} 客户订单发票信息</h3>
     <table class="table table-bordered">
@@ -80,7 +80,7 @@
             {{invoice.client_order.name}}-{{ invoice.agent.name }}-{{ invoice.money }}元
         </h4>
         {% if g.user.is_super_leader() or invoice.client_order.can_admin(g.user) or g.user.is_finance() %}
-        <form class="form form-horizontal" method="POST" action="{{url_for('finance_client_order_agent_pay.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+        <form class="input-row-box" method="POST" action="{{url_for('finance_client_order_agent_pay.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
         {{ form_field(form.client_order)}}
         {{ form_field(form.agent)}}
@@ -94,14 +94,14 @@
         {{ form_field(form.money) }}
         {{ form_field(form.invoice_num) }}
         {{ form_field(form.invoice_type) }}
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">开票时间 : </label>
-          <div class="col-sm-4">
-            <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-          </div>
+        <div class="input-group-menu">
+          <div class="name">开票时间 : </div>
+          <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
         </div>
         {{ form_field(form.bool_invoice) }}
-        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+        </div>
         </form>
         {% endif %}
     </div>
@@ -253,7 +253,7 @@
     <div>{{ comments_box(invoice.client_order, msg_channel=5) }}</div>
 </div>
 <div class="modal fade" id="update_pay_time_form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog" style="margin-top:170px;">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -326,6 +326,7 @@
   }
   $(function(){
     $(document).ready(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
         $('.datetimepicker').datetimepicker({
             autoclose: true,
             todayHighlight: true,

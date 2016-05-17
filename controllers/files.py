@@ -323,13 +323,13 @@ def medium_order_files(order_id):
 @files_bp.route('/searchAd_client_order/<order_id>/all_files', methods=['GET'])
 def searchAd_client_order_files(order_id):
     order = searchAdClientOrder.get(order_id)
-    return tpl("order_files.html", order=order)
+    return tpl("search_order_files.html", order=order)
 
 
 @files_bp.route('/searchAd_medium_order/<order_id>/all_files', methods=['get'])
 def searchAd_medium_order_files(order_id):
     order = searchAdOrder.get(order_id)
-    return tpl('order_files.html', order=order)
+    return tpl('search_order_files.html', order=order)
 
 
 @files_bp.route('/framework_order/<order_id>/all_files', methods=['get'])
@@ -347,7 +347,7 @@ def medium_framework_order_files(order_id):
 @files_bp.route('/searchAdframework_order/<order_id>/all_files', methods=['get'])
 def searchAd_framework_order_files(order_id):
     fo = searchAdFrameworkOrder.get(order_id)
-    return tpl("order_files.html", order=fo)
+    return tpl("search_order_files.html", order=fo)
 
 
 @files_bp.route('/douban_order/<order_id>/all_files', methods=['get'])
