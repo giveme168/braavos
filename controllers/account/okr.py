@@ -19,19 +19,9 @@ def index():
     return tpl('/account/okr/index.html', okrs=okrs)
 
 
-"""
-@account_okr_bp.route('/create_json', methods=['POST'])
-def create_json():
-    okr = request.values.get('okr')
-    print okr
-    return jsonify({'ret': False})
-"""
-
-
 # 填写okr表格
 @account_okr_bp.route('/create', methods=['GET', 'POST'])
 def create():
-    # o_kr又变为了数组
     if request.method == 'POST':
         okr_json = request.values.get('okr_json')
         o_kr = json.loads(okr_json)
@@ -68,22 +58,6 @@ def create():
                year_list=YEAR_LIST,
                quarters=OKR_QUARTER_CN,
                priority_list=PRIORITY_LIST)
-
-
-"""
-# display the detail content of the current user by choosing year and quarter
-@account_okr_bp.route('/<user_id>/<year>/<quarter>', methods=['GET'])
-def quarter_detail(user_id, year, quarter):
-    year = 0
-    quarter = 0
-    okrs = []
-    okr = Okr.query.filter_by(creator_id=user_id, year=year, quarter=quarter).first()
-    if okr:
-        year = okr.year
-        quarter = okr.quarter
-        okrs = json.loads(okr.o_kr)
-    return tpl('/account/okr/details.html', year=year, quarter=quarter, okrs=okrs)
-"""
 
 
 # update the OKR by changing the content in database without creating new log
