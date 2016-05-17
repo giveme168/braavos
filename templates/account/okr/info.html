@@ -58,11 +58,11 @@
             {% if okr.status == 2 %}
                 {% if g.user in okr.creator.team_leaders or g.user.is_super_admin() %}
                     <a style="width:100px; margin-left: 100px;"
-                       href="{{ url_for('account_okr.index', user_id=g.user.id, lid=okr.id) }}?status=3">
+                       href="{{ url_for('account_okr.status', user_id=g.user.id, lid=okr.id) }}?status=3">
                         <button type="button" style="margin-left: 100px;">通过</button>
                     </a>
                     <a style="width:100px; margin-left: 100px;"
-                       href="{{ url_for('account_okr.index', user_id=g.user.id, lid=okr.id) }}?status=4">
+                       href="{{ url_for('account_okr.status', user_id=g.user.id, lid=okr.id) }}?status=4">
                         <button type="button" style="margin-left: 100px;">不通过</button>
                     </a>
                 {% endif %}
