@@ -12,7 +12,7 @@
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#client_accordion" href="#collapseOne"> {{ order.name }} 客户订单 </a>
                     {% if g.user.is_searchad_leader() %}
-                    <a href="javascript:delete_order('{{order.name}}','{{order.id}}')" style="float:right;color:red;">删除<a/>
+                    <a href="javascript:delete_order('{{order.name}}','{{order.id}}')" style="float:right;color:red;">删除</a>
                     {% endif %}
                 </h4>
             </div>
