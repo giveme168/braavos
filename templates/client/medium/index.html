@@ -16,8 +16,9 @@
                 <tr>
                     <th>#id</th>
                     <th>名称</th>
+                    <th>公司名称</th>
                     <th>级别</th>
-                    {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+                    {% if g.user.is_super_leader() or g.user.is_media_leader() %}
                     <th>2014年返点</th>
                     <th>2015年返点</th>
                     <th>2016年返点</th>
@@ -30,8 +31,9 @@
                 <tr>
                     <td>{{m.id}}</td>
                     <td><a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
+                    <td>{{m.abbreviation}}</td>
                     <td>{{m.level_cn}}</td>
-                    {% if g.user.is_media() or g.user.is_super_leader() or g.user.is_media_leader() %}
+                    {% if g.user.is_super_leader() or g.user.is_media_leader() %}
                         <td>{{m.rebate_2014}}</td>
                         <td>{{m.rebate_2015}}</td>
                         <td>{{m.rebate_2016}}</td>

@@ -402,8 +402,9 @@ a.chosen-single{background: #fff !important;}
 div.container.bra-box{clear: both; padding-top: 170px;}
 
 button.btn.btn-sm{
+    margin-left: 5px;
     padding: 1px 25px 1px 25px;
-    background: #484848;
+    /*background: #484848;*/
     border: none;
     margin-right: 10px;
     color: #fff;
@@ -411,9 +412,13 @@ button.btn.btn-sm{
     border-radius: 20px;
     font-weight: normal;
 }
-
+button.btn.btn-default{
+    border: 1px solid #ccc;
+    color: #484848;
+}
 button.btn.btn-sm:hover{
     background: #ec3341;
+    color: #fff;
 }
 
 

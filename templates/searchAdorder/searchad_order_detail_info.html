@@ -11,15 +11,22 @@
             <div class="panel-heading">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#client_accordion" href="#collapseOne"> {{ order.name }} 客户订单 </a>
+                    {% if g.user.is_searchad_leader() %}
+                    <a href="javascript:delete_order('{{order.name}}','{{order.id}}')" style="float:right;color:red;">删除</a>
+                    {% endif %}
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_client_form(client_form, order) }}
-                    <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {% if not g.user.is_aduit() %}
+                        <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {% endif %}
                     {{ client_order_attachment(order) }}
                     {% if order.contract_status == 20 %}
-                    <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {% if not g.user.is_aduit() %}
+                        <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {% endif %}
                     {{ finish_client_order_attachment(order) }}
                     {% endif %}
                 </div>
@@ -111,18 +118,21 @@
             <div id="medium_accordion_table" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {% for mf in medium_forms %}
-                    <div class="well">
-                    {{ order_medium_form(mf[0], mf[1]) }}
-                    {{ medium_order_attachment(mf[1]) }}
-                    <hr><div style="color:#999;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
-                    {% if mf[1].finish_status == 0 %}
-                        <hr><div style="color:#999;">合同归档时间: {{mf[1].finish_time_cn}}</div>
+                        {{ order_medium_form(mf[0], mf[1]) }}
+                        {{ medium_order_attachment(mf[1]) }}
+                            {% if not g.user.is_aduit() %}
+                            <div style="color:#999; margin-top:20px;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
+                            {% endif %}
+                        {% if mf[1].finish_status == 0 %}
+                            {% if not g.user.is_aduit() %}
+                                <div style="color:#999;margin-top:20px;">合同归档时间: {{mf[1].finish_time_cn}}</div>
+                            {% endif %}
                         {% endif %}
                         {% if order.contract_status == 20 %}
                             {{ finish_medium_order_attachment(mf[1]) }}
                         {% endif %}
+                        <hr>
                     {% endfor %}
-                    </div>
                     <div class="well" id="new-medium" style="display:none;">
                       <h4>新建媒体订单</h4>
                       {{ new_order_medium_form(new_medium_form, client_order=order) }}
@@ -163,6 +173,13 @@
       $("#new-associated-douban").show();
     };
   });
+  function delete_order(order_name, order_id){
+    var href = "/searchAd_orders/order/"+order_id+"/delete";
+    var flag=confirm("确定要删除"+order_name+"的合同吗?");
+    if(flag){
+        window.location.href=href;
+    }
+  }
 </script>
 {%- endmacro %}
 

@@ -233,6 +233,7 @@ def mediums():
     for medium in Medium.all():
         dict_medium = {}
         dict_medium['files_update_time'] = medium.files_update_time
+        dict_medium['abbreviation'] = medium.abbreviation
         dict_medium['level_cn'] = medium.level_cn
         dict_medium['id'] = medium.id
         dict_medium['name'] = medium.name

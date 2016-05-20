@@ -238,7 +238,14 @@ def order_confirm_info(order_id):
         Q = request.values.get('Q', 'Q1')
         money = float(request.values.get('money', 0.0))
         rebate = float(request.values.get('rebate', 0.0))
-        medium_order = searchAdOrder.get(request.values.get('m_order_id'))
+        m_order_id = request.values.get('m_order_id', '')
+        if not m_order_id:
+            flash(u'确认收入，请选择所属媒体!', 'danger')
+            return redirect(order.info_path())
+        medium_order = searchAdOrder.get(m_order_id)
+        if not medium_order:
+            flash(u'确认收入，请选择所属媒体!', 'danger')
+            return redirect(order.info_path())
         searchAdConfirmMoney.add(year=year,
                                  client_order=order,
                                  order=medium_order,
@@ -629,7 +636,7 @@ def order_delete(order_id):
     order = searchAdClientOrder.get(order_id)
     if not order:
         abort(404)
-    if not g.user.is_super_admin():
+    if not (g.user.is_super_admin() or g.user.is_searchad_leader()):
         abort(402)
     flash(u"客户订单: %s-%s 已删除" % (order.client.name, order.campaign), 'danger')
     order.status = STATUS_DEL
