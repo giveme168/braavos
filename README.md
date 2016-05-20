@@ -21,15 +21,15 @@
 
 ### Filled Data When make fill
 
-- Account: test0@inad.com Password: your_default_password  Role: Admin
-- Account: test1@inad.com Password: your_default_password  Role: Leader
-- Account: test2@inad.com Password: your_default_password  Role: Saler
+- Account: test0 Password: your_default_password  Role: Admin
+- Account: test1 Password: your_default_password  Role: Leader
+- Account: test2 Password: your_default_password  Role: Saler
 
 
 ### 开发流程
 
 - 1.Fork & Clone
-- 2.git remote add upstream https://github.com/borngods/braavos.git
+- 2.git remote add upstream url
     git pull upstream
 - 3.创建您的特性分支 (git checkout -b my-new-feature)
 - 4.提交您的改动 (git commit -am 'Added some feature')
