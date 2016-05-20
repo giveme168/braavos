@@ -1131,7 +1131,7 @@ def medium_back_money_apply(sender, apply_context):
     flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
     _insert_person_notcie(to_users, title, body)
     send_html_mail(title, recipients=_get_active_user_email(
-        to_users) + ['guoyu@inad.com'], body=body.replace('\n', '<br/>'))
+        to_users), body=body.replace('\n', '<br/>'))
 
 
 def back_money_apply(sender, apply_context):

@@ -324,7 +324,7 @@
             <div class="bussess-box">
                 {% if g.user.is_searchad_member() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract()) %}
                     <!--搜索部门-->
-                    <ul class="bussess administration">
+                    <ul class="bussess">
                         <li class="order-management">
                             <a href="{{ url_for('searchAd_order.my_searchAd_orders') }}" target="_blank"><img
                                     src="/static/image/homepage_icon/icon5.png" alt="#"></a>
@@ -452,7 +452,7 @@
                 <span>COMPANY</span>
             </div>
             <div class="bussess-box">
-                <ul class="bussess administration">
+                <ul class="bussess">
                     <li class="order-management">
                         <a href="{{ url_for('account_leave.index',user_id = g.user.id) }}" target="_blank">
                             <img src="/static/image/homepage_icon/icon12.png" alt="#">
@@ -529,7 +529,7 @@
             <div class="bussess-box">
                 {% if g.user.is_searchad_leader() and (not g.user.is_admin()) and (not g.user.is_super_leader()) and (not g.user.is_contract()) %}
                     <!--搜索部门-->
-                    <ul class="bussess administration">
+                    <ul class="bussess">
                         <li class="order-management">
                             <a href="{{ url_for('searchAd_data_query_profit.client_order') }}" target="_blank">
                                 <img src="/static/image/homepage_icon/icon16.png" alt="#">

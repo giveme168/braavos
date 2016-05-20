@@ -20,9 +20,13 @@
                 <div class="panel-body">
                     {{ order_douban_form(douban_form, order, replace_saler_form) }}
                     {{ douban_order_attachment(order) }}
+                    {% if not g.user.is_aduit() %}
                     <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {% endif %}
                     {% if order.contract_status == 20 %}
-                    <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {% if not g.user.is_aduit() %}
+                        <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {% endif %}
                     {{ finish_douban_order_attachment(order) }}
                     {% endif %}
                 </div>

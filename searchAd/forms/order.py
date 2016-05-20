@@ -53,8 +53,8 @@ class ClientOrderForm(Form):
 class MediumOrderForm(Form):
     medium = SelectField(u'媒体/供应商', coerce=int, description=u"提交后不可修改")
     channel_type = SelectField(u'最终推广渠道', coerce=int)
-    sale_money = FloatField(u'客户下单金额(元)', default=0, description=u"无利润未分成")
-    medium_money2 = FloatField(u'给供应商下单金额(元)', default=0, description=u"已利润未分成")
+    sale_money = FloatField(u'客户金额(元)', default=0, description=u"无利润未分成")
+    medium_money2 = FloatField(u'给供应商金额(元)', default=0, description=u"已利润未分成")
     medium_money = FloatField(u'分成金额(元)', default=0, description=u"已利润已分成, 实际给媒体分成金额")  # hidden
     sale_CPM = IntegerField(u'预估量(CPM)', default=0)
     medium_CPM = IntegerField(u'实际量(CPM)', default=0, description=u"结项后由执行填写")
