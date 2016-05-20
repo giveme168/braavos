@@ -1,33 +1,42 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}收款方{% endblock %}
 
 {% block content %}
-{% include "/outsource/outsource_base.html" %}
+{% include "/outsource/outsource_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3> 收款方
         <a class="btn btn-sm btn-default" href="{{url_for('outsource.new_target')}}">新建</a>
+        {% if g.user.is_super_leader() %}
+        <a class="btn btn-sm btn-default" href="{{url_for('outsource.targets')}}?action=excel">导出</a>
+        {% endif %}
     </h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>名称</th>
-            <th>外包性质</th>
-            <th>类型</th>
-            <th>开户行</th>
-            <th>卡号</th>
-            <th>支付宝</th>
-            <th>联系方式</th>
-        </tr>
-        {% for t in targets %}
-        <tr>
-            <td><a href="{{url_for("outsource.target_detail", target_id=t.id)}}">{{t.name}}</a></td>
-            <td>{{t.otype_cn}}</td>
-            <td>{{t.type_cn}}</td>
-            <td>{{t.bank}}</td>
-            <td>{{t.card}}</td>
-            <td>{{t.alipay}}</td>
-            <td>{{t.contract}}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>外包性质</th>
+                    <th>类型</th>
+                    <th>开户行</th>
+                    <th>卡号</th>
+                    <th>支付宝</th>
+                    <th>联系方式</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in targets %}
+                <tr>
+                    <td><a href="{{url_for("outsource.target_detail", target_id=t.id)}}">{{t.name}}</a></td>
+                    <td>{{t.otype_cn}}</td>
+                    <td>{{t.type_cn}}</td>
+                    <td>{{t.bank}}</td>
+                    <td>{{t.card}}</td>
+                    <td>{{t.alipay}}</td>
+                    <td>{{t.contract}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

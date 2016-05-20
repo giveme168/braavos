@@ -92,51 +92,51 @@
       $('#address').focus()
       return
     }
-    var sigal = '<div> \
-    <div style="line-height: normal;"> \
-        <div style="font-size: 12px;"><b><font color="#99ccff">————————————————</font></b></div> \
-        <div> \
-            <font style="font-size: small; line-height: normal; color: rgb(34, 34, 34); font-family: arial, sans-serif;">'+name+' '+Ename+' 丨 '+position+'</font> \
-            <div style="font-size: small; line-height: normal; font-family: arial;"> \
-                <font face="arial, helvetica, sans-serif"> \
-                    <font color="#222222">INAD 丨&nbsp;</font> \
-                    <font color="#3366ff"> \
-                        <a href="http://www.inad.com/" target="_blank" style="outline: none; color: rgb(0, 96, 145);">致趣联媒</a> \
-                    </font> \
-                </font> \
-            </div> \
-            <div style="font-size: small; line-height: normal; font-family: arial;"> \
-                <font face="arial, helvetica, sans-serif"></font> \
-            </div> \
-            <div style="font-size: small; line-height: normal; color: rgb(34, 34, 34); font-family: arial, sans-serif;"> \
-                <font face="arial, helvetica, sans-serif">Mob: +86 '+cellphone+'<br></font>\
-            </div> \
-            '
-    var ecellphone_sigal = '<div style="font-size: small; line-height: normal; color: rgb(34, 34, 34); font-family: arial, sans-serif;"> \
-                <font face="arial, helvetica, sans-serif">Fax: &nbsp;+86 '+ecellphone+'</font> \
-            </div> \
+    var sigal = '<div style="width:100%;height:120px;">\
+    <div style="float:left; font-size: 12px; line-height: 18px;  font-family: arial, sans-serif; min-width:370px;">\
+        <label style="line-height: normal; color: rgb(34, 34, 34);">\
+        '+name+' '+Ename+' 丨 '+position+'</label>\
+        <div>\
+            <label>\
+                <label color="#222222">INAD 丨&nbsp;</label>\
+                <label color="#3366ff">\
+                    <a href="http://www.inad.com/" target="_blank" style="outline: none; color: rgb(0, 96, 145);">致趣联媒</a>\
+                </label>\
+            </label>\
+        </div>\
+        <div>\
+            <label></label>\
+        </div>\
+        <div style="color: rgb(34, 34, 34);">\
+            <label>Mob: +86 '+ cellphone +'<br></label>\
+        </div>\
+    '
+    var ecellphone_sigal = '<div style="color: rgb(34, 34, 34);">\
+            <label>Fax: &nbsp;+86 '+ ecellphone +'</label>\
+        </div> \
             '
     if (ecellphone != ''){
       sigal += ecellphone_sigal
     }
-    sigal += '<div> \
-                <font style="color: rgb(34, 34, 34); font-family: arial, sans-serif; font-size: small; line-height: normal;">邮箱:&nbsp;</font> \
-                <span style="font-size: 13.63636302948px; line-height: 22.3999996185303px;">&nbsp;</span> \
-                <span style="line-height: 22.3999996185303px;">&nbsp;<u><a href="mailto:'+email+'" target="_blank" style="outline: none; color: rgb(0, 96, 145);">'+email+'</a></u></span> \
-            </div> \
-            <div style="font-size: small; line-height: normal; color: rgb(34, 34, 34); font-family: arial;"> \
-                <font face="arial, helvetica, sans-serif"> \
-                    <font face="arial, sans-serif">地址: '+address+'</font> \
-                </font> \
-            </div> \
-        </div> \
-    </div> \
-    <div style="line-height: normal; font-size: small; color: rgb(34, 34, 34); font-family: arial;"> \
-        <a style="border: none; vertical-align: middle;" href="http://www.inad.com/"> \
-            <img src="http://z.inad.com/static/imgs/email_sigal.jpeg"> \
-        </a> \
-    </div> \
-</div>'
+
+    sigal += '<div>\
+            <label style="color: rgb(34, 34, 34);">邮箱:&nbsp;</label>\
+            <span>&nbsp;</span>\
+            <span>&nbsp;<u><a href="mailto:'+email+'" target="_blank" style="outline: none; color: rgb(0, 96, 145);">'+email+'</a></u></span>\
+        </div>\
+        <div style="color: rgb(34, 34, 34);">\
+            <label>\
+                <label>地址: '+address+'</label>\
+            </label>\
+        </div>\
+    </div>\
+    <div style="float:left;">\
+        <a style="border: none; vertical-align: middle;text-decoration:none;" href="http://www.inad.com/">\
+            <img src="http://z.inad.com/static/imgs/qianming.jpg">\
+        </a>\
+    </div>\
+</div>\
+    '
     $('#code').text(sigal)
   }
   

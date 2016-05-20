@@ -9,7 +9,7 @@ from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.invoice import (Invoice, INVOICE_STATUS_CN,
                             INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
                             INVOICE_STATUS_APPLYPASS)
-from libs.signals import invoice_apply_signal
+from libs.email_signals import invoice_apply_signal
 from libs.paginator import Paginator
 from forms.invoice import InvoiceForm
 from controllers.finance.helpers.invoice_helpers import write_excel
@@ -27,9 +27,28 @@ ORDER_PAGE_NUM = 50
 def index():
     if not g.user.is_finance():
         abort(404)
+    search_info = request.args.get('searchinfo', '')
+    location_id = int(request.args.get('selected_location', '-1'))
+    year = int(request.values.get('year', datetime.datetime.now().year))
     orders = set([
         invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
-    return tpl('/finance/client_order/invoice/index.html', orders=orders)
+    if location_id >= 0:
+        orders = [o for o in orders if location_id in o.locations]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
+    if search_info != '':
+        orders = [
+            o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
+    select_locations = TEAM_LOCATION_CN.items()
+    select_locations.insert(0, (-1, u'全部区域'))
+    select_statuses = CONTRACT_STATUS_CN.items()
+    select_statuses.insert(0, (-1, u'全部合同状态'))
+    for k in orders:
+        k.apply_count = len(k.get_invoice_by_status(3))
+    return tpl('/finance/client_order/invoice/index.html', orders=orders, locations=select_locations,
+               location_id=location_id, statuses=select_statuses,
+               now_date=datetime.date.today(), search_info=search_info, year=year,
+               params='?&searchinfo=%s&selected_location=%s&year=%s' %
+                      (search_info, location_id, str(year)))
 
 
 @finance_client_order_invoice_bp.route('/pass', methods=['GET'])
@@ -37,18 +56,16 @@ def index_pass():
     if not g.user.is_finance():
         abort(404)
     orders = list(ClientOrder.all())
-    orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
+    year = int(request.values.get('year', datetime.datetime.now().year))
     page = int(request.args.get('p', 1))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
-    if orderby and len(orders):
-        orders = sorted(
-            orders, key=lambda x: getattr(x, orderby), reverse=True)
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
@@ -67,10 +84,10 @@ def index_pass():
             xls, ("%s-%s.xls" % (u"申请过的发票信息", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
         return response
     return tpl('/finance/client_order/invoice/index_pass.html', orders=orders, locations=select_locations,
-               location_id=location_id, statuses=select_statuses, orderby=orderby,
-               now_date=datetime.date.today(), search_info=search_info, page=page,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s' %
-                      (orderby, search_info, location_id))
+               location_id=location_id, statuses=select_statuses,
+               now_date=datetime.date.today(), search_info=search_info, page=page, year=year,
+               params='&searchinfo=%s&selected_location=%s&year=%s' %
+                      (search_info, location_id, str(year)))
 
 
 @finance_client_order_invoice_bp.route('/<order_id>/info', methods=['GET'])
@@ -223,10 +240,9 @@ def pass_invoice(invoice_id):
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
-    to_emails = list(set(emails + [x.email for x in to_users]))
     if action != 10:
         invoice_status = INVOICE_STATUS_PASS
-        action_msg = u'发票已开'
+        action_msg = u'客户发票已开'
         for invoice in invoices:
             invoice.invoice_status = invoice_status
             invoice.create_time = datetime.date.today()
@@ -238,19 +254,17 @@ def pass_invoice(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
-                     "title": action_msg,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": invoice.client_order,
-                     "send_type": "saler",
-                     "invoices": invoices,
-                     "url": invoice.client_order.finance_invoice_path()}
+    context = {"to_users": to_users,
+               "to_other": emails,
+               "action_msg": action_msg,
+               "action": 0,
+               "info": msg,
+               "order": invoice.client_order,
+               "send_type": 'end',
+               "invoices": invoices
+               }
     invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s 发票已开] 已发送邮件给 %s ' %
-          (invoice.client_order, ', '.join(to_emails)), 'info')
+        current_app._get_current_object(), context=context)
     return redirect(url_for("finance_client_order_invoice.info", order_id=invoice.client_order.id))
 
 

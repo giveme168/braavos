@@ -74,15 +74,70 @@ def write_order_excel(orders, t_type):
         # 设置高度
         for k in range(th + 2):
             worksheet.set_row(k, 30)
+    elif t_type in ['douban_back_money', 'douban_back_invoice']:
+        keys = [u'代理/直客', u'客户', u'Campaign', u'直客销售', u'渠道销售', u'区域', u'合同号',
+                u'执行开始时间', u'执行结束时间', u'合同回款时间', u'客户合同金额']
+        if t_type == 'douban_back_money':
+            keys += [u'回款金额', u'回款比例', u'回款时间', u'回款时间差']
+        elif t_type == 'douban_back_invoice':
+            keys += [u'返点发票金额', u'回款比例', u'返点发票时间']
+        for k in range(len(keys)):
+            worksheet.write(0, 0 + k, keys[k], align_center)
+        # 设置宽度为30
+        worksheet.set_column(len(keys), 0, 20)
+        # 设置高度
+        for k in range(len(orders) + 2):
+            worksheet.set_row(k, 30)
+        th = 1
+        for k in range(len(orders)):
+            worksheet.write(
+                th, 0, orders[k].douban_order.agent.name, align_left)
+            worksheet.write(
+                th, 1, orders[k].douban_order.client.name, align_left)
+            worksheet.write(th, 2, orders[k].douban_order.campaign, align_left)
+            worksheet.write(
+                th, 3, orders[k].douban_order.direct_sales_names, align_left)
+            worksheet.write(
+                th, 4, orders[k].douban_order.agent_sales_names, align_left)
+            worksheet.write(
+                th, 5, orders[k].douban_order.locations_cn, align_left)
+            worksheet.write(th, 6, orders[k].douban_order.contract, align_left)
+            worksheet.write(
+                th, 7, orders[k].douban_order.start_date_cn, align_left)
+            worksheet.write(
+                th, 8, orders[k].douban_order.end_date_cn, align_left)
+            worksheet.write(
+                th, 9, orders[k].douban_order.reminde_date_cn, align_left)
+            worksheet.write(th, 10, orders[k].douban_order.money, align_left)
+            if t_type == 'douban_back_money':
+                worksheet.write(th, 11, orders[k].money, align_left)
+                worksheet.write(th, 12, str(
+                    orders[k].douban_order.back_money_percent) + u'%', align_left)
+                worksheet.write(th, 13, orders[k].back_time_cn, align_left)
+                worksheet.write(th, 14, str(
+                    orders[k].real_back_money_diff_time) + u'天', align_left)
+            elif t_type == 'douban_back_invoice':
+                worksheet.write(th, 11, orders[k].money, align_left)
+                worksheet.write(th, 12, str(
+                    orders[k].douban_order.back_money_percent) + u'%', align_left)
+                worksheet.write(th, 13, orders[k].back_time_cn, align_left)
+            th += 1
+        worksheet.merge_range(th, 0, th, 10, u'总计', align_center)
+        if t_type == 'douban_back_money':
+            worksheet.merge_range(th, 11, th, 14, sum(
+                [k.money for k in orders]), align_left)
+        else:
+            worksheet.merge_range(th, 11, th, 13, sum(
+                [k.money for k in orders]), align_left)
     else:
         keys = [u'代理/直客', u'客户', u'Campaign', u'直客销售', u'渠道销售', u'区域', u'合同号',
                 u'媒体名称', u'执行开始时间', u'执行结束时间', u'合同回款时间', u'客户合同金额']
         if t_type == 'agent_invoice':
             keys += [u'开票金额', u'开票时间']
         elif t_type == 'back_money':
-            keys += [u'回款金额', u'回款时间', u'回款时间差']
+            keys += [u'回款金额', u'回款比例', u'回款时间', u'回款时间差']
         elif t_type == 'back_invoice':
-            keys += [u'返点发票金额', u'返点发票时间']
+            keys += [u'返点发票金额', u'回款比例', u'返点发票时间']
         elif t_type == 'rebate_agent_invoice':
             keys += [u'返点发票金额', u'返点发票时间']
         elif t_type == 'pay_rebate_agent_invoice':
@@ -115,8 +170,15 @@ def write_order_excel(orders, t_type):
             worksheet.write(
                 th, 5, orders[k].client_order.locations_cn, align_left)
             worksheet.write(th, 6, orders[k].client_order.contract, align_left)
-            worksheet.write(
-                th, 7, ','.join([m.name for m in orders[k].client_order.medium_orders]), align_left)
+            if t_type == 'pay_medium_invoice':
+                worksheet.write(th, 7, orders[k].medium_invoice.company, align_left)
+            elif t_type == 'medium_invoice':
+                worksheet.write(th, 7, orders[k].company, align_left)
+            elif t_type == 'medium_rebate_invoice':
+                worksheet.write(th, 7, orders[k].company, align_left)
+            else:
+                worksheet.write(
+                    th, 7, ','.join([m.name for m in orders[k].client_order.medium_orders]), align_left)
             worksheet.write(
                 th, 8, orders[k].client_order.start_date_cn, align_left)
             worksheet.write(
@@ -129,12 +191,16 @@ def write_order_excel(orders, t_type):
                 worksheet.write(th, 13, orders[k].create_time_cn, align_left)
             elif t_type == 'back_money':
                 worksheet.write(th, 12, orders[k].money, align_left)
-                worksheet.write(th, 13, orders[k].back_time_cn, align_left)
-                worksheet.write(th, 14, str(
+                worksheet.write(th, 13, str(
+                    orders[k].client_order.back_money_percent) + '%', align_left)
+                worksheet.write(th, 14, orders[k].back_time_cn, align_left)
+                worksheet.write(th, 15, str(
                     orders[k].real_back_money_diff_time) + u'天', align_left)
             elif t_type == 'back_invoice':
                 worksheet.write(th, 12, orders[k].money, align_left)
-                worksheet.write(th, 13, orders[k].back_time_cn, align_left)
+                worksheet.write(th, 13, str(
+                    orders[k].client_order.back_money_percent) + '%', align_left)
+                worksheet.write(th, 14, orders[k].back_time_cn, align_left)
             elif t_type == 'rebate_agent_invoice':
                 worksheet.write(th, 12, orders[k].money, align_left)
                 worksheet.write(th, 13, orders[k].add_time_cn, align_left)
@@ -153,10 +219,10 @@ def write_order_excel(orders, t_type):
             th += 1
         worksheet.merge_range(th, 0, th, 11, u'总计', align_center)
         if t_type == 'back_money':
-            worksheet.merge_range(th, 12, th, 14, sum(
+            worksheet.merge_range(th, 12, th, 15, sum(
                 [k.money for k in orders]), align_left)
         else:
-            worksheet.merge_range(th, 12, th, 13, sum(
+            worksheet.merge_range(th, 12, th, 14, sum(
                 [k.money for k in orders]), align_left)
     workbook.close()
     response.data = output.getvalue()

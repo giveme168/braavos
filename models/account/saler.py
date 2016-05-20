@@ -102,3 +102,26 @@ class PerformanceUser(db.Model, BaseModelMixin):
     @property
     def status(self):
         return self.performance.status
+
+
+class Completion(db.Model, BaseModelMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship(
+        'User', backref=db.backref('completion_user', lazy='dynamic'),
+        foreign_keys=[user_id])
+    time = db.Column(db.String(7))
+    rate = db.Column(db.Float)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('completion_creator', lazy='dynamic'),
+        foreign_keys=[creator_id])
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': time.desc()}
+
+    def __init__(self, user, time, rate=None, creator=None, create_time=None):
+        self.user = user
+        self.creator = creator
+        self.time = time
+        self.rate = rate or 0.0
+        self.create_time = datetime.date.today()

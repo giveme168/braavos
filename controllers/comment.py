@@ -2,7 +2,7 @@
 from flask import Blueprint, request, g, jsonify, current_app
 
 from models.comment import Comment
-from libs.signals import add_comment_signal
+from libs.email_signals import add_comment_signal
 
 comment_bp = Blueprint('comment', __name__)
 
@@ -14,5 +14,5 @@ def add():
     msg = request.values.get('msg')
     msg_channel = request.values.get('msg_channel')
     comment = Comment.add(target_type, target_id, msg, g.user, msg_channel=msg_channel)
-    add_comment_signal.send(current_app._get_current_object(), comment=comment)
+    add_comment_signal.send(current_app._get_current_object(), comment=comment, msg_channel=msg_channel)
     return jsonify({'msg': "msg add success"})

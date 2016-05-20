@@ -1,0 +1,118 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}{{user.name}} - 考勤{% endblock %}
+
+{% block content %}
+{% include "/account/account_onduty_base_v1_0_0.html" %}
+  <div class="container bra-box" style="min-width: 950px;">
+    <h3>{{user.name}} - 考勤</h3>
+    <div class="search-bar">
+        <div class="menu-btn-bar">
+            <form style="float:left;">
+                <div class="search-input" style="width:160px;">
+                    <input type="text" class="datetimepicker" id="start_time" name="start_time" data-date-format="yyyy-mm-dd" value="{{start_time}}" style="width:150px;">
+                </div>
+                <div class="search-input" style="width:190px;">
+                    <label for="sale_type" class="control-label">至</label>
+                    <input type="text" class="datetimepicker" id="end_time" name="end_time" data-date-format="yyyy-mm-dd" value="{{end_time}}" style="width:150px;">
+                </div>
+                <div class="select_option screen">
+                    <input type="submit" value="筛选">
+                </div>
+            </form>
+            {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
+            <form style="float:left;" method="POST">
+                <div class="search-input" style="width:250px;">
+                    <label for="sale_type" class="control-label">打卡时间</label>
+                    <input type="text" class="datetimepicker" id="check_time" name="check_time" data-date-format="yyyy-mm-dd hh:ii:ss" style="width:150px;">
+                </div>
+                <div class="select_option screen">
+                    <input type="submit" value="添加">
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    <br/>
+    <div class='tabulation'>
+        <table border='1'>
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>打卡时间(上班)</th>
+              <th>打开时间(下班)</th>
+              <th>详情</th>
+              <th>备注</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in dutys %}
+            <tr>
+              <th>{{d.date_cn}}</th>
+              <td>{{d.on_time}}</td>
+              <td>{{d.off_time}}</td>
+              <td>
+                  <div class="dropdown">
+                    <a class="btn btn-default" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      查看
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                      {% for i in d.dus %}
+                      <li style="width:300px;">
+                        {{i.check_time_cn}}
+                        {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
+                        <a href="{{url_for('account_onduty.onduty_delete', uid=user.id, did=i.id)}}" style="float:right;padding: 0px 10px;">删除</a> 
+                        {% endif %}
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+              </td>
+              <td>
+                {% if d.out_info %}
+                  <a tabindex="0" role="button" class="pop" data-toggle="popover" data-trigger="focus" title="外出详情" data-content="{{d.out_info|safe}}"><img src="/static/image/icon-1.png" alt=""><span>外出</span></a><br/>
+                {% endif %}
+                {% if d.leave_info %}
+                  <a tabindex="0"role="button" class="pop" data-toggle="popover" data-trigger="focus" title="请假详情" data-content="{{d.leave_info|safe}}"><img src="/static/image/icon-2.png" alt=""><span>请假</span></a><br/>
+                {% endif %}
+                {% if d.warning_info %}
+                  <a tabindex="0"role="button" class="pop" data-toggle="popover" data-trigger="focus" title="异常详情" data-content="{{d.warning_info|safe}}"><img src="/static/image/icon-3.png" alt=""><span>异常</span></a><br/>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+</div>
+<script>
+$(function(){
+  $('.pop').popover({
+    html:true,
+    placement:'left',
+    template:'<div class="popover" role="tooltip" style="min-width:400px;"><div class="arrow"></div><div class="popover-content" style="min-width:400px;"></div></div>'
+  })
+  $('#start_time').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn:true,
+        minView:2,
+        language: 'zh-CN'
+  });
+  $('#end_time').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn:true,
+        minView:2,
+        language: 'zh-CN'
+  });
+  $('#check_time').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn:true,
+        minView:0,
+        minuteStep:1,
+        language: 'zh-CN'
+  });
+})
+</script>
+{% endblock %}

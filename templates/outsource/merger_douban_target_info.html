@@ -1,8 +1,8 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
 
 {% block content %}
-{% include "/outsource/outsource_base.html" %}
+{% include "/outsource/outsource_base_v1_0_0.html" %}
 {% macro merger_table(merger_outsources, status, target) -%}
 <div class="panel-group" id="accordion-outsource">
         <div class="panel panel-default">
@@ -49,27 +49,21 @@
                         {% endfor %}
                     </table>
                     <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
-                    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.merget_douban_target_apply', target_id=target.id)}}">
-                       <div class="form-group">
-                          <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
-                          <div class="col-sm-10">
-                              <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+                    <form class="input-row-box outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.merget_douban_target_apply', target_id=target.id)}}">
+                      <div class="input-group-menu">
+                          <div class="name">提醒邮箱 : </div>
+                              <select class="surname" id="contract-email" multiple="" name="email" style="width:300px;" placeholder="请输入需要提醒人员的邮箱">
                                 {% for u in reminder_emails %}
                                 <option value="{{u[1]}}">{{u[0]}}</option>
                                 {% endfor %}
                               </select>
-                          </div>
                        </div>
-                       <div class="form-group">
-                          <label for="msg" class="col-sm-2 control-label">留言 : </label>
-                          <div class="col-sm-10">
-                              <textarea class="form-control bra-form-control" id="msg"
-                              name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
-                          </div>
+                       <div class="input-group-menu">
+                          <div class="name">留言 : </div>
+                              <textarea class="surname" id="msg"
+                              name="msg" rows="4" style="width:300px;" placeholder="请输入需要附加在邮件中的留言..."></textarea>
                        </div>
-                       <div class="form-group">
-                          <label class="col-sm-2 control-label">操作 : </label>
-                          <div class="col-sm-10">
+                       <div class="state" style="margin-left:30%; margin-top:70px;">
                             {% if g.user.is_operater_leader() %}
                             <button class="btn btn-sm btn-primary status-outsource-btn" name="action" type="submit" value="1">再次发出审批申请</button>
                             {% endif %}
@@ -77,13 +71,62 @@
                             <button class="btn btn-sm btn-primary status-outsource-btn" name="action" type="submit" value="2">通过</button>
                             <button class="btn btn-sm btn-warning status-outsource-btn" name="action" type="submit" value="-1">驳回</button>
                             {% endif %}
-                          </div>
                        </div>
                      </form>
                 </div>
             </div>
         </div>
     </div>
+{%- endmacro %}
+{% macro merger_outsources_paid_table(outsources) %}
+<div class="panel-group" id="accordion-outsource">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion-outsource">
+                      已打款
+                      的外包信息
+                    </a>
+                </h4>
+            </div>
+            <div class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>申请打款金额</th>
+                            <th>是否有发票</th>
+                            <th>发票信息</th>
+                            <th>申请时间</th>
+                            <th>订单名称</th>
+                            <th>合同号</th>
+                            <th>外包金额</th>
+                            <th>备注</th>
+                        </tr>
+                        {% for t in outsources %}
+                        <tr>
+                            <td rowspan="{{t.outsources|length + 2}}">{{t.pay_num}}</td>
+                            <td rowspan="{{t.outsources|length + 2}}">{% if t.invoice %}有{%else%}无{%endif%}</td>
+                            <td rowspan="{{t.outsources|length + 2}}">{{ t.remark }}</td>
+                            <td rowspan="{{t.outsources|length + 2}}">{{ t.create_time_cn }}</td>
+                        </tr>
+                          {% for o in t.outsources %}
+                          <tr>
+                              <td>{{o.douban_order.name}}</td>
+                              <td>{{o.douban_order.contract}}</td>
+                              <td>{{o.pay_num}}</td>
+                              <td>{{o.remark}}</td>
+                          </tr>
+                          {% endfor %}
+                          <tr>
+                            <td colspan=2>合计</td>
+                            <td> {{t.outsources|sum(attribute='pay_num')}}</td>
+                          </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+</div>
 {%- endmacro %}
 {% macro merger_outsources_table(outsources, status)-%}
 <div class="panel-group" id="accordion-outsource">
@@ -162,27 +205,21 @@
                     </table>
                     {% if OUTSOURCE_STATUS_PASS == status and outsources %}
                     <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
-                    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="">
-                       <div class="form-group">
-                          <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
-                          <div class="col-sm-10">
-                              <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+                    <form class="input-row-box outsource-status-form" id="status-form" method="POST" action="">
+                       <div class="input-group-menu">
+                          <div class="name">提醒邮箱 : </div>
+                              <select class="surname" id="contract-email" multiple="" name="email" style="width:300px;" placeholder="请输入需要提醒人员的邮箱">
                                 {% for u in reminder_emails %}
                                 <option value="{{u[1]}}">{{u[0]}}</option>
                                 {% endfor %}
                               </select>
-                          </div>
                        </div>
-                       <div class="form-group">
-                          <label for="msg" class="col-sm-2 control-label">留言 : </label>
-                          <div class="col-sm-10">
-                              <textarea class="form-control bra-form-control" id="msg"
-                              name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
-                          </div>
+                       <div class="input-group-menu">
+                          <div class="name">留言 : </div>
+                              <textarea class="surname" id="msg"
+                              name="msg" rows="4" style="width:300px;" placeholder="请输入需要附加在邮件中的留言..."></textarea>
                        </div>
-                       <div class="form-group">
-                          <label class="col-sm-2 control-label">操作 : </label>
-                          <div class="col-sm-10">
+                       <div class="state" style="margin-left:40%; margin-top:70px;">
                             {% if g.user.is_operater_leader() %}
                             {% if outsources[0].target.otype == 2 %}
                               <!--<button class="btn btn-sm btn-primary outsource-per-btn" name="action" type="submit" value="2">申请审批</button>-->
@@ -190,12 +227,11 @@
                               <button class="btn btn-sm btn-primary outsource-btn" name="action" type="button" value="1">合并付款</button>
                             {% endif %}
                             {% endif %}
-                          </div>
                        </div>
 
                        <!-- Modal -->
                       <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog" style="margin-top:170px;">
                           <div class="modal-content">
                             <div class="modal-header">
                               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -264,7 +300,7 @@
     <!--正在打款信息结束-->
     <!--已打款信息开始-->
     {% if paid_outsources %}
-      {{ merger_outsources_table(paid_outsources, 4) }}
+      {{ merger_outsources_paid_table(paid_outsources) }}
     {% endif %}
     <!--正在打款信息结束-->
 </div>
@@ -272,7 +308,7 @@
 <div class="modal fade" id="update_Modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('outsource.update_pay_num')}}?type=douban">
   <input type="hidden" id="outsource_id" name="outsource_id">
-  <div class="modal-dialog">
+  <div class="modal-dialog" style="margin-top:170px;">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -283,7 +319,7 @@
           <div class="form-group">
             <label for="reminde_date" class="col-sm-2 control-label">实际打款金额 : </label>
             <div class="col-sm-4">
-              <input type="text" id="update_pay_num" name="update_pay_num" value="" class="orm-control bra-form-control" data-date-format="yyyy-mm-dd">
+              <input type="text" id="update_pay_num" name="update_pay_num" value="" class="form-control bra-form-control">
             </div>
           </div>
         </div>
@@ -307,6 +343,7 @@
     $(e).parent().find(".outsource-id").trigger("change");
   }
   $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
     $(".outsource-id").change(function(e){
       if($(this).prop("checked")){
         if($("#form-outsources-"+$(this).val()).length < 1){

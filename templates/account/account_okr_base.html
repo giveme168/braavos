@@ -1,0 +1,30 @@
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        <ul>
+            <li id="__">
+              <a href="{{url_for('account_okr.index')}}">我的OKR</a>
+              <span>|</span>
+            </li>
+            {% if g.user.is_kpi_leader %}
+                <li id="_subordinates_" >
+                  <a href="{{url_for('account_okr.subordinates')}}">下属的OKR</a>
+                  <span>|</span>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[3]=='okr'){
+            $('#_'+p_pathname[3]+'_').addClass("active");
+        }else if (p_pathname[3]=='subordinates'){
+            $('#_'+p_pathname[3]+'_').addClass("active");
+        }else{
+            $('#__').addClass("active");
+        }
+
+    })
+</script>

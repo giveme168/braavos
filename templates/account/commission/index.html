@@ -1,57 +1,61 @@
-{% extends "/base.html" %}
-{% block title %}销售人员提成{% endblock %}
+{% extends "/base_v1_0_0.html" %}
+{% block title %}销售人员提成比例{% endblock %}
 
 {% block content %}
-{% include "/account/account_performance_base.html" %}
+{% include "/account/account_performance_base_v1_0_0.html" %}
 <div class="container bra-box">
-    <h3>销售人员提成</h3>
+    <h3>销售人员提成比例</h3>
     <br/>
 
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th width="10%">区域</th>
-            <th width="20%">姓名</th>
-            <th width="20%">Leader</th>
-            <th width="20%">最近一年</th>
-            <th width="10%">提成</th>
-            <th width="20%">操作</th>
-        </tr>
-    </table>
-    <table class="table table-bordered">
-        {% for k in huabei_users %}
-        <tr>
-            <td width="10%">{{k.location_cn}}</td>
-            <td width="20%">{{k.name}}</td>
-            <td width="20%">{{k.team_leaders_cn}}</td>
-            <th width="20%">{% if k.lately_commission %}{{k.lately_commission.year}}年{% else %}无{% endif %}</th>
-            <th width="10%">{% if k.lately_commission %}{{k.lately_commission.rate}}%{% else %}无{% endif %}</th>
-            <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-    <table class="table table-bordered">
-        {% for k in huadong_users %}
-        <tr>
-            <td width="10%">{{k.location_cn}}</td>
-            <td width="20%">{{k.name}}</td>
-            <td width="20%">{{k.team_leaders_cn}}</td>
-            <th width="20%">{% if k.lately_commission %}{{k.lately_commission.year}}年{% else %}无{% endif %}</th>
-            <th width="10%">{% if k.lately_commission %}{{k.lately_commission.rate}}%{% else %}无{% endif %}</th>
-            <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-    <table class="table table-bordered">
-        {% for k in huanan_users %}
-        <tr>
-            <td width="10%">{{k.location_cn}}</td>
-            <td width="20%">{{k.name}}</td>
-            <td width="20%">{{k.team_leaders_cn}}</td>
-            <th width="20%">{% if k.lately_commission %}{{k.lately_commission.year}}年{% else %}无{% endif %}</th>
-            <th width="10%">{% if k.lately_commission %}{{k.lately_commission.rate}}%{% else %}无{% endif %}</th>
-            <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th width="10%">区域</th>
+                    <th width="20%">姓名</th>
+                    <th width="20%">Leader</th>
+                    <th width="20%">最近一年</th>
+                    <th width="10%">提成</th>
+                    <th width="20%">操作</th>
+                </tr>
+            </thead>
+        </table>
+        <table class="table table-bordered">
+            {% for k in huabei_users %}
+            <tr>
+                <td width="10%">{{k.location_cn}}</td>
+                <td width="20%">{{k.name}}</td>
+                <td width="20%">{{k.team_leaders_cn}}</td>
+                <th width="20%">{% if k.lately_commission %}{{k.lately_commission.year}}年{% else %}无{% endif %}</th>
+                <th width="10%">{% if k.lately_commission %}{{k.lately_commission.rate}}%{% else %}无{% endif %}</th>
+                <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <table class="table table-bordered">
+            {% for k in huadong_users %}
+            <tr>
+                <td width="10%">{{k.location_cn}}</td>
+                <td width="20%">{{k.name}}</td>
+                <td width="20%">{{k.team_leaders_cn}}</td>
+                <th width="20%">{% if k.lately_commission %}{{k.lately_commission.year}}年{% else %}无{% endif %}</th>
+                <th width="10%">{% if k.lately_commission %}{{k.lately_commission.rate}}%{% else %}无{% endif %}</th>
+                <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <table class="table table-bordered">
+            {% for k in huanan_users %}
+            <tr>
+                <td width="10%">{{k.location_cn}}</td>
+                <td width="20%">{{k.name}}</td>
+                <td width="20%">{{k.team_leaders_cn}}</td>
+                <th width="20%">{% if k.lately_commission %}{{k.lately_commission.year}}年{% else %}无{% endif %}</th>
+                <th width="10%">{% if k.lately_commission %}{{k.lately_commission.rate}}%{% else %}无{% endif %}</th>
+                <td width="20%"><a href="{{url_for('account_commission.info', user_id=k.id)}}">设置提成</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 </div>
 {% endblock %}

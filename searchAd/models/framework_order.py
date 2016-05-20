@@ -26,6 +26,7 @@ CONTRACT_STATUS_PRINTED = 5
 CONTRACT_STATUS_DELETEAPPLY = 7
 CONTRACT_STATUS_DELETEAGREE = 8
 CONTRACT_STATUS_DELETEPASS = 9
+CONTRACT_STATUS_PRE_FINISH = 19
 CONTRACT_STATUS_FINISH = 20
 CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_NEW: u"新建",
@@ -37,7 +38,8 @@ CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_DELETEAPPLY: u'撤单申请中...',
     CONTRACT_STATUS_DELETEAGREE: u'确认撤单',
     CONTRACT_STATUS_DELETEPASS: u'同意撤单',
-    CONTRACT_STATUS_FINISH: u'项目归档'
+    CONTRACT_STATUS_PRE_FINISH: u'项目归档（预）',
+    CONTRACT_STATUS_FINISH: u'项目归档（确认）'
 }
 
 STATUS_DEL = 0
@@ -62,6 +64,7 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
     id = db.Column(db.Integer, primary_key=True)
     agent_id = db.Column(db.Integer, db.ForeignKey('searchAd_agent.id'))  # 代理公司id
     agent = db.relationship('searchAdAgent', backref=db.backref('agent_searchAd_order', lazy='dynamic'))
+    client_id = db.Column(db.Integer, default=0)
     description = db.Column(db.String(500))  # 描述
 
     contract = db.Column(db.String(100))  # 客户合同号
@@ -69,6 +72,8 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
     reminde_date = db.Column(db.Date)  # 最迟回款日期
 
     sales = db.relationship('User', secondary=framework_order_sales)
@@ -80,18 +85,20 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
     creator = db.relationship(
         'User', backref=db.backref('created_searchAdframework_orders', lazy='dynamic'))
     create_time = db.Column(db.DateTime)
+    finish_time = db.Column(db.DateTime)   # 合同归档时间
     rebate = db.Column(db.Float)
     contract_generate = True
     media_apply = False
     kind = "searchAdframework-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
-    def __init__(self, agent, description=None, status=STATUS_ON,
+    def __init__(self, agent, client_id=0, description=None, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None,
                  sales=None, creator=None, create_time=None,
                  contract_status=CONTRACT_STATUS_NEW, rebate=0.0):
         self.agent = agent
+        self.client_id = client_id or 0
         self.description = description or ""
 
         self.contract = contract
@@ -100,6 +107,8 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
 
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
         self.reminde_date = reminde_date or datetime.date.today()
 
         self.sales = sales or []
@@ -124,7 +133,7 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
 
     @property
     def name(self):
-        return u"框架-%s" % (self.agent.name)
+        return u"%s年度-框架-%s" % (str(self.client_end.year), self.agent.name)
 
     @property
     def sales_names(self):
@@ -235,6 +244,21 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
     def is_client_order(self):
         from ..models.client_order import searchAdClientOrder
         return [k.id for k in searchAdClientOrder.query.filter_by(framework_order_id=self.id)]
+
+    @property
+    def direct_sales(self):
+        return []
+
+    @property
+    def agent_sales(self):
+        return self.sales
+
+    @property
+    def finish_time_cn(self):
+        try:
+            return self.finish_time.date()
+        except:
+            return ''
 
 
 def contract_generator(agent, num):

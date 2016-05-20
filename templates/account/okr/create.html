@@ -1,0 +1,93 @@
+<link rel="stylesheet" href="/static/css/okr.css"/>
+{% extends "/base_v1_0_0.html" %}
+{% from 'form.html' import form_tpl, form_tpl_ex_form %}
+
+{% block title %}填写OKR列表{% endblock %}
+
+{% block content %}
+    {% include "/account/account_okr_base.html" %}
+    <div class="container bra-box" style="min-width: 950px;">
+        <h3>新建OKR</h3>
+        <form method="POST">
+            <input type="hidden" name="okr_json" id="okr_json">
+            <div class="wrapper">
+                <div class="year" id="year">
+                    <label for="">年份：</label>
+                    <select form-control class="form-control input-sm">
+                        {% for y in year_list %}
+                        <option value="{{ y }}" {% if year==y %} selected {% endif %} >{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="quarter" id="quarter">
+                    <label for="">季度：</label>
+                    <select form-control class="form-control input-sm">
+                        {% for key,q in quarters.items() %}
+                        <option value="{{ key }}" {% if quarter==key %} selected {% endif %}>{{ q }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <table border='1' class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>季度目标(O)</th>
+                        <th style="width:150px;">优先级 P(O)</th>
+                        <th>主要成绩(KR)</th>
+                        <th style="width:200px;">优先级 P(KR)</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody class="OKR">
+                    <tr class="okr_item">
+                        <td rowspan="1" class="merge_row">
+                            <textarea class="form-control objective" rows="8" name="comment"></textarea>
+                        </td>
+                        <td rowspan="1" class="merge_row">
+                            <select form-control class="form-control input-sm obj_weight">
+                                {% for priority in priority_list %}
+                                <option value="{{ priority }}">{{ priority }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="remove_row">
+                            <button type="button" class="btn add_kr" style="float:right">添加KR</button>
+                            <textarea class="form-control key_result" rows="2"></textarea>
+                        </td>
+                        <td class="remove_row">
+                            <select form-control class="form-control input-sm weighted">
+                                {% for priority in priority_list %}
+                                <option value="{{ priority }}">{{ priority }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td rowspan="1" class="merge_row">
+                            <button type="button" class="btn delete">删除</button>
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+                <button type="button" class="btn add">添加</button>
+            </div>
+            <div class="state" style="margin-left:25%;margin-top:50px;">
+                <a href="{{ url_for('account_okr.index', user_id=g.user.id) }}"><input type="button" value="返回"></a>
+                <button type="submit" name="status" value='1' class="btn commit"/>保存不发申请</button>
+                <button type="submit" name="status" value='2' class="btn commit"/>保存并发送报备邮件</button>
+            </div>
+
+        </form>
+    </div>
+
+    <script src="/static/js/okr.js" type="text/javascript"></script>
+{% endblock %}
+
+
+
+
+
+
+
+
+

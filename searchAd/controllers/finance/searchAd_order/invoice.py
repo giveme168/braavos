@@ -9,7 +9,7 @@ from searchAd.models.client_order import searchAdClientOrder, CONTRACT_STATUS_CN
 from searchAd.models.invoice import (searchAdInvoice, INVOICE_STATUS_CN,
                             INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
                             INVOICE_STATUS_APPLYPASS)
-from libs.signals import invoice_apply_signal
+from libs.email_signals import invoice_apply_signal
 from libs.paginator import Paginator
 from searchAd.forms.invoice import InvoiceForm
 from controllers.finance.helpers.invoice_helpers import write_excel
@@ -41,8 +41,10 @@ def index_pass():
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.datetime.now().year))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_info.lower()]
@@ -68,9 +70,9 @@ def index_pass():
         return response
     return tpl('/finance/searchAd_order/invoice/index_pass.html', orders=orders, locations=select_locations,
                location_id=location_id, statuses=select_statuses, orderby=orderby,
-               now_date=datetime.date.today(), search_info=search_info, page=page,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s' %
-                      (orderby, search_info, location_id))
+               now_date=datetime.date.today(), search_info=search_info, page=page, year=year,
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&year=%s' %
+                      (orderby, search_info, location_id, str(year)))
 
 
 @searchAd_finance_client_order_invoice_bp.route('/<order_id>/info', methods=['GET'])
@@ -205,7 +207,6 @@ def pass_invoice(invoice_id):
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
-    to_emails = list(set(emails + [x.email for x in to_users]))
     if action != 10:
         invoice_status = INVOICE_STATUS_PASS
         action_msg = u'发票已开'
@@ -220,19 +221,17 @@ def pass_invoice(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
-                     "title": action_msg,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": invoice.client_order,
-                     "send_type": "saler",
-                     "invoices": invoices,
-                     "url": invoice.client_order.finance_invoice_path()}
+    context = {"to_users": to_users,
+               "to_other": emails,
+               "action_msg": action_msg,
+               "action": 0,
+               "info": msg,
+               "order": invoice.client_order,
+               "send_type": 'end',
+               "invoices": invoices
+               }
     invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s 发票已开] 已发送邮件给 %s ' %
-          (invoice.client_order, ', '.join(to_emails)), 'info')
+        current_app._get_current_object(), context=context)
     return redirect(url_for("searchAd_finance_client_order_invoice.info", order_id=invoice.client_order.id))
 
 

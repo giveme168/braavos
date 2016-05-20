@@ -10,7 +10,7 @@
                     <li id="_underling_">下属的外出报备</li>
                 </a>
                 {% endif %}
-                {% if g.user.is_HR_leader() or g.user.is_OPS() or g.user.is_super_leader()  %}
+                {% if g.user.is_HR_leader() or g.user.is_OPS() or g.user.is_super_leader() or g.user.email in ['huhui@inad.com'] %}
                 <a href="{{url_for('account_out.outs')}}">
                     <li id="_outs_">所有外出报备列表</li>
                 </a>

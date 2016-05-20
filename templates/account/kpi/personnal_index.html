@@ -1,0 +1,63 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}同事的绩效考核{% endblock %}
+
+{% block content %}
+{% include "/account/account_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:1300px;">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:right;" action="{{url_for('account_kpi.personnal')}}">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">状态：</label>
+                <select class="form-control special_sale" name="status" id="status" style="width:120px;">
+                    <option value='0'>已评分</option>
+                    <option value="1">未评分</option>
+                </select>
+            </div>
+            
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            
+        </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>填写人</th>
+                    <th>审批人</th>
+                    <th>类型</th>
+                    <th>状态</th>
+                    <th style="width:120px;">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in personnal_objs %}
+                <tr id="tr_{{k.id}}">
+                    <td>{{k.performance.creator.name}}</td>
+                    <td>{{k.user.name}}</td>
+                    <td>{{k.performance.version_cn}}</td>
+                    <td>{{k.status_cn}}</td>
+                    <td>
+                        {% if k.status == 0 %}
+                        <a href="{{url_for('account_kpi.personnal_apply', pid=k.id)}}">重新评分</a> 
+                        {% else %}
+                        <a href="{{url_for('account_kpi.personnal_apply', pid=k.id)}}">评分</a> 
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% set pages = personnal_objs %}
+    {% include "pagination.html" %}
+</div>
+<script>
+    $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+        $('#status').val('{{status}}')
+        $('#status').trigger("chosen:updated");
+    })
+</script>
+{% endblock %}

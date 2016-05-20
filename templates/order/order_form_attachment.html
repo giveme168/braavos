@@ -6,7 +6,7 @@
 <form method="POST" action="{{contract_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
-  <button class="file-widget-btn btn btn-sm btn-primary">
+  <button class="file-widget-btn btn btn-sm btn-primary" style="border-radius: 20px;">
   {% if order.__tablename__ == 'bra_framework_order'%}
     <span>上传致趣合同</span>
   {% else %}
@@ -30,11 +30,11 @@
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
   {% if order.__tablename__ == 'bra_framework_order' %}
-  <button class="file-widget-btn btn btn-sm btn-primary">
+  <button class="file-widget-btn btn btn-sm btn-primary" style="border-radius: 20px;">
     <span>上传豆瓣合同</span>
   </button>
   {% else %}
-  <button class="file-widget-btn btn btn-sm btn-info">
+  <button class="file-widget-btn btn btn-sm btn-info" style="border-radius: 20px;">
     <span>上传排期</span>
   </button>
   {% endif %}
@@ -51,11 +51,11 @@
     {% endif %}
   {% endif %}
 </form>
-{% if order.__tablename__ == 'bra_framework_order' %}
+{% if order.__tablename__ in ['bra_framework_order', 'bra_medium_framework_order'] %}
 <form method="POST" action="{{others_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
-  <button class="file-widget-btn btn btn-sm btn-info">
+  <button class="file-widget-btn btn btn-sm btn-info" style="border-radius: 20px;">
     <span>其他附件</span>
   </button>
   {% set others = order.get_last_others() %}
@@ -77,7 +77,7 @@
 <form method="POST" action="{{finish_contract_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
-  <button class="file-widget-btn btn btn-sm btn-primary">
+  <button class="file-widget-btn btn btn-sm btn-primary" style="border-radius: 20px;">
     <span>上传合同扫描件</span>
   </button>
   {% set schedule = order.get_last_finish() %}
@@ -159,3 +159,11 @@ $(function(){
     {{ finish_attachment(order, url_for('files.finish_framework_order_upload')) }}
 {%- endmacro %}
 
+{% macro medium_framework_order_attachment(order) -%}
+    {{ base_order_attachment(order, url_for('files.medium_framework_contract_upload'), url_for('files.medium_framework_schedule_upload'), url_for('files.medium_framework_others_upload')) }}
+    {{ base_attachment_script() }}
+{%- endmacro %}
+
+{% macro finish_medium_framework_order_attachment(order) %}
+    {{ finish_attachment(order, url_for('files.finish_medium_framework_order_upload')) }}
+{%- endmacro %}

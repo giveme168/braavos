@@ -1,12 +1,13 @@
 *{padding: 0;
 list-style: none;
 margin:; 0;
-font-family: "myFirstFont";}
+/**font-family: "myFirstFont";**/}
 
+/**
 @font-face{
 font-family: myFirstFont;
-src: url('lanting.TTF');/* IE9+ */
-}
+src: url('lanting.TTF');
+}**/
 .tabs {width: 100%;}
 .caption {
     width: 300px;
@@ -79,7 +80,7 @@ td .tody.day{
     }
 .caption li{clear: both;}
 
-.caption .select {color: #c9612e;
+.caption .select {color: #ec3341;
                 }
 
 .caption  #button li .icon{ width: 10%;

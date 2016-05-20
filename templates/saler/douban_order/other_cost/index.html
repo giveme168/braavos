@@ -1,0 +1,123 @@
+{% extends "/base.html" %}
+{% from 'comments.html' import comments_box %}
+{% block content%}
+{% include "/order/order_base.html" %}
+  <div class="container bra-box">
+    <h4> {{ order.name }} 尚典外包</h4>
+    {% include "saler/douban_order/nav_base.html" %}
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab-2">
+        <div class="container" style="width:100%;">
+          <h4>尚典外包详情</h4>
+          <table class="table table-bordered">
+            <tr>
+              <th>项目名称</th>
+              <th>金额</th>
+              <th>发票</th>
+              <th>发生时间</th>
+              <th>操作</th>
+            </tr>
+            {% for k in order.douban_order_other_cost %}
+            <tr>
+              <td>{{k.type_cn}}</td>
+              <td>{{k.money|format_price}}元</td>
+              <td>{{k.invoice}}</td>
+              <td>{{k.on_time_cn}}</td>
+              <td><a href="javascript:delete_cost('{{k.type_cn}}','{{k.id}}')">删除</a></td>
+            </tr>
+            {% endfor %}
+            <tr>
+              <td>合计</td>
+              <td>{{order.douban_order_other_cost|sum('money')|format_price }}元</td>
+              <td colspan=3></td>
+            </tr>
+          </table>
+          <div class="panel panel-default" id="other_cost_form" style="display:none;">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-money-new"> 填写尚典外包 </a>
+                </h4>
+            </div>
+            <div id="collapse-money-new" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <div class="well">
+                        <form class="form form-horizontal" method="POST" action="{{url_for('saler_douban_order_other_cost.create',order_id=order.id)}}" onsubmit="return checkform(this)">
+                            <div class="form-group">
+                                <label for="client_start" class="col-sm-2 control-label">类型 : </label>
+                                <div class="col-sm-4">
+                                    <select id="type" name="type" class="form-control bra-form-control">
+                                      <option value='2'>Flash</option>
+                                      <option value='3'>网络公关运营</option>
+                                      <option value='7'>设计</option>
+                                      <option value='5'>视频</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="client_start" class="col-sm-2 control-label">金额 : </label>
+                                <div class="col-sm-4">
+                                    <input type="text" id="money" name="money" value="" class="form-control bra-form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="client_start" class="col-sm-2 control-label">发票信息 : </label>
+                                <div class="col-sm-4">
+                                    <input type="text" id="invoice" name="invoice" value="" class="form-control bra-form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="client_start" class="col-sm-2 control-label">发生时间 : </label>
+                                <div class="col-sm-4">
+                                    <input type="text" id="on_time" name="on_time" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+                                </div>
+                            </div>
+                            <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+                        </form>
+                    </div>
+                </div>
+            </div>
+          </div>
+          {% if g.user.is_super_leader() or g.user.is_finance() %}
+          <button onclick="showInvoice(this, 'other_cost_form');" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span>填写尚典外包</button>
+          {% endif %}
+          <div>{{ comments_box(order, msg_channel=10) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    function delete_cost(type, oid){
+       if(confirm("确定要删除"+type+"这条数据吗？")){
+          window.location.href="/saler/douban_order/other_cost/{{order.id}}/"+oid+"/delete";
+       }
+    }
+    function checkform(obj){
+      if (obj.money.value == ''){
+         alert('请输入金额')
+         return false;
+      }
+      if (obj.invoice.value == ''){
+         alert('请输入发票信息')
+         return false;
+      }
+      if (obj.on_time.value == ''){
+         alert('请选择发生时间')
+         return false;
+      }
+      return true;
+    };
+    $(document).ready(function(){
+        $('.datetimepicker').datetimepicker({
+            autoclose: true,
+            todayHighlight: true,
+            todayBtn: true,
+            language: 'zh-CN',
+            minView: 2
+        });
+    })
+    function showInvoice(ele, id){
+        $(ele).hide();
+        $("#"+id).show();
+    };
+  </script>
+{% endblock %}

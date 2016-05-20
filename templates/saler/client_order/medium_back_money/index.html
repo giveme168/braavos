@@ -1,0 +1,71 @@
+{% extends "/base_v1_0_0.html" %}
+{% from 'comments.html' import comments_box %}
+{% block content%}
+{% include "/order/order_base_v1_0_0.html" %}
+  <div class="container bra-box">
+    {% include "saler/client_order/nav_base_v1_0_0.html" %}
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab-2">
+        <div class="container" style="width:100%;">
+          <h4>{{ order.name }}  回款情况</h4>
+          <div class='tabulation'>
+            <table border='1'>
+              <thead>
+                <tr>
+                    <th>媒体总金额</th>
+                    <th>已开发票总金额</th>
+                    <th>媒体返点回款总金额</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{order.mediums_money2|format_price}} 元</td>
+                  <td>{{order.get_medium_rebate_invoice_pass_money()|format_price}} 元</td>
+                  <td>{{order.medium_back_moneys|format_price}} 元</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <br/>
+          <div class="panel panel-default" id="non-invoice">
+            <div class="panel-heading">
+              <h4 class="panel-title">
+              <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 已回款信息 </a>
+              </h4>
+            </div>
+            <div id="collapse-invoice-0" class="panel-collapse collapse in">
+              <div class="panel-body">
+                  <div class='tabulation'>
+                      <table border='1'>
+                          <thead>
+                              <tr>
+                                <th>所属媒体</th>
+                                <th>回款时间</th>
+                                <th>金额</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {% for back in back_moneys %}
+                              <tr>
+                                <td>{{back.order.medium.name}}</td>
+                                <td>{{back.back_time_cn}}</td>
+                                <td>{{back.money}}</td>
+                              </tr>
+                              {% endfor %}
+                              <tr>
+                                <td colspan=2 style="text-align: center;">合计</td>
+                                <td>{{back_moneys|sum(attribute='money')}}</td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <div>{{ comments_box(order, msg_channel=8) }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

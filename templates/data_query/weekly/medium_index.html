@@ -1,0 +1,344 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}媒体周报（新）{% endblock %}
+{% block content %}
+{% include "/data_query/data_query_base_v1_0_0.html" %}
+
+
+{% macro total_tr(order, title) -%}
+  <tr>
+    <th>{{title}}</th>
+    <td>{{(order.Delivered+order.Confirmed)|sum('money')|format_price}}</td>
+    <td>{{(order.Delivered+order.Confirmed)|sum('medium_money2')|format_price}}</td>
+    <td>{{(order.Delivered)|sum('now_Q_money_check')|format_price}}</td>
+    <td>{{(order.Delivered+order.Confirmed+order.Intention)|sum('now_Q_money_zhixing')|format_price}}</td>
+    <th>{{(order.Delivered+order.Confirmed+order.Intention)|sum('first_month_money')|format_price}}</th>
+    <td>{{(order.Delivered+order.Confirmed+order.Intention)|sum('second_month_money')|format_price}}</td>
+    <td>{{(order.Delivered+order.Confirmed+order.Intention)|sum('third_month_money')|format_price}}</td>
+  </tr>
+{%- endmacro %}
+
+{% macro order_tr(order, title) -%}
+ <tr>
+  <th style="vertical-align: middle;" rowspan="{{order.Delivered|length + order.Confirmed|length + order.Intention|length + 4}}">{{title}}</th>
+</tr>
+{% if order.Delivered %}
+    <tr>
+        <td style="vertical-align: middle;" rowspan="{{order.Delivered|length+1}}">确认 Delivered</td>
+    </tr>
+    {% for k in order.Delivered %}
+    <tr>
+        <td>{{k.contract}}</td>
+        <td>{{k.agent_name}}</td>
+        <td>{{k.campaign}}</td>
+        <td>{{k.industry_cn}}</td>
+        <td>{{k.direct_sales_names}}</td>
+        <td>{{k.agent_sales_names}}</td>
+        <td>{{k.money|format_price}}</td>
+        <td>{{k.medium_money2|format_price}}</td>
+        <td>{{k.now_Q_money_check|format_price}}</td>
+        <td>{{k.now_Q_money_zhixing|format_price}}</td>
+        <td>{{k.last_Q_money|format_price}}</td>
+        <td>{{k.after_Q_money|format_price}}</td>
+        <td>{{k.first_month_money|format_price}}</td>
+        <td>{{k.second_month_money|format_price}}</td>
+        <td>{{k.third_month_money|format_price}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>{{k.resource_type_cn}}</td>
+        <td>{{k.operater_names}}</td>
+        <td>{{k.client_start}}</td>
+        <td>{{k.client_end}}</td>
+    </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td style="vertical-align: middle;">确认 Delivered</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+{% endif %}
+{% if order.Confirmed %}
+    <tr>
+        <td style="vertical-align: middle;" rowspan="{{order.Confirmed|length+1}}">流程中  Confirmed</td>
+    </tr>
+    {% for k in order.Confirmed %}
+    <tr>
+        <td>{{k.contract}}</td>
+        <td>{{k.agent_name}}</td>
+        <td>{{k.campaign}}</td>
+        <td>{{k.industry_cn}}</td>
+        <td>{{k.direct_sales_names}}</td>
+        <td>{{k.agent_sales_names}}</td>
+        <td>{{k.money|format_price}}</td>
+        <td>{{k.medium_money2|format_price}}</td>
+        <td>0</td>
+        <td>{{k.now_Q_money_zhixing|format_price}}</td>
+        <td>{{k.last_Q_money|format_price}}</td>
+        <td>{{k.after_Q_money|format_price}}</td>
+        <td>{{k.first_month_money|format_price}}</td>
+        <td>{{k.second_month_money|format_price}}</td>
+        <td>{{k.third_month_money|format_price}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>{{k.resource_type_cn}}</td>
+        <td>{{k.operater_names}}</td>
+        <td>{{k.client_start}}</td>
+        <td>{{k.client_end}}</td>
+    </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td style="vertical-align: middle;">流程中  Confirmed</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+{% endif %}
+{% if order.Intention %}
+    <tr>
+        <td style="vertical-align: middle;" rowspan="{{order.Intention|length+1}}">洽谈中  WIP</td>
+    </tr>
+    {% for k in order.Intention %}
+    <tr>
+        <td>{{k.contract}}</td>
+        <td>{{k.agent_name}}</td>
+        <td>{{k.campaign}}</td>
+        <td>{{k.industry_cn}}</td>
+        <td>{{k.direct_sales_names}}</td>
+        <td>{{k.agent_sales_names}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>{{k.now_Q_money_zhixing|format_price}}</td>
+        <td>{{k.last_Q_money|format_price}}</td>
+        <td>{{k.after_Q_money|format_price}}</td>
+        <td>{{k.first_month_money|format_price}}</td>
+        <td>{{k.second_month_money|format_price}}</td>
+        <td>{{k.third_month_money|format_price}}</td>
+        <td>{% if k.S_80 %}{{k.S_80|format_price}}{% else %}{% endif %}</td>
+        <td>{% if k.U_50 %}{{k.U_50|format_price}}{% else %}{% endif %}</td>
+        <td>{% if k.L_50 %}{{k.L_50|format_price}}{% else %}{% endif %}</td>
+        <td></td>
+        <td></td>
+        <td>{{k.client_start}}</td>
+        <td>{{k.client_end}}</td>
+    </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td style="vertical-align: middle;">洽谈中  WIP</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+{% endif %}
+{%- endmacro %}
+
+<div class="container bra-box" style="width:2400px;">
+    <h3 {% if g.user.is_super_leader() %}style="margin-top: 50px;"{% endif %}>媒体周报（新）</h3>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float: left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">执行年</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:150px;">
+                    {% for k in range(5) %}
+                    <option value="{{2014+k}}">{{2014+k}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">季度</label>
+                <select class="form-control special_sale" name="Q" id="Q">
+                    {% for k in range(1,5) %}
+                        <option value='Q{{k}}'>Q{{k}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">区域</label>
+                <select class="form-control special_sale" name="location_id" id="location_id" style="width:100px;">
+                    <option value='0'>全部</option>
+                    <option value='1'>华北</option>
+                    <option value='2'>华东</option>
+                    <option value='3'>华南</option>
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
+        </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+            <tr>
+              <th>投放媒体</th>
+              <th>合同金额</th>
+              <th>媒体金额</th>
+              <th>本季度确认额</th>
+              <th>本季度执行金额</th>
+              {% for k in Q_monthes %}
+              <th>{{k}}月执行额</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {{ total_tr(douban_data, '豆瓣') }}
+            {{ total_tr(youli_data, '优力互动') }}
+            {{ total_tr(wuxian_data, '无线互联') }}
+            {{ total_tr(zhihu_data, '知乎') }}
+            {{ total_tr(weipiao_data, '微票儿') }}
+            {{ total_tr(one_data, 'ONE') }}
+            {{ total_tr(xueqiu_data, '雪球') }}
+            {{ total_tr(huxiu_data, '虎嗅') }}
+            {{ total_tr(ledongli_data, '乐动力') }}
+            {{ total_tr(kecheng_data, '课程格子') }}
+            {{ total_tr(xiecheng_data, '携程') }}
+            {{ total_tr(momo_data, '陌陌') }}
+            {{ total_tr(lama_data, '辣妈帮') }}
+            {{ total_tr(nice_data, 'nice') }}
+            {{ total_tr(other_data, '其他媒体') }}
+            <tr>
+              <th>总计</th>
+              <td>{{total_money|format_price}}</td>
+              <td>{{total_medium_money2|format_price}}</td>
+              <td>{{total_now_Q_money_check|format_price}}</td>
+              <td>{{total_now_Q_money_zhixing|format_price}}</td>
+              <th>{{total_first_month_money|format_price}}</th>
+              <td>{{total_second_month_money|format_price}}</td>
+              <td>{{total_third_month_money|format_price}}</td>
+            </tr>
+            {{ total_tr(meijie_data, '其中媒介下单') }}
+          </tbody>
+        </table>
+        <br/>
+        <table border='1'>
+          <thead>
+            <tr>
+              <th>投放媒体</th>
+              <th>状态</th>
+              <th>合同号（代理下单号）</th>
+              <th>代理简称</th>
+              <th>项目名称</th>
+              <th>行业</th>
+              <th>直客销售</th>
+              <th>渠道销售</th>
+              <th>合同金额（代理合同金额）</th>
+              <th>媒体金额（媒体合同金额）</th>
+              <th>本季度确认额</th>
+              <th>本季度执行额</th>
+              <th>上季度执行额</th>
+              <th>下季度执行额</th>
+              {% for k in Q_monthes %}
+              <th>{{k}}月执行额</th>
+              {% endfor %}
+              <th>80%预估</th>
+              <th>50%以上预估</th>
+              <th>50%以下预估</th>
+              <th>类型</th>
+              <th>执行人员</th>
+              <th>开始时间</th>
+              <th>结束时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ order_tr(douban_data, '豆瓣') }}
+            {{ order_tr(youli_data, '优力互动') }}
+            {{ order_tr(wuxian_data, '无线互联') }}
+            {{ order_tr(zhihu_data, '知乎') }}
+            {{ order_tr(weipiao_data, '微票儿') }}
+            {{ order_tr(one_data, 'ONE') }}
+            {{ order_tr(xueqiu_data, '雪球') }}
+            {{ order_tr(huxiu_data, '虎嗅') }}
+            {{ order_tr(ledongli_data, '乐动力') }}
+            {{ order_tr(kecheng_data, '课程格子') }}
+            {{ order_tr(xiecheng_data, '携程') }}
+            {{ order_tr(momo_data, '陌陌') }}
+            {{ order_tr(lama_data, '辣妈帮') }}
+            {{ order_tr(nice_data, 'nice') }}
+            {{ order_tr(other_data, '其他媒体') }}
+            {{ order_tr(meijie_data, '媒介下单') }}
+          </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $(function(){
+        $('select').chosen({disable_search: true});
+        $("#Q").val('{{Q}}')
+        $("#Q").trigger("chosen:updated");
+        $("#year").val('{{now_year}}')
+        $("#year").trigger("chosen:updated");
+        $("#location_id").val('{{location_id}}')
+        $("#location_id").trigger("chosen:updated");
+    })
+    function download(){
+         window.location.href = window.location.pathname +
+          '?year=' + $('#year').val() + '&Q=' + $('#Q').val() +
+          '&location_id=' + $('#location_id').val()+ '&action=download';
+    }
+</script>
+{% endblock %}

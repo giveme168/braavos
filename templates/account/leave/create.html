@@ -1,9 +1,9 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
 {% block title %}填写请假申请表{% endblock %}
 
 {% block content %}
-{% include "/account/account_leave_base.html" %}
+{% include "/account/account_leave_base_v1_0_0.html" %}
 <style>
     pre {
         background-color:#ffffff;
@@ -16,49 +16,44 @@
     {% else %}
     <h3>填写请假申请表</h3>
     {% endif %}
-    <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
+    <form class="input-row-box" method="POST" onsubmit="return checkform(this)">
         {{form.csrf_token}}
         {{ form_field(form.type) }}
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
-          <div class="col-sm-4">
-            <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh">
-          </div>
+        <div class="input-group-menu">
+          <div class="name">开始时间 : </div>
+            <input type="text" id="start" name="start" readonly="readonly" value="" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd hh">
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
-          <div class="col-sm-4">
-            <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd hh">
-          </div>
+        <div class="input-group-menu">
+          <div class="name">结束时间 : </div>
+            <input type="text" id="end" name="end" value="" readonly="readonly" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd hh">
         </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label">请假时长 : </label>
-            <div class="col-sm-4">
-                <div id="select_days" style="width:60%; display: inline-block;">
-                    <select class="form-control bra-form-control" style="width:100%;" name="day" id="day"  onchange="check_days(this)">
+        <div class="input-group-menu">
+          <div class="name">请假时长 : </div>
+                <div id="select_days" style="display: inline-block;">
+                    <select class="surname" style="width:100px;" name="day" id="day"  onchange="check_days(this)">
                         {% for k in days %}
                         <option value='{{k.key}}'>{{k.value}}天</option>
                         {% endfor %}
                         <option value="other">其他</option>
                     </select>
                 </div>+
-                <select class="form-control bra-form-control" style="width:35%;" name="half" id="half">
+                <select class="surname" style="width:35%;" name="half" id="half">
                     <option value='0'>整</option>
                     <option value='1'>上半天</option>
                     <option value='2'>下半天</option>
                 </select>
-            </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">默认收件人 : </label>
-          <div class="col-sm-6">
+        <div class="input-group-menu">
+          <div class="name">默认收件人 : </div>
             <pre>{{g.user.team_leaders_cn}}，admin@inad.com（请假时长大于等于5天由黄亮审批）</pre>
-          </div>
         </div>
         {{ form_field(form.senders) }}
         {{ form_field(form.reason) }}
-        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2" name="status" value="1"/>保存不发申请</button>
-        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2" name="status" value="2"/>直接发出申请</button>
+        <div class="state" style="margin-left:25%;margin-top:50px;">
+            <a href="{{url_for('account_leave.index', user_id=g.user.id)}}"><input type="button" value="返回"></a>
+            <button type="submit" name="status" value='1'/>保存不发申请</button>
+            <button type="submit" name="status" value='2'/>保存并发送报备邮件</button>
+        </div>
     </form>
 </div>
 <script>
@@ -114,6 +109,7 @@ function check_days(obj){
     }
 }
 $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     {% if leave %}
         $('#start').val('{{leave.start_time_cn}}')
         $('#end').val('{{leave.end_time_cn}}')
@@ -149,7 +145,7 @@ $(function(){
             var endDate = new Date(start_p[0]);
             endDate.setDate(endDate.getDate() + 0.5); 
             $('#end').val(endDate.Format("yyyy-MM-dd")+' '+start_p[1])
-            $('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd")+' '+start_p[1]);
+            //$('#end').datetimepicker('setStartDate', endDate.Format("yyyy-MM-dd")+' '+start_p[1]);
         }
     });
 })

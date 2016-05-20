@@ -10,14 +10,15 @@ from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.order import Order
 from models.douban_order import DoubanOrder
 from models.user import (User, TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER, TEAM_LOCATION_CN,
-                         TEAM_TYPE_LEADER, TEAM_LOCATION_HUANAN, TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG)
+                         TEAM_TYPE_LEADER, TEAM_LOCATION_HUANAN)
 from models.outsource import (OUTSOURCE_STATUS_NEW, OUTSOURCE_STATUS_APPLY_LEADER,
                               OUTSOURCE_STATUS_PASS, OUTSOURCE_STATUS_APPLY_MONEY,
                               OUTSOURCE_STATUS_EXCEED, INVOICE_RATE, OUTSOURCE_STATUS_PAIED,
                               MERGER_OUTSOURCE_STATUS_APPLY, MERGER_OUTSOURCE_STATUS_APPLY_MONEY)
 from forms.outsource import OutSourceTargetForm, OutsourceForm, DoubanOutsourceForm, MergerOutSourceForm
-from libs.signals import outsource_apply_signal, outsource_distribute_signal, merger_outsource_apply_signal
+from libs.email_signals import outsource_distribute_signal, outsource_apply_signal, merger_outsource_apply_signal
 from libs.paginator import Paginator
+from controllers.data_query.helpers.outsource_helpers import write_target_info
 
 outsource_bp = Blueprint(
     'outsource', __name__, template_folder='../templates/outsource/')
@@ -82,7 +83,7 @@ def client_orders_distribute():
         order = ClientOrder.get(order_id)
         if operator:
             operater_users = User.gets(operator.split(','))
-            to_emails = [k.email for k in operater_users]
+            to_users = operater_users
             for k in order.medium_orders:
                 k.operaters = operater_users
                 k.save()
@@ -90,15 +91,15 @@ def client_orders_distribute():
             for k in order.medium_orders:
                 k.operaters = []
                 k.save()
-            to_emails = []
-        if to_emails:
-            apply_context = {"sender": g.user,
-                             "to": to_emails + [g.user.email],
-                             "action_msg": '',
-                             "msg": '',
-                             "order": order}
+            to_users = []
+        if to_users:
+            context = {"to_users": to_users + [g.user],
+                       "operater_users": operater_users,
+                       "action_msg": u'分配执行人员',
+                       "info": '',
+                       "order": order}
             outsource_distribute_signal.send(
-                current_app._get_current_object(), apply_context=apply_context)
+                current_app._get_current_object(), context=context)
         return redirect(url_for('outsource.client_orders_distribute'))
 
     orders = [k for k in ClientOrder.all() if k.medium_orders]
@@ -115,20 +116,20 @@ def douban_orders_distribute():
         order = DoubanOrder.get(order_id)
         if operator:
             operater_users = User.gets(operator.split(','))
+            to_users = operater_users
             order.operaters = operater_users
-            to_emails = [k.email for k in operater_users]
         else:
             order.operaters = []
-            to_emails = []
+            to_users = []
         order.save()
-        if to_emails:
-            apply_context = {"sender": g.user,
-                             "to": to_emails + [g.user.email],
-                             "action_msg": '',
-                             "msg": '',
-                             "order": order}
+        if to_users:
+            context = {"to_users": to_users + [g.user],
+                       "operater_users": operater_users,
+                       "action_msg": u'分配执行人员',
+                       "info": '',
+                       "order": order}
             outsource_distribute_signal.send(
-                current_app._get_current_object(), apply_context=apply_context)
+                current_app._get_current_object(), context=context)
         return redirect(url_for('outsource.douban_orders_distribute'))
 
     orders = DoubanOrder.all()
@@ -143,19 +144,15 @@ def display_orders(orders, template, title, operaters):
     else:
         status_id = -1
     orderby = request.args.get('orderby', '')
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     status = request.args.get('status', '')
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.datetime.now().year))
 
     if g.user.team.type == TEAM_TYPE_LEADER:
         status = 'apply'
         location_id = g.user.team.location
-
-    # 盖新的查看内容
-    if int(g.user.id) == 15:
-        status = 'apply_upper'
-        location_id = [TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG]
 
     # Oscar的查看内容
     if int(g.user.id) == 16:
@@ -167,7 +164,7 @@ def display_orders(orders, template, title, operaters):
             set(location_id) & set(o.locations)) > 0]
     elif location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
-
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
@@ -197,13 +194,13 @@ def display_orders(orders, template, title, operaters):
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
-    return tpl(template, title=title, orders=orders,
+    return tpl(template, title=title, orders=orders, year=year,
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
                orderby=orderby or 'create_time', status=status,
                search_info=search_info, page=page, operaters=operaters,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
-                      (orderby or 'create_time', search_info, location_id, status_id))
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s&year=%s' %
+                      (orderby or 'create_time', search_info, location_id, status_id, year))
 
 
 @outsource_bp.route('/', methods=['GET'])
@@ -214,6 +211,8 @@ def index():
 @outsource_bp.route('/targets', methods=['GET'])
 def targets():
     targets = OutSourceTarget.all()
+    if request.values.get('action') == 'excel':
+        return write_target_info(targets)
     return tpl('targets.html', targets=targets)
 
 
@@ -344,6 +343,9 @@ def new_outsource():
     except:
         flash(u'保存失败，金额必须为数字!', 'danger')
         return redirect(url_for("outsource.client_outsources", order_id=order.client_order.id))
+    status = 0
+    if g.user.is_super_leader():
+        status = 2
     outsource = OutSource.add(target=OutSourceTarget.get(form.target.data),
                               medium_order=order,
                               num=form.num.data,
@@ -351,11 +353,14 @@ def new_outsource():
                               subtype=form.subtype.data,
                               remark=form.remark.data,
                               invoice=False,
+                              status=status,
                               pay_num=form.num.data,)
     flash(u'新建外包成功!', 'success')
     outsource.client_order.add_comment(g.user,
                                        u"""新建外包:\n\r %s""" % outsource.name,
                                        msg_channel=2)
+    if g.user.is_super_leader():
+        _insert_executive_report(order, rtype='reload')
     return redirect(outsource.info_path())
 
 
@@ -368,6 +373,9 @@ def new_douban_outsource():
     except:
         flash(u'保存失败，金额必须为数字!', 'danger')
         return redirect(url_for("outsource.douban_outsources", order_id=order.id))
+    status = 0
+    if g.user.is_super_leader():
+        status = 2
     outsource = DoubanOutSource.add(target=OutSourceTarget.get(form.target.data),
                                     douban_order=order,
                                     num=form.num.data,
@@ -375,11 +383,14 @@ def new_douban_outsource():
                                     subtype=form.subtype.data,
                                     remark=form.remark.data,
                                     invoice=False,
+                                    status=status,
                                     pay_num=form.num.data)
     flash(u'新建外包成功!', 'success')
     outsource.douban_order.add_comment(g.user,
                                        u"""新建外包:\n\r %s""" % outsource.name,
                                        msg_channel=2)
+    if g.user.is_super_leader():
+        _insert_executive_report(order, rtype='reload')
     return redirect(outsource.info_path())
 
 
@@ -388,8 +399,10 @@ def outsource_delete(outsource_id):
     type = request.values.get('type', '')
     if type == 'douban':
         outsource = DoubanOutSource.get(outsource_id)
+        order = outsource.douban_order
     else:
         outsource = OutSource.get(outsource_id)
+        order = outsource.medium_order
 
     if type == "douban":
         outsource.douban_order.add_comment(g.user,
@@ -401,6 +414,7 @@ def outsource_delete(outsource_id):
                                            msg_channel=2)
     url = outsource.info_path()
     outsource.delete()
+    _insert_executive_report(order, rtype='reload')
     return redirect(url)
 
 
@@ -479,7 +493,7 @@ def outsource(outsource_id):
                          "outsources": [outsource]}
 
         outsource_apply_signal.send(
-            current_app._get_current_object(), apply_context=apply_context)
+            current_app._get_current_object(), context=apply_context)
     return redirect(outsource.info_path())
 
 
@@ -495,7 +509,7 @@ def outsource_status(order_id):
     outsource_ids = request.values.getlist('outsources')
 
     action = int(request.values.get('action', 0))
-    emails = request.values.getlist('email')
+    # emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
 
     to_users = order.direct_sales + order.agent_sales + \
@@ -521,57 +535,68 @@ def outsource_status(order_id):
             [k.pay_num for k in total_outsources]) / float(order.money)
     else:
         outsource_percent = sum([k.pay_num for k in total_outsources]) / 1
+
     if action == 0:
         if outsource_percent >= 0.02:
             next_status = OUTSOURCE_STATUS_EXCEED
-            action_msg = u'外包款超过2%，申请审批'
+            action_msg = u'外包费用超过2%，申请审批'
         else:
             next_status = OUTSOURCE_STATUS_APPLY_LEADER
-            action_msg = u'申请审批'
-        to_users_name = ','.join(
-            [k.name for k in outsource_apply_user] + [k.name for k in order.operater_users])
+            action_msg = u'外包费用申请审批'
+        # to_users_name = ','.join(
+        #     [k.name for k in outsource_apply_user] + [k.name for k in order.operater_users])
 
     elif action == 1:
         next_status = OUTSOURCE_STATUS_PASS
-        action_msg = u'审批通过'
-        to_users_name = ','.join(
-            [k.name for k in order.agent_sales] + [k.name for k in order.operater_users])
+        action_msg = u'外包费用审批通过'
+        # to_users_name = ','.join(
+        #     [k.name for k in order.agent_sales] + [k.name for k in order.operater_users])
     elif action == 2:
         next_status = OUTSOURCE_STATUS_NEW
-        action_msg = u'拒绝通过'
-        to_users_name = ','.join(
-            [k.name for k in order.agent_sales] + [k.name for k in order.operater_users])
+        action_msg = u'外包费用拒绝通过'
+        # to_users_name = ','.join(
+        #     [k.name for k in order.agent_sales] + [k.name for k in order.operater_users])
     elif action == 3:
         next_status = OUTSOURCE_STATUS_APPLY_MONEY
-        action_msg = u'申请打款'
-        to_users_name = ','.join([k.name for k in User.operater_leaders()])
+        action_msg = u'外包费用申请打款'
+        # to_users_name = ','.join([k.name for k in User.operater_leaders()])
     elif action == 100:
-        if outsource_percent >= 0.02:
-            action_msg = u'外包款超过2%，修改并申请审批'
-            next_status = OUTSOURCE_STATUS_EXCEED
-        else:
-            action_msg = u'修改并申请审批'
-            next_status = OUTSOURCE_STATUS_APPLY_LEADER
-        to_users_name = ','.join(
-            [k.name for k in outsource_apply_user] + [k.name for k in order.operater_users])
-        outsources_json = json.loads(request.values.get('outsource_json', '[]'))
+        # to_users_name = ','.join([k.name for k in outsource_apply_user] + [k.name for k in order.operater_users])
+        outsources_json = json.loads(
+            request.values.get('outsource_json', '[]'))
         outsources = []
+        # 先修改外包金额
         for k in outsources_json:
             if type == 'douban':
                 outsource = DoubanOutSource.get(k['id'])
             else:
                 outsource = OutSource.get(k['id'])
-            outsource.num = k['num']
+            outsource.num = float(k['num'])
             outsource.target = OutSourceTarget.get(k['target'])
             outsource.type = k['type']
             outsource.subtype = k['subtype']
             outsource.remark = k['remark']
-            outsource.pay_num = k['num']
-            outsource.status = next_status
+            outsource.pay_num = float(k['num'])
+            # outsource.status = next_status
             outsource.save()
             outsources.append(outsource)
+        # 根据修改后的金额，计算是否超过占比
+        outsource_percent = float(order.outsources_percent) / 100
+        if outsource_percent >= 0.02:
+            action_msg = u'外包费用超过2%，修改并申请审批'
+            next_status = OUTSOURCE_STATUS_EXCEED
+        else:
+            action_msg = u'外包费用修改并重新申请审批'
+            next_status = OUTSOURCE_STATUS_APPLY_LEADER
+        for k in outsources_json:
+            if type == 'douban':
+                outsource = DoubanOutSource.get(k['id'])
+            else:
+                outsource = OutSource.get(k['id'])
+            outsource.status = next_status
+            outsource.save()
     else:
-        action_msg = u'消息提醒'
+        action_msg = u'外包费用消息提醒'
 
     if action < 4:
         for outsource in outsources:
@@ -583,24 +608,18 @@ def outsource_status(order_id):
                       u"%s:\n\r%s\n\r%s" % (
                           action_msg, "\n\r".join([o.name for o in outsources]), msg),
                       msg_channel=2)
-    to_emails = list(
-        set(emails + [x.email for x in to_users] + [k.email for k in outsource_apply_user]))
-    title = u'【费用报备】%s-%s-%s' % (order.contract or u'无合同号', order.jiafang_name, action_msg)
-    apply_context = {"sender": g.user,
-                     "to": to_emails,
+    # to_emails = list(set(emails + [x.email for x in to_users] + [k.email for k in outsource_apply_user]))
+    apply_context = {"to_users": to_users + outsource_apply_user,
+                     "outsource_apply_user": outsource_apply_user,
                      "action_msg": action_msg,
-                     "msg": msg,
+                     "info": msg,
                      "order": order,
-                     "title": title,
-                     "to_users": to_users_name,
+                     "action": action,
+                     "outsource_percent": outsource_percent,
                      "outsources": outsources}
 
     outsource_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-
-    flash(title, 'success')
-    flash(u'已发送邮件给 %s ' % (', '.join(to_emails)), 'info')
-
+        current_app._get_current_object(), context=apply_context)
     if type == 'douban':
         return redirect(url_for("outsource.douban_outsources", order_id=order.id))
     else:
@@ -876,7 +895,7 @@ def merget_client_target_info(target_id):
 
     apply_outsources = OutSource.get_outsources_by_target(target_id, 2)
     apply_money_outsources = OutSource.get_outsources_by_target(target_id, 3)
-    paid_outsources = OutSource.get_outsources_by_target(target_id, 4)
+    paid_outsources = list(MergerOutSource.get_outsources_by_status(0, target_id))
     apply_merger_outsources = MergerOutSource.get_outsources_by_status(
         MERGER_OUTSOURCE_STATUS_APPLY, target_id=target_id)
 
@@ -992,7 +1011,7 @@ def merget_douban_target_info(target_id):
                 current_app._get_current_object(), apply_context=apply_context)
         return redirect(url_for("outsource.merget_douban_target_info", target_id=target_id))
     apply_outsources = DoubanOutSource.get_outsources_by_target(target_id, 2)
-    paid_outsources = DoubanOutSource.get_outsources_by_target(target_id, 4)
+    paid_outsources = list(MergerDoubanOutSource.get_outsources_by_status(0, target_id))
     apply_merger_outsources = MergerDoubanOutSource.get_outsources_by_status(
         MERGER_OUTSOURCE_STATUS_APPLY, target_id=target_id)
     # 在流程中的合并付款中的外包项不用出现再正在付款中

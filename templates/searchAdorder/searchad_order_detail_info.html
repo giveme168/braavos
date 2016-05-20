@@ -1,40 +1,137 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'searchad_order_form_client.html' import order_client_form %}
 {% from 'searchad_order_form_medium.html' import order_medium_form %}
 {% from 'searchad_order_form_medium.html' import new_order_medium_form %}
 {% from 'searchad_order_form_contract.html' import order_contract_form %}
-{% from 'searchad_order_form_attachment.html' import client_order_attachment, medium_order_attachment %}
+{% from 'searchad_order_form_attachment.html' import client_order_attachment, medium_order_attachment, finish_client_order_attachment, finish_medium_order_attachment %}
 {% from 'comments.html' import comments_box %}
 {% macro contract_box(order, client_form, new_medium_form, medium_forms, reminder_emails) -%}
-    <div class="panel-group" id="accordion">
+    <div class="panel-group" id="client_accordion">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 客户订单 </a>
+                    <a data-toggle="collapse" data-parent="#client_accordion" href="#collapseOne"> {{ order.name }} 客户订单 </a>
+                    {% if g.user.is_searchad_leader() %}
+                    <a href="javascript:delete_order('{{order.name}}','{{order.id}}')" style="float:right;color:red;">删除<a/>
+                    {% endif %}
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_client_form(client_form, order) }}
+                    {% if not g.user.is_aduit() %}
+                        <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {% endif %}
                     {{ client_order_attachment(order) }}
-                    <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {% if order.contract_status == 20 %}
+                    {% if not g.user.is_aduit() %}
+                        <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {% endif %}
+                    {{ finish_client_order_attachment(order) }}
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-    <div class="panel-group" id="accordion">
+    <div class="panel-group" id="income">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#accordion" href="#collapse2"> 媒体订单 </a> </h4>
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#income" href="#income_table"> 确认收入 </a>
+                </h4>
             </div>
-            <div id="collapse2" class="panel-collapse collapse in">
+            <div id="income_table" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    <form class="form form-horizontal" method="POST" action="{{url_for('searchAd_order.order_confirm_info', order_id=order.id)}}">
+                        <input class="hide" name="order_id" value="{{order.id}}"/>
+                        <div class="form-group">
+                          <label for="client_start" class="col-sm-2 control-label">确认周期 : </label>
+                          <div class="col-sm-4">
+                            <select id="income_year" name="year" style="width:100px;">
+                                {% for k in range(10) %}
+                                <option value="{{2014+k}}">{{2014+k}}</option>
+                                {% endfor %}
+                            </select>
+                            <select id="income_Q" name="Q" style="width:100px;">
+                                <option value="Q1">Q1</option>
+                                <option value="Q2">Q2</option>
+                                <option value="Q3">Q3</option>
+                                <option value="Q4">Q4</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="client_start" class="col-sm-2 control-label">所属媒体 : </label>
+                          <div class="col-sm-4">
+                            <select id="income_m_order_id" name="m_order_id" style="width:200px;">
+                                {% for k in order.medium_orders %}
+                                <option value="{{k.id}}">{{k.medium.name}}</option>
+                                {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-sm-2 control-label">确认收入 : </label>
+                          <div class="col-sm-4">
+                            <input class="form-control bra-form-control" name="money" id="income_money" value="0">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label class="col-sm-2 control-label">确认返点 : </label>
+                          <div class="col-sm-4">
+                            <input class="form-control bra-form-control" name="rebate" id="income_rebate" value="0">
+                          </div>
+                        </div>
+                        <div class="state" style="margin-left:40%;">
+                            <input type="submit" value="保存">
+                        </div>
+                    </form>
+                    <br/>
+                    <!--searchad_confirm_client_order-->
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>确认周期</th>
+                            <th>所属媒体</th>
+                            <th>确认收入</th>
+                            <th>确认返点</th>
+                            <th>操作</th>
+                        </tr>
+                        {% for k in order.searchad_confirm_client_order %}
+                        <tr>
+                            <td>{{k.time}}</td>
+                            <td>{{k.order.medium.name}}</td>
+                            <td>{{k.money}}</td>
+                            <td>{{k.rebate}}</td>
+                            <td><a href="{{url_for('searchAd_order.order_confirm_info', order_id=order.id)}}?cid={{k.id}}">删除</a></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group" id="medium_accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title"> <a data-toggle="collapse" data-parent="#medium_accordion" href="#medium_accordion_table"> 媒体订单 </a> </h4>
+            </div>
+            <div id="medium_accordion_table" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {% for mf in medium_forms %}
-                    <div class="well">
-                    {{ order_medium_form(mf[0], mf[1]) }}
-                    {{ medium_order_attachment(mf[1]) }}
-                    <hr><div style="color:#999;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
-                    </div>
+                        {{ order_medium_form(mf[0], mf[1]) }}
+                        {{ medium_order_attachment(mf[1]) }}
+                            {% if not g.user.is_aduit() %}
+                            <div style="color:#999; margin-top:20px;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
+                            {% endif %}
+                        {% if mf[1].finish_status == 0 %}
+                            {% if not g.user.is_aduit() %}
+                                <div style="color:#999;margin-top:20px;">合同归档时间: {{mf[1].finish_time_cn}}</div>
+                            {% endif %}
+                        {% endif %}
+                        {% if order.contract_status == 20 %}
+                            {{ finish_medium_order_attachment(mf[1]) }}
+                        {% endif %}
+                        <hr>
                     {% endfor %}
                     <div class="well" id="new-medium" style="display:none;">
                       <h4>新建媒体订单</h4>
@@ -66,6 +163,7 @@
     <div>{{ comments_box(order) }}</div>
 <script>
   $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
     showNewMedium = function(ele){
       $(ele).hide();
       $("#new-medium").show();
@@ -75,15 +173,21 @@
       $("#new-associated-douban").show();
     };
   });
+  function delete_order(order_name, order_id){
+    var href = "/searchAd_orders/order/"+order_id+"/delete";
+    var flag=confirm("确定要删除"+order_name+"的合同吗?");
+    if(flag){
+        window.location.href=href;
+    }
+  }
 </script>
 {%- endmacro %}
 
 {% block content%}
-{% include "/searchAdorder/searchad_order_base.html" %}
+{% include "/searchAdorder/searchad_order_base_v1_0_0.html" %}
 <div class="container bra-box">
-  <h4> {{ order.name }} </h4>
   <div>
-    {% include "saler/searchAd_order/nav_base.html" %}
+    {% include "saler/searchAd_order/nav_base_v1_0_0.html" %}
     <div class="tab-content">
       <div class="tab-pane active" id="tab-1">
         {{ contract_box(order, client_form, new_medium_form, medium_forms, reminder_emails) }}

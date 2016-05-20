@@ -1,0 +1,28 @@
+<!--导航-->
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        {% if g.user.is_admin() or g.user.is_HR_leader() or g.user.is_super_leader() or g.user.is_HR() %}
+        <ul>
+            <li id="_user_" class="nav-first">
+              <a href="{{url_for('user.users')}}">用户</a>
+              <span>|</span>
+            </li>
+            <li id="_team_" class="nav-last">
+              <a href="{{url_for('user.teams')}}">角色</a>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (['users', 'user', 'new_user'].indexOf(p_pathname[2]) >= 0){
+            $('#_user_').addClass("active");
+        }else if (['teams', 'team', 'new_team'].indexOf(p_pathname[2]) >= 0){
+            $('#_team_').addClass("active");
+        }
+        
+    })
+</script>

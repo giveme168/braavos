@@ -73,6 +73,19 @@ ad_position_unit_table = db.Table('ad_position_unit',
                                       'unit_id', db.Integer, db.ForeignKey('ad_unit.id'))
                                   )
 
+LEVEL_S = 1
+LEVEL_A = 2
+LEVEL_B = 3
+LEVEL_C = 4
+LEVEL_OTHER = 100
+LEVEL_CN = {
+    LEVEL_S: u"S级",
+    LEVEL_A: u"A级",
+    LEVEL_B: u"B级",
+    LEVEL_C: u"C级",
+    LEVEL_OTHER: u"其他"
+}
+
 
 class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'medium'
@@ -83,6 +96,7 @@ class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     owner_id = db.Column(db.Integer, db.ForeignKey('team.id'))
     owner = db.relationship(
         'Team', backref=db.backref('mediums', lazy='dynamic'))
+    level = db.Column(db.Integer)
     tax_num = db.Column(db.String(100))  # 税号
     address = db.Column(db.String(100))  # 地址
     phone_num = db.Column(db.String(100))  # 电话
@@ -91,10 +105,11 @@ class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     rebates = db.relationship('MediumRebate')
     __mapper_args__ = {'order_by': id.desc()}
 
-    def __init__(self, name, owner, abbreviation=None, tax_num="",
+    def __init__(self, name, owner, level=100, abbreviation=None, tax_num="",
                  address="", phone_num="", bank="", bank_num=""):
         self.name = name
         self.owner = owner
+        self.level = level
         self.abbreviation = abbreviation or ""
         self.tax_num = tax_num
         self.address = address
@@ -168,6 +183,10 @@ class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         else:
             update_time = ''
         return update_time
+
+    @property
+    def level_cn(self):
+        return LEVEL_CN[self.level or 100]
 
 
 class MediumRebate(db.Model, BaseModelMixin):
@@ -549,7 +568,7 @@ class MediumResource(db.Model, BaseModelMixin):
     medium = db.relationship(
         'Medium', backref=db.backref('medium_resource', lazy='dynamic'))
     type = db.Column(db.Integer, default=1)       # 资源类型
-    number = db.Column(db.String, default="")     # 编号
+    number = db.Column(db.String(20), default="")     # 编号
     shape = db.Column(db.Integer, default=1)      # 形态
     product = db.Column(db.Integer, default=0)    # 所属产品
     resource_type = db.Column(db.Integer)         # 资源形式
@@ -932,7 +951,8 @@ class AdPosition(db.Model, BaseModelMixin):
             current = start_date + timedelta(days=x)
             dates_list.append(current)
         current_nums = self.schedule_nums_by_dates(dates_list)
-        units_retains = [u.retain_nums_by_dates(dates_list) for u in self.units]
+        units_retains = [u.retain_nums_by_dates(
+            dates_list) for u in self.units]
         temp = map(list, itertools.izip(*units_retains))
         retain_nums = [sum(d) for d in temp]
         storage_info = []
@@ -955,7 +975,8 @@ class AdPosition(db.Model, BaseModelMixin):
         return ret
 
     def get_orders_by_date(self, date):
-        orders = [i.order for i in self.order_items if i.schedule_by_date(date)]
+        orders = [
+            i.order for i in self.order_items if i.schedule_by_date(date)]
         return list(set(orders))
 
     @classmethod
@@ -1051,9 +1072,11 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
         'User', backref=db.backref('case_user', lazy='dynamic'))
     desc = db.Column(db.String(300))
     is_win = db.Column(db.Integer, default=0)
+    pwd = db.Column(db.String(20))
     __mapper_args__ = {'order_by': create_time.desc()}
 
-    def __init__(self, name, url, type, medium, brand, industry, creator, desc, mediums, create_time=None, is_win=0):
+    def __init__(self, name, url, type, medium, brand, industry, creator,
+                 desc, mediums, pwd=None, create_time=None, is_win=0):
         self.name = name
         self.url = url
         self.type = type
@@ -1064,6 +1087,7 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
         self.creator = creator
         self.desc = desc
         self.is_win = is_win
+        self.pwd = pwd or ''
         self.create_time = create_time or datetime.datetime.now()
 
     @property

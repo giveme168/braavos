@@ -10,7 +10,7 @@ from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_STATU
 from forms.invoice import MediumInvoiceForm
 from models.user import User
 from models.medium import Medium
-from libs.signals import medium_invoice_apply_signal
+from libs.email_signals import medium_invoice_apply_signal
 from libs.paginator import Paginator
 from controllers.saler.client_order.medium_invoice import (new_invoice as _new_invoice,
                                                            update_invoice as _update_invoice, get_invoice_from)
@@ -32,7 +32,8 @@ def apply():
 
     orders = list(MediumInvoicePay.query.filter_by(pay_status=3))
     if location_id >= 0:
-        orders = [o for o in orders if location_id in o.medium_invoice.client_order.locations]
+        orders = [
+            o for o in orders if location_id in o.medium_invoice.client_order.locations]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.medium_invoice.client_order.search_invoice_info.lower()]
@@ -45,10 +46,13 @@ def apply():
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
-    for k in orders.object_list:
-        k.apply_num = len(k.medium_invoice.client_order.get_medium_invoice_pay_by_status(3))
-        k.pay_num = len(k.medium_invoice.client_order.get_medium_invoice_pay_by_status(0))
-    return tpl('/finance/client_order/medium_pay/index.html', orders=orders, title=u'申请中的媒体打款',
+    for i in orders.object_list:
+        client_order = i.medium_invoice.client_order
+        medium_invoices = [k.id for k in MediumInvoice.query.filter_by(client_order=client_order)]
+        pays = [k for k in MediumInvoicePay.all() if k.medium_invoice_id in medium_invoices]
+        i.apply_num = len([k for k in pays if k.pay_status == 3])
+        i.pay_num = len([k for k in pays if k.pay_status == 0])
+    return tpl('/finance/client_order/medium_pay/index.html', orders=orders, title=u'申请中的媒体付款',
                locations=select_locations, location_id=location_id,
                now_date=datetime.date.today(),
                search_info=search_info, page=page,
@@ -71,18 +75,17 @@ def index():
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.datetime.now().year))
     # page = max(1, page)
     # start = (page - 1) * ORDER_PAGE_NUM
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
         orders = [o for o in orders if o.contract_status == status_id]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
-    if orderby and len(orders):
-        orders = sorted(
-            orders, key=lambda x: getattr(x, orderby), reverse=True)
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
@@ -92,16 +95,19 @@ def index():
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
-    for k in orders.object_list:
-        k.apply_num = len(k.get_medium_invoice_pay_by_status(3))
-        k.pay_num = len(k.get_medium_invoice_pay_by_status(0))
-    return tpl('/finance/client_order/medium_pay/index_pass.html', orders=orders, title=u'申请中的媒体打款',
+    for i in orders.object_list:
+        client_order = i
+        medium_invoices = [k.id for k in MediumInvoice.query.filter_by(client_order=client_order)]
+        pays = [k for k in MediumInvoicePay.all() if k.medium_invoice_id in medium_invoices]
+        i.apply_num = len([k for k in pays if k.pay_status == 3])
+        i.pay_num = len([k for k in pays if k.pay_status == 0])
+    return tpl('/finance/client_order/medium_pay/index_pass.html', orders=orders, title=u'申请中的媒体付款',
                locations=select_locations, location_id=location_id,
                statuses=select_statuses, status_id=status_id,
                orderby=orderby, now_date=datetime.date.today(),
-               search_info=search_info, page=page,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s' %
-                      (orderby, search_info, location_id, status_id))
+               search_info=search_info, page=page, year=year,
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s&year=%s' %
+                      (orderby, search_info, location_id, status_id, str(year)))
 
 
 @finance_client_order_medium_pay_bp.route('/pass', methods=['GET'])
@@ -145,7 +151,7 @@ def delete(order_id, invoice_id):
         flash(u'暂时不能删除，已有付款信息', 'danger')
         return redirect(url_for('finance_client_order_medium_pay.info', order_id=order_id))
     client_order = invoice.client_order
-    client_order.add_comment(g.user, u"删除打款发票申请信息：%s" % (
+    client_order.add_comment(g.user, u"删除付款发票申请信息：%s" % (
         u'发票内容: %s; 发票金额: %s元; 发票号: %s' % (invoice.detail, str(invoice.money), invoice.invoice_num)), msg_channel=3)
     invoice.delete()
     return redirect(url_for('finance_client_order_medium_pay.info', order_id=order_id))
@@ -171,7 +177,7 @@ def invoice_pay_time_update(invoice_id):
     invoice.save()
     flash(u'保存成功!', 'success')
     invoice.client_order.add_comment(g.user,
-                                     u"更新了打款时间:\n\r%s" % pay_time,
+                                     u"更新了付款时间:\n\r%s" % pay_time,
                                      msg_channel=3)
     return jsonify({'ret': True})
 
@@ -188,7 +194,7 @@ def invoice_pay_num(invoice_id):
     invoice.save()
     flash(u'保存成功!', 'success')
     invoice.client_order.add_comment(g.user,
-                                     u"更新了打款金额:\n\r%s" % invoice.pay_money,
+                                     u"更新了付款金额:\n\r%s" % invoice.pay_money,
                                      msg_channel=3)
     return redirect(url_for("finance_client_order_medium_pay.info", order_id=invoice.client_order.id))
 
@@ -209,8 +215,8 @@ def new_invoice_pay(invoice_id):
                                pay_time=pay_time,
                                detail=detail)
     pay.save()
-    flash(u'新建打款信息成功!', 'success')
-    invoice.client_order.add_comment(g.user, u"添加已打款信息  发票号：%s  打款金额：%s元  打款时间：%s" % (
+    flash(u'新建付款信息成功!', 'success')
+    invoice.client_order.add_comment(g.user, u"添加已付款信息  发票号：%s  付款金额：%s元  付款时间：%s" % (
         invoice.invoice_num, str(money), pay_time), msg_channel=3)
     return redirect(url_for("finance_client_order_medium_pay.info", order_id=invoice.client_order.id))
 
@@ -236,33 +242,45 @@ def invoice_pass(invoice_id):
 
     if action != 10:
         invoice_status = MEDIUM_INVOICE_STATUS_PASS
-        action_msg = u'媒体订单款已打'
+        action_msg = u'媒体款项已打款'
         for invoice_pay in invoices_pay:
             invoice_pay.pay_status = invoice_status
             invoice_pay.save()
-            flash(u'媒体订单款已打,名称:%s, 打款金额%s' % (
+            flash(u'媒体订单款已打,名称:%s, 付款金额%s' % (
                 invoice_pay.medium_invoice.client_order.name +
                 '-' + invoice_pay.medium_invoice.medium.name,
                 str(invoice_pay.money)), 'success')
             invoice_pay.medium_invoice.client_order.add_comment(
-                g.user, u'媒体订单款已打款,名称%s, 打款金额%s ' % (
+                g.user, u'媒体订单款已付款,名称%s, 付款金额%s ' % (
                     invoice_pay.medium_invoice.client_order.name +
                         '-' + invoice_pay.medium_invoice.medium.name,
                     str(invoice_pay.money)),
                 msg_channel=3)
     else:
         action_msg = u'消息提醒'
-    apply_context = {"title": "媒体订单款已打款",
-                     "sender": g.user,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "send_type": "media",
-                     "invoice": invoice,
-                     "invoice_pays": invoices_pay}
+    context = {"to_users": to_users,
+               "action_msg": action_msg,
+               "info": msg,
+               "invoice": invoice,
+               "order": invoice.client_order,
+               "send_type": 'end',
+               "invoice_pays": invoices_pay}
     medium_invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
+        current_app._get_current_object(), context=context)
     flash(u'已发送邮件给 %s ' % (', '.join(to_emails)), 'info')
+    return redirect(url_for("finance_client_order_medium_pay.pay_info", invoice_id=invoice_id))
+
+
+@finance_client_order_medium_pay_bp.route('/<invoice_id>/<pid>/pay_delete', methods=['GET'])
+def invoice_pay_delete(invoice_id, pid):
+    if not g.user.is_finance():
+        abort(404)
+    invoice = MediumInvoice.get(invoice_id)
+    invoice_pay = MediumInvoicePay.get(pid)
+    flash(u'删除成功', 'success')
+    invoice.client_order.add_comment(g.user, u"删除了付款信息  发票号：%s  付款金额：%s元  付款时间：%s" % (
+        invoice.invoice_num, str(invoice_pay.money), invoice_pay.pay_time_cn), msg_channel=3)
+    invoice_pay.delete()
     return redirect(url_for("finance_client_order_medium_pay.pay_info", invoice_id=invoice_id))
 
 

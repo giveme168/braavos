@@ -1,0 +1,10 @@
+{% extends "base_v1_0_0.html" %}
+{% from 'order_form_medium_framework.html' import order_medium_framework_form %}
+
+{% block content %}
+{% include "order_base_v1_0_0.html" %}
+<div class="container bra-box">
+    <h3>新建媒体框架</h3>
+     {{ order_medium_framework_form(form) }}
+</div>
+{% endblock %}

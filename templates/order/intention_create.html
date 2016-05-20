@@ -1,0 +1,163 @@
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
+{% block title %}填写洽谈中的订单{% endblock %}
+
+{% block content %}
+{% include "order_base_v1_0_0.html" %}
+<div class="container bra-box">
+    <h3>填写洽谈中的订单</h3>
+    <form class="input-row-box" method="POST" onsubmit="return checkform(this)">
+        <div class="input-group-menu">
+          <div class="name">投放媒体 : </div>
+            <select id="medium_id" name="medium_id" class="surname" style="width:300px;">
+                <option value="0">豆瓣</option>
+                {% for k in mediums %}
+                <option value='{{k.id}}'>{{k.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="input-group-menu">
+          <div class="name">代理/直客(甲方全称) : </div>
+          <div id="agent_div">
+            <select id="agent" name="agent" class="surname" style="width:300px;" onchange="check_input(this, 'agent')">
+                {% for k in agent %}
+                <option value='{{k.name}}'>{{k.name}}</option>
+                {% endfor %}
+                <option value='1000'>其他</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-group-menu">
+          <div class="name">客户名称 : </div>
+          <div id="client_div">
+            <select id="client" name="client" class="surname" style="width:300px;" onchange="check_input(this, 'client')">
+                {% for k in client %}
+                <option value='{{k.name}}'>{{k.name}}</option>
+                {% endfor %}
+                <!--<option value='1000'>其他</option>-->
+            </select>
+          </div>
+        </div>
+        <div class="input-group-menu">
+          <div class="name">Campaign名称 : </div>
+             <input type="text" id="campaign" name="campaign" value="" class="surname" style="width:300px;">
+        </div>
+        <div class="input-group-menu">
+          <div class="name">预估程度 : </div>
+            <select id="complete_percent" name="complete_percent" class="surname" style="width:300px;">
+                {% for k, v in COMPLETE_PERCENT_CN.items() %}
+                <option value='{{k}}'>{{v}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="input-group-menu" style="display:none;">
+          <div class="name">预估金额 : </div>
+             <input type="text" id="money" name="money" value="" class="surname" style="width:300px;">
+        </div>
+        <div class="input-group-menu">
+          <div class="name">执行开始 : </div>
+            <input type="text" id="client_start" name="client_start" readonly="readonly" value="" class="datetimepicker surname" style="width:300px;"  data-date-format="yyyy-mm-dd">
+        </div>
+        <div class="input-group-menu">
+          <div class="name">执行结束 : </div>
+            <input type="text" id="client_end" name="client_end" value="" readonly="readonly" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+        </div>
+        <div id="ex_time_div">
+
+        </div>
+        {{ form_field(direct_form.direct_sales) }}
+        {{ form_field(agent_form.agent_sales) }}
+        <div class="state" style="margin-left:30%;">
+            <a href="{{url_for('order.intention_order')}}"><input type="button" value="返回"></a>
+          <button type="submit" name="action">添加</button>
+        </div>
+    </form>
+</div>
+<script>
+Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+function checkform(obj){
+    if (obj.campaign.value == ''){
+        alert('请输入Campaign名称')
+        obj.campaign.focus()
+        return false
+    }
+    if (obj.client_start.value == ''){
+        alert('请选择执行开始时间')
+        obj.client_start.focus()
+        return false
+    }
+    return true;
+}
+
+function check_input(obj, type){
+    if(parseInt(obj.value)==1000){
+        $('#'+type+'_div').empty()
+        $('#'+type+'_div').html('<input type="text" id="'+type+'" name="'+type+'" value="" class="form-control bra-form-control">')
+    }
+}
+
+function get_ex_time(){
+    var start_date = $('#client_start').val()
+    var end_date = $('#client_end').val()
+    $.ajax({
+      url:"{{url_for('order.order_ex_time')}}?start_time="+start_date+"&end_time="+end_date,
+      dataType:'json',
+      type: 'GET',
+      success:function(req, msg){
+        var data = req['data']
+        var inner_html = ""
+        $('#ex_time_div').empty()
+        for (var i=0; i<data.length; i++){
+          inner_html += '<div class="input-group-menu"><div class="name">'+data[i]['month_cn']+'月执行额 : </div><input type="text" id="'+data[i]['month_cn']+'_money" name="'+data[i]['month_cn']+'_money" value="" class="surname" style="width:300px;"></div>'
+        }
+        $('#ex_time_div').html(inner_html)
+      },
+      error:function(req, msg){
+        alert('请选择正确的执行开始时间和结束时间')
+      }
+    })
+}
+
+$(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2,
+    });
+    $("#client_start").change(function(e){
+        var end_date = $('#client_end').val()
+        if (end_date == ''){
+            //var endDate = new Date($('#start_time').val());
+            //endDate.setDate(endDate.getDate()); 
+            $('#client_end').val($('#client_start').val())
+            $('#client_end').datetimepicker('setStartDate', $('#client_start').val());
+        }else{
+            get_ex_time()
+        }
+    });
+    $('#client_end').change(function(e){
+        var start_date = $('#start_date').val()
+        if (start_date != ''){
+            get_ex_time()
+        }
+    })
+})
+</script>
+{% endblock %}

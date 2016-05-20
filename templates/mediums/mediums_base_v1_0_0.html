@@ -1,0 +1,20 @@
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        <ul>
+            <li id="_files_" class="nav-first">
+              <a href="{{url_for('mediums_files.index')}}">媒体资料</a>
+              <span>|</span>
+            </li>
+            <li id="_planning_" class="nav-last">
+              <a href="{{url_for('mediums_planning.index', type=1)}}">策划案例</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[2]+'_').addClass("active");
+    })
+</script>

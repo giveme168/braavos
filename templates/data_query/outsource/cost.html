@@ -1,0 +1,165 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}外包执行额（含尚典）{% endblock %}
+{% block content %}
+{% include "/data_query/data_query_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:2700px;">
+    <h3 {% if g.user.is_super_leader() %}style="margin-top: 50px;"{% endif %}>外包执行额</h3>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float: left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">执行年</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:150px;">
+                    {% for k in range(5) %}
+                    <option value="{{2014+k}}">{{2014+k}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">季度</label>
+                <select class="form-control special_sale" name="Q" id="Q">
+                    <option value='00'>全部</option>
+                    {% for k in range(1,5) %}
+                        <option value='Q{{k}}'>Q{{k}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
+        </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th rowspan=2 colspan=2 width="15%">收支项目</th>
+                    {% for k in Q_monthes %}
+                    <th colspan=3>{{k}}月</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for k in Q_monthes %}
+                    <th>华东</th>
+                    <th>华北</th>
+                    <th>华南</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th rowspan=12>外包项目</th>
+                </tr>
+                <tr>
+                    <th>奖品</th>
+                    {% for k in monthes_data['1'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Flash</th>
+                    {% for k in monthes_data['2'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>劳务(KOL、线下活动等)</th>
+                    {% for k in monthes_data['3'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>效果优化</th>
+                    {% for k in monthes_data['4'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>其他(视频等)</th>
+                    {% for k in monthes_data['5'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>flash&H5开发</th>
+                    {% for k in monthes_data['6'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>H5开发</th>
+                    {% for k in monthes_data['7'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>网络公关运营</th>
+                    {% for k in monthes_data['8'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>设计</th>
+                    {% for k in monthes_data['9'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>区域总计</th>
+                    {% for k in monthes_data['t_locataion'] %}
+                    <th>{{k.huadong|format_price}}</th>
+                    <th>{{k.huabei|format_price}}</th>
+                    <th>{{k.huanan|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>总计</th>
+                    {% for k in monthes_data['t_month'] %}
+                    <th colspan=3>{{k|format_price}}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th colspan=2>总计</th>
+                    <th colspan=50>{{monthes_data['t_month']|sum()|format_price}}</th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(function(){
+        $('select').chosen({disable_search: true});
+        $("#Q").val("{{Q}}")
+        $("#Q").trigger("chosen:updated");
+        //$("#year option[value='{{now_year}}']").attr("selected","selected");  
+        $("#year").val("{{now_year}}")
+        $("#year").trigger("chosen:updated");
+    })
+    function download(){
+         window.location.href = window.location.pathname +
+          '?year=' + $('#year').val() + '&Q=' + $('#Q').val() +
+          '&medium_id=' + $('#medium_id').val() + '&action=download';
+    }
+</script>
+{% endblock %}

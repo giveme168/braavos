@@ -6,8 +6,7 @@ from flask import render_template as tpl
 from models.invoice import (Invoice, AgentInvoice, AgentInvoicePay, MediumInvoice,
                             MediumInvoicePay, MediumRebateInvoice)
 from models.client_order import BackMoney, BackInvoiceRebate
-from models.outsource import (MergerOutSource, MergerPersonalOutSource,
-                              MergerDoubanOutSource, MergerDoubanPersonalOutSource)
+from models.outsource import (MergerOutSource, MergerPersonalOutSource)
 from controllers.finance.helpers.data_query_helpers import write_order_excel
 finance_client_order_data_query_bp = Blueprint(
     'finance_client_order_data_query', __name__, template_folder='../../templates/finance/data_query')
@@ -15,7 +14,7 @@ finance_client_order_data_query_bp = Blueprint(
 
 @finance_client_order_data_query_bp.route('/agent_invoice', methods=['GET'])
 def agent_invoice():
-    if not g.user.is_finance():
+    if not (g.user.is_finance() or g.user.is_aduit()):
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -50,7 +49,7 @@ def agent_invoice():
 
 @finance_client_order_data_query_bp.route('/back_money', methods=['GET'])
 def back_money():
-    if not g.user.is_finance():
+    if not (g.user.is_finance() or g.user.is_aduit()):
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -85,7 +84,7 @@ def back_money():
 
 @finance_client_order_data_query_bp.route('/back_invoice', methods=['GET'])
 def back_invoice():
-    if not g.user.is_finance():
+    if not (g.user.is_finance() or g.user.is_aduit()):
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -120,7 +119,7 @@ def back_invoice():
 
 @finance_client_order_data_query_bp.route('/rebate_agent_invoice', methods=['GET'])
 def rebate_agent_invoice():
-    if not g.user.is_finance():
+    if not (g.user.is_finance() or g.user.is_aduit()):
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -150,12 +149,12 @@ def rebate_agent_invoice():
     return tpl('/finance/client_order/data_query/index.html',
                orders=orders, location=location,
                year=year, month=month, info=info,
-               title=u"已收客户返点发票", t_type='rebate_agent_invoice')
+               title=u"客户付款返点发票", t_type='rebate_agent_invoice')
 
 
 @finance_client_order_data_query_bp.route('/pay_rebate_agent_invoice', methods=['GET'])
 def pay_rebate_agent_invoice():
-    if not g.user.is_finance():
+    if not (g.user.is_finance() or g.user.is_aduit()):
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -190,7 +189,7 @@ def pay_rebate_agent_invoice():
 
 @finance_client_order_data_query_bp.route('/medium_invoice', methods=['GET'])
 def medium_invoice():
-    if not g.user.is_finance():
+    if not (g.user.is_finance() or g.user.is_aduit()):
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -225,7 +224,7 @@ def medium_invoice():
 
 @finance_client_order_data_query_bp.route('/pay_medium_invoice', methods=['GET'])
 def pay_medium_invoice():
-    if not g.user.is_finance():
+    if not (g.user.is_finance() or g.user.is_aduit()):
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -260,7 +259,7 @@ def pay_medium_invoice():
 
 @finance_client_order_data_query_bp.route('/medium_rebate_invoice', methods=['GET'])
 def medium_rebate_invoice():
-    if not g.user.is_finance():
+    if not (g.user.is_finance() or g.user.is_aduit()):
         abort(404)
     now_date = datetime.datetime.now()
     info = request.values.get('info', '').strip()
@@ -312,15 +311,15 @@ def personal_outsource():
             MergerPersonalOutSource.create_time >= search_date,
             MergerPersonalOutSource.create_time < end_search_date,
             MergerPersonalOutSource.status == 0)]
-        orders += [k for k in MergerDoubanPersonalOutSource.query.filter(
+        '''orders += [k for k in MergerDoubanPersonalOutSource.query.filter(
             MergerDoubanPersonalOutSource.create_time >= search_date,
             MergerDoubanPersonalOutSource.create_time < end_search_date,
-            MergerDoubanPersonalOutSource.status == 0)]
+            MergerDoubanPersonalOutSource.status == 0)]'''
     else:
         orders = [k for k in MergerPersonalOutSource.all(
         ) if k.create_time.year == int(year) and k.status == 0]
-        orders += [k for k in MergerDoubanPersonalOutSource.all()
-                   if k.create_time.year == int(year) and k.status == 0]
+        '''orders += [k for k in MergerDoubanPersonalOutSource.all()
+                   if k.create_time.year == int(year) and k.status == 0]'''
     if location != 0:
         orders = [k for k in orders if location in k.locations]
     if info:
@@ -351,14 +350,14 @@ def outsource():
         orders = [k for k in MergerOutSource.query.filter(MergerOutSource.create_time >= search_date,
                                                           MergerOutSource.create_time < end_search_date,
                                                           MergerOutSource.status == 0)]
-        orders += [k for k in MergerDoubanOutSource.query.filter(MergerDoubanOutSource.create_time >= search_date,
+        '''orders += [k for k in MergerDoubanOutSource.query.filter(MergerDoubanOutSource.create_time >= search_date,
                                                                  MergerDoubanOutSource.create_time < end_search_date,
-                                                                 MergerDoubanOutSource.status == 0)]
+                                                                 MergerDoubanOutSource.status == 0)]'''
     else:
         orders = [k for k in MergerOutSource.all(
         ) if k.create_time.year == int(year) and k.status == 0]
-        orders += [k for k in MergerDoubanOutSource.all()
-                   if k.create_time.year == int(year) and k.status == 0]
+        '''orders += [k for k in MergerDoubanOutSource.all()
+                   if k.create_time.year == int(year) and k.status == 0]'''
     if location != 0:
         orders = [k for k in orders if location in k.locations]
     if info:

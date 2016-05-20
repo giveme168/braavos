@@ -1,8 +1,8 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}团队销售指标{% endblock %}
 
 {% block content %}
-{% include "/account/account_performance_base.html" %}
+{% include "/account/account_performance_base_v1_0_0.html" %}
 <style type="text/css">
     .table {
         margin-bottom: 5px;
@@ -14,83 +14,87 @@
 <div class="container bra-box">
     <h3>团队销售指标 &nbsp;&nbsp;&nbsp;{% if g.user.is_leader() %}<a class="btn btn-sm btn-default" href="{{url_for('account_performance.create')}}">新建</a>{% endif %}
     </h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th width="10%">区域</th>
-            <th width="10%">执行年</th>
-            <th width="10%">执行季度</th>
-            <th width="15%">销售目标总计</th>
-            <th width="15%">创建人</th>
-            <th width="15%">姓名</th>
-            <th width="15%">金额</th>
-            <th width="10%">操作</th>
-        </tr>
-    </table>
-    {% if huabei_performances %}
-    <table class="table table-bordered">
-        {% for k in huabei_performances %}
-        <tr>
-            <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.location_cn}}</td>
-            <td width="10%" rowspan="{{k.performance_user_money.count()+1}}" >{{k.year}}</td>
-            <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.q_month}}</td>
-            <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.t_money}}万元</td>
-            <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.creator.name}}</td>
-        </tr>
-            {% for u in k.performance_user_money %}
+    <div class='tabulation'>
+        <table border='1'>
+          <thead>
+                <tr>
+                    <th width="10%">区域</th>
+                    <th width="10%">执行年</th>
+                    <th width="10%">执行季度</th>
+                    <th width="15%">销售目标总计</th>
+                    <th width="15%">创建人</th>
+                    <th width="15%">姓名</th>
+                    <th width="15%">金额</th>
+                    <th width="10%">操作</th>
+                </tr>
+            </thead>
+        </table>
+        {% if huabei_performances %}
+        <table class="table table-bordered">
+            {% for k in huabei_performances %}
             <tr>
-                <td width="15%">{{u.user.name}}</td>
-                <td width="15%">{{u.money}}万元</td>
-                {% if loop.index == 1 %}
-                <td width="10%" rowspan="{{k.performance_user_money.count()}}"><a href="{{url_for('account_performance.update', pid=k.id)}}">修改</a></td>
-                {% endif %}
+                <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.location_cn}}</td>
+                <td width="10%" rowspan="{{k.performance_user_money.count()+1}}" >{{k.year}}</td>
+                <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.q_month}}</td>
+                <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.t_money}}万元</td>
+                <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.creator.name}}</td>
             </tr>
+                {% for u in k.performance_user_money %}
+                <tr>
+                    <td width="15%">{{u.user.name}}</td>
+                    <td width="15%">{{u.money}}万元</td>
+                    {% if loop.index == 1 %}
+                    <td width="10%" rowspan="{{k.performance_user_money.count()}}"><a href="{{url_for('account_performance.update', pid=k.id)}}">修改</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </table>
-    {% endif %}
-    {% if huadong_performances %}
-    <table class="table table-bordered">
-        {% for k in huadong_performances %}
-        <tr>
-            <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.location_cn}}</td>
-            <td width="10%" rowspan="{{k.performance_user_money.count()+1}}" >{{k.year}}</td>
-            <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.q_month}}</td>
-            <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.t_money}}万元</td>
-            <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.creator.name}}</td>
-        </tr>
-            {% for u in k.performance_user_money %}
+        </table>
+        {% endif %}
+        {% if huadong_performances %}
+        <table class="table table-bordered">
+            {% for k in huadong_performances %}
             <tr>
-                <td width="15%">{{u.user.name}}</td>
-                <td width="15%">{{u.money}}万元</td>
-                {% if loop.index == 1 %}
-                <td width="10%" rowspan="{{k.performance_user_money.count()}}"><a href="{{url_for('account_performance.update', pid=k.id)}}">修改</a></td>
-                {% endif %}
+                <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.location_cn}}</td>
+                <td width="10%" rowspan="{{k.performance_user_money.count()+1}}" >{{k.year}}</td>
+                <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.q_month}}</td>
+                <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.t_money}}万元</td>
+                <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.creator.name}}</td>
             </tr>
+                {% for u in k.performance_user_money %}
+                <tr>
+                    <td width="15%">{{u.user.name}}</td>
+                    <td width="15%">{{u.money}}万元</td>
+                    {% if loop.index == 1 %}
+                    <td width="10%" rowspan="{{k.performance_user_money.count()}}"><a href="{{url_for('account_performance.update', pid=k.id)}}">修改</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </table>
-    {% endif %}
-    {% if huanan_performances %}
-    <table class="table table-bordered">
-        {% for k in huanan_performances %}
-        <tr>
-            <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.location_cn}}</td>
-            <td width="10%" rowspan="{{k.performance_user_money.count()+1}}" >{{k.year}}</td>
-            <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.q_month}}</td>
-            <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.t_money}}万元</td>
-            <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.creator.name}}</td>
-        </tr>
-            {% for u in k.performance_user_money %}
+        </table>
+        {% endif %}
+        {% if huanan_performances %}
+        <table class="table table-bordered">
+            {% for k in huanan_performances %}
             <tr>
-                <td width="15%">{{u.user.name}}</td>
-                <td width="15%">{{u.money}}万元</td>
-                {% if loop.index == 1 %}
-                <td width="10%" rowspan="{{k.performance_user_money.count()}}"><a href="{{url_for('account_performance.update', pid=k.id)}}">修改</a></td>
-                {% endif %}
+                <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.location_cn}}</td>
+                <td width="10%" rowspan="{{k.performance_user_money.count()+1}}" >{{k.year}}</td>
+                <td width="10%" rowspan="{{k.performance_user_money.count()+1}}">{{k.q_month}}</td>
+                <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.t_money}}万元</td>
+                <td width="15%" rowspan="{{k.performance_user_money.count()+1}}">{{k.creator.name}}</td>
             </tr>
+                {% for u in k.performance_user_money %}
+                <tr>
+                    <td width="15%">{{u.user.name}}</td>
+                    <td width="15%">{{u.money}}万元</td>
+                    {% if loop.index == 1 %}
+                    <td width="10%" rowspan="{{k.performance_user_money.count()}}"><a href="{{url_for('account_performance.update', pid=k.id)}}">修改</a></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </table>
-    {% endif %}
+        </table>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

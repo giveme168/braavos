@@ -1,0 +1,17 @@
+            
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        <ul>
+            <li id="_bref_">
+              <a href="{{url_for('planning_bref.index')}}">策划单</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[2]+'_').addClass("active");
+    })
+</script>

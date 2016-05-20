@@ -1,0 +1,36 @@
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        <ul>
+            <li id="__">
+              <a href="{{url_for('account_leave.index',user_id = g.user.id)}}">我的请假申请</a>
+              <span>|</span>
+            </li>
+            {% if g.user.is_kpi_leader %}
+                <li id="_underling_" >
+                  <a href="{{url_for('account_leave.underling')}}">下属的请假申请</a>
+                  <span>|</span>
+                </li>
+            {% endif %}
+            {% if g.user.is_HR_leader() or g.user.is_OPS() or g.user.is_super_leader() or g.user.email in ['huhui@inad.com'] %}
+            <li id="_leaves_">
+              <a href="{{url_for('account_leave.leaves')}}">所有请假列表</a>
+            </li>
+            {% endif %}
+            
+        </ul>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[3]=='leaves'){
+            $('#_'+p_pathname[3]+'_').addClass("active");
+        }else if (p_pathname[3]=='underling'){
+            $('#_'+p_pathname[3]+'_').addClass("active");
+        }else{
+            $('#__').addClass("active");
+        }
+        
+    })
+</script>

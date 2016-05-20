@@ -1,0 +1,38 @@
+<div class="table-switch">
+    <ul>
+        <li id="_order_li" style="width:120px;">
+            <a id="_order_" href='{{url_for("searchAd_order.order_info", order_id=order.id, tab_id=1)}}'>合同流程</a>
+        </li>
+        {% if order.can_admin(g.user) or g.user.is_contract() or g.user.is_finance() %}
+        <li id="_invoice_li" style="width:120px;">
+            <a id="_invoice_" href='{{url_for("searchAd_saler_client_order_invoice.index", order_id=order.id)}}'>客户发票申请</a>
+        </li>
+        <li id="_back_money_li" style="width:120px;">
+            <a id="_back_money_" href='{{url_for("searchAd_saler_client_order_back_money.index", order_id=order.id)}}'>客户回款</a>
+        </li>
+        <li id="_medium_invoice_li" style="width:130px;">
+            <a id="_medium_invoice_" href='{{url_for("searchAd_saler_client_order_medium_invoice.index", order_id=order.id)}}'>媒体发票与打款</a>
+        </li>
+        <li id="_medium_rebate_invoice_li" style="width:130px;">
+            <a id="_medium_rebate_invoice_" href='{{url_for("searchAd_saler_client_order_medium_rebate_invoice.index", order_id=order.id)}}'>媒体返点发票申请</a>
+        </li>
+        <li id="_agent_invoice_li" style="width:140px;">
+            <a id="_agent_invoice_" href='{{url_for("searchAd_saler_client_order_agent_invoice.index", order_id=order.id)}}'>客户返点发票与打款</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+</br>
+<script>
+    $(document).ready(function(){
+    var pathname = window.location.pathname;
+    var path_name = pathname.split("/")
+    if (path_name[2] == 'order'){
+        $("#_order_li").addClass("actives");
+        $("#_order_").addClass("on");
+    }else{
+        $("#_" + path_name[3]+'_li').addClass("actives");
+        $("#_" + path_name[3]+'_').addClass("on");
+    }
+  })
+</script>

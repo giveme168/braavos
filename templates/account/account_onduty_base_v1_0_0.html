@@ -1,0 +1,38 @@
+<!--导航-->
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        <ul>
+            {% if g.user.is_HR_leader() or g.user.is_HR() or g.user.is_OPS() or g.user.is_super_leader() %}
+            <li id="__" class="nav-first">
+              <a href="{{url_for('account_onduty.index')}}">员工考勤</a>
+              <span>|</span>
+            </li>
+            {% else %}
+            <li id="__" class="nav-first">
+              <a href="{{url_for('account_onduty.info', uid=g.user.id)}}">员工考勤</a>
+              <span>|</span>
+            </li>
+            {% endif %}
+            {% if g.user.is_super_leader() or g.user.email in ['huawei@inad.com', 'lixuezhi@inad.com', 'weizhaoting@inad.com', 'shiying@inad.com', 'yangqian@inad.com',
+                'yanyue@inad.com'] %}
+            <li id="_unusual_" class="nav-last">
+              <a href="{{url_for('account_onduty.unusual')}}">考勤异常（销售）</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[3]=='info'){
+            $('#__').addClass("active");
+        }else if (p_pathname[3]=='unusual'){
+            $('#_'+p_pathname[3]+'_').addClass("active");
+        }else{
+            $('#__').addClass("active");
+        }
+        
+    })
+</script>

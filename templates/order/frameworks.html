@@ -1,67 +1,97 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% block title %}框架列表{% endblock %}
 
 {% macro all_items(orders) -%}
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>代理集团</th>
-        <th>直客/代理</th>
-        <th>合同金额</th>
-        <th>合同号</th>
-        <th>直客销售</th>
-        <th>渠道销售</th>
-        <th>开始</th>
-        <th>结束</th>
-        <th>回款日期</th>
-        <th>合同号状态</th>
-        <th>操作</th>
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td>{{o.group.name}}</td>
-        <td>
-            {% for agent in o.agents %}
-            {{agent.name}} <br>
+<div class='tabulation'>
+    <table border='1'>
+        <thead>
+            <tr>
+                <th>代理集团</th>
+                <th>直客/代理</th>
+                <th>合同金额</th>
+                <th>合同号</th>
+                <th>直客销售</th>
+                <th>渠道销售</th>
+                <th>开始</th>
+                <th>结束</th>
+                <th>回款日期</th>
+                <th>合同号状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in orders %}
+            <tr>
+                <td>{{o.group.name}}</td>
+                <td>
+                    {% for agent in o.agents %}
+                    {{agent.name}} <br>
+                    {% endfor %}
+                </td>
+                <td>{{o.money}}</td>
+                <td><a href="{{url_for('order.framework_order_info', order_id=o.id)}}">{{o.contract or "无合同号"}}</a></td>
+                <td>{{o.direct_sales_names}}</td>
+                <td>{{o.agent_sales_names}}</td>
+                <td>{{o.start_date_cn}}</td>
+                <td>{{o.end_date_cn}}</td>
+                <td>{{o.reminde_date_cn}}</td>
+                <td>{{o.contract_status_cn}}</td>
+                <td>
+                    <a href="{{url_for('order.framework_order_info', order_id=o.id)}}">合同设置</a>
+                    {% if g.user.is_super_admin() %}
+                        {% if o.status == 0 %}
+                            <a href="{{url_for('order.framework_recovery', order_id=o.id)}}" style="color:red;">恢复</a>
+                        {% else %}
+                            <a href="{{url_for('order.framework_delete', order_id=o.id)}}" style="color:red;">删除</a>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
             {% endfor %}
-        </td>
-        <td>{{o.money}}</td>
-        <td><a href="{{url_for('order.framework_order_info', order_id=o.id)}}">{{o.contract or "无合同号"}}</a></td>
-        <td>{{o.direct_sales_names}}</td>
-        <td>{{o.agent_sales_names}}</td>
-        <td>{{o.start_date_cn}}</td>
-        <td>{{o.end_date_cn}}</td>
-        <td>{{o.reminde_date_cn}}</td>
-        <td>{{o.contract_status_cn}}</td>
-        <td>
-            <a href="{{url_for('order.framework_order_info', order_id=o.id)}}">合同设置</a>
-            {% if g.user.is_super_admin() %}
-                {% if o.status == 0 %}
-                    <a href="{{url_for('order.framework_recovery', order_id=o.id)}}" style="color:red;">恢复</a>
-                {% else %}
-                    <a href="{{url_for('order.framework_delete', order_id=o.id)}}" style="color:red;">删除</a>
-                {% endif %}
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+        </tbody>
+    </table>
+</div>
 {%- endmacro %}
 
 {% block content %}
-{% include "order_base.html" %}
-<div class="container bra-box">
-    <h3> {{title}}
-        <input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">
-        <a class="btn btn-sm btn-success" href="{{url_for('order.new_framework_order')}}">新建框架订单</a>
-    </h3>
+{% include "order_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:1500px;">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">年度</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                        <option value="{{2014+k}}">{{2014+k}}年度</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="下载" onclick="javascript:download_order();">
+            </div>
+            <div class="select_option screen">
+                <a href="{{url_for('order.new_framework_order')}}">
+                    <input type="button" value="添加">
+                </a>
+            </div>
+        </form>
+    </div>
     {{ all_items(orders) }}
     {% set pages = orders %}
     {% include "pagination.html" %}
 </div>
 <script>
-function download(){
+function download_order(){
     window.location.href = window.location.pathname +
-      '?action=download';
+      '?action=download'+'&year='+$('#year').val();
 }
+$(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    $('#year').val('{{year}}');
+    $("#year").trigger("chosen:updated");
+})
 </script>
 {% endblock %}

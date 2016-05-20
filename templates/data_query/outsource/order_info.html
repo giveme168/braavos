@@ -1,0 +1,82 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}外包合同详情{% endblock %}
+{% block content %}
+{% include "/data_query/data_query_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:2000px;">
+    <h3 {% if g.user.is_super_leader() %}style="margin-top: 50px;"{% endif %}>外包详情</h3>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float: left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">执行年</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:150px;">
+                    {% for k in range(5) %}
+                    <option value="{{2014+k}}">{{2014+k}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
+        </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th colspan=5 >合同信息</th>
+                    <th colspan=6 >外包详情</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>项目合同号</th>
+                    <th>项目名称</th>
+                    <th>项目金额</th>
+                    <th>大区</th>
+                    <th>实付金额</th>
+                    <th>供应商名称</th>
+                    <th>类别</th>
+                    <th>开户行</th>
+                    <th>是否付款</th>
+                    <th>付款时间</th>
+                    <th>外包金额</th>
+                </tr>
+                {% for k in  orders %}
+                <tr>
+                    <td rowspan='{{k.outsource_obj|length+1}}'>{{k.contract or "无合同号"}}</td>
+                    <td rowspan='{{k.outsource_obj|length+1}}'>{{k.campaign}}</td>
+                    <td rowspan='{{k.outsource_obj|length+1}}'>{{k.money|format_price}}</td>
+                    <td rowspan='{{k.outsource_obj|length+1}}'>{{k.locations_cn}}</td>
+                    <td rowspan='{{k.outsource_obj|length+1}}'>{{k.outsources_paied_sum|format_price}}</td>
+                </tr>
+                    {% for o in k.outsource_obj %}
+                        <tr>
+                            <td>{{o.target_name}}</td>
+                            <td>{{o.type_cn}}</td>
+                            <td>{{o.target_bank}}</td>
+                            <td>{{o.pay_status_cn}}</td>
+                            <td>{{o.pay_time_cn}}</td>
+                            <td>{{o.money}}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(function(){
+        $('select').chosen({disable_search: true});
+        $("#year").val("{{now_year}}")
+        $("#year").trigger("chosen:updated");
+    })
+    function download(){
+         window.location.href = window.location.pathname +
+          '?year=' + $('#year').val() + '&action=download';
+    }
+</script>
+{% endblock %}

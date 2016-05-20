@@ -7,7 +7,7 @@ from models.framework_order import FrameworkOrder
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.user import User
 
-from libs.signals import douban_contract_apply_signal, framework_douban_contract_apply_signal
+from libs.email_signals import douban_contract_apply_signal, framework_douban_contract_apply_signal
 
 contract_bp = Blueprint(
     'contract', __name__, template_folder='../templates/contract')

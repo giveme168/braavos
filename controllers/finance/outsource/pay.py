@@ -11,7 +11,7 @@ from models.outsource import (
     MergerDoubanPersonalOutSource, MergerPersonalOutSource,
     OutSourceTarget)
 from models.user import User
-from libs.signals import outsource_apply_signal, merger_outsource_apply_signal
+from libs.email_signals import outsource_apply_signal, merger_outsource_apply_signal
 # from controllers.finance.helpers.pay_helpers import write_excel
 # from controllers.tools import get_download_response
 from libs.mail import mail
@@ -314,7 +314,7 @@ def outsource_back(outsource_id):
                      "to_users": ','.join([k.name for k in order.agent_sales] + [k.name for k in order.operater_users]),
                      "outsources": [outsource]}
     outsource_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
+        current_app._get_current_object(), context=apply_context)
     if type == 'douban':
         return redirect(url_for("finance_outsource_pay.douban_info", order_id=outsource.douban_order.id))
     else:

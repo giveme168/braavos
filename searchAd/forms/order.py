@@ -52,9 +52,10 @@ class ClientOrderForm(Form):
 
 class MediumOrderForm(Form):
     medium = SelectField(u'媒体/供应商', coerce=int, description=u"提交后不可修改")
-    sale_money = FloatField(u'客户下单金额(元)', default=0, description=u"无利润未分成")
-    medium_money2 = FloatField(u'给媒体/供应商下单金额(元)', default=0, description=u"已利润未分成")
-    medium_money = FloatField(u'分成金额(元)', default=0, description=u"已利润已分成, 实际给媒体分成金额") # hidden
+    channel_type = SelectField(u'最终推广渠道', coerce=int)
+    sale_money = FloatField(u'客户金额(元)', default=0, description=u"无利润未分成")
+    medium_money2 = FloatField(u'给供应商金额(元)', default=0, description=u"已利润未分成")
+    medium_money = FloatField(u'分成金额(元)', default=0, description=u"已利润已分成, 实际给媒体分成金额")  # hidden
     sale_CPM = IntegerField(u'预估量(CPM)', default=0)
     medium_CPM = IntegerField(u'实际量(CPM)', default=0, description=u"结项后由执行填写")
     medium_start = DateField(u'执行开始')
@@ -67,6 +68,7 @@ class MediumOrderForm(Form):
     def __init__(self, *args, **kwargs):
         super(MediumOrderForm, self).__init__(*args, **kwargs)
         self.medium.choices = [(m.id, m.name) for m in searchAdMedium.all()]
+        self.channel_type.choices = [(0, u'其他'), (1, u'360'), (2, u'百度'), (3, u'小米')]
         operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
         self.operaters.choices = [(m.id, m.name) for m in operaters]
         self.designers.choices = [(m.id, m.name) for m in User.gets_by_team_type(TEAM_TYPE_DESIGNER)]
@@ -76,6 +78,7 @@ class MediumOrderForm(Form):
 
 class FrameworkOrderForm(Form):
     agent = SelectField(u'代理/直客', coerce=int)
+    client_id = SelectField(u'客户', coerce=int)
     description = TextAreaField(u'备注', description=u"请填写返点政策/配送政策等信息")
     money = FloatField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
@@ -88,6 +91,8 @@ class FrameworkOrderForm(Form):
     def __init__(self, *args, **kwargs):
         super(FrameworkOrderForm, self).__init__(*args, **kwargs)
         self.agent.choices = [(a.id, a.name) for a in searchAdAgent.all()]
+        self.client_id.choices = [(0, u'无客户')]
+        self.client_id.choices += [(a.id, a.name) for a in searchAdClient.all()]
         self.sales.choices = [(m.id, m.name) for m in User.searchAd_sales()]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
 
@@ -141,7 +146,6 @@ class RebateOrderForm(Form):
         super(RebateOrderForm, self).__init__(*args, **kwargs)
         self.agent.choices = [(m.id, m.name) for m in searchAdAgent.all()]
         self.client.choices = [(c.id, c.name) for c in searchAdClient.all()]
-        
         self.sales.choices = [(m.id, m.name) for m in User.searchAd_sales()]
         operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
         self.operaters.choices = [(m.id, m.name) for m in operaters]

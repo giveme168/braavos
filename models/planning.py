@@ -67,9 +67,9 @@ LEVEL_TYPE_GENERAL = 2
 LEVEL_TYPE_COMPLEX = 3
 
 LEVEL_TYPE_CN = {
-    LEVEL_TYPE_NOMRAL: u'简单资源推荐案、word版本等——所需时间1天',
-    LEVEL_TYPE_GENERAL: u'普通策略案、创意案、细化执行案——所需时间2天',
-    LEVEL_TYPE_COMPLEX: u'复杂策略案、百万级大案、全年案、培训稿——所需时间3天',
+    LEVEL_TYPE_NOMRAL: u'C级：简单资源推荐、word版本等——至少1天',
+    LEVEL_TYPE_GENERAL: u'B级：普通策略案、创意案、细化执行案——至少2天',
+    LEVEL_TYPE_COMPLEX: u'A级：复杂策略案、百万级大案、全年案、培训稿等——至少3天',
 }
 
 
@@ -110,13 +110,13 @@ class Bref(db.Model, BaseModelMixin, CommentMixin):
         'User', backref=db.backref('bref_user', lazy='dynamic'))
     follow_id = db.Column(db.Integer, default=0)  # 分配人
     to_id = db.Column(db.Integer, default=0)   # 指派给
-
+    cc = db.Column(db.Text())
     __mapper_args__ = {'order_by': id.desc()}
 
     def __init__(self, title, agent, brand, product, target, background, push_target,
                  push_theme, push_time, budget, is_temp, agent_type, use_type, level,
                  get_time, intent_medium, suggest, desc, creator, status, follow_id,
-                 to_id, url=None, create_time=None, update_time=None):
+                 to_id, url=None, create_time=None, update_time=None, cc=''):
         self.title = title
         self.agent = agent
         self.status = status
@@ -142,6 +142,7 @@ class Bref(db.Model, BaseModelMixin, CommentMixin):
         self.get_time = get_time or datetime.datetime.now()
         self.create_time = create_time or datetime.datetime.now()
         self.update_time = update_time or datetime.datetime.now()
+        self.cc = cc or ''
 
     @property
     def follower(self):

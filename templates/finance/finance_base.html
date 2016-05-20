@@ -3,10 +3,11 @@
         <div class="list">
           <ul>
             {% if g.user.is_finance()%}
-            <a href="{{url_for('finance_client_order_invoice.index')}}"><li id="_client_orderinvoice_">申请中的客户发票</li></a>
-            <a href="{{url_for('finance_client_order_invoice.index_pass')}}"><li id="_client_orderinvoicepass_">所有客户发票</li></a>
+            <a href="{{url_for('finance_client_order_invoice.index')}}"><li id="_client_orderinvoice_">客户发票</li></a>
             <a  href="{{url_for('finance_client_order_back_money.index')}}"><li id="_client_orderback_money_">客户订单收款</li></a>
             <a  href="{{url_for('finance_douban_order_back_money.index')}}"><li id="_douban_orderback_money_">豆瓣订单收款</li></a>
+
+            <a  href="{{url_for('finance_client_order_medium_back_money.index')}}"><li id="_client_ordermedium_back_money_">媒体返点收款</li></a>
             
             <a href="{{url_for('finance_outsource_pay.index')}}"><li id="_outsourcepay_">新媒体订单外包</li></a>
             <a href="{{url_for('finance_outsource_pay.douban_index')}}"><li id="_outsourcepaydouban_">直签豆瓣订单外包</li></a>
@@ -14,15 +15,14 @@
             <a href="{{url_for('finance_client_order_outsource_invoice.index')}}"><li  id="_client_orderoutsource_invoice_">新媒体订单外包发票</li></a>
             <a href="{{url_for('finance_douban_order_outsource_invoice.index')}}"><li  id="_douban_orderoutsource_invoice_">直签豆瓣订单外包发票</li></a>
             
-            <a href="{{url_for('finance_client_order_medium_pay.apply')}}"><li  id="_client_ordermedium_payapply_">申请中媒体付款</li></a>
-            <a href="{{url_for('finance_client_order_medium_pay.index')}}"><li  id="_client_ordermedium_pay_">所有媒体付款</li></a>
-            
-            <a href="{{url_for('finance_client_order_agent_pay.index')}}"><li  id="_client_orderagent_pay_">客户付款信息</li></a>
-            
-            <a href="{{url_for('finance_client_order_medium_rebate_invoice.index')}}"><li  id="_client_ordermedium_rebate_invoice_">申请中的媒体返点发票</li></a>
-            <a href="{{url_for('finance_client_order_medium_rebate_invoice.index_pass')}}"><li id="_client_ordermedium_rebate_invoicepass_">所有媒体返点发票信息</li></a>
-            <a href="{{url_for('finance_client_order_data_query.agent_invoice')}}"><li  id="_client_orderdata_query_">发票打款数据查询</li></a>
+            <a href="{{url_for('finance_client_order_medium_pay.apply')}}"><li  id="_client_ordermedium_pay_">媒体付款</li></a>
+            <a href="{{url_for('finance_client_order_agent_pay.apply')}}"><li  id="_client_orderagent_pay_">客户付款信息</li></a>
+            <a href="{{url_for('finance_client_order_medium_rebate_invoice.index')}}"><li  id="_client_ordermedium_rebate_invoice_">媒体返点发票</li></a>
+            <a href="{{url_for('finance_client_order_data_query.agent_invoice')}}"><li  id="_client_orderdata_query_">新媒体订单数据查询</li></a>
+            <a href="{{url_for('finance_douban_order_data_query.back_money')}}"><li  id="_douban_orderdata_query_">豆瓣订单数据查询</li></a>
             <a href="{{url_for('finance_framework_order.index')}}"><li  id="_framework_order_">框架合同查询</li></a>
+            {% elif g.user.is_aduit() %}
+            <a href="{{url_for('finance_client_order_data_query.agent_invoice')}}"><li  id="_client_orderdata_query_">新媒体订单数据查询</li></a>
             {% endif %}
         <div class="line" style="clear: both"></div>
         </ul>
@@ -38,14 +38,10 @@
     $(function(){
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
-        if (p_pathname[2]+p_pathname[3]+p_pathname[4] == 'client_orderinvoicepass'){
-            $('#_client_orderinvoicepass_').addClass("on");
+        if (p_pathname[5] == 'douban_info'){
+            $('#_outsourcepaydouban_').addClass("on");
         }else if(p_pathname[2]+p_pathname[3]+p_pathname[4] == 'outsourcepaydouban'){
             $('#_outsourcepaydouban_').addClass("on");
-        }else if(p_pathname[2]+p_pathname[3]+p_pathname[4] == 'client_ordermedium_payapply'){
-            $('#_client_ordermedium_payapply_').addClass("on");
-        }else if(p_pathname[2]+p_pathname[3]+p_pathname[4] == 'client_ordermedium_rebate_invoicepass'){
-            $('#_client_ordermedium_rebate_invoicepass_').addClass("on");
         }else{
             $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass("on");
         }

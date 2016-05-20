@@ -1,39 +1,48 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'comments.html' import comments_box %}
 
 {% block content %}
-{% include "/finance/finance_base.html" %}
+{% include "/finance/finance_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>{{order.agent.name}}-{{order.name}}客户订单回款情况</h3>
-    <table class="table table-bordered">
-        <tr>
-            <th>订单总金额</th>
-            <th>已回款金额</th>
-            <th>未回款金额</th>
-            <th>已开客户发票</th>
-            <th>渠道销售</th>
-            <th>直客销售</th>
-            <th>是否完成回款</th>
-        </tr>
-        <tr>
-            <td>{{order.money|format_price}} 元</td>
-            <td>{{order.back_moneys|format_price}} 元</td>
-            <td>{{(order.money-order.back_moneys)|format_price}} 元</td>
-            <td>{{order.invoice_pass_sum|format_price}} 元</td>
-            <td>{{order.direct_sales_names}}</td>
-            <td>{{order.agent_sales_names}}</td>
-            <td>{{order.back_money_status_cn}}</td>
-        </tr>
-        <tr>
-            <td colspan="7">
-                <div class="progress">
-                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{order.back_money_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{order.back_money_percent}}%;">
-                        {{order.back_money_percent}}%
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>订单总金额</th>
+                    <th>已回款金额</th>
+                    <th>未回款金额</th>
+                    <th>已开客户发票</th>
+                    <th>渠道销售</th>
+                    <th>直客销售</th>
+                    <th>是否完成回款</th>
+                    <th>客户发票</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{order.money|format_price}} 元</td>
+                    <td>{{order.back_moneys|format_price}} 元</td>
+                    <td>{{(order.money-order.back_moneys)|format_price}} 元</td>
+                    <td>{{order.invoice_pass_sum|format_price}} 元</td>
+                    <td>{{order.direct_sales_names}}</td>
+                    <td>{{order.agent_sales_names}}</td>
+                    <td>{{order.back_money_status_cn}}</td>
+                    <td><a target="_blank" href="{{url_for('finance_client_order_invoice.info', order_id=order.id)}}">查看</a></td>
+                </tr>
+                <tr>
+                    <td colspan="8">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{order.back_money_percent}}" aria-valuemin="0" aria-valuemax="100" style="width: {{order.back_money_percent}}%;">
+                                {{order.back_money_percent}}%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <br/>
     <div class="panel panel-default" id="non-invoice">
         <div class="panel-heading">
             <h4 class="panel-title">
@@ -42,28 +51,30 @@
         </div>
         <div id="collapse-invoice-0" class="panel-collapse collapse in">
             <div class="panel-body">
-                
-                <div class="col-md-12">
-                    <div class="col-md-21" style="">
-                        <table class="table table-bordered">
-                          <tr>
-                            <th>回款时间</th>
-                            <th>金额</th>
-                            <th>操作</th>
-                          </tr>
-                          {% for back in order.back_money_list %}
-                          <tr>
-                            <td>{{back.back_time_cn}}</td>
-                            <td>{{back.money}}</td>
-                            <td><a href="{{url_for('finance_client_order_back_money.delete',order_id=order.id,bid=back.id)}}">删除</a></td>
-                          </tr>
-                          {% endfor %}
-                          <tr>
-                                  <td>合计</td>
-                                  <td>{{order.back_money_list|sum(attribute='money')}}</td>
-                                </tr>
-                        </table>
-                    </div>
+                <div class='tabulation'>
+                    <table border='1'>
+                        <thead>
+                            <tr>
+                                <th>回款时间</th>
+                                <th>金额</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for back in order.back_money_list %}
+                            <tr>
+                                <td>{{back.back_time_cn}}</td>
+                                <td>{{back.money}}</td>
+                                <td><a href="{{url_for('finance_client_order_back_money.delete',order_id=order.id,bid=back.id)}}">删除</a></td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td>合计</td>
+                                <td>{{order.back_money_list|sum(attribute='money')}}</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -76,30 +87,33 @@
         </div>
         <div id="collapse-invoice-0" class="panel-collapse collapse in">
             <div class="panel-body">
-                
-                <div class="col-md-12">
-                    <div class="col-md-21" style="">
-                        <table class="table table-bordered">
-                          <tr>
-                            <th>开票时间</th>
-                            <th>发票金额</th>
-                            <th>发票号</th>
-                            <th>操作</th>
-                          </tr>
-                          {% for back in order.back_invoice_rebate_list %}
-                          <tr>
-                            <td>{{back.back_time_cn}}</td>
-                            <td>{{back.money}}</td>
-                            <td>{{back.num}}</td>
-                            <td><a href="{{url_for('finance_client_order_back_money.delete_invoice',order_id=order.id,bid=back.id)}}">删除</a></td>
-                          </tr>
-                          {% endfor %}
-                          <tr>
-                                  <td>合计</td>
-                                  <td>{{order.back_invoice_rebate_list|sum(attribute='money')}}</td>
-                                </tr>
-                        </table>
-                    </div>
+                 <div class='tabulation'>
+                    <table border='1'>
+                        <thead>
+                            <tr>
+                                <th>开票时间</th>
+                                <th>发票金额</th>
+                                <th>发票号</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for back in order.back_invoice_rebate_list %}
+                            <tr>
+                                <td>{{back.back_time_cn}}</td>
+                                <td>{{back.money}}</td>
+                                <td>{{back.num}}</td>
+                                <td><a href="{{url_for('finance_client_order_back_money.delete_invoice',order_id=order.id,bid=back.id)}}">删除</a></td>
+                            </tr>
+                            {% endfor %}
+                            <tr>
+                                <td>合计</td>
+                                <td>{{order.back_invoice_rebate_list|sum(attribute='money')}}</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -121,9 +135,15 @@
                                     {% if order.back_money_status == 0 %}
                                       <option value="1">未完成</option>
                                       <option value="0" selected="selected">已完成</option>
+                                      <option value="-1">坏账</option>
+                                    {% elif order.back_money_status == -1 %}
+                                      <option value="1">未完成</option>
+                                      <option value="0">已完成</option>
+                                      <option value="-1" selected="selected">坏账</option>
                                     {% else %}
                                       <option value="1" selected="selected">未完成</option>
                                       <option value="0">已完成</option>
+                                      <option value="-1">坏账</option>
                                     {% endif %}
                                 </select>
                                 <span class="errors"></span>

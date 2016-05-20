@@ -7,13 +7,15 @@ from flask import render_template as tpl
 from models.user import User, TEAM_LOCATION_CN
 from searchAd.models.client_order import searchAdClientOrder, CONTRACT_STATUS_CN
 from searchAd.models.invoice import (searchAdMediumRebateInvoice, INVOICE_STATUS_CN,
-                            INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
-                            INVOICE_STATUS_APPLYPASS)
-from libs.signals import invoice_apply_signal
+                                     INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
+                                     INVOICE_STATUS_APPLYPASS)
+from libs.email_signals import medium_rebate_invoice_apply_signal
+from searchAd.forms.invoice import MediumRebateInvoiceForm
+from searchAd.models.medium import searchAdMedium
 from libs.paginator import Paginator
 from controllers.finance.helpers.invoice_helpers import write_medium_rebate_invoice_excel
 from controllers.tools import get_download_response
-from searchAd.controllers.saler.searchAd_order.medium_rebate_invoice import get_invoice_from, new_invoice as _new_invoice
+from searchAd.controllers.saler.searchAd_order.medium_rebate_invoice import get_invoice_from
 
 searchAd_finance_client_order_medium_rebate_invoice_bp = Blueprint(
     'searchAd_finance_client_order_medium_rebate_invoice', __name__, template_folder='../../../../templates/finance/client_order')
@@ -39,8 +41,11 @@ def index_pass():
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.datetime.now().year))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
+    orders = [k for k in orders if k.client_start.year ==
+              year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_info.lower()]
@@ -66,9 +71,9 @@ def index_pass():
         return response
     return tpl('/finance/searchAd_order/medium_rebate_invoice/index_pass.html', orders=orders, locations=select_locations,
                location_id=location_id, statuses=select_statuses, orderby=orderby,
-               now_date=datetime.date.today(), search_info=search_info, page=page,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s' %
-                      (orderby, search_info, location_id))
+               now_date=datetime.date.today(), search_info=search_info, page=page, year=year,
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&year=%s' %
+                      (orderby, search_info, location_id, str(year)))
 
 
 @searchAd_finance_client_order_medium_rebate_invoice_bp.route('/<order_id>/info', methods=['GET'])
@@ -82,7 +87,8 @@ def info(order_id):
         'PASS': [{'invoice': x, 'form': get_invoice_from(order, x)} for x in
                  searchAdMediumRebateInvoice.query.filter_by(client_order=order) if x.invoice_status == INVOICE_STATUS_PASS],
         'APPLYPASS': [{'invoice': x, 'form': get_invoice_from(order, x)} for x in
-                      searchAdMediumRebateInvoice.query.filter_by(client_order=order)
+                      searchAdMediumRebateInvoice.query.filter_by(
+                          client_order=order)
                       if x.invoice_status == INVOICE_STATUS_APPLYPASS],
     }
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
@@ -94,8 +100,41 @@ def info(order_id):
 
 
 @searchAd_finance_client_order_medium_rebate_invoice_bp.route('/<order_id>/order/new', methods=['POST'])
-def new_invoice(order_id, redirect_epoint='searchAd_finance_medium_rebate_invoice.info'):
-    return _new_invoice(order_id, redirect_epoint)
+def new_invoice(order_id):
+    order = searchAdClientOrder.get(order_id)
+    if not order:
+        abort(404)
+    if request.method == 'POST':
+        form = MediumRebateInvoiceForm(request.form)
+        # medium = searchAdMedium.get(form.medium.data)
+        # if float(form.money.data) > float(order.get_medium_rebate_money(medium) -
+        #                                   order.get_medium_rebate_invoice_apply_sum(medium) -
+        #                                   order.get_medium_rebate_invoice_pass_sum(medium)):
+        #     flash(u"新建发票失败，您申请的发票超过了媒体:%s 返点金额: %s" % (medium.name, order.get_medium_rebate_money(medium)), 'danger')
+        #     return redirect(url_for(redirect_epoint, order_id=order_id))
+        invoice = searchAdMediumRebateInvoice.add(client_order=order,
+                                                  medium=searchAdMedium.get(
+                                                      form.medium.data),
+                                                  company=form.company.data,
+                                                  tax_id=form.tax_id.data,
+                                                  address=form.address.data,
+                                                  phone=form.phone.data,
+                                                  bank_id=form.bank_id.data,
+                                                  bank=form.bank.data,
+                                                  detail=form.detail.data,
+                                                  money=form.money.data,
+                                                  invoice_type=form.invoice_type.data,
+                                                  invoice_status=INVOICE_STATUS_PASS,
+                                                  creator=g.user,
+                                                  invoice_num=request.values.get('new_invoice_num', ' '),
+                                                  back_time=form.back_time.data)
+        # invoice.save()
+        order.add_comment(g.user, u"添加发票信息：%s" % (
+            u'发票内容: %s; 发票金额: %s元' % (invoice.detail, str(invoice.money))), msg_channel=6)
+    else:
+        for k in form.errors:
+            flash(u"新建发票失败，%s" % (form.errors[k][0]), 'danger')
+    return redirect(url_for("searchAd_finance_client_order_medium_rebate_invoice.info", order_id=order_id))
 
 
 @searchAd_finance_client_order_medium_rebate_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
@@ -167,7 +206,6 @@ def pass_invoice(invoice_id):
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
-    to_emails = list(set(emails + [x.email for x in to_users]))
     if action != 10:
         invoice_status = INVOICE_STATUS_PASS
         action_msg = u'发票已开'
@@ -182,17 +220,15 @@ def pass_invoice(invoice_id):
     else:
         action_msg = u'消息提醒'
 
-    apply_context = {"sender": g.user,
-                     "title": action_msg,
-                     "to": to_emails,
-                     "action_msg": action_msg,
-                     "msg": msg,
-                     "order": invoice.client_order,
-                     "send_type": "saler",
-                     "invoices": invoices,
-                     "url": invoice.client_order.finance_invoice_path()}
-    invoice_apply_signal.send(
-        current_app._get_current_object(), apply_context=apply_context)
-    flash(u'[%s 发票已开] 已发送邮件给 %s ' %
-          (invoice.client_order, ', '.join(to_emails)), 'info')
+    context = {"to_users": to_users,
+               "to_other": emails,
+               "action_msg": action_msg,
+               "action": 0,
+               "info": msg,
+               "order": invoice.client_order,
+               "send_type": 'end',
+               "invoices": invoices
+               }
+    medium_rebate_invoice_apply_signal.send(
+        current_app._get_current_object(), context=context)
     return redirect(url_for("searchAd_finance_client_order_medium_rebate_invoice.info", order_id=invoice.client_order.id))

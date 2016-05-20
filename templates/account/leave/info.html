@@ -1,9 +1,9 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
 {% block title %}填写请假申请表{% endblock %}
 
 {% block content %}
-{% include "/account/account_leave_base.html" %}
+{% include "/account/account_leave_base_v1_0_0.html" %}
 <style>
     pre {
         background-color:#ffffff;
@@ -13,52 +13,48 @@
 </style>
 <div class="container bra-box">
     <h3>请假申请表</h3>
-    <form class="form form-horizontal">
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">类型 : </label>
-          <div class="col-sm-8">
+    <form class="input-row-box">
+        <div class="input-group-menu">
+          <div class="name">请假人 : </div>
+            <pre>{{leave.creator.name}}</pre>
+        </div>
+        <div class="input-group-menu">
+          <div class="name">类型 : </div>
             <pre>{{leave.type_cn}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">执行开始 : </div>
             <pre>{{leave.start_time_cn}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">执行结束 : </div>
             <pre>{{leave.end_time_cn}}</pre>
-          </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label">请假时长 : </label>
-            <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">请假时长 : </div>
                 <pre class="col-sm-8">{{leave.rate_day_cn}}</pre>
-            </div>
         </div>
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">原因 : </label>
-          <div class="col-sm-8">
+        <div class="input-group-menu">
+          <div class="name">原因 : </div>
             <pre>{{leave.reason}}</pre>
-          </div>
         </div>
-        <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="javascript:history.go(-1);">返回</a>
-        
-        {% if leave.status == 2 %}
-          {% if leave.is_long_leave() %}
-              {% if g.user.is_super_leader() %}
-                  <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_leave.status', user_id=g.user.id, lid=leave.id)}}?status=3">通过</a>
-                  <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_leave.status', user_id=g.user.id, lid=leave.id)}}?status=4">不通过</a>
+
+        <div class="state" style="margin-left:25%;margin-top:50px;">
+            <a href="javascript:history.go(-1);"><input type="button" value="返回"></a>
+            {% if leave.status == 2 %}
+              {% if leave.is_long_leave() %}
+                  {% if g.user.is_super_leader() %}
+                      <a style="width:100px;" href="{{url_for('account_leave.status', user_id=g.user.id, lid=leave.id)}}?status=3"><button type="button" style="margin-left: 100px;"/>通过</button></a>
+                      <a style="width:100px;" href="{{url_for('account_leave.status', user_id=g.user.id, lid=leave.id)}}?status=4"><button type="button" style="margin-left: 100px;"/>不通过</button></a>
+                  {% endif %}
+              {% else %}
+                  {% if g.user in leave.creator.team_leaders or g.user.is_super_admin() %}
+                      <a style="width:100px; margin-left: 100px;" href="{{url_for('account_leave.status', user_id=g.user.id, lid=leave.id)}}?status=3"><button type="button" style="margin-left: 100px;"/>通过</button></a>
+                      <a style="width:100px; margin-left: 100px;" href="{{url_for('account_leave.status', user_id=g.user.id, lid=leave.id)}}?status=4"><button type="button" style="margin-left: 100px;"/>不通过</button></a>
+                  {% endif %}
               {% endif %}
-          {% else %}
-              {% if g.user in leave.creator.team_leaders or g.user.is_super_admin() %}
-                  <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_leave.status', user_id=g.user.id, lid=leave.id)}}?status=3">通过</a>
-                  <a style="width:100px;" class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_leave.status', user_id=g.user.id, lid=leave.id)}}?status=4">不通过</a>
-              {% endif %}
-          {% endif %}
-        {% endif %}
+            {% endif %}
+        </div>
     </form>
 </div>
 {% endblock %}

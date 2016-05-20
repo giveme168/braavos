@@ -1,0 +1,48 @@
+<div class="container-fluid top_nav_fluid">
+    <div class="menu">
+        <div class="list">
+          <ul>
+            {% if g.user.is_super_leader() or g.user.is_aduit()  or g.user.is_finance()%}
+            <a href="{{url_for('data_query_super_leader_industry.client_order')}}">
+              <li id="_industry_" >行业分析</li>
+            </a>
+            <a href="{{url_for('data_query_super_leader_agent.client_order')}}">
+              <li id="_agent_" >代理分析</li>
+            </a>
+            <a href="{{url_for('data_query_super_leader_client.client_order')}}">
+              <li id="_client_" >客户分析</li>
+            </a>
+            <a href="{{url_for('data_query_super_leader_sale_type.client_order')}}">
+              <li id="_sale_type_" >售卖类型分析</li>
+            </a>
+            <a href="{{url_for('data_query_super_leader_money.client_order')}}">
+              <li id="_money_" >执行金额分析</li>
+            </a>
+            <a href="{{url_for('data_query_super_leader_client_info.client_order')}}">
+              <li id="_client_info_" >客户数量分析</li>
+            </a>
+            <a href="{{url_for('data_query_super_leader_back_money.client_order')}}">
+              <li id="_back_money_" >回款分析</li>
+            </a>
+            {% endif %}
+            <div class="line" style="clear: both"></div>
+          </ul>
+        </div>
+        <div class="list">
+          <ul>
+            {% if g.user.is_super_leader() or g.user.is_aduit()  or g.user.is_finance()%}
+            <a href="{{url_for('data_query_super_leader_medium_info.index')}}">
+              <li id="_medium_info_" >媒体执行额分析</li>
+            </a>
+            {% endif %}
+          </ul>
+        </div>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[3]+'_').addClass("on");
+    })
+</script>

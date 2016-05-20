@@ -5,7 +5,7 @@ from libs.db import db as _db
 
 @pytest.fixture(scope='session')
 def app(request):
-    app = create_app("braavos.config.TestingConfig")
+    app = create_app("config.TestingConfig")
 
     # Establish an application context before running the tests.
     ctx = app.app_context()

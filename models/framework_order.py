@@ -63,7 +63,12 @@ agent_sales = db.Table('framework_order_agent_sales',
                        db.Column(
                            'client_order_id', db.Integer, db.ForeignKey('bra_framework_order.id'))
                        )
-
+assistant_sales = db.Table('framework_order_assistant_sales',
+                           db.Column(
+                               'assistant_sale_id', db.Integer, db.ForeignKey('user.id')),
+                           db.Column(
+                               'client_order_id', db.Integer, db.ForeignKey('bra_framework_order.id'))
+                           )
 agents = db.Table('framework_order_agents',
                   db.Column('agent_id', db.Integer, db.ForeignKey('agent.id')),
                   db.Column(
@@ -83,15 +88,17 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     contract = db.Column(db.String(100))  # 客户合同号
     douban_contract = db.Column(db.String(100))  # 豆瓣合同号
-    money = db.Column(db.Integer)  # 客户合同金额
+    money = db.Column(db.Float())  # 客户合同金额
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
     reminde_date = db.Column(db.Date)  # 最迟回款日期
 
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
-
+    assistant_sales = db.relationship('User', secondary=assistant_sales)
     contract_status = db.Column(db.Integer)  # 合同审批状态
     status = db.Column(db.Integer)
 
@@ -110,7 +117,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def __init__(self, group, agents=None, description=None, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, reminde_date=None,
-                 direct_sales=None, agent_sales=None, finish_time=None,
+                 direct_sales=None, agent_sales=None, assistant_sales=[], finish_time=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW,
                  inad_rebate=0.0, douban_rebate=0.0):
         self.group = group
@@ -123,10 +130,13 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
         self.reminde_date = reminde_date or datetime.date.today()
 
         self.direct_sales = direct_sales or []
         self.agent_sales = agent_sales or []
+        self.assistant_sales = assistant_sales or []
 
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
@@ -139,7 +149,7 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @classmethod
     def get_all(cls):
         """查看所有没删除订单"""
-        return [o for o in cls.query.all() if o.status in [STATUS_ON, None] and o.contract_status not in [7, 8, 9]]
+        return [o for o in cls.query.all() if o.status in [STATUS_ON, None] and o.contract_status not in [9]]
 
     @classmethod
     def all(cls):
@@ -164,8 +174,12 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.agent_sales])
 
     @property
+    def assistant_sales_names(self):
+        return ",".join([u.name for u in self.assistant_sales])
+
+    @property
     def leaders(self):
-        return list(set([l for u in self.direct_sales + self.agent_sales
+        return list(set([l for u in self.direct_sales + self.agent_sales + self.assistant_sales
                          for l in u.user_leaders] + User.super_leaders()))
 
     @property
@@ -176,18 +190,33 @@ class FrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         金额: %s
         直客销售: %s
         渠道销售: %s
+        执行开始时间: %s
+        执行结束时间: %s
+        框架合同号: %s
         备注: %s
         """ % (self.group.name, self.money, self.direct_sales_names,
-               self.agent_sales_names, self.description)
+               self.agent_sales_names, self.start_date_cn, self.end_date_cn,
+               self.contract, self.description,)
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        admin_users = self.direct_sales + self.agent_sales + [self.creator]
+        salers = self.direct_sales + self.agent_sales + self.assistant_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        admin_users = salers + [self.creator] + list(set(leaders))
         return user.is_admin() or user.is_contract() or user in admin_users
+
+    def can_media_leader_action(self, user):
+        return False
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales + [self.creator]
+        salers = self.direct_sales + self.agent_sales + self.assistant_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        owner = salers + [self.creator] + list(set(leaders))
         return user.is_admin() or user in owner
 
     @classmethod

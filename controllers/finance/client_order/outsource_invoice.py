@@ -26,8 +26,10 @@ def index():
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
+    year = int(request.values.get('year', datetime.datetime.now().year))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
+    orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
@@ -53,9 +55,9 @@ def index():
         k.apply_money = sum([j.pay_num for j in apply_outsources])
     return tpl('/finance/client_order/outsource/invoice.html', orders=orders, locations=select_locations,
                location_id=location_id, statuses=select_statuses, orderby=orderby,
-               now_date=datetime.date.today(), search_info=search_info, page=page,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s' %
-                      (orderby, search_info, location_id))
+               now_date=datetime.date.today(), search_info=search_info, page=page, year=year,
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&year=%s' %
+                      (orderby, search_info, location_id, year))
 
 
 @finance_client_order_outsource_invoice_bp.route('/<order_id>/info', methods=['GET', 'POST'])
@@ -73,8 +75,8 @@ def info(order_id):
         OutsourceInvoice.add(
             client_order=order,
             company=request.values.get('company', ''),
-            money=int(request.values.get('money', 0)),
-            ex_money=int(request.values.get('ex_money', 0)),
+            money=float(request.values.get('money', 0)),
+            ex_money=float(request.values.get('ex_money', 0)),
             invoice_num=request.values.get('invoice_num', ''),
             add_time=request.values.get('add_time', now_date),
             create_time=datetime.datetime.now(),

@@ -1,8 +1,8 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'comments.html' import comments_box %}
 
 {% block content %}
-{% include "/finance/finance_base.html" %}
+{% include "/finance/finance_base_v1_0_0.html" %}
 {% macro merger_table(merger_outsources, status, target) -%}
 <div class="panel-group" id="accordion-outsource">
         <div class="panel panel-default">
@@ -71,45 +71,50 @@
                               <td>{{o.remark}}</td>
                           </tr>
                           {% endfor %}
+                          <tr>
+                            <td style="text-align:center">合计</td>
+                            <td colspan=15>
+                              {% if t.invoice %}
+                                {{t.outsources|sum(attribute='pay_num')|format_price}}
+                              {% else %}
+                                {% set totle_pay_num = t.outsources|sum(attribute='pay_num')*0.95 %}
+                                {{totle_pay_num|format_price}}
+                              {% endif %}
+                            </td>
+                          </tr>
                         {% endfor %}
                     </table>
                     {% if status == 2 %}
                     <input type="checkbox" name="outsource-all" class="outsource-all" onclick="check_all(this);"/> 全选
                     {% if target %}
-                    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('finance_outsource_pay.merget_client_target_paid', target_id=target.id)}}">
+                    <form class="input-row-box outsource-status-form" id="status-form" method="POST" action="{{url_for('finance_outsource_pay.merget_client_target_paid', target_id=target.id)}}">
                     {% else %}
-                    <form class="form form-horizontal outsource-status-form" id="status-form" method="POST" action="{{url_for('finance_outsource_pay.merget_client_target_paid', target_id=0)}}">
+                    <form class="input-row-box outsource-status-form" id="status-form" method="POST" action="{{url_for('finance_outsource_pay.merget_client_target_paid', target_id=0)}}">
                     {% endif %}
-                       <div class="form-group">
-                          <label for="email" class="col-sm-2 control-label">提醒邮箱 : </label>
-                          <div class="col-sm-10">
-                              <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+                       <div class="input-group-menu">
+                          <div class="name">提醒邮箱 : </div>
+                              <select class="surname" style="width:300px;" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
                                 {% for u in reminder_emails %}
                                 <option value="{{u[1]}}">{{u[0]}}</option>
                                 {% endfor %}
                               </select>
-                          </div>
                        </div>
-                       <div class="form-group">
-                          <label for="msg" class="col-sm-2 control-label">留言 : </label>
-                          <div class="col-sm-10">
-                              <textarea class="form-control bra-form-control" id="msg"
+                       <div class="input-group-menu">
+                          <div class="name">留言 : </div>
+                              <textarea class="surname" style="width:300px;" id="msg"
                               name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
-                          </div>
                        </div>
-                       <div class="form-group">
-                          <label class="col-sm-2 control-label">打款时间</label>
-                          <div class="col-sm-10">
-                            <input class="datetimepicker form-control bra-form-control" id="pay_time" name="pay_time" type="text" value="" readonly="readonly" data-date-format="yyyy-mm-dd">
-                          </div>
+                       <div class="input-group-menu" style="margin-top:70px;">
+                          <div class="name">打款时间</div>
+                            <input class="datetimepicker surname" style="width:300px;" id="pay_time" name="pay_time" type="text" value="" readonly="readonly" data-date-format="yyyy-mm-dd">
                        </div>
-                       <div class="form-group">
-                          <label class="col-sm-2 control-label">操作 : </label>
-                          <div class="col-sm-10">
+                       <div class="input-group-menu">
+                          <div class="name">操作 : </div>
                             {% if g.user.is_finance() %}
-                            <button class="btn btn-sm btn-primary status-outsource-btn" name="action" type="submit" value="0">已打款</button>
+                            <div class="state">
+                              <button type="submit" name="action" value="0">确认</button>
+                            </div>
                             {% endif %}
-                          </div>
                        </div>
                      </form>
                      {% endif %}
@@ -174,6 +179,7 @@ Date.prototype.Format = function (fmt) { //author: meizz
     $(e).parent().find(".outsource-id").trigger("change");
   }
   $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
     $('.popover_a').popover({
       html:true,
       template:'<div class="popover" role="tooltip" style="min-width:1000px;"><div class="arrow"></div><div class="popover-content" style="min-width:1000px;"></div></div>'

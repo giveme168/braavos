@@ -1,9 +1,9 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'form.html' import form_field %}
-{% block title %}新建{{user.name}}的提成{% endblock %}
+{% block title %}新建{{user.name}}的提成比例{% endblock %}
 
 {% block content %}
-{% include "/account/account_performance_base.html" %}
+{% include "/account/account_performance_base_v1_0_0.html" %}
 <style>
     pre {
         background-color:#ffffff;
@@ -11,27 +11,25 @@
     }
 </style>
 <div class="container bra-box">
-    <h4>新建{{user.name}}的提成</h4>
-    <form class="form form-horizontal" method="POST" onsubmit="return checkform(this)">
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">年份 : </label>
-          <div class="col-sm-6">
-            <select id='year' name='year' class="form-control bra-form-control">
+    <h4>新建{{user.name}}的提成比例</h4>
+    <form class="input-row-box" method="POST" onsubmit="return checkform(this)">
+        <div class="input-group-menu">
+            <div class="name">年份 : </div>
+            <select id='year' name='year' class="surname" style="width:300px;">
                 {% for k in range(2014, 2031) %}
                 <option value="{{k}}">{{k}}</option>
                 {% endfor %}
             </select>
-          </div>
         </div>
-        <div class="form-group">
-          <label for="client_end" class="col-sm-2 control-label">提成比例 : </label>
-          <div class="col-sm-6">
-            <input type="number" id="rate" name="rate" value="0" class="form-control bra-form-control">
+        <div class="input-group-menu">
+            <div class="name">提成比例 : </div>
+            <input type="text" id="rate" name="rate" value="0" class="surname" style="width:300px;">
             <span class="tips" style="color:red;">%</span>
-          </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-sm col-md-offset-2"/>保存</button>
-        <a class="btn btn-primary btn-sm col-md-offset-2" href="{{url_for('account_commission.info', user_id=user.id)}}"/>返回</a>
+        <div class="state" style="margin-left:40%;">
+            <a href="{{url_for('account_commission.info', user_id=user.id)}}"><input type="button" value="返回"></a>
+            <input type="submit" value="保存">
+        </div>
     </form>
 </div>
 <script>
@@ -45,5 +43,8 @@ function checkform(obj){
     }
     return true;
 }
+$(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+})
 </script>
 {% endblock %}

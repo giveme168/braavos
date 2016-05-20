@@ -1,112 +1,152 @@
-{% extends "base.html" %}
+{% extends "base_v1_0_0.html" %}
 {% block title %}直签豆瓣订单列表{% endblock %}
 
 {% macro all_items(orders) -%}
-<table class="table table-bordered table-striped">
-    <tr>
-        <th>代理/直客</th>
-        <th>客户</th>
-        <th>Campaign</th>
-        <th>合同金额</th>
-        <th>合同号</th>
-        <th>回款日期</th>
-        <th>回款比例</th>
-        <th>直客销售</th>
-        <th>渠道销售</th>
-        <th>区域</th>
-        <th>直签/代理</th>
-        <th>预估ECPM</th>
-        <th>开始</th>
-        <th>结束</th>
-        <th>执行</th>
-        <th>合同号状态</th>
-        <th>操作</th>
-    </tr>
-    {% for o in orders %}
-    <tr>
-        <td>{{o.agent.name}}</td>
-        <td>{{o.client.name}}</td>
-        <td><a href="{{o.info_path()}}">{{o.campaign}}</a></td>
-        <td>{{o.money}}</td>
-        <td>{{o.contract or "无合同号"}}</td>
-        <td>{{o.reminde_date_cn}}</td>
-        <th>{{o.back_money_percent}}%</th>
-        <td>{{o.direct_sales_names}}</td>
-        <td>{{o.agent_sales_names}}</td>
-        <td>{{o.locations_cn}}</td>
-        <td>{{o.sale_type_cn}}</td>
-        <td>{{"%.1f" % (o.money / o.sale_CPM) if o.sale_CPM else "无预估"}}</td>
-        <td>{{o.start_date_cn}}</td>
-        <td>{{o.end_date_cn}}</td>
-        <td>{{o.operater_names}}</td>
-        <td>{{o.contract_status_cn}}</td>
-        <td>
-            <a href="{{o.info_path()}}">订单管理</a>
-            {% if g.user.is_super_admin() %}
-                {% if o.status == 0 %}
-                <a href="{{url_for('order.douban_order_recovery', order_id=o.id)}}" style="color:red;">恢复</a>
-                {% else %}
-                    <a href="{{url_for('order.douban_order_delete', order_id=o.id)}}" style="color:red;">删除</a>
-                {% endif %}
+<div class='tabulation'>
+    <table border='1'>
+        <thead>
+            <tr>
+                <th>代理/直客</th>
+                <th>客户</th>
+                <th>Campaign</th>
+                <th>合同金额</th>
+                <th>合同号</th>
+                <th>结束</th>
+                <th>执行</th>
+                <th>回款日期</th>
+                <th>账期</th>
+                <th>回款比例</th>
+                <th>回款总金额</th>
+                <th>欠款金额</th>
+                <th>直客销售</th>
+                <th>渠道销售</th>
+                <th>区域</th>
+                <th>直签/代理</th>
+                <th>预估ECPM</th>
+                <th>开始</th>
+                <th>合同号状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in orders %}
+            {% if now_date > o.reminde_date and o.back_money_percent != 100 %}
+            <tr class="not-completed">
+            {% else %}
+            <tr>
             {% endif %}
-            {% if g.user.is_media() or g.user.is_contract() or g.user.is_super_admin() %}
-                {% if o.contract_status in [2,4,5] and o.contract %}
-                    {% if o.is_executive_report() %}
-                        <a href="{{url_for('order.executive_report', order_id=o.id)}}?rtype=reload&otype=DoubanOrder">重新生成周报报表</a>
-                    {% else %}
-                        <a href="{{url_for('order.executive_report', order_id=o.id)}}?otype=DoubanOrder">生成周报报表</a>
+                <td>{{o.agent.name}}</td>
+                <td>{{o.client.name}}</td>
+                <td><a href="{{o.info_path()}}">{{o.campaign}}</a></td>
+                <td>{{o.money}}</td>
+                <td>{{o.contract or "无合同号"}}</td>
+                <td>{{o.start_date_cn}}</td>
+                <td>{{o.end_date_cn}}</td>
+                <td>{{o.reminde_date_cn}}</td>
+                <td>{{o.payable_time}}</td>
+                <th>{{o.back_money_percent}}%</th>
+                <td>{{o.back_moneys}}</td>
+                <td>{{o.money-o.back_moneys}}</td>
+                <td>{{o.direct_sales_names}}</td>
+                <td>{{o.agent_sales_names}}</td>
+                <td>{{o.locations_cn}}</td>
+                <td>{{o.sale_type_cn}}</td>
+                <td>{{"%.1f" % (o.money / o.sale_CPM) if o.sale_CPM else "无预估"}}</td>
+                <td>{{o.operater_names}}</td>
+                <td>{{o.contract_status_cn}}</td>
+                <td>
+                    <a href="{{o.info_path()}}">订单管理</a>
+                    {% if g.user.is_super_admin() %}
+                        {% if o.status == 0 %}
+                        <a href="{{url_for('order.douban_order_recovery', order_id=o.id)}}" style="color:red;">恢复</a>
+                        {% else %}
+                            <a href="{{url_for('order.douban_order_delete', order_id=o.id)}}" style="color:red;">删除</a>
+                        {% endif %}
                     {% endif %}
-                    
-                {% endif %}
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+                    {% if g.user.is_media() or g.user.is_contract() or g.user.is_super_admin() %}
+                        {% if o.contract_status in [2,4,5] and o.contract %}
+                            {% if o.is_executive_report() %}
+                                <a href="{{url_for('order.executive_report', order_id=o.id)}}?rtype=reload&otype=DoubanOrder">重新生成周报报表</a>
+                            {% else %}
+                                <a href="{{url_for('order.executive_report', order_id=o.id)}}?otype=DoubanOrder">生成周报报表</a>
+                            {% endif %}
+                            
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {%- endmacro %}
 
 {% block content %}
-{% include "order_base.html" %}
-<div class="container bra-box" style="width:1700px;">
-    <h3> {{title}}</h3>
-    <div class="search">
-        <input class="col-md-3" type="text" id="search_info" value="{{search_info}}" placeholder="客户/代理/合同号/Campaign" onkeypress="javascript:enter_search();">&nbsp;
-        <div class="col-md-1" style="padding:0;margin:0 5px;" id="search-area">
-            <select class="col-md-12" id="search_location" name="location" placeholder="区域">
-                {% for v, m in locations %}
-                    {% if v == location_id|int %}
-                    <option selected="" value="{{v}}">{{m}}</option>
-                    {% else %}
-                    <option value="{{v}}">{{m}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-1" style="padding:0;margin-right:5px;">
-            <select class="col-md-12" id="search_status" name="status" placeholder="合同状态">
-                {% for v, m in statuses %}
-                    {% if v == status_id|int %}
-                    <option selected="" value="{{v}}">{{m}}</option>
-                    {% else %}
-                    <option value="{{v}}">{{m}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-1" style="padding:0;margin-right:5px;">
-            <select class="col-md-12" id="orderby" name="orderby" placeholder="排序方式">
-                <option value="create_time">按添加时间排序</option>
-                <option value="client_start">按执行开始时间排序</option>
-                <option value="client_end">按执行结束时间排序</option>
-                <option value="reminde_date">按回款时间排序</option>
-                <option value="contract">按合同号排序</option>
-            </select>
-        </div>
-        <input type="button" name="search" value="搜索" class="btn btn-sm btn-info" onclick="javascript:search();">
-        <input type="button" name="download" value="下载" class="btn btn-sm btn-default" onclick="javascript:download();">
-        <a class="btn btn-sm btn-success" href="{{url_for('order.new_douban_order')}}">新建直签豆瓣订单</a>
+{% include "order_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:2000px;">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input">
+                <input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">年度</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                        <option value="{{2014+k}}">{{2014+k}}年度</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">区域</label>
+                <select class="form-control special_sale" name="location" id="search_location" style="width:100px;">
+                    {% for v, m in locations %}
+                        {% if v == location_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                        {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">合同状态</label>
+                <select class="form-control special_sale" name="status" id="search_status" style="width:140px;">
+                    {% for v, m in statuses %}
+                        {% if v == status_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                        {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                        {% endif %}
+                    {% endfor %}
+                    <option value="31">已完成回款</option>
+                    <option value="32">未完成回款</option>
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">排序方式</label>
+                <select class="form-control special_sale" name="orderby" id="orderby" style="width:120px;">
+                    <option value="create_time">按添加时间</option>
+                    <option value="client_start">按执行开始时间</option>
+                    <option value="client_end">按执行结束时间</option>
+                    <option value="reminde_date">按回款时间</option>
+                    <option value="contract">按合同号排序</option>
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="下载" onclick="javascript:download();">
+            </div>
+            <div class="select_option screen">
+                <a href="{{url_for('order.new_douban_order')}}">
+                    <input type="button" value="添加">
+                </a>
+            </div>
+        </form>
     </div>
-    <br>
     {{ all_items(orders) }}
     {% set pages = orders %}
     {% include "pagination.html" %}
@@ -128,7 +168,8 @@ function sort(value){
     window.location.href = window.location.pathname+'?sortby='+sortby+'&orderby='+orderby+
     '&searchinfo='+encodeURIComponent($('#search_info').val())+
     '&selected_location='+encodeURIComponent($('#search_location').val())+
-    '&selected_status='+encodeURIComponent($('#search_status').val());
+    '&selected_status='+encodeURIComponent($('#search_status').val())+
+    '&year='+$('#year').val();
 }
 
 function search(){
@@ -136,7 +177,8 @@ function search(){
       '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
       '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val())+
-      '&orderby=' + ($('#orderby').val());
+      '&orderby=' + ($('#orderby').val())+
+      '&year='+$('#year').val();
 }
 
 function download(){
@@ -145,6 +187,7 @@ function download(){
       '&selected_location=' + ($('#search_location').val()) +
       '&selected_status=' + ($('#search_status').val()) +
       '&orderby=' + ($('#orderby').val())+
+      '&year='+$('#year').val()+
       '&action=download';
 }
 
@@ -156,12 +199,17 @@ function enter_search(){
     }
 }
 $(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
     {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() %}
     {% else %}
     $("#search-area").hide()
     {% endif %}
     $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
     $("#orderby").trigger("chosen:updated");
+    $('#year').val('{{year}}');
+    $("#year").trigger("chosen:updated");
+    $("#search_status").val(parseInt('{{status_id}}'))
+    $("#search_status").trigger("chosen:updated");
 });
 
 </script>

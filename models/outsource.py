@@ -64,22 +64,22 @@ class OutSourceTarget(db.Model, BaseModelMixin):
     def client_outsources_by_status(self, status):
         outsources = list(
             OutSource.query.filter_by(target_id=self.id, status=status))
-        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and k.medium_order.status == 1]
+        return [k for k in outsources if k.medium_order.status == 1]
 
     def client_outsources_by_paied(self):
         outsources = list(
             OutSource.query.filter_by(target_id=self.id, status=OUTSOURCE_STATUS_PAIED))
-        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and k.medium_order.status == 1]
+        return [k for k in outsources if k.medium_order.status == 1]
 
     def douban_outsources_by_status(self, status):
         outsources = list(
             DoubanOutSource.query.filter_by(target_id=self.id, status=status))
-        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9] and k.douban_order.status == 1]
+        return [k for k in outsources if k.douban_order.status == 1]
 
     def douban_outsources_by_paied(self):
         outsources = list(DoubanOutSource.query.filter_by(
             target_id=self.id, status=OUTSOURCE_STATUS_PAIED))
-        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9] and k.douban_order.status == 1]
+        return [k for k in outsources if k.douban_order.status == 1]
 
     def outsource_status_cn(self, status):
         if int(status) == OUTSOURCE_STATUS_PAIED:
@@ -109,14 +109,18 @@ OUTSOURCE_TYPE_BETTER = 4
 OUTSOURCE_TYPE_OTHER = 5
 OUTSOURCE_TYPE_FLASH_AND_H5 = 6
 OUTSOURCE_TYPE_H5 = 7
+OUTSOURCE_TYPE_GG = 8
+OUTSOURCE_TYPE_DS = 9
 OUTSOURCE_TYPE_CN = {
     OUTSOURCE_TYPE_GIFT: u"奖品",
     OUTSOURCE_TYPE_FLASH: u"Flash",
     OUTSOURCE_TYPE_KOL: u"劳务(KOL、线下活动等)",
     OUTSOURCE_TYPE_BETTER: u"效果优化",
-    OUTSOURCE_TYPE_OTHER: u"其他(视频等)",
+    OUTSOURCE_TYPE_OTHER: u"其他(预留)",
     OUTSOURCE_TYPE_FLASH_AND_H5: u'flash&H5开发',
     OUTSOURCE_TYPE_H5: u'H5开发',
+    OUTSOURCE_TYPE_GG: u'网络公关运营',
+    OUTSOURCE_TYPE_DS: u'设计',
 }
 
 OUTSOURCE_SUBTYPE_NOFLASH = 1
@@ -189,12 +193,12 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
     target = db.relationship(
         'OutSourceTarget', backref=db.backref('outsources', lazy='dynamic'))
-    medium_order_id = db.Column(db.Integer, db.ForeignKey('bra_order.id'))
+    medium_order_id = db.Column(db.Integer, db.ForeignKey('bra_order.id'), index=True)
     medium_order = db.relationship(
         'Order', backref=db.backref('outsources', lazy='dynamic'))
     merger_outsources = db.relationship(
         'MergerOutSource', secondary=table_merger_outsources)
-    num = db.Column(db.Integer)
+    num = db.Column(db.Float)
     type = db.Column(db.Integer)
     subtype = db.Column(db.Integer)
     invoice = db.Column(db.Boolean)  # 发票
@@ -294,13 +298,12 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     def get_outsources_by_target(cls, target_id, status):
         outsources = list(
             cls.query.filter_by(target_id=target_id, status=status))
-        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and k.medium_order.status == 1]
+        return [k for k in outsources if k.medium_order.status == 1]
 
     @classmethod
     def get_personal_outsources(cls, status):
         outsources = list(cls.query.filter_by(status=status))
-        return [k for k in outsources if k.medium_order.contract_status not in [7, 8, 9] and
-                k.medium_order.status == 1 and k.target.otype == 2]
+        return [k for k in outsources if k.medium_order.status == 1 and k.target.otype == 2]
 
     @property
     def create_time_cn(self):
@@ -379,15 +382,15 @@ class OutSourceExecutiveReport(db.Model, BaseModelMixin):
     target_id = db.Column(db.Integer, db.ForeignKey('out_source_target.id'))
     target = db.relationship('OutSourceTarget', backref=db.backref(
         'report_outsources_target', lazy='dynamic'))
-    outsource_id = db.Column(db.Integer)
-    otype = db.Column(db.Integer)
-    type = db.Column(db.Integer)
+    outsource_id = db.Column(db.Integer, index=True)
+    otype = db.Column(db.Integer, index=True)
+    type = db.Column(db.Integer, index=True)
     subtype = db.Column(db.Integer)
     invoice = db.Column(db.Boolean)  # 发票
     num = db.Column(db.Float)
     pay_num = db.Column(db.Float)
     create_time = db.Column(db.DateTime)
-    month_day = db.Column(db.DateTime)
+    month_day = db.Column(db.DateTime, index=True)
     days = db.Column(db.Integer)
     __table_args__ = (db.UniqueConstraint(
         'outsource_id', 'otype', 'month_day', name='_outsource_month_day_report'),)
@@ -436,11 +439,14 @@ class OutSourceExecutiveReport(db.Model, BaseModelMixin):
 
     @property
     def order(self):
-        if self.otype == 1:
-            order = OutSource.get(self.outsource_id).client_order
-        else:
-            order = DoubanOutSource.get(self.outsource_id).douban_order
-        return order
+        try:
+            if self.otype == 1:
+                order = OutSource.get(self.outsource_id).client_order
+            else:
+                order = DoubanOutSource.get(self.outsource_id).douban_order
+            return order
+        except:
+            return None
 
     @property
     def order_status(self):
@@ -468,12 +474,12 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     target = db.relationship('OutSourceTarget', backref=db.backref(
         'douban_outsources_target', lazy='dynamic'))
     douban_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_douban_order.id'))
+        db.Integer, db.ForeignKey('bra_douban_order.id'), index=True)
     douban_order = db.relationship(
         'DoubanOrder', backref=db.backref('douban_outsources', lazy='dynamic'))
     merger_outsources = db.relationship(
         'MergerDoubanOutSource', secondary=table_merger_douban_outsources)
-    num = db.Column(db.Integer)
+    num = db.Column(db.Float)
     type = db.Column(db.Integer)
     subtype = db.Column(db.Integer)
     invoice = db.Column(db.Boolean)  # 发票
@@ -569,13 +575,12 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     def get_outsources_by_target(cls, target_id, status):
         outsources = list(
             cls.query.filter_by(target_id=target_id, status=status))
-        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9] and k.douban_order.status == 1]
+        return [k for k in outsources if k.douban_order.status == 1]
 
     @classmethod
     def get_personal_outsources(cls, status):
         outsources = list(cls.query.filter_by(status=status))
-        return [k for k in outsources if k.douban_order.contract_status not in [7, 8, 9] and
-                k.douban_order.status == 1 and k.target.otype == 2]
+        return [k for k in outsources if k.douban_order.status == 1 and k.target.otype == 2]
 
     @property
     def create_time_cn(self):
@@ -735,6 +740,10 @@ class MergerOutSource(db.Model, BaseModelMixin, CommentMixin):
     def search_invoice_info(self):
         return ''.join([k.order.search_invoice_info for k in self.outsources])
 
+    @property
+    def merger_path(self):
+        return url_for('outsource.merget_client_target_info', target_id=self.target_id)
+
 
 class MergerPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'merger_personal_out_source'
@@ -794,6 +803,10 @@ class MergerPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     @property
     def search_invoice_info(self):
         return ''.join([k.order.search_invoice_info for k in self.outsources])
+
+    @property
+    def merger_path(self):
+        return url_for('outsource.merget_client_target_personal_info')
 
 
 table_merger_douban_personal_outsources = db.Table('merget_douban_personal_outsources',
@@ -869,6 +882,10 @@ class MergerDoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     def search_invoice_info(self):
         return ''.join([k.order.search_invoice_info for k in self.outsources])
 
+    @property
+    def merger_path(self):
+        return url_for('outsource.merget_douban_target_info', target_id=self.target_id)
+
 
 class MergerDoubanPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'merger_douban_personal_out_source'
@@ -928,3 +945,7 @@ class MergerDoubanPersonalOutSource(db.Model, BaseModelMixin, CommentMixin):
     @property
     def search_invoice_info(self):
         return ''.join([k.order.search_invoice_info for k in self.outsources])
+
+    @property
+    def merger_path(self):
+        return url_for('outsource.merget_douban_target_personal_info')

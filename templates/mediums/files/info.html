@@ -1,9 +1,9 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'comments.html' import comments_box %}
 {% block title %}媒体产品{% endblock %}
 
 {% block content%}
-{% include "/mediums/mediums_base.html" %}
+{% include "/mediums/mediums_base_v1_0_0.html" %}
 <style>
   .file-widget-btn{margin: 10px;}
 </style>
@@ -78,7 +78,7 @@ $(function(){
     var file = $(this)[0].files[0];
     var byteSize  = file.size;
     var r_size = Math.ceil(byteSize / 1024 / 1024); // Size returned in MB.
-    if (r_size > 50){
+    if (r_size > 100){
         alert("上传文件不能超过50M，请尽量压缩已节省资源")
     }else{
         $(this).parents("form").submit();

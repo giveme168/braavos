@@ -1,33 +1,30 @@
-{% from 'form.html' import form_field %}
+{% from 'form_v1_0_0.html' import form_field %}
 {% macro order_framework_form(form) -%}
-<form class="form form-horizontal" method="POST">
+<form class="input-row-box" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
     {{ form_field(form.agent) }}
+    {{ form_field(form.client_id) }}
     {{ form_field(form.description) }}
     {{ form_field(form.money) }}
-    <div class="form-group">
-      <label for="client_start" class="col-sm-2 control-label">执行开始 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行开始 : </div>
+      <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="client_end" class="col-sm-2 control-label">执行结束 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">执行结束 : </div>
+      <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
-    <div class="form-group">
-      <label for="reminde_date" class="col-sm-2 control-label">回款日期 : </label>
-      <div class="col-sm-4">
-        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-      </div>
+    <div class="input-group-menu">
+      <div class="name">回款日期 : </div>
+      <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
     </div>
     {{ form_field(form.rebate) }}
     {{ form_field(form.sales) }}
     {{ form_field(form.contract_type) }}
-    <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="保存">
+    </div>
 </form>
 <script>
 $(document).ready(function(){

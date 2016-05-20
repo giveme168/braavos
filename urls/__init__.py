@@ -18,6 +18,9 @@ from urls.mediums import mediums_register_blueprint
 from urls.account import account_register_blueprint
 from urls.planning import planning_register_blueprint
 from urls.media import media_register_blueprint
+from urls.manage import manage_register_blueprint
+from urls.kol import kol_register_blueprint
+from urls.other import other_register_blueprint
 # for searchAd team
 from urls.searchAd.order import searchAd_order_register_blueprint
 from urls.searchAd.client import searchAd_client_register_blueprint
@@ -47,6 +50,9 @@ def register_blueprint(app):
     account_register_blueprint(app)
     planning_register_blueprint(app)
     media_register_blueprint(app)
+    manage_register_blueprint(app)
+    kol_register_blueprint(app)
+    other_register_blueprint(app)
     searchAd_order_register_blueprint(app)
     searchAd_client_register_blueprint(app)
     searchAd_saler_register_blueprint(app)

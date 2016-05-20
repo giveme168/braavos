@@ -1,0 +1,41 @@
+{% from 'form_v1_0_0.html' import form_field %}
+{% macro order_medium_framework_form(form) -%}
+<form class="input-row-box" method="POST">
+    <input class="hide" name="info_type" value="0"/>
+    {{form.csrf_token}}
+    {{ form_field(form.mediums) }}
+    {{ form_field(form.description) }}
+    {{ form_field(form.money) }}
+    <div class="input-group-menu">
+      <div class="name">执行开始 : </div>
+        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    <div class="input-group-menu">
+      <div class="name">执行结束 : </div>
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    {{ form_field(form.inad_rebate) }}
+    {{ form_field(form.medium_users) }}
+    {{ form_field(form.contract_type) }}
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="保存">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+      });
+    $("#client_end").change(function(e){
+      var endDate = new Date($('#client_end').val());
+      endDate.setDate(endDate.getDate() + 90); 
+      $('#reminde_date').val(endDate.getFullYear()+"-"+(endDate.getMonth()+1)+"-"+endDate.getDate())
+    });
+
+});
+</script>
+{%- endmacro %}

@@ -876,5 +876,45 @@
         }
 
     }
+    $(function(){
+        $('#kr_1_key').val('{{future_report.next_kr_1_key}}');
+        $('#kr_1_value').val('{{future_report.next_kr_1_value}}');
+        $('#kr_1_w').val('{{future_report.next_kr_1_w or 0}}');
+        $('#kr_1_w').trigger("chosen:updated");
+        $('#kr_2_key').val('{{future_report.next_kr_2_key}}')
+        $('#kr_2_value').val('{{future_report.next_kr_2_value}}')
+        $('#kr_2_w').val('{{future_report.next_kr_2_w or 0}}')
+        $('#kr_2_w').trigger("chosen:updated");
+        $('#kr_3_key').val('{{future_report.next_kr_3_key}}')
+        $('#kr_3_value').val('{{future_report.next_kr_3_value}}')
+        $('#kr_3_w').val('{{future_report.next_kr_3_w or 0}}')
+        $('#kr_3_w').trigger("chosen:updated");
+
+        $('#up_1_key').val('{{future_report.next_up_1_key}}');
+        $('#up_1_value').val('{{future_report.next_up_1_value}}');
+        $('#up_1_w').val('{{future_report.next_up_1_w or 0}}');
+        $('#up_1_w').trigger("chosen:updated");
+        $('#up_2_key').val('{{future_report.next_up_2_key}}')
+        $('#up_2_value').val('{{future_report.next_up_2_value}}')
+        $('#up_2_w').val('{{future_report.next_up_2_w or 0}}')
+        $('#up_2_w').trigger("chosen:updated");
+        $('#up_3_key').val('{{future_report.next_up_3_key}}')
+        $('#up_3_value').val('{{future_report.next_up_3_value}}')
+        $('#up_3_w').val('{{future_report.next_up_3_w or 0}}')
+        $('#up_3_w').trigger("chosen:updated");
+
+        $('#manage_1_key').val('{{future_report.next_manage_1_key}}');
+        $('#manage_1_value').val('{{future_report.next_manage_1_value}}');
+        $('#manage_1_w').val('{{future_report.next_manage_1_w or 0}}');
+        $('#manage_1_w').trigger("chosen:updated");
+        $('#manage_2_key').val('{{future_report.next_manage_2_key}}')
+        $('#manage_2_value').val('{{future_report.next_manage_2_value}}')
+        $('#manage_2_w').val('{{future_report.next_manage_2_w or 0}}')
+        $('#manage_2_w').trigger("chosen:updated");
+        $('#manage_3_key').val('{{future_report.next_manage_3_key}}')
+        $('#manage_3_value').val('{{future_report.next_manage_3_value}}')
+        $('#manage_3_w').val('{{future_report.next_manage_3_w or 0}}')
+        $('#manage_3_w').trigger("chosen:updated");
+    })
 </script>
 {% endblock %}

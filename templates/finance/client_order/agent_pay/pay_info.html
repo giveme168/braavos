@@ -1,16 +1,16 @@
-{% extends "/base.html" %}
-{% from '/form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from '/form_v1_0_0.html' import form_field %}
 {% from '/finance/client_order/agent_pay/agent_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 
 {% block content %}
-{% include "/finance/finance_base.html" %}
+{% include "/finance/finance_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>{{ invoice.client_order.agent.name }}-{{invoice.client_order.name}} 客户订单发票信息</h3>
     <table class="table table-bordered">
           <tr>
             <th>公司名称</th>
-            <td>{{invoice.company}}</td>
+            <td>{{invoice.company}}{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
           </tr>
           <tr>
             <th>税号</th>
@@ -80,7 +80,7 @@
             {{invoice.client_order.name}}-{{ invoice.agent.name }}-{{ invoice.money }}元
         </h4>
         {% if g.user.is_super_leader() or invoice.client_order.can_admin(g.user) or g.user.is_finance() %}
-        <form class="form form-horizontal" method="POST" action="{{url_for('finance_client_order_agent_pay.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+        <form class="input-row-box" method="POST" action="{{url_for('finance_client_order_agent_pay.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
         {{ form_field(form.client_order)}}
         {{ form_field(form.agent)}}
@@ -94,16 +94,50 @@
         {{ form_field(form.money) }}
         {{ form_field(form.invoice_num) }}
         {{ form_field(form.invoice_type) }}
-        <div class="form-group">
-          <label for="client_start" class="col-sm-2 control-label">开票时间 : </label>
-          <div class="col-sm-4">
-            <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-          </div>
+        <div class="input-group-menu">
+          <div class="name">开票时间 : </div>
+          <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
         </div>
         {{ form_field(form.bool_invoice) }}
-        <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+        <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+        </div>
         </form>
         {% endif %}
+    </div>
+    <div class="panel panel-default" id="non-invoice">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 公司信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-0" class="panel-collapse collapse in">
+            <div class="panel-body">
+                
+                <div class="col-md-12">
+                    <div class="col-md-21" style="">
+                        <table class="table table-bordered table-striped">
+                          <tr>
+                            <th>公司名称</th>
+                            <th>公司税号</th>
+                            <th>公司地址</th>
+                            <th>公司电话</th>
+                            <th>开户行</th>
+                            <th>银行账号</th>
+                          </tr>
+                          <tr>
+                            <td>{{invoice.agent.name}}</td>
+                            <td>{{invoice.agent.tax_num}}</td>
+                            <td>{{invoice.agent.address}}</td>
+                            <td>{{invoice.agent.phone_num}}</td>
+                            <td>{{invoice.agent.bank}}</td>
+                            <td>{{invoice.agent.bank_num}}</td>
+                          </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     {% set invoices_data_apply = invoice.get_invoice_pas_by_status(3) %}
     {% set invoices_data_pass = invoice.get_invoice_pas_by_status(0) %}
@@ -124,12 +158,14 @@
                             <th>打款时间</th>
                             <th>打款金额</th>
                             <th>备注</th>
+                            <th>操作</th>
                           </tr>
                           {% for invoice in invoices_data_pass %}
                           <tr>
                             <td>{{invoice.pay_time_cn}}</td>
                             <td>{{invoice.money}}元</td>
                             <td>{{invoice.detail}}</td>
+                            <td><a href='javascript:delete_pay_money("{{invoice.agent_invoice_id}}", "{{invoice.id}}")'>删除</a></td>
                           </tr>
                           {% endfor %}
                         </table>
@@ -161,11 +197,13 @@
                             <th>打款时间</th>
                             <th>打款金额</th>
                             <th>备注</th>
+                            <th>操作</th>
                           </tr>
                           <tr>
                             <td>{{invoice.pay_time_cn}}</td>
                             <td>{{invoice.money}}元</td>
                             <td>{{invoice.detail}}</td>
+                            <td><a <a href="javascript:show_update_pay_time('{{invoice.id}}','{{invoice.pay_time_cn}}')">修改打款时间</a></td>
                           </tr>
                         </table>
                     </div>
@@ -214,7 +252,57 @@
     <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写打款信息</button>
     <div>{{ comments_box(invoice.client_order, msg_channel=5) }}</div>
 </div>
+<div class="modal fade" id="update_pay_time_form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="margin-top:170px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">修改打款时间</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+            <input class="hide" name="invoice_id" id="invoice_id" value=""/>
+            <div class="form-group">
+              <label for="client_start" class="col-sm-4 control-label">打款时间 : </label>
+              <div class="col-sm-4">
+                <input type="text" class="datetimepicker form-control bra-form-control" id="update_pay_time" name="update_pay_time" />
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <input type="button" onclick="update_pay_time()" class="btn btn-primary" value="保存"/>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
+  function delete_pay_money(invoice_id, pid){
+     if(confirm('你要确认要删除此项付款吗？')){
+        window.location.href="/finance/client_order/agent_pay/"+invoice_id+"/"+pid+"/pay_delete";       
+      }
+   }
+  function show_update_pay_time(invoice_id, date){
+      $("#invoice_id").val(invoice_id)
+      $('#update_pay_time_form').modal();
+      $('#update_pay_time').val(date);
+      $('#update_pay_time').datetimepicker({
+          autoclose: true,
+          todayHighlight: true,
+          language: 'zh-CN',
+          minView: 2,
+          format: 'yyyy-mm-dd',
+          todayBtn: true
+      });
+  }
+  function update_pay_time(){
+      var invoice_id = $("#invoice_id").val()
+      var date = $("#update_pay_time").val();
+      $.post("/finance/client_order/agent_pay/"+invoice_id+"/pay_time/update",{'pay_time':date},function(result){
+            window.location.reload()
+      });
+   }
   $(function(){
     showInvoice = function(ele){
       $(ele).hide();
@@ -238,6 +326,7 @@
   }
   $(function(){
     $(document).ready(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
         $('.datetimepicker').datetimepicker({
             autoclose: true,
             todayHighlight: true,

@@ -8,37 +8,37 @@ from . import db, BaseModelMixin
 from models.mixin.attachment import AttachmentMixin
 from libs.date_helpers import check_month_get_Q
 
-USER_STATUS_ON = 1         # 有效
-USER_STATUS_OFF = 0        # 停用
+USER_STATUS_ON = 1  # 有效
+USER_STATUS_OFF = 0  # 停用
 
 USER_STATUS_CN = {
     USER_STATUS_OFF: u"停用",
     USER_STATUS_ON: u"有效"
 }
-
+TEAM_TYPE_AUDIT = 24  # 审计
 TEAM_TYPE_OUT_INAD = 23  # 外部其他
 TEAM_TYPE_SEARCH_AD_LEADER = 22  # 360搜索广告销售Leader
 TEAM_TYPE_SEARCH_AD_SELLER = 21  # 360搜索广告销售
-TEAM_TYPE_MEDIA_LEADER = 20       # 内部-媒介Leader
+TEAM_TYPE_MEDIA_LEADER = 20  # 内部-媒介Leader
 TEAM_TYPE_OPS_LEADER = 19  # 行政-Leader
 TEAM_TYPE_OPS = 18  # 行政
 TEAM_TYPE_HR_LEADER = 17  # 人力-Leader
 TEAM_TYPE_HR = 16  # 人力
-TEAM_TYPE_OPERATER_LEADER = 15       # 执行-Leader
-TEAM_TYPE_SUPER_LEADER = 14       # Super-Leader
-TEAM_TYPE_FINANCE = 13       # 内部-财务
-TEAM_TYPE_MEDIA = 12       # 内部-媒介
-TEAM_TYPE_DOUBAN_CONTRACT = 11       # 豆瓣-合同管理员
-TEAM_TYPE_CONTRACT = 10       # 內部-合同管理员
-TEAM_TYPE_LEADER = 9       # 内部-销售Leader
-TEAM_TYPE_MEDIUM = 8       # 媒体
-TEAM_TYPE_DESIGNER = 7       # 內部-设计
-TEAM_TYPE_PLANNER = 6       # 內部-策划
-TEAM_TYPE_OPERATER = 5     # 內部-執行
-TEAM_TYPE_AGENT_SELLER = 4       # 內部-渠道銷售
-TEAM_TYPE_DIRECT_SELLER = 3       # 內部-直客銷售
-TEAM_TYPE_INAD = 2         # 内部-其他
-TEAM_TYPE_ADMIN = 1        # 系统管理员
+TEAM_TYPE_OPERATER_LEADER = 15  # 执行-Leader
+TEAM_TYPE_SUPER_LEADER = 14  # Super-Leader
+TEAM_TYPE_FINANCE = 13  # 内部-财务
+TEAM_TYPE_MEDIA = 12  # 内部-媒介
+TEAM_TYPE_DOUBAN_CONTRACT = 11  # 豆瓣-合同管理员
+TEAM_TYPE_CONTRACT = 10  # 內部-合同管理员
+TEAM_TYPE_LEADER = 9  # 内部-销售Leader
+TEAM_TYPE_MEDIUM = 8  # 媒体
+TEAM_TYPE_DESIGNER = 7  # 內部-设计
+TEAM_TYPE_PLANNER = 6  # 內部-策划
+TEAM_TYPE_OPERATER = 5  # 內部-執行
+TEAM_TYPE_AGENT_SELLER = 4  # 內部-渠道銷售
+TEAM_TYPE_DIRECT_SELLER = 3  # 內部-直客銷售
+TEAM_TYPE_INAD = 2  # 内部-其他
+TEAM_TYPE_ADMIN = 1  # 系统管理员
 TEAM_TYPE_SUPER_ADMIN = 0  # 程序管理员
 
 TEAM_TYPE_CN = {
@@ -65,7 +65,8 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_MEDIA_LEADER: u'内部-媒介Leader',
     TEAM_TYPE_SEARCH_AD_SELLER: u'360搜索广告销售',
     TEAM_TYPE_SEARCH_AD_LEADER: u'360搜索广告销售Leader',
-    TEAM_TYPE_OUT_INAD: u'外部-其他'
+    TEAM_TYPE_OUT_INAD: u'外部-其他',
+    TEAM_TYPE_AUDIT: u'审计'
 }
 
 TEAM_LOCATION_DEFAULT = 0
@@ -104,14 +105,16 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     team_leaders = db.relationship('User', secondary=team_leaders, primaryjoin=id == team_leaders.c.user_id,
                                    secondaryjoin=id == team_leaders.c.leader_id,
                                    backref="user_ids")
-    birthday = db.Column(db.DateTime)
-    recruited_date = db.Column(db.DateTime)
-    quit_date = db.Column(db.DateTime)
+    birthday = db.Column(db.DateTime)  # 生日
+    recruited_date = db.Column(db.DateTime)  # 入职时间
+    quit_date = db.Column(db.DateTime)  # 离职时间
+    positive_date = db.Column(db.DateTime)  # 转正时间
     cellphone = db.Column(db.String(20))
     position = db.Column(db.String(100))
+    sn = db.Column(db.String(10), index=True)
 
     def __init__(self, name, email, password, team, status=USER_STATUS_ON, team_leaders=[], birthday=None,
-                 position='', recruited_date=None, quit_date=None, cellphone=''):
+                 position='', recruited_date=None, positive_date=None, quit_date=None, cellphone='', sn=''):
         self.name = name
         self.email = email.lower()
         self.set_password(password)
@@ -119,10 +122,12 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         self.status = status
         self.team_leaders = team_leaders
         self.birthday = birthday or DEFAULT_BIRTHDAY
+        self.positive_date = positive_date or DEFAULT_BIRTHDAY
         self.recruited_date = recruited_date or datetime.date.today()
         self.quit_date = quit_date or datetime.date.today()
         self.cellphone = cellphone or ''
         self.position = position or ''
+        self.sn = sn
 
     '''
     def __repr__(self):
@@ -204,6 +209,9 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     def is_OPS_leader(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_OPS_LEADER
 
+    def is_aduit(self):
+        return self.team.type == TEAM_TYPE_AUDIT
+
     def is_OPS(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_OPS
 
@@ -261,6 +269,10 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         return cls.gets_by_team_type(TEAM_TYPE_SUPER_LEADER)
 
     @classmethod
+    def super_admin_leaders(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_SUPER_ADMIN)
+
+    @classmethod
     def leaders(cls):
         return cls.gets_by_team_type(TEAM_TYPE_LEADER)
 
@@ -278,9 +290,8 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
 
     @classmethod
     def sales(cls):
-        return (cls.gets_by_team_type(TEAM_TYPE_DIRECT_SELLER) +
-                cls.gets_by_team_type(TEAM_TYPE_AGENT_SELLER) +
-                cls.leaders())
+        return [u for u in cls.all() if u.team.type in [TEAM_TYPE_DIRECT_SELLER,
+                                                        TEAM_TYPE_AGENT_SELLER, TEAM_TYPE_LEADER]]
 
     @classmethod
     def searchAd_sales(cls):
@@ -374,6 +385,14 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
             return commission.rate / 100
         return 0
 
+    def completion(self, date):
+        year = str(date.year)
+        Q = check_month_get_Q(date.strftime('%m'))
+        completion = self.completion_user.filter_by(time=year + Q).first()
+        if completion:
+            return completion.rate / 100
+        return 0
+
     def performance(self, year, Q):
         performance = self.performance_user.filter_by(
             year=int(year), q_month=Q).first()
@@ -387,7 +406,8 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         back_moneys = belong_time['back_moneys']
         for k in back_moneys:
             Q = check_month_get_Q(k[0].strftime('%m'))
-            performance_obj[str(k[0].year) + Q] = self.performance(k[0].year, Q)
+            performance_obj[
+                str(k[0].year) + Q] = self.performance(k[0].year, Q)
         return performance_obj
 
     # 销售提成 - 获取销售提成（跨年度有可能是多个）
@@ -398,6 +418,15 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
             commission_obj[str(k[0].year)] = self.commission(k[0].year)
         return commission_obj
 
+    # 销售提成 - 获取销售完成率（跨年度有可能是多个）
+    def get_completion(self, belong_time):
+        completion_obj = {}
+        back_moneys = belong_time['back_moneys']
+        for k in back_moneys:
+            Q = check_month_get_Q(k[0].strftime('%m'))
+            completion_obj[str(k[0].year) + Q] = self.completion(k[0])
+        return completion_obj
+
     @property
     def cellphone_cn(self):
         return self.cellphone or u'无'
@@ -406,7 +435,42 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         return self in self.team.admins
 
     def is_other_person(self):
-        return self.team.type == TEAM_TYPE_OUT_INAD
+        return self.team.type in [TEAM_TYPE_OUT_INAD, TEAM_TYPE_AUDIT]
+
+    @property
+    def last_check_time(self):
+        onduty = self.user_onduty
+        if onduty.count() > 0:
+            return onduty[-1].check_time.strftime('%Y-%m-%d %H:%M:%S')
+        return u'无'
+
+    @property
+    def lately_completion(self):
+        return self.completion_user.first()
+
+    @property
+    def recruited_date_cn(self):
+        if not self.recruited_date:
+            return None
+        elif self.recruited_date.strftime('%Y-%m-%d') == '1970-01-01':
+            return None
+        return self.recruited_date.strftime('%Y-%m-%d')
+
+    @property
+    def quit_date_cn(self):
+        if not self.quit_date:
+            return None
+        elif self.quit_date.strftime('%Y-%m-%d') == '1970-01-01':
+            return None
+        return self.quit_date.strftime('%Y-%m-%d')
+
+    @property
+    def positive_date_cn(self):
+        if not self.positive_date:
+            return None
+        elif self.positive_date.strftime('%Y-%m-%d') == '1970-01-01':
+            return None
+        return self.positive_date.strftime('%Y-%m-%d')
 
 
 team_admins = db.Table('team_admin_users',
@@ -451,7 +515,7 @@ class Team(db.Model, BaseModelMixin):
         return self.type == TEAM_TYPE_SUPER_ADMIN
 
     def is_admin(self):
-        return self.is_super_admin() or self.type == TEAM_TYPE_ADMIN
+        return self.is_super_admin() or self.type in [TEAM_TYPE_ADMIN, TEAM_TYPE_SUPER_LEADER]
 
     def is_medium(self):
         return self.type == TEAM_TYPE_MEDIUM
@@ -463,7 +527,6 @@ send_users = db.Table('leave_send_users',
                       db.Column(
                           'leave_id', db.Integer, db.ForeignKey('user_leave.id'))
                       )
-
 
 LEAVE_TYPE_NORMAL = 1
 LEAVE_TYPE_ANNUAL = 2
@@ -497,13 +560,71 @@ LEAVE_STATUS_CN = {
     LEAVE_STATUS_APPLYBACK: u'不通过',
 }
 
+OKR_QUARTER_SPRING = 1
+OKR_QUARTER_SUMMER = 2
+OKR_QUARTER_FALL = 3
+OKR_QUARTER_WINTER = 4
+
+OKR_QUARTER_CN = {
+    OKR_QUARTER_SPRING: u'Q1',
+    OKR_QUARTER_SUMMER: u'Q2',
+    OKR_QUARTER_FALL: u'Q3',
+    OKR_QUARTER_WINTER: u'Q4'
+}
+
+OKR_STATUS_BACK = 0
+OKR_STATUS_NORMAL = 1
+OKR_STATUS_APPLY = 2
+OKR_STATUS_PASS = 3
+OKR_STATUS_APPLYBACK = 4
+
+OKR_STATUS_CN = {
+    OKR_STATUS_BACK: u'撤销申请',
+    OKR_STATUS_NORMAL: u'待申请',
+    OKR_STATUS_APPLY: u'申请中',
+    OKR_STATUS_PASS: u'通过申请',
+    OKR_STATUS_APPLYBACK: u'不通过',
+}
+
+
+class Okr(db.Model, BaseModelMixin):
+    __tablename__ = 'user_okr'
+    id = db.Column(db.Integer, primary_key=True)
+    year = db.Column(db.Integer)
+    quarter = db.Column(db.Integer)  # 相当于type,四个季度区分
+    o_kr = db.Column(db.Text())
+    status = db.Column(db.Integer)
+    # senders = db.relationship('User', secondary=send_users)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('creator_okr', lazy='dynamic'))
+    __mapper_args__ = {'order_by': id.desc()}
+
+    def __init__(self, o_kr, quarter,
+                 # senders=None,
+                 creator, year, status=1):
+        self.o_kr = o_kr
+        self.quarter = quarter
+        self.year = year
+        # self.senders = senders or []
+        self.creator = creator
+        self.status = status
+
+    @property
+    def quarter_cn(self):
+        return OKR_QUARTER_CN[self.quarter]
+
+    @property
+    def status_cn(self):
+        return OKR_STATUS_CN[self.status]
+
 
 class Leave(db.Model, BaseModelMixin):
     __tablename__ = 'user_leave'
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.Integer)
-    start_time = db.Column(db.DateTime)
-    end_time = db.Column(db.DateTime)
+    start_time = db.Column(db.DateTime, index=True)
+    end_time = db.Column(db.DateTime, index=True)
     rate_day = db.Column(db.String(20))
     reason = db.Column(db.String(100))
     status = db.Column(db.Integer)
@@ -511,7 +632,7 @@ class Leave(db.Model, BaseModelMixin):
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
         'User', backref=db.backref('creator_leave', lazy='dynamic'))
-    create_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime, index=True)
     __mapper_args__ = {'order_by': id.desc()}
 
     def __init__(self, type, start_time=None, end_time=None, rate_day='0-1', reason='',
@@ -554,6 +675,17 @@ class Leave(db.Model, BaseModelMixin):
             return False
 
     @property
+    def half_cn(self):
+        date = self.rate_day.split('-')
+        if int(date[1]) == 0:
+            return u'整'
+        elif int(date[1]) == 1:
+            return u'上半天'
+        elif int(date[1]) == 2:
+            return u'下半天'
+        return ''
+
+    @property
     def rate_day_cn(self):
         date = self.rate_day.split('-')
         if int(date[1]) == 0:
@@ -584,6 +716,14 @@ class Leave(db.Model, BaseModelMixin):
             else:
                 return u'0天'
 
+    @property
+    def start_time_date(self):
+        return self.start_time.date()
+
+    @property
+    def end_time_date(self):
+        return self.end_time.date()
+
 
 OUT_CREATOR_TYPE_SALER = 1
 OUT_CREATOR_TYPE_NORMAL = 2
@@ -607,7 +747,6 @@ OUT_STATUS_CN = {
 
 OUT_M_PERSION_TYPE_NORMAL = 1
 OUT_M_PERSION_TYPE_OTHER = 2
-
 
 out_joiners = db.Table('out_joiners',
                        db.Column(
@@ -635,20 +774,20 @@ class UserHandBook(db.Model, BaseModelMixin):
 class Out(db.Model, BaseModelMixin):
     __tablename__ = 'user_out'
     id = db.Column(db.Integer, primary_key=True)
-    start_time = db.Column(db.DateTime)
-    end_time = db.Column(db.DateTime)
+    start_time = db.Column(db.DateTime, index=True)
+    end_time = db.Column(db.DateTime, index=True)
     address = db.Column(db.String(300))
-    reason = db.Column(db.Text())             # 外出原因
-    meeting_s = db.Column(db.Text())          # 会议纪要
-    persions = db.Column(db.String(300))      # 会见人
-    m_persion = db.Column(db.String(200))     # 公司名称
-    m_persion_type = db.Column(db.Integer)    # 公司名称类型
-    creator_type = db.Column(db.Integer)      # 创建人类型：销售 or 普通
+    reason = db.Column(db.Text())  # 外出原因
+    meeting_s = db.Column(db.Text())  # 会议纪要
+    persions = db.Column(db.String(300))  # 会见人
+    m_persion = db.Column(db.String(200))  # 公司名称
+    m_persion_type = db.Column(db.Integer)  # 公司名称类型
+    creator_type = db.Column(db.Integer)  # 创建人类型：销售 or 普通
     status = db.Column(db.Integer)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
         'User', backref=db.backref('creator_out', lazy='dynamic'))
-    create_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime, index=True)
     joiners = db.relationship('User', secondary=out_joiners)
     __mapper_args__ = {'order_by': id.desc()}
 
@@ -693,10 +832,59 @@ class Out(db.Model, BaseModelMixin):
     def is_meeting(self):
         return int(self.create_time.strftime('%Y%m%d')) < int(datetime.datetime.now().strftime('%Y%m%d'))
 
+    @property
+    def start_time_date(self):
+        return self.start_time.date()
+
+    @property
+    def end_time_date(self):
+        return self.end_time.date()
+
+
+# 外出报表
+class OutReport(db.Model, BaseModelMixin):
+    __tablename__ = 'user_out_report'
+    id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.DateTime, index=True)
+    end_time = db.Column(db.DateTime, index=True)
+    address = db.Column(db.String(300))
+    reason = db.Column(db.Text())  # 外出原因
+    meeting_s = db.Column(db.Text())  # 会议纪要
+    persions = db.Column(db.String(300))  # 会见人
+    m_persion = db.Column(db.String(200))  # 公司名称
+    m_persion_type = db.Column(db.Integer)  # 公司名称类型
+    creator_type = db.Column(db.Integer)  # 创建人类型：销售 or 普通
+    status = db.Column(db.Integer)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('creator_out_report', lazy='dynamic'))
+    out_id = db.Column(db.Integer, db.ForeignKey('user_out.id'))
+    out = db.relationship(
+        'Out', backref=db.backref('out_report_out', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': id.desc()}
+
+    def __init__(self, start_time, end_time, reason, m_persion, creator, m_persion_type,
+                 address, persions, out, meeting_s='', creator_type=1, status=1, create_time=None):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.address = address
+        self.persions = persions
+        self.reason = reason
+        self.meeting_s = meeting_s
+        self.m_persion = m_persion
+        self.m_persion_type = m_persion_type
+        self.creator_type = creator_type
+        self.status = status
+        self.creator = creator
+        self.out = out
+        self.create_time = create_time or datetime.date.today()
+
 
 P_VERSION_ITEMS = [{'type': 1, 'name': u'2015上半年'}]
 P_VERSION_CN = {
-    1: u'2015年上半年'
+    1: u'2015年上半年',
+    2: u'2015年下半年'
 }
 
 P_TYPE_CN = {
@@ -707,6 +895,7 @@ P_TYPE_CN = {
 P_STATUS_NEW = 1
 P_STATUS_APPLY = 2
 P_STATUS_APPLY_END = 3
+P_STATUS_PERSONNEL_APPLY = 6
 P_STATUS_HR = 4
 P_STATUS_END = 5
 P_STATUS_CN = {
@@ -715,9 +904,11 @@ P_STATUS_CN = {
     P_STATUS_APPLY_END: u'领导评分完成',
     P_STATUS_HR: u'HR整理中',
     P_STATUS_END: u'归档',
+    P_STATUS_PERSONNEL_APPLY: u'员工评分中'
 }
 
 
+# 员工绩效考核表
 class PerformanceEvaluation(db.Model, BaseModelMixin):
     __tablename__ = 'user_preformance_evaluation'
     id = db.Column(db.Integer, primary_key=True)
@@ -785,3 +976,78 @@ class PerformanceEvaluation(db.Model, BaseModelMixin):
     @property
     def create_time_cn(self):
         return self.create_time.strftime('%Y-%m-%d')
+
+    @property
+    def personnal_status_cn(self):
+        personnal_obj = self.user_preformance_evaluation_personnal_personnal
+        if personnal_obj.count() > 0:
+            return u'<br/>'.join([k.user.name + u'-' + k.status_cn + '-' + str(k.total_score) for k in personnal_obj])
+        return u'无'
+
+    @property
+    def personnal_score(self):
+        personnal_obj = self.user_preformance_evaluation_personnal_personnal
+        p_count = 0
+        p_score = 0
+        for k in personnal_obj:
+            if k.total_score and k.total_score != 1:
+                p_count += 1
+                p_score += k.total_score
+        if p_count:
+            count = "%.2f" % (p_score / p_count)
+            return float(count)
+        return 0
+
+
+# 员工绩效考核员工评分表
+class PerformanceEvaluationPersonnal(db.Model, BaseModelMixin):
+    __tablename__ = 'user_preformance_evaluation_personnal'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship(
+        'User',
+        backref=db.backref('user_preformance_evaluation_personnal_user',
+                           lazy='dynamic'))
+    total_score = db.Column(db.Float, default=0.0)
+    performance_id = db.Column(db.Integer, db.ForeignKey(
+        'user_preformance_evaluation.id'))
+    performance = db.relationship(
+        'PerformanceEvaluation', backref=db.backref('user_preformance_evaluation_personnal_personnal',
+                                                    lazy='dynamic'))
+    status = db.Column(db.Integer, default=1)
+    body = db.Column(db.Text(), default=json.dumps({}))
+
+    def __init__(self, user, performance, status=None, total_score=None, body=None):
+        self.user = user
+        self.performance = performance
+        self.total_score = total_score or 0.0
+        self.status = status or 1
+        self.body = body or json.dumps({})
+
+    @property
+    def status_cn(self):
+        if self.status:
+            return u'未评分'
+        return u'完成'
+
+
+class UserOnDuty(db.Model, BaseModelMixin):
+    __tablename__ = 'user_onduty'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship(
+        'User', backref=db.backref('user_onduty', lazy='dynamic'))
+    sn = db.Column(db.String(10), index=True)
+    check_time = db.Column(db.DateTime, index=True)
+    create_time = db.Column(db.DateTime, index=True)
+    type = db.Column(db.Integer, default=0)
+    __mapper_args__ = {'order_by': check_time.asc()}
+    __table_args__ = (db.UniqueConstraint(
+        'sn', 'check_time', name='_user_onduty_sn_check_time'),)
+
+    def __init__(self, user, sn, check_time, create_time, type=0):
+        self.user = user
+        self.sn = sn
+        self.create_time = create_time
+        self.check_time = check_time
+        self.type = type

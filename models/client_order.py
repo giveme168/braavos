@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import datetime
-from flask import url_for, g
+from flask import url_for, g, json
 
 from . import db, BaseModelMixin
 from models.mixin.comment import CommentMixin
@@ -73,12 +73,13 @@ STATUS_CN = {
     STATUS_DEL: u'删除',
     STATUS_ON: u'正常',
 }
-
+BACK_MONEY_STATUS_BREAK = -1
 BACK_MONEY_STATUS_END = 0
 BACK_MONEY_STATUS_NOW = 1
 BACK_MONEY_STATUS_CN = {
     BACK_MONEY_STATUS_END: u'回款完成',
     BACK_MONEY_STATUS_NOW: u'正在回款',
+    BACK_MONEY_STATUS_BREAK: u'坏账'
 }
 
 ECPM_CONTRACT_STATUS_LIST = [2, 4, 5]
@@ -101,12 +102,177 @@ replace_sales = db.Table('client_order_replace_sales',
                          db.Column(
                              'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
                          )
+assistant_sales = db.Table('client_order_assistant_sales',
+                           db.Column(
+                               'assistant_sale_id', db.Integer, db.ForeignKey('user.id')),
+                           db.Column(
+                               'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
+                           )
+
 table_medium_orders = db.Table('client_order_medium_orders',
                                db.Column(
                                    'order_id', db.Integer, db.ForeignKey('bra_order.id')),
                                db.Column(
                                    'client_order_id', db.Integer, db.ForeignKey('bra_client_order.id'))
                                )
+
+
+COMPLETE_PERCENT_50_L = 1
+COMPLETE_PERCENT_50_U = 2
+COMPLETE_PERCENT_80 = 3
+COMPLETE_PERCENT_CN = {
+    COMPLETE_PERCENT_50_L: u'50%以下预估',
+    COMPLETE_PERCENT_50_U: u'50%以上预估',
+    COMPLETE_PERCENT_80: u'80%预估'
+}
+
+
+intention_direct_sales = db.Table('intention_order_direct_sales',
+                                  db.Column(
+                                      'sale_id', db.Integer, db.ForeignKey('user.id')),
+                                  db.Column(
+                                      'intent_order_id', db.Integer, db.ForeignKey('bra_intention_order.id'))
+                                  )
+intention_agent_sales = db.Table('intention_order_agent_sales',
+                                 db.Column(
+                                     'sale_id', db.Integer, db.ForeignKey('user.id')),
+                                 db.Column(
+                                     'intent_order_id', db.Integer, db.ForeignKey('bra_intention_order.id'))
+                                 )
+
+INTENTION_STATUS_DEL = -1
+INTENTION_STATUS_ON = 0
+INTENTION_STATUS_APPLE = 1
+
+
+# 销售洽谈中的订单
+class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
+    __tablename__ = "bra_intention_order"
+
+    id = db.Column(db.Integer, primary_key=True)
+    agent = db.Column(db.String(100))     # 代理名称
+    medium_id = db.Column(db.Integer)
+    complete_percent = db.Column(db.Integer)
+    money = db.Column(db.Float())         # 客户合同金额
+    client = db.Column(db.String(100))    # 客户名称
+    campaign = db.Column(db.String(100))  # 活动名称
+    client_start = db.Column(db.Date)
+    client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
+    direct_sales = db.relationship('User', secondary=intention_direct_sales)
+    agent_sales = db.relationship('User', secondary=intention_agent_sales)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    status = db.Column(db.Integer)  # 状态
+    ex_money = db.Column(db.Text(), default=json.dumps([]))  # 月度执行金额
+    creator = db.relationship(
+        'User', backref=db.backref('intention_order_creator', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+    order_id = db.Column(db.String(10))
+
+    def __init__(self, agent, client, campaign, medium_id,
+                 complete_percent=1, money=0.0,
+                 client_start=None, client_end=None,
+                 direct_sales=None, agent_sales=None,
+                 creator=None, create_time=None,
+                 status=0, ex_money=json.dumps({}),
+                 order_id='0-0'):
+        self.agent = agent
+        self.client = client
+        self.campaign = campaign
+        self.medium_id = medium_id
+        self.complete_percent = complete_percent
+        self.money = money
+        self.client_start = client_start or datetime.date.today()
+        self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
+
+        self.direct_sales = direct_sales or []
+        self.agent_sales = agent_sales or []
+
+        self.creator = creator
+        self.create_time = create_time or datetime.datetime.now()
+        self.status = status or 0
+        self.ex_money = ex_money or json.dumps([])
+        self.order_id = order_id or '0-0'
+
+    @property
+    def locations(self):
+        return list(set([u.location for u in self.direct_sales + self.agent_sales]))
+
+    @property
+    def locations_cn(self):
+        return ",".join([TEAM_LOCATION_CN[l] for l in self.locations])
+
+    @property
+    def direct_sales_names(self):
+        return ",".join([u.name for u in self.direct_sales])
+
+    @property
+    def agent_sales_names(self):
+        return ",".join([u.name for u in self.agent_sales])
+
+    @property
+    def start_date(self):
+        return self.client_start
+
+    @property
+    def end_date(self):
+        return self.client_end
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
+    @property
+    def start_date_cn(self):
+        return self.start_date.strftime(DATE_FORMAT)
+
+    @property
+    def end_date_cn(self):
+        return self.end_date.strftime(DATE_FORMAT)
+
+    @property
+    def complete_percent_cn(self):
+        return COMPLETE_PERCENT_CN[self.complete_percent]
+
+    @property
+    def medium_cn(self):
+        from medium import Medium
+        if self.medium_id == 0:
+            return u'豆瓣'
+        return Medium.get(self.medium_id).name
+
+    @property
+    def search_info(self):
+        return self.agent + self.client + self.campaign + self.medium_cn
+
+    def get_saler_leaders(self):
+        leaders = []
+        for user in self.agent_sales + self.direct_sales:
+            leaders += user.team_leaders
+        return leaders
+
+    @classmethod
+    def get_order_by_user(cls, user):
+        """一个用户可以查看的所有订单"""
+        return [o for o in cls.all() if o.have_owner(user)]
+
+    def have_owner(self, user):
+        """是否可以查看该订单"""
+        salers = self.direct_sales + self.agent_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        owner = salers + [self.creator] + list(set(leaders))
+        return user.is_admin() or user in owner
+
+    @property
+    def status_cn(self):
+        if self.status == 1:
+            return u'已下单'
+        return u'未下单'
 
 
 class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
@@ -122,10 +288,12 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     campaign = db.Column(db.String(100))  # 活动名称
 
     contract = db.Column(db.String(100))  # 客户合同号
-    money = db.Column(db.Integer)  # 客户合同金额
+    money = db.Column(db.Float())  # 客户合同金额
     contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
     client_start = db.Column(db.Date)
     client_end = db.Column(db.Date)
+    client_start_year = db.Column(db.Integer, index=True)
+    client_end_year = db.Column(db.Integer, index=True)
     reminde_date = db.Column(db.Date)  # 最迟回款日期
     resource_type = db.Column(db.Integer)  # 资源形式
     sale_type = db.Column(db.Integer)  # 资源形式
@@ -133,6 +301,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     direct_sales = db.relationship('User', secondary=direct_sales)
     agent_sales = db.relationship('User', secondary=agent_sales)
     replace_sales = db.relationship('User', secondary=replace_sales)
+    assistant_sales = db.relationship('User', secondary=assistant_sales)
 
     medium_orders = db.relationship('Order', secondary=table_medium_orders)
     contract_status = db.Column(db.Integer)  # 合同审批状态
@@ -143,16 +312,17 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)
     finish_time = db.Column(db.DateTime)   # 合同归档时间
     back_money_status = db.Column(db.Integer)
+    self_agent_rebate = db.Column(db.String(20))  # 单笔返点
     contract_generate = True
     media_apply = True
     kind = "client-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
     def __init__(self, agent, client, campaign, medium_orders=None, status=STATUS_ON,
-                 back_money_status=BACK_MONEY_STATUS_NOW,
+                 back_money_status=BACK_MONEY_STATUS_NOW, self_agent_rebate='0-0',
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
-                 direct_sales=None, agent_sales=None, replace_sales=[], finish_time=None,
+                 direct_sales=None, agent_sales=None, replace_sales=[], assistant_sales=[], finish_time=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW):
         self.agent = agent
         self.client = client
@@ -166,12 +336,15 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
         self.client_start = client_start or datetime.date.today()
         self.client_end = client_end or datetime.date.today()
+        self.client_start_year = int(self.client_start.year)
+        self.client_end_year = int(self.client_end.year)
         self.reminde_date = reminde_date or datetime.date.today()
         self.resource_type = resource_type
 
         self.direct_sales = direct_sales or []
         self.agent_sales = agent_sales or []
         self.replace_sales = replace_sales
+        self.assistant_sales = assistant_sales
 
         self.creator = creator
         self.status = status
@@ -179,11 +352,16 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.finish_time = finish_time or datetime.datetime.now()
         self.contract_status = contract_status
         self.back_money_status = back_money_status
+        self.self_agent_rebate = self_agent_rebate
+
+    @property
+    def salers(self):
+        return list(set(self.direct_sales + self.agent_sales))
 
     @classmethod
     def get_all(cls):
         """查看所有没删除订单"""
-        return [o for o in cls.query.all() if o.status in [STATUS_ON, None] and o.contract_status not in [7, 8, 9]]
+        return [o for o in cls.query.all() if o.status in [STATUS_ON, None] and o.contract_status not in [9]]
 
     @classmethod
     def all(cls):
@@ -319,9 +497,9 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [k for k in MediumInvoicePay.all()
                 if k.pay_status == int(type) and k.medium_invoice in self.mediuminvoices]
 
-    def get_agent_invoice_pay_by_status(self, type):
+    def get_agent_invoice_pay_by_status(self, status):
         return [k for k in AgentInvoicePay.all()
-                if isinstance(k.pay_status, int) and k.agent_invoice in self.agentinvoices]
+                if k.pay_status == int(status) and k.agent_invoice in self.agentinvoices]
 
     @property
     def medium_ids(self):
@@ -348,6 +526,20 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def outsources_paied_sum(self):
         return sum([o.pay_num for o in self.outsources if o.status == 4]) if self.outsources else 0
+
+    def outsources_paied_sum_by_shenji(self, type='dg'):
+        total_money = 0
+        for o in self.outsources:
+            if o.status == 4:
+                if type == 'dg':
+                    if o.target.otype_cn == u'对公':
+                        total_money += o.pay_num
+                else:
+                    if o.target.otype_cn != u'对公':
+                        total_money += o.pay_num
+            if type == 'dg' and o.target.id == 271 and o.status != 4:
+                total_money += o.pay_num
+        return total_money
 
     @property
     def outsources_percent(self):
@@ -432,6 +624,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.replace_sales])
 
     @property
+    def assistant_sales_names(self):
+        return ",".join([u.name for u in self.assistant_sales])
+
+    @property
     def operater_names(self):
         if self.medium_orders:
             return ",".join([u.name for u in self.medium_orders[0].operaters])
@@ -454,15 +650,28 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def leaders(self):
-        return list(set([l for u in self.direct_sales + self.agent_sales + self.replace_sales
+        return list(set([l for u in self.direct_sales + self.agent_sales + self.replace_sales + self.assistant_sales
                          for l in u.user_leaders] + User.super_leaders()))
 
     def can_admin(self, user):
         """是否可以修改该订单"""
-        admin_users = self.direct_sales + self.agent_sales + \
-            [self.creator] + self.replace_sales
+        salers = self.direct_sales + self.agent_sales + \
+            self.replace_sales + self.assistant_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        admin_users = salers + [self.creator] + list(set(leaders))
         return user.is_leader() or user.is_contract() or user.is_media() or\
             user.is_media_leader() or user in admin_users
+
+    def can_media_leader_action(self, user):
+        salers = self.direct_sales + self.agent_sales
+        action_users = []
+        for saler in salers:
+            action_users += list(saler.team.admins)
+        if user in action_users and user.team.type == 20:
+            return True
+        return False
 
     def can_action(self, user, action):
         """是否拥有leader操作"""
@@ -477,8 +686,13 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def have_owner(self, user):
         """是否可以查看该订单"""
-        owner = self.direct_sales + self.agent_sales +\
-            [self.creator] + self.operater_users + self.replace_sales
+        salers = self.direct_sales + self.agent_sales + \
+            self.replace_sales + self.assistant_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        owner = salers + [self.creator] + \
+            self.operater_users + list(set(leaders))
         return user.is_admin() or user in owner
 
     def order_agent_owner(self, user):
@@ -511,10 +725,14 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         search_info = self.search_info
         search_info += ''.join(
             [k.invoice_num for k in Invoice.query.filter_by(client_order=self)])
-        search_info += ''.join([k.invoice_num for k in MediumRebateInvoice.query.filter_by(client_order=self)])
-        search_info += ''.join([k.invoice_num for k in MediumInvoice.query.filter_by(client_order=self)])
-        search_info += ''.join([k.invoice_num for k in AgentInvoice.query.filter_by(client_order=self)])
-        search_info += ''.join([k.invoice_num for k in OutsourceInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in MediumRebateInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in MediumInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in AgentInvoice.query.filter_by(client_order=self)])
+        search_info += ''.join(
+            [k.invoice_num for k in OutsourceInvoice.query.filter_by(client_order=self)])
         return search_info
 
     @property
@@ -522,19 +740,22 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return u"""
     类型:新媒体订单
     客户订单:
-
         客户: %s
         代理/直客: %s
         Campaign: %s
-        金额: %s
+        金额: %s (元)
         直客销售: %s
         渠道销售: %s
+        执行开始时间: %s
+        执行结束时间: %s
+        客户合同号: %s
 
     媒体订单:
 %s
     豆瓣订单:
 %s""" % (self.client.name, self.agent.name, self.campaign, self.money,
          self.direct_sales_names, self.agent_sales_names,
+         self.start_date_cn, self.end_date_cn, self.contract,
          "\n".join([o.email_info for o in self.medium_orders]),
          "\n".join([o.email_info for o in self.associated_douban_orders]))
 
@@ -642,6 +863,12 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return sum([k.money for k in self.backmoneys] + [k.money for k in self.back_invoice_rebate_list])
 
     @property
+    def medium_back_moneys(self):
+        medium_back_money = MediumBackMoney.query.filter_by(
+            client_order_id=self.id)
+        return sum([k.money for k in medium_back_money])
+
+    @property
     def client_back_moneys(self):
         return sum([k.money for k in self.backmoneys])
 
@@ -679,7 +906,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def back_money_status_cn(self):
-        if self.back_money_status == 0:
+        if self.back_money_status in [-1, 0]:
             return BACK_MONEY_STATUS_CN[BACK_MONEY_STATUS_END]
         else:
             return BACK_MONEY_STATUS_CN[self.back_money_status or 1]
@@ -688,6 +915,8 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def back_money_percent(self):
         if self.back_money_status == 0:
             return 100
+        elif self.back_money_status == -1:
+            return 0
         else:
             return int(float(self.back_moneys) / self.money * 100) if self.money else 0
 
@@ -1009,6 +1238,22 @@ by %s\n
             self.real_rebate_agent_money_by_month(year, month) - \
             self.real_rebate_mediums_money_by_month(year, month)
 
+    @property
+    def self_agent_rebate_value(self):
+        if self.self_agent_rebate:
+            p_self_agent_rebate = self.self_agent_rebate.split('-')
+        else:
+            p_self_agent_rebate = ['0', '0.0']
+        return {'status': p_self_agent_rebate[0],
+                'value': p_self_agent_rebate[1]}
+
+    @property
+    def payable_time(self):
+        if self.back_money_status == 0:
+            return 0
+        now_date = datetime.date.today()
+        return (now_date - self.client_end).days + 1
+
 
 class BackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_back_money'
@@ -1045,6 +1290,38 @@ class BackMoney(db.Model, BaseModelMixin):
         return (self.back_time.date() - self.client_order.reminde_date).days
 
 
+class MediumBackMoney(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_client_order_medium_back_money'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'ClientOrder', backref=db.backref('client_order_medium_back_moneys', lazy='dynamic'))
+    order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_order.id'))  # 媒体合同
+    order = db.relationship(
+        'Order', backref=db.backref('order_medium_back_moneys', lazy='dynamic'))
+    money = db.Column(db.Float())
+    back_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': back_time.desc()}
+
+    def __init__(self, client_order_id, order_id, money=0.0, create_time=None, back_time=None):
+        self.client_order_id = client_order_id
+        self.order_id = order_id
+        self.money = money
+        self.create_time = create_time or datetime.date.today()
+        self.back_time = back_time or datetime.date.today()
+
+    @property
+    def back_time_cn(self):
+        return self.back_time.strftime(DATE_FORMAT)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
+
 class BackInvoiceRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_back_invoice_rebate'
     id = db.Column(db.Integer, primary_key=True)
@@ -1073,18 +1350,27 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
     def create_time_cn(self):
         return self.create_time.strftime(DATE_FORMAT)
 
+    @property
+    def order(self):
+        return self.client_order
+
 
 class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_executive_report'
     id = db.Column(db.Integer, primary_key=True)
     client_order_id = db.Column(
-        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+        db.Integer, db.ForeignKey('bra_client_order.id'), index=True)  # 客户合同
     client_order = db.relationship(
         'ClientOrder', backref=db.backref('executive_reports', lazy='dynamic'))
     money = db.Column(db.Float())
-    month_day = db.Column(db.DateTime)
+    month_day = db.Column(db.DateTime, index=True)
     days = db.Column(db.Integer)
     create_time = db.Column(db.DateTime)
+    # 合同文件打包
+    order_json = db.Column(db.Text(), default=json.dumps({}))
+    status = db.Column(db.Integer, index=True)
+    contract_status = db.Column(db.Integer, index=True)
+
     __table_args__ = (db.UniqueConstraint(
         'client_order_id', 'month_day', name='_client_order_month_day'),)
     __mapper_args__ = {'order_by': month_day.desc()}
@@ -1095,6 +1381,32 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
         self.month_day = month_day or datetime.date.today()
         self.days = days
         self.create_time = create_time or datetime.date.today()
+        # 合同文件打包
+        self.status = client_order.status
+        self.contract_status = client_order.contract_status
+        # 获取相应合同字段
+        dict_order = {}
+        dict_order['client_name'] = client_order.client.name
+        dict_order['agent_name'] = client_order.agent.name
+        dict_order['contract'] = client_order.contract
+        dict_order['campaign'] = client_order.campaign
+        dict_order['industry_cn'] = client_order.client.industry_cn
+        dict_order['locations'] = client_order.locations
+        dict_order['direct_sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.direct_sales]
+        dict_order['agent_sales'] = [
+            {'id': k.id, 'name': k.name, 'location': k.team.location}for k in client_order.agent_sales]
+        dict_order['salers_ids'] = [k['id']
+                                    for k in (dict_order['direct_sales'] + dict_order['agent_sales'])]
+        dict_order['get_saler_leaders'] = [
+            k.id for k in client_order.get_saler_leaders()]
+        dict_order['resource_type_cn'] = client_order.resource_type_cn
+        dict_order['operater_users'] = [
+            {'id': k.id, 'name': k.name}for k in client_order.operater_users]
+        dict_order['client_start'] = client_order.client_start.strftime(
+            '%Y-%m-%d')
+        dict_order['client_end'] = client_order.client_end.strftime('%Y-%m-%d')
+        self.order_json = json.dumps(dict_order)
 
     @property
     def month_cn(self):
@@ -1115,7 +1427,8 @@ class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
             else:
                 count = len(self.client_order.direct_sales)
         elif user.team.location == 3 and len(self.client_order.locations) == 1:
-            count = len(self.client_order.agent_sales + self.client_order.direct_sales)
+            count = len(self.client_order.agent_sales +
+                        self.client_order.direct_sales)
         return self.money / count / l_count
 
 
@@ -1144,3 +1457,50 @@ def contract_generator(framework, num):
     code = "%s-%03x" % (framework, num % 1000)
     code = code.upper()
     return code
+
+
+TARGET_TYPE_FLASH = 2
+TARGET_TYPE_KOL = 3
+TARGET_TYPE_H5 = 7
+TARGET_TYPE_VIDEO = 5
+TARGET_TYPE_CN = {
+    TARGET_TYPE_FLASH: u"Flash",
+    TARGET_TYPE_KOL: u"网络公关运营",
+    TARGET_TYPE_VIDEO: u"设计",
+    TARGET_TYPE_H5: u"H5",
+}
+
+
+class OtherCost(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_client_order_other_cost'
+    id = db.Column(db.Integer, primary_key=True)
+    client_order_id = db.Column(
+        db.Integer, db.ForeignKey('bra_client_order.id'))  # 客户合同
+    client_order = db.relationship(
+        'ClientOrder', backref=db.backref('client_order_other_cost', lazy='dynamic'))
+    money = db.Column(db.Float())
+    type = db.Column(db.Integer)
+    invoice = db.Column(db.String(100))  # 发票号
+    on_time = db.Column(db.DateTime)
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': on_time.desc()}
+
+    def __init__(self, client_order, invoice, type, money=0.0, create_time=None, on_time=None):
+        self.client_order = client_order
+        self.money = money
+        self.type = type
+        self.invoice = invoice
+        self.create_time = create_time or datetime.date.today()
+        self.on_time = on_time or datetime.date.today()
+
+    @property
+    def on_time_cn(self):
+        return self.on_time.strftime(DATE_FORMAT)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
+    @property
+    def type_cn(self):
+        return TARGET_TYPE_CN[self.type]

@@ -4,7 +4,11 @@
 {% block content %}
 {% include "/finance/searchAd_finance_base.html" %}
 <div class="container bra-box">
-    <h3>正在申请的发票1</h3>
+     <ul class="nav nav-tabs">
+        <li class="active"><a href="{{url_for('searchAd_finance_rebate_order_invoice.index')}}">申请中的客户发票</a></li>
+        <li class=""><a href="{{url_for('searchAd_finance_rebate_order_invoice.index_pass')}}">所有客户发票信息</a></li>
+    </ul>
+    <h3>正在申请的发票</h3>
     <table class="table table-bordered table-striped">
         <tr>
             <th>名称</th>

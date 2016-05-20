@@ -1,58 +1,83 @@
-{% extends "base.html" %}
+{% extends "base_v1_0_0.html" %}
 {% from '/saler/client_order/medium/medium_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 {% macro contract_box(order) -%}
 <div class="container" style="width:100%;">
   <h4>媒体订单发票及打款情况</h4>
-  <table class="table table-bordered table-striped">
-    <tr>
-      <th>媒体总金额</th>
-      <th>发票总金额</th>
-      <th>已打款金额</th>
-      <th>已开返点发票金额</th>
-    </tr>
-    <tr>
-      <td>{{order.mediums_money2}}元</td>
-      <td>{{order.mediums_invoice_sum}}元</td>
-      <td>{{order.mediums_invoice_pass_sum}}元</td>
-      <td>{{order.get_medium_rebate_invoice_pass_money()}}元</td>
-    </tr>
-  </table>
-  <h4>发票详情</h4>
-  <table class="table table-bordered table-striped">
-    <tr>
-      <th>所属媒体</th>
-      <th>公司名称</th>
-      <th>税号</th>
-      <th>发票金额</th>
-      <th>已打款金额</th>
-      <th>申请中打款金额</th>
-      <th>未打款金额</th>
-      <th>开票时间</th>
-      <th>发票类型</th>
-      <th>发票号</th>
-      <th>发票内容</th>
-      <th width="5%">操作</th>
-    </tr>
-    {% for invoice in invoices %}
-    <tr>
-      <td>{{invoice.medium.name}}</td>
-      <td>{{invoice.company}}</td>
-      <td>{{invoice.tax_id}}</td>
-      <td>{{invoice.money}}元</td>
-      <td>{{invoice.get_pay_money}}元</td>
-      <td>{{invoice.get_apply_pay_money}}元</td>
-      <td>{{invoice.get_unpay_money}}元</td>
-      <td>{{invoice.add_time_cn}}</td>
-      <td>{{invoice.invoice_type_cn}}</td>
-      <td>{{invoice.invoice_num}}</td>
-      <td>{{invoice.detail}}</td>
-      <td>
-          <a href="{{url_for('saler_client_order_medium_invoice.invoice',invoice_id=invoice.id)}}">查看</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
+  <div class='tabulation'>
+      <table border='1'>
+        <thead>
+          <tr>
+            <th>媒体总金额</th>
+            <th>发票总金额</th>
+            <th>已打款金额</th>
+            <th>已开返点发票金额</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{order.mediums_money2}}元</td>
+            <td>{{order.mediums_invoice_sum}}元</td>
+            <td>{{order.mediums_invoice_pass_sum}}元</td>
+            <td>{{order.get_medium_rebate_invoice_pass_money()}}元</td>
+          </tr>
+        </tbody>
+      </table>
+  <br/>
+  <div class="panel panel-default" id="non-invoice">
+    <div class="panel-heading">
+      <h4 class="panel-title">
+        <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-0"> 发票详情 </a>
+      </h4>
+    </div>
+    <div id="collapse-invoice-0" class="panel-collapse collapse in">
+      <div class="panel-body">
+        <div class='tabulation'>
+            <table border='1'>
+              <thead>
+                <tr>
+                  <th>所属媒体</th>
+                  <th>公司名称</th>
+                  <th>税号</th>
+                  <th>发票金额</th>
+                  <th>已打款金额</th>
+                  <th>申请中打款金额</th>
+                  <th>未打款金额</th>
+                  <th>开票时间</th>
+                  <th>发票类型</th>
+                  <th>发票号</th>
+                  <th>发票内容</th>
+                  <th width="5%">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for invoice in invoices %}
+                {% if invoice.invoice_num == '88888888' %}
+                  <tr style="border:2px solid #FF8888;">
+                {% else %}
+                  <tr>
+                {% endif %}
+                  <td>{{invoice.medium.name}}{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
+                  <td>{{invoice.company}}</td>
+                  <td>{{invoice.tax_id}}</td>
+                  <td>{{invoice.money}}元</td>
+                  <td>{{invoice.get_pay_money}}元</td>
+                  <td {% if invoice.get_apply_pay_money >0 %} style="color:red;" {% endif %}>{{invoice.get_apply_pay_money}}元</td>
+                  <td>{{invoice.get_unpay_money}}元</td>
+                  <td>{{invoice.add_time_cn}}</td>
+                  <td>{{invoice.invoice_type_cn}}</td>
+                  <td>{{invoice.invoice_num}}</td>
+                  <td>{{invoice.detail}}</td>
+                  <td>
+                      <a href="{{url_for('saler_client_order_medium_invoice.invoice',invoice_id=invoice.id)}}">查看</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </div>
   <div class="panel panel-default" id="new-invoice" style="display:none;">
     <div class="panel-heading">
       <h4 class="panel-title">
@@ -67,9 +92,11 @@
       </div>
     </div>
   </div>
-  {% if g.user.is_super_leader() %}
+  <!--
+  {% if g.user.is_contract() or g.user.is_media() %}
   <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写发票</button>
   {% endif %}
+  -->
 </div>
 <script>
 showInvoice = function(ele) {
@@ -115,11 +142,10 @@ $(function() {
 </script>
 {%- endmacro %}
 {% block content%}
-  {% include "/order/order_base.html" %}
-  <div class="container bra-box">
-    <h4> {{ order.name }} </h4>
+  {% include "/order/order_base_v1_0_0.html" %}
+  <div class="container bra-box" style="width:1400px;">
     <div>
-      {% include "saler/client_order/nav_base.html" %}
+      {% include "saler/client_order/nav_base_v1_0_0.html" %}
       <div class="tab-content">
         <div class="tab-pane active" id="tab-2">
           {{ contract_box(order) }}

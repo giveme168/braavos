@@ -1,0 +1,54 @@
+<div class="top-nav-wrap">
+    {% if g.user.is_super_leader() or g.user.is_contract() %}
+    <!--一级菜单-->
+    <div class="menu-bar">
+        <ul>
+            <li><a href="{{url_for('client.clients')}}">致趣</a><span>|</span></li>
+            <li><a href="{{url_for('searchAd_client.clients')}}"  class="on">效果</a><span></span></li>
+        </ul>
+    </div>
+    {% endif %}
+    <div class="top-nav" {% if not (g.user.is_super_leader() or g.user.is_contract()) %}style="top: 20px;"{% endif %}>
+        <ul>
+            <li id="_clients_" class="nav-first">
+              <a href="{{url_for('searchAd_client.clients')}}">客户</a>
+              <span>|</span>
+            </li>
+            <li id="_agents_">
+              <a href="{{url_for('searchAd_client.agents')}}">代理/直客</a>
+              <span>|</span>
+            </li>
+            <li id="_groups_">
+              <a href="{{url_for('searchAd_client.groups')}}">代理集团</a>
+              <span>|</span>
+            </li>
+            <li id="_mediums_" class="nav-last">
+              <a href="{{url_for('searchAd_client.mediums')}}">媒体</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        if (p_pathname[2].indexOf('s')>0){
+            $('#_'+p_pathname[2]+'_').addClass("active");
+        }else{
+            $('#_'+p_pathname[2]+'s_').addClass("active");
+        }
+        if (p_pathname[2] == 'new_client'){
+            $('#_clients_').addClass("active");
+        }
+        if (p_pathname[2] == 'new_agent'){
+            $('#_agents_').addClass("active");
+        }
+        if (p_pathname[2] == 'new_group'){
+            $('#_groups_').addClass("active");
+        }
+        if (p_pathname[2] == 'new_medium'){
+            $('#_mediums_').addClass("active");
+        }
+
+    })
+</script>

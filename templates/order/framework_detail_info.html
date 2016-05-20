@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "base_v1_0_0.html" %}
 {% from 'order_form_framework.html' import order_framework_form %}
 {% from 'order_form_contract.html' import order_contract_form %}
 {% from 'order_form_attachment.html' import framework_order_attachment, finish_framework_order_attachment %}
 {% from 'comments.html' import comments_box %}
 
 {% block content %}
-{% include "order_base.html" %}
+{% include "order_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h4> {{ order.name }} </h4>
     <div class="panel-group" id="accordion">
@@ -18,10 +18,14 @@
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_framework_form(framework_form) }}
-                    <br><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {% if not g.user.is_aduit() %}
+                        <br><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {% endif %}
                     {{ framework_order_attachment(order) }}
                     {% if order.contract_status == 20 %}
-                    <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {% if not g.user.is_aduit() %}
+                        <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {% endif %}
                     {{ finish_framework_order_attachment(order) }}
                     {% endif %}
                 </div>
@@ -44,4 +48,9 @@
     </div>
     <div>{{ comments_box(order) }}</div>
 </div>
+<script>
+    $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    })
+</script>
 {% endblock %}

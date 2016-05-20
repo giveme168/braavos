@@ -1,0 +1,75 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}销售异常考勤{% endblock %}
+
+{% block content %}
+{% include "/account/account_onduty_base_v1_0_0.html" %}
+  <div class="container bra-box" style="min-width: 950px;">
+    <h3>考勤异常销售</h3>
+    <div class="search-bar">
+        <div class="menu-btn-bar" style="float:left;">
+            <form style="float:left;">
+                <div class="search-input" style="width:160px;">
+                    <input type="text" class="datetimepicker" id="start_date" name="start_date" data-date-format="yyyy-mm-dd" value="{{start_date}}" style="width:150px;">
+                </div>
+                <div class="search-input" style="width:190px;">
+                    <label for="sale_type" class="control-label">至</label>
+                    <input type="text" class="datetimepicker" id="end_date" name="end_date" data-date-format="yyyy-mm-dd" value="{{end_date}}" style="width:150px;">
+                </div>
+                <div class="select_option screen">
+                    <input type="submit" value="筛选">
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+          <thead>
+            <tr>
+              <th>员工编号</th>
+              <th>姓名</th>
+              <th>异常次数</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <th scope="row">{{user.user.sn or '无'}}</th>
+              <td>{{user.user.name}}</td>
+              <td {% if user.count > 0%} style="color:red;" {% endif %}>{{user.count}}</td>
+              <td><a target="_blank" href="{{url_for('account_onduty.info', uid=user.user.id)}}?start_time={{start_date}}&end_time={{end_date}}">查看</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+</div>
+<script>
+  $('.file-widget-btn').click(function(e){
+    e.preventDefault();
+    $(this).parents("form").find('.file-widget-input').click();
+  });
+  $('.file-widget-input').change(function(e){
+    var filename = $(this).val(),
+      fileExt = filename.substring(filename.lastIndexOf('.')+1, filename.length);
+    if(fileExt == 'dat'){
+      $(this).parents("form").submit();
+    }else{
+      alert("请选择正确的文件");
+    }
+  });
+  $(function(){
+    $('#location').val('{{location}}')
+    $("#location").trigger("chosen:updated");
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn:true,
+        minView:2,
+        language: 'zh-CN'
+    });
+    $('#start_date').val('{{start_date}}');
+    $('#end_date').val('{{end_date}}');
+  })
+</script>
+{% endblock %}

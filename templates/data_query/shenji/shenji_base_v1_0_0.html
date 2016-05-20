@@ -1,0 +1,33 @@
+<!--导航-->
+<div class="top-nav-wrap">
+    <div class="top-nav" style="top: 15px;">
+        {% if g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance() or g.user.is_contract()%}
+        <ul>
+            <li id="_cost_income_client_order_" class="nav-first">
+              <a href="{{url_for('data_query_shenji_cost_income_client_order.index')}}">新媒体订单</a>
+              <span>|</span>
+            </li>
+            <li id="_cost_income_douban_order_">
+              <a href="{{url_for('data_query_shenji_cost_income_douban_order.index')}}">直签豆瓣订单</a>
+              <span>|</span>
+            </li>
+            <li id="_cost_income_search_order_" class="nav-last">
+              <a href="{{url_for('data_query_shenji_cost_income_search_order.index')}}">效果订单</a>
+            </li>
+        </ul>
+        {% elif g.user.is_searchad_member() %}
+        <ul>
+            <li id="_cost_income_search_order_">
+              <a href="{{url_for('data_query_shenji_cost_income_search_order.index')}}">效果订单</a>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+</div>
+<script>
+    $(function(){
+        var pathname = window.location.pathname;
+        var p_pathname = pathname.split('/')
+        $('#_'+p_pathname[3]+'_').addClass("active");
+    })
+</script>

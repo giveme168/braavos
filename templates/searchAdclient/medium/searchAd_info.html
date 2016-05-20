@@ -1,11 +1,11 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_field %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
 
 {% block content %}
-{% include "/searchAdclient/searchAd_client_base.html" %}
+{% include "/searchAdclient/searchAd_client_base_v1_0_0.html" %}
 <div class="container bra-box">
     <h3>{{ title }}</h3>
-    <form class="form form-horizontal" method="POST">
+    <form class="input-row-box" method="POST">
       {{form.csrf_token}}
       {{ form_field(form.name) }}
       {{ form_field(form.abbreviation) }}
@@ -15,6 +15,14 @@
       {{ form_field(form.phone_num) }}
       {{ form_field(form.bank) }}
       {{ form_field(form.bank_num) }}
-      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="提交"/>
+      <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+      </div>
 </div>
 {% endblock %}
+<script>
+$(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+   
+})
+</script>

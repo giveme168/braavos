@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_v1_0_0.html" %}
 {% from 'order_form_client.html' import order_client_form %}
 {% from 'order_form_medium.html' import order_medium_form %}
 {% from 'order_form_medium.html' import new_order_medium_form %}
@@ -12,17 +12,21 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 客户订单 </a>
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 客户订单 {{ order.name }}  </a>
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {{ order_client_form(client_form, order, replace_saler_form) }}
                     {{ client_order_attachment(order) }}
-                    <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {% if not g.user.is_aduit() %}
+                        <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {% endif %}
                     {% if order.contract_status == 20 %}
-                    <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
-                    {{ finish_client_order_attachment(order) }}
+                        {% if not g.user.is_aduit() %}
+                        <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                        {% endif %}
+                        {{ finish_client_order_attachment(order) }}
                     {% endif %}
                 </div>
             </div>
@@ -36,26 +40,30 @@
             <div id="collapse2" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {% for mf in medium_forms %}
-                    <div class="well">
                         {{ order_medium_form(mf[0], mf[1]) }}
                         {{ medium_order_attachment(mf[1]) }}
-                        <hr><div style="color:#999;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
-                        {% if mf[1].finish_status == 0 %}
-                        <hr><div style="color:#999;">合同归档时间: {{mf[1].finish_time_cn}}</div>
+                        {% if not g.user.is_aduit() %}
+                            <div style="color:#999; margin-top:20px;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
                         {% endif %}
+                        {% if mf[1].finish_status == 0 %}
+                            {% if not g.user.is_aduit() %}
+                                <div style="color:#999; margin-top:20px;">合同归档时间: {{mf[1].finish_time_cn}}</div>
+                            {% endif %}
+                        {% endif %}
+                        
                         {% if order.contract_status == 20 %}
                             {{ finish_medium_order_attachment(mf[1]) }}
                         {% endif %}
-                    </div>
+                        <hr>
                     {% endfor %}
                     <div class="well" id="new-medium" style="display:none;">
                       <h4>新建媒体订单</h4>
                       {{ new_order_medium_form(new_medium_form, client_order=order) }}
                     </div>
                     {% if order.contract_status in [0, 1, 3, 6] %}
-                    <button onclick="showNewMedium(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 新媒体订单</button>
+                    <button onclick="showNewMedium(this);" class="btn btn-sm btn-default" style="margin-top:50px;"><span class="glyphicon glyphicon-plus"></span> 新媒体订单</button>
                     {% elif g.user.is_super_admin() %}
-                    <button onclick="showNewMedium(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 新媒体订单</button>
+                    <button onclick="showNewMedium(this);" class="btn btn-sm btn-default" style="margin-top:50px;"><span class="glyphicon glyphicon-plus"></span> 新媒体订单</button>
                     {% endif %}
                 </div>
             </div>
@@ -69,14 +77,15 @@
             <div id="collapse4" class="panel-collapse collapse in">
                 <div class="panel-body">
                     {% for ado in order.associated_douban_orders %}
-                    <div class="well">
                     {{ order_associated_douban_form(ado.form, ado) }}
                     {{ associated_douban_attachment(ado) }}
-                    <hr><div style="color:#999;">创建者: {{ado.creator.name}} 创建时间: {{ado.create_time.date()}}</div>
+                    {% if not g.user.is_aduit() %}
+                        <div style="color:#999; margin-top:20px;">创建者: {{ado.creator.name}} 创建时间: {{ado.create_time.date()}}</div>
+                    {% endif %}
                     {% if order.contract_status == 20 %}
                         {{ finish_associated_order_attachment(ado) }}
                     {% endif %}
-                    </div>
+                    <hr>
                     {% endfor %}
                     <div class="well" id="new-associated-douban" style="display:none;">
                       <h4>新建豆瓣关联订单</h4>
@@ -121,11 +130,10 @@
 {%- endmacro %}
 
 {% block content %}
-{% include "order_base.html" %}
+{% include "order_base_v1_0_0.html" %}
 <div class="container bra-box">
-  <h4> {{ order.name }} </h4>
   <div>
-    {% include "saler/client_order/nav_base.html" %}
+    {% include "saler/client_order/nav_base_v1_0_0.html" %}
     <div class="tab-content">
       <div class="tab-pane active" id="tab-1">
         {{ contract_box(order, client_form, new_medium_form, medium_forms, new_associated_douban_form, reminder_emails) }}
@@ -133,4 +141,9 @@
     </div>
   </div>
 </div>
+<script>
+    $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    })
+</script>
 {% endblock %}

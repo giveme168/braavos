@@ -340,7 +340,7 @@ function edit(id, create_time, company, tax_id, detail ,money, invoice_type, inv
   $('#edit_invoice_num').val(invoice_num)
   $("#edit_invoice_type option[value='"+invoice_type+"']").attr("selected","selected");  
   $("#edit_invoice_type").trigger("chosen:updated");
-  $('#edit_table_form').attr("action", '/finance/rebate_order/invoice/'+id+'/update')
+  $('#edit_table_form').attr("action", '/finance/searchAd_rebate_order/invoice/'+id+'/update')
 }
 </script>
 {% endmacro %}
