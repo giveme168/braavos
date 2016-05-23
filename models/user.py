@@ -17,8 +17,9 @@ USER_STATUS_CN = {
 }
 TEAM_TYPE_AUDIT = 24  # 审计
 TEAM_TYPE_OUT_INAD = 23  # 外部其他
-TEAM_TYPE_SEARCH_AD_LEADER = 22  # 360搜索广告销售Leader
-TEAM_TYPE_SEARCH_AD_SELLER = 21  # 360搜索广告销售
+TEAM_TYPE_SEARCH_AD_LEADER = 22  # 效果业务销售Leader
+TEAM_TYPE_SEARCH_AD_SELLER = 21  # 效果业务销售
+TEAM_TYPE_SEARCH_AD_MEDIUM = 25  # 效果业务媒介
 TEAM_TYPE_MEDIA_LEADER = 20  # 内部-媒介Leader
 TEAM_TYPE_OPS_LEADER = 19  # 行政-Leader
 TEAM_TYPE_OPS = 18  # 行政
@@ -63,8 +64,9 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_OPS: u'内部行政',
     TEAM_TYPE_OPS_LEADER: u'内部行政-Leader',
     TEAM_TYPE_MEDIA_LEADER: u'内部-媒介Leader',
-    TEAM_TYPE_SEARCH_AD_SELLER: u'360搜索广告销售',
-    TEAM_TYPE_SEARCH_AD_LEADER: u'360搜索广告销售Leader',
+    TEAM_TYPE_SEARCH_AD_SELLER: u'效果业务销售',
+    TEAM_TYPE_SEARCH_AD_LEADER: u'效果业务销售Leader',
+    TEAM_TYPE_SEARCH_AD_MEDIUM: u'效果业务媒介',
     TEAM_TYPE_OUT_INAD: u'外部-其他',
     TEAM_TYPE_AUDIT: u'审计'
 }
@@ -257,8 +259,12 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     def is_searchad_leader(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_SEARCH_AD_LEADER
 
+    def is_searchad_medium(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_SEARCH_AD_MEDIUM
+
     def is_searchad_member(self):
-        return self.is_searchad_saler() or self.is_searchad_leader() or self.is_super_leader() or self.is_contract()
+        return self.is_searchad_saler() or self.is_searchad_leader() or self.is_super_leader() or self.is_contract() \
+            or self.is_searchad_medium()
 
     @classmethod
     def gets_by_team_type(cls, team_type):
@@ -309,6 +315,10 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     @classmethod
     def media_leaders(cls):
         return cls.gets_by_team_type(TEAM_TYPE_MEDIA_LEADER)
+
+    @classmethod
+    def searchad_medias(cls):
+        return cls.gets_by_team_type(TEAM_TYPE_SEARCH_AD_MEDIUM)
 
     @classmethod
     def douban_contracts(cls):
