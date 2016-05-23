@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 
-from flask import Blueprint, request, jsonify, g, abort, json
+from flask import Blueprint, request, jsonify, g, abort
 from flask import render_template as tpl
 
 from models.douban_order import DoubanOrderExecutiveReport
@@ -59,10 +59,14 @@ def _format_order(order, type='client'):
     if type == 'client':
         params['money'] = order.sale_money
         params['medium_id'] = order.order.medium_id
+        params['direct_sales'] = order.client_order.direct_sales
+        params['agent_sales'] = order.client_order.agent_sales
+        params['locations'] = order.client_order.locations
     else:
         params['money'] = order.money
-    params['order_json'] = json.loads(order.order_json)
-    params['locations'] = params['order_json']['locations']
+        params['direct_sales'] = order.douban_order.direct_sales
+        params['agent_sales'] = order.douban_order.agent_sales
+        params['locations'] = order.douban_order.locations
     return params
 
 
@@ -72,10 +76,10 @@ def _get_money_by_location(order, location):
             return order['money']
         else:
             # 用于查看渠道销售是否跨区
-            direct_sales = order['order_json']['direct_sales']
+            direct_sales = order['direct_sales']
             direct_location = list(set([k['location'] for k in direct_sales]))
             # 用于查看直客销售是否跨区
-            agent_sales = order['order_json']['agent_sales']
+            agent_sales = order['agent_sales']
             agent_location = list(set([k['location'] for k in agent_sales]))
             money = 0
             if location in direct_location:
@@ -409,7 +413,7 @@ def douban_order_excle_data():
                    for k in douban_orders if k.status == 1]
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
     douban_date += [{'month_day': k['month_day'], 'money':k['money'],
-                     'order_json':k['order_json'], 'locations':k['locations']}
+                     'locations':k['locations']}
                     for k in medium_orders if k['medium_id'] in [3, 8]]
 
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
@@ -484,7 +488,7 @@ def douban_order_json():
                    for k in douban_orders if k.status == 1]
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
     douban_date += [{'month_day': k['month_day'], 'money':k['money'],
-                     'order_json':k['order_json'], 'locations':k['locations']}
+                     'locations':k['locations']}
                     for k in medium_orders if k['medium_id'] in [3, 8]]
 
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)

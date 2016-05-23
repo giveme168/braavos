@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 
-from flask import Blueprint, request, jsonify, g, abort, json
+from flask import Blueprint, request, jsonify, g, abort
 from flask import render_template as tpl
 
 from models.douban_order import DoubanOrderExecutiveReport
@@ -49,11 +49,15 @@ def _format_order(order, type='client'):
         params['money'] = order.medium_money2
         params['medium_id'] = order.order.medium_id
         params['medium_name'] = order.order.medium.name
+        params['direct_sales'] = order.client_order.direct_sales
+        params['agent_sales'] = order.client_order.agent_sales
+        params['locations'] = order.client_order.locations
     else:
         params['money'] = order.money
         params['medium_name'] = u'豆瓣'
-    params['order_json'] = json.loads(order.order_json)
-    params['locations'] = params['order_json']['locations']
+        params['direct_sales'] = order.douban_order.direct_sales
+        params['agent_sales'] = order.douban_order.agent_sales
+        params['locations'] = order.douban_order.locations
     return params
 
 

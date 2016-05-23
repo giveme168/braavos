@@ -5,13 +5,21 @@
     <div class="well">
         {% if order.__tablename__ == 'bra_douban_order' %}
         <form class="input-row-box" method="POST" id="outsource_form_{{outsource.id}}" action="{{outsource.edit_path()}}?type=douban">
-            {% if g.user.is_super_admin() %}
+            {% if outsource.status == 0 %}
             <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}?type=douban" style="color:red;">删除外包</a>
+            {% else %}
+                {% if g.user.is_super_admin() %}
+                <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}?type=douban" style="color:red;">删除外包</a>
+                {% endif %}
             {% endif %}
         {% else %}
         <form class="input-row-box" method="POST" id="outsource_form_{{outsource.id}}" action="{{outsource.edit_path()}}">
-            {% if g.user.is_super_admin() %}
-            <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}" style="color:red;">删除外包</a>
+            {% if outsource.status == 0 %}
+                <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}" style="color:red;">删除外包</a>
+            {% else %}
+              {% if g.user.is_super_admin() %}
+              <a href="{{url_for('outsource.outsource_delete',outsource_id=outsource.id)}}" style="color:red;">删除外包</a>
+              {% endif %}
             {% endif %}
         {% endif %}
             {{form.csrf_token}}
