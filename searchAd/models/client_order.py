@@ -161,7 +161,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     finish_time = db.Column(db.DateTime)   # 合同归档时间
     back_money_status = db.Column(db.Integer)
     contract_generate = True
-    media_apply = False
+    media_apply = True
     kind = "searchAd-client-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
@@ -526,7 +526,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     @property
     def email_info(self):
         return u"""
-    类型:搜索广告订单
+    类型:效果业务订单
     客户订单:
 
         客户: %s
