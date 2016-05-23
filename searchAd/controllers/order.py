@@ -428,8 +428,8 @@ def order_medium_edit_cpm(medium_id):
 #                g.user, u"更新了媒体订单: %s 的分成金额%s " % (mo.medium.name, medium_money))
 #        mo.medium_money = medium_money
     mo.save()
-    if medium_money != '':
-        _insert_executive_report(mo, 'reload')
+#     if medium_money != '':
+#         _insert_executive_report(mo, 'reload')
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
     return redirect(mo.info_path())
 
@@ -468,7 +468,7 @@ def contract_status_change(order, action, emails, msg):
     if action == 1:
         order.contract_status = CONTRACT_STATUS_MEDIA
         action_msg = u"申请利润分配"
-        to_users = to_users + order.leaders
+        to_users = to_users + order.leaders + User.searchad_medias()
     elif action == 2:
         order.contract_status = CONTRACT_STATUS_APPLYCONTRACT
         action_msg = u"申请审批"

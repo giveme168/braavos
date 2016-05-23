@@ -111,6 +111,8 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
     if action and int(action) == 1:
         if order.__tablename__ == 'bra_medium_framework_order':
             leader_users = [k for k in to_users if k.team.type in [20]]
+        if order.__tablename__ == 'searchAd_bra_client_order':
+            leader_users = [k for k in to_users if k.team.type in [22]]
         else:
             leader_users = [k for k in to_users if k.team.type in [9]]
         action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
@@ -135,7 +137,10 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
             salers = order.direct_sales + order.agent_sales + [order.creator]
         action_info = ','.join(_get_active_user_name(salers)) + u'您的合同打印完成'
     elif action and int(action) == 6:
-        medium_users = [k for k in to_users if k.team.type in [12, 20]]
+        if order.__tablename__ == 'searchAd_bra_client_order':
+            medium_users = [k for k in to_users if k.team.type == 25]
+        else:
+            medium_users = [k for k in to_users if k.team.type in [12, 20]]
         action_info = u'请' + ','.join(_get_active_user_name(medium_users)) + \
                       u'进行利润分配'
     elif action and int(action) == 7:
@@ -165,11 +170,11 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
     elif order.__tablename__ == 'bra_douban_order':
         title = u"【直签豆瓣订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchAd_bra_client_order':
-        title = u"【搜索业务普通订单-合同流程】- %s" % (order.name)
+        title = u"【效果业务普通订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'bra_searchAd_framework_order':
-        title = u"【搜索业务框架订单-合同流程】- %s" % (order.name)
+        title = u"【效果业务框架订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchad_bra_rebate_order':
-        title = u"【搜索业务返点订单-合同流程】- %s" % (order.name)
+        title = u"【效果业务返点订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'bra_medium_framework_order':
         title = u"【媒体框架订单-合同流程】- %s" % (order.name)
     else:
@@ -321,9 +326,9 @@ def invoice_apply(sender, context):
     if order.__tablename__ == 'bra_client_order':
         title = u"【新媒体订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchAd_bra_client_order':
-        title = u"【搜索业务普通订单-合同流程】- %s" % (order.name)
+        title = u"【效果业务普通订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchad_bra_rebate_order':
-        title = u"【搜索业务返点订单-合同流程】- %s" % (order.name)
+        title = u"【效果业务返点订单-合同流程】- %s" % (order.name)
     else:
         title = u"【合同流程】- %s" % (order.name)
 
@@ -409,9 +414,9 @@ def medium_rebate_invoice_apply(sender, context):
     if order.__tablename__ == 'bra_client_order':
         title = u"【新媒体订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchAd_bra_client_order':
-        title = u"【搜索业务普通订单-合同流程】- %s" % (order.name)
+        title = u"【效果业务普通订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchad_bra_rebate_order':
-        title = u"【搜索业务返点订单-合同流程】- %s" % (order.name)
+        title = u"【效果业务返点订单-合同流程】- %s" % (order.name)
     else:
         title = u"【合同流程】- %s" % (order.name)
     if context['send_type'] == "saler":
@@ -1168,11 +1173,11 @@ def back_money_apply(sender, apply_context):
     elif order.__tablename__ == 'bra_douban_order':
         title = u"【直签豆瓣订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchAd_bra_client_order':
-        title = u"【搜索业务普通订单-合同流程】- %s" % (order.name)
+        title = u"【效果业务普通订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'bra_searchAd_framework_order':
-        title = u"【搜索业务框架订单-合同流程】- %s" % (order.name)
+        title = u"【效果业务框架订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchad_bra_rebate_order':
-        title = u"【搜索业务返点订单-合同流程】- %s" % (order.name)
+        title = u"【效果业务返点订单-合同流程】- %s" % (order.name)
     else:
         title = u"【合同流程】- %s" % (order.name)
 
