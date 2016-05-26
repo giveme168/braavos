@@ -448,6 +448,8 @@ def medium_order(mo_id):
     finish_status = int(request.values.get('finish_status', 1))
     if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader():
         mo.medium = Medium.get(form.medium.data)
+    self_medium_rebate = int(request.values.get('self_medium_rebate', 0))
+    self_medium_rabate_value = float(request.values.get('self_medium_rabate_value', 0))
     mo.medium_money = float(form.medium_money.data or 0)
     mo.medium_money2 = float(form.medium_money2.data or 0)
     mo.sale_money = float(form.sale_money.data or 0)
@@ -462,6 +464,7 @@ def medium_order(mo_id):
     mo.finish_status = finish_status
     if finish_status == 0 and last_status != 0:
         mo.finish_time = datetime.now()
+    mo.self_medium_rebate = str(self_medium_rebate) + '-' + str(self_medium_rabate_value)
     mo.save()
     mo.client_order.add_comment(
         g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money2))
@@ -480,6 +483,8 @@ def order_medium_edit_cpm(medium_id):
     cpm = request.values.get('cpm', '')
     medium_money = request.values.get('medium_money', '')
     sale_CPM = int(request.values.get('sale_CPM', 0))
+    self_medium_rebate = int(request.values.get('self_medium_rebate', 0))
+    self_medium_rabate_value = float(request.values.get('self_medium_rabate_value', 0))
     if cpm != '':
         cpm = int(round(float(cpm)))
         if mo.medium_CPM != cpm:
@@ -497,6 +502,7 @@ def order_medium_edit_cpm(medium_id):
             mo.client_order.add_comment(
                 g.user, u"更新了媒体订单: %s 的分成金额%s " % (mo.medium.name, medium_money))
         mo.medium_money = medium_money
+    mo.self_medium_rebate = str(self_medium_rebate) + '-' + str(self_medium_rabate_value)
     finish_status = int(request.values.get('finish_status', 1))
     last_status = mo.finish_status
     mo.finish_status = finish_status

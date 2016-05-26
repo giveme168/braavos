@@ -117,6 +117,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)
     finish_time = db.Column(db.DateTime)
     finish_status = db.Column(db.Integer)  # 是否回收
+    self_medium_rebate = db.Column(db.String(20))  # 单笔返点
     contract_generate = True
     kind = "medium-order"
 
@@ -125,7 +126,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                  medium_CPM=0, sale_CPM=0, finish_status=1,
                  discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
                  operaters=None, designers=None, planers=None,
-                 creator=None, create_time=None, finish_time=None):
+                 creator=None, create_time=None, finish_time=None,
+                 self_medium_rebate='0-0',):
         self.campaign = campaign
         self.medium = medium
         self.order_type = order_type
@@ -148,6 +150,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.creator = creator
         self.create_time = create_time or datetime.datetime.now()
         self.finish_time = create_time or datetime.datetime.now()
+        self.self_medium_rebate = self_medium_rebate
 
     def __repr__(self):
         return '<Order %s>' % (self.id)
@@ -737,6 +740,15 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     def get_outsources_by_status(self, outsource_status):
         return [o for o in self.outsources if o.status == outsource_status]
+
+    @property
+    def self_medium_rebate_value(self):
+        if self.self_medium_rebate:
+            p_self_medium_rebate = self.self_medium_rebate.split('-')
+        else:
+            p_self_medium_rebate = ['0', '0.0']
+        return {'status': p_self_medium_rebate[0],
+                'value': p_self_medium_rebate[1]}
 
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
