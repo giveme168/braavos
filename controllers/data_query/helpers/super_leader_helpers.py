@@ -422,7 +422,7 @@ def write_pie_excel(obj):
     return response
 
 
-# 导出可代理总表
+# 导出代理总表
 def write_agent_total_excel(year, agent_obj, total_is_sale_money, total_is_medium_money):
     response = Response()
     response.status_code = 200
@@ -442,7 +442,10 @@ def write_agent_total_excel(year, agent_obj, total_is_sale_money, total_is_mediu
     th = 1
     for k in agent_obj:
         agents = k['agents']
-        worksheet.merge_range(th, 0, th + k['excel_order_count'] - 1, 0, k['name'], align_left)
+        if k['excel_order_count'] == 1:
+            worksheet.write(th, 0, k['name'], align_left)
+        else:
+            worksheet.merge_range(th, 0, th + k['excel_order_count'] - 1, 0, k['name'], align_left)
         for a in agents:
             if a['orders']:
                 if len(a['orders']) == 1:
@@ -477,8 +480,8 @@ def write_agent_total_excel(year, agent_obj, total_is_sale_money, total_is_mediu
     return response
 
 
-# 导出可代理总表
-def write_client_total_excel(year, HB_data, HD_data, HN_data):
+# 导出客户总表
+def write_client_total_excel(year, HB_data, HD_data, HN_data, type):
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -503,7 +506,10 @@ def write_client_total_excel(year, HB_data, HD_data, HN_data):
         th += 1
     for k in HB_data['location_data']:
         agents = k['clients']
-        worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
+        if k['excel_order_count'] == 1:
+            worksheet.write(th, 1, k['name'], align_left)
+        else:
+            worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
         for a in agents:
             if a['orders']:
                 if len(a['orders']) == 1:
@@ -532,7 +538,10 @@ def write_client_total_excel(year, HB_data, HD_data, HN_data):
         th += 1
     for k in HD_data['location_data']:
         agents = k['clients']
-        worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
+        if k['excel_order_count'] == 1:
+            worksheet.write(th, 1, k['name'], align_left)
+        else:
+            worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
         for a in agents:
             if a['orders']:
                 if len(a['orders']) == 1:
@@ -561,7 +570,10 @@ def write_client_total_excel(year, HB_data, HD_data, HN_data):
         th += 1
     for k in HN_data['location_data']:
         agents = k['clients']
-        worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
+        if k['excel_order_count'] == 1:
+            worksheet.write(th, 1, k['name'], align_left)
+        else:
+            worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
         for a in agents:
             if a['orders']:
                 if len(a['orders']) == 1:
@@ -594,7 +606,10 @@ def write_client_total_excel(year, HB_data, HD_data, HN_data):
                     HN_data['total_Q4_money'], money_align_left)
     workbook.close()
     response.data = output.getvalue()
-    filename = ("%s-%s.xls" % ('客户总表', str(year)))
+    if type == "douban":
+        filename = ("%s-%s.xls" % ('豆瓣客户总表', str(year)))
+    else:
+        filename = ("%s-%s.xls" % ('新媒体客户总表', str(year)))
     mimetype_tuple = mimetypes.guess_type(filename)
     response_headers = Headers({
         'Pragma': "public",
