@@ -420,3 +420,192 @@ def write_pie_excel(obj):
     response.headers = response_headers
     response.set_cookie('fileDownload', 'true', path='/')
     return response
+
+
+# 导出可代理总表
+def write_agent_total_excel(year, agent_obj, total_is_sale_money, total_is_medium_money):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1})
+    money_align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1, 'num_format': '#,##0.00'})
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    keys = [u'代理集团', u'代理', u'合同号', 'campaign', u'销售金额', u'媒介金额']
+    for k in range(len(keys)):
+        worksheet.set_column(k, 0, 30)
+        worksheet.write(0, k, keys[k], align_center)
+    th = 1
+    for k in agent_obj:
+        agents = k['agents']
+        worksheet.merge_range(th, 0, th + k['excel_order_count'] - 1, 0, k['name'], align_left)
+        for a in agents:
+            if a['orders']:
+                if len(a['orders']) == 1:
+                    worksheet.write(th, 1, a['name'], align_left)
+                else:
+                    worksheet.merge_range(th, 1, th + a['html_order_count'] - 1, 1, a['name'], align_left)
+                for o in a['orders']:
+                    worksheet.write(th, 2, o['contract'] or u'无合同号', align_left)
+                    worksheet.write(th, 3, o['campaign'], align_left)
+                    worksheet.write(th, 4, o['is_sale_money'], money_align_left)
+                    worksheet.write(th, 5, o['is_medium_money'], money_align_left)
+                    th += 1
+    worksheet.merge_range(th, 0, th, 3, u'总计', align_center)
+    worksheet.write(th, 4, total_is_sale_money, money_align_left)
+    worksheet.write(th, 5, total_is_medium_money, money_align_left)
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" % ('代理总表', str(year)))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+# 导出可代理总表
+def write_client_total_excel(year, HB_data, HD_data, HN_data):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1})
+    money_align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1, 'num_format': '#,##0.00'})
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    keys = [u'区域', u'行业', u'客户', '代理', u'Q1', u'Q2', u'Q3', u'Q4']
+    for k in range(len(keys)):
+        worksheet.set_column(k, 0, 30)
+        worksheet.write(0, k, keys[k], align_center)
+    th = 1
+    count = sum([k['excel_order_count'] for k in HB_data['location_data']])
+    if count > 1:
+        worksheet.merge_range(th, 0, th + count - 1, 0, u'华北', align_left)
+    else:
+        worksheet.write(th, 0, u'华北', align_left)
+        th += 1
+    for k in HB_data['location_data']:
+        agents = k['clients']
+        worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
+        for a in agents:
+            if a['orders']:
+                if len(a['orders']) == 1:
+                    worksheet.write(th, 2, a['name'], align_left)
+                else:
+                    worksheet.merge_range(th, 2, th + a['html_order_count'] - 1, 2, a['name'], align_left)
+                for o in a['orders']:
+                    worksheet.write(th, 3, o['agent_name'], align_left)
+                    worksheet.write(th, 4, o['Q1_money'], money_align_left)
+                    worksheet.write(th, 5, o['Q2_money'], money_align_left)
+                    worksheet.write(th, 6, o['Q3_money'], money_align_left)
+                    worksheet.write(th, 7, o['Q4_money'], money_align_left)
+                    th += 1
+    # 总计
+    worksheet.merge_range(th, 0, th, 3, '总计', align_center)
+    worksheet.write(th, 4, HB_data['total_Q1_money'], money_align_left)
+    worksheet.write(th, 5, HB_data['total_Q2_money'], money_align_left)
+    worksheet.write(th, 6, HB_data['total_Q3_money'], money_align_left)
+    worksheet.write(th, 7, HB_data['total_Q4_money'], money_align_left)
+    th += 1
+    count = sum([k['excel_order_count'] for k in HD_data['location_data']])
+    if count > 1:
+        worksheet.merge_range(th, 0, th + count - 1, 0, u'华东', align_left)
+    else:
+        worksheet.write(th, 0, u'华东', align_left)
+        th += 1
+    for k in HD_data['location_data']:
+        agents = k['clients']
+        worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
+        for a in agents:
+            if a['orders']:
+                if len(a['orders']) == 1:
+                    worksheet.write(th, 2, a['name'], align_left)
+                else:
+                    worksheet.merge_range(th, 2, th + a['html_order_count'] - 1, 2, a['name'], align_left)
+                for o in a['orders']:
+                    worksheet.write(th, 3, o['agent_name'], align_left)
+                    worksheet.write(th, 4, o['Q1_money'], money_align_left)
+                    worksheet.write(th, 5, o['Q2_money'], money_align_left)
+                    worksheet.write(th, 6, o['Q3_money'], money_align_left)
+                    worksheet.write(th, 7, o['Q4_money'], money_align_left)
+                    th += 1
+    # 总计
+    worksheet.merge_range(th, 0, th, 3, '总计', align_center)
+    worksheet.write(th, 4, HD_data['total_Q1_money'], money_align_left)
+    worksheet.write(th, 5, HD_data['total_Q2_money'], money_align_left)
+    worksheet.write(th, 6, HD_data['total_Q3_money'], money_align_left)
+    worksheet.write(th, 7, HD_data['total_Q4_money'], money_align_left)
+    th += 1
+    count = sum([k['excel_order_count'] for k in HN_data['location_data']])
+    if count > 1:
+        worksheet.merge_range(th, 0, th + count - 1, 0, u'华南', align_left)
+    else:
+        worksheet.write(th, 0, u'华南', align_left)
+        th += 1
+    for k in HN_data['location_data']:
+        agents = k['clients']
+        worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
+        for a in agents:
+            if a['orders']:
+                if len(a['orders']) == 1:
+                    worksheet.write(th, 2, a['name'], align_left)
+                else:
+                    worksheet.merge_range(th, 2, th + a['html_order_count'] - 1, 2, a['name'], align_left)
+                for o in a['orders']:
+                    worksheet.write(th, 3, o['agent_name'], align_left)
+                    worksheet.write(th, 4, o['Q1_money'], money_align_left)
+                    worksheet.write(th, 5, o['Q2_money'], money_align_left)
+                    worksheet.write(th, 6, o['Q3_money'], money_align_left)
+                    worksheet.write(th, 7, o['Q4_money'], money_align_left)
+                    th += 1
+    # 总计
+    worksheet.merge_range(th, 0, th, 3, '总计', align_center)
+    worksheet.write(th, 4, HN_data['total_Q1_money'], money_align_left)
+    worksheet.write(th, 5, HN_data['total_Q2_money'], money_align_left)
+    worksheet.write(th, 6, HN_data['total_Q3_money'], money_align_left)
+    worksheet.write(th, 7, HN_data['total_Q4_money'], money_align_left)
+    th += 1
+    # 总计
+    worksheet.merge_range(th, 0, th, 3, '三区总计', align_center)
+    worksheet.write(th, 4, HB_data['total_Q1_money'] + HD_data['total_Q1_money'] +
+                    HN_data['total_Q1_money'], money_align_left)
+    worksheet.write(th, 5, HB_data['total_Q2_money'] + HD_data['total_Q2_money'] +
+                    HN_data['total_Q2_money'], money_align_left)
+    worksheet.write(th, 6, HB_data['total_Q3_money'] + HD_data['total_Q3_money'] +
+                    HN_data['total_Q3_money'], money_align_left)
+    worksheet.write(th, 7, HB_data['total_Q4_money'] + HD_data['total_Q4_money'] +
+                    HN_data['total_Q4_money'], money_align_left)
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" % ('客户总表', str(year)))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response

@@ -15,8 +15,12 @@
               <a href="{{url_for('data_query_super_leader_client.client_order')}}">客户分析</a>
               <span>|</span>
             </li>
-            <li id="_sale_type_" class="nav-last">
+            <li id="_sale_type_">
               <a href="{{url_for('data_query_super_leader_sale_type.client_order')}}">售卖类型分析</a>
+              <span>|</span>
+            </li>
+            <li id="_agent_total_" class="nav-last">
+              <a href="{{url_for('data_query_super_leader_agent_total.index')}}">代理总表</a>
             </li>
         </ul>
         <ul>
@@ -32,8 +36,12 @@
               <a href="{{url_for('data_query_super_leader_back_money.client_order')}}">回款分析</a>
               <span>|</span>
             </li>
-            <li class="nav-last" id="_medium_info_">
+            <li id="_medium_info_">
               <a href="{{url_for('data_query_super_leader_medium_info.index')}}">媒体执行额分析</a>
+              <span>|</span>
+            </li>
+            <li class="nav-last" id="_client_total_">
+              <a href="{{url_for('data_query_super_leader_client_total.index')}}">客户总表</a>
             </li>
         </ul>
         {% endif %}
