@@ -103,14 +103,13 @@ def _format_location_data(industry_obj, orders, location):
             'total_Q4_money': total_Q4_money}
 
 
-@data_query_super_leader_client_total_bp.route('/index', methods=['GET'])
-def index():
+@data_query_super_leader_client_total_bp.route('/client_order', methods=['GET'])
+def client_order():
     if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
         abort(403)
     now_date = datetime.datetime.now()
     year = int(request.values.get('year', now_date.year))
     orders = [_format_order(k, year) for k in ClientOrder.all()]
-    orders += [_format_order(k, year) for k in DoubanOrder.all()]
     orders = [k for k in orders if k['client_start'].year == year]
     # 去掉撤单、申请中的合同
     orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
@@ -130,6 +129,37 @@ def index():
 
     action = request.values.get('action', '')
     if action == 'excel':
-        return write_client_total_excel(year, HB_data=HB_data, HD_data=HD_data, HN_data=HN_data)
+        return write_client_total_excel(year, HB_data=HB_data, HD_data=HD_data, HN_data=HN_data, type="client")
+    return tpl('/data_query/super_leader/client_total.html', year=year, HB_data=HB_data,
+               HD_data=HD_data, HN_data=HN_data)
+
+
+@data_query_super_leader_client_total_bp.route('/douban_order', methods=['GET'])
+def douban_order():
+    if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
+        abort(403)
+    now_date = datetime.datetime.now()
+    year = int(request.values.get('year', now_date.year))
+    orders = [_format_order(k, year) for k in DoubanOrder.all()]
+    orders = [k for k in orders if k['client_start'].year == year]
+    # 去掉撤单、申请中的合同
+    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
+    # 获取行业
+    industry_data = [{'id': k, 'name': CLIENT_INDUSTRY_CN[k]} for k in CLIENT_INDUSTRY_CN]
+    # 获取所有客户
+    client_data = [{'id': k.id, 'name': k.name, 'industry': k.industry} for k in Client.all()]
+    # 行业合并客户
+    industry_obj = []
+    for i in industry_data:
+        i['clients'] = [k for k in client_data if k['industry'] == i['id']]
+        if i['clients']:
+            industry_obj.append(i)
+    HB_data = _format_location_data(industry_obj, orders, 1)
+    HD_data = _format_location_data(industry_obj, orders, 2)
+    HN_data = _format_location_data(industry_obj, orders, 3)
+
+    action = request.values.get('action', '')
+    if action == 'excel':
+        return write_client_total_excel(year, HB_data=HB_data, HD_data=HD_data, HN_data=HN_data, type="douban")
     return tpl('/data_query/super_leader/client_total.html', year=year, HB_data=HB_data,
                HD_data=HD_data, HN_data=HN_data)
