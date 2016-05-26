@@ -1,0 +1,78 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}代理总表{% endblock %}
+{% block content %}
+{% include "/data_query/super_leader/super_leader_base_v1_0_0.html" %}
+<div class="container bra-box" id="medium_box" style="width:1200px;">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">查询时间：</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                    <option value='{{2014+k}}'>{{2014+k}}年</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
+        </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>代理集团</th>
+                    <th>代理</th>
+                    <th>合同号</th>
+                    <th>campaign</th>
+                    <th>销售金额</th>
+                    <th>媒介金额</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in agent_obj %}
+                <tr>
+                    <td rowspan='{{k.html_order_count}}'>{{k.name}}</td>
+                </tr>
+                    {% for a in k.agents %}
+                        {% if a.orders %}
+                        <tr>
+                            <td rowspan='{{a.html_order_count+1}}'>{{a.name}}</td>
+                        </tr>
+                            {% for o in a.orders %}
+                                <tr>
+                                    <td><a href="{{url_for('order.order_info', order_id=o.id, tab_id=1)}}" target="_blank">{{o.contract or '无合同号'}}</a></td>
+                                    <td>{{o.campaign}}</td>
+                                    <td>{{o.is_sale_money|format_price}}</td>
+                                    <td>{{o.is_medium_money|format_price}}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+                <tr>
+                    <td colspan=4 style="text-align: center;">总计</td>
+                    <td>{{total_is_sale_money|format_price}}</td>
+                    <td>{{total_is_medium_money|format_price}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		$('select').chosen({disable_search: true});
+		$('#year').val('{{year}}');
+		$("#year").trigger("chosen:updated");
+	})
+    function download(){
+        var year = $('#year').val();
+        params = '?action=excel&year='+year;
+        window.location.href = window.location.pathname + params;
+    }
+</script>
+{% endblock %}

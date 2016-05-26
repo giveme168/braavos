@@ -88,10 +88,10 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
                         }
 .tabulation table thead tr th,.tabulation table tbody tr td{padding-left: 10px; border:1px solid #bebebe;padding-right: 10px;}
 
-.tabulation table tbody a{color: #484848;
+.tabulation table tbody a{color: #98091b;
                             text-decoration: none;}
 
-.tabulation table tbody a:hover{color: #98091b;}
+.tabulation table tbody a:hover{color: #484848;}
 .not-completed{background: #fde0e2;}
 /*table切换*/
 .table-switch{
