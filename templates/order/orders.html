@@ -32,7 +32,9 @@
                 <th>豆瓣金额</th>
                 <th>豆瓣合同号</th>
                 <th>合同状态</th>
+                {% if g.user.is_super_admin() %}
                 <th>操作</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -110,15 +112,13 @@
                     {% endfor %}
                 </td>
                 <td>{{o.contract_status_cn}}</td>
+                {% if g.user.is_super_admin() %}
                 <td>
-                    {% if g.user.is_super_admin() %}
                         {% if o.status == 0 %}
                             <a href="{{url_for('order.order_recovery', order_id=o.id)}}" style="color:red;">恢复</a>
                         {% else %}
                             <a href="{{url_for('order.order_delete', order_id=o.id)}}" style="color:red;">删除</a>
                         {% endif %}
-                    {% endif %}
-                    {% if g.user.is_media() or g.user.is_contract() or g.user.is_super_admin() %}
                         {% if o.contract_status in [2,4,5,20] and o.contract %}
                             {% if o.is_executive_report() %}
                                 <a href="{{url_for('order.executive_report', order_id=o.id)}}?rtype=reload">重生</a>
@@ -127,8 +127,8 @@
                             {% endif %}
                             
                         {% endif %}
-                    {% endif %}
                 </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>

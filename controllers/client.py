@@ -131,7 +131,7 @@ def agent_delete(agent_id):
 
 @client_bp.route('/agent/<agent_id>', methods=['GET', 'POST'])
 def agent_detail(agent_id):
-    if not (g.user.is_contract() or g.user.is_super_leader()):
+    if not (g.user.is_contract() or g.user.is_super_leader() or g.user.is_finance()):
         abort(403)
     agent = Agent.get(agent_id)
     if not agent:
@@ -171,7 +171,7 @@ def group_delete(group_id):
 
 @client_bp.route('/group/<group_id>', methods=['GET', 'POST'])
 def group_detail(group_id):
-    if not (g.user.is_contract() or g.user.is_super_leader()):
+    if not (g.user.is_contract() or g.user.is_super_leader() or g.user.is_finance()):
         abort(403)
     group = Group.get(group_id)
     if not group:
@@ -191,7 +191,7 @@ def group_detail(group_id):
 
 @client_bp.route('/medium/<medium_id>', methods=['GET', 'POST'])
 def medium_detail(medium_id):
-    if not (g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_media()):
+    if not (g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_media() or g.user.is_finance()):
         abort(403)
     medium = Medium.get(medium_id)
     if not medium:
