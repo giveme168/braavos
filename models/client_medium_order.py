@@ -7,6 +7,7 @@ from .user import User, TEAM_LOCATION_CN
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
+from models.invoice import ClientMediumInvoice
 from consts import DATE_FORMAT
 
 
@@ -481,6 +482,48 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
                self.agent_sales_names, self.operater_names,
                self.start_date_cn, self.end_date_cn, self.contract,
                self.medium.name, self.medium_money)
+
+    @property
+    def invoice_pass_sum(self):
+        return sum([k.money for k in ClientMediumInvoice.query.filter_by(client_medium_order_id=self.id)
+                    if k.invoice_status == 0])
+
+    @property
+    def invoice_apply_sum(self):
+        return sum([k.money for k in ClientMediumInvoice.query.filter_by(client_medium_order_id=self.id)
+                    if k.invoice_status == 3])
+
+    def get_invoice_by_status(self, type):
+        return [invoice for invoice in self.client_medium_invoices if invoice.invoice_status == type]
+
+    @property
+    def back_moneys(self):
+        return sum([k.money for k in self.client_medium_order_back_money] +
+                   [k.money for k in self.client_medium_order_back_invoice])
+
+    @property
+    def back_money_status_cn(self):
+        if self.back_money_status in [-1, 0]:
+            return BACK_MONEY_STATUS_CN[BACK_MONEY_STATUS_END]
+        else:
+            return BACK_MONEY_STATUS_CN[self.back_money_status or 1]
+
+    @property
+    def back_money_percent(self):
+        if self.back_money_status == 0:
+            return 100
+        elif self.back_money_status == -1:
+            return 0
+        else:
+            return int(float(self.back_moneys) / self.medium_money * 100) if self.money else 0
+
+    @property
+    def back_money_list(self):
+        return self.client_medium_order_back_money
+
+    @property
+    def back_invoice_rebate_list(self):
+        return self.client_medium_order_back_invoice
 
 
 class BackMoney(db.Model, BaseModelMixin):

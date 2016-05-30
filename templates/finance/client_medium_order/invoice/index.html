@@ -1,0 +1,99 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}客户发票{% endblock %}
+
+{% block content %}
+{% include "/finance/finance_base_v1_0_0.html" %}
+<div class="container bra-box">
+    <div class="table-switch" style="margin-top: 50px;">
+        <ul>
+            <li class="actives" style="width:150px;">
+                <a class="on" href="{{url_for('finance_client_medium_order_invoice.index')}}">申请中的客户发票</a>
+            </li>
+            <li style="width:150px;">
+                <a href="{{url_for('finance_client_medium_order_invoice.index_pass')}}">所有客户发票</a>
+            </li>
+        </ul>
+    </div>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input">
+                <input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">年度</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                        <option value="{{2014+k}}">{{2014+k}}年度</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">区域</label>
+                <select class="form-control special_sale" name="location" id="search_location" style="width:100px;">
+                    {% for v, m in locations %}
+                        {% if v == location_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                        {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="select_option screen">
+                <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+        </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>合同号</th>
+                    <th>合同总金额</th>
+                    <th>已开发票金额</th>
+                    <th>未开发票金额</th>
+                    <th>正在申请发票金额</th>
+                    <th>申请发票个数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><a href="{{url_for('finance_client_medium_order_invoice.info', order_id=order.id)}}">{{order.name}}</a></td>
+                    <td>{{ order.contract }}</td>
+                    <td>{{ order.money }} 元</td>
+                    <td>{{ order.invoice_pass_sum }} 元</td>
+                    <td>{{ order.medium_money - order.invoice_pass_sum }} 元</td>
+                    <td>{{ order.invoice_apply_sum }} 元</td>
+                    <td>{{ order.apply_count }}</td>
+                    <td><a href="{{url_for('finance_client_medium_order_invoice.info', order_id=order.id)}}">查看</a></td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan=5 style="text-align:center">总计</td>
+                    <td>{{orders|sum(attribute='invoice_apply_sum')|format_price}} 元</td>
+                    <td>{{orders|sum(attribute='apply_count')}}</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function search() {
+        window.location.href = window.location.pathname +
+            '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&selected_location=' + ($('#search_location').val()) +
+            '&year='+$('#year').val();
+    }
+    $(function() {
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+        $('#year').val('{{year}}');
+        $("#year").trigger("chosen:updated");
+    });
+</script>
+{% endblock %}
