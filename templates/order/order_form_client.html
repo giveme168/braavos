@@ -181,10 +181,15 @@ Date.prototype.Format = function (fmt) { //author: meizz
 }
 $(document).ready(function(){
     $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    var now_data = new Date()
+    var now_month_data = new Date(now_data.getFullYear(), now_data.getMonth(), 1)
     $('.datetimepicker').datetimepicker({
         autoclose: true,
         todayHighlight: true,
         language: 'zh-CN',
+        {% if not g.user.is_super_leader() %}
+        startDate: now_month_data,
+        {% endif %}
         minView: 2
       });
     $(".add-new-medium").click(function(e){

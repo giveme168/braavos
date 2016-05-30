@@ -65,7 +65,7 @@ def index():
     orders = [_format_order(k, year) for k in ClientOrder.all()]
     orders = [k for k in orders if k['client_start'].year == year]
     # 去掉撤单、申请中的合同
-    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
+    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1 and k['contract']]
     # 获取所有代理
     agents = [{'name': a.name, 'id': a.id, 'group_id': a.group.id} for a in Agent.all()]
     # 获取代理集团

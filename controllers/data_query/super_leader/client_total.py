@@ -112,7 +112,7 @@ def client_order():
     orders = [_format_order(k, year) for k in ClientOrder.all()]
     orders = [k for k in orders if k['client_start'].year == year]
     # 去掉撤单、申请中的合同
-    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
+    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1 and k['contract']]
     # 获取行业
     industry_data = [{'id': k, 'name': CLIENT_INDUSTRY_CN[k]} for k in CLIENT_INDUSTRY_CN]
     # 获取所有客户
@@ -143,7 +143,7 @@ def douban_order():
     orders = [_format_order(k, year) for k in DoubanOrder.all()]
     orders = [k for k in orders if k['client_start'].year == year]
     # 去掉撤单、申请中的合同
-    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
+    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1 and k['contract']]
     # 获取行业
     industry_data = [{'id': k, 'name': CLIENT_INDUSTRY_CN[k]} for k in CLIENT_INDUSTRY_CN]
     # 获取所有客户
