@@ -1936,7 +1936,7 @@ def get_client_medium_order_form(order):
     return form
 
 
-@order_bp.route('/client_mediuim_order/<order_id>/info', methods=['GET', 'POST'])
+@order_bp.route('/client_medium_order/<order_id>/info', methods=['GET', 'POST'])
 def client_medium_order_info(order_id):
     order = ClientMediumOrder.get(order_id)
     form = get_client_medium_order_form(order)

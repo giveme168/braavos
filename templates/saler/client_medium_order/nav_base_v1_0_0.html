@@ -1,0 +1,29 @@
+<div class="table-switch">
+    <ul>
+        <li id="_order_li">
+            <a id="_order_" href='{{url_for("order.client_medium_order_info", order_id=order.id, tab_id=1)}}'>合同流程</a>
+        </li>
+        {% if order.can_admin(g.user) %}
+        <li id="_invoice_li" style="width:120px;">
+            <a id="_invoice_" href='{{url_for("saler_client_medium_order_invoice.index", order_id=order.id)}}'>客户发票申请</a>
+        </li>
+        <li id="_back_money_li">
+            <a id="_back_money_" href='{{url_for("saler_client_medium_order_back_money.index", order_id=order.id)}}'>客户回款</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+</br>
+<script>
+    $(document).ready(function(){
+    var pathname = window.location.pathname;
+    var path_name = pathname.split("/")
+    if (path_name[1] == 'orders'){
+        $("#_order_li").addClass("actives");
+        $("#_order_").addClass("on");
+    }else{
+        $("#_" + path_name[3]+'_li').addClass("actives");
+        $("#_" + path_name[3]+'_').addClass("on");
+    }
+  })
+</script>

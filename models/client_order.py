@@ -724,15 +724,15 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def search_invoice_info(self):
         search_info = self.search_info
         search_info += ''.join(
-            [k.invoice_num for k in Invoice.query.filter_by(client_order=self)])
+            [k.invoice_num + k.company for k in Invoice.query.filter_by(client_order=self)])
         search_info += ''.join(
-            [k.invoice_num for k in MediumRebateInvoice.query.filter_by(client_order=self)])
+            [k.invoice_num + k.company for k in MediumRebateInvoice.query.filter_by(client_order=self)])
         search_info += ''.join(
-            [k.invoice_num for k in MediumInvoice.query.filter_by(client_order=self)])
+            [k.invoice_num + k.company for k in MediumInvoice.query.filter_by(client_order=self)])
         search_info += ''.join(
-            [k.invoice_num for k in AgentInvoice.query.filter_by(client_order=self)])
+            [k.invoice_num + k.company for k in AgentInvoice.query.filter_by(client_order=self)])
         search_info += ''.join(
-            [k.invoice_num for k in OutsourceInvoice.query.filter_by(client_order=self)])
+            [k.invoice_num + k.company for k in OutsourceInvoice.query.filter_by(client_order=self)])
         return search_info
 
     @property
