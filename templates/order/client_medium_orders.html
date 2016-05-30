@@ -1,0 +1,194 @@
+{% extends "base_v1_0_0.html" %}
+{% block title %}新媒体订单列表{% endblock %}
+
+{% macro all_items(orders) -%}
+<div class='tabulation'>
+    <table border='1'>
+        <thead>
+            <tr>
+                <th>区域</th>
+                <th>代理/直客</th>
+                <th>客户</th>
+                <th>Campaign</th>
+                <th>合同金额</th>
+                <th>合同号</th>
+                <th>执行开始</th>
+                <th>执行结束</th>
+                <th>回款日期</th>
+                <th>直客销售</th>
+                <th>渠道销售</th>
+                <th>直签/代理</th>
+                <th>所属媒体</th>
+                <th>媒体金额</th>
+                <th>合同状态</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in orders %}
+            <tr>
+                <td>{{o.locations_cn}}</td>
+                <td>{{o.agent.name}}</td>
+                <td>{{o.client.name}}</td>
+                <td><a href="{{o.info_path()}}">{{o.campaign}}</a></td>
+                <td>{{o.money}}</td>
+                <td><a href="{{o.info_path()}}">{{o.contract or "无合同号"}}</a></td>
+                <td>{{o.start_date_cn}}</td>
+                <td>{{o.end_date_cn}}</td>
+                <td>{{o.reminde_date_cn}}</td>
+                <td>{{o.direct_sales_names}}</td>
+                <td>{{o.agent_sales_names}}</td>
+                <td>{{o.sale_type_cn}}</td>
+                <td>{{o.medium.name}}</td>
+                <td>{{o.medium_money}}</td>
+                <td>{{o.contract_status_cn}}</td>
+                <td>
+                    {% if g.user.is_super_admin() %}
+                        {% if o.status == 0 %}
+                            <a href="{{url_for('order.order_recovery', order_id=o.id)}}" style="color:red;">恢复</a>
+                        {% else %}
+                            <a href="{{url_for('order.order_delete', order_id=o.id)}}" style="color:red;">删除</a>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%- endmacro %}
+
+{% block content %}
+{% include "order_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:2600px;">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input">
+                <input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">年度</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                        <option value="{{2014+k}}">{{2014+k}}年度</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">区域</label>
+                <select class="form-control special_sale" name="location" id="search_location" style="width:100px;">
+                    {% for v, m in locations %}
+                        {% if v == location_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                        {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">合同状态</label>
+                <select class="form-control special_sale" name="status" id="search_status" style="width:140px;">
+                    {% for v, m in statuses %}
+                        {% if v == status_id|int %}
+                        <option selected="" value="{{v}}">{{m}}</option>
+                        {% else %}
+                        <option value="{{v}}">{{m}}</option>
+                        {% endif %}
+                    {% endfor %}
+                    <option value="30">媒体订单已归档</option>
+                    <option value="31">已完成回款</option>
+                    <option value="32">未完成回款</option>
+                    <option value="33">未完成客户发票</option>
+                    <option value="34">已完成户发票</option>
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">排序方式</label>
+                <select class="form-control special_sale" name="orderby" id="orderby" style="width:120px;">
+                    <option value="create_time">按添加时间</option>
+                    <option value="client_start">按执行开始时间</option>
+                    <option value="client_end">按执行结束时间</option>
+                    <option value="reminde_date">按回款时间</option>
+                    <option value="contract">按合同号排序</option>
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="下载" onclick="javascript:download();">
+            </div>
+            <div class="select_option screen">
+                <a href="{{url_for('order.new_client_medium_order')}}">
+                    <input type="button" value="添加">
+                </a>
+            </div>
+        </form>
+    </div>
+    {{ all_items(orders.object_list) }}
+    {% set pages = orders %}
+    {% include "pagination.html" %}
+</div>
+<script>
+function sort(value){
+    var orderby = '{{orderby}}',
+        sortby = '{{sortby}}';
+    if (value == sortby) {
+        if (orderby == 'desc'){
+            orderby = 'asc'
+        } else {
+            orderby = 'desc'
+        }
+    } else {
+        sortby = value
+        orderby = 'desc'
+    }
+    var params = '?sortby='+sortby+'&orderby='+orderby+
+    '&searchinfo='+encodeURIComponent($('#search_info').val())+
+    '&selected_location='+encodeURIComponent($('#search_location').val())+
+    '&selected_status='+encodeURIComponent($('#search_status').val())+
+    '&year='+$('#year').val();
+    window.location.href = window.location.pathname+params;
+}
+
+function search(){
+    var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+      '&selected_location=' + ($('#search_location').val()) +
+      '&selected_status=' + ($('#search_status').val())+
+      '&orderby=' + ($('#orderby').val())+
+      '&year='+$('#year').val();
+    window.location.href = window.location.pathname + params;
+      
+}
+
+function download(){
+    var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+      '&selected_location=' + ($('#search_location').val()) +
+      '&selected_status=' + ($('#search_status').val()) +
+      '&orderby=' + ($('#orderby').val())+
+      '&year='+$('#year').val()+
+      '&action=download';
+    window.location.href = window.location.pathname + params;
+      
+}
+
+function enter_search(){
+    //按下‘Enter’键
+    if(event.keyCode == 13){
+        search();
+    }
+}
+$(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    $("#search-area").hide()
+    $("#orderby option[value='{{orderby}}']").attr("selected","selected");  
+    $("#orderby").trigger("chosen:updated");
+    $("#search_status").val(parseInt('{{status_id}}'))
+    $("#search_status").trigger("chosen:updated");
+    $('#year').val('{{year}}');
+    $("#year").trigger("chosen:updated");
+});
+</script>
+{% endblock %}

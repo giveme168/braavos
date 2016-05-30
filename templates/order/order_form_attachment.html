@@ -167,3 +167,11 @@ $(function(){
 {% macro finish_medium_framework_order_attachment(order) %}
     {{ finish_attachment(order, url_for('files.finish_medium_framework_order_upload')) }}
 {%- endmacro %}
+
+{% macro client_medium_order_attachment(order) -%}
+    {{ base_order_attachment(order, url_for('files.client_medium_order_contract_upload'), url_for('files.client_medium_order_schedule_upload')) }}
+    {{ base_attachment_script() }}
+{%- endmacro %}
+{% macro finish_client_medium_order_attachment(order) %}
+    {{ finish_attachment(order, url_for('files.finish_client_medium_order_upload')) }}
+{%- endmacro %}
