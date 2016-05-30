@@ -39,12 +39,6 @@ def index(order_id):
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     new_invoice_form = InvoiceForm()
     new_invoice_form.client_order.choices = [(order.id, order.client.name)]
-    new_invoice_form.company.data = order.agent.name
-    new_invoice_form.bank.data = order.agent.bank
-    new_invoice_form.bank_id.data = order.agent.bank_num
-    new_invoice_form.address.data = order.agent.address
-    new_invoice_form.phone.data = order.agent.phone_num
-    new_invoice_form.tax_id.data = order.agent.tax_num
     new_invoice_form.back_time.data = datetime.date.today()
     return tpl('/saler/client_order/invoice/index.html', order=order,
                invoices_data=invoices_data, new_invoice_form=new_invoice_form,

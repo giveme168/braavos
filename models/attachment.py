@@ -27,6 +27,7 @@ ATTACHMENT_TYPE_MEDIUM_NEW_PRODUCT = 8
 ATTACHMENT_TYPE_AGENT = 9
 ATTACHMENT_TYPE_FINISH = 10
 ATTACHMENT_TYPE_USER_PIC = 11
+ATTACHMENT_TYPE_MEDIUM = 12
 
 ATTACHMENT_TYPE = {
     ATTACHMENT_TYPE_CONTRACT: u"合同",
@@ -41,6 +42,7 @@ ATTACHMENT_TYPE = {
     ATTACHMENT_TYPE_AGENT: u'代理/甲方资料',
     ATTACHMENT_TYPE_FINISH: u'合同扫描件',
     ATTACHMENT_TYPE_USER_PIC: u'用户头像',
+    ATTACHMENT_TYPE_MEDIUM: u'媒体资质',
 }
 
 
@@ -110,6 +112,7 @@ class Attachment(db.Model, BaseModelMixin):
         from .associated_douban_order import AssociatedDoubanOrder
         from .client import Agent
         from .user import User
+        from .medium import Medium
 
         # add for searchAd team
         from searchAd.models.order import searchAdOrder
@@ -127,5 +130,6 @@ class Attachment(db.Model, BaseModelMixin):
             'searchAdFrameworkOrder': searchAdFrameworkOrder,
             'Agent': Agent,
             'User': User,
+            'Medium': Medium,
         }
         return TARGET_DICT[self.target_type].get(self.target_id)

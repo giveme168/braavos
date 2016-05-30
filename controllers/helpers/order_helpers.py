@@ -30,7 +30,7 @@ def write_client_excel(orders):
     th = 1
     now_date = datetime.datetime.now().date()
     for k in range(len(orders)):
-        if orders[k].contract:  # and orders[k].back_money_status != -1:
+        if orders[k].contract and orders[k].contract_status not in [7, 8, 9]:  # and orders[k].back_money_status != -1:
             if now_date > orders[k].reminde_date and orders[k].back_money_percent != 100:
                 align_left = workbook.add_format(
                     {'align': 'left', 'valign': 'vcenter', 'border': 1, 'fg_color': 'FF8888'})

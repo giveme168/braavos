@@ -13,7 +13,7 @@ def _write_money_in_excel(worksheet, align_center, pre_monthes, th, money):
     for k in range(len(money)):
         worksheet.write(th, start + k, float(money[k]), align_center)
     worksheet.write(
-        th, len(pre_monthes) * 3 + 2, float(sum(money)), align_center)
+        th, len(pre_monthes) * 4 + 2, float(sum(money)), align_center)
     th += 1
     return th
 
@@ -36,7 +36,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
     align_center = workbook.add_format(
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
     # 设置宽度为30
-    for k in range(0, len(pre_monthes) * 3 + 1):
+    for k in range(0, len(pre_monthes) * 4 + 1):
         worksheet.set_column(k + 2, 2, 10)
     worksheet.set_column(1, 1, 30)
     # 设置高度
@@ -48,8 +48,8 @@ def write_medium_money_excel(pre_monthes, douban_money,
     worksheet.merge_range(2, 0, 76 + len(up_money) *
                           6, 0, u'致趣收入', align_center)
 
-    locations = [u'华北', u'华东', u'华南']
-    month_start, month_end = 2, 4
+    locations = [u'媒介', u'华北', u'华东', u'华南']
+    month_start, month_end = 2, 5
     location_end = 2
     for k in range(len(pre_monthes)):
         worksheet.merge_range(0, month_start, 0, month_end, str(
@@ -57,9 +57,9 @@ def write_medium_money_excel(pre_monthes, douban_money,
         for i in range(len(locations)):
             worksheet.write(1, location_end, locations[i], align_center)
             location_end += 1
-        month_start, month_end = month_end + 1, month_end + 3
-    worksheet.write(0, len(pre_monthes) * 3 + 2, u'合计', align_center)
-    worksheet.write(1, len(pre_monthes) * 3 + 2, '', align_center)
+        month_start, month_end = month_end + 1, month_end + 4
+    worksheet.write(0, len(pre_monthes) * 4 + 2, u'合计', align_center)
+    worksheet.write(1, len(pre_monthes) * 4 + 2, '', align_center)
     if g.user.is_aduit() and str(year) == '2014':
         keys = []
     else:
@@ -96,7 +96,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
                 worksheet.write(th, 1, i, align_center_color)
             else:
                 worksheet.merge_range(
-                    th, 1, th, 2 + len(pre_monthes) * 3, '', align_center)
+                    th, 1, th, 2 + len(pre_monthes) * 4, '', align_center)
             th += 1
 
     # 重置th

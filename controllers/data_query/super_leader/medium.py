@@ -51,7 +51,7 @@ def _get_medium_moneys(orders, pre_monthes, medium_ids, o_type='zhiqian_order', 
             pro_month_orders = [o for o in orders if o['month_day'] == d[
                 'month'] and o['medium_id'] not in except_medium_ids]
 
-        for k in range(1, 4):
+        for k in range(0, 4):
             location_orders = [
                 o for o in pro_month_orders if len(set(o['locations']) & set([k]))]
             if location_orders:
@@ -274,6 +274,11 @@ def _douban_order_to_dict(order, all_agent_rebate):
             agent_rebate = 0
         dict_order['money_rebate_data'] = dict_order[
             'sale_money'] * agent_rebate / 100
+    # 是否是媒介订单
+    direct_sales = douban_order.direct_sales
+    agent_sales = douban_order.agent_sales
+    if 148 in [k.id for k in direct_sales + agent_sales]:
+        dict_order['locations'] = [0]
     dict_order['status'] = douban_order.status
     return dict_order
 
@@ -387,6 +392,11 @@ def _client_order_to_dict(order, all_agent_rebate, all_medium_rebate):
         'medium_money2'] - medium_money2_rebate_data
     dict_order['profit_data'] = dict_order['sale_money'] - dict_order[
         'money_rebate_data'] - dict_order['medium_money2'] + medium_money2_rebate_data
+    # 是否是媒介订单
+    direct_sales = client_order.direct_sales
+    agent_sales = client_order.agent_sales
+    if 148 in [k.id for k in direct_sales + agent_sales]:
+        dict_order['locations'] = [0]
     dict_order['status'] = client_order.status
     return dict_order
 
@@ -513,14 +523,14 @@ def money():
         medium_orders, pre_monthes, [51], 'medium_order', year)
     # ---计算大于100W的媒体
     up_money = {}
-    other_money = {'sale_money': [0 for k in range(36)],
-                   'money2': [0 for k in range(36)],
-                   'm_ex_money': [0 for k in range(36)],
-                   'a_rebate': [0 for k in range(36)],
-                   'profit': [0 for k in range(36)]}
+    other_money = {'sale_money': [0 for k in range(48)],
+                   'money2': [0 for k in range(48)],
+                   'm_ex_money': [0 for k in range(48)],
+                   'a_rebate': [0 for k in range(48)],
+                   'profit': [0 for k in range(48)]}
     # 用于计算合计的其他媒体售卖金额
-    total_except_money = [0 for k in range(36)]
-    total_a_rebate = [0 for k in range(36)]
+    total_except_money = [0 for k in range(48)]
+    total_a_rebate = [0 for k in range(48)]
     for k in Medium.all():
         if int(k.id) not in except_medium_ids:
             u_medium = _get_medium_moneys(
@@ -578,7 +588,7 @@ def money():
     if year == 2016:
         douban_money['money2'] = numpy.array(
             douban_money['money2']) + numpy.array([k * 0.18 for k in ass_douban_money['money2']])
-        douban_money['a_rebate'] = [0 for k in range(36)]
+        douban_money['a_rebate'] = [0 for k in range(48)]
         douban_money['profit'] = numpy.array(
             douban_money['money2']) - numpy.array(douban_money['a_rebate'])
     elif year == 2014:

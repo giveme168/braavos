@@ -167,6 +167,8 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
         title = u"【新媒体订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'bra_framework_order':
         title = u"【框架订单-合同流程】- %s" % (order.name)
+    elif order.__tablename__ == 'bra_client_medium_order':
+        title = u"【直签媒体订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'bra_douban_order':
         title = u"【直签豆瓣订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchAd_bra_client_order':

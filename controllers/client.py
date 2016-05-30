@@ -219,7 +219,9 @@ def medium_detail(medium_id):
         form.phone_num.data = medium.phone_num
         form.bank.data = medium.bank
         form.bank_num.data = medium.bank_num
-    return tpl('/client/medium/info.html', form=form, title=u"媒体-" + medium.name)
+    return tpl('/client/medium/info.html', form=form,
+               title=u"媒体-" + medium.name, status='update',
+               medium=medium)
 
 
 @client_bp.route('/mediums', methods=['GET'])
@@ -262,6 +264,14 @@ def medium_rebate(medium_id):
     medium = Medium.get(medium_id)
     rebates = MediumRebate.query.filter_by(medium=medium)
     return tpl('/client/medium/rebate/index.html', medium=medium, rebates=rebates)
+
+
+@client_bp.route('/<medium_id>/files/<aid>/delete', methods=['GET'])
+def medium_files_delete(medium_id, aid):
+    attachment = Attachment.get(aid)
+    attachment.delete()
+    flash(u'删除成功!', 'success')
+    return redirect(url_for("client.medium_detail", medium_id=medium_id))
 
 
 @client_bp.route('/medium/<medium_id>/rebate/create', methods=['GET', 'POST'])
