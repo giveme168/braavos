@@ -71,6 +71,7 @@ def _search_order_to_dict(search_order, all_back_moneys, confirm_money_data, pre
         search_order.client_start.strftime(dt_format), dt_format)
     end_datetime = datetime.datetime.strptime(
         search_order.client_end.strftime(dt_format), dt_format)
+    '''
     money_ex_data = pre_month_money(search_order.money,
                                     start_datetime,
                                     end_datetime)
@@ -81,6 +82,7 @@ def _search_order_to_dict(search_order, all_back_moneys, confirm_money_data, pre
             dict_order['money_data'].append(money_ex_data[k['month']])
         else:
             dict_order['money_data'].append(0)
+    '''
     dict_order['medium_data'] = []
     dict_order['medium_sale_money'] = 0
     dict_order['medium_medium_money2'] = 0
@@ -107,6 +109,16 @@ def _search_order_to_dict(search_order, all_back_moneys, confirm_money_data, pre
         dict_order['medium_medium_money2_data'] = numpy.array(
             dict_order['medium_medium_money2_data']) + numpy.array(dict_medium['medium_money2_data'])
         dict_order['medium_data'].append(dict_medium)
+    money_ex_data = pre_month_money(dict_order['medium_sale_money'],
+                                    start_datetime,
+                                    end_datetime)
+    # 客户执行金额
+    dict_order['money_data'] = []
+    for k in pre_year_month:
+        if k['month'] in money_ex_data:
+            dict_order['money_data'].append(money_ex_data[k['month']])
+        else:
+            dict_order['money_data'].append(0)
     return dict_order
 
 

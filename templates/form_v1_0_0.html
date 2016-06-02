@@ -10,7 +10,11 @@
           {% elif field.disabled %}
 	           {{field(class_='surname', placeholder=field.label.text, disabled="disabled")}}
           {% else %}
-            {{field(class_='surname', placeholder=field.label.text, style="width:300px;")}}
+            {% if field.maxlength %}
+              {{field(class_='surname', placeholder=field.label.text, style="width:300px;", maxlength=field.maxlength)}}
+            {% else %}
+              {{field(class_='surname', placeholder=field.label.text, style="width:300px;")}}
+            {% endif %}
           {% endif %}
             <span class="errors">{{','.join(field.errors)}}</span>
             <span class="tips">{{field.description}}</span>

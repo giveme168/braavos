@@ -465,7 +465,7 @@ def write_search_order_excel(orders, year, total_money_data, medium_medium_money
     worksheet.write(th, 28, sum([k['medium_medium_money2']
                                  for k in orders]), money_align_left)
     for k in range(len(medium_medium_money2_data)):
-        worksheet.write(th, 29 + k, total_money_data[k], money_align_left)
+        worksheet.write(th, 29 + k, medium_medium_money2_data[k], money_align_left)
     worksheet.write(th, 41, sum(medium_medium_money2_data), money_align_left)
     worksheet.write(th, 42, sum([k['client_firm_money']
                                  for k in orders]), money_align_left)

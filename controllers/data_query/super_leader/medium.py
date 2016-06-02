@@ -379,14 +379,30 @@ def _client_order_to_dict(order, all_agent_rebate, all_medium_rebate):
         dict_order['money_rebate_data'] = dict_order[
             'sale_money'] * agent_rebate / 100
 
-    medium_rebate_data = [k['rebate'] for k in all_medium_rebate if dict_order[
-        'medium_id'] == k['medium_id'] and dict_order['month_day'].year == k['year'].year]
-    if medium_rebate_data:
-        medium_rebate = medium_rebate_data[0]
+    # 是否有媒体单笔返点
+    try:
+        self_medium_rebate_data = order.order.self_medium_rebate
+        self_medium_rebate = self_medium_rebate_data.split('-')[0]
+        self_medium_rebate_value = float(self_medium_rebate_data.split('-')[1])
+    except:
+        self_medium_rebate = 0
+        self_medium_rebate_value = 0
+    if int(self_medium_rebate):
+        if order.order.medium_money2:
+            medium_money2_rebate_data = dict_order['medium_money2'] / \
+                order.order.medium_money2 * self_medium_rebate_value
+        else:
+            medium_money2_rebate_data = 0
     else:
-        medium_rebate = 0
-    medium_money2_rebate_data = dict_order[
-        'medium_money2'] * medium_rebate / 100
+        medium_rebate_data = [k['rebate'] for k in all_medium_rebate if dict_order[
+            'medium_id'] == k['medium_id'] and dict_order['month_day'].year == k['year'].year]
+        if medium_rebate_data:
+            medium_rebate = medium_rebate_data[0]
+        else:
+            medium_rebate = 0
+        medium_money2_rebate_data = dict_order[
+            'medium_money2'] * medium_rebate / 100
+
     # 合同利润
     dict_order['m_ex_money'] = dict_order[
         'medium_money2'] - medium_money2_rebate_data
