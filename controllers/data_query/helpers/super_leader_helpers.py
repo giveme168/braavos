@@ -480,8 +480,53 @@ def write_agent_total_excel(year, agent_obj, total_is_sale_money, total_is_mediu
     return response
 
 
+def _write_client_data_by_location(th, data, t_money, title, worksheet, align_left, money_align_left, align_center):
+    worksheet.merge_range(th, 0, th + sum([k['th_n'] for k in data]) - 1, 0, title, align_left)
+    start_in_th = th
+    for k in data:
+        end_in_th = start_in_th + k['th_n'] - 1
+        worksheet.merge_range(start_in_th, 1, end_in_th, 1, k['industry_name'], align_left)
+        start_cl_th = start_in_th
+        start_in_th = end_in_th + 1
+        for c in k['clients']:
+            if c['agent_count'] == 1:
+                worksheet.write(start_cl_th, 2, c['name'], align_left)
+                start_cl_th += 1
+                if c['agents']:
+                    for a_k, a_v in c['agents'].items():
+                        worksheet.write(th, 3, a_k, align_left)
+                        for i in range(len(a_v)):
+                            worksheet.write(th, 4 + i, a_v[i], money_align_left)
+                        th += 1
+                else:
+                    worksheet.write(th, 3, '', align_left)
+                    for i in range(16):
+                        worksheet.write(th, 4 + i, 0, money_align_left)
+                    th += 1
+            else:
+                end_cl_th = start_cl_th + c['agent_count']
+                worksheet.merge_range(start_cl_th, 2, end_cl_th, 2, c['name'], align_left)
+                start_cl_th = end_cl_th + 1
+                if c['agents']:
+                    for a_k, a_v in c['agents'].items():
+                        worksheet.write(th, 3, a_k, align_left)
+                        for i in range(len(a_v)):
+                            worksheet.write(th, 4 + i, a_v[i], money_align_left)
+                        th += 1
+                else:
+                    worksheet.write(th, 3, '', align_left)
+                    for i in range(16):
+                        worksheet.write(th, 4 + i, 0, money_align_left)
+                    th += 1
+    worksheet.merge_range(th, 0, th, 3, u'总计', align_center)
+    for i in range(len(t_money)):
+        worksheet.write(th, 4 + i, t_money[i], money_align_left)
+    th += 1
+    return th
+
+
 # 导出客户总表
-def write_client_total_excel(year, HB_data, HD_data, HN_data, type):
+def write_client_total_excel(year, HB_data, HD_data, HN_data, HB_money, HD_money, HN_money, total_money):
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -493,117 +538,44 @@ def write_client_total_excel(year, HB_data, HD_data, HN_data, type):
         {'align': 'left', 'valign': 'vcenter', 'border': 1, 'num_format': '#,##0.00'})
     align_center = workbook.add_format(
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
-    keys = [u'区域', u'行业', u'客户', '代理', u'Q1', u'Q2', u'Q3', u'Q4']
-    for k in range(len(keys)):
+    worksheet.merge_range(0, 0, 1, 0, u'区域', align_center)
+    worksheet.merge_range(0, 1, 1, 1, u'行业', align_center)
+    worksheet.merge_range(0, 2, 1, 2, u'客户', align_center)
+    worksheet.merge_range(0, 3, 1, 3, u'代理', align_center)
+    worksheet.merge_range(0, 4, 0, 5, str(year - 2) + u' 下单总计', align_center)
+    worksheet.write(1, 4, u'新媒体', align_center)
+    worksheet.write(1, 5, u'豆瓣', align_center)
+    worksheet.merge_range(0, 6, 0, 7, str(year - 1) + u' 下单总计', align_center)
+    worksheet.write(1, 6, u'新媒体', align_center)
+    worksheet.write(1, 7, u'豆瓣', align_center)
+    worksheet.merge_range(0, 8, 0, 10, str(year) + u' Q1', align_center)
+    worksheet.write(1, 8, u'新媒体', align_center)
+    worksheet.write(1, 9, u'媒介', align_center)
+    worksheet.write(1, 10, u'豆瓣', align_center)
+    worksheet.merge_range(0, 11, 0, 13, str(year) + u' Q2', align_center)
+    worksheet.write(1, 11, u'新媒体', align_center)
+    worksheet.write(1, 12, u'媒介', align_center)
+    worksheet.write(1, 13, u'豆瓣', align_center)
+    worksheet.merge_range(0, 14, 0, 16, str(year) + u' Q3', align_center)
+    worksheet.write(1, 14, u'新媒体', align_center)
+    worksheet.write(1, 15, u'媒介', align_center)
+    worksheet.write(1, 16, u'豆瓣', align_center)
+    worksheet.merge_range(0, 17, 0, 19, str(year) + u' Q4', align_center)
+    worksheet.write(1, 17, u'新媒体', align_center)
+    worksheet.write(1, 18, u'媒介', align_center)
+    worksheet.write(1, 19, u'豆瓣', align_center)
+    for k in range(20):
         worksheet.set_column(k, 0, 30)
-        worksheet.write(0, k, keys[k], align_center)
-    th = 1
-    count = sum([k['excel_order_count'] for k in HB_data['location_data']])
-    if count > 1:
-        worksheet.merge_range(th, 0, th + count - 1, 0, u'华北', align_left)
-    else:
-        worksheet.write(th, 0, u'华北', align_left)
-        th += 1
-    for k in HB_data['location_data']:
-        agents = k['clients']
-        if k['excel_order_count'] == 1:
-            worksheet.write(th, 1, k['name'], align_left)
-        else:
-            worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
-        for a in agents:
-            if a['orders']:
-                if len(a['orders']) == 1:
-                    worksheet.write(th, 2, a['name'], align_left)
-                else:
-                    worksheet.merge_range(th, 2, th + a['html_order_count'] - 1, 2, a['name'], align_left)
-                for o in a['orders']:
-                    worksheet.write(th, 3, o['agent_name'], align_left)
-                    worksheet.write(th, 4, o['Q1_money'], money_align_left)
-                    worksheet.write(th, 5, o['Q2_money'], money_align_left)
-                    worksheet.write(th, 6, o['Q3_money'], money_align_left)
-                    worksheet.write(th, 7, o['Q4_money'], money_align_left)
-                    th += 1
-    # 总计
-    worksheet.merge_range(th, 0, th, 3, '总计', align_center)
-    worksheet.write(th, 4, HB_data['total_Q1_money'], money_align_left)
-    worksheet.write(th, 5, HB_data['total_Q2_money'], money_align_left)
-    worksheet.write(th, 6, HB_data['total_Q3_money'], money_align_left)
-    worksheet.write(th, 7, HB_data['total_Q4_money'], money_align_left)
-    th += 1
-    count = sum([k['excel_order_count'] for k in HD_data['location_data']])
-    if count > 1:
-        worksheet.merge_range(th, 0, th + count - 1, 0, u'华东', align_left)
-    else:
-        worksheet.write(th, 0, u'华东', align_left)
-        th += 1
-    for k in HD_data['location_data']:
-        agents = k['clients']
-        if k['excel_order_count'] == 1:
-            worksheet.write(th, 1, k['name'], align_left)
-        else:
-            worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
-        for a in agents:
-            if a['orders']:
-                if len(a['orders']) == 1:
-                    worksheet.write(th, 2, a['name'], align_left)
-                else:
-                    worksheet.merge_range(th, 2, th + a['html_order_count'] - 1, 2, a['name'], align_left)
-                for o in a['orders']:
-                    worksheet.write(th, 3, o['agent_name'], align_left)
-                    worksheet.write(th, 4, o['Q1_money'], money_align_left)
-                    worksheet.write(th, 5, o['Q2_money'], money_align_left)
-                    worksheet.write(th, 6, o['Q3_money'], money_align_left)
-                    worksheet.write(th, 7, o['Q4_money'], money_align_left)
-                    th += 1
-    # 总计
-    worksheet.merge_range(th, 0, th, 3, '总计', align_center)
-    worksheet.write(th, 4, HD_data['total_Q1_money'], money_align_left)
-    worksheet.write(th, 5, HD_data['total_Q2_money'], money_align_left)
-    worksheet.write(th, 6, HD_data['total_Q3_money'], money_align_left)
-    worksheet.write(th, 7, HD_data['total_Q4_money'], money_align_left)
-    th += 1
-    count = sum([k['excel_order_count'] for k in HN_data['location_data']])
-    if count > 1:
-        worksheet.merge_range(th, 0, th + count - 1, 0, u'华南', align_left)
-    else:
-        worksheet.write(th, 0, u'华南', align_left)
-        th += 1
-    for k in HN_data['location_data']:
-        agents = k['clients']
-        if k['excel_order_count'] == 1:
-            worksheet.write(th, 1, k['name'], align_left)
-        else:
-            worksheet.merge_range(th, 1, th + k['excel_order_count'] - 1, 1, k['name'], align_left)
-        for a in agents:
-            if a['orders']:
-                if len(a['orders']) == 1:
-                    worksheet.write(th, 2, a['name'], align_left)
-                else:
-                    worksheet.merge_range(th, 2, th + a['html_order_count'] - 1, 2, a['name'], align_left)
-                for o in a['orders']:
-                    worksheet.write(th, 3, o['agent_name'], align_left)
-                    worksheet.write(th, 4, o['Q1_money'], money_align_left)
-                    worksheet.write(th, 5, o['Q2_money'], money_align_left)
-                    worksheet.write(th, 6, o['Q3_money'], money_align_left)
-                    worksheet.write(th, 7, o['Q4_money'], money_align_left)
-                    th += 1
-    # 总计
-    worksheet.merge_range(th, 0, th, 3, '总计', align_center)
-    worksheet.write(th, 4, HN_data['total_Q1_money'], money_align_left)
-    worksheet.write(th, 5, HN_data['total_Q2_money'], money_align_left)
-    worksheet.write(th, 6, HN_data['total_Q3_money'], money_align_left)
-    worksheet.write(th, 7, HN_data['total_Q4_money'], money_align_left)
-    th += 1
-    # 总计
-    worksheet.merge_range(th, 0, th, 3, '三区总计', align_center)
-    worksheet.write(th, 4, HB_data['total_Q1_money'] + HD_data['total_Q1_money'] +
-                    HN_data['total_Q1_money'], money_align_left)
-    worksheet.write(th, 5, HB_data['total_Q2_money'] + HD_data['total_Q2_money'] +
-                    HN_data['total_Q2_money'], money_align_left)
-    worksheet.write(th, 6, HB_data['total_Q3_money'] + HD_data['total_Q3_money'] +
-                    HN_data['total_Q3_money'], money_align_left)
-    worksheet.write(th, 7, HB_data['total_Q4_money'] + HD_data['total_Q4_money'] +
-                    HN_data['total_Q4_money'], money_align_left)
+    th = 2
+    th = _write_client_data_by_location(th, HB_data, HB_money, u'华北', worksheet,
+                                        align_left, money_align_left, align_center)
+    th = _write_client_data_by_location(th, HD_data, HD_money, u'华东', worksheet,
+                                        align_left, money_align_left, align_center)
+    th = _write_client_data_by_location(th, HN_data, HN_money, u'华南', worksheet,
+                                        align_left, money_align_left, align_center)
+    worksheet.merge_range(th, 0, th, 3, u'三区总计', align_center)
+    for i in range(len(total_money)):
+        worksheet.write(th, 4 + i, total_money[i], money_align_left)
     workbook.close()
     response.data = output.getvalue()
     if type == "douban":

@@ -2,17 +2,49 @@
 {% block title %}客户总表{% endblock %}
 {% block content %}
 {% include "/data_query/super_leader/super_leader_base_v1_0_0.html" %}
-<div class="container bra-box" id="medium_box" style="width:1200px;">
-     <div class="table-switch">
-        <ul>
-            <li id="_client_order_li">
-                <a id="_client_order_" href="{{url_for('data_query_super_leader_client_total.client_order')}}">新媒体订单</a>
-            </li>
-            <li id="_douban_order_li">
-                <a id="_douban_order_" href="{{url_for('data_query_super_leader_client_total.douban_order')}}">直签豆瓣订单</a>
-            </li>
-        </ul>
-    </div>
+{% macro tbody(data, title, money) %}
+<tbody>
+    <tr>
+        <td rowspan="{{data|sum(attribute='th_n') + 1000}}">{{title}}</td>
+    </tr>
+    {% for k in data %} 
+    <tr>
+        <td rowspan="{{k.th_n + 1 + k.clients|length}}">{{k.industry_name}}</td>   
+    </tr>
+        {% for c in k['clients'] %}
+            <tr>
+                <td rowspan="{{c.agent_count+1}}">{{c.name}}</td>
+            </tr>
+            {% if c.agents %}
+                {% for k, v in c.agents.iteritems() %}
+                    <tr>
+                        <td>{{k}}</td>
+                        {% for i in v %}
+                            <td>{{i|format_price}}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td></td>
+                    {% for k in range(16)%}
+                    <td>{{0|format_price}}</td>
+                    {% endfor %}
+                </tr>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</tbody>
+<tbody>
+    <tr>
+        <td colspan=4>总计</td>
+        {% for i in money %}
+        <td>{{i|format_price}}</td>
+        {% endfor %}
+    </tr>
+</tbody>
+{%- endmacro  %}
+<div class="container bra-box" id="medium_box" style="width:1400px;">
     <div class="search-bar">
         <form class="menu-btn-bar" style="float:left;">
             <div class="select_option">
@@ -35,136 +67,45 @@
         <table border='1'>
             <thead>
                 <tr>
-                    <th>区域</th>
-                    <th>行业</th>
-                    <th>客户</th>
-                    <th>代理</th>
-                    <th>Q1</th>
-                    <th>Q2</th>
-                    <th>Q3</th>
-                    <th>Q4</th>
+                    <th rowspan=2>区域</th>
+                    <th rowspan=2>行业</th>
+                    <th rowspan=2 width="10%">客户</th>
+                    <th rowspan=2>代理</th>
+                    <th colspan=2>{{year-2}}下单总计</th>
+                    <th colspan=2>{{year-1}}下单总计</th>
+                    <th colspan=3>{{year}} Q1</th>
+                    <th colspan=3>{{year}} Q2</th>
+                    <th colspan=3>{{year}} Q3</th>
+                    <th colspan=3>{{year}} Q4</th>
+                </tr>
+                <tr>
+                    <th>新媒体</th>
+                    <th>豆瓣</th>
+                    <th>新媒体</th>
+                    <th>豆瓣</th>
+                    <th>新媒体</th>
+                    <th>媒介</th>
+                    <th>豆瓣</th>
+                    <th>新媒体</th>
+                    <th>媒介</th>
+                    <th>豆瓣</th>
+                    <th>新媒体</th>
+                    <th>媒介</th>
+                    <th>豆瓣</th>
+                    <th>新媒体</th>
+                    <th>媒介</th>
+                    <th>豆瓣</th>
                 </tr>
             </thead>
+            {{ tbody(HB_data, '华北', HB_money)}}
+            {{ tbody(HD_data, '华东', HD_money)}}
+            {{ tbody(HN_data, '华南', HN_money)}}
             <tbody>
-               <tr>
-                    <td rowspan="{{HB_data.location_data|sum(attribute='html_order_count')+1}}">华北</td>
-               </tr> 
-               {% for k in HB_data.location_data %}
                 <tr>
-                    <td rowspan='{{k.html_order_count}}'>{{k.name}}</td>
-                </tr>
-                    {% for c in k.clients %}
-                        <tr>
-                            <td rowspan='{{c.html_order_count+1}}'>{{c.name}}</td>
-                        </tr>
-                            {% for o in c.orders %}
-                                <tr>
-                                    <td>
-                                    {% if o.table_name == 'bra_client_order' %}
-                                        <a href="{{url_for('order.order_info', order_id=o.id, tab_id=1)}}" target="_blank">{{o.agent_name}}</a>
-                                    {% else %}
-                                        <a href="{{url_for('order.douban_order_info', order_id=o.id)}}" target="_blank">{{o.agent_name}}</a>
-                                    {% endif %}
-                                    </td>
-                                    <td>{{o.Q1_money|format_price}}</td>
-                                    <td>{{o.Q2_money|format_price}}</td>
-                                    <td>{{o.Q3_money|format_price}}</td>
-                                    <td>{{o.Q4_money|format_price}}</td>
-                                </tr>
-                            {% endfor %}
+                    <td colspan=4>三区总计</td>
+                    {% for i in total_money %}
+                    <td>{{i|format_price}}</td>
                     {% endfor %}
-                {% endfor %}
-                <tr>
-                    <td colspan=4 style="text-align: center">总计</td>
-                    <td>{{HB_data.total_Q1_money|format_price}}</td>
-                    <td>{{HB_data.total_Q2_money|format_price}}</td>
-                    <td>{{HB_data.total_Q3_money|format_price}}</td>
-                    <td>{{HB_data.total_Q4_money|format_price}}</td>
-                </tr>
-            </tbody>
-            <tbody>
-               <tr>
-                    <td rowspan="{{HD_data.location_data|sum(attribute='html_order_count')+1}}">华东</td>
-               </tr> 
-               {% for k in HD_data.location_data %}
-                <tr>
-                    <td rowspan='{{k.html_order_count}}'>{{k.name}}</td>
-                </tr>
-                    {% for c in k.clients %}
-                        <tr>
-                            <td rowspan='{{c.html_order_count+1}}'>{{c.name}}</td>
-                        </tr>
-                            {% for o in c.orders %}
-                                <tr>
-                                    <td>
-                                    {% if o.table_name == 'bra_client_order' %}
-                                        <a href="{{url_for('order.order_info', order_id=o.id, tab_id=1)}}" target="_blank">{{o.agent_name}}</a>
-                                    {% else %}
-                                        <a href="{{url_for('order.douban_order_info', order_id=o.id)}}" target="_blank">{{o.agent_name}}</a>
-                                    {% endif %}
-                                    </td>
-                                    <td>{{o.Q1_money|format_price}}</td>
-                                    <td>{{o.Q2_money|format_price}}</td>
-                                    <td>{{o.Q3_money|format_price}}</td>
-                                    <td>{{o.Q4_money|format_price}}</td>
-                                </tr>
-                            {% endfor %}
-                    {% endfor %}
-                {% endfor %}
-                <tr>
-                    <td colspan=4 style="text-align: center">总计</td>
-                    <td>{{HD_data.total_Q1_money|format_price}}</td>
-                    <td>{{HD_data.total_Q2_money|format_price}}</td>
-                    <td>{{HD_data.total_Q3_money|format_price}}</td>
-                    <td>{{HD_data.total_Q4_money|format_price}}</td>
-                </tr>
-            </tbody>
-            <tbody>
-               <tr>
-                    <td rowspan="{{HN_data.location_data|sum(attribute='html_order_count')+1}}">华南</td>
-               </tr> 
-               {% for k in HN_data.location_data %}
-                <tr>
-                    <td rowspan='{{k.html_order_count}}'>{{k.name}}</td>
-                </tr>
-                    {% for c in k.clients %}
-                        <tr>
-                            <td rowspan='{{c.html_order_count+1}}'>{{c.name}}</td>
-                        </tr>
-                            {% for o in c.orders %}
-                                <tr>
-                                    <td>
-                                    {% if o.table_name == 'bra_client_order' %}
-                                        <a href="{{url_for('order.order_info', order_id=o.id, tab_id=1)}}" target="_blank">{{o.agent_name}}</a>
-                                    {% else %}
-                                        <a href="{{url_for('order.douban_order_info', order_id=o.id)}}" target="_blank">{{o.agent_name}}</a>
-                                    {% endif %}
-                                    </td>
-                                    <td>{{o.Q1_money|format_price}}</td>
-                                    <td>{{o.Q2_money|format_price}}</td>
-                                    <td>{{o.Q3_money|format_price}}</td>
-                                    <td>{{o.Q4_money|format_price}}</td>
-                                </tr>
-                            {% endfor %}
-                    {% endfor %}
-                {% endfor %}
-                <tr>
-                    <td colspan=4 style="text-align: center">总计</td>
-                    <td>{{HN_data.total_Q1_money|format_price}}</td>
-                    <td>{{HN_data.total_Q2_money|format_price}}</td>
-                    <td>{{HN_data.total_Q3_money|format_price}}</td>
-                    <td>{{HN_data.total_Q4_money|format_price}}</td>
-                </tr>
-                <tr>
-                    {% set total_Q1_money =  HB_data.total_Q1_money + HD_data.total_Q1_money + HN_data.total_Q1_money%}
-                    {% set total_Q2_money =  HB_data.total_Q2_money + HD_data.total_Q2_money + HN_data.total_Q2_money%}
-                    {% set total_Q3_money =  HB_data.total_Q3_money + HD_data.total_Q3_money + HN_data.total_Q3_money%}
-                    {% set total_Q4_money =  HB_data.total_Q4_money + HD_data.total_Q4_money + HN_data.total_Q4_money%}
-                    <td colspan=4 style="text-align: center">三区总计</td>
-                    <td>{{total_Q1_money|format_price}}</td>
-                    <td>{{total_Q2_money|format_price}}</td>
-                    <td>{{total_Q3_money|format_price}}</td>
-                    <td>{{total_Q4_money|format_price}}</td>
                 </tr>
             </tbody>
         </table>

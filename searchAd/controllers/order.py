@@ -542,7 +542,7 @@ def contract_status_change(order, action, emails, msg):
 
 @searchAd_order_bp.route('/my_orders', methods=['GET'])
 def my_searchAd_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_aduit():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_searchad_media() or g.user.is_aduit():
         orders = searchAdClientOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -561,7 +561,7 @@ def my_searchAd_orders():
             orders = [o for o in orders if o.contract_status in [
                 CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
             status_id = CONTRACT_STATUS_APPLYPASS
-        elif g.user.is_media() or g.user.is_media_leader():
+        elif g.user.is_searchad_media():
             orders = [
                 o for o in orders if o.contract_status in [CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_APPLYREJECT]]
             status_id = CONTRACT_STATUS_MEDIA

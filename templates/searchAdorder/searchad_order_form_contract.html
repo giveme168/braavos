@@ -142,11 +142,11 @@
               {% if order.contract_status == 0 and order.can_admin(g.user) %}
               <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">申请利润分配</button>
               {% endif %}
-              {% if order.contract_status in [6, 3] and g.user.is_media() %}
+              {% if order.contract_status in [6, 3] and (g.user.is_searchad_media() or g.user.is_searchad_leader()) %}
               <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请审批</button>
               {% endif %} 
             {% else %}
-              {% if order.contract_status in [0, 3] and order.can_admin(g.user) %}
+              {% if order.contract_status in [0, 3, 6] and order.can_admin(g.user) %}
               <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请审批</button>
               {% endif %}
             {% endif %}

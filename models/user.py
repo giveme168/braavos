@@ -232,6 +232,9 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     def is_media(self):
         return self.is_admin() or self.is_media_leader() or self.team.type == TEAM_TYPE_MEDIA
 
+    def is_searchad_media(self):
+        return self.is_admin() or self.team.type == TEAM_TYPE_SEARCH_AD_MEDIUM
+
     def is_media_leader(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_MEDIA_LEADER
 

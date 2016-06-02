@@ -120,14 +120,29 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
                 dict_medium['sale_money_data'].append(0)
         dict_order['money_data'] = numpy.array(dict_order['money_data']) + numpy.array(dict_medium['sale_money_data'])
         # 媒体返点系数
-        medium_rebate_data = [k['rebate'] for k in all_medium_rebate if m.medium.id == k[
-            'medium_id'] and pre_year_month[0]['month'].year == k['year'].year]
-        if medium_rebate_data:
-            medium_rebate = medium_rebate_data[0]
+        # 是否有媒体单笔返点
+        try:
+            self_medium_rebate_data = m.self_medium_rebate
+            self_medium_rebate = self_medium_rebate_data.split('-')[0]
+            self_medium_rebate_value = float(self_medium_rebate_data.split('-')[1])
+        except:
+            self_medium_rebate = 0
+            self_medium_rebate_value = 0
+        if int(self_medium_rebate):
+            if dict_medium['medium_money2']:
+                dict_medium['medium_money2_rebate_data'] = [k / dict_medium['medium_money2'] * self_medium_rebate_value
+                                                            for k in dict_medium['medium_money2_data']]
+            else:
+                dict_medium['medium_money2_rebate_data'] = [0 for k in dict_medium['medium_money2_data']]
         else:
-            medium_rebate = 0
-        dict_medium['medium_money2_rebate_data'] = [
-            k * medium_rebate / 100 for k in dict_medium['medium_money2_data']]
+            medium_rebate_data = [k['rebate'] for k in all_medium_rebate if m.medium.id == k[
+                'medium_id'] and pre_year_month[0]['month'].year == k['year'].year]
+            if medium_rebate_data:
+                medium_rebate = medium_rebate_data[0]
+            else:
+                medium_rebate = 0
+            dict_medium['medium_money2_rebate_data'] = [
+                k * medium_rebate / 100 for k in dict_medium['medium_money2_data']]
 
         total_medium_money2_data = numpy.array(total_medium_money2_data) + \
             numpy.array(dict_medium['medium_money2_data'])

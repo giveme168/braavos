@@ -467,7 +467,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.direct_sales + self.agent_sales + [self.creator]
-        return user.is_searchad_leader() or user.is_contract() or user.is_media() or user in admin_users or user.is_super_leader()
+        return user.is_searchad_leader() or user.is_contract() or user.is_searchad_leader() or user in admin_users or user.is_super_leader()
 
     def can_action(self, user, action):
         """是否拥有leader操作"""
