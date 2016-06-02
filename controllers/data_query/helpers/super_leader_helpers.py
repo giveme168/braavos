@@ -481,43 +481,29 @@ def write_agent_total_excel(year, agent_obj, total_is_sale_money, total_is_mediu
 
 
 def _write_client_data_by_location(th, data, t_money, title, worksheet, align_left, money_align_left, align_center):
-    worksheet.merge_range(th, 0, th + sum([k['th_n'] for k in data]) - 1, 0, title, align_left)
-    start_in_th = th
+    location_th = th
     for k in data:
-        end_in_th = start_in_th + k['th_n'] - 1
-        worksheet.merge_range(start_in_th, 1, end_in_th, 1, k['industry_name'], align_left)
-        start_cl_th = start_in_th
-        start_in_th = end_in_th + 1
+        industry_th = th
         for c in k['clients']:
-            if c['agent_count'] == 1:
-                worksheet.write(start_cl_th, 2, c['name'], align_left)
-                start_cl_th += 1
-                if c['agents']:
-                    for a_k, a_v in c['agents'].items():
-                        worksheet.write(th, 3, a_k, align_left)
-                        for i in range(len(a_v)):
-                            worksheet.write(th, 4 + i, a_v[i], money_align_left)
-                        th += 1
-                else:
-                    worksheet.write(th, 3, '', align_left)
-                    for i in range(16):
-                        worksheet.write(th, 4 + i, 0, money_align_left)
+            client_th = th
+            if c['agents']:
+                for a_k, a_v in c['agents'].items():
+                    worksheet.write(th, 3, a_k, align_left)
+                    for i in range(len(a_v)):
+                        worksheet.write(th, 4 + i, a_v[i], money_align_left)
                     th += 1
+                if len(c['agents']) > 1:
+                    worksheet.merge_range(client_th, 2, th - 1, 2, c['name'], align_left)
+                else:
+                    worksheet.write(th - 1, 2, c['name'], align_left)
             else:
-                end_cl_th = start_cl_th + c['agent_count']
-                worksheet.merge_range(start_cl_th, 2, end_cl_th, 2, c['name'], align_left)
-                start_cl_th = end_cl_th + 1
-                if c['agents']:
-                    for a_k, a_v in c['agents'].items():
-                        worksheet.write(th, 3, a_k, align_left)
-                        for i in range(len(a_v)):
-                            worksheet.write(th, 4 + i, a_v[i], money_align_left)
-                        th += 1
-                else:
-                    worksheet.write(th, 3, '', align_left)
-                    for i in range(16):
-                        worksheet.write(th, 4 + i, 0, money_align_left)
-                    th += 1
+                worksheet.write(th, 3, '', align_left)
+                for i in range(16):
+                    worksheet.write(th, 4 + i, 0, money_align_left)
+                th += 1
+                worksheet.write(th - 1, 2, c['name'], align_left)
+        worksheet.merge_range(industry_th, 1, th - 1, 1, k['industry_name'], align_left)
+    worksheet.merge_range(location_th, 0, th - 1, 0, title, align_left)
     worksheet.merge_range(th, 0, th, 3, u'总计', align_center)
     for i in range(len(t_money)):
         worksheet.write(th, 4 + i, t_money[i], money_align_left)
@@ -564,8 +550,11 @@ def write_client_total_excel(year, HB_data, HD_data, HN_data, HB_money, HD_money
     worksheet.write(1, 17, u'新媒体', align_center)
     worksheet.write(1, 18, u'媒介', align_center)
     worksheet.write(1, 19, u'豆瓣', align_center)
-    for k in range(20):
-        worksheet.set_column(k, 0, 30)
+    # 设置宽度
+    worksheet.set_column(1, 1, 15)
+    worksheet.set_column(2, 2, 20)
+    worksheet.set_column(3, 3, 40)
+    worksheet.set_column(4, 19, 20)
     th = 2
     th = _write_client_data_by_location(th, HB_data, HB_money, u'华北', worksheet,
                                         align_left, money_align_left, align_center)

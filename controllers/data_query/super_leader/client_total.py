@@ -8,6 +8,7 @@ from libs.date_helpers import get_monthes_pre_days
 from controllers.data_query.helpers.super_leader_helpers import write_client_total_excel
 
 from models.order import Order
+from models.associated_douban_order import AssociatedDoubanOrder
 from models.douban_order import DoubanOrder
 
 data_query_super_leader_client_total_bp = Blueprint(
@@ -444,7 +445,7 @@ HN_data = [{
 }, {
     'industry_name': u'金融/旅游/其他',
     'clients': [{
-        'name': '亚航/亚洲航空', 'client_ids': [10], 'agents':[]
+        'name': '亚航/亚洲航空', 'client_ids': [11], 'agents':[]
     }, {
         'name': '澳门威尼斯人酒店', 'client_ids': [157], 'agents':[]
     }, {
@@ -478,7 +479,7 @@ def pre_month_money(money, start, end, locations):
     return pre_month_money_data
 
 
-def _format_client_order(order, year):
+def _format_client_order(order, year, ass_douban_order_ids):
     dict_order = {}
     try:
         client_order = order.client_order
@@ -491,14 +492,10 @@ def _format_client_order(order, year):
         dict_order['status'] = client_order.status
         dict_order['locations'] = client_order.locations
         dict_order['contract'] = client_order.contract
-        try:
-            ass_order = order.associated_douban_order
-            if ass_order:
-                is_c_douban = True
-            else:
-                is_c_douban = False
-        except:
-            dict_order['is_c_douban'] = False
+        if order.id in ass_douban_order_ids:
+            is_c_douban = True
+        else:
+            is_c_douban = False
         direct_sales = client_order.direct_sales
         agent_sales = client_order.agent_sales
         sales = direct_sales + agent_sales
@@ -678,9 +675,11 @@ def index():
         abort(403)
     now_date = datetime.datetime.now()
     year = int(request.values.get('year', now_date.year))
+    # 获取所有关联豆瓣订单，用于判断媒体订单是否是关联豆瓣订单，全部取出减少链接数据库时间
+    ass_douban_order_ids = [k.medium_order_id for k in AssociatedDoubanOrder.all()]
     orders = [_format_douban_order(k, year) for k in DoubanOrder.all()
               if k.client_start.year >= year - 2 and k.client_start.year <= year]
-    orders += [_format_client_order(k, year) for k in Order.all()
+    orders += [_format_client_order(k, year, ass_douban_order_ids) for k in Order.all()
                if k.medium_start.year >= year - 2 and k.medium_start.year <= year]
     # 去掉撤单、申请中的合同
     orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1 and k['contract']]
