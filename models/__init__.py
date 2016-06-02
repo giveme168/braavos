@@ -40,4 +40,4 @@ class BaseModelMixin(object):
 
     @classmethod
     def all(cls):
-        return cls.query.order_by(cls.id.desc())
+        return cls.query.all()
