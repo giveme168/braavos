@@ -211,7 +211,7 @@ def medium_invoice():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_invoice_info]
+        orders = [k for k in orders if info in k.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.add_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'medium_invoice')
@@ -246,7 +246,7 @@ def pay_medium_invoice():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_invoice_info]
+        orders = [k for k in orders if info in k.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.pay_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'pay_medium_invoice')
@@ -282,7 +282,7 @@ def medium_rebate_invoice():
     if location != 0:
         orders = [k for k in orders if location in k.client_order.locations]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_invoice_info]
+        orders = [k for k in orders if info in k.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.create_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'medium_rebate_invoice')

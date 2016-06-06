@@ -1,0 +1,148 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}直签媒体订单列表{% endblock %}
+{% macro all_items(orders) -%}
+<div class='tabulation'>
+    <table border='1'>
+        <thead>
+            <tr>
+                <th>代理/直客</th>
+                <th>名称</th>
+                <th>合同金额</th>
+                <th>已回款金额</th>
+                <th>未回款金额</th>
+                <th>预计回款日期</th>
+                <th>回款状态</th>
+                <th>回款比例</th>
+                <th>已开客户发票</th>
+                <th>合同号</th>
+                <th>直客销售</th>
+                <th>渠道销售</th>
+                <th>区域</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in orders %}
+                {% if now_date > o.reminde_date and o.back_money_percent != 100 %}
+                <tr class="not-completed">
+                {% else %}
+                <tr>
+                {% endif %}
+                    <td>{{o.agent.name}}</td>
+                    <td><a href="{{url_for('finance_client_medium_order_back_money.back_money',order_id=o.id)}}">{{o.name}}</a></td>
+                    <td>{{o.money|format_price}}元</td>
+                    <td>{{o.back_moneys|format_price}}元</td>
+                    <td>{{(o.money-o.back_moneys)|format_price}}元</td>
+                    <td>{{o.reminde_date_cn}}</td>
+                    <td>{{o.back_money_status_cn}}</td>
+                    <td>{{o.back_money_percent}}%</td>
+                    <td>{{o.invoice_pass_sum|format_price}}元</td>
+                    <td>{{o.contract or "无合同号"}}</td>
+                    <td>{{o.direct_sales_names}}</td>
+                    <td>{{o.agent_sales_names}}</td>
+                    <td>{{o.locations_cn}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%- endmacro %}
+{% block content %}
+{% include "/finance/finance_base_v1_0_0.html" %}
+    <div class="container bra-box" style="width:1200px;">
+        <div class="search-bar" style="margin-top: 50px;">
+            <form class="menu-btn-bar" style="float:left;">
+                <div class="search-input">
+                    <input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                    <img src="/static/image/search.png" alt="#">
+                </div>
+                <div class="select_option">
+                    <label for="sale_type" class="control-label">年度</label>
+                    <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                        {% for k in range(5) %}
+                            <option value="{{2014+k}}">{{2014+k}}年度</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="select_option">
+                    <label for="sale_type" class="control-label">区域</label>
+                    <select class="form-control special_sale" name="location" id="search_location" style="width:100px;">
+                        {% for v, m in locations %}
+                            {% if v == location_id|int %}
+                            <option selected="" value="{{v}}">{{m}}</option>
+                            {% else %}
+                            <option value="{{v}}">{{m}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="select_option">
+                    <label for="sale_type" class="control-label">状态</label>
+                    <select class="form-control special_sale" name="status" id="search_status" style="width:120px;">
+                        {% for v, m in statuses %}
+                            {% if v == status_id|int %}
+                                <option selected="" value="{{v}}">{{m}}</option>
+                            {% else %}
+                                <option value="{{v}}">{{m}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="select_option screen">
+                    <input type="button" value="筛选" onclick="javascript:search();">
+                </div>
+            </form>
+        </div>
+        {{ all_items(orders) }}
+        {% set pages = orders %}
+        {% include "pagination.html" %}
+    </div>
+    <script>
+    function sort(value) {
+        var orderby = '{{orderby}}',
+            sortby = '{{sortby}}';
+        if (value == sortby) {
+            if (orderby == 'desc') {
+                orderby = 'asc'
+            } else {
+                orderby = 'desc'
+            }
+        } else {
+            sortby = value
+            orderby = 'desc'
+        }
+        window.location.href = window.location.pathname + '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&selected_location=' + encodeURIComponent($('#search_location').val()) +
+            '&selected_status=' + encodeURIComponent($('#search_status').val())+
+            '&year='+$('#year').val();
+    }
+
+    function search() {
+        window.location.href = window.location.pathname +
+            '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&selected_location=' + ($('#search_location').val()) +
+            '&selected_status=' + ($('#search_status').val())+
+            '&year='+$('#year').val();
+    }
+
+    function download() {
+        window.location.href = window.location.pathname +
+            '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&selected_location=' + ($('#search_location').val()) +
+            '&selected_status=' + ($('#search_status').val()) +
+            '&action=download'+
+            '&year='+$('#year').val();
+    }
+
+    function enter_search() {
+        //按下‘Enter’键
+        if (event.keyCode == 13) {
+            search();
+        }
+    }
+    $(function() {
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+        $('#year').val('{{year}}');
+        $("#year").trigger("chosen:updated");
+    });
+    </script>
+{% endblock %}

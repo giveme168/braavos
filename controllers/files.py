@@ -9,6 +9,7 @@ from models.framework_order import FrameworkOrder
 from models.medium_framework_order import MediumFrameworkOrder
 from searchAd.models.framework_order import searchAdFrameworkOrder
 from models.douban_order import DoubanOrder
+from models.client_medium_order import ClientMediumOrder
 from models.associated_douban_order import AssociatedDoubanOrder
 from models.user import User
 from libs.files import files_set, attachment_set
@@ -18,6 +19,7 @@ from searchAd.models.client_order import searchAdClientOrder
 from searchAd.models.order import searchAdOrder
 from searchAd.models.rebate_order import searchAdRebateOrder
 from models.client import Agent
+from models.medium import Medium
 
 
 files_bp = Blueprint('files', __name__, template_folder='../templates/files')
@@ -28,6 +30,7 @@ FILE_TYPE_OUTSOURCE = 3
 FILE_TYPE_OTHERS = 4
 FILE_TYPE_AGENT = 9
 FILE_TYPE_FINISH = 10
+FILE_TYPE_MEDIUM = 12
 
 
 @files_bp.route('/files/<filename>', methods=['GET'])
@@ -70,7 +73,7 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
             flash(u'文件名中包含非正常字符，请使用标准字符', 'danger')
             return redirect("%s" % (order.info_path()))
 
-        if file_type == FILE_TYPE_AGENT:
+        if file_type in [FILE_TYPE_AGENT, FILE_TYPE_MEDIUM]:
             filename = files_set.save(request.files['file'])
         else:
             filename = attachment_set.save(request.files['file'])
@@ -91,6 +94,10 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
             flash(u'资料上传成功', 'success')
             order.add_agent_attachment(g.user, filename)
             return redirect(order.agent_path())
+        elif file_type == FILE_TYPE_MEDIUM:
+            flash(u'资料上传成功', 'success')
+            order.add_medium_attachment(g.user, filename)
+            return redirect(order.medium_path())
         elif file_type == FILE_TYPE_OTHERS:
             flash(u'其他资料上传成功', 'success')
             attachment = order.add_other_attachment(g.user, filename)
@@ -138,6 +145,8 @@ def attachment_delete(order_id, aid):
         return redirect(url_for("files.searchAd_client_order_files", order_id=order_id))
     elif target_type == 'searchAdOrder':
         return redirect(url_for("files.searchAd_medium_order_files", order_id=order_id))
+    elif target_type == 'ClientMediumOrder':
+        return redirect(url_for("files.client_meduim_order_files", order_id=order_id))
 
 
 @files_bp.route('/client/schedule/upload', methods=['POST'])
@@ -389,6 +398,12 @@ def contract_email(order, attachment):
         to_users = set(User.contracts() +
                        order.medium_users +
                        [order.creator, g.user])
+    elif order.__tablename__ == 'bra_client_medium_order':
+        to_users = set(User.contracts() +
+                       User.medias() +
+                       order.agent_sales +
+                       order.direct_sales +
+                       [order.creator, g.user])
     else:
         to_users = set(User.contracts() +
                        User.medias() +
@@ -478,3 +493,37 @@ def finish_searchAd_medium_order_upload():
     order_id = request.values.get('order')
     order = searchAdOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/client_medium/contract/upload', methods=['POST'])
+def client_medium_order_contract_upload():
+    order_id = request.values.get('order')
+    order = ClientMediumOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_CONTRACT)
+
+
+@files_bp.route('/client_medium/schedule/upload', methods=['POST'])
+def client_medium_order_schedule_upload():
+    order_id = request.values.get('order')
+    order = ClientMediumOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_SCHEDULE)
+
+
+@files_bp.route('/finish/client_medium/upload', methods=['POST'])
+def finish_client_medium_order_upload():
+    order_id = request.values.get('order')
+    order = ClientMediumOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/client_medium_order/<order_id>/all_files', methods=['get'])
+def client_medium_order_files(order_id):
+    co = ClientMediumOrder.get(order_id)
+    return tpl("order_files.html", order=co)
+
+
+@files_bp.route('/client/medium/upload', methods=['POST'])
+def client_medium_upload():
+    medium_id = request.values.get('medium')
+    medium = Medium.get(medium_id)
+    return attachment_upload(medium, FILE_TYPE_MEDIUM)

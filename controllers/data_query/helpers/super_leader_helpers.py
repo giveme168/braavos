@@ -13,7 +13,7 @@ def _write_money_in_excel(worksheet, align_center, pre_monthes, th, money):
     for k in range(len(money)):
         worksheet.write(th, start + k, float(money[k]), align_center)
     worksheet.write(
-        th, len(pre_monthes) * 3 + 2, float(sum(money)), align_center)
+        th, len(pre_monthes) * 4 + 2, float(sum(money)), align_center)
     th += 1
     return th
 
@@ -36,7 +36,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
     align_center = workbook.add_format(
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
     # 设置宽度为30
-    for k in range(0, len(pre_monthes) * 3 + 1):
+    for k in range(0, len(pre_monthes) * 4 + 1):
         worksheet.set_column(k + 2, 2, 10)
     worksheet.set_column(1, 1, 30)
     # 设置高度
@@ -48,8 +48,8 @@ def write_medium_money_excel(pre_monthes, douban_money,
     worksheet.merge_range(2, 0, 76 + len(up_money) *
                           6, 0, u'致趣收入', align_center)
 
-    locations = [u'华北', u'华东', u'华南']
-    month_start, month_end = 2, 4
+    locations = [u'媒介', u'华北', u'华东', u'华南']
+    month_start, month_end = 2, 5
     location_end = 2
     for k in range(len(pre_monthes)):
         worksheet.merge_range(0, month_start, 0, month_end, str(
@@ -57,9 +57,9 @@ def write_medium_money_excel(pre_monthes, douban_money,
         for i in range(len(locations)):
             worksheet.write(1, location_end, locations[i], align_center)
             location_end += 1
-        month_start, month_end = month_end + 1, month_end + 3
-    worksheet.write(0, len(pre_monthes) * 3 + 2, u'合计', align_center)
-    worksheet.write(1, len(pre_monthes) * 3 + 2, '', align_center)
+        month_start, month_end = month_end + 1, month_end + 4
+    worksheet.write(0, len(pre_monthes) * 4 + 2, u'合计', align_center)
+    worksheet.write(1, len(pre_monthes) * 4 + 2, '', align_center)
     if g.user.is_aduit() and str(year) == '2014':
         keys = []
     else:
@@ -96,7 +96,7 @@ def write_medium_money_excel(pre_monthes, douban_money,
                 worksheet.write(th, 1, i, align_center_color)
             else:
                 worksheet.merge_range(
-                    th, 1, th, 2 + len(pre_monthes) * 3, '', align_center)
+                    th, 1, th, 2 + len(pre_monthes) * 4, '', align_center)
             th += 1
 
     # 重置th
@@ -406,6 +406,171 @@ def write_pie_excel(obj):
     response.data = output.getvalue()
     filename = ("%s-%s.xls" %
                 (str(obj['title']), datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+# 导出代理总表
+def write_agent_total_excel(year, agent_obj, total_is_sale_money, total_is_medium_money):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1})
+    money_align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1, 'num_format': '#,##0.00'})
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    keys = [u'代理集团', u'代理', u'合同号', 'campaign', u'销售金额', u'媒介金额']
+    for k in range(len(keys)):
+        worksheet.set_column(k, 0, 30)
+        worksheet.write(0, k, keys[k], align_center)
+    th = 1
+    for k in agent_obj:
+        agents = k['agents']
+        if k['excel_order_count'] == 1:
+            worksheet.write(th, 0, k['name'], align_left)
+        else:
+            worksheet.merge_range(th, 0, th + k['excel_order_count'] - 1, 0, k['name'], align_left)
+        for a in agents:
+            if a['orders']:
+                if len(a['orders']) == 1:
+                    worksheet.write(th, 1, a['name'], align_left)
+                else:
+                    worksheet.merge_range(th, 1, th + a['html_order_count'] - 1, 1, a['name'], align_left)
+                for o in a['orders']:
+                    worksheet.write(th, 2, o['contract'] or u'无合同号', align_left)
+                    worksheet.write(th, 3, o['campaign'], align_left)
+                    worksheet.write(th, 4, o['is_sale_money'], money_align_left)
+                    worksheet.write(th, 5, o['is_medium_money'], money_align_left)
+                    th += 1
+    worksheet.merge_range(th, 0, th, 3, u'总计', align_center)
+    worksheet.write(th, 4, total_is_sale_money, money_align_left)
+    worksheet.write(th, 5, total_is_medium_money, money_align_left)
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" % ('代理总表', str(year)))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+def _write_client_data_by_location(th, data, t_money, title, worksheet, align_left, money_align_left, align_center):
+    location_th = th
+    for k in data:
+        industry_th = th
+        for c in k['clients']:
+            client_th = th
+            if c['agents']:
+                for a_k, a_v in c['agents'].items():
+                    worksheet.write(th, 3, a_k, align_left)
+                    for i in range(len(a_v)):
+                        worksheet.write(th, 4 + i, a_v[i], money_align_left)
+                    th += 1
+                if len(c['agents']) > 1:
+                    worksheet.merge_range(client_th, 2, th - 1, 2, c['name'], align_left)
+                else:
+                    worksheet.write(th - 1, 2, c['name'], align_left)
+            else:
+                worksheet.write(th, 3, '', align_left)
+                for i in range(16):
+                    worksheet.write(th, 4 + i, 0, money_align_left)
+                th += 1
+                worksheet.write(th - 1, 2, c['name'], align_left)
+        worksheet.merge_range(industry_th, 1, th - 1, 1, k['industry_name'], align_left)
+    worksheet.merge_range(location_th, 0, th - 1, 0, title, align_left)
+    worksheet.merge_range(th, 0, th, 3, u'总计', align_center)
+    for i in range(len(t_money)):
+        worksheet.write(th, 4 + i, t_money[i], money_align_left)
+    th += 1
+    return th
+
+
+# 导出客户总表
+def write_client_total_excel(year, HB_data, HD_data, HN_data, HB_money, HD_money, HN_money, total_money):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1})
+    money_align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1, 'num_format': '#,##0.00'})
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    worksheet.merge_range(0, 0, 1, 0, u'区域', align_center)
+    worksheet.merge_range(0, 1, 1, 1, u'行业', align_center)
+    worksheet.merge_range(0, 2, 1, 2, u'客户', align_center)
+    worksheet.merge_range(0, 3, 1, 3, u'代理', align_center)
+    worksheet.merge_range(0, 4, 0, 5, str(year - 2) + u' 下单总计', align_center)
+    worksheet.write(1, 4, u'新媒体', align_center)
+    worksheet.write(1, 5, u'豆瓣', align_center)
+    worksheet.merge_range(0, 6, 0, 7, str(year - 1) + u' 下单总计', align_center)
+    worksheet.write(1, 6, u'新媒体', align_center)
+    worksheet.write(1, 7, u'豆瓣', align_center)
+    worksheet.merge_range(0, 8, 0, 10, str(year) + u' Q1', align_center)
+    worksheet.write(1, 8, u'新媒体', align_center)
+    worksheet.write(1, 9, u'媒介', align_center)
+    worksheet.write(1, 10, u'豆瓣', align_center)
+    worksheet.merge_range(0, 11, 0, 13, str(year) + u' Q2', align_center)
+    worksheet.write(1, 11, u'新媒体', align_center)
+    worksheet.write(1, 12, u'媒介', align_center)
+    worksheet.write(1, 13, u'豆瓣', align_center)
+    worksheet.merge_range(0, 14, 0, 16, str(year) + u' Q3', align_center)
+    worksheet.write(1, 14, u'新媒体', align_center)
+    worksheet.write(1, 15, u'媒介', align_center)
+    worksheet.write(1, 16, u'豆瓣', align_center)
+    worksheet.merge_range(0, 17, 0, 19, str(year) + u' Q4', align_center)
+    worksheet.write(1, 17, u'新媒体', align_center)
+    worksheet.write(1, 18, u'媒介', align_center)
+    worksheet.write(1, 19, u'豆瓣', align_center)
+    # 设置宽度
+    worksheet.set_column(1, 1, 15)
+    worksheet.set_column(2, 2, 20)
+    worksheet.set_column(3, 3, 40)
+    worksheet.set_column(4, 19, 20)
+    th = 2
+    th = _write_client_data_by_location(th, HB_data, HB_money, u'华北', worksheet,
+                                        align_left, money_align_left, align_center)
+    th = _write_client_data_by_location(th, HD_data, HD_money, u'华东', worksheet,
+                                        align_left, money_align_left, align_center)
+    th = _write_client_data_by_location(th, HN_data, HN_money, u'华南', worksheet,
+                                        align_left, money_align_left, align_center)
+    worksheet.merge_range(th, 0, th, 3, u'三区总计', align_center)
+    for i in range(len(total_money)):
+        worksheet.write(th, 4 + i, total_money[i], money_align_left)
+    workbook.close()
+    response.data = output.getvalue()
+    if type == "douban":
+        filename = ("%s-%s.xls" % ('豆瓣客户总表', str(year)))
+    else:
+        filename = ("%s-%s.xls" % ('新媒体客户总表', str(year)))
     mimetype_tuple = mimetypes.guess_type(filename)
     response_headers = Headers({
         'Pragma': "public",

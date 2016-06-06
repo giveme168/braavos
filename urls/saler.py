@@ -13,6 +13,8 @@ from controllers.saler.douban_order.other_cost import saler_douban_order_other_c
 from controllers.saler.client_order.other_cost import saler_client_order_other_cost_bp
 from controllers.saler.client_order.money import saler_client_order_money_bp
 from controllers.saler.douban_order.money import saler_douban_order_money_bp
+from controllers.saler.client_medium_order.invoice import saler_client_medium_order_invoice_bp
+from controllers.saler.client_medium_order.back_money import saler_client_medium_order_back_money_bp
 
 
 def saler_register_blueprint(app):
@@ -31,3 +33,5 @@ def saler_register_blueprint(app):
     app.register_blueprint(saler_client_order_other_cost_bp, url_prefix='/saler/client_order/other_cost')
     app.register_blueprint(saler_client_order_money_bp, url_prefix='/saler/client_order/money')
     app.register_blueprint(saler_douban_order_money_bp, url_prefix='/saler/douban_order/money')
+    app.register_blueprint(saler_client_medium_order_invoice_bp, url_prefix='/sale/client_medium_order/invoice')
+    app.register_blueprint(saler_client_medium_order_back_money_bp, url_prefix='/sale/client_medium_order/back_money')

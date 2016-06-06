@@ -48,7 +48,7 @@
           <tr>
             <th>预估量 </th>
             {% if g.user.is_media() %}
-            <td><input type='text' value="{{order.sale_CPM or 0}}" class="form-control bra-form-control" name="sale_CPM" style="width:100px;"/> CPM</td>
+            <td><input type='text' value="{{order.sale_CPM or 0}}" name="sale_CPM" style="width:100px;"/> CPM</td>
             {% else %}
             <td>{{order.sale_CPM or 0}} CPM</td>
             {% endif %}
@@ -56,7 +56,7 @@
           <tr>
             <th>实际量 </th>
             {% if g.user.is_operater() %}
-              <td><input type='text' value="{{order.medium_CPM or 0}}" class="form-control bra-form-control" name="cpm" style="width:100px;"/>CPM</td>
+              <td><input type='text' value="{{order.medium_CPM or 0}}" name="cpm" style="width:100px;"/>CPM</td>
             {% else %}
               <td>{{order.medium.medium_CPM or 0}} CPM</td>
             {% endif %}
@@ -83,6 +83,23 @@
               </select>
             </td>
           </tr>
+          <tr>
+            <th style="color:red;">单笔返点</th>
+            <td>
+              <div class="input-group-menu">
+                <div id="self_medium_rebate_status_{{order.id}}">
+                  <select name="self_medium_rebate" id="self_medium_rebate_{{order.id}}" class="surname" style="width:200px;" onchange="self_medium_rabate_change('{{order.id}}')">
+                    <option value="0">无单笔返点</option>
+                    <option value="1">有单笔返点</option>
+                  </select>
+                </div>
+                <div id="self_medium_rebate_value_{{order.id}}" style="display:none;">
+                  <input type="text" id="self_medium_rabate_value_{{order.id}}" name="self_medium_rabate_value" class="surname" style="width:200px;" value='0'>
+                  <a class="btn btn-sm btn-default" onclick="default_medium_rebate('{{order.id}}')">取消返点</a>
+                </div>
+              </div>
+            </td>
+          </tr>
           {% endif %}
         </table>
         {% if g.user.is_operater() or g.user.is_media() or g.user.is_media_leader() %}
@@ -97,9 +114,38 @@
 </div>
 <script>
   $(function(){
-     $('#finish_status').val(parseInt('{{order.finish_status}}'))
-     $('#finish_status').trigger("chosen:updated");
+     var self_medium_rebate = "{{order.self_medium_rebate}}";
+     var p_self_medium_rebate = self_medium_rebate.split('-')
+     $('#self_medium_rebate_{{order.id}}').val(p_self_medium_rebate[0]);
+     $('#self_medium_rabate_value_{{order.id}}').val(p_self_medium_rebate[1]);
+     $('#self_medium_rebate_{{order.id}}').trigger("chosen:updated");
+     if (p_self_medium_rebate[0] == '0'){
+       $('#self_medium_rebate_value_{{order.id}}').css('display', 'none');
+       $('#self_medium_rebate_status_{{order.id}}').css('display', 'block');
+     }else{
+       $('#self_medium_rebate_value_{{order.id}}').css('display', 'block');
+       $('#self_medium_rebate_status_{{order.id}}').css('display', 'none');
+     }
+     $('#finish_status_{{order.id}}').val(parseInt('{{order.finish_status}}'))
+     $('#finish_status_{{order.id}}').trigger("chosen:updated");
   })
+  function self_medium_rabate_change(id){
+      var self_rebate = $('#self_medium_rebate_'+id).val()
+      if(self_rebate==1){
+        $('#self_medium_rebate_status_'+id).css('display', 'none');
+        $('#self_medium_rebate_value_'+id).css('display', 'block');
+      }else{
+        $('#self_medium_rebate_value_'+id).css('display', 'none');
+        $('#self_medium_rebate_status_'+id).css('display', 'block');
+      }
+  }
+  function default_medium_rebate(id){
+    $('#self_medium_rebate_'+id).val(0);
+    $('#self_medium_rabate_value_'+id).val('0');
+    $('#self_medium_rebate_'+id).trigger("chosen:updated");
+    $('#self_medium_rebate_value_'+id).css('display', 'none');
+    $('#self_medium_rebate_status_'+id).css('display', 'block');
+ }
 </script>
 {%- endmacro %}
 
@@ -144,14 +190,58 @@
         </select>
     </div>
     {% endif %}
+    <div class="input-group-menu" {% if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader() %}{% else %} style="display:none;"{% endif %}>
+      <div class="name" style="color:red;">单笔返点 : </div>
+      <div id="self_medium_rebate_status_{{medium_order.id}}">
+        <select name="self_medium_rebate" id="self_medium_rebate_{{medium_order.id}}" class="surname" style="width:300px;" onchange="self_medium_rabate_change('{{medium_order.id}}')">
+          <option value="0">无单笔返点</option>
+          <option value="1">有单笔返点</option>
+        </select>
+      </div>
+      <div id="self_medium_rebate_value_{{medium_order.id}}" style="display:none;">
+        <input type="text" id="self_medium_rabate_value_{{medium_order.id}}" name="self_medium_rabate_value" class="surname" style="width:300px;" value='0'>
+        <a class="btn btn-sm btn-default" onclick="default_medium_rebate('{{medium_order.id}}')">取消返点</a>
+      </div>
+    </div>
     <div class="state" style="margin-left:40%;">
         <input type="submit" value="保存">
     </div>
 </form>
 <script>
   $(function(){
+     {% if medium_order %}
+       var self_medium_rebate = "{{medium_order.self_medium_rebate}}";
+       var p_self_medium_rebate = self_medium_rebate.split('-')
+       $('#self_medium_rebate_{{medium_order.id}}').val(p_self_medium_rebate[0]);
+       $('#self_medium_rabate_value_{{medium_order.id}}').val(p_self_medium_rebate[1]);
+       $('#self_medium_rebate_{{medium_order.id}}').trigger("chosen:updated");
+       if (p_self_medium_rebate[0] == '0'){
+         $('#self_medium_rebate_value_{{medium_order.id}}').css('display', 'none');
+         $('#self_medium_rebate_status_{{medium_order.id}}').css('display', 'block');
+       }else{
+         $('#self_medium_rebate_value_{{medium_order.id}}').css('display', 'block');
+         $('#self_medium_rebate_status_{{medium_order.id}}').css('display', 'none');
+       }
+      {% endif %}
      $('#finish_status_{{medium_order.id}}').val(parseInt('{{medium_order.finish_status}}'))
      $('#finish_status_{{medium_order.id}}').trigger("chosen:updated");
   })
+  function self_medium_rabate_change(id){
+      var self_rebate = $('#self_medium_rebate_'+id).val()
+      if(self_rebate==1){
+        $('#self_medium_rebate_status_'+id).css('display', 'none');
+        $('#self_medium_rebate_value_'+id).css('display', 'block');
+      }else{
+        $('#self_medium_rebate_value_'+id).css('display', 'none');
+        $('#self_medium_rebate_status_'+id).css('display', 'block');
+      }
+  }
+  function default_medium_rebate(id){
+    $('#self_medium_rebate_'+id).val(0);
+    $('#self_medium_rabate_value_'+id).val('0');
+    $('#self_medium_rebate_'+id).trigger("chosen:updated");
+    $('#self_medium_rebate_value_'+id).css('display', 'none');
+    $('#self_medium_rebate_status_'+id).css('display', 'block');
+ }
 </script>
 {%- endmacro %}

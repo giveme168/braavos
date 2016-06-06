@@ -1,0 +1,10 @@
+{% extends "base_v1_0_0.html" %}
+{% from 'order_form_client_medium_order.html' import client_medium_order_form %}
+
+{% block content %}
+{% include "order_base_v1_0_0.html" %}
+<div class="container bra-box">
+    <h3>新建直签媒体订单</h3>
+     {{ client_medium_order_form(form) }}
+</div>
+{% endblock %}

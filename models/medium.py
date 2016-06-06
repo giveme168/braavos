@@ -3,7 +3,7 @@ import itertools
 import datetime
 from datetime import timedelta
 
-from flask import json
+from flask import json, url_for
 
 from . import db, BaseModelMixin
 from .consts import STATUS_CN, DATE_FORMAT
@@ -130,6 +130,10 @@ class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return framework_generator(self.id)
 
     @property
+    def direct_framework(self):
+        return direct_generator(self.id)
+
+    @property
     def tax_info(self):
         return {'tax_num': self.tax_num or '',
                 'address': self.address or '',
@@ -188,6 +192,9 @@ class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def level_cn(self):
         return LEVEL_CN[self.level or 100]
 
+    def medium_path(self):
+        return url_for('client.medium_detail', medium_id=self.id)
+
 
 class MediumRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_rebate'
@@ -223,6 +230,12 @@ class MediumRebate(db.Model, BaseModelMixin):
 
 def framework_generator(num):
     code = "ZQM%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
+    code = code.upper()
+    return code
+
+
+def direct_generator(num):
+    code = "ZQD%s%03x" % (datetime.datetime.now().strftime('%Y%m'), num % 1000)
     code = code.upper()
     return code
 

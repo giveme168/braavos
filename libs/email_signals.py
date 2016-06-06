@@ -167,6 +167,8 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
         title = u"【新媒体订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'bra_framework_order':
         title = u"【框架订单-合同流程】- %s" % (order.name)
+    elif order.__tablename__ == 'bra_client_medium_order':
+        title = u"【直签媒体订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'bra_douban_order':
         title = u"【直签豆瓣订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchAd_bra_client_order':
@@ -327,6 +329,8 @@ def invoice_apply(sender, context):
         title = u"【新媒体订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchAd_bra_client_order':
         title = u"【效果业务普通订单-合同流程】- %s" % (order.name)
+    elif order.__tablename__ == 'bra_client_medium_order':
+        title = u"【直签媒体订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchad_bra_rebate_order':
         title = u"【效果业务返点订单-合同流程】- %s" % (order.name)
     else:
@@ -335,13 +339,16 @@ def invoice_apply(sender, context):
     if context['send_type'] == "saler":
         if order.__tablename__ == 'bra_client_order':
             url = mail.app.config[
-                      'DOMAIN'] + '/saler/client_order/invoice/%s/order' % (order.id)
+                'DOMAIN'] + '/saler/client_order/invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'searchAd_bra_client_order':
             url = mail.app.config[
-                      'DOMAIN'] + '/saler/searchAd_order/invoice/%s/order' % (order.id)
+                'DOMAIN'] + '/saler/searchAd_order/invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'searchad_bra_rebate_order':
             url = mail.app.config[
-                      'DOMAIN'] + '/saler/searchAd_rebate_order/invoice/%s/order' % (order.id)
+                'DOMAIN'] + '/saler/searchAd_rebate_order/invoice/%s/order' % (order.id)
+        elif order.__tablename__ == 'bra_client_medium_order':
+            url = mail.app.config[
+                'DOMAIN'] + '/saler/client_medium_order/invoice/%s/order' % (order.id)
         if action == 2:
             leader_users = [k for k in to_users if k.team.type in [9]]
             if 148 in [k.id for k in to_users]:
@@ -355,13 +362,16 @@ def invoice_apply(sender, context):
     elif context['send_type'] == 'end':
         if order.__tablename__ == 'bra_client_order':
             url = mail.app.config[
-                      'DOMAIN'] + '/saler/client_order/invoice/%s/order' % (order.id)
+                'DOMAIN'] + '/saler/client_order/invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'searchAd_bra_client_order':
             url = mail.app.config[
-                      'DOMAIN'] + '/saler/searchAd_order/invoice/%s/order' % (order.id)
+                'DOMAIN'] + '/saler/searchAd_order/invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'searchad_bra_rebate_order':
             url = mail.app.config[
-                      'DOMAIN'] + '/saler/searchAd_rebate_order/invoice/%s/order' % (order.id)
+                'DOMAIN'] + '/saler/searchAd_rebate_order/invoice/%s/order' % (order.id)
+        elif order.__tablename__ == 'bra_client_medium_order':
+            url = mail.app.config[
+                'DOMAIN'] + '/saler/client_medium_order/invoice/%s/order' % (order.id)
         salers = order.direct_sales + order.agent_sales + [order.creator]
         action_info = ','.join(_get_active_user_name(salers)) + u'您的客户发票已开'
         invoice_info = "\n".join(
@@ -369,13 +379,16 @@ def invoice_apply(sender, context):
     else:
         if order.__tablename__ == 'bra_client_order':
             url = mail.app.config[
-                      'DOMAIN'] + '/finance/client_order/invoice/%s/info' % (order.id)
+                'DOMAIN'] + '/finance/client_order/invoice/%s/info' % (order.id)
         elif order.__tablename__ == 'searchAd_bra_client_order':
             url = mail.app.config[
-                      'DOMAIN'] + '/finance/searchAd_order/invoice/%s/info' % (order.id)
+                'DOMAIN'] + '/finance/searchAd_order/invoice/%s/info' % (order.id)
         elif order.__tablename__ == 'searchad_bra_rebate_order':
             url = mail.app.config[
-                      'DOMAIN'] + '/finance/searchAd_rebate_order/invoice/%s/info' % (order.id)
+                'DOMAIN'] + '/finance/searchAd_rebate_order/invoice/%s/info' % (order.id)
+        elif order.__tablename__ == 'bra_client_medium_order':
+            url = mail.app.config[
+                'DOMAIN'] + '/finance/client_medium_order/invoice/%s/order' % (order.id)
         finance_users = [k for k in to_users if k.team.type in [13]]
         action_info = u'区域总监已同意客户发票申请，请' + \
                       ', '.join(_get_active_user_name(finance_users)) + u'开具客户发票'
@@ -1168,6 +1181,8 @@ def back_money_apply(sender, apply_context):
 
     if order.__tablename__ == 'bra_client_order':
         title = u"【新媒体订单-合同流程】- %s" % (order.name)
+    elif order.__tablename__ == 'bra_client_medium_order':
+        title = u"【直签媒体订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'bra_framework_order':
         title = u"【框架订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'bra_douban_order':

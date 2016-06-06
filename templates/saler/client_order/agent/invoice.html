@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% from '/form.html' import form_field %}
+{% extends "base_v1_0_0.html" %}
+{% from '/form_v1_0_0.html' import form_field %}
 {% from '/saler/client_order/agent/agent_invoice_form.html' import invoice_form %}
 {% from 'comments.html' import comments_box %}
 {% macro contract_box(order) -%}
@@ -78,7 +78,7 @@
           {{invoice.client_order.name}}-{{ invoice.agent.name }}-{{ invoice.money }}元
       </h4>
       {% if g.user.is_super_leader() or invoice.client_order.can_admin(g.user)%}
-      <form class="form form-horizontal" method="POST" action="{{url_for('saler_client_order_agent_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+      <form class="input-row-box" method="POST" action="{{url_for('saler_client_order_agent_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
       {{form.csrf_token}}
       {{ form_field(form.client_order)}}
       {{ form_field(form.agent)}}
@@ -92,14 +92,14 @@
       {{ form_field(form.money) }}
       {{ form_field(form.invoice_num) }}
       {{ form_field(form.invoice_type) }}
-      <div class="form-group">
-        <label for="client_start" class="col-sm-2 control-label">开票时间 : </label>
-        <div class="col-sm-4">
-          <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-        </div>
+      <div class="input-group-menu">
+          <div class="name">开票时间 : </div>
+          <input type="text" id="add_time" name="add_time" value="{{form.add_time.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
       </div>
       {{ form_field(form.bool_invoice) }}
-      <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+      <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+        </div>
       </form>
       {% endif %}
   </div>
@@ -134,26 +134,22 @@
                {% else %}
                <div class="well">
                <input type="checkbox" name="invoice-id" class="invoice-id" value="{{i.id}}"/>
-               <form class="form form-horizontal" method="POST" action="{{url_for('saler_client_order_agent_invoice.update_invoice_pay', invoice_id=invoice.id, invoice_pay_id=i.id)}}" onsubmit="return checkform(this)">
-                <div class="form-group">
-                    <label for="client_start" class="col-sm-2 control-label">打款时间 : </label>
-                    <div class="col-sm-4">
-                       <input type="text" id="pay_time" name="pay_time" value="{{i.pay_time_cn}}" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-                    </div>
+               <form class="input-row-box" method="POST" action="{{url_for('saler_client_order_agent_invoice.update_invoice_pay', invoice_id=invoice.id, invoice_pay_id=i.id)}}" onsubmit="return checkform(this)">
+                <div class="input-group-menu">
+                    <div class="name">打款时间 : </div>
+                       <input type="text" id="pay_time" name="pay_time" value="{{i.pay_time_cn}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
                 </div>
-                <div class="form-group">
-                    <label for="client_start" class="col-sm-2 control-label">打款金额 : </label>
-                    <div class="col-sm-4">
-                       <input type="text" id="money" name="money" value="{{i.money}}" class="form-control bra-form-control">
-                    </div>
+                <div class="input-group-menu">
+                  <div class="name">打款金额 : </div>
+                       <input type="text" id="money" name="money" value="{{i.money}}" class="surname" style="width:300px;">
                 </div>
-                <div class="form-group">
-                    <label for="client_start" class="col-sm-2 control-label">备注 : </label>
-                    <div class="col-sm-4">
-                       <textarea type="text" id="detail" name="detail" class="form-control bra-form-control">{{i.detail}}</textarea>
-                    </div>
+                <div class="input-group-menu">
+                    <div class="name">备注 : </div>
+                       <textarea type="text" id="detail" name="detail" class="surname" style="width:300px;">{{i.detail}}</textarea>
                 </div>
-                <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+                <div class="state" style="margin-left:40%;">
+                    <input type="submit" value="保存">
+                </div>
               </form>
               </div>
               {% endif %}
@@ -176,32 +172,28 @@
       <div class="panel-body">
         <div class="well">
             <h4></h4>
-            <form class="form form-horizontal" method="POST" action="{{url_for('saler_client_order_agent_invoice.new_invoice_pay', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
-            <div class="form-group">
-                <label for="client_start" class="col-sm-2 control-label">打款时间 : </label>
-                <div class="col-sm-4">
-                   <input type="text" id="pay_time" name="pay_time" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
-                </div>
+            <form class="input-row-box" method="POST" action="{{url_for('saler_client_order_agent_invoice.new_invoice_pay', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+            <div class="input-group-menu">
+                    <div class="name">打款时间 : </div>
+                   <input type="text" id="pay_time" name="pay_time" value="" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
             </div>
-            <div class="form-group">
-                <label for="client_start" class="col-sm-2 control-label">打款金额 : </label>
-                <div class="col-sm-4">
-                   <input type="text" id="money" name="money" value="0" class="form-control bra-form-control">
-                </div>
+            <div class="input-group-menu">
+                    <div class="name">打款金额 : </div>
+                   <input type="text" id="money" name="money" value="0" class="surname" style="width:300px;">
             </div>
-            <div class="form-group">
-                <label for="client_start" class="col-sm-2 control-label">留言 : </label>
-                <div class="col-sm-4">
-                   <textarea type="text" id="detail" name="detail" class="form-control bra-form-control"></textarea>
-                </div>
+            <div class="input-group-menu">
+                    <div class="name">留言 : </div>
+                   <textarea type="text" id="detail" name="detail" class="surname" style="width:300px;"></textarea>
             </div>
-            <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
+            <div class="state" style="margin-left:40%;">
+                    <input type="submit" value="保存">
+                </div>
           </form>
         </div>
       </div>
     </div>
   </div>
-  <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 申请打款</button>
+  <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 填写打款</button>
 </div>
 <script>
 $(document).ready(function(){
@@ -229,6 +221,7 @@ function check_all(e) {
   $(e).parent().find(".invoice-id").trigger("change");
 }
 $(function() {
+  $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
   $(".invoice-id").change(function(e) {
     if ($(this).prop("checked")) {
       if ($("#form-invoice-" + $(this).val()).length < 1) {
@@ -262,12 +255,11 @@ $(function() {
 </script>
 {%- endmacro %}
 {% block content%}
-{% include "/order/order_base.html" %}
+{% include "/order/order_base_v1_0_0.html" %}
   <div class="container bra-box" style="width:1400px;">
-    <h4> {{ invoice.client_order.name }} </h4>
     <div>
       {% set order = invoice.client_order %}
-      {% include "saler/client_order/nav_base.html" %}
+      {% include "saler/client_order/nav_base_v1_0_0.html" %}
       <div class="tab-content">
         <div class="tab-pane active" id="tab-2">
           {{ contract_box(invoice.client_order) }}
@@ -279,29 +271,25 @@ $(function() {
 {% endblock %}
 {% macro status_box(invoice, invoice_pay) -%}
 <input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
-<form class="form form-horizontal invoice-status-form" id="status-form" method="POST" action="{{url_for('saler_client_order_agent_invoice.apply_pay', invoice_id=invoice.id)}}">
-  <div class="form-group">
-    <label for="email" class="col-sm-2 control-label">邮箱 : </label>
-    <div class="col-sm-10">
-      <select class="form-control bra-form-control" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
+<form class="input-row-box invoice-status-form" id="status-form" method="POST" action="{{url_for('saler_client_order_agent_invoice.apply_pay', invoice_id=invoice.id)}}">
+  <div class="input-group-menu">
+      <div class="name">邮箱 : </div>
+      <select class="surname" style="width:300px;" id="contract-email" multiple="" name="email" placeholder="请输入需要提醒人员的邮箱">
         {% for u in reminder_emails %}
           <option value="{{u[1]}}">{{u[0]}}</option>
         {% endfor %}
       </select>
-    </div>
   </div>
-  <div class="form-group">
-    <label for="msg" class="col-sm-2 control-label">留言 : </label>
-    <div class="col-sm-10">
-      <textarea class="form-control bra-form-control" id="msg"
+  <div class="input-group-menu">
+      <div class="name">留言 : </div>
+      <textarea class="surname" style="width:300px;" id="msg"
       name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
-    </div>
   </div>
-  <div class="form-group">
-    <label class="col-sm-2 control-label">操作 : </label>
-    <div class="col-sm-4">
+  <div class="input-group-menu">
+    <div class="name">操作 : </div>
+    <div class="state" style="margin-left:20%;margin-top:70px;">
       {% if invoice_pay.pay_status == 1 and invoice.client_order.can_admin(g.user) %}
-        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">申请发票打款</button>
+        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">申请打款</button>
       {% endif %}
       {% if invoice_pay.pay_status == 2 and invoice.client_order.can_admin(g.user) %}
         <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">再次申请打款</button>

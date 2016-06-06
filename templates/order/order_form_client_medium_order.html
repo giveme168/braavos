@@ -1,0 +1,299 @@
+{% from 'form_v1_0_0.html' import form_field %}
+{% macro client_medium_order_form(form, order=None, replace_saler_form=None) -%}
+{% if form and not order %}
+<form class="input-row-box" method="POST">
+    <input class="hide" name="info_type" value="0"/>
+    {{form.csrf_token}}
+    {{ form_field(form.agent) }}
+    {{ form_field(form.client) }}
+    {{ form_field(form.campaign) }}
+    {{ form_field(form.money) }}
+    {{ form_field(form.sale_CPM) }}
+    {{ form_field(form.medium_CPM) }}
+    <div class="input-group-menu">
+      <div class="name">执行开始 : </div>
+        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    <div class="input-group-menu">
+      <div class="name">执行结束 : </div>
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    <div class="input-group-menu">
+      <div class="name">回款日期 : </div>
+        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    {{ form_field(form.direct_sales) }}
+    {{ form_field(form.agent_sales) }}
+    {{ form_field(form.assistant_sales) }}
+    {{ form_field(form.operaters) }}
+    {{ form_field(form.designers) }}
+    {{ form_field(form.planers) }}
+    {{ form_field(form.contract_type) }}
+    {{ form_field(form.resource_type) }}
+    {{ form_field(form.sale_type) }}
+    <hr/>
+    {{ form_field(form.medium) }}
+    {{ form_field(form.medium_money)}}
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="保存">
+    </div>
+</form>
+{% elif g.user.is_super_leader() or g.user.is_contract() %}
+<form class="input-row-box" method="POST">
+    <input class="hide" name="info_type" value="0"/>
+    {{form.csrf_token}}
+    {{ form_field(form.agent) }}
+    {{ form_field(form.client) }}
+    {{ form_field(form.campaign) }}
+    {{ form_field(form.money) }}
+    {{ form_field(form.sale_CPM) }}
+    {{ form_field(form.medium_CPM) }}
+    <div class="input-group-menu">
+      <div class="name">执行开始 : </div>
+        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    <div class="input-group-menu">
+      <div class="name">执行结束 : </div>
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    <div class="input-group-menu">
+      <div class="name">回款日期 : </div>
+        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    {{ form_field(form.direct_sales) }}
+    {{ form_field(form.agent_sales) }}
+    {{ form_field(form.assistant_sales) }}
+    {{ form_field(form.operaters) }}
+    {{ form_field(form.designers) }}
+    {{ form_field(form.planers) }}
+    {{ form_field(form.contract_type) }}
+    {{ form_field(form.resource_type) }}
+    {{ form_field(form.sale_type) }}
+    {{ form_field(replace_saler_form.replace_salers) }}
+    <hr/>
+    {{ form_field(form.medium) }}
+    {{ form_field(form.medium_money) }}
+    {% if order %}
+    <div class="input-group-menu" {% if g.user.is_super_leader() or g.user.is_leader() or order.can_media_leader_action(g.user) or g.user.is_contract()%}{% else %} style="display:none;"{% endif %}>
+      <div class="name" style="color:red;">单笔返点 : </div>
+      <div id="self_rebate_status">
+        <select name="self_rebate" id="self_rebate"  class="surname" style="width:300px;">
+          <option value="0">无单笔返点</option>
+          <option value="1">有单笔返点</option>
+        </select>
+      </div>
+      <div id="self_rebate_value" style="display:none;">
+        <input type="text" id="self_rabate_value" name="self_rabate_value" class=" surname" style="width:300px;" value='0'>
+        <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
+      </div>
+    </div>
+    {% endif %}
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="保存">
+    </div>
+</form>
+{% elif order and order.can_admin(g.user) and order.contract_status in [0, 1]%}
+<form class="input-row-box" method="POST">
+    <input class="hide" name="info_type" value="0"/>
+    {{form.csrf_token}}
+    {{ form_field(form.agent) }}
+    {{ form_field(form.client) }}
+    {{ form_field(form.campaign) }}
+    {{ form_field(form.money) }}
+    {{ form_field(form.sale_CPM) }}
+    {{ form_field(form.medium_CPM) }}
+    <div class="input-group-menu">
+      <div class="name">执行开始 : </div>
+        <input type="text" id="client_start" name="client_start" value="{{form.client_start.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    <div class="input-group-menu">
+      <div class="name">执行结束 : </div>
+        <input type="text" id="client_end" name="client_end" value="{{form.client_end.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    <div class="input-group-menu">
+      <div class="name">回款日期 : </div>
+        <input type="text" id="reminde_date" name="reminde_date" value="{{form.reminde_date.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+    </div>
+    {{ form_field(form.direct_sales) }}
+    {{ form_field(form.agent_sales) }}
+    {{ form_field(form.assistant_sales) }}
+    {{ form_field(form.operaters) }}
+    {{ form_field(form.designers) }}
+    {{ form_field(form.planers) }}
+    {{ form_field(form.contract_type) }}
+    {{ form_field(form.resource_type) }}
+    {{ form_field(form.sale_type) }}
+    {{ form_field(form.medium) }}
+    {{ form_field(form.medium_money)}}
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="保存">
+    </div>
+</form>
+{% else %}
+<div class="col-md-12">
+    <div class="col-md-6" style="margin-left: 20px;">
+        <table class="table table-bordered">
+          <tr>
+            <th>代理/直客(甲方全称) </th>
+            <td>{{order.agent.name}}</td>
+          </tr>
+          <tr>
+            <th>客户名称</th>
+            <td>{{order.client.name}}</td>
+          </tr>
+          <tr>
+            <th>Campaign名称</th>
+            <td>{{order.campaign}}</td>
+          </tr>
+          <tr>
+            <th>合同金额</th>
+            <td>{{order.money}} (元)</td>
+          </tr>
+          <tr>
+            <td>{{order.sale_CPM or 0}} CPM</td>
+          </tr>
+          <tr>
+            <th>实际量 </th>
+              <td>{{order.medium_CPM or 0}} CPM</td>
+          </tr>
+            <th>执行开始</th>
+            <td>{{order.start_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>执行结束</th>
+            <td>{{order.end_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>回款日期</th>
+            <td>{{order.reminde_date_cn}}</td>
+          </tr>
+          <tr>
+            <th>直客销售</th>
+            <td>{{order.direct_sales_names}}</td>
+          </tr>
+          <tr>
+            <th>渠道销售</th>
+            <td>{{order.agent_sales_names}}</td>
+          </tr>
+          <tr>
+            <th>销售助理</th>
+            <td>{{order.assistant_sales_names}}</td>
+          </tr>
+           <tr>
+            <th>执行人员 </th>
+            <td>{{order.operater_names}}</td>
+          </tr>
+           <tr>
+            <th>设计人员 </th>
+            <td>{{order.designers_names}}</td>
+          </tr>
+           <tr>
+            <th>策划人员 </th>
+            <td>{{order.planers_names}}</td>
+          </tr>
+          <tr>
+            <th>合同模板类型</th>
+            <td>{{order.contract_type_cn}}</td>
+          </tr>
+          <tr>
+            <th>售卖类型</th>
+            <td>{{order.resource_type_cn}}</td>
+          </tr>
+          <tr>
+            <th>代理/直客</th>
+            <td>{{order.sale_type_cn}}</td>
+          </tr>
+          <tr>
+            <th>替代销售</th>
+            <td>{{order.replace_sales_names}}</td>
+          </tr>
+          <tr>
+            <th>所属媒体</th>
+            <td>{{order.medium.name}}</td>
+          </tr>
+          <tr>
+            <th>媒体金额(元)</th>
+            <td>{{order.medium_money}}</td>
+          </tr>
+          {% if (g.user.is_super_leader() or g.user.is_leader() or order.can_media_leader_action(g.user)) and order %}
+          <tr>
+            <th style="color:red;">单笔返点</th>
+            <td>{% if order.self_agent_rebate_value.status == '0' %}
+                无单笔返点
+              {% else %}
+                {{order.self_agent_rebate_value.value}}元
+              {% endif %}</td>
+          </tr>
+          {% endif %}
+        </table>
+    </div>
+</div>
+{% endif %}
+<script>
+Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+$(document).ready(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+    var now_data = new Date()
+    var now_month_data = new Date(now_data.getFullYear(), now_data.getMonth(), 1)
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        {% if not g.user.is_super_leader() %}
+        startDate: now_month_data,
+        {% endif %}
+        minView: 2
+      });
+    $("#client_end").change(function(e){
+      var endDate = new Date($('#client_end').val());
+      endDate.setDate(endDate.getDate() + 90); 
+      $('#reminde_date').val(endDate.Format("yyyy-MM-dd"))
+    });
+    {% if order %}
+    $("#self_rebate").change(function(e){
+      var self_rebate = $('#self_rebate').val()
+      if(self_rebate==1){
+        $('#self_rebate_status').css('display', 'none');
+        $('#self_rebate_value').css('display', 'block');
+      }else{
+        $('#self_rebate_value').css('display', 'none');
+        $('#self_rebate_status').css('display', 'block');
+      }
+    })
+    var self_agent_rebate = "{{order.self_agent_rebate}}";
+    var p_self_agent_rebate = self_agent_rebate.split('-')
+    $('#self_rebate').val(p_self_agent_rebate[0]);
+    $('#self_rabate_value').val(p_self_agent_rebate[1]);
+    $("#self_rebate").trigger("chosen:updated");
+    if (p_self_agent_rebate[0] == '0'){
+      $('#self_rebate_value').css('display', 'none');
+      $('#self_rebate_status').css('display', 'block');
+    }else{
+      $('#self_rebate_value').css('display', 'block');
+      $('#self_rebate_status').css('display', 'none');
+    }
+    {% endif %}
+});
+function default_rebate(){
+    $('#self_rebate').val(0);
+    $('#self_rabate_value').val('0');
+    $("#self_rebate").trigger("chosen:updated");
+    $('#self_rebate_value').css('display', 'none');
+    $('#self_rebate_status').css('display', 'block');
+}
+</script>
+{%- endmacro %}

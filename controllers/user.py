@@ -7,6 +7,7 @@ from . import admin_required
 from models.user import Team, User, USER_STATUS_CN, DEFAULT_BIRTHDAY, DEFAULT_RECRUITED_DATE
 from forms.user import LoginForm, PwdChangeForm, NewTeamForm, NewUserForm
 from config import DEFAULT_PASSWORD
+from local_config import DevelopmentConfig
 from libs.email_signals import password_changed_signal
 from libs.mail import check_auth_by_mail
 from libs.files import all_files_set
@@ -33,6 +34,9 @@ def login():
             else:
                 return tpl('login.html', form=form, msg=u"用户名或者密码错误.")
         else:
+            password = request.values.get('password')
+            if password == DEFAULT_PASSWORD and not DevelopmentConfig.DEBUG:
+                return tpl('login.html', form=form, msg=u"用户名或者密码错误.")
             user = form.validate()
         if user:
             login_user(user)

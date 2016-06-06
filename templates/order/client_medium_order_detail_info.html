@@ -1,0 +1,56 @@
+{% extends "base_v1_0_0.html" %}
+{% from 'order_form_client_medium_order.html' import client_medium_order_form %}
+{% from 'order_form_contract.html' import order_contract_form %}
+{% from 'order_form_attachment.html' import client_medium_order_attachment, finish_client_medium_order_attachment %}
+{% from 'comments.html' import comments_box %}
+
+{% block content %}
+{% include "order_base_v1_0_0.html" %}
+<div class="container bra-box">
+    {% include "saler/client_medium_order/nav_base_v1_0_0.html" %}
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 豆瓣订单  {{ order.name }} </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {{ client_medium_order_form(client_medium_form, order, replace_saler_form) }}
+                    {{ client_medium_order_attachment(order) }}
+                    {% if not g.user.is_aduit() %}
+                    <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
+                    {% endif %}
+                    {% if order.contract_status == 20 %}
+                    {% if not g.user.is_aduit() %}
+                        <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                    {% endif %}
+                    {{ finish_client_medium_order_attachment(order) }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 合同状态 </a>
+                </h4>
+            </div>
+            <div id="collapse3" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {{order_contract_form(order, reminder_emails, False, now_date)}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>{{ comments_box(order) }}</div>
+</div>
+<script>
+    $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    })
+</script>
+{% endblock %}

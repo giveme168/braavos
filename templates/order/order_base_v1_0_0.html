@@ -19,6 +19,12 @@
               <a href="{{url_for('order.my_douban_orders')}}">直签豆瓣订单</a>
               <span>|</span>
             </li>
+            {% if g.user.is_super_leader() %}
+            <li id="_my_client_medium_orders_">
+              <a href="{{url_for('order.my_client_medium_orders')}}">直签媒体订单</a>
+              <span>|</span>
+            </li>
+            {% endif %}
             <li id="_my_framework_orders_">
               <a href="{{url_for('order.my_framework_orders')}}">代理框架订单</a>
               <span>|</span>
@@ -51,8 +57,12 @@
             }
             if(['medium_framework_order', 'new_medium_framework_order'].indexOf(p_pathname[2]) >= 0 ){
                 $('#_my_medium_framework_orders_').addClass("active");
-            }else if(['framework_order', 'new_framework_order'].indexOf(p_pathname[2]) >= 0 ){
+            } 
+            if(['framework_order', 'new_framework_order'].indexOf(p_pathname[2]) >= 0 ){
                 $('#_my_framework_orders_').addClass("active");
+            }
+            if(['client_medium_order','new_client_medium_order'].indexOf(p_pathname[2]) >= 0 ){
+                $('#_my_client_medium_orders_').addClass("active");
             }
         }
     })

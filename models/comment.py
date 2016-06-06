@@ -47,6 +47,7 @@ class Comment(db.Model, BaseModelMixin):
         from .order import Order
         from .client import Agent
         from .client_order import ClientOrder, IntentionOrder
+        from .client_medium_order import ClientMediumOrder
         from .douban_order import DoubanOrder
         from .framework_order import FrameworkOrder
         from .medium_framework_order import MediumFrameworkOrder
@@ -61,6 +62,7 @@ class Comment(db.Model, BaseModelMixin):
             'Order': Order,
             'DoubanOrder': DoubanOrder,
             'ClientOrder': ClientOrder,
+            'ClientMediumOrder': ClientMediumOrder,
             'FrameworkOrder': FrameworkOrder,
             'MediumFrameworkOrder': MediumFrameworkOrder,
             'AdItem': AdItem,

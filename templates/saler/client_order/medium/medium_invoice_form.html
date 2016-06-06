@@ -1,4 +1,4 @@
-{% from '/form.html' import form_field %}
+{% from '/form_v1_0_0.html' import form_field %}
 {% macro invoice_form(order, form, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_PAY_CN, invoice=None) -%}
 {% if invoice %}
 {% if order.can_admin(g.user) and invoice.invoice_status == 1 %}
@@ -115,7 +115,7 @@
         <div class="form-group">
           <label for="name" class="col-sm-2 control-label">媒体 : </label>
           <div class="col-sm-10">
-            <select class="form-control bra-form-control" id="new_medium" name="medium" onchange="check_medium(this)">
+            <select class="form-control bra-form-control" id="new_medium" name="medium">
               {% for medium in order.mediums %}
               <option value="{{medium.id}}">{{medium.name}}</option>
               {% endfor %}

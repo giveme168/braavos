@@ -19,10 +19,72 @@
       <div class="state" style="margin-left:40%;">
           <input type="submit" value="保存">
       </div>
+    </form>
+    <br/>
+    {% if status == 'update' %}
+    <div class="form form-horizontal">
+        <div class="form-group">
+            <label for="name" class="col-sm-2 control-label">资料上传 : </label>
+            <div class="col-sm-10">
+                <form method="POST" action="{{url_for('files.client_medium_upload')}}" enctype="multipart/form-data">
+                <input class="hide" type="text" name="medium" value="{{medium.id}}">
+                <input class="file-widget-input hide" type="file" name="file">
+                <button class="file-widget-btn btn btn-sm btn-primary">
+                  <span>上传资料</span>
+                </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if medium.get_medium_attachments().count() > 0 %}
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>资料名称</th>
+                    <th>上传日期</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attachment in medium.get_medium_attachments() %}
+                <tr>
+                    <td>{{attachment.filename}}</td>
+                    <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                    <td>
+                        <a href="{{attachment.agent_path}}">下载</a>&nbsp;&nbsp;
+                        {% if g.user.is_contract() %}
+                            <a href="{{url_for('client.medium_files_delete', medium_id=medium.id, aid=attachment.id)}}">删除</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    {% endif %}
 </div>
 <script>
     $(function(){
       $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+      $('.file-widget-btn').click(function(e){
+            e.preventDefault();
+            $(this).parents("form").find('.file-widget-input').click();
+        });
+        $('.file-widget-input').change(function(e){
+            var filename = $(this).val()
+            var fileExt = filename.substring(filename.lastIndexOf('.')+1, filename.length);
+            // 获取文件大小
+            var file = $(this)[0].files[0];
+            var byteSize  = file.size;
+            var r_size = Math.ceil(byteSize / 1024 / 1024); // Size returned in MB.
+            if (r_size > 50){
+                alert("上传文件不能超过50M，请尽量压缩已节省资源")
+            }else{
+                $(this).parents("form").submit();
+            }
+        });
     })
 </script>
 {% endblock %}

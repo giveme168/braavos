@@ -68,6 +68,17 @@
               <a href="{{url_for('finance_framework_order.index')}}">框架合同查询</a>
             </li>
         </ul>
+        {% if g.user.is_super_leader() %}
+        <ul>
+          <li id="_client_medium_orderinvoice_" class="nav-first">
+              <a href="{{url_for('finance_client_medium_order_invoice.index')}}">直签媒体客户发票</a>
+              <span>|</span>
+            </li>
+            <li id="_client_medium_orderback_money_" class="nav-last">
+              <a href="{{url_for('finance_client_medium_order_back_money.index')}}">直签媒体客户收款</a>
+            </li>
+        </ul>
+        {% endif %}
         {% elif g.user.is_aduit() %}
         <ul>
             <li id="_client_orderdata_query_">

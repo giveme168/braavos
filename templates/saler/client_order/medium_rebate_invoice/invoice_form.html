@@ -97,7 +97,7 @@
         {{ form_field(form.client_order)}}
         <div class="input-group-menu">
             <div class="name">媒体 : </div>
-            <select class="surname" style="width:300px;" id="new_medium" name="medium" onchange="check_medium(this)">
+            <select class="surname" style="width:300px;" id="new_medium" name="medium">
               {% for medium in order.mediums %}
               <option value="{{medium.id}}">{{medium.name}}</option>
               {% endfor %}

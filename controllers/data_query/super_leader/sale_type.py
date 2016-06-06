@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 
-from flask import Blueprint, request, jsonify, g, abort, json
+from flask import Blueprint, request, jsonify, g, abort
 from flask import render_template as tpl
 
 from models.douban_order import DoubanOrderExecutiveReport
@@ -70,11 +70,13 @@ def _format_order(order, type='client'):
         params['order'] = order.client_order
         params['money'] = order.sale_money
         params['medium_id'] = order.order.medium_id
+        params['direct_sales'] = order.client_order.direct_sales
+        params['agent_sales'] = order.client_order.agent_sales
     else:
         params['order'] = order.douban_order
         params['money'] = order.money
-    params['order_json'] = json.loads(order.order_json)
-    params['locations'] = params['order_json']['locations']
+        params['direct_sales'] = order.douban_order.direct_sales
+        params['agent_sales'] = order.douban_order.agent_sales
     return params
 
 
@@ -84,10 +86,10 @@ def _get_money_by_location(order, location):
             return order['money']
         else:
             # 用于查看渠道销售是否跨区
-            direct_sales = order['order_json']['direct_sales']
+            direct_sales = order['direct_sales']
             direct_location = list(set([k['location'] for k in direct_sales]))
             # 用于查看直客销售是否跨区
-            agent_sales = order['order_json']['agent_sales']
+            agent_sales = order['agent_sales']
             agent_location = list(set([k['location'] for k in agent_sales]))
             money = 0
             if location in direct_location:
