@@ -33,7 +33,7 @@
                     <td><a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
                     <td>{{m.abbreviation}}</td>
                     <td>{{m.level_cn}}</td>
-                    {% if g.user.is_super_leader() or g.user.is_media_leader() %}
+                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() %}
                         <td>{{m.rebate_2014}}</td>
                         <td>{{m.rebate_2015}}</td>
                         <td>{{m.rebate_2016}}</td>

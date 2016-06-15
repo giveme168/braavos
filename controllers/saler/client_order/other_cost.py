@@ -11,7 +11,7 @@ saler_client_order_other_cost_bp = Blueprint(
 
 @saler_client_order_other_cost_bp.route('/<order_id>', methods=['GET'])
 def index(order_id):
-    if not (g.user.is_super_leader() or g.user.is_finance() or g.user.is_aduit()):
+    if not (g.user.is_super_leader() or g.user.is_finance() or g.user.is_aduit() or g.user.is_operater_leader()):
         abort(403)
     order = ClientOrder.get(order_id)
     if not order:
@@ -21,23 +21,26 @@ def index(order_id):
 
 @saler_client_order_other_cost_bp.route('/<order_id>/create', methods=['POST'])
 def create(order_id):
-    if not (g.user.is_super_leader() or g.user.is_finance()):
+    if not (g.user.is_super_leader() or g.user.is_finance() or g.user.is_operater_leader()):
         abort(403)
     order = ClientOrder.get(order_id)
     if not order:
         abort(404)
+    company = request.values.get('company', '')
     money = request.values.get('money', 0)
     invoice = request.values.get('invoice', '')
     type = int(request.values.get('type', 1))
     on_time = request.values.get('on_time', datetime.datetime.today())
     other_cost = OtherCost.add(
+        company=company,
         client_order=order,
         money=money,
         invoice=invoice,
         type=type,
         on_time=on_time
     )
-    order.add_comment(g.user, u"添加了尚典外包，金额：%s ; 发票：%s ; 类型：%s ; 发生时间：%s" % (
+    order.add_comment(g.user, u"添加了外包，公司：%s ; 金额：%s ; 发票：%s ; 类型：%s ; 发生时间：%s" % (
+        other_cost.company,
         str(other_cost.money),
         other_cost.invoice,
         other_cost.type_cn,
@@ -48,10 +51,11 @@ def create(order_id):
 
 @saler_client_order_other_cost_bp.route('/<order_id>/<oid>/delete', methods=['GET'])
 def delete(order_id, oid):
-    if not (g.user.is_super_leader() or g.user.is_finance()):
+    if not (g.user.is_super_leader() or g.user.is_finance() or g.user.is_operater_leader()):
         abort(403)
     other_cost = OtherCost.get(oid)
-    other_cost.client_order.add_comment(g.user, u"删除了尚典外包，金额：%s ; 发票：%s ; 类型：%s ; 发生时间：%s" % (
+    other_cost.client_order.add_comment(g.user, u"删除了外包，公司：%s ; 金额：%s ; 发票：%s ; 类型：%s ; 发生时间：%s" % (
+        other_cost.company,
         str(other_cost.money),
         other_cost.invoice,
         other_cost.type_cn,

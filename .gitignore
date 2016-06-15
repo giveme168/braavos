@@ -13,3 +13,4 @@
 /build
 .idea/
 local_config.py.sample
+fabfile.py

@@ -492,7 +492,7 @@ def money():
     douban_orders = [_douban_order_to_dict(k, all_agent_rebate)
                      for k in douban_orders if k.status == 1]
     douban_orders = [k for k in douban_orders if k[
-        'contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
+        'contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     douban_money = _get_medium_moneys(
         douban_orders, pre_monthes, 0, 'zhiqian_order', year)
     # 直签豆瓣订单结束
@@ -505,7 +505,7 @@ def money():
     ass_douban_order = [_ass_medium_order_to_dict(
         k, all_agent_rebate, all_medium_rebate) for k in medium_orders if k.order.associated_douban_order]
     ass_douban_order = [k for k in ass_douban_order if k[
-        'contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
+        'contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     ass_douban_money = _get_medium_moneys(
         ass_douban_order, pre_monthes, 0, 'medium_order', year)
     # 关联豆瓣订单结束
@@ -514,7 +514,7 @@ def money():
     medium_orders = [_client_order_to_dict(k, all_agent_rebate, all_medium_rebate)
                      for k in medium_orders if k.status == 1]
     medium_orders = [k for k in medium_orders if k[
-        'contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
+        'contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     youli_money = _get_medium_moneys(
         medium_orders, pre_monthes, [3], 'medium_order', year)
     wuxian_money = _get_medium_moneys(
@@ -579,7 +579,7 @@ def money():
     searchAd_medium_orders = [_search_order_to_dict(
         k) for k in searchAd_medium_orders]
     searchAd_medium_orders = [k for k in searchAd_medium_orders if k[
-        'contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1]
+        'contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     searchAD_money = _get_medium_moneys(
         searchAd_medium_orders, pre_monthes, 0, 's_medium_order', year)
     # 搜索直签订单结束
@@ -591,7 +591,7 @@ def money():
     searchAd_rebate_orders = [_search_rebate_order_to_dict(k)
                               for k in searchAd_rebate_orders if k.status == 1]
     searchAd_rebate_orders = [k for k in searchAd_rebate_orders if k[
-        'contract_status'] in [2, 4, 5, 19, 20]]
+        'contract_status'] in [2, 4, 5, 10, 19, 20]]
     rebate_order_money = _get_medium_moneys(
         searchAd_rebate_orders, pre_monthes, 0, '', year)
     # 搜索返点订单结束

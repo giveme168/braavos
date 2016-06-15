@@ -25,7 +25,7 @@ from ..models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATU
                                    CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
                                    STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
                                    CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS,
-                                   CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH)
+                                   CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH, CONTRACT_STATUS_CHECKCONTRACT)
 from ..forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm, RebateOrderForm
 
 from libs.email_signals import zhiqu_contract_apply_signal
@@ -66,7 +66,7 @@ def _delete_executive_report(order):
 
 
 def _insert_executive_report(order, rtype):
-    if order.contract_status not in [2, 4, 5, 19, 20]:
+    if order.contract_status not in [2, 4, 5, 10, 19, 20]:
         return False
     if order.__tablename__ == 'searchad_bra_rebate_order':
         if rtype:
@@ -517,6 +517,14 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_FINISH
         order.finish_time = finish_time
         to_users = to_users + order.leaders + User.contracts()
+    elif action == 100:
+        action_msg = u"提醒审批合同"
+        to_users = to_users + order.leaders + User.contracts()
+    elif action == 10:
+        action_msg = u"审批合同通过"
+        order.contract_status = CONTRACT_STATUS_CHECKCONTRACT
+        to_users = to_users + order.leaders + User.contracts()
+        _insert_executive_report(order, '')
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
         order.insert_reject_time()
@@ -583,10 +591,16 @@ def display_orders(orders, title, status_id=-1):
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
-        if status_id == 31:
+        if status_id == 28:
+            orders = [o for o in orders if o.contract_status != 20]
+        elif status_id == 31:
             orders = [o for o in orders if o.back_money_status == 0]
         elif status_id == 32:
             orders = [o for o in orders if o.back_money_status != 0]
+        elif status_id == 33:
+            orders = [o for o in orders if o.invoice_pass_sum != float(o.money)]
+        elif status_id == 34:
+            orders = [o for o in orders if o.invoice_pass_sum == float(o.money)]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':

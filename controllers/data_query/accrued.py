@@ -285,7 +285,7 @@ def client_order():
     orders = [_client_order_to_dict(k, back_money_data, pre_year_month, location
                                     ) for k in orders]
     # 去掉撤单、申请中的合同
-    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20]]
+    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20]]
     orders = sorted(
         orders, key=operator.itemgetter('start_date_cn'), reverse=False)
     total_money_data = [0 for k in range(12)]
@@ -326,17 +326,17 @@ def douban_order():
     orders = [_douban_order_to_dict(k, back_money_data, pre_year_month, location
                                     ) for k in orders]
     # 获取豆瓣合同结束
-    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20]]
+    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20]]
     # 获取关联豆瓣合同
     medium_orders = [_medium_order_to_dict(k, client_back_money_data, pre_year_month, location)
                      for k in Order.all() if (k.medium_start.year == year or k.medium_end.year == year)
                      and k.associated_douban_order]
     if location:
         orders += [k for k in medium_orders if k['contract_status']
-                   in [2, 4, 5, 19, 20] and k['status'] == 1 and location in k['locations']]
+                   in [2, 4, 5, 10, 19, 20] and k['status'] == 1 and location in k['locations']]
     else:
         orders += [k for k in medium_orders if k['contract_status']
-                   in [2, 4, 5, 19, 20] and k['status'] == 1]
+                   in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     # 获取关联豆瓣合同结束
     orders = sorted(
         orders, key=operator.itemgetter('start_date_cn'), reverse=False)

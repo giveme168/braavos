@@ -68,6 +68,7 @@ def _format_order(order, type='client'):
         params['money'] = order.money
         params['direct_sales'] = order.douban_order.direct_sales
         params['agent_sales'] = order.douban_order.agent_sales
+    params['locations'] = [k.team.location for k in params['direct_sales'] + params['agent_sales']]
     return params
 
 
@@ -78,10 +79,10 @@ def _get_money_by_location(order, location):
         else:
             # 用于查看渠道销售是否跨区
             direct_sales = order['direct_sales']
-            direct_location = list(set([k['location'] for k in direct_sales]))
+            direct_location = list(set([k.team.location for k in direct_sales]))
             # 用于查看直客销售是否跨区
             agent_sales = order['agent_sales']
-            agent_location = list(set([k['location'] for k in agent_sales]))
+            agent_location = list(set([k.team.location for k in agent_sales]))
             money = 0
             if location in direct_location:
                 money += float(order['money']) / len(direct_location)

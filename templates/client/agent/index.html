@@ -44,7 +44,7 @@
                     <td>{{a.id}}</td>
                     <td><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
                     <td><a href="{{url_for("client.group_detail", group_id=a.group_id)}}">{{a.group_name}}</a></td>
-                    {% if g.user.is_contract() or g.user.is_super_leader() %}
+                    {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_finance() %}
                         <td>{{a.rebate_2014}}</td>
                         <td>{{a.rebate_2015}}</td>
                         <td>{{a.rebate_2016}}</td>

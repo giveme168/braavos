@@ -682,7 +682,7 @@ def index():
     orders += [_format_client_order(k, year, ass_douban_order_ids) for k in Order.all()
                if k.medium_start.year >= year - 2 and k.medium_start.year <= year]
     # 去掉撤单、申请中的合同
-    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1 and k['contract']]
+    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1 and k['contract']]
     hb_money, hb_data = _fix_client_data(HB_data, orders, 1)
     hd_money, hd_data = _fix_client_data(HD_data, orders, 2)
     hn_money, hn_data = _fix_client_data(HN_data, orders, 3)
