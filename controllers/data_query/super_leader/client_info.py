@@ -89,7 +89,7 @@ def search_excle_data():
     # 获取所有合同
     orders = searchAdClientOrder.all()
     for k in orders:
-        if k.contract_status in [2, 4, 5, 19, 20]:
+        if k.contract_status in [2, 4, 5, 10, 19, 20]:
             create_month = k.client_start.replace(day=1)
             if create_month in client_params:
                 if location == 0:
@@ -140,7 +140,7 @@ def search_json():
     # 获取所有合同
     orders = searchAdClientOrder.all()
     for k in orders:
-        if k.contract_status in [2, 4, 5, 19, 20]:
+        if k.contract_status in [2, 4, 5, 10, 19, 20]:
             create_month = k.client_start.replace(day=1)
             if create_month in client_params:
                 if location == 0:
@@ -187,7 +187,7 @@ def client_order_excle_data():
     # 获取所有合同
     orders = ClientOrder.all()
     for k in orders:
-        if k.contract_status in [2, 4, 5, 19, 20]:
+        if k.contract_status in [2, 4, 5, 10, 19, 20]:
             create_month = k.client_start.replace(day=1)
             if create_month in client_params:
                 if location == 0:
@@ -238,7 +238,7 @@ def client_order_json():
     # 获取所有合同
     orders = ClientOrder.all()
     for k in orders:
-        if k.contract_status in [2, 4, 5, 19, 20]:
+        if k.contract_status in [2, 4, 5, 10, 19, 20]:
             create_month = k.client_start.replace(day=1)
             if create_month in client_params:
                 if location == 0:
@@ -285,7 +285,7 @@ def douban_order_excle_data():
     # 获取所有合同
     orders = DoubanOrder.all()
     for k in orders:
-        if k.contract_status in [2, 4, 5, 19, 20]:
+        if k.contract_status in [2, 4, 5, 10, 19, 20]:
             create_month = k.client_start.replace(day=1)
             if create_month in client_params:
                 if location == 0:
@@ -336,7 +336,7 @@ def douban_order_json():
     # 获取所有合同
     orders = DoubanOrder.all()
     for k in orders:
-        if k.contract_status in [2, 4, 5, 19, 20]:
+        if k.contract_status in [2, 4, 5, 10, 19, 20]:
             create_month = k.client_start.replace(day=1)
             if create_month in client_params:
                 if location == 0:

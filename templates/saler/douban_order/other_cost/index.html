@@ -1,41 +1,47 @@
-{% extends "/base.html" %}
+{% extends "/base_v1_0_0.html" %}
 {% from 'comments.html' import comments_box %}
 {% block content%}
-{% include "/order/order_base.html" %}
+{% include "/order/order_base_v1_0_0.html" %}
   <div class="container bra-box">
-    <h4> {{ order.name }} 尚典外包</h4>
-    {% include "saler/douban_order/nav_base.html" %}
+    {% include "saler/douban_order/nav_base_v1_0_0.html" %}
     <div class="tab-content">
       <div class="tab-pane active" id="tab-2">
         <div class="container" style="width:100%;">
           <h4>尚典外包详情</h4>
-          <table class="table table-bordered">
-            <tr>
-              <th>项目名称</th>
-              <th>金额</th>
-              <th>发票</th>
-              <th>发生时间</th>
-              <th>操作</th>
-            </tr>
-            {% for k in order.douban_order_other_cost %}
-            <tr>
-              <td>{{k.type_cn}}</td>
-              <td>{{k.money|format_price}}元</td>
-              <td>{{k.invoice}}</td>
-              <td>{{k.on_time_cn}}</td>
-              <td><a href="javascript:delete_cost('{{k.type_cn}}','{{k.id}}')">删除</a></td>
-            </tr>
-            {% endfor %}
-            <tr>
-              <td>合计</td>
-              <td>{{order.douban_order_other_cost|sum('money')|format_price }}元</td>
-              <td colspan=3></td>
-            </tr>
-          </table>
+          <div class='tabulation'>
+            <table border='1'>
+              <thead>
+                <tr>
+                  <th>项目名称</th>
+                  <th>金额</th>
+                  <th>发票</th>
+                  <th>发生时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for k in order.douban_order_other_cost %}
+                <tr>
+                  <td>{{k.type_cn}}</td>
+                  <td>{{k.money|format_price}}元</td>
+                  <td>{{k.invoice}}</td>
+                  <td>{{k.on_time_cn}}</td>
+                  <td><a href="javascript:delete_cost('{{k.type_cn}}','{{k.id}}')">删除</a></td>
+                </tr>
+                {% endfor %}
+                <tr>
+                  <td>合计</td>
+                  <td>{{order.douban_order_other_cost|sum('money')|format_price }}元</td>
+                  <td colspan=3></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <br/>
           <div class="panel panel-default" id="other_cost_form" style="display:none;">
             <div class="panel-heading">
                 <h4 class="panel-title">
-                    <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-money-new"> 填写尚典外包 </a>
+                    <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-money-new"> 填写外包 </a>
                 </h4>
             </div>
             <div id="collapse-money-new" class="panel-collapse collapse in">
@@ -46,11 +52,18 @@
                                 <label for="client_start" class="col-sm-2 control-label">类型 : </label>
                                 <div class="col-sm-4">
                                     <select id="type" name="type" class="form-control bra-form-control">
-                                      <option value='2'>Flash</option>
-                                      <option value='3'>网络公关运营</option>
-                                      <option value='7'>设计</option>
-                                      <option value='5'>视频</option>
+                                      <option value='1'>Flash&H5开发</option>
+                                      <option value='2'>网络公关运营</option>
+                                      <option value='3'>设计</option>
+                                      <option value='4'>视频制作</option>
+                                      <option value='5'>技术服务</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="client_start" class="col-sm-2 control-label">公司名称 : </label>
+                                <div class="col-sm-4">
+                                    <input type="text" id="company" name="company" value="" class="form-control bra-form-control">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -77,8 +90,8 @@
                 </div>
             </div>
           </div>
-          {% if g.user.is_super_leader() or g.user.is_finance() %}
-          <button onclick="showInvoice(this, 'other_cost_form');" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span>填写尚典外包</button>
+          {% if g.user.is_super_leader() or g.user.is_finance() or g.user.is_operater_leader() %}
+          <button onclick="showInvoice(this, 'other_cost_form');" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span>填写外包</button>
           {% endif %}
           <div>{{ comments_box(order, msg_channel=10) }}</div>
         </div>
@@ -92,6 +105,10 @@
        }
     }
     function checkform(obj){
+      if (obj.company.value == ''){
+         alert('请输入公司名称')
+         return false;
+      }
       if (obj.money.value == ''){
          alert('请输入金额')
          return false;

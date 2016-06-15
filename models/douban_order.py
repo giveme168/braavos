@@ -46,20 +46,22 @@ CONTRACT_STATUS_PRINTED = 5
 CONTRACT_STATUS_DELETEAPPLY = 7
 CONTRACT_STATUS_DELETEAGREE = 8
 CONTRACT_STATUS_DELETEPASS = 9
+CONTRACT_STATUS_CHECKCONTRACT = 10
 CONTRACT_STATUS_PRE_FINISH = 19
 CONTRACT_STATUS_FINISH = 20
 CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_NEW: u"新建",
     CONTRACT_STATUS_APPLYCONTRACT: u"申请合同号中...",
-    CONTRACT_STATUS_APPLYPASS: u"申请合同号通过",
-    CONTRACT_STATUS_APPLYREJECT: u"申请合同号未通过",
+    CONTRACT_STATUS_APPLYPASS: u"审批通过，等待合同审批结果",
+    CONTRACT_STATUS_APPLYREJECT: u"审批未通过",
     CONTRACT_STATUS_APPLYPRINT: u"申请打印中...",
     CONTRACT_STATUS_PRINTED: u"打印完毕",
     CONTRACT_STATUS_DELETEAPPLY: u'撤单申请中...',
     CONTRACT_STATUS_DELETEAGREE: u'确认撤单',
     CONTRACT_STATUS_DELETEPASS: u'同意撤单',
     CONTRACT_STATUS_PRE_FINISH: u'项目归档（预）',
-    CONTRACT_STATUS_FINISH: u'项目归档（确认）'
+    CONTRACT_STATUS_FINISH: u'项目归档（确认）',
+    CONTRACT_STATUS_CHECKCONTRACT: u'审批合同通过'
 }
 
 STATUS_DEL = 0
@@ -968,22 +970,24 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
         return self.douban_order
 
 
-TARGET_TYPE_FLASH = 2
-TARGET_TYPE_KOL = 3
-TARGET_TYPE_H5 = 7
-TARGET_TYPE_VIDEO = 5
-
+TARGET_TYPE_FLASH5 = 1
+TARGET_TYPE_KOL = 2
+TARGET_TYPE_DS = 3
+TARGET_TYPE_VIDEO = 4
+TARGET_TYPE_IT = 5
 TARGET_TYPE_CN = {
-    TARGET_TYPE_FLASH: u"Flash",
-    TARGET_TYPE_KOL: u"KOL",
-    TARGET_TYPE_VIDEO: u"视频",
-    TARGET_TYPE_H5: u"H5",
+    TARGET_TYPE_FLASH5: u"Flash&H5开发",
+    TARGET_TYPE_KOL: u"网络公关运营",
+    TARGET_TYPE_DS: u"设计",
+    TARGET_TYPE_VIDEO: u"视频制作",
+    TARGET_TYPE_IT: u'技术服务'
 }
 
 
 class OtherCost(db.Model, BaseModelMixin):
     __tablename__ = 'bra_douban_order_other_cost'
     id = db.Column(db.Integer, primary_key=True)
+    company = db.Column(db.String(100))
     douban_order_id = db.Column(
         db.Integer, db.ForeignKey('bra_douban_order.id'))  # 客户合同
     douban_order = db.relationship(
@@ -995,7 +999,8 @@ class OtherCost(db.Model, BaseModelMixin):
     create_time = db.Column(db.DateTime)
     __mapper_args__ = {'order_by': on_time.desc()}
 
-    def __init__(self, douban_order, invoice, type, money=0.0, create_time=None, on_time=None):
+    def __init__(self, company, douban_order, invoice, type, money=0.0, create_time=None, on_time=None):
+        self.company = company
         self.douban_order = douban_order
         self.money = money
         self.type = type

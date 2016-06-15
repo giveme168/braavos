@@ -67,11 +67,11 @@ def _get_money_by_location(order, location):
             return order['money']
         else:
             # 用于查看渠道销售是否跨区
-            direct_sales = order['order_json']['direct_sales']
-            direct_location = list(set([k['location'] for k in direct_sales]))
+            direct_sales = order['direct_sales']
+            direct_location = list(set([k.team.location for k in direct_sales]))
             # 用于查看直客销售是否跨区
-            agent_sales = order['order_json']['agent_sales']
-            agent_location = list(set([k['location'] for k in agent_sales]))
+            agent_sales = order['agent_sales']
+            agent_location = list(set([k.team.location for k in agent_sales]))
             money = 0
             if location in direct_location:
                 money += float(order['money']) / len(direct_location)

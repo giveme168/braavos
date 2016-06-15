@@ -145,7 +145,7 @@ def index():
     orders = [_search_order_to_dict(k, back_money_data, confirm_money_data, pre_year_month
                                     ) for k in orders]
     # 去掉撤单、申请中的合同
-    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20]]
+    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20]]
     orders = sorted(
         orders, key=operator.itemgetter('start_date_cn'), reverse=False)
     total_money_data = [0 for k in range(12)]

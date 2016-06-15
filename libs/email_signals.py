@@ -147,6 +147,12 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
         leader_users = [k for k in to_users if k.team.type in [9]]
         action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
                       u'进行撤单审批'
+    elif action and int(action) == 10:
+        if order.__tablename__ == 'bra_medium_framework_order':
+            salers = order.medium_users + [order.creator]
+        else:
+            salers = order.direct_sales + order.agent_sales + [order.creator]
+        action_info = ','.join(_get_active_user_name(salers)) + u'您的合同审批通过'
     elif action and int(action) == 8:
         action_info = u'请黄亮进行确认撤单审批'
     elif action and int(action) == 9:
