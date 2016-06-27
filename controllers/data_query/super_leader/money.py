@@ -62,11 +62,15 @@ def _format_order(order, type='client'):
         params['direct_sales'] = order.client_order.direct_sales
         params['agent_sales'] = order.client_order.agent_sales
         params['locations'] = order.client_order.locations
+        params['contract_status'] = order.client_order.contract_status
+        params['status'] = order.client_order.status
     else:
         params['money'] = order.money
         params['direct_sales'] = order.douban_order.direct_sales
         params['agent_sales'] = order.douban_order.agent_sales
         params['locations'] = order.douban_order.locations
+        params['contract_status'] = order.douban_order.contract_status
+        params['status'] = order.douban_order.status
     return params
 
 
@@ -126,15 +130,16 @@ def search_excle_data():
         before_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
 
     for order in medium_orders:
-        if int(order['month_day'].strftime('%s')) * 1000 in now_monthes_data:
-            now_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
-        if int(order['month_day'].strftime('%s')) * 1000 in last_monthes_data:
-            last_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
-        if int(order['month_day'].strftime('%s')) * 1000 in before_monthes_data:
-            before_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+        if order['contract_status'] in [2, 4, 5, 10, 19, 20] and order['status'] == 1:
+            if int(order['month_day'].strftime('%s')) * 1000 in now_monthes_data:
+                now_monthes_data[
+                    int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+            if int(order['month_day'].strftime('%s')) * 1000 in last_monthes_data:
+                last_monthes_data[
+                    int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+            if int(order['month_day'].strftime('%s')) * 1000 in before_monthes_data:
+                before_monthes_data[
+                    int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
     # 格式化数据，把近三年数据放在一年用于画图
     now_monthes_data = sorted(now_monthes_data.iteritems(), key=lambda x: x[0])
     last_monthes_data = sorted(
@@ -192,15 +197,16 @@ def search_json():
         before_monthes_data[int(k['month'].strftime('%s')) * 1000] = 0.0
 
     for order in medium_orders:
-        if int(order['month_day'].strftime('%s')) * 1000 in now_monthes_data:
-            now_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
-        if int(order['month_day'].strftime('%s')) * 1000 in last_monthes_data:
-            last_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
-        if int(order['month_day'].strftime('%s')) * 1000 in before_monthes_data:
-            before_monthes_data[
-                int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+        if order['contract_status'] in [2, 4, 5, 10, 19, 20] and order['status'] == 1:
+            if int(order['month_day'].strftime('%s')) * 1000 in now_monthes_data:
+                now_monthes_data[
+                    int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+            if int(order['month_day'].strftime('%s')) * 1000 in last_monthes_data:
+                last_monthes_data[
+                    int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
+            if int(order['month_day'].strftime('%s')) * 1000 in before_monthes_data:
+                before_monthes_data[
+                    int(order['month_day'].strftime('%s')) * 1000] += _get_money_by_location(order, location)
     # 格式化数据，把近三年数据放在一年用于画图
     now_monthes_data = sorted(now_monthes_data.iteritems(), key=lambda x: x[0])
     # now_monthes_data.reverse()

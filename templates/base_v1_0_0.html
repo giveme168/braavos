@@ -52,7 +52,7 @@
         </div>
         <div class="navigation-content-list">
             <ul>
-                {% if not g.user.is_aduit() %}
+                {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_HR() %}
                 <li class="mail-list"><a href="{{url_for('user.contact')}}"  target="_blank">通讯录</a></li>
                 {% endif %}
                 <li class='head-portrait'>
