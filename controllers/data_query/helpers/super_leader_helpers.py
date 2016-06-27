@@ -651,10 +651,12 @@ def write_client_total_excel(year, data, money, location):
     worksheet.insert_chart('I2', chart1, {'x_offset': 25, 'y_offset': 10})
     workbook.close()
     response.data = output.getvalue()
-    if type == "douban":
-        filename = ("%s-%s.xls" % ('豆瓣客户总表', str(year)))
-    else:
-        filename = ("%s-%s.xls" % ('新媒体客户总表', str(year)))
+    if location == 1:
+        filename = ("%s-%s-%s.xls" % ('新媒体客户总表', str(year), '华北'))
+    elif location == 2:
+        filename = ("%s-%s-%s.xls" % ('新媒体客户总表', str(year), '华东'))
+    elif location == 3:
+        filename = ("%s-%s-%s.xls" % ('新媒体客户总表', str(year), '华南'))
     mimetype_tuple = mimetypes.guess_type(filename)
     response_headers = Headers({
         'Pragma': "public",
