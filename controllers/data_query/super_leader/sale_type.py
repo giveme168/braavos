@@ -72,11 +72,15 @@ def _format_order(order, type='client'):
         params['medium_id'] = order.order.medium_id
         params['direct_sales'] = order.client_order.direct_sales
         params['agent_sales'] = order.client_order.agent_sales
+        params['contract_status'] = order.client_order.contract_status
+        params['status'] = order.client_order.status
     else:
         params['order'] = order.douban_order
         params['money'] = order.money
         params['direct_sales'] = order.douban_order.direct_sales
         params['agent_sales'] = order.douban_order.agent_sales
+        params['contract_status'] = order.douban_order.contract_status
+        params['status'] = order.douban_order.status
     params['locations'] = [k.team.location for k in params['direct_sales'] + params['agent_sales']]
     return params
 
@@ -120,7 +124,7 @@ def search_excle_data():
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
     medium_date = [{'sale_type_name': RESOURCE_TYPE_CN.get(k['order'].sale_type),
                     'money':_get_money_by_location(k, location)}
-                   for k in medium_orders]
+                   for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     sale_type_params = {
         u'硬广': 0,
         u'互动': 0,
@@ -170,7 +174,7 @@ def search_json():
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
     medium_date = [{'sale_type_name': RESOURCE_TYPE_CN.get(k['order'].sale_type),
                     'money':_get_money_by_location(k, location)}
-                   for k in medium_orders]
+                   for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     sale_type_params = {
         u'硬广': 0,
         u'互动': 0,

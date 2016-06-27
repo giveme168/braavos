@@ -307,7 +307,7 @@ def get_medium_form(order, user=None):
 def order_info(order_id, tab_id=1):
     order = ClientOrder.get(order_id)
     if not order or order.status == 0:
-        if g.user.is_super_admin():
+        if g.user.is_super_leader():
             pass
         else:
             abort(404)
@@ -746,6 +746,10 @@ def display_orders(orders, title, status_id=-1):
             orders = [o for o in orders if o.invoice_pass_sum != float(o.money)]
         elif status_id == 34:
             orders = [o for o in orders if o.invoice_pass_sum == float(o.money)]
+        elif status_id == 35:
+            orders = [o for o in orders if o.contract_status == 2]
+        elif status_id == 36:
+            orders = [o for o in orders if o.contract_status == 10]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
@@ -1471,6 +1475,10 @@ def douban_display_orders(orders, title, status_id=-1):
             orders = [o for o in orders if o.contract_status != 20]
         elif status_id == 32:
             orders = [o for o in orders if o.back_money_status != 0]
+        elif status_id == 35:
+            orders = [o for o in orders if o.contract_status == 2]
+        elif status_id == 36:
+            orders = [o for o in orders if o.contract_status == 10]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]

@@ -498,7 +498,7 @@ def _write_client_data_by_location(th, data, t_money, title, worksheet, align_le
                     worksheet.write(th - 1, 2, c['name'], align_left)
             else:
                 worksheet.write(th, 3, '', align_left)
-                for i in range(16):
+                for i in range(17):
                     worksheet.write(th, 4 + i, 0, money_align_left)
                 th += 1
                 worksheet.write(th - 1, 2, c['name'], align_left)
@@ -512,7 +512,7 @@ def _write_client_data_by_location(th, data, t_money, title, worksheet, align_le
 
 
 # 导出客户总表
-def write_client_total_excel(year, HB_data, HD_data, HN_data, HB_money, HD_money, HN_money, total_money):
+def write_client_total_excel(year, data, money, location):
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -528,43 +528,127 @@ def write_client_total_excel(year, HB_data, HD_data, HN_data, HB_money, HD_money
     worksheet.merge_range(0, 1, 1, 1, u'行业', align_center)
     worksheet.merge_range(0, 2, 1, 2, u'客户', align_center)
     worksheet.merge_range(0, 3, 1, 3, u'代理', align_center)
-    worksheet.merge_range(0, 4, 0, 5, str(year - 2) + u' 下单总计', align_center)
+    worksheet.merge_range(0, 4, 0, 6, str(year - 2), align_center)
     worksheet.write(1, 4, u'新媒体', align_center)
     worksheet.write(1, 5, u'豆瓣', align_center)
-    worksheet.merge_range(0, 6, 0, 7, str(year - 1) + u' 下单总计', align_center)
-    worksheet.write(1, 6, u'新媒体', align_center)
-    worksheet.write(1, 7, u'豆瓣', align_center)
-    worksheet.merge_range(0, 8, 0, 10, str(year) + u' Q1', align_center)
-    worksheet.write(1, 8, u'新媒体', align_center)
-    worksheet.write(1, 9, u'媒介', align_center)
-    worksheet.write(1, 10, u'豆瓣', align_center)
-    worksheet.merge_range(0, 11, 0, 13, str(year) + u' Q2', align_center)
+    worksheet.write(1, 6, u'TOTAL', align_center)
+    worksheet.merge_range(0, 7, 0, 10, str(year - 1), align_center)
+    worksheet.write(1, 7, u'新媒体', align_center)
+    worksheet.write(1, 8, u'豆瓣', align_center)
+    worksheet.write(1, 9, u'TOTAL', align_center)
+    worksheet.write(1, 10, u'增长率', align_center)
+    worksheet.merge_range(0, 11, 0, 12, str(year) + u' Q1', align_center)
     worksheet.write(1, 11, u'新媒体', align_center)
-    worksheet.write(1, 12, u'媒介', align_center)
-    worksheet.write(1, 13, u'豆瓣', align_center)
-    worksheet.merge_range(0, 14, 0, 16, str(year) + u' Q3', align_center)
-    worksheet.write(1, 14, u'新媒体', align_center)
-    worksheet.write(1, 15, u'媒介', align_center)
+    worksheet.write(1, 12, u'豆瓣', align_center)
+    worksheet.merge_range(0, 13, 0, 14, str(year) + u' Q2', align_center)
+    worksheet.write(1, 13, u'新媒体', align_center)
+    worksheet.write(1, 14, u'豆瓣', align_center)
+    worksheet.merge_range(0, 15, 0, 16, str(year) + u' Q3', align_center)
+    worksheet.write(1, 15, u'新媒体', align_center)
     worksheet.write(1, 16, u'豆瓣', align_center)
-    worksheet.merge_range(0, 17, 0, 19, str(year) + u' Q4', align_center)
+    worksheet.merge_range(0, 17, 0, 18, str(year) + u' Q4', align_center)
     worksheet.write(1, 17, u'新媒体', align_center)
-    worksheet.write(1, 18, u'媒介', align_center)
-    worksheet.write(1, 19, u'豆瓣', align_center)
+    worksheet.write(1, 18, u'豆瓣', align_center)
+    worksheet.merge_range(0, 19, 0, 20, '', align_center)
+    worksheet.write(1, 19, u'新媒体', align_center)
+    worksheet.write(1, 20, u'豆瓣', align_center)
     # 设置宽度
     worksheet.set_column(1, 1, 15)
     worksheet.set_column(2, 2, 20)
     worksheet.set_column(3, 3, 40)
-    worksheet.set_column(4, 19, 20)
+    worksheet.set_column(4, 20, 20)
     th = 2
-    th = _write_client_data_by_location(th, HB_data, HB_money, u'华北', worksheet,
-                                        align_left, money_align_left, align_center)
-    th = _write_client_data_by_location(th, HD_data, HD_money, u'华东', worksheet,
-                                        align_left, money_align_left, align_center)
-    th = _write_client_data_by_location(th, HN_data, HN_money, u'华南', worksheet,
-                                        align_left, money_align_left, align_center)
-    worksheet.merge_range(th, 0, th, 3, u'三区总计', align_center)
-    for i in range(len(total_money)):
-        worksheet.write(th, 4 + i, total_money[i], money_align_left)
+    if location == 1:
+        th = _write_client_data_by_location(th, data, money, u'华北', worksheet,
+                                            align_left, money_align_left, align_center)
+    elif location == 2:
+        th = _write_client_data_by_location(th, data, money, u'华东', worksheet,
+                                            align_left, money_align_left, align_center)
+    elif location == 3:
+        th = _write_client_data_by_location(th, data, money, u'华南', worksheet,
+                                            align_left, money_align_left, align_center)
+
+    worksheet = workbook.add_worksheet(u'统计图')
+    bold = workbook.add_format({'bold': 1})
+    headings = ['#', str(year - 2) + u'年新媒体', str(year - 2) + u'年豆瓣', str(year - 1) +
+                u'年新媒体', str(year - 1) + u'年豆瓣', str(year) + u'年新媒体', str(year) + u'年豆瓣']
+    categories = []
+    series_b_y_client = []
+    series_b_y_douban = []
+    series_l_y_client = []
+    series_l_y_douban = []
+    series_n_y_client = []
+    series_n_y_douban = []
+    for k in data:
+        for c in k['clients']:
+            categories.append(c['name'])
+            series_b_y_client.append(c['client_money'][0])
+            series_b_y_douban.append(c['client_money'][1])
+            series_l_y_client.append(c['client_money'][3])
+            series_l_y_douban.append(c['client_money'][4])
+            series_n_y_client.append(c['client_money'][7] + c['client_money'][9] +
+                                     c['client_money'][11] + c['client_money'][13])
+            series_n_y_douban.append(c['client_money'][8] + c['client_money'][10] +
+                                     c['client_money'][12] + c['client_money'][14])
+    data = [
+        categories,
+        series_b_y_client,
+        series_b_y_douban,
+        series_l_y_client,
+        series_l_y_douban,
+        series_n_y_client,
+        series_n_y_douban,
+    ]
+    worksheet.write_row('A1', headings, bold)
+    worksheet.write_column('A2', data[0])
+    worksheet.write_column('B2', data[1])
+    worksheet.write_column('C2', data[2])
+    worksheet.write_column('D2', data[3])
+    worksheet.write_column('E2', data[4])
+    worksheet.write_column('F2', data[5])
+    worksheet.write_column('G2', data[6])
+    chart1 = workbook.add_chart({'type': 'column'})
+    # Configure a second series. Note use of alternative syntax to define ranges.
+    chart1.add_series({
+        'name': [u'统计图', 0, 1],
+        'categories': [u'统计图', 1, 0, len(categories), 0],
+        'values': [u'统计图', 1, 1, len(categories), 1],
+    })
+    chart1.add_series({
+        'name': [u'统计图', 0, 2],
+        'categories': [u'统计图', 1, 0, len(categories), 0],
+        'values': [u'统计图', 1, 2, len(categories), 2],
+    })
+    chart1.add_series({
+        'name': [u'统计图', 0, 3],
+        'categories': [u'统计图', 1, 0, len(categories), 0],
+        'values': [u'统计图', 1, 3, len(categories), 3],
+    })
+    chart1.add_series({
+        'name': [u'统计图', 0, 4],
+        'categories': [u'统计图', 1, 0, len(categories), 0],
+        'values': [u'统计图', 1, 4, len(categories), 4],
+    })
+    chart1.add_series({
+        'name': [u'统计图', 0, 5],
+        'categories': [u'统计图', 1, 0, len(categories), 0],
+        'values': [u'统计图', 1, 5, len(categories), 5],
+    })
+    chart1.add_series({
+        'name': [u'统计图', 0, 6],
+        'categories': [u'统计图', 1, 0, len(categories), 0],
+        'values': [u'统计图', 1, 6, len(categories), 6],
+    })
+    # Add a chart title and some axis labels.
+    chart1.set_title({'name': '区域客户分析'})
+    chart1.set_x_axis({'name': '客户'})
+    chart1.set_y_axis({'name': '执行额 (元)'})
+    chart1.set_size({'width': 1720, 'height': 300})
+    # Set an Excel chart style.
+    chart1.set_style(110)
+
+    # Insert the chart into the worksheet (with an offset).
+    worksheet.insert_chart('I2', chart1, {'x_offset': 25, 'y_offset': 10})
     workbook.close()
     response.data = output.getvalue()
     if type == "douban":

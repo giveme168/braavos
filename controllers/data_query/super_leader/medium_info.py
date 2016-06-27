@@ -52,12 +52,16 @@ def _format_order(order, type='client'):
         params['direct_sales'] = order.client_order.direct_sales
         params['agent_sales'] = order.client_order.agent_sales
         params['locations'] = order.client_order.locations
+        params['contract_status'] = order.client_order.contract_status
+        params['status'] = order.client_order.status
     else:
         params['money'] = order.money
         params['medium_name'] = u'豆瓣'
         params['direct_sales'] = order.douban_order.direct_sales
         params['agent_sales'] = order.douban_order.agent_sales
         params['locations'] = order.douban_order.locations
+        params['contract_status'] = order.douban_order.contract_status
+        params['status'] = order.douban_order.status
     return params
 
 
@@ -103,7 +107,8 @@ def search_excle_data():
     for k in searchAdMedium.all():
         medium_info_params[k.name] = 0
     for k in medium_date:
-        if k['medium_name'] in medium_info_params:
+        if k['medium_name'] in medium_info_params and k['contract_status'] in [2, 4, 5, 10, 19, 20] \
+                and k['status'] == 1:
             medium_info_params[k['medium_name']] += _get_money_by_location(k, location)
     medium_info_params = sorted(
         medium_info_params.iteritems(), key=lambda x: x[1])
@@ -150,7 +155,8 @@ def search_json():
     for k in searchAdMedium.all():
         medium_info_params[k.name] = 0
     for k in medium_date:
-        if k['medium_name'] in medium_info_params:
+        if k['medium_name'] in medium_info_params and k['contract_status'] in [2, 4, 5, 10, 19, 20] \
+                and k['status'] == 1:
             medium_info_params[k['medium_name']] += _get_money_by_location(k, location)
     medium_info_params = sorted(
         medium_info_params.iteritems(), key=lambda x: x[1])

@@ -303,7 +303,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     @classmethod
     def get_personal_outsources(cls, status):
         outsources = list(cls.query.filter_by(status=status))
-        return [k for k in outsources if k.medium_order.status == 1 and k.target.otype == 2]
+        return [k for k in outsources if k.target.otype == 2]
 
     @property
     def create_time_cn(self):
@@ -580,7 +580,7 @@ class DoubanOutSource(db.Model, BaseModelMixin, CommentMixin):
     @classmethod
     def get_personal_outsources(cls, status):
         outsources = list(cls.query.filter_by(status=status))
-        return [k for k in outsources if k.douban_order.status == 1 and k.target.otype == 2]
+        return [k for k in outsources if k.target.otype == 2]
 
     @property
     def create_time_cn(self):

@@ -601,6 +601,10 @@ def display_orders(orders, title, status_id=-1):
             orders = [o for o in orders if o.invoice_pass_sum != float(o.money)]
         elif status_id == 34:
             orders = [o for o in orders if o.invoice_pass_sum == float(o.money)]
+        elif status_id == 35:
+            orders = [o for o in orders if o.contract_status == 2]
+        elif status_id == 36:
+            orders = [o for o in orders if o.contract_status == 10]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
@@ -655,6 +659,7 @@ def order_delete(order_id):
     flash(u"客户订单: %s-%s 已删除" % (order.client.name, order.campaign), 'danger')
     order.status = STATUS_DEL
     order.save()
+    _reload_status_executive_report(order)
     return redirect(url_for("searchAd_order.my_searchAd_orders"))
 
 
