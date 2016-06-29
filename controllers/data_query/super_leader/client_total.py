@@ -747,8 +747,34 @@ def index():
     if action == 'excel':
         return write_client_total_excel(year=year, data=data, money=money, location=location)
     # 组装数据用于画图
-    categories = []
-    series = [{
+    categories_1 = []
+    series_1 = [{
+        'name': str(year - 2) + u'年新媒体',
+        'data': [],
+        'stack': str(year - 2)
+    }, {
+        'name': str(year - 2) + u'年豆瓣',
+        'data': [],
+        'stack': str(year - 2)
+    }, {
+        'name': str(year - 1) + u'年新媒体',
+        'data': [],
+        'stack': str(year - 1)
+    }, {
+        'name': str(year - 1) + u'年豆瓣',
+        'data': [],
+        'stack': str(year - 1)
+    }, {
+        'name': str(year) + u'年新媒体',
+        'data': [],
+        'stack': str(year)
+    }, {
+        'name': str(year) + u'年豆瓣',
+        'data': [],
+        'stack': str(year)
+    }]
+    categories_2 = []
+    series_2 = [{
         'name': str(year - 2) + u'年新媒体',
         'data': [],
         'stack': str(year - 2)
@@ -774,16 +800,28 @@ def index():
         'stack': str(year)
     }]
     for k in data:
-        for c in k['clients']:
-            categories.append(c['name'])
-            series[0]['data'].append(c['client_money'][0])
-            series[1]['data'].append(c['client_money'][1])
-            series[2]['data'].append(c['client_money'][3])
-            series[3]['data'].append(c['client_money'][4])
-            series[4]['data'].append(c['client_money'][7] + c['client_money'][9] +
-                                     c['client_money'][11] + c['client_money'][13])
-            series[5]['data'].append(c['client_money'][8] + c['client_money'][10] +
-                                     c['client_money'][12] + c['client_money'][14])
+        clients = k['clients']
+        for c in range(len(clients)):
+            if c <= len(clients) / 2:
+                categories_1.append(clients[c]['name'])
+                series_1[0]['data'].append(clients[c]['client_money'][0])
+                series_1[1]['data'].append(clients[c]['client_money'][1])
+                series_1[2]['data'].append(clients[c]['client_money'][3])
+                series_1[3]['data'].append(clients[c]['client_money'][4])
+                series_1[4]['data'].append(clients[c]['client_money'][7] + clients[c]['client_money'][9] +
+                                           clients[c]['client_money'][11] + clients[c]['client_money'][13])
+                series_1[5]['data'].append(clients[c]['client_money'][8] + clients[c]['client_money'][10] +
+                                           clients[c]['client_money'][12] + clients[c]['client_money'][14])
+            else:
+                categories_2.append(clients[c]['name'])
+                series_2[0]['data'].append(clients[c]['client_money'][0])
+                series_2[1]['data'].append(clients[c]['client_money'][1])
+                series_2[2]['data'].append(clients[c]['client_money'][3])
+                series_2[3]['data'].append(clients[c]['client_money'][4])
+                series_2[4]['data'].append(clients[c]['client_money'][7] + clients[c]['client_money'][9] +
+                                           clients[c]['client_money'][11] + clients[c]['client_money'][13])
+                series_2[5]['data'].append(clients[c]['client_money'][8] + clients[c]['client_money'][10] +
+                                           clients[c]['client_money'][12] + clients[c]['client_money'][14])
     return tpl('/data_query/super_leader/client_total.html', year=year,
-               data=data, money=money, location=location, categories=json.dumps(categories),
-               series=json.dumps(series))
+               data=data, money=money, location=location, categories_1=json.dumps(categories_1),
+               series_1=json.dumps(series_1), categories_2=json.dumps(categories_2), series_2=json.dumps(series_2))

@@ -1,0 +1,97 @@
+{% extends "/base_v1_0_0.html" %}
+
+{% block content%}
+{% include "/searchAdorder/searchad_order_base_v1_0_0.html" %}
+<div class="container bra-box">
+    <h3>新建对账单</h3>
+    <form class="input-row-box" method="POST" onsubmit="return check_form(this)">
+    	<div class="input-group-menu">
+	      <div class="name">所属公司 : </div>
+	      <input type="text" id="company" name="company" class="surname" style="width:300px;">
+	    </div>
+	    <div class="input-group-menu">
+	      <div class="name">所属客户 : </div>
+	      <select class="surname" id="client" name="client" style="width:300px;">
+	      	{% for k in clients %}
+	      	<option value="{{k.id}}">{{k.name}}<option>
+	      	{% endfor %}
+	      </select>
+	    </div>
+	    <div class="input-group-menu">
+	      <div class="name">所属媒体 : </div>
+	      <select class="surname" id="medium" name="medium" style="width:300px;">
+	      	{% for k in mediums %}
+	      	<option value="{{k.id}}">{{k.name}}<option>
+	      	{% endfor %}
+	      </select>
+	    </div>
+	    <div class="input-group-menu">
+	      <div class="name">资源形式 : </div>
+	      <select class="surname" id="resource_type" name="resource_type" style="width:300px;">
+	      	<option value="5">CPA<option>
+	      	<option value="6">CPT<option>
+	      	<option value="7">CPC<option>
+	      	<option value="8">CPD<option>
+	      	<option value="9">CPM<option>
+	      	<option value="10">CPS<option>
+	      	<option value="99">其他<option>
+	      </select>
+	    </div>
+	    <div class="input-group-menu">
+	      <div class="name">结算开始时间 : </div>
+	      <input type="text" id="start" name="start" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd" readonly="readonly">
+	    </div>
+	    <div class="input-group-menu">
+	      <div class="name">结算截止时间 : </div>
+	      <input type="text" id="end" name="end" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd" readonly="readonly">
+	    </div>
+	    <div class="input-group-menu">
+	      <div class="name">实际消耗金额 : </div>
+	      <input type="text" id="money" name="money" class="surname" style="width:300px;">
+	    </div>
+	    <div class="input-group-menu">
+	      <div class="name">对应返点金额 : </div>
+	      <input type="text" id="rebate_money" name="rebate_money" class="surname" style="width:300px;">
+	    </div>
+	    <div class="state" style="margin-left:40%;">
+	        <input type="submit" value="保存">
+	    </div>
+	</form>
+</div>
+<script>
+    function check_form(obj){
+    	if (obj.company.value == ''){
+    		alert('请输入所属公司');
+    		obj.company.focus();
+    		return false
+    	}else if (obj.start.value == ''){
+    		alert('请输入结算开始时间');
+    		obj.start.focus();
+    		return false
+    	}else if (obj.end.value == ''){
+    		alert('请输入结算截止时间');
+    		obj.end.focus();
+    		return false
+    	}else if (obj.money.value == ''){
+    		alert('请输入实际消耗金额');
+    		obj.money.focus();
+    		return false
+    	}else if (obj.rebate_money.value == ''){
+    		alert('请输入对应返点');
+    		obj.rebate_money.focus();
+    		return false
+    	}else{
+    		return true
+    	}
+    }
+    $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+        $('.datetimepicker').datetimepicker({
+	        autoclose: true,
+	        todayHighlight: true,
+	        language: 'zh-CN',
+	        minView: 2
+	     });
+    })
+</script>
+{% endblock %}

@@ -395,7 +395,6 @@ def order_info(order_id, tab_id=1):
                                                                             str(mo.sale_money)))
                                                        for mo in order.medium_orders]
     new_associated_douban_form.campaign.data = order.campaign
-
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
@@ -506,11 +505,14 @@ def order_medium_edit_cpm(medium_id):
         mo.medium_money = medium_money
     mo.self_medium_rebate = str(self_medium_rebate) + '-' + str(self_medium_rabate_value)
     finish_status = int(request.values.get('finish_status', 1))
+    # 归档前合同状态
     last_status = mo.finish_status
     mo.finish_status = finish_status
     if finish_status == 0 and last_status != 0:
         mo.finish_time = datetime.now()
         mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.medium.name))
+    elif finish_status == 1 and last_status == 0:
+        mo.client_order.add_comment(g.user, u" %s 媒体订单取消归档" % (mo.medium.name))
     mo.save()
     if medium_money != '':
         _insert_executive_report(mo, 'reload')
@@ -692,7 +694,7 @@ def delete_orders():
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or \
-            g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit():
+            g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit() or g.user.is_operater_leader():
         orders = ClientOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -749,7 +751,7 @@ def display_orders(orders, title, status_id=-1):
         elif status_id == 35:
             orders = [o for o in orders if o.contract_status == 2]
         elif status_id == 36:
-            orders = [o for o in orders if o.contract_status == 10]
+            orders = [o for o in orders if o.contract_status in [4, 5, 10, 19, 20]]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
@@ -1413,7 +1415,7 @@ def douban_order_info(order_id):
 @order_bp.route('/my_douban_orders', methods=['GET'])
 def my_douban_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or\
-            g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit():
+            g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit() or g.user.is_operater_leader():
         orders = DoubanOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -1478,7 +1480,7 @@ def douban_display_orders(orders, title, status_id=-1):
         elif status_id == 35:
             orders = [o for o in orders if o.contract_status == 2]
         elif status_id == 36:
-            orders = [o for o in orders if o.contract_status == 10]
+            orders = [o for o in orders if o.contract_status in [4, 5, 10, 19, 20]]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]

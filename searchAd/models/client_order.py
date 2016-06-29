@@ -146,7 +146,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     client_start_year = db.Column(db.Integer, index=True)
     client_end_year = db.Column(db.Integer, index=True)
     reminde_date = db.Column(db.Date)  # 最迟回款日期
-    resource_type = db.Column(db.Integer)  # 资源形式
+    resource_type = db.Column(db.Integer)  # 推广形式
     sale_type = db.Column(db.Integer)  # 资源形式
 
     direct_sales = db.relationship('User', secondary=direct_sales)
@@ -162,13 +162,14 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     create_time = db.Column(db.DateTime)
     finish_time = db.Column(db.DateTime)   # 合同归档时间
     back_money_status = db.Column(db.Integer)
+    self_agent_rebate = db.Column(db.String(20))  # 单笔返点
     contract_generate = True
     media_apply = True
     kind = "searchAd-client-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
     def __init__(self, agent, client, campaign, medium_orders=None, status=STATUS_ON,
-                 back_money_status=BACK_MONEY_STATUS_NOW,
+                 back_money_status=BACK_MONEY_STATUS_NOW, self_agent_rebate='0-0',
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
                  direct_sales=None, agent_sales=None, framework_order_id=0,
@@ -199,6 +200,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
         self.contract_status = contract_status
         self.back_money_status = back_money_status
         self.framework_order_id = framework_order_id
+        self.self_agent_rebate = self_agent_rebate
 
     @classmethod
     def get_all(cls):
@@ -882,6 +884,15 @@ by %s\n
         except:
             return ''
 
+    @property
+    def self_agent_rebate_value(self):
+        if self.self_agent_rebate:
+            p_self_agent_rebate = self.self_agent_rebate.split('-')
+        else:
+            p_self_agent_rebate = ['0', '0.0']
+        return {'status': p_self_agent_rebate[0],
+                'value': p_self_agent_rebate[1]}
+
 
 class searchAdConfirmMoney(db.Model, BaseModelMixin):
     __tablename__ = 'searchad_bra_client_order_confirm_money'
@@ -1055,3 +1066,44 @@ def contract_generator(framework, num):
     code = "%s-%03x" % (framework, num % 1000)
     code = code.upper()
     return code
+
+
+# for searchAd
+BILL_RESOURCE_TYPE_CN = {
+    5: 'CPA',
+    6: 'CPT',
+    7: 'CPC',
+    8: 'CPD',
+    9: 'CPM',
+    10: 'CPS',
+    99: u'其他'
+}
+
+
+class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
+    __tablename__ = 'searchad_bra_client_order_bill'
+    id = db.Column(db.Integer, primary_key=True)
+    company = db.Column(db.String(100))
+    client_id = db.Column(db.Integer, db.ForeignKey('searchAd_client.id'))
+    client = db.relationship('searchAdClient', backref=db.backref('searchad_bra_client_bill', lazy='dynamic'))
+    medium_id = db.Column(db.Integer, db.ForeignKey('searchAd_medium.id'))
+    medium = db.relationship('searchAdMedium', backref=db.backref('searchad_bra_medium_bill', lazy='dynamic'))
+    resource_type = db.Column(db.Integer)  # 推广形式
+    money = db.Column(db.Float(), default=0.0)
+    rebate_money = db.Column(db.Float(), default=0.0)
+    start = db.Column(db.Date)
+    end = db.Column(db.Date)
+
+    def __init__(self, company, client, medium, resource_type, money, rebate_money, start=None, end=None):
+        self.company = company
+        self.client = client
+        self.medium = medium
+        self.resource_type = resource_type
+        self.money = money or 0.0
+        self.rebate_money = rebate_money or 0.0
+        self.start = start or datetime.date.today()
+        self.end = end or datetime.date.today()
+
+    @property
+    def resource_type_cn(self):
+        return BILL_RESOURCE_TYPE_CN.get(self.resource_type)
