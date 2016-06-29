@@ -13,7 +13,7 @@
 {% macro order_medium_table(order) -%}
 <div class="col-md-12">
     <div class="col-md-8" style="margin-left: 20px;">
-        {% if g.user.is_operater() or g.user.is_media() or g.user.is_media_leader() %}
+        {% if g.user.is_operater() or g.user.is_media() or g.user.is_media_leader() or g.user.is_contract %}
         <form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('order.order_medium_edit_cpm', medium_id=order.id)}}">
         {% endif %}
         <table class="table table-bordered">
@@ -73,11 +73,11 @@
             <th>策划人员 </th>
             <td>{{order.planers_names}}</td>
           </tr>
-          {% if g.user.is_media() or g.user.is_media_leader() %} 
+          {% if g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %} 
           <tr>
             <th>合同是否归档</th>
             <td>
-              <select id="finish_status" name="finish_status" style="width:120px;">
+              <select id="finish_status_{{order.id}}" name="finish_status" style="width:120px;">
                 <option value='1'>未归档</option>
                 <option value='0'>已归档</option>
               </select>
@@ -102,7 +102,7 @@
           </tr>
           {% endif %}
         </table>
-        {% if g.user.is_operater() or g.user.is_media() or g.user.is_media_leader() %}
+        {% if g.user.is_operater() or g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %}
         <tbody> 
           <tr>
             <td><input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/></td>
@@ -114,7 +114,7 @@
 </div>
 <script>
   $(function(){
-     var self_medium_rebate = "{{order.self_medium_rebate}}";
+     var self_medium_rebate = "{{order.self_medium_rebate or '0-0'}}";
      var p_self_medium_rebate = self_medium_rebate.split('-')
      $('#self_medium_rebate_{{order.id}}').val(p_self_medium_rebate[0]);
      $('#self_medium_rabate_value_{{order.id}}').val(p_self_medium_rebate[1]);
@@ -210,7 +210,7 @@
 <script>
   $(function(){
      {% if medium_order %}
-       var self_medium_rebate = "{{medium_order.self_medium_rebate}}";
+       var self_medium_rebate = "{{medium_order.self_medium_rebate or '0-0'}}";
        var p_self_medium_rebate = self_medium_rebate.split('-')
        $('#self_medium_rebate_{{medium_order.id}}').val(p_self_medium_rebate[0]);
        $('#self_medium_rabate_value_{{medium_order.id}}').val(p_self_medium_rebate[1]);

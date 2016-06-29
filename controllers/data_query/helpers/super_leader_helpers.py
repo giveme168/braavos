@@ -490,7 +490,10 @@ def _write_client_data_by_location(th, data, t_money, title, worksheet, align_le
                 for a_k, a_v in c['agents'].items():
                     worksheet.write(th, 3, a_k, align_left)
                     for i in range(len(a_v)):
-                        worksheet.write(th, 4 + i, a_v[i], money_align_left)
+                        if i in [6, 16]:
+                            worksheet.write(th, 4 + i, str(a_v[i]) + '%', align_left)
+                        else:
+                            worksheet.write(th, 4 + i, a_v[i], money_align_left)
                     th += 1
                 if len(c['agents']) > 1:
                     worksheet.merge_range(client_th, 2, th - 1, 2, c['name'], align_left)
@@ -499,14 +502,20 @@ def _write_client_data_by_location(th, data, t_money, title, worksheet, align_le
             else:
                 worksheet.write(th, 3, '', align_left)
                 for i in range(17):
-                    worksheet.write(th, 4 + i, 0, money_align_left)
+                    if i in [6, 16]:
+                        worksheet.write(th, 4 + i, '0.00%', align_left)
+                    else:
+                        worksheet.write(th, 4 + i, 0.00, money_align_left)
                 th += 1
                 worksheet.write(th - 1, 2, c['name'], align_left)
         worksheet.merge_range(industry_th, 1, th - 1, 1, k['industry_name'], align_left)
     worksheet.merge_range(location_th, 0, th - 1, 0, title, align_left)
     worksheet.merge_range(th, 0, th, 3, u'总计', align_center)
     for i in range(len(t_money)):
-        worksheet.write(th, 4 + i, t_money[i], money_align_left)
+        if i in [6, 16]:
+            worksheet.write(th, 4 + i, str(t_money[i]) + "%", align_left)
+        else:
+            worksheet.write(th, 4 + i, t_money[i], money_align_left)
     th += 1
     return th
 
@@ -611,33 +620,33 @@ def write_client_total_excel(year, data, money, location):
     # Configure a second series. Note use of alternative syntax to define ranges.
     chart1.add_series({
         'name': [u'统计图', 0, 1],
-        'categories': [u'统计图', 1, 0, len(categories), 0],
-        'values': [u'统计图', 1, 1, len(categories), 1],
+        'categories': [u'统计图', 1, 0, len(categories) / 2, 0],
+        'values': [u'统计图', 1, 1, len(categories) / 2, 1],
     })
     chart1.add_series({
         'name': [u'统计图', 0, 2],
-        'categories': [u'统计图', 1, 0, len(categories), 0],
-        'values': [u'统计图', 1, 2, len(categories), 2],
+        'categories': [u'统计图', 1, 0, len(categories) / 2, 0],
+        'values': [u'统计图', 1, 2, len(categories) / 2, 2],
     })
     chart1.add_series({
         'name': [u'统计图', 0, 3],
-        'categories': [u'统计图', 1, 0, len(categories), 0],
-        'values': [u'统计图', 1, 3, len(categories), 3],
+        'categories': [u'统计图', 1, 0, len(categories) / 2, 0],
+        'values': [u'统计图', 1, 3, len(categories) / 2, 3],
     })
     chart1.add_series({
         'name': [u'统计图', 0, 4],
-        'categories': [u'统计图', 1, 0, len(categories), 0],
-        'values': [u'统计图', 1, 4, len(categories), 4],
+        'categories': [u'统计图', 1, 0, len(categories) / 2, 0],
+        'values': [u'统计图', 1, 4, len(categories) / 2, 4],
     })
     chart1.add_series({
         'name': [u'统计图', 0, 5],
-        'categories': [u'统计图', 1, 0, len(categories), 0],
-        'values': [u'统计图', 1, 5, len(categories), 5],
+        'categories': [u'统计图', 1, 0, len(categories) / 2, 0],
+        'values': [u'统计图', 1, 5, len(categories) / 2, 5],
     })
     chart1.add_series({
         'name': [u'统计图', 0, 6],
-        'categories': [u'统计图', 1, 0, len(categories), 0],
-        'values': [u'统计图', 1, 6, len(categories), 6],
+        'categories': [u'统计图', 1, 0, len(categories) / 2, 0],
+        'values': [u'统计图', 1, 6, len(categories) / 2, 6],
     })
     # Add a chart title and some axis labels.
     chart1.set_title({'name': '区域客户分析'})
@@ -647,8 +656,47 @@ def write_client_total_excel(year, data, money, location):
     # Set an Excel chart style.
     chart1.set_style(110)
 
+    chart2 = workbook.add_chart({'type': 'column'})
+    chart2.add_series({
+        'name': [u'统计图', 0, 1],
+        'categories': [u'统计图', len(categories) / 2, 0, len(categories), 0],
+        'values': [u'统计图', len(categories) / 2, 1, len(categories), 1],
+    })
+    chart2.add_series({
+        'name': [u'统计图', 0, 2],
+        'categories': [u'统计图', len(categories) / 2, 0, len(categories), 0],
+        'values': [u'统计图', len(categories) / 2, 2, len(categories), 2],
+    })
+    chart2.add_series({
+        'name': [u'统计图', 0, 3],
+        'categories': [u'统计图', len(categories) / 2, 0, len(categories), 0],
+        'values': [u'统计图', len(categories) / 2, 3, len(categories), 3],
+    })
+    chart2.add_series({
+        'name': [u'统计图', 0, 4],
+        'categories': [u'统计图', len(categories) / 2, 0, len(categories), 0],
+        'values': [u'统计图', len(categories) / 2, 4, len(categories), 4],
+    })
+    chart2.add_series({
+        'name': [u'统计图', 0, 5],
+        'categories': [u'统计图', len(categories) / 2, 0, len(categories), 0],
+        'values': [u'统计图', len(categories) / 2, 5, len(categories), 5],
+    })
+    chart2.add_series({
+        'name': [u'统计图', 0, 6],
+        'categories': [u'统计图', len(categories) / 2, 0, len(categories), 0],
+        'values': [u'统计图', len(categories) / 2, 6, len(categories), 6],
+    })
+    # Add a chart title and some axis labels.
+    chart2.set_title({'name': '区域客户分析'})
+    chart2.set_x_axis({'name': '客户'})
+    chart2.set_y_axis({'name': '执行额 (元)'})
+    chart2.set_size({'width': 1720, 'height': 300})
+    # Set an Excel chart style.
+    chart2.set_style(110)
     # Insert the chart into the worksheet (with an offset).
     worksheet.insert_chart('I2', chart1, {'x_offset': 25, 'y_offset': 10})
+    worksheet.insert_chart('I30', chart2, {'x_offset': 25, 'y_offset': 10})
     workbook.close()
     response.data = output.getvalue()
     if location == 1:

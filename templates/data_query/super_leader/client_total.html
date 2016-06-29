@@ -20,7 +20,11 @@
                     <tr>
                         <td>{{k}}</td>
                         {% for i in v %}
+                            {% if loop.index0 in [6, 16]%}
+                            <td>{{i|format_price}}%</td>
+                            {% else %}
                             <td>{{i|format_price}}</td>
+                            {% endif %}
                         {% endfor %}
                     </tr>
                 {% endfor %}
@@ -28,7 +32,11 @@
                 <tr>
                     <td></td>
                     {% for k in range(17)%}
-                    <td>{{0|format_price}}</td>
+                        {% if loop.index0 in [6, 16]%}
+                            <td>{{0|format_price}}%</td>
+                        {% else %}
+                            <td>{{0|format_price}}</td>
+                        {% endif %}
                     {% endfor %}
                 </tr>
             {% endif %}
@@ -39,7 +47,11 @@
     <tr>
         <td colspan=4>总计</td>
         {% for i in money %}
-        <td>{{i|format_price}}</td>
+            {% if loop.index0 in [6, 16]%}
+            <td>{{i|format_price}}%</td>
+            {% else %}
+            <td>{{i|format_price}}</td>
+            {% endif %}
         {% endfor %}
     </tr>
 </tbody>
@@ -76,7 +88,8 @@
             </div>
         </form>
     </div>
-    <div id="container"></div>
+    <div id="container_1"></div>
+    <div id="container_2"></div>
     <div class='tabulation'>
         <table border='1'>
             <thead>
@@ -128,16 +141,8 @@
 <script src="/static/js/highcharts/themes/grid-light.js"></script>
 <script src="/static/js/jquery.json.min.js"></script>
 <script type="text/javascript">
-	$(function(){
-        var pathname = window.location.pathname;
-        var path_name = pathname.split("/")
-        $("#_location_{{location}}_").addClass("on");
-        $("#_location_li_{{location}}_").addClass("actives");
-
-		$('select').chosen({disable_search: true});
-        $('#year').val('{{year}}');
-        $("#year").trigger("chosen:updated");
-        $('#container').highcharts({
+	function write_chart(id, categories, series){
+        $('#'+id).highcharts({
             chart: {
                 type: 'column'
             },
@@ -145,7 +150,7 @@
                 text: '区域客户分析'
             },
             xAxis: {
-                categories: {{categories|safe}}
+                categories: categories
             },
             yAxis: {
                 allowDecimals: false,
@@ -166,8 +171,20 @@
                     stacking: 'normal'
                 }
             },
-            series: {{series|safe}}
+            series: series
         });
+    }
+    $(function(){
+        var pathname = window.location.pathname;
+        var path_name = pathname.split("/")
+        $("#_location_{{location}}_").addClass("on");
+        $("#_location_li_{{location}}_").addClass("actives");
+
+		$('select').chosen({disable_search: true});
+        $('#year').val('{{year}}');
+        $("#year").trigger("chosen:updated");
+        write_chart('container_1', {{categories_1|safe}}, {{series_1|safe}})
+        write_chart('container_2', {{categories_2|safe}}, {{series_2|safe}})
 	})
     function download(){
         var year = $('#year').val();

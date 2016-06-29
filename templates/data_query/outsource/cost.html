@@ -50,10 +50,10 @@
             </thead>
             <tbody>
                 <tr>
-                    <th rowspan=12>外包项目</th>
+                    <th rowspan=8>外包项目</th>
                 </tr>
                 <tr>
-                    <th>奖品</th>
+                    <th>Flash&H5开发</th>
                     {% for k in monthes_data['1'] %}
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
@@ -61,7 +61,7 @@
                     {% endfor %}
                 </tr>
                 <tr>
-                    <th>Flash</th>
+                    <th>网络公关运营</th>
                     {% for k in monthes_data['2'] %}
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
@@ -69,7 +69,7 @@
                     {% endfor %}
                 </tr>
                 <tr>
-                    <th>劳务(KOL、线下活动等)</th>
+                    <th>设计</th>
                     {% for k in monthes_data['3'] %}
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
@@ -77,7 +77,7 @@
                     {% endfor %}
                 </tr>
                 <tr>
-                    <th>效果优化</th>
+                    <th>视频制作</th>
                     {% for k in monthes_data['4'] %}
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
@@ -85,40 +85,8 @@
                     {% endfor %}
                 </tr>
                 <tr>
-                    <th>其他(视频等)</th>
+                    <th>技术服务</th>
                     {% for k in monthes_data['5'] %}
-                    <th>{{k.huadong|format_price}}</th>
-                    <th>{{k.huabei|format_price}}</th>
-                    <th>{{k.huanan|format_price}}</th>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    <th>flash&H5开发</th>
-                    {% for k in monthes_data['6'] %}
-                    <th>{{k.huadong|format_price}}</th>
-                    <th>{{k.huabei|format_price}}</th>
-                    <th>{{k.huanan|format_price}}</th>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    <th>H5开发</th>
-                    {% for k in monthes_data['7'] %}
-                    <th>{{k.huadong|format_price}}</th>
-                    <th>{{k.huabei|format_price}}</th>
-                    <th>{{k.huanan|format_price}}</th>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    <th>网络公关运营</th>
-                    {% for k in monthes_data['8'] %}
-                    <th>{{k.huadong|format_price}}</th>
-                    <th>{{k.huabei|format_price}}</th>
-                    <th>{{k.huanan|format_price}}</th>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    <th>设计</th>
-                    {% for k in monthes_data['9'] %}
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
                     <th>{{k.huanan|format_price}}</th>

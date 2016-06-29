@@ -17,7 +17,8 @@ from ..models.client import searchAdClient, searchAdAgent
 from ..models.medium import searchAdMedium
 from ..models.order import searchAdOrder, searchAdMediumOrderExecutiveReport
 from searchAd.models.rebate_order import searchAdRebateOrder, searchAdRebateOrderExecutiveReport
-from ..models.client_order import searchAdClientOrder, searchAdClientOrderExecutiveReport, searchAdConfirmMoney
+from ..models.client_order import (searchAdClientOrder, searchAdClientOrderExecutiveReport,
+                                   searchAdConfirmMoney, searchAdClientOrderBill)
 from ..models.framework_order import searchAdFrameworkOrder
 
 from ..models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
@@ -255,13 +256,13 @@ def order_confirm_info(order_id):
                                  create_time=datetime.now())
         flash(u'添加确认收入信息成功!', 'success')
         order.add_comment(g.user, u"添加了确信收入信息: 确认周期：%s 所属媒体：%s 确认收入: %s 确认返点: %s" %
-                                  (str(year)+Q, medium_order.medium.name, str(money), str(rebate)))
+                                  (str(year) + Q, medium_order.medium.name, str(money), str(rebate)))
     else:
         cid = request.values.get('cid')
         confirm = searchAdConfirmMoney.get(cid)
         flash(u'删除确认收入信息成功!', 'success')
-        order.add_comment(g.user, u"删除了确信收入信息: 确认周期：%s 所属媒体：%s 确认收入: %s 确认返点: %s" %
-                                  (str(confirm.year)+confirm.Q, confirm.order.medium.name, str(confirm.money), str(confirm.rebate)))
+        order.add_comment(g.user, u"删除了确信收入信息: 确认周期：%s 所属媒体：%s 确认收入: %s 确认返点: %s" % (
+            str(confirm.year) + confirm.Q, confirm.order.medium.name, str(confirm.money), str(confirm.rebate)))
         confirm.delete()
     return redirect(order.info_path())
 
@@ -274,6 +275,8 @@ def order_info(order_id, tab_id=1):
     client_form = get_client_form(order)
     if request.method == 'POST':
         info_type = int(request.values.get('info_type', '0'))
+        self_rebate = int(request.values.get('self_rebate', 0))
+        self_rabate_value = float(request.values.get('self_rabate_value', 0))
         if info_type == 0:
             if not order.can_admin(g.user):
                 flash(u'您没有编辑权限! 请联系该订单的创建者或者销售同事!', 'danger')
@@ -296,6 +299,8 @@ def order_info(order_id, tab_id=1):
                     order.contract_type = client_form.contract_type.data
                     order.resource_type = client_form.resource_type.data
                     order.sale_type = client_form.sale_type.data
+                    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_leader():
+                        order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
                     order.save()
                     order.add_comment(g.user, u"更新了客户订单")
                     flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
@@ -604,7 +609,7 @@ def display_orders(orders, title, status_id=-1):
         elif status_id == 35:
             orders = [o for o in orders if o.contract_status == 2]
         elif status_id == 36:
-            orders = [o for o in orders if o.contract_status == 10]
+            orders = [o for o in orders if o.contract_status in [4, 5, 10, 19, 20]]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
@@ -1248,28 +1253,18 @@ def rebate_display_orders(orders, title, status_id=-1):
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
-    if 'download' == request.args.get('action', ''):
-        filename = (
-            "%s-%s.xls" % (u"返点订单", datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8')
-        '''
-        xls = Excel().write_excle(
-            download_excel_table_by_doubanorders(orders))
-        '''
-        response = get_download_response(xls, filename)
-        return response
-    else:
-        paginator = Paginator(orders, ORDER_PAGE_NUM)
-        try:
-            orders = paginator.page(page)
-        except:
-            orders = paginator.page(paginator.num_pages)
-        return tpl('/searchAdorder/searchad_rebate_orders.html', title=title, orders=orders,
-                   locations=select_locations, location_id=location_id,
-                   statuses=select_statuses, status_id=status_id,
-                   orderby=orderby, now_date=datetime.now().date(),
-                   search_info=search_info, page=page, year=year,
-                   params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s&year=%s' %
-                   (orderby, search_info, location_id, status_id, year))
+    paginator = Paginator(orders, ORDER_PAGE_NUM)
+    try:
+        orders = paginator.page(page)
+    except:
+        orders = paginator.page(paginator.num_pages)
+    return tpl('/searchAdorder/searchad_rebate_orders.html', title=title, orders=orders,
+               locations=select_locations, location_id=location_id,
+               statuses=select_statuses, status_id=status_id,
+               orderby=orderby, now_date=datetime.now().date(),
+               search_info=search_info, page=page, year=year,
+               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s&year=%s' %
+               (orderby, search_info, location_id, status_id, year))
 
 
 @searchAd_order_bp.route('/rebate_order/<order_id>/contract', methods=['POST'])
@@ -1285,3 +1280,122 @@ def rebate_order_contract(order_id):
     if order.contract_status == CONTRACT_STATUS_DELETEPASS:
         return redirect(url_for('searchAd_order.rebate_orders'))
     return redirect(url_for("searchAd_order.rebate_order_info", order_id=order.id))
+
+
+@searchAd_order_bp.route('/bill/index', methods=['GET'])
+def bill_index():
+    if not g.user.is_searchad_leader():
+        abort(403)
+    page = int(request.args.get('p', 1))
+    client_id = int(request.values.get('client', 0))
+    medium_id = int(request.values.get('medium', 0))
+    search_info = request.values.get('search_info', '')
+    bills = searchAdClientOrderBill.all()
+    if client_id:
+        bills = [b for b in bills if b.client.id == client_id]
+    if medium_id:
+        bills = [b for b in bills if b.medium.id == medium_id]
+    if search_info:
+        bills = [b for b in bills if search_info in b.company + b.client.name + b.medium.name]
+    paginator = Paginator(bills, ORDER_PAGE_NUM)
+    try:
+        bills = paginator.page(page)
+    except:
+        bills = paginator.page(paginator.num_pages)
+    clients = searchAdClient.all()
+    mediums = searchAdMedium.all()
+    return tpl('/searchAdorder/bill_index.html', bills=bills, clients=clients, mediums=mediums,
+               client=client_id, medium=medium_id, search_info=search_info,
+               params="&client=%s&medium=%s&search_info=%s" % (client_id, medium_id, search_info))
+
+
+@searchAd_order_bp.route('/bill/create', methods=['GET', 'POST'])
+def bill_create():
+    if not g.user.is_searchad_leader():
+        abort(403)
+    clients = searchAdClient.all()
+    mediums = searchAdMedium.all()
+    if request.method == 'POST':
+        company = request.values.get('company', '')
+        client_id = request.values.get('client')
+        medium_id = request.values.get('medium')
+        resource_type = int(request.values.get('resource_type', 5))
+        start = request.values.get('start', datetime.now().strftime('%Y-%m-%d'))
+        end = request.values.get('end', datetime.now().strftime('%Y-%m-%d'))
+        money = float(request.values.get('money', 0.0))
+        rebate_money = float(request.values.get('rebate_money', 0.0))
+        client = searchAdClient.get(client_id)
+        medium = searchAdMedium.get(medium_id)
+        if not client:
+            flash(u'请选择正确的客户', 'danger')
+            return tpl('/searchAdorder/bill_create.html', clients=clients, mediums=mediums)
+        if not medium:
+            flash(u'请选择正确的媒体', 'danger')
+            return tpl('/searchAdorder/bill_create.html', clients=clients, mediums=mediums)
+        if end < start:
+            flash(u'请选择正确的结算时间', 'danger')
+            return tpl('/searchAdorder/bill_create.html', clients=clients, mediums=mediums)
+        bill = searchAdClientOrderBill.add(
+            company=company,
+            client=client,
+            medium=medium,
+            resource_type=resource_type,
+            start=start,
+            end=end,
+            money=money,
+            rebate_money=rebate_money
+        )
+        bill.add_comment(g.user, u"添加对账单 所属公司：%s  实际消耗金额：%s 对应返点：%s 开始时间：%s 结束时间：%s" %
+                         (company, money, rebate_money, start, end), msg_channel=12)
+        return redirect(url_for('searchAd_order.bill_update', bid=bill.id))
+    return tpl('/searchAdorder/bill_create.html', clients=clients, mediums=mediums)
+
+
+@searchAd_order_bp.route('/bill/<bid>/update', methods=['GET', 'POST'])
+def bill_update(bid):
+    if not g.user.is_searchad_leader():
+        abort(403)
+    clients = searchAdClient.all()
+    mediums = searchAdMedium.all()
+    bill = searchAdClientOrderBill.get(bid)
+    if request.method == 'POST':
+        company = request.values.get('company', '')
+        client_id = request.values.get('client')
+        medium_id = request.values.get('medium')
+        resource_type = int(request.values.get('resource_type', 5))
+        start = request.values.get('start', datetime.now().strftime('%Y-%m-%d'))
+        end = request.values.get('end', datetime.now().strftime('%Y-%m-%d'))
+        money = float(request.values.get('money', 0.0))
+        rebate_money = float(request.values.get('rebate_money', 0.0))
+        client = searchAdClient.get(client_id)
+        medium = searchAdMedium.get(medium_id)
+        if not client:
+            flash(u'请选择正确的客户', 'danger')
+            return tpl('/searchAdorder/bill_update.html', clients=clients, mediums=mediums, bill=bill)
+        if not medium:
+            flash(u'请选择正确的媒体', 'danger')
+            return tpl('/searchAdorder/bill_update.html', clients=clients, mediums=mediums, bill=bill)
+        if end < start:
+            flash(u'请选择正确的结算时间', 'danger')
+            return tpl('/searchAdorder/bill_update.html', clients=clients, mediums=mediums, bill=bill)
+        bill.company = company
+        bill.client = client
+        bill.medium = medium
+        bill.resource_type = resource_type
+        bill.start = start
+        bill.end = end
+        bill.money = money
+        bill.rebate_money = rebate_money
+        bill.save()
+        bill.add_comment(g.user, u"修改对账单 所属公司：%s  实际消耗金额：%s 对应返点：%s 开始时间：%s 结束时间：%s" %
+                         (company, money, rebate_money, start, end), msg_channel=12)
+        return redirect(url_for('searchAd_order.bill_update', bid=bill.id))
+    return tpl('/searchAdorder/bill_update.html', clients=clients, mediums=mediums, bill=bill)
+
+
+@searchAd_order_bp.route('/bill/<bid>/delete', methods=['GET', 'POST'])
+def bill_delete(bid):
+    if not g.user.is_searchad_leader():
+        abort(403)
+    searchAdClientOrderBill.get(bid).delete()
+    return redirect(url_for('searchAd_order.bill_index'))
