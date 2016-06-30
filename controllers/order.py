@@ -655,6 +655,10 @@ def contract_status_change(order, action, emails, msg):
         order.insert_reject_time()
         action_msg = u"合同被驳回，请从新提交审核"
         _delete_executive_report(order)
+    elif action == 113:
+        order.contract_status = CONTRACT_STATUS_APPLYPASS
+        action_msg = u"已取消合同归档，请重新上传合同"
+        _delete_executive_report(order)
     order.save()
     # 重置报表状态
     _reload_status_executive_report(order)

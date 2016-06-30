@@ -16,6 +16,20 @@ def check_Q_get_monthes(Q):
 
 
 ##########################
+# 根据年、Q获取所有月份
+##########################
+def check_year_Q_get_monthes(year, Q):
+    qs = {'00': [datetime.datetime.strptime(str(year) + k, '%Y%m') for k in
+                 ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']],
+          'Q1': [datetime.datetime.strptime(str(year) + k, '%Y%m') for k in ['01', '02', '03']],
+          'Q2': [datetime.datetime.strptime(str(year) + k, '%Y%m') for k in ['04', '05', '06']],
+          'Q3': [datetime.datetime.strptime(str(year) + k, '%Y%m') for k in ['07', '08', '09']],
+          'Q4': [datetime.datetime.strptime(str(year) + k, '%Y%m') for k in ['10', '11', '12']],
+          }
+    return qs[Q]
+
+
+##########################
 # 根据月份获取当前Q
 ##########################
 def check_month_get_Q(month):
@@ -81,7 +95,7 @@ def get_monthes_pre_days(start, end):
                     year=pre_month.year + int(targetmonth / 12), month=(targetmonth % 12))
         except Exception, e:
             p_month_date = pre_month.replace(year=pre_month.year + int((targetmonth + 1) / 12),
-                                             month=((targetmonth + 1) % 12), day = 1)
+                                             month=((targetmonth + 1) % 12), day=1)
             p_month_date += datetime.timedelta(days=-1)
         if start.replace(day=1) <= p_month_date:
             month_last_day = get_month_last_date(p_month_date)
@@ -113,5 +127,6 @@ def get_month_last_date(date_time):
         month_end_dt = datetime.date(y, m + 1, 1) - datetime.timedelta(days=1)
     return datetime.datetime.strptime(month_end_dt.isoformat(), '%Y-%m-%d')
 
-#if __name__ == '__main__':
-#    print get_monthes_pre_days(datetime.datetime.strptime('2014-12-04','%Y-%m-%d'),datetime.datetime.strptime('2015-01-12','%Y-%m-%d'))
+# if __name__ == '__main__':
+# print
+# get_monthes_pre_days(datetime.datetime.strptime('2014-12-04','%Y-%m-%d'),datetime.datetime.strptime('2015-01-12','%Y-%m-%d'))

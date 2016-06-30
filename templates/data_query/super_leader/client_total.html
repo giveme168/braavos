@@ -139,10 +139,12 @@
 </div>
 <script src="/static/js/highcharts/highcharts.js"></script>
 <script src="/static/js/highcharts/themes/grid-light.js"></script>
+<script src="/static/js/highcharts/modules/exporting.js"></script>
 <script src="/static/js/jquery.json.min.js"></script>
 <script type="text/javascript">
 	function write_chart(id, categories, series){
         $('#'+id).highcharts({
+            colors: ['#f28f43', '#77a1e5', '#c42525', '#a6c96a', '#1aadce', '#492970'],
             chart: {
                 type: 'column'
             },
@@ -160,11 +162,12 @@
                 }
             },
             tooltip: {
-                formatter: function () {
-                    return '<b>' + this.x + '</b><br/>' +
-                        this.series.name + ': ' + this.y + '<br/>' +
-                        'Total: ' + this.point.stackTotal;
-                }
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:.1f} 元</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
             },
             plotOptions: {
                 column: {
