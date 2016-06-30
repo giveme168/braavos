@@ -212,6 +212,9 @@
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="9">同意撤单</button>
               {% endif %}
             {% endif %}
+            {% if order.contract_status == 20 and g.user.is_contract() %}
+            <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="113">取消归档</button>
+            {% endif %}
         </div>
         <!--
         <div class="col-md-4">
