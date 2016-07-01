@@ -104,7 +104,7 @@
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}
     {% if client_order %}
-    <div class="input-group-menu" {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or client_order.can_media_leader_action(g.user) %}{% else %} style="display:none;"{% endif %}>
+    <div class="input-group-menu" {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() %}{% else %} style="display:none;"{% endif %}>
       <div class="name" style="color:red;">单笔返点 : </div>
       <div id="self_rebate_status">
         <select name="self_rebate" id="self_rebate" class="surname" style="width:300px;">
