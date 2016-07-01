@@ -118,8 +118,7 @@
     {% if replace_saler_form %}
       {{ form_field(replace_saler_form.replace_salers) }}
     {% endif %}
-    {% if client_order %}
-    <div class="input-group-menu" {% if g.user.is_super_leader() or g.user.is_leader() or g.user.is_contract() or client_order.can_media_leader_action(g.user) %}{% else %} style="display:none;"{% endif %}>
+    <div class="input-group-menu" >
       <div class="name" style="color:red;">单笔返点 : </div>
       <div id="self_rebate_status">
         <select name="self_rebate" id="self_rebate" class="surname" style="width:300px;">
@@ -132,7 +131,12 @@
         <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
       </div>
     </div>
-    {% endif %}
+    <div class="input-group-menu" >
+      <div class="name" style="color:red;">单笔返点的说明 : </div>
+      <div class="name" style="color:red; width:400px;">
+        项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
+      </div>
+    </div>
     {% if mediums %}
     <hr/>
     <div id="mediums">
@@ -206,7 +210,6 @@ $(document).ready(function(){
       endDate.setDate(endDate.getDate() + 90); 
       $('#reminde_date').val(endDate.Format("yyyy-MM-dd"))
     });
-    {% if client_order %}
     $("#self_rebate").change(function(e){
       var self_rebate = $('#self_rebate').val()
       if(self_rebate==1){
@@ -218,7 +221,11 @@ $(document).ready(function(){
       }
       set_default_rebate()
     })
+    {% if client_order %}
     var self_agent_rebate = "{{client_order.self_agent_rebate}}";
+    {% else %}
+    var self_agent_rebate = "0-0"
+    {% endif %}
     var p_self_agent_rebate = self_agent_rebate.split('-')
     $('#self_rebate').val(p_self_agent_rebate[0]);
     $('#self_rabate_value').val(p_self_agent_rebate[1]);
@@ -237,7 +244,6 @@ $(document).ready(function(){
     $('#client_start').change(function(){
       set_default_rebate();
     })**/
-    {% endif %}
 });
 function set_default_rebate(){
   $.ajax({

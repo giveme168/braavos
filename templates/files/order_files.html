@@ -47,6 +47,27 @@
     </table>
     <table class="table table-bordered table-striped">
         <tr>
+            <th>所有其他文件名</th>
+            <th>上传日期</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+        {% for attachment in order.get_other_attachments()  %}
+        <tr>
+            <td>{{attachment.filename}}</td>
+            <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+            <td>{{attachment.status_cn}}</td>
+            <td>
+                <a href="{{attachment.path}}">下载</a>&nbsp;&nbsp;
+                {% if g.user.is_super_admin() or g.user.is_contract() %}
+                    <a href="{{url_for('files.attachment_delete', order_id=order.id, aid=attachment.id)}}">删除</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <table class="table table-bordered table-striped">
+        <tr>
             <th>归档合同文件名</th>
             <th>上传日期</th>
             <th>操作</th>

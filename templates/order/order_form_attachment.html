@@ -51,11 +51,10 @@
     {% endif %}
   {% endif %}
 </form>
-{% if order.__tablename__ in ['bra_framework_order', 'bra_medium_framework_order'] %}
 <form method="POST" action="{{others_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
-  <button class="file-widget-btn btn btn-sm btn-info" style="border-radius: 20px;">
+  <button class="file-widget-btn btn btn-sm btn-default" style="border-radius: 20px;">
     <span>其他附件</span>
   </button>
   {% set others = order.get_last_others() %}
@@ -67,7 +66,6 @@
     <a href="{{others.path}}" class="btn btn-sm btn-default">下载</a>
   {% endif %}
 </form>
-{% endif %}
 <a class="btn btn-sm btn-default" href="{{order.attachment_path()}}">查看历史版本</a>
 </div>
 {%- endmacro %}
@@ -117,7 +115,7 @@ $(function(){
 {%- endmacro %}
 
 {% macro client_order_attachment(order) -%}
-    {{ base_order_attachment(order, url_for('files.client_contract_upload'), url_for('files.client_schedule_upload')) }}
+    {{ base_order_attachment(order, url_for('files.client_contract_upload'), url_for('files.client_schedule_upload'), url_for('files.client_others_upload'))}}
     {{ base_attachment_script() }}
 {%- endmacro %}
 
@@ -131,7 +129,7 @@ $(function(){
 {%- endmacro %}
 
 {% macro douban_order_attachment(order) -%}
-    {{ base_order_attachment(order, url_for('files.douban_contract_upload'), url_for('files.douban_schedule_upload')) }}
+    {{ base_order_attachment(order, url_for('files.douban_contract_upload'), url_for('files.douban_schedule_upload'), url_for('files.douban_others_upload')) }}
     {{ base_attachment_script() }}
 {%- endmacro %}
 

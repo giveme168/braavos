@@ -70,6 +70,8 @@ def new_order():
         if ClientOrder.query.filter_by(campaign=form.campaign.data).count() > 0:
             flash(u'campaign名称已存在，请更换其他名称!', 'danger')
             return redirect(url_for("order.new_order"))
+        self_rebate = int(request.values.get('self_rebate', 0))
+        self_rabate_value = float(request.values.get('self_rabate_value', 0))
         order = ClientOrder.add(agent=Agent.get(form.agent.data),
                                 client=Client.get(form.client.data),
                                 campaign=form.campaign.data,
@@ -85,7 +87,8 @@ def new_order():
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now(),
-                                finish_time=datetime.now())
+                                finish_time=datetime.now(),
+                                self_agent_rebate=str(self_rebate) + '-' + str(self_rabate_value))
         order.add_comment(g.user,
                           u"新建了客户订单:%s - %s - %s" % (
                               order.agent.name,
@@ -345,7 +348,7 @@ def order_info(order_id, tab_id=1):
                     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_leader():
                         order.replace_sales = User.gets(
                             replace_saler_form.replace_salers.data)
-                        order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
+                    order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
                     order.save()
                     order.add_comment(g.user, u"更新了客户订单")
                     flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
@@ -403,7 +406,7 @@ def order_info(order_id, tab_id=1):
                'order': order,
                'reminder_emails': reminder_emails,
                'now_date': datetime.now(),
-               'tab_id': int(tab_id),
+               'tab_id': tab_id or 1,
                'replace_saler_form': replace_saler_form}
     return tpl('order_detail_info.html', **context)
 
@@ -1232,6 +1235,8 @@ def medium_framework_order_info(order_id):
 def new_douban_order():
     form = DoubanOrderForm(request.form)
     if request.method == 'POST' and form.validate():
+        self_rebate = int(request.values.get('self_rebate', 0))
+        self_rabate_value = float(request.values.get('self_rabate_value', 0))
         order = DoubanOrder.add(client=Client.get(form.client.data),
                                 agent=Agent.get(form.agent.data),
                                 campaign=form.campaign.data,
@@ -1252,7 +1257,8 @@ def new_douban_order():
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now(),
-                                finish_time=datetime.now())
+                                finish_time=datetime.now(),
+                                self_agent_rebate=str(self_rebate) + '-' + str(self_rabate_value))
         order.add_comment(g.user, u"新建了该直签豆瓣订单")
         flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
         return redirect(url_for("order.douban_order_info", order_id=order.id))
@@ -1379,7 +1385,7 @@ def douban_order_info(order_id):
                     if g.user.is_super_admin() or g.user.is_contract():
                         order.replace_sales = User.gets(
                             replace_saler_form.replace_salers.data)
-                        order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
+                    order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
                     order.save()
                     order.add_comment(g.user, u"更新了该订单信息")
                     flash(u'[豆瓣订单]%s 保存成功!' % order.name, 'success')

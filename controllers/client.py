@@ -266,8 +266,9 @@ def medium_rebate(medium_id):
     return tpl('/client/medium/rebate/index.html', medium=medium, rebates=rebates)
 
 
-@client_bp.route('/<medium_id>/files/<aid>/delete', methods=['GET'])
+@client_bp.route('/medium/<medium_id>/files/<aid>/delete', methods=['GET'])
 def medium_files_delete(medium_id, aid):
+    print '2222'
     attachment = Attachment.get(aid)
     attachment.delete()
     flash(u'删除成功!', 'success')
@@ -371,7 +372,7 @@ def agents():
     return tpl('/client/agent/index.html', agents=agent_data, info=info)
 
 
-@client_bp.route('/<agent_id>/files/<aid>/delete', methods=['GET'])
+@client_bp.route('/agent/<agent_id>/files/<aid>/delete', methods=['GET'])
 def agent_files_delete(agent_id, aid):
     attachment = Attachment.get(aid)
     attachment.delete()
