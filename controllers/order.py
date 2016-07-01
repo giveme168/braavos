@@ -406,7 +406,7 @@ def order_info(order_id, tab_id=1):
                'order': order,
                'reminder_emails': reminder_emails,
                'now_date': datetime.now(),
-               'tab_id': int(tab_id),
+               'tab_id': tab_id or 1,
                'replace_saler_form': replace_saler_form}
     return tpl('order_detail_info.html', **context)
 

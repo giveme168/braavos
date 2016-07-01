@@ -261,6 +261,20 @@ def framework_others_upload():
     return attachment_upload(order, FILE_TYPE_OTHERS)
 
 
+@files_bp.route('/client/others/upload', methods=['POST'])
+def client_others_upload():
+    order_id = request.values.get('order')
+    order = ClientOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_OTHERS)
+
+
+@files_bp.route('/douban/others/upload', methods=['POST'])
+def douban_others_upload():
+    order_id = request.values.get('order')
+    order = DoubanOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_OTHERS)
+
+
 @files_bp.route('/medium_framework/others/upload', methods=['POST'])
 def medium_framework_others_upload():
     order_id = request.values.get('order')
