@@ -221,14 +221,12 @@ def index():
     last_Q_monthes = [datetime.datetime.strptime(str(last_Q_year) + k, '%Y%m') for k in last_Q_month]
     channel = int(request.values.get('channel', -1))
     orders = [_search_order_to_dict(k) for k in searchAdOrder.all()]
-    '''
     if channel != -1:
         orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and
                   k['status'] == 1 and k['channel_type'] == channel]
     else:
         orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and
                   k['status'] == 1]
-    '''
     bills = [_bill_to_dict(k) for k in searchAdClientOrderBill.all()]
     # 根据合同获取所有媒体
     medium_ids = []
@@ -320,7 +318,7 @@ def index():
                                      k['month'] <= now_Q_monthes[-1] and
                                      k['month'] >= now_Q_monthes[0]])
             # 本季度利润
-            c['profit'] = c['sale_money'] - c['real_money'] - c['agent_rebate'] + c['rebate_money']
+            c['profit'] = c['sale_money'] - c['medium_money2'] - c['agent_rebate'] + c['rebate_money']
             # 本季度未消耗金额
             c['last_money'] = c['medium_money2'] - c['real_money']
             # 获取无用列表中的索引，用户删除
