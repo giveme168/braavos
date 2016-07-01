@@ -6,11 +6,11 @@
     <h3>修改{{bill.company}}的对账单</h3>
     <form class="input-row-box" method="POST" onsubmit="return check_form(this)">
     	<div class="input-group-menu">
-	      <div class="name">所属公司 : </div>
+	      <div class="name">媒体供应商 : </div>
 	      <input type="text" id="company" name="company" class="surname" style="width:300px;" value="{{bill.company}}">
 	    </div>
 	    <div class="input-group-menu">
-	      <div class="name">所属客户 : </div>
+	      <div class="name">广告组 : </div>
 	      <select class="surname" id="client" name="client" style="width:300px;">
 	      	{% for k in clients %}
 	      	<option value="{{k.id}}">{{k.name}}<option>
@@ -18,7 +18,7 @@
 	      </select>
 	    </div>
 	    <div class="input-group-menu">
-	      <div class="name">所属媒体 : </div>
+	      <div class="name">推广渠道 : </div>
 	      <select class="surname" id="medium" name="medium" style="width:300px;">
 	      	{% for k in mediums %}
 	      	<option value="{{k.id}}">{{k.name}}<option>
@@ -26,7 +26,7 @@
 	      </select>
 	    </div>
 	    <div class="input-group-menu">
-	      <div class="name">资源形式 : </div>
+	      <div class="name">推广类型 : </div>
 	      <select class="surname" id="resource_type" name="resource_type" style="width:300px;">
 	      	<option value="5">CPA<option>
 	      	<option value="6">CPT<option>
