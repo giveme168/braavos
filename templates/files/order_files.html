@@ -17,7 +17,7 @@
             <td>{{attachment.status_cn}}</td>
             <td>
                 <a href="{{attachment.path}}">下载</a>&nbsp;&nbsp;
-                {% if g.user.is_super_admin() %}
+                {% if g.user.is_super_admin() or g.user.is_contract() %}
                     <a href="{{url_for('files.attachment_delete', order_id=order.id, aid=attachment.id)}}">删除</a>
                 {% endif %}
             </td>
@@ -38,7 +38,7 @@
             <td>{{attachment.status_cn}}</td>
             <td>
                 <a href="{{attachment.path}}">下载</a>&nbsp;&nbsp;
-                {% if g.user.is_super_admin() %}
+                {% if g.user.is_super_admin() or g.user.is_contract() %}
                     <a href="{{url_for('files.attachment_delete', order_id=order.id, aid=attachment.id)}}">删除</a>
                 {% endif %}
             </td>
@@ -57,7 +57,7 @@
             <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
             <td>
                 <a href="{{attachment.path}}">下载</a>&nbsp;&nbsp;
-                {% if g.user.is_super_admin() %}
+                {% if g.user.is_super_admin() or g.user.is_contract() %}
                     <a href="{{url_for('files.attachment_delete', order_id=order.id, aid=attachment.id)}}">删除</a>
                 {% endif %}
             </td>
@@ -77,7 +77,7 @@
             <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
             <td>
                 <a href="{{attachment.path}}">下载</a>&nbsp;&nbsp;
-                {% if g.user.is_super_admin() %}
+                {% if g.user.is_super_admin() or g.user.is_contract() %}
                     <a href="{{url_for('files.attachment_delete', order_id=order.id, aid=attachment.id)}}">删除</a>
                 {% endif %}
             </td>

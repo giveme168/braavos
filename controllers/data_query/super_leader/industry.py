@@ -61,17 +61,24 @@ def _format_order(order, type='client'):
         params['medium_id'] = order.order.medium_id
         params['direct_sales'] = order.client_order.direct_sales
         params['agent_sales'] = order.client_order.agent_sales
+        params['contract_status'] = order.client_order.contract_status
+        params['status'] = order.client_order.status
     elif type == 'search':
         params['client'] = order.client_order.client
         params['money'] = order.sale_money
         params['medium_id'] = order.order.medium_id
         params['direct_sales'] = order.client_order.direct_sales
         params['agent_sales'] = order.client_order.agent_sales
+        params['contract_status'] = order.client_order.contract_status
+        params['status'] = order.client_order.status
     else:
         params['client'] = order.douban_order.client
         params['money'] = order.money
         params['direct_sales'] = order.douban_order.direct_sales
         params['agent_sales'] = order.douban_order.agent_sales
+        params['contract_status'] = order.douban_order.contract_status
+        params['status'] = order.douban_order.status
+    params['locations'] = [k.team.location for k in params['direct_sales'] + params['agent_sales']]
     return params
 
 
@@ -82,10 +89,10 @@ def _get_money_by_location(order, location):
         else:
             # 用于查看渠道销售是否跨区
             direct_sales = order['direct_sales']
-            direct_location = list(set([k['location'] for k in direct_sales]))
+            direct_location = list(set([k.team.location for k in direct_sales]))
             # 用于查看直客销售是否跨区
             agent_sales = order['agent_sales']
-            agent_location = list(set([k['location'] for k in agent_sales]))
+            agent_location = list(set([k.team.location for k in agent_sales]))
             money = 0
             if location in direct_location:
                 money += float(order['money']) / len(direct_location)
@@ -115,7 +122,7 @@ def search_excle_data():
                      for k in medium_orders if k.status == 1]
     medium_date = [{'industry_name': CLIENT_INDUSTRY_LIST[k['client'].industry],
                     'money':_get_money_by_location(k, location)}
-                   for k in medium_orders]
+                   for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
 
     industry_params = {}
     for k in CLIENT_INDUSTRY_LIST:
@@ -165,7 +172,7 @@ def search_json():
                      for k in medium_orders if k.status == 1]
     medium_date = [{'industry_name': CLIENT_INDUSTRY_LIST[k['client'].industry],
                     'money':_get_money_by_location(k, location)}
-                   for k in medium_orders]
+                   for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
 
     industry_params = {}
     for k in CLIENT_INDUSTRY_LIST:

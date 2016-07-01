@@ -1,0 +1,111 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}搜索广告-订单列表{% endblock %}
+
+{% macro all_items(data) -%}
+<div class='tabulation'>
+    <table border='1'>
+        <thead>
+            <tr>
+                <th>所属公司</th>
+                <th>所属客户</th>
+                <th>所属媒体</th>
+                <th>资源形式</th>
+                <th>结算开始时间</th>
+                <th>结算截止时间</th>
+                <th>实际消耗金额</th>
+                <th>对应返点金额</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for k in data %}
+            <tr>
+                <td><a href="{{url_for('searchAd_order.bill_update', bid=k.id)}}">{{k.company}}</a></td>
+                <td>{{k.client.name}}</td>
+                <td>{{k.medium.name}}</td>
+                <td>{{k.resource_type_cn}}</td>
+                <td>{{k.start}}</td>
+                <td>{{k.end}}</td>
+                <td>{{k.money|format_price}}</td>
+                <td>{{k.rebate_money|format_price}}</td>
+                <td>
+                    <a href="{{url_for('searchAd_order.bill_update', bid=k.id)}}">修改</a>&nbsp;&nbsp;
+                    <a href="javascript:bill_delete('{{k.id}}')">删除</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%- endmacro %}
+
+{% block content%}
+{% include "/searchAdorder/searchad_order_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:1200px;">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input">
+                <input type="text" placeholder="所属公司" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">客户</label>
+                <select class="form-control special_sale" name="client" id="client" style="width:100px;">
+                    <option value="0">全部</option>
+                    {% for k in clients %}
+                        <option value="{{k.id}}">{{k.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">媒体</label>
+                <select class="form-control special_sale" name="medium" id="medium" style="width:100px;">
+                    <option value="0">全部</option>
+                    {% for k in mediums %}
+                        <option value="{{k.id}}">{{k.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+            
+            <div class="select_option screen">
+                <a href="{{url_for('searchAd_order.bill_create')}}">
+                    <input type="button" value="添加">
+                </a>
+            </div>
+        </form>
+    </div>
+    {{ all_items(bills.object_list) }}
+    {% set pages = bills %}
+    {% include "pagination.html" %}
+</div>
+<script>
+function search(){
+    var params = '?client=' + $('#client').val() + '&medium=' + $('#medium').val() + '&search_info='+ $('#search_info').val();
+    window.location.href = window.location.pathname + params;
+}
+
+function enter_search(){
+    //按下‘Enter’键
+    if(event.keyCode == 13){
+        search();
+    }
+}
+function bill_delete(bid){
+    var href = "/searchAd_orders/bill/"+bid+"/delete";
+    var flag=confirm("确定要删除这条对账单吗?");
+    if(flag){
+        window.location.href=href;
+    }
+}
+$(function(){
+    $("#client").val("{{client}}");  
+    $("#client").trigger("chosen:updated");
+    $('#medium').val('{{medium}}');
+    $("#medium").trigger("chosen:updated");
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+});
+</script>
+{% endblock %}

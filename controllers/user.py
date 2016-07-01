@@ -233,7 +233,10 @@ def mine():
 
 @user_bp.route('/contact')
 def contact():
-    users = User.all_active()
+    if g.user.is_super_leader() or g.user.is_leader() or g.user.is_HR():
+        users = User.all_active()
+    else:
+        abort(403)
     return tpl('contact.html', users=users)
 
 

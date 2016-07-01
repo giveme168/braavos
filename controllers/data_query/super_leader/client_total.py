@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 import datetime
 from numpy import array
-from flask import Blueprint, request, g, abort
+from flask import Blueprint, request, g, abort, json
 from flask import render_template as tpl
 
 from libs.date_helpers import get_monthes_pre_days
@@ -430,7 +430,7 @@ HN_data = [{
     }, {
         'name': '东风日产', 'client_ids': [48], 'agents':[]
     }, {
-        'name': '广汽丰田/传祺', 'client_ids': [48, 416], 'agents':[]
+        'name': '广汽丰田/传祺', 'client_ids': [416], 'agents':[]
     }, {
         'name': '纳智捷', 'client_ids': [99], 'agents':[]
     }, {
@@ -496,6 +496,7 @@ def _format_client_order(order, year, ass_douban_order_ids):
             is_c_douban = True
         else:
             is_c_douban = False
+        '''
         direct_sales = client_order.direct_sales
         agent_sales = client_order.agent_sales
         sales = direct_sales + agent_sales
@@ -503,7 +504,7 @@ def _format_client_order(order, year, ass_douban_order_ids):
             is_media_order = True
         else:
             is_media_order = False
-
+        '''
         # 计算两年前的开始结束时间
         b_y_start = datetime.datetime.strptime(str(year - 2), '%Y').date()
         b_y_end = datetime.datetime.strptime(str(year - 2) + '-12-01', '%Y-%m-%d').date()
@@ -521,47 +522,50 @@ def _format_client_order(order, year, ass_douban_order_ids):
                       for k in range(10, 13)]
 
         if is_c_douban:
-            pre_month_money_data = pre_month_money(order.medium_money2,
+            pre_month_money_data = pre_month_money(order.medium_money,
                                                    dict_order['client_start'],
                                                    dict_order['client_end'],
                                                    dict_order['locations'])
-            b_y_douban_money = sum([k['money'] for k in pre_month_money_data
-                                    if k['month'] >= b_y_start and k['month'] <= b_y_end])
-            l_douban_money = sum([k['money'] for k in pre_month_money_data
-                                  if k['month'] >= l_start and k['month'] <= l_end])
-            Q1_douban_money = sum([k['money'] for k in pre_month_money_data
-                                   if k['month'] >= Q1_monthes[0] and k['month'] <= Q1_monthes[-1]])
-            Q2_douban_money = sum([k['money'] for k in pre_month_money_data
-                                   if k['month'] >= Q2_monthes[0] and k['month'] <= Q2_monthes[-1]])
-            Q3_douban_money = sum([k['money'] for k in pre_month_money_data
-                                   if k['month'] >= Q3_monthes[0] and k['month'] <= Q3_monthes[-1]])
-            Q4_douban_money = sum([k['money'] for k in pre_month_money_data
-                                   if k['month'] >= Q4_monthes[0] and k['month'] <= Q4_monthes[-1]])
-            b_y_client_money = 0
-            l_client_money = 0
-            Q1_client_money = 0
-            Q2_client_money = 0
-            Q3_client_money = 0
-            Q4_client_money = 0
+            b_y_douban_money = float(sum([k['money'] for k in pre_month_money_data
+                                          if k['month'] >= b_y_start and k['month'] <= b_y_end]))
+            l_douban_money = float(sum([k['money'] for k in pre_month_money_data
+                                        if k['month'] >= l_start and k['month'] <= l_end]))
+            Q1_douban_money = float(sum([k['money'] for k in pre_month_money_data
+                                         if k['month'] >= Q1_monthes[0] and k['month'] <= Q1_monthes[-1]]))
+            Q2_douban_money = float(sum([k['money'] for k in pre_month_money_data
+                                         if k['month'] >= Q2_monthes[0] and k['month'] <= Q2_monthes[-1]]))
+            Q3_douban_money = float(sum([k['money'] for k in pre_month_money_data
+                                         if k['month'] >= Q3_monthes[0] and k['month'] <= Q3_monthes[-1]]))
+            Q4_douban_money = float(sum([k['money'] for k in pre_month_money_data
+                                         if k['month'] >= Q4_monthes[0] and k['month'] <= Q4_monthes[-1]]))
+            b_y_client_money = 0.0
+            l_client_money = 0.0
+            Q1_client_money = 0.0
+            Q2_client_money = 0.0
+            Q3_client_money = 0.0
+            Q4_client_money = 0.0
+            '''
             Q1_media_money = 0
             Q2_media_money = 0
             Q3_media_money = 0
             Q4_media_money = 0
+            '''
         else:
-            b_y_douban_money = 0
-            l_douban_money = 0
-            Q1_douban_money = 0
-            Q2_douban_money = 0
-            Q3_douban_money = 0
-            Q4_douban_money = 0
+            b_y_douban_money = 0.0
+            l_douban_money = 0.0
+            Q1_douban_money = 0.0
+            Q2_douban_money = 0.0
+            Q3_douban_money = 0.0
+            Q4_douban_money = 0.0
             pre_month_money_data = pre_month_money(order.sale_money,
                                                    dict_order['client_start'],
                                                    dict_order['client_end'],
                                                    dict_order['locations'])
-            b_y_client_money = sum([k['money'] for k in pre_month_money_data
-                                    if k['month'] >= b_y_start and k['month'] <= b_y_end])
-            l_client_money = sum([k['money'] for k in pre_month_money_data
-                                  if k['month'] >= l_start and k['month'] <= l_end])
+            b_y_client_money = float(sum([k['money'] for k in pre_month_money_data
+                                          if k['month'] >= b_y_start and k['month'] <= b_y_end]))
+            l_client_money = float(sum([k['money'] for k in pre_month_money_data
+                                        if k['month'] >= l_start and k['month'] <= l_end]))
+            '''
             if is_media_order:
                 Q1_media_money = sum([k['money'] for k in pre_month_money_data
                                       if k['month'] >= Q1_monthes[0] and k['month'] <= Q1_monthes[-1]])
@@ -588,13 +592,26 @@ def _format_client_order(order, year, ass_douban_order_ids):
                 Q2_media_money = 0
                 Q3_media_money = 0
                 Q4_media_money = 0
-        # money列表一共16项，对应页面上的16个金额，根据每项金额的值拼接的
-        dict_order['money'] = [b_y_client_money, b_y_douban_money,
-                               l_client_money, l_douban_money,
-                               Q1_client_money, Q1_media_money, Q1_douban_money,
-                               Q2_client_money, Q2_media_money, Q2_douban_money,
-                               Q3_client_money, Q3_media_money, Q3_douban_money,
-                               Q4_client_money, Q4_media_money, Q4_douban_money]
+            '''
+            Q1_client_money = float(sum([k['money'] for k in pre_month_money_data
+                                         if k['month'] >= Q1_monthes[0] and k['month'] <= Q1_monthes[-1]]))
+            Q2_client_money = float(sum([k['money'] for k in pre_month_money_data
+                                         if k['month'] >= Q2_monthes[0] and k['month'] <= Q2_monthes[-1]]))
+            Q3_client_money = float(sum([k['money'] for k in pre_month_money_data
+                                         if k['month'] >= Q3_monthes[0] and k['month'] <= Q3_monthes[-1]]))
+            Q4_client_money = float(sum([k['money'] for k in pre_month_money_data
+                                         if k['month'] >= Q4_monthes[0] and k['month'] <= Q4_monthes[-1]]))
+        # money列表一共12项，对应页面上的12个金额，根据每项金额的值拼接的
+        now_year_money = Q1_client_money + Q1_douban_money + Q2_client_money + Q2_douban_money + \
+            Q3_client_money + Q3_douban_money + Q4_client_money + Q4_douban_money
+        dict_order['money'] = [b_y_client_money, b_y_douban_money, b_y_client_money + b_y_douban_money,
+                               l_client_money, l_douban_money, l_client_money + l_douban_money,
+                               0.0,
+                               Q1_client_money, Q1_douban_money,
+                               Q2_client_money, Q2_douban_money,
+                               Q3_client_money, Q3_douban_money,
+                               Q4_client_money, Q4_douban_money,
+                               float(now_year_money), 0.0]
     except:
         dict_order['status'] = 0
         dict_order['contract_status'] = 0
@@ -634,24 +651,32 @@ def _format_douban_order(order, year):
     Q4_monthes = [datetime.datetime.strptime(str(year) + "-" + str(k), "%Y-%m").date()
                   for k in range(10, 13)]
 
-    # money列表一共16项，对应页面上的16个金额，根据每项金额的值拼接的
-    dict_order['money'] = [0, sum([k['money'] for k in pre_month_money_data
-                                   if k['month'] >= b_y_start and k['month'] <= b_y_end]),
-                           0, sum([k['money'] for k in pre_month_money_data
-                                   if k['month'] >= l_start and k['month'] <= l_end]),
-                           0, 0, sum([k['money'] for k in pre_month_money_data
-                                      if k['month'] >= Q1_monthes[0] and k['month'] <= Q1_monthes[-1]]),
-                           0, 0, sum([k['money'] for k in pre_month_money_data
-                                      if k['month'] >= Q2_monthes[0] and k['month'] <= Q2_monthes[-1]]),
-                           0, 0, sum([k['money'] for k in pre_month_money_data
-                                      if k['month'] >= Q3_monthes[0] and k['month'] <= Q3_monthes[-1]]),
-                           0, 0, sum([k['money'] for k in pre_month_money_data
-                                      if k['month'] >= Q4_monthes[0] and k['month'] <= Q4_monthes[-1]])]
+    # money列表一共12项，对应页面上的12个金额，根据每项金额的值拼接的
+    b_y_money = float(sum([k['money'] for k in pre_month_money_data if k[
+                      'month'] >= b_y_start and k['month'] <= b_y_end]))
+    l_money = float(sum([k['money'] for k in pre_month_money_data if k['month'] >= l_start and k['month'] <= l_end]))
+    Q1_money = float(sum([k['money'] for k in pre_month_money_data
+                          if k['month'] >= Q1_monthes[0] and k['month'] <= Q1_monthes[-1]]))
+    Q2_money = float(sum([k['money'] for k in pre_month_money_data
+                          if k['month'] >= Q2_monthes[0] and k['month'] <= Q2_monthes[-1]]))
+    Q3_money = float(sum([k['money'] for k in pre_month_money_data
+                          if k['month'] >= Q3_monthes[0] and k['month'] <= Q3_monthes[-1]]))
+    Q4_money = float(sum([k['money'] for k in pre_month_money_data
+                          if k['month'] >= Q4_monthes[0] and k['month'] <= Q4_monthes[-1]]))
+    dict_order['money'] = [0.0, b_y_money, b_y_money,
+                           0.0, l_money, l_money,
+                           0.0,
+                           0.0, Q1_money,
+                           0.0, Q2_money,
+                           0.0, Q3_money,
+                           0.0, Q4_money,
+                           Q1_money + Q2_money + Q3_money + Q4_money,
+                           0.0]
     return dict_order
 
 
 def _fix_client_data(data, orders, location):
-    t_money = array([0 for k in range(16)])
+    t_money = array([0 for k in range(17)])
     for k in data:
         k['th_n'] = 0
         for c in k['clients']:
@@ -662,10 +687,38 @@ def _fix_client_data(data, orders, location):
                         agents_obj[o['agent_name']] += array(o['money'])
                     else:
                         agents_obj[o['agent_name']] = array(o['money'])
+                    # 计算客户增长率
+                    if agents_obj[o['agent_name']][2]:
+                        agents_obj[o['agent_name']][6] = (agents_obj[o['agent_name']][5] -
+                                                          agents_obj[o['agent_name']][2]) / \
+                            agents_obj[o['agent_name']][2] * 100
+                    else:
+                        agents_obj[o['agent_name']][6] = 0
+                    if agents_obj[o['agent_name']][5]:
+                        agents_obj[o['agent_name']][16] = (agents_obj[o['agent_name']][15] -
+                                                           agents_obj[o['agent_name']][5]) / \
+                            agents_obj[o['agent_name']][5] * 100
+                    else:
+                        agents_obj[o['agent_name']][16] = 0
                     t_money += array(o['money'])
+            # 客户下代理信息详情
             c['agents'] = agents_obj
             c['agent_count'] = len(c['agents']) or 1
             k['th_n'] += len(c['agents']) or 1
+
+            # 合并客户下的代理信息用于画图
+            c['client_money'] = array([0 for i in range(17)])
+            for c_k, c_v in agents_obj.iteritems():
+                c['client_money'] += array(c_v)
+    # 计算区域客户增值率
+    if t_money[2]:
+        t_money[6] = (t_money[5] - t_money[2]) / float(t_money[2]) * 100
+    else:
+        t_money[6] = 0
+    if t_money[5]:
+        t_money[16] = (t_money[15] - t_money[5]) / float(t_money[5]) * 100
+    else:
+        t_money[16] = 0
     return t_money, data
 
 
@@ -673,6 +726,7 @@ def _fix_client_data(data, orders, location):
 def index():
     if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance()):
         abort(403)
+    location = int(request.values.get('location', 1))
     now_date = datetime.datetime.now()
     year = int(request.values.get('year', now_date.year))
     # 获取所有关联豆瓣订单，用于判断媒体订单是否是关联豆瓣订单，全部取出减少链接数据库时间
@@ -682,17 +736,92 @@ def index():
     orders += [_format_client_order(k, year, ass_douban_order_ids) for k in Order.all()
                if k.medium_start.year >= year - 2 and k.medium_start.year <= year]
     # 去掉撤单、申请中的合同
-    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 19, 20] and k['status'] == 1 and k['contract']]
-    hb_money, hb_data = _fix_client_data(HB_data, orders, 1)
-    hd_money, hd_data = _fix_client_data(HD_data, orders, 2)
-    hn_money, hn_data = _fix_client_data(HN_data, orders, 3)
-    total_money = array(hb_money) + array(hd_money) + array(hn_money)
+    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1 and k['contract']]
+    if location == 1:
+        money, data = _fix_client_data(HB_data, orders, location)
+    elif location == 2:
+        money, data = _fix_client_data(HD_data, orders, location)
+    elif location == 3:
+        money, data = _fix_client_data(HN_data, orders, location)
     action = request.values.get('action', '')
     if action == 'excel':
-        return write_client_total_excel(year=year, HB_data=hb_data, HD_data=hd_data, HN_data=hn_data,
-                                        HB_money=hb_money, HD_money=hd_money, HN_money=hn_money,
-                                        total_money=total_money)
+        return write_client_total_excel(year=year, data=data, money=money, location=location)
+    # 组装数据用于画图
+    categories_1 = []
+    series_1 = [{
+        'name': str(year - 2) + u'年新媒体',
+        'data': [],
+        'stack': str(year - 2)
+    }, {
+        'name': str(year - 2) + u'年豆瓣',
+        'data': [],
+        'stack': str(year - 2)
+    }, {
+        'name': str(year - 1) + u'年新媒体',
+        'data': [],
+        'stack': str(year - 1)
+    }, {
+        'name': str(year - 1) + u'年豆瓣',
+        'data': [],
+        'stack': str(year - 1)
+    }, {
+        'name': str(year) + u'年新媒体',
+        'data': [],
+        'stack': str(year)
+    }, {
+        'name': str(year) + u'年豆瓣',
+        'data': [],
+        'stack': str(year)
+    }]
+    categories_2 = []
+    series_2 = [{
+        'name': str(year - 2) + u'年新媒体',
+        'data': [],
+        'stack': str(year - 2)
+    }, {
+        'name': str(year - 2) + u'年豆瓣',
+        'data': [],
+        'stack': str(year - 2)
+    }, {
+        'name': str(year - 1) + u'年新媒体',
+        'data': [],
+        'stack': str(year - 1)
+    }, {
+        'name': str(year - 1) + u'年豆瓣',
+        'data': [],
+        'stack': str(year - 1)
+    }, {
+        'name': str(year) + u'年新媒体',
+        'data': [],
+        'stack': str(year)
+    }, {
+        'name': str(year) + u'年豆瓣',
+        'data': [],
+        'stack': str(year)
+    }]
+    for k in data:
+        clients = k['clients']
+        for c in range(len(clients)):
+            if c <= len(clients) / 2:
+                categories_1.append(clients[c]['name'])
+                series_1[0]['data'].append(clients[c]['client_money'][0])
+                series_1[1]['data'].append(clients[c]['client_money'][1])
+                series_1[2]['data'].append(clients[c]['client_money'][3])
+                series_1[3]['data'].append(clients[c]['client_money'][4])
+                series_1[4]['data'].append(clients[c]['client_money'][7] + clients[c]['client_money'][9] +
+                                           clients[c]['client_money'][11] + clients[c]['client_money'][13])
+                series_1[5]['data'].append(clients[c]['client_money'][8] + clients[c]['client_money'][10] +
+                                           clients[c]['client_money'][12] + clients[c]['client_money'][14])
+            else:
+                categories_2.append(clients[c]['name'])
+                series_2[0]['data'].append(clients[c]['client_money'][0])
+                series_2[1]['data'].append(clients[c]['client_money'][1])
+                series_2[2]['data'].append(clients[c]['client_money'][3])
+                series_2[3]['data'].append(clients[c]['client_money'][4])
+                series_2[4]['data'].append(clients[c]['client_money'][7] + clients[c]['client_money'][9] +
+                                           clients[c]['client_money'][11] + clients[c]['client_money'][13])
+                series_2[5]['data'].append(clients[c]['client_money'][8] + clients[c]['client_money'][10] +
+                                           clients[c]['client_money'][12] + clients[c]['client_money'][14])
     return tpl('/data_query/super_leader/client_total.html', year=year,
-               HB_data=hb_data, HD_data=hd_data, HN_data=hn_data,
-               HB_money=hb_money, HD_money=hd_money, HN_money=hn_money,
-               total_money=total_money)
+               data=data, money=money, location=location, categories_1=json.dumps(categories_1),
+               series_1=json.dumps(series_1), categories_2=json.dumps(categories_2), series_2=json.dumps(series_2))

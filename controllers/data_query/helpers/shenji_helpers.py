@@ -323,6 +323,81 @@ def write_douban_order_excel(orders, year, total_money_data, total_money_rebate_
     return response
 
 
+def write_search_order_excel(year, Q, channel, medium_info):
+    CHANNEL_TYPE_CN = [u"其他", u"360", u"百度", u"小米", "全部"]
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1})
+    money_align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1, 'num_format': '#,##0.00'})
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+    worksheet.write(0, 0, '计算周期', align_left)
+    worksheet.write(0, 1, '%s%s' % (str(year), Q), align_left)
+    worksheet.write(1, 0, '投放平台', align_left)
+    worksheet.write(1, 1, CHANNEL_TYPE_CN[channel], align_left)
+    keys = [u'代理/媒体', u'客户', u'客户下单金额', u'媒体下单金额', u'上季剩余金额', u'本季消耗金额', u'本季返点金额', u'本季客户返点', u'本季利润', u'当季未消耗金额']
+    for k in range(len(keys)):
+        worksheet.write(2, k, keys[k], align_center)
+    # 设置宽度为30
+    for k in range(len(keys)):
+        worksheet.set_column(k, 0, 20)
+    th = 3
+    for m in medium_info:
+        client_info = m['client_info']
+        if len(client_info) > 1:
+            worksheet.merge_range(th, 0, th + len(client_info) - 1, 0, m['medium_name'], align_left)
+            for c in client_info:
+                worksheet.write(th, 1, c['client_name'], align_left)
+                worksheet.write(th, 2, c['sale_money'], money_align_left)
+                worksheet.write(th, 3, c['medium_money2'], money_align_left)
+                worksheet.write(th, 4, c['pre_session_last_money'], money_align_left)
+                worksheet.write(th, 5, c['real_money'], money_align_left)
+                worksheet.write(th, 6, c['rebate_money'], money_align_left)
+                worksheet.write(th, 7, c['agent_rebate'], money_align_left)
+                worksheet.write(th, 8, c['profit'], money_align_left)
+                worksheet.write(th, 9, c['last_money'], money_align_left)
+                th += 1
+        else:
+            worksheet.write(th, 0, m['medium_name'], align_left)
+            if client_info:
+                worksheet.write(th, 1, client_info[0]['client_name'], align_left)
+                worksheet.write(th, 2, client_info[0]['sale_money'], money_align_left)
+                worksheet.write(th, 3, client_info[0]['medium_money2'], money_align_left)
+                worksheet.write(th, 4, client_info[0]['pre_session_last_money'], money_align_left)
+                worksheet.write(th, 5, client_info[0]['real_money'], money_align_left)
+                worksheet.write(th, 6, client_info[0]['rebate_money'], money_align_left)
+                worksheet.write(th, 7, client_info[0]['agent_rebate'], money_align_left)
+                worksheet.write(th, 8, client_info[0]['profit'], money_align_left)
+                worksheet.write(th, 9, client_info[0]['last_money'], money_align_left)
+            else:
+                for i in range(9):
+                    worksheet.write(th, i + 1, '', align_left)
+            th += 1
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("cost_income_search_order-%s-%s.xls" % (str(year), Q))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response
+
+
+'''
 def write_search_order_excel(orders, year, total_money_data, medium_medium_money2_data):
     response = Response()
     response.status_code = 200
@@ -488,3 +563,4 @@ def write_search_order_excel(orders, year, total_money_data, medium_medium_money
     response.headers = response_headers
     response.set_cookie('fileDownload', 'true', path='/')
     return response
+'''

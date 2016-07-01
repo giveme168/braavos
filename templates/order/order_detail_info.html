@@ -51,7 +51,7 @@
                             {% endif %}
                         {% endif %}
                         
-                        {% if order.contract_status == 20 %}
+                        {% if mf[1].finish_status == 0 %}
                             {{ finish_medium_order_attachment(mf[1]) }}
                         {% endif %}
                         <hr>

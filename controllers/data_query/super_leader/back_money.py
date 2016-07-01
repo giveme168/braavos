@@ -186,7 +186,7 @@ def search_excle_data():
 
     # 计算未回款金额累计
     orders = [_format_client_order(k, location) for k in orders if k.contract_status in [
-        2, 4, 5, 19, 20]]
+        2, 4, 5, 10, 19, 20]]
     for k in client_params:
         need_back_money = _need_back_money(orders, k)
         client_params[k][
@@ -239,7 +239,7 @@ def search_json():
 
     # 计算未回款金额累计
     orders = [_format_client_order(k, location) for k in orders if k.contract_status in [
-        2, 4, 5, 19, 20]]
+        2, 4, 5, 10, 19, 20]]
     for k in client_params:
         need_back_money = _need_back_money(orders, k)
         client_params[k][
@@ -288,7 +288,7 @@ def client_order_excle_data():
 
     # 计算未回款金额累计
     orders = [_format_client_order(k, location) for k in orders if k.contract_status in [
-        2, 4, 5, 19, 20]]
+        2, 4, 5, 10, 19, 20]]
     for k in client_params:
         need_back_money = _need_back_money(orders, k)
         client_params[k][
@@ -341,7 +341,7 @@ def client_order_json():
 
     # 计算未回款金额累计
     orders = [_format_client_order(k, location) for k in orders if k.contract_status in [
-        2, 4, 5, 19, 20]]
+        2, 4, 5, 10, 19, 20]]
     for k in client_params:
         need_back_money = _need_back_money(orders, k)
         client_params[k][
@@ -389,7 +389,7 @@ def douban_order_excle_data():
 
     # 计算未回款金额累计
     orders = [_format_client_order(k, location) for k in orders if k.contract_status in [
-        2, 4, 5, 19, 20]]
+        2, 4, 5, 10, 19, 20]]
     for k in client_params:
         need_back_money = _need_back_money(orders, k)
         client_params[k][
@@ -440,7 +440,7 @@ def douban_order_json():
 
     # 计算未回款金额累计
     orders = [_format_client_order(k, location) for k in orders if k.contract_status in [
-        2, 4, 5, 19, 20]]
+        2, 4, 5, 10, 19, 20]]
     for k in client_params:
         need_back_money = _need_back_money(orders, k)
         client_params[k][

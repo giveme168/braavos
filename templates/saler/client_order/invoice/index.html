@@ -72,7 +72,9 @@
             </div>
         </div>
     </div>
+    {% if order.contract_status == 20 %}
     <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 申请发票</button>
+    {% endif %}
 </div>
 <script>
   showInvoice = function(ele){

@@ -20,7 +20,7 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
                                  STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
                                  CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS,
-                                 CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH)
+                                 CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH, CONTRACT_STATUS_CHECKCONTRACT)
 from models.client_order import ClientOrder, ClientOrderExecutiveReport, IntentionOrder, COMPLETE_PERCENT_CN
 from models.client_medium_order import ClientMediumOrder
 from models.framework_order import FrameworkOrder
@@ -164,7 +164,7 @@ def _reload_status_executive_report(order):
 
 
 def _insert_executive_report(order, rtype):
-    if order.contract == '' or order.contract_status not in [2, 4, 5, 19, 20]:
+    if order.contract == '' or order.contract_status not in [2, 4, 5, 10, 19, 20]:
         return False
     if order.__tablename__ == 'bra_douban_order':
         if rtype:
@@ -307,7 +307,7 @@ def get_medium_form(order, user=None):
 def order_info(order_id, tab_id=1):
     order = ClientOrder.get(order_id)
     if not order or order.status == 0:
-        if g.user.is_super_admin():
+        if g.user.is_super_leader():
             pass
         else:
             abort(404)
@@ -342,7 +342,7 @@ def order_info(order_id, tab_id=1):
                     order.contract_type = client_form.contract_type.data
                     order.resource_type = client_form.resource_type.data
                     order.sale_type = client_form.sale_type.data
-                    if g.user.is_super_leader() or g.user.is_contract():
+                    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_leader():
                         order.replace_sales = User.gets(
                             replace_saler_form.replace_salers.data)
                         order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
@@ -395,7 +395,6 @@ def order_info(order_id, tab_id=1):
                                                                             str(mo.sale_money)))
                                                        for mo in order.medium_orders]
     new_associated_douban_form.campaign.data = order.campaign
-
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     context = {'client_form': client_form,
                'new_medium_form': new_medium_form,
@@ -506,11 +505,14 @@ def order_medium_edit_cpm(medium_id):
         mo.medium_money = medium_money
     mo.self_medium_rebate = str(self_medium_rebate) + '-' + str(self_medium_rabate_value)
     finish_status = int(request.values.get('finish_status', 1))
+    # 归档前合同状态
     last_status = mo.finish_status
     mo.finish_status = finish_status
     if finish_status == 0 and last_status != 0:
         mo.finish_time = datetime.now()
         mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.medium.name))
+    elif finish_status == 1 and last_status == 0:
+        mo.client_order.add_comment(g.user, u" %s 媒体订单取消归档" % (mo.medium.name))
     mo.save()
     if medium_money != '':
         _insert_executive_report(mo, 'reload')
@@ -640,10 +642,22 @@ def contract_status_change(order, action, emails, msg):
         action_msg = u"审批通过"
         to_users = to_users + order.leaders + User.contracts()
         _insert_executive_report(order, '')
+    elif action == 100:
+        action_msg = u"提醒审批合同"
+        to_users = to_users + order.leaders + User.contracts()
+    elif action == 10:
+        action_msg = u"审批合同通过"
+        order.contract_status = CONTRACT_STATUS_CHECKCONTRACT
+        to_users = to_users + order.leaders + User.contracts()
+        _insert_executive_report(order, '')
     elif action == 0:
         order.contract_status = CONTRACT_STATUS_NEW
         order.insert_reject_time()
         action_msg = u"合同被驳回，请从新提交审核"
+        _delete_executive_report(order)
+    elif action == 113:
+        order.contract_status = CONTRACT_STATUS_APPLYPASS
+        action_msg = u"已取消合同归档，请重新上传合同"
         _delete_executive_report(order)
     order.save()
     # 重置报表状态
@@ -684,7 +698,7 @@ def delete_orders():
 @order_bp.route('/my_orders', methods=['GET'])
 def my_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or \
-            g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit():
+            g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit() or g.user.is_operater_leader():
         orders = ClientOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -726,6 +740,10 @@ def display_orders(orders, title, status_id=-1):
     if status_id >= 0:
         if status_id == 30:
             orders = [o for o in orders if o.medium_status == 0]
+        elif status_id == 28:
+            orders = [o for o in orders if o.contract_status != 20]
+        elif status_id == 29:
+            orders = [o for o in orders if o.medium_status != 0]
         elif status_id == 31:
             orders = [o for o in orders if o.back_money_status == 0]
         elif status_id == 32:
@@ -734,6 +752,10 @@ def display_orders(orders, title, status_id=-1):
             orders = [o for o in orders if o.invoice_pass_sum != float(o.money)]
         elif status_id == 34:
             orders = [o for o in orders if o.invoice_pass_sum == float(o.money)]
+        elif status_id == 35:
+            orders = [o for o in orders if o.contract_status == 2]
+        elif status_id == 36:
+            orders = [o for o in orders if o.contract_status in [4, 5, 10, 19, 20]]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
@@ -1397,7 +1419,7 @@ def douban_order_info(order_id):
 @order_bp.route('/my_douban_orders', methods=['GET'])
 def my_douban_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or\
-            g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit():
+            g.user.is_media_leader() or g.user.is_finance() or g.user.is_aduit() or g.user.is_operater_leader():
         orders = DoubanOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -1455,8 +1477,14 @@ def douban_display_orders(orders, title, status_id=-1):
     if status_id >= 0:
         if status_id == 31:
             orders = [o for o in orders if o.back_money_status == 0]
+        elif status_id == 28:
+            orders = [o for o in orders if o.contract_status != 20]
         elif status_id == 32:
             orders = [o for o in orders if o.back_money_status != 0]
+        elif status_id == 35:
+            orders = [o for o in orders if o.contract_status == 2]
+        elif status_id == 36:
+            orders = [o for o in orders if o.contract_status in [4, 5, 10, 19, 20]]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     orders = [o for o in orders if o.client_start.year == int(year) or o.client_end.year == int(year)]
@@ -2056,8 +2084,8 @@ def client_medium_display_orders(orders, title, status_id=-1):
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     if status_id >= 0:
-        if status_id == 30:
-            orders = [o for o in orders if o.medium_status == 0]
+        if status_id == 28:
+            orders = [o for o in orders if o.contract_status != 20]
         elif status_id == 31:
             orders = [o for o in orders if o.back_money_status == 0]
         elif status_id == 32:

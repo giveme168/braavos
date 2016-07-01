@@ -52,7 +52,7 @@
                 {% for i in invoices %}
                 <h4>
                     <input type="checkbox" name="invoice-id" class="invoice-id" value="{{i.invoice.id}}"/>
-                    {{ i.invoice.company }}-{{ i.invoice.money }}元
+                    <a href="{{url_for('order.order_info', order_id=i.invoice.client_order.id, tab_id=1)}}" target="_blank">{{ i.invoice.company }}</a>-{{ i.invoice.money }}元
                 </h4>
                 {{ invoice_table(i.invoice) }}
                 {% endfor %}
@@ -271,15 +271,18 @@
 {% endif %}
 <div class="col-md-12">
     <div class="col-md-6" style="margin-left: 20px;" id="edit_invoice_{{invoice.id}}">
-        <a href="{{url_for('finance_client_order_invoice.delete_invoice', invoice_id=invoice.id)}}" style="color:red;">删除发票</a>
         <table class="table table-bordered">
+          <tr>
+            <th>操作</th>
+            <td><a href="{{url_for('finance_client_order_invoice.delete_invoice', invoice_id=invoice.id)}}" style="color:red;">删除发票</a></td>
+          </tr>
           <tr>
             <th>开票时间</th>
             <td>{{invoice.create_time_cn}}</td>
           </tr>
           <tr>
             <th>公司名称</th>
-            <td>{{invoice.company}}</td>
+            <td><a href="{{url_for('client.agent_detail', agent_id=invoice.client_order.agent.id)}}" target="_blank">{{invoice.company}}</a></td>
           </tr>
           <tr>
             <th>税号</th>

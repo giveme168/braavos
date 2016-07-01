@@ -18,6 +18,7 @@ from . import db, BaseModelMixin
 # 9 : 设置代理返点
 # 10: 杂项成本
 # 11: 洽谈中的订单
+# 12: 对账单
 ##################
 class Comment(db.Model, BaseModelMixin):
     __tablename__ = 'bra_comment'
@@ -54,7 +55,7 @@ class Comment(db.Model, BaseModelMixin):
         from .item import AdItem
         from .material import Material
         from searchAd.models.order import searchAdOrder
-        from searchAd.models.client_order import searchAdClientOrder
+        from searchAd.models.client_order import searchAdClientOrder, searchAdClientOrderBill
         from searchAd.models.rebate_order import searchAdRebateOrder
         from models.medium import Medium
         from models.planning import Bref
@@ -74,5 +75,6 @@ class Comment(db.Model, BaseModelMixin):
             'Bref': Bref,
             'Agent': Agent,
             'IntentionOrder': IntentionOrder,
+            'searchAdClientOrderBill': searchAdClientOrderBill,
         }
         return TARGET_DICT[self.target_type].get(self.target_id)

@@ -2,7 +2,7 @@
 {% block title %}效果订单收入成本{% endblock %}
 {% block content %}
 {% include "/data_query/shenji/shenji_base_v1_0_0.html" %}
-<div class="container bra-box" style="width:4000px;">
+<div class="container bra-box" style="width:1200px;">
     <h3>效果订单收入成本</h3>
     <div class="search-bar">
         <form class="menu-btn-bar" style="float:left;">
@@ -14,6 +14,25 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">季度</label>
+                <select class="form-control special_sale" name="Q" id="Q" style="width:100px;">
+                    <option value='Q1'>Q1</option>
+                    <option value='Q2'>Q2</option>
+                    <option value='Q3'>Q3</option>
+                    <option value='Q4'>Q4</option>
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">推广渠道</label>
+                <select class="form-control special_sale" name="channel" id="channel" style="width:100px;">
+                    <option value="-1">全部</option>
+                    <option value='0'>其他</option>
+                    <option value='1'>360</option>
+                    <option value='2'>百度</option>
+                    <option value='3'>小米</option>
+                </select>
+            </div>
             <div class="select_option screen">
                 <input type="submit" value="筛选">
             </div>
@@ -22,6 +41,44 @@
             </div>
         </form>
     </div>
+    <div class='tabulation'>
+        <table>
+            <thead>
+                <tr>
+                    <th>代理/媒体</th>
+                    <th>客户</th>
+                    <th>客户下单金额</th>
+                    <th>媒体下单金额</th>
+                    <th>上季剩余金额</th>
+                    <th>本季消耗金额</th>
+                    <th>本季返点金额</th>
+                    <th>本季客户返点</th>
+                    <th>本季利润</th>
+                    <th>当季未消耗金额</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in medium_info %}
+                    <tr>
+                        <td rowspan='{{k.client_info|length+1}}'>{{k.medium_name}}</td>
+                    </tr>
+                    {% for c in k['client_info'] %}
+                    <tr>
+                        <td>{{c.client_name}}</td>
+                        <td>{{c.sale_money|format_price}}</td>
+                        <td>{{c.medium_money2|format_price}}</td>
+                        <td>{{c.pre_session_last_money|format_price}}</td>
+                        <td>{{c.real_money|format_price}}</td>
+                        <td>{{c.rebate_money|format_price}}</td>
+                        <td>{{c.agent_rebate|format_price}}</td>
+                        <td>{{c.profit|format_price}}</td>
+                        <td>{{c.last_money|format_price}}</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    <!--
     <div class='tabulation'>
         <table border='1'>
           <thead>
@@ -113,17 +170,23 @@
             </tr>        
           </tbody>
         </table>
-    </div>
+    </div>-->
 </div>
 <script>
     $(function(){
         $('select').chosen({disable_search: true});
         $('#year').val('{{year}}');
         $("#year").trigger("chosen:updated");
+        $('#Q').val('{{Q}}');
+        $("#Q").trigger("chosen:updated");
+        $('#channel').val('{{channel}}');
+        $("#channel").trigger("chosen:updated");
     });
     function download(){
         var year = $('#year').val();
-        params = '?action=excel&year='+year;
+        var Q = $('#Q').val();
+        var channel = $('#channel').val();
+        params = '?action=excel&year='+year+'&Q='+Q+'&channel='+channel;
         window.location.href = window.location.pathname + params;
     }
 </script>
