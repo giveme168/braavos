@@ -221,12 +221,14 @@ def index():
     last_Q_monthes = [datetime.datetime.strptime(str(last_Q_year) + k, '%Y%m') for k in last_Q_month]
     channel = int(request.values.get('channel', -1))
     orders = [_search_order_to_dict(k) for k in searchAdOrder.all()]
+    '''
     if channel != -1:
         orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and
                   k['status'] == 1 and k['channel_type'] == channel]
     else:
         orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and
                   k['status'] == 1]
+    '''
     bills = [_bill_to_dict(k) for k in searchAdClientOrderBill.all()]
     # 根据合同获取所有媒体
     medium_ids = []
@@ -273,6 +275,7 @@ def index():
         pro_month_bills.append(dict_bill)
     # 根据媒体、客户、对账单计算数据报表
     for m in medium_info:
+        del_m_index = []
         for c in m['client_info']:
             # 获取上个季度媒体执行额
             c['last_session_medium_money2'] = sum([k['medium_money2'] for k in pro_month_orders if
@@ -320,6 +323,14 @@ def index():
             c['profit'] = c['sale_money'] - c['real_money'] - c['agent_rebate'] + c['rebate_money']
             # 本季度未消耗金额
             c['last_money'] = c['medium_money2'] - c['real_money']
+            # 获取无用列表中的索引，用户删除
+            if not (c['pre_session_last_money'] or c['sale_money'] or c['medium_money2'] or c['agent_rebate'] or
+                    c['real_money'] or c['rebate_money'] or c['profit'] or c['last_money']):
+                del_m_index.append(m['client_info'].index(c))
+        # 删除无用项
+        m['client_info'] = [m['client_info'][k] for k in range(len(m['client_info'])) if k not in del_m_index]
+    # 删除无用项
+    medium_info = [k for k in medium_info if k['client_info']]
     if request.values.get('action') == 'excel':
         return write_search_order_excel(year=year, Q=Q, channel=channel, medium_info=medium_info)
     return tpl('/shenji/cost_income_search_order.html', year=year, Q=Q, channel=channel, medium_info=medium_info)

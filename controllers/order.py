@@ -342,7 +342,7 @@ def order_info(order_id, tab_id=1):
                     order.contract_type = client_form.contract_type.data
                     order.resource_type = client_form.resource_type.data
                     order.sale_type = client_form.sale_type.data
-                    if g.user.is_super_leader() or g.user.is_contract():
+                    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_leader():
                         order.replace_sales = User.gets(
                             replace_saler_form.replace_salers.data)
                         order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)

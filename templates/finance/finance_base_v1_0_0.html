@@ -68,6 +68,7 @@
               <a href="{{url_for('finance_framework_order.index')}}">框架合同查询</a>
             </li>
         </ul>
+        {#
         {% if g.user.is_super_leader() %}
         <ul>
           <li id="_client_medium_orderinvoice_" class="nav-first">
@@ -79,6 +80,7 @@
             </li>
         </ul>
         {% endif %}
+        #}
         {% elif g.user.is_aduit() %}
         <ul>
             <li id="_client_orderdata_query_">
