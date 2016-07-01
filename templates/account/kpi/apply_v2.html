@@ -1,9 +1,9 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_tpl_ex_form %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_tpl_ex_form %}
 {% block title %}审批绩效考核表{% endblock %}
 
 {% block content %}
-{% include "/account/account_base.html" %}
+{% include "/account/account_base_v1_0_0.html" %}
 <style>
     pre {
         background-color:#ffffff;
@@ -640,6 +640,7 @@
         $('#total_leader_s').html((total_kpi_s+competence_total_s).toFixed(2))
     }
     $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
         {% if report.now_report_obj.leader_kr_1_s %}
         $('#leader_kr_1_s').val('{{report.now_report_obj.leader_kr_1_s}}')
         {% endif %}
