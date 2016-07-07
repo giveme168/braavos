@@ -4,9 +4,20 @@
 {% block content %}
 {% include "/searchAdclient/searchAd_client_base_v1_0_0.html" %}
 <div class="container bra-box">
-    <h3> 代理公司
-        <a class="btn btn-default btn-sm" href="{{url_for('searchAd_client.new_agent')}}">新建</a>
-    </h3>
+    <div class="search-bar">
+      <form class="menu-btn-bar" style="float:left;">
+          <div class="search-input">
+              <input type="text" placeholder="代理名称" value="{{info}}" name="info" id="info">
+              <img src="/static/image/search.png" alt="#">
+          </div>
+          <div class="select_option screen">
+              <input type="submit" value="筛选">
+          </div>
+          <div class="select_option return">
+              <a href="{{url_for('searchAd_client.new_agent')}}"><input type="button" value="添加"></a>
+          </div>
+      </form>
+    </div>
     <div class='tabulation'>
         <table border='1'>
             <thead>
