@@ -27,7 +27,7 @@ def index():
 
 @account_kpi_bp.route('/create_v2', methods=['GET', 'POST'])
 def create_v2():
-    if PerformanceEvaluation.query.filter_by(version=2, creator=g.user).count() > 0:
+    if PerformanceEvaluation.query.filter_by(version=3, creator=g.user).count() > 0:
         flash(u'您已经填写过绩效考核表了!', 'danger')
         return redirect(url_for("account_kpi.index"))
     if g.user.is_kpi_leader:
@@ -35,7 +35,7 @@ def create_v2():
     else:
         type = 1
     if request.method == 'POST':
-        if PerformanceEvaluation.query.filter_by(version=2, creator=g.user).count() > 0:
+        if PerformanceEvaluation.query.filter_by(version=3, creator=g.user).count() > 0:
             flash(u'您已经填写过绩效考核表了!', 'danger')
             return redirect(url_for("account_kpi.index"))
         now_report = {}
@@ -136,7 +136,7 @@ def create_v2():
 
         PerformanceEvaluation.add(
             type=type,
-            version=2,
+            version=3,
             self_upper_score=upper_score,
             self_KR_score=KR_score,
             self_manage_score=manage_score,
@@ -150,7 +150,7 @@ def create_v2():
         flash(u'绩效考核表添加成功，如果填写无误请申请Leader评分!', 'success')
         return redirect(url_for("account_kpi.index"))
     last_performance = PerformanceEvaluation.query.filter_by(
-        version=1, creator=g.user).first()
+        version=2, creator=g.user).first()
     if last_performance:
         future_report = json.loads(last_performance.future_report)
     else:
@@ -780,7 +780,7 @@ def _get_all_under_users(self_user_id):
 def underling():
     page = int(request.values.get('p', 1))
     status = int(request.values.get('status', 0))
-    version = int(request.values.get('version', 2))
+    version = int(request.values.get('version', 3))
     reports = PerformanceEvaluation.query.filter_by(version=version)
     if status != 0:
         reports = [k for k in reports if k.status == status]
