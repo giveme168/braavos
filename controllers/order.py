@@ -112,7 +112,11 @@ def new_order():
                 order.add_comment(g.user, u"新建了媒体订单: %s %s元" %
                                   (medium.name, mo.sale_money))
         order.save()
-        flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
+        if g.user.is_super_leader() or g.user.is_contract():
+            contract_status_change(order, 3, [], '')
+            flash(u'新建合同成功，等待合同管理员分配合同号!', 'success')
+        else:
+            flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
         return redirect(order.info_path())
     else:
         form.client_start.data = datetime.now().date()
@@ -1260,7 +1264,11 @@ def new_douban_order():
                                 finish_time=datetime.now(),
                                 self_agent_rebate=str(self_rebate) + '-' + str(self_rabate_value))
         order.add_comment(g.user, u"新建了该直签豆瓣订单")
-        flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
+        if g.user.is_super_leader() or g.user.is_contract():
+            contract_status_change(order, 3, [], '')
+            flash(u'新建豆瓣订单成功, 等待合同管理员分配合同号!', 'success')
+        else:
+            flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
         return redirect(url_for("order.douban_order_info", order_id=order.id))
     else:
         form.client_start.data = datetime.now().date()
