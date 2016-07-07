@@ -31,7 +31,7 @@ def new_client():
             client = Client.add(form.name.data, form.industry.data)
             flash(u'新建客户(%s)成功!' % client.name, 'success')
         else:
-            flash(u'新建客户(%s)失败,名称被占用!' % form.name.data, 'danger')
+            flash(u'客户%s已存在，不用添加!' % form.name.data, 'danger')
             return tpl('client.html', form=form, title=u"新建客户")
         return redirect(url_for("client.clients"))
     return tpl('client.html', form=form, title=u"新建客户")
@@ -326,8 +326,11 @@ def medium_rebate_delete(medium_id, rebate_id):
 
 @client_bp.route('/clients', methods=['GET'])
 def clients():
+    info = request.values.get('info', '')
     clients = Client.all()
-    return tpl('clients.html', clients=clients)
+    if info:
+        clients = [c for c in clients if info in c.name]
+    return tpl('clients.html', clients=clients, info=info)
 
 
 @client_bp.route('/groups', methods=['GET'])
