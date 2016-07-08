@@ -69,7 +69,7 @@ def index():
     ex_medium_orders = [_parse_dict_order(
         k) for k in ex_medium_orders if k.status == 1]
     ex_medium_orders = [k for k in ex_medium_orders if k[
-        'contract_status'] not in [0, 7, 8, 9] and k['status'] == 1]
+        'contract_status'] not in [0, 1, 6, 7, 8, 9] and k['status'] == 1]
 
     medium_data = []
     if medium_id:

@@ -38,6 +38,7 @@ def write_client_excel(orders):
                 align_left = workbook.add_format(
                     {'align': 'left', 'valign': 'vcenter', 'border': 1})
             mediums = orders[k].medium_orders
+            ex_order_ids = []
             if len(mediums) > 1:
                 if not g.user.is_media_leader():
                     worksheet.merge_range(
@@ -119,6 +120,7 @@ def write_client_excel(orders):
                             worksheet.write(th, 34, '', align_left)
                         th += 1
                 else:
+                    order_id = orders[k].id
                     for i in range(len(mediums)):
                         worksheet.write(
                             th, 0, orders[k].agent.name, align_left)
@@ -126,7 +128,10 @@ def write_client_excel(orders):
                         worksheet.write(
                             th, 2, orders[k].client.name, align_left)
                         worksheet.write(th, 3, orders[k].campaign, align_left)
-                        worksheet.write(th, 4, orders[k].money, align_left)
+                        if order_id in ex_order_ids:
+                            worksheet.write(th, 4, 0, align_left)
+                        else:
+                            worksheet.write(th, 4, orders[k].money, align_left)
                         worksheet.write(
                             th, 5, orders[k].start_date_cn, align_left)
                         worksheet.write(
@@ -135,14 +140,22 @@ def write_client_excel(orders):
                             th, 7, orders[k].reminde_date_cn, align_left)
                         worksheet.write(
                             th, 8, orders[k].payable_time, align_left)
-                        worksheet.write(th, 9, str(
-                            orders[k].back_money_percent) + "%", align_left)
-                        worksheet.write(
-                            th, 10, orders[k].back_moneys, align_left)
-                        worksheet.write(
-                            th, 11, orders[k].money - orders[k].back_moneys, align_left)
-                        worksheet.write(
-                            th, 12, orders[k].invoice_pass_sum, align_left)
+                        if order_id in ex_order_ids:
+                            worksheet.write(th, 9, "", align_left)
+                        else:
+                            worksheet.write(th, 9, str(
+                                orders[k].back_money_percent) + "%", align_left)
+                        if order_id in ex_order_ids:
+                            worksheet.write(th, 10, '', align_left)
+                            worksheet.write(th, 11, '', align_left)
+                            worksheet.write(th, 12, '', align_left)
+                        else:
+                            worksheet.write(
+                                th, 10, orders[k].back_moneys, align_left)
+                            worksheet.write(
+                                th, 11, orders[k].money - orders[k].back_moneys, align_left)
+                            worksheet.write(
+                                th, 12, orders[k].invoice_pass_sum, align_left)
 
                         worksheet.write(
                             th, 13, orders[k].direct_sales_names, align_left)
@@ -192,6 +205,8 @@ def write_client_excel(orders):
                             worksheet.write(th, 32, '', align_left)
                             worksheet.write(th, 33, '', align_left)
                             worksheet.write(th, 34, '', align_left)
+                        if order_id not in ex_order_ids:
+                            ex_order_ids.append(order_id)
                         th += 1
             else:
                 worksheet.write(th, 0, orders[k].agent.name, align_left)
