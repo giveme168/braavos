@@ -12,6 +12,7 @@
             <table border='1'>
               <thead>
                 <tr>
+                  <th>公司名称</th>
                   <th>项目名称</th>
                   <th>金额</th>
                   <th>发票</th>
@@ -22,15 +23,17 @@
               <tbody>
                 {% for k in order.douban_order_other_cost %}
                 <tr>
+                  <td>{{k.company}}</td>
                   <td>{{k.type_cn}}</td>
                   <td>{{k.money|format_price}}元</td>
                   <td>{{k.invoice}}</td>
                   <td>{{k.on_time_cn}}</td>
-                  <td><a href="javascript:delete_cost('{{k.type_cn}}','{{k.id}}')">删除</a></td>
+                  <td><a href="javascript:delete_cost('{{k.type_cn}}','{{k.id}}')">删除</a>&nbsp;&nbsp;
+                  <a href="javascript:update_cost('{{k.type}}', '{{k.company}}', '{{k.money}}', '{{k.invoice}}', '{{k.on_time_cn}}', '{{k.douban_order.id}}', '{{k.id}}')">修改</a></td>
                 </tr>
                 {% endfor %}
                 <tr>
-                  <td>合计</td>
+                  <td colspan=2>合计</td>
                   <td>{{order.douban_order_other_cost|sum('money')|format_price }}元</td>
                   <td colspan=3></td>
                 </tr>
@@ -98,11 +101,79 @@
       </div>
     </div>
   </div>
+  <div class="modal fade" id="update_cost" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content" style="margin-top: 170px;">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">修改信息</h4>
+        </div>
+          <form id="update_cost_form" class="form form-horizontal" method="POST" action="" onsubmit="return checkform(this)">
+
+        <div class="modal-body">
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">类型 : </label>
+                  <div class="col-sm-6">
+                      <select id="update_type" name="type" class="form-control bra-form-control">
+                        <option value='1'>Flash&H5开发</option>
+                        <option value='2'>网络公关运营</option>
+                        <option value='3'>设计</option>
+                        <option value='4'>视频制作</option>
+                        <option value='5'>技术服务</option>
+                      </select>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">公司名称 : </label>
+                  <div class="col-sm-6">
+                      <input type="text" id="update_company" name="company" value="" class="form-control bra-form-control">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">金额 : </label>
+                  <div class="col-sm-6">
+                      <input type="text" id="update_money" name="money" value="" class="form-control bra-form-control">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">发票信息 : </label>
+                  <div class="col-sm-6">
+                      <input type="text" id="update_invoice" name="invoice" value="" class="form-control bra-form-control">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">发生时间 : </label>
+                  <div class="col-sm-6">
+                      <input type="text" id="update_on_time" name="on_time" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+                  </div>
+              </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-default contract-submit" data-dismiss="modal">取消</button>
+            {% if g.user.is_super_leader() %}
+            <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action">保存</button>
+            {% endif %}
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
   <script>
     function delete_cost(type, oid){
        if(confirm("确定要删除"+type+"这条数据吗？")){
           window.location.href="/saler/douban_order/other_cost/{{order.id}}/"+oid+"/delete";
        }
+    }
+    function update_cost(type, company, money, invoice, on_time, order_id, oid){
+      ''
+      $('#update_cost').modal();
+      $("#update_cost_form").attr("action", "/saler/douban_order/other_cost/"+order_id+"/"+oid+"/update");  
+      $('#update_type').val(type);
+      $('#update_type').trigger("chosen:updated");
+      $('#update_company').val(company);
+      $('#update_money').val(money);
+      $('#update_invoice').val(invoice);
+      $('#update_on_time').val(on_time);
     }
     function checkform(obj){
       if (obj.company.value == ''){

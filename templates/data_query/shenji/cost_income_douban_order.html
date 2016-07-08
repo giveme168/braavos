@@ -97,7 +97,7 @@
                 </tr>
             {% endfor %}
             <tr>
-                <td colspan=4 style="vertical-align: middle;text-align: center;">总计</td>
+                <td colspan=5 style="vertical-align: middle;text-align: center;">总计</td>
                 <td>{{orders|sum('money')|format_price}}</td>
                 <td colspan=3 style="vertical-align: middle;text-align: center;"></td>
                 <td>{{orders|sum('back_moneys')|format_price}}</td>
