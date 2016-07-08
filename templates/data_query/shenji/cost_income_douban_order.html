@@ -26,6 +26,7 @@
         <table border='1'>
           <thead>
             <tr>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">区域</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">代理/直客</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">客户合同号</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">客户</th>
@@ -60,6 +61,7 @@
           <tbody>
             {% for k in orders %}
                 <tr>
+                    <td>{{k.locations_cn}}</td>
                     <td>{{k.agent_name}}</td>
                     <td>
                         {% if k.type == 'douban_order' %}
