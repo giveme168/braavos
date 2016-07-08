@@ -45,7 +45,15 @@
                 </tr>
                 {% for k in  orders %}
                 <tr>
-                    <td rowspan='{{k.outsource_obj|length+1}}'>{{k.contract or "无合同号"}}</td>
+                    <td rowspan='{{k.outsource_obj|length+1}}'>
+                        {% if k.__tablename__ == 'bra_client_order' %}
+                        <a target="_blank" href='{{url_for("saler_client_order_other_cost.index", order_id=k.id)}}'>
+                        {% else %}
+                        <a target="_blank" href='{{url_for("saler_douban_order_other_cost.index", order_id=k.id)}}'>
+                        {% endif %}
+                        {{k.contract or "无合同号"}}
+                        </a>
+                    </td>
                     <td rowspan='{{k.outsource_obj|length+1}}'>{{k.campaign}}</td>
                     <td rowspan='{{k.outsource_obj|length+1}}'>{{k.money|format_price}}</td>
                     <td rowspan='{{k.outsource_obj|length+1}}'>{{k.locations_cn}}</td>

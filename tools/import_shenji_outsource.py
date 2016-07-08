@@ -27,7 +27,7 @@ if __name__ == '__main__':
         else:
             type = 2
         invoice = ''
-        on_time = o.medium_order.medium_start
+        on_time = o.medium_order.medium_end
         create_time = datetime.datetime.now()
         OtherCost.add(
             company=company,
@@ -54,7 +54,7 @@ if __name__ == '__main__':
         else:
             type = 2
         invoice = ''
-        on_time = o.douban_order.client_start
+        on_time = o.douban_order.client_end
         create_time = datetime.datetime.now()
         DoubanOtherCost.add(
             company=company,
