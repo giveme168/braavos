@@ -233,7 +233,7 @@ def mine():
 
 @user_bp.route('/contact')
 def contact():
-    if g.user.is_super_leader() or g.user.is_leader() or g.user.is_HR():
+    if g.user.is_super_leader() or g.user.is_leader() or g.user.is_HR() or g.user.is_OPS():
         users = User.all_active()
     else:
         abort(403)

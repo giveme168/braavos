@@ -890,7 +890,7 @@ def write_cost_outsource_order_info_excel(orders):
         {'align': 'center', 'valign': 'vcenter', 'border': 1})
     worksheet.merge_range(0, 0, 0, 4, u'合同信息', align_center)
     worksheet.merge_range(0, 5, 0, 9, u'外包信息', align_center)
-    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'已付款金额', u'供应商名称', u'类别' u'付款时间', u'发票信息', u'外包金额']
+    keys = [u'项目合同号', u'项目名称', u'项目金额', u'大区', u'已付款金额', u'供应商名称', u'类别', u'付款时间', u'发票信息', u'外包金额']
     for k in range(len(keys)):
         worksheet.write(1, 0 + k, keys[k], align_center)
         worksheet.set_column(0, 0 + k, 15)

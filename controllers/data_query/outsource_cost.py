@@ -4,8 +4,6 @@ import datetime
 from flask import Blueprint, request
 from flask import render_template as tpl
 
-from models.client_order import ClientOrder
-from models.douban_order import DoubanOrder
 from models.client_order import OtherCost as ClientOtherCost
 from models.douban_order import OtherCost as DoubanOtherCost
 from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q)
@@ -341,7 +339,7 @@ def info():
     Q4_monthes = [datetime.datetime.strptime(
         str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q4')]
     total = 0
-    orders = list(set([s['order'] for s in outsources]))
+    orders = list(set([s['order'] for s in outsources if s['on_time'].year == now_year]))
     for i in orders:
         o_money = []
         o_money += [float(sum([o['money'] for o in outsources if o['month_day'] >= Q1_monthes[0] and o[
@@ -365,8 +363,7 @@ def order_info():
     now_year = int(request.values.get('year', datetime.datetime.now().year))
     outsources = [_cost_outsource_to_dict(k) for k in ClientOtherCost.all()]
     outsources += [_cost_outsource_to_dict(k) for k in DoubanOtherCost.all()]
-    orders = [k for k in ClientOrder.all() if k.client_start.year == now_year or k.client_end.year == now_year]
-    orders += [k for k in DoubanOrder.all() if k.client_start.year == now_year or k.client_end.year == now_year]
+    orders = list(set([s['order'] for s in outsources if s['on_time'].year == now_year]))
     order_obj = []
     for k in orders:
         order_dict = {}
@@ -380,6 +377,9 @@ def order_info():
         order_dict['campaign'] = k.campaign
         order_dict['money'] = k.money
         order_dict['locations_cn'] = k.locations_cn
+        order_dict['__tablename__'] = k.__tablename__
+        order_dict['id'] = k.id
+        order_dict['campaign'] = k.campaign
         if order_dict['outsource_obj']:
             order_obj.append(order_dict)
     if request.values.get('action', '') == 'download':
