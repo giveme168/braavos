@@ -12,7 +12,13 @@
     <table class="table table-bordered">
           <tr>
             <th>公司名称</th>
-            <td>{{invoice.company}}{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
+            <td>{{invoice.company}}
+                {% if invoice.invoice_num == '88888888' %}
+                  <span class="label label-danger">先付款-发票未开</span>
+                {% elif invoice.company != invoice.medium.abbreviation %}
+                  <span class="label label-danger">付款其他媒体</span>
+                {% endif %}
+            </td>
           </tr>
           <tr>
             <th>税号</th>
@@ -141,7 +147,7 @@
             </div>
         </div>
     </div>
-    {% set invoices_data_apply = invoice.get_invoice_pas_by_status(3) %}
+    {% set invoices_data_apply = invoice.get_invoice_pas_by_status(4) %}
     {% set invoices_data_pass = invoice.get_invoice_pas_by_status(0) %}
     {% if invoices_data_pass|length > 0 %}
     <div class="panel panel-default" id="non-invoice">
@@ -364,7 +370,7 @@
 {% endblock %}
 
 {% macro status_box(invoice) -%}
-{% if invoice.pay_status == 3 %}
+{% if invoice.pay_status == 4 %}
     <input type="checkbox" name="invoice-all" class="invoice-all" onclick="check_all(this);"/> 全选
 {% endif %}
     <form class="input-row-box invoice-status-form" id="status-form" method="POST" action="{{url_for('finance_client_order_medium_pay.invoice_pass', invoice_id=invoice.medium_invoice.id)}}">

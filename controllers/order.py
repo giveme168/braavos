@@ -20,7 +20,8 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
                                  STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
                                  CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS,
-                                 CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH, CONTRACT_STATUS_CHECKCONTRACT)
+                                 CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH, CONTRACT_STATUS_CHECKCONTRACT,
+                                 CONTRACT_STATUS_DELETEFINANCE)
 from models.client_order import ClientOrder, ClientOrderExecutiveReport, IntentionOrder, COMPLETE_PERCENT_CN
 from models.client_medium_order import ClientMediumOrder
 from models.framework_order import FrameworkOrder
@@ -70,6 +71,8 @@ def new_order():
         if ClientOrder.query.filter_by(campaign=form.campaign.data).count() > 0:
             flash(u'campaign名称已存在，请更换其他名称!', 'danger')
             return redirect(url_for("order.new_order"))
+        self_rebate = int(request.values.get('self_rebate', 0))
+        self_rabate_value = float(request.values.get('self_rabate_value', 0))
         order = ClientOrder.add(agent=Agent.get(form.agent.data),
                                 client=Client.get(form.client.data),
                                 campaign=form.campaign.data,
@@ -85,7 +88,8 @@ def new_order():
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now(),
-                                finish_time=datetime.now())
+                                finish_time=datetime.now(),
+                                self_agent_rebate=str(self_rebate) + '-' + str(self_rabate_value))
         order.add_comment(g.user,
                           u"新建了客户订单:%s - %s - %s" % (
                               order.agent.name,
@@ -109,7 +113,11 @@ def new_order():
                 order.add_comment(g.user, u"新建了媒体订单: %s %s元" %
                                   (medium.name, mo.sale_money))
         order.save()
-        flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
+        if g.user.is_super_leader() or g.user.is_contract():
+            contract_status_change(order, 3, [], '')
+            flash(u'新建合同成功，等待合同管理员分配合同号!', 'success')
+        else:
+            flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
         return redirect(order.info_path())
     else:
         form.client_start.data = datetime.now().date()
@@ -345,7 +353,7 @@ def order_info(order_id, tab_id=1):
                     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_leader():
                         order.replace_sales = User.gets(
                             replace_saler_form.replace_salers.data)
-                        order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
+                    order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
                     order.save()
                     order.add_comment(g.user, u"更新了客户订单")
                     flash(u'[客户订单]%s 保存成功!' % order.name, 'success')
@@ -403,7 +411,7 @@ def order_info(order_id, tab_id=1):
                'order': order,
                'reminder_emails': reminder_emails,
                'now_date': datetime.now(),
-               'tab_id': int(tab_id),
+               'tab_id': tab_id or 1,
                'replace_saler_form': replace_saler_form}
     return tpl('order_detail_info.html', **context)
 
@@ -580,6 +588,14 @@ def contract_status_change(order, action, emails, msg):
         leaders += k.team_leaders
     to_users = salers + [order.creator, g.user]
     emails += [k.email for k in list(set(leaders))]
+
+    # 判断客户金额是否等于媒体售卖金额总和
+    if action in [1, 2]:
+        if order.__tablename__ == 'bra_client_order':
+            medium_orders = order.medium_orders
+            if order.money != sum([o.sale_money for o in medium_orders]):
+                flash(u'客户合同金额与媒体合同售卖金额总和不符，请确认后进行审批!', 'danger')
+                return redirect(order.info_path())
     if action == 1:
         order.contract_status = CONTRACT_STATUS_MEDIA
         action_msg = u"申请利润分配"
@@ -609,14 +625,18 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_DELETEAPPLY
         to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 8:
-        action_msg = u"确认撤单申请"
+        action_msg = u"区域Leader确认撤单, 请财务确认"
         order.contract_status = CONTRACT_STATUS_DELETEAGREE
+        to_users = to_users + order.leaders + User.medias() + User.contracts() + User.finances()
+    elif action == 81:
+        action_msg = u'财务确认撤单，请黄亮确认'
+        order.contract_status = CONTRACT_STATUS_DELETEFINANCE
         to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 9:
         action_msg = u"同意撤单"
         order.contract_status = CONTRACT_STATUS_DELETEPASS
         order.status = STATUS_DEL
-        to_users = User.media_leaders() + User.contracts() + User.super_leaders()
+        to_users = User.media_leaders() + User.contracts() + User.super_leaders() + User.finances()
         if order.__tablename__ == 'bra_douban_order' and order.contract:
             to_users += User.douban_contracts()
         _delete_executive_report(order)
@@ -974,7 +994,7 @@ def framework_order_info(order_id):
 @order_bp.route('/my_framework_orders', methods=['GET'])
 def my_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or\
-            g.user.is_contract() or g.user.is_aduit():
+            g.user.is_aduit() or g.user.is_finance():
         orders = FrameworkOrder.all()
         if g.user.is_admin() or g.user.is_contract() or g.user.is_finance():
             pass
@@ -1103,7 +1123,7 @@ def get_medium_framework_form(order):
 @order_bp.route('/my_medium_framework_orders', methods=['GET'])
 def my_medium_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media_leader() or\
-            g.user.is_contract() or g.user.is_aduit():
+            g.user.is_finance() or g.user.is_aduit():
         orders = MediumFrameworkOrder.all()
         if g.user.is_admin() or g.user.is_contract() or g.user.is_finance():
             pass
@@ -1232,6 +1252,8 @@ def medium_framework_order_info(order_id):
 def new_douban_order():
     form = DoubanOrderForm(request.form)
     if request.method == 'POST' and form.validate():
+        self_rebate = int(request.values.get('self_rebate', 0))
+        self_rabate_value = float(request.values.get('self_rabate_value', 0))
         order = DoubanOrder.add(client=Client.get(form.client.data),
                                 agent=Agent.get(form.agent.data),
                                 campaign=form.campaign.data,
@@ -1252,9 +1274,14 @@ def new_douban_order():
                                 sale_type=form.sale_type.data,
                                 creator=g.user,
                                 create_time=datetime.now(),
-                                finish_time=datetime.now())
+                                finish_time=datetime.now(),
+                                self_agent_rebate=str(self_rebate) + '-' + str(self_rabate_value))
         order.add_comment(g.user, u"新建了该直签豆瓣订单")
-        flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
+        if g.user.is_super_leader() or g.user.is_contract():
+            contract_status_change(order, 3, [], '')
+            flash(u'新建豆瓣订单成功, 等待合同管理员分配合同号!', 'success')
+        else:
+            flash(u'新建豆瓣订单成功, 请上传合同!', 'success')
         return redirect(url_for("order.douban_order_info", order_id=order.id))
     else:
         form.client_start.data = datetime.now().date()
@@ -1379,7 +1406,7 @@ def douban_order_info(order_id):
                     if g.user.is_super_admin() or g.user.is_contract():
                         order.replace_sales = User.gets(
                             replace_saler_form.replace_salers.data)
-                        order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
+                    order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
                     order.save()
                     order.add_comment(g.user, u"更新了该订单信息")
                     flash(u'[豆瓣订单]%s 保存成功!' % order.name, 'success')

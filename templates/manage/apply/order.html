@@ -1,7 +1,7 @@
 {% extends "/base_v1_0_0.html" %}
 {% block title %}{{title}}{% endblock %}
 {% block content %}
-<div class="container bra-box" style="width:1600px;">
+<div class="container bra-box" style="width:1600px; padding-top: 100px;">
     <div class="table-switch">
         <ul>
             <li id="__li">
@@ -10,7 +10,12 @@
             <li id="_del_li">
                 <a id="_del_" href="{{url_for('manage_apply.order_del')}}">撤单审批</a>
             </li>
-            {% if g.user.is_super_leader() %}
+            {% if g.user.is_finance() %}
+            <li id="_finance_li">
+                <a id="_finance_" href="{{url_for('manage_apply.order_finance_del')}}">财务撤单审批</a>
+            </li>
+            {% endif %}
+            {% if g.user.is_super_leader()%}
             <li id="_del_check_li" style="width:130px;">
                 <a id="_del_check_" href="{{url_for('manage_apply.order_del_check')}}">确认撤单</a>
             </li>
@@ -54,6 +59,31 @@
                     <option value='3'>华南</option>
                 </select>
             </div>
+            {% if g.user.is_contract() or g.user.is_finance() or g.user.is_super_leader() %}
+                {% if status %}
+                <div class="select_option">
+                    <label for="sale_type" class="control-label">合同状态</label>
+                    <select class="form-control special_sale" name="status" id="status" style="width:140px;">
+                        <option value="1">申请审批</option>
+                        <option value="4">申请打印中</option>
+                        <option value="28">项目未归档</option>
+                        <option value="29">媒体合同未归档</option>
+                        <option value="35">合同未审批</option>
+                    </select>
+                </div>
+                {% endif %}
+            {% endif %}
+            {% if g.user.is_super_leader() %}
+                {% if pay_status %}
+                <div class="select_option">
+                    <label for="sale_type" class="control-label">审批状态</label>
+                    <select class="form-control special_sale" name="pay_status" id="pay_status" style="width:140px;">
+                        <option value="2">副总裁审批</option>
+                        <option value="3">总裁审批</option>
+                    </select>
+                </div>
+                {% endif %}
+            {% endif %}
             <div class="select_option screen">
                 <input type="submit" value="筛选">
             </div>
@@ -210,6 +240,16 @@
         }
         $('#location').val('{{location}}')
         $('#location').trigger("chosen:updated");
+        {% if g.user.is_super_leader() or g.user.is_contract() %}
+            {% if status %}
+            $('#status').val('{{status}}')
+            $('#status').trigger("chosen:updated");
+            {% endif %}
+        {% endif %}
+        {% if g.user.is_super_leader() and pay_status %}
+            $('#pay_status').val('{{pay_status}}')
+            $('#pay_status').trigger("chosen:updated");
+        {% endif %}
     })
 </script>
 {% endblock %}

@@ -1,5 +1,5 @@
 <div class="top-nav-wrap">
-    {% if g.user.is_super_leader() or g.user.is_contract() %}
+    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_finance() %}
     <!--一级菜单-->
     <div class="menu-bar">
         <ul>
@@ -8,7 +8,7 @@
         </ul>
     </div>
     {% endif %}
-    <div class="top-nav" {% if not (g.user.is_super_leader() or g.user.is_contract()) %}style="top: 20px;"{% endif %}>
+    <div class="top-nav" {% if not (g.user.is_super_leader() or g.user.is_contract() or g.user.is_finance()) %}style="top: 20px;"{% endif %}>
         <ul>
             <li id="_clients_" class="nav-first">
               <a href="{{url_for('client.clients')}}">客户</a>

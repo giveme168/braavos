@@ -31,7 +31,7 @@ def new_client():
             client = Client.add(form.name.data, form.industry.data)
             flash(u'新建客户(%s)成功!' % client.name, 'success')
         else:
-            flash(u'新建客户(%s)失败,名称被占用!' % form.name.data, 'danger')
+            flash(u'客户%s已存在，不用添加!' % form.name.data, 'danger')
             return tpl('client.html', form=form, title=u"新建客户")
         return redirect(url_for("client.clients"))
     return tpl('client.html', form=form, title=u"新建客户")
@@ -266,8 +266,9 @@ def medium_rebate(medium_id):
     return tpl('/client/medium/rebate/index.html', medium=medium, rebates=rebates)
 
 
-@client_bp.route('/<medium_id>/files/<aid>/delete', methods=['GET'])
+@client_bp.route('/medium/<medium_id>/files/<aid>/delete', methods=['GET'])
 def medium_files_delete(medium_id, aid):
+    print '2222'
     attachment = Attachment.get(aid)
     attachment.delete()
     flash(u'删除成功!', 'success')
@@ -325,8 +326,11 @@ def medium_rebate_delete(medium_id, rebate_id):
 
 @client_bp.route('/clients', methods=['GET'])
 def clients():
+    info = request.values.get('info', '')
     clients = Client.all()
-    return tpl('clients.html', clients=clients)
+    if info:
+        clients = [c for c in clients if info in c.name]
+    return tpl('clients.html', clients=clients, info=info)
 
 
 @client_bp.route('/groups', methods=['GET'])
@@ -371,7 +375,7 @@ def agents():
     return tpl('/client/agent/index.html', agents=agent_data, info=info)
 
 
-@client_bp.route('/<agent_id>/files/<aid>/delete', methods=['GET'])
+@client_bp.route('/agent/<agent_id>/files/<aid>/delete', methods=['GET'])
 def agent_files_delete(agent_id, aid):
     attachment = Attachment.get(aid)
     attachment.delete()

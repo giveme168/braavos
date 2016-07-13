@@ -31,7 +31,7 @@
                         {% if k.status == 5 %}
                             {% if k.version == 1 %}
                             <a href="{{url_for('account_kpi.info', r_id=k.id)}}">{{k.creator.name}}</a>
-                            {% elif k.version == 2 %}
+                            {% elif k.version > 1 %}
                             <a href="{{url_for('account_kpi.info_v2', r_id=k.id)}}">{{k.creator.name}}</a>
                             {% endif %}
                         {% else %}
@@ -70,7 +70,7 @@
                         {% if k.status == 1 %}
                             {% if k.version == 1 %}
                             <a href="{{url_for('account_kpi.update', r_id=k.id)}}">修改</a><br/>
-                            {% elif k.version == 2 %}
+                            {% elif k.version > 1 %}
                             <a href="{{url_for('account_kpi.update_v2', r_id=k.id)}}">修改</a><br/>
                             {% endif %}
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=2)}}">申请评分</a>
@@ -84,7 +84,6 @@
             </tbody>
         </table>
     </div>
-    </br>
     {% set pages = reports %}
     {% include "pagination.html" %}
 </div>

@@ -74,8 +74,12 @@
               <a href="{{url_for('data_query_accrued.client_order')}}">新媒体订单收入计提</a>
               <span>|</span>
             </li>
-            <li class="nav-last" id="_accrueddouban_order_">
+            <li  id="_accrueddouban_order_">
               <a href="{{url_for('data_query_accrued.douban_order')}}">豆瓣订单收入计提</a>
+              <span>|</span>
+            </li>
+             <li class="nav-last" id="_accruedsearch_client_order_">
+              <a href="{{url_for('data_query_accrued.search_client_order')}}">效果业务收入计提</a>
             </li>
         </ul>
         {% elif g.user.is_media_leader() %}
@@ -144,8 +148,12 @@
               <a href="{{url_for('data_query_accrued.client_order')}}">新媒体订单收入计提</a>
               <span>|</span>
             </li>
-            <li class="nav-last" id="_accrueddouban_order_">
+            <li  id="_accrueddouban_order_">
               <a href="{{url_for('data_query_accrued.douban_order')}}">豆瓣订单收入计提</a>
+              <span>|</span>
+            </li>
+             <li class="nav-last" id="_accruedsearch_client_order_">
+              <a href="{{url_for('data_query_accrued.search_client_order')}}">效果业务收入计提</a>
             </li>
         </ul>
         <ul>
@@ -226,8 +234,12 @@
               <a href="{{url_for('data_query_accrued.client_order')}}">新媒体订单收入计提</a>
               <span>|</span>
             </li>
-            <li class="nav-last" id="_accrueddouban_order_">
+            <li  id="_accrueddouban_order_">
               <a href="{{url_for('data_query_accrued.douban_order')}}">豆瓣订单收入计提</a>
+              <span>|</span>
+            </li>
+             <li class="nav-last" id="_accruedsearch_client_order_">
+              <a href="{{url_for('data_query_accrued.search_client_order')}}">效果业务收入计提</a>
             </li>
         </ul>
         {% else %}

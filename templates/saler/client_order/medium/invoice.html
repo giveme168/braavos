@@ -109,19 +109,19 @@
       </form>
       {% endif %}
   </div>
-  {% for k in range(4) %}
+  {% for k in range(5) %}
     {% set invoice_pays = invoice.get_invoice_pas_by_status(k) %}
     {% if invoice_pays|length > 0 %}
       <div class="panel panel-default" id="non-invoice">
         <div class="panel-heading">
-          <h4 class="panel-title">
+          <h4 class="panel-title"  {% if k in [2, 3] %} style="color:red;" {% elif k in [4] %} style="color: green;" {% endif %}>
           <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-{{k}}"> {{ MEDIUM_INVOICE_STATUS_CN[k] }}</a>
           </h4>
         </div>
         <div id="collapse-invoice-{{k}}" class="panel-collapse collapse in ">
           <div class="panel-body">
             {% for i in invoice_pays %}
-               {% if i.pay_status in [0, 3] %}
+               {% if i.pay_status in [0, 2, 3, 4] %}
                   {% if i.pay_status != 0 %}
                   <input type="checkbox" name="invoice-id" class="invoice-id" value="{{i.id}}"/>
                   {% endif %}
@@ -303,10 +303,13 @@ $(function() {
         <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="2">再次申请打款</button>
       {% endif %}
       {% if invoice_pay.pay_status == 2 and g.user.is_super_leader() %}
-        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="3">同意打款</button>
+        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="3">副总裁确认打款</button>
       {% endif %}
-      {% if invoice_pay.pay_status == 3 and invoice.client_order.can_admin(g.user) %}
-        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="3">提醒财务打款</button>
+      {% if invoice_pay.pay_status == 3 and g.user.is_super_leader() %}
+        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="4">总裁确认打款</button>
+      {% endif %}
+      {% if invoice_pay.pay_status == 4 and invoice.client_order.can_admin(g.user) %}
+        <button class="btn btn-sm btn-primary invoice-btn" name="action" type="submit" value="4">提醒财务打款</button>
       {% endif %}
     </div>
     <div class="col-sm-6">

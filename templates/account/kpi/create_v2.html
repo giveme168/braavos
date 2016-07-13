@@ -1,9 +1,9 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_tpl_ex_form %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_tpl_ex_form %}
 {% block title %}填写绩效考核表{% endblock %}
 
 {% block content %}
-{% include "/account/account_base.html" %}
+{% include "/account/account_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:1100px;">
     <h3>填写绩效考核表&nbsp;&nbsp;&nbsp;<a style="color:red;" href="#" data-toggle="modal" data-target=".bs-example-modal-lg">查看填写说明</a></h3>
     <form class="form form-horizontal" method="POST" action="{{url_for('account_kpi.create_v2')}}" onsubmit="return check_form(this);">
@@ -887,6 +887,7 @@
 
     }
     $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
         $('#kr_1_w').val('{{future_report.next_kr_1_w or 0}}');
         $('#kr_1_w').trigger("chosen:updated");
         $('#kr_2_w').val('{{future_report.next_kr_2_w or 0}}')

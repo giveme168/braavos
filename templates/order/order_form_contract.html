@@ -14,10 +14,18 @@
     <div class="col-sm-8">
         <input class="form-control bra-form-control" name="base_contract" type="text" value="{{order.contract}}" style="width:280px;float:left;"/>
         {% if order.contract_generate %}
-        <button class="btn btn-sm btn-default btn-generator" data-contract="{{order.get_default_contract()}}">生成</button>
+          {% if g.user.is_super_admin() %}
+          <button class="btn btn-sm btn-default btn-generator" data-contract="{{order.get_default_contract()}}">生成</button>
+          {% elif order.contract_status == 10 %}
+          <button class="btn btn-sm btn-default btn-generator" data-contract="{{order.get_default_contract()}}">生成</button>
+          {% endif %}
         {% endif %}
         {% if douban_contract %}
-        <a class="btn btn-info btn-sm" href="{{order.douban_contract_apply_path()}}">向豆瓣申请</a>
+          {% if g.user.is_super_admin() %}
+            <a class="btn btn-info btn-sm" href="{{order.douban_contract_apply_path()}}">向豆瓣申请</a>
+          {% elif order.contract_status == 10 %}
+            <a class="btn btn-info btn-sm" href="{{order.douban_contract_apply_path()}}">向豆瓣申请</a>
+          {% endif %}
         {% endif %}
     </div>
   </div>
@@ -26,7 +34,11 @@
     <label for="name" class="col-sm-4 control-label">[致趣-{{mo.medium.name}}] {{mo.start_date_cn}} 合同号 : </label>
     <div class="col-sm-8">
       <input class="form-control bra-form-control" name="medium_contract_{{mo.id}}"type="text" value="{{mo.medium_contract}}" style="width:280px;float:left;"/>
-      <button class="btn btn-sm btn-default btn-generator" data-contract="{{mo.get_default_contract()}}">生成</button>
+      {% if g.user.is_super_admin() %}
+        <button class="btn btn-sm btn-default btn-generator" data-contract="{{mo.get_default_contract()}}">生成</button>
+      {% elif order.contract_status == 10 %}
+        <button class="btn btn-sm btn-default btn-generator" data-contract="{{mo.get_default_contract()}}">生成</button>
+      {% endif %}
     </div>
   </div>
   {% endfor %}
@@ -35,7 +47,11 @@
     <label for="name" class="col-sm-4 control-label">[{{o.name}}-豆瓣] {{o.medium_order.start_date_cn}} 合同号 : </label>
     <div class="col-sm-8">
       <input class="form-control bra-form-control" name="douban_contract_{{o.id}}"type="text" value="{{o.contract}}" style="width:280px;float:left;"/>
-      <a class="btn btn-info btn-sm" href="{{o.douban_contract_apply_path()}}">向豆瓣申请</a>
+      {% if g.user.is_super_admin() %}
+        <a class="btn btn-info btn-sm" href="{{o.douban_contract_apply_path()}}">向豆瓣申请</a>
+      {% elif order.contract_status == 10 %}
+        <a class="btn btn-info btn-sm" href="{{o.douban_contract_apply_path()}}">向豆瓣申请</a>
+      {% endif %}
     </div>
   </div>
   {% endfor %}
@@ -49,7 +65,11 @@
   </div>
   {% endif %}
   <div class="state" style="margin-left:40%;">
-      <input type="submit" value="保存">
+      {% if g.user.is_super_admin() %}
+        <input type="submit" value="保存">
+      {% elif order.contract_status == 10 %}
+        <input type="submit" value="保存">
+      {% endif %}
   </div>
   {% else %}
   <div class="form-group">
@@ -150,6 +170,9 @@
               <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请审批</button>
               {% endif %}
             {% endif %}
+            {% if order.contract_status in [6, 3] and order.can_admin(g.user) %}
+              <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="1">再次申请利润分配</button>
+            {% endif %}
             {% if order.contract_status == 1 and (g.user.is_leader() or order.can_media_leader_action(g.user)) %}
               <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="3">通过申请</button>
               <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="4">拒绝申请</button>
@@ -189,7 +212,7 @@
             {% if order.contract_status in [5, 19] and g.user.is_contract() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="120">项目归档（确认）</button>
             {% endif %}
-            {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 9]%}
+            {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 81, 9]%}
               {% if order.can_edit_contract_time() %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7" style="background: #ec3341;">申请撤单</button>
               {% else %}
@@ -197,7 +220,7 @@
               {% endif %}
             {% endif %}
             {% if order.contract_status == 7 %}
-              {%if order.can_admin(g.user) %}
+              {% if order.can_admin(g.user) %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">再次申请撤单</button>
               {% endif %}
               {% if g.user.is_leader() %} 
@@ -205,9 +228,14 @@
               {% endif %}
             {% endif %}
             {% if order.contract_status == 8 %}
-              {% if g.user.is_leader() %} 
-                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="8">再次确认撤单</button>
+              {% if order.can_admin(g.user) %} 
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="8">提醒财务确认撤单</button>
               {% endif %}
+              {% if g.user.is_finance() %}
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="81">财务确认撤单</button>
+              {% endif %}
+            {% endif %}
+            {% if order.contract_status == 81 %}
               {% if g.user.is_super_leader() %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="9">同意撤单</button>
               {% endif %}
@@ -225,7 +253,7 @@
     </div>
     <div class="modal fade" id="finish_time_form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
       <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="margin-top: 170px;">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="myModalLabel">确认归档时间</h4>
@@ -236,20 +264,20 @@
                 <div class="form-group">
                   <label for="client_start" class="col-sm-4 control-label">归档时间 : </label>
                   <div class="col-sm-4">
-                    <input type="text" class="form-control bra-form-control" id="finish_time" name="finish_time" value="{{order.finish_time_cn}}" readonly="readonly"/>
+                    <input type="text" class="form-control bra-form-control" id="finish_time" name="finish_time" value="{{order.finish_time_cn}}" style="width:300px;" readonly="readonly"/>
                   </div>
                 </div>
                 <div class="form-group">
                   <label for="client_start" class="col-sm-4 control-label">留言信息 : </label>
                   <div class="col-sm-4">
-                    <textarea class="form-control bra-form-control" id="finish_msg" name="finish_msg" rows="4" placeholder="请输入需要附加在邮件中的留言..."></textarea>
+                    <textarea class="form-control bra-form-control" id="finish_msg" name="finish_msg" rows="4" placeholder="请输入需要附加在邮件中的留言..." style="width:300px;"></textarea>
                   </div>
                 </div>
                 
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-sm btn-default contract-submit" data-dismiss="modal">取消</button>
             {% if order.contract_status == 5 and order.can_admin(g.user) %}
               {% if g.user.is_contract() %}
                 <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="20">项目归档（确认）</button>
@@ -267,7 +295,7 @@
     </div>
     <div class="modal fade" id="self_rebate_form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
       <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="margin-top: 170px;">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title" id="myModalLabel">确认单笔返点</h4>
@@ -287,13 +315,19 @@
                     </select>
                   </div>
                   <div class="col-sm-10" id="contract_self_rebate_value" style="display:none;">
-                    <input type="text" id="contract_self_rabate_value" name="self_rabate_value" class="form-control bra-form-control" value='0'>
+                    <input type="text" id="contract_self_rabate_value" name="self_rabate_value" class="form-control bra-form-control" style="width:300px;" value='0'>
                     <a class="btn btn-sm btn-default" onclick="contract_default_rebate()">取消返点</a>
+                  </div>
+                </div>
+                <div class="form-group" >
+                  <div class="col-sm-3 control-label" style="color:red;">单笔返点的说明 : </div>
+                  <div class="col-sm-5" style="color:red; width:400px;">
+                    项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
                   </div>
                 </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-sm btn-default contract-submit" data-dismiss="modal">取消</button>
             {% if order.contract_status == 1 and (g.user.is_leader() or order.can_media_leader_action(g.user)) %}
                 <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="21">确认返点</button>
             {% endif %}
@@ -310,7 +344,7 @@
    var email = $("#contract-email").val();
    var msg = $("#msg").val();
    var table_name = $('#table_name').val()
-   if(actionVal == '1'){
+   if(actionVal == '1' || actionVal == '2'){
       if(table_name == 'bra_client_order'){
         var money = parseFloat($('#money').val());
         var client_start = new Date($('#client_start').val());

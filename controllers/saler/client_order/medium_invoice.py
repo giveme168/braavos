@@ -7,7 +7,8 @@ from flask import render_template as tpl
 from models.client_order import ClientOrder
 from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_INVOICE_CN,
                             MEDIUM_INVOICE_STATUS_NORMAL, MEDIUM_INVOICE_STATUS_APPLY,
-                            MEDIUM_INVOICE_STATUS_CN, MediumInvoicePay, MEDIUM_INVOICE_STATUS_AGREE)
+                            MEDIUM_INVOICE_STATUS_CN, MediumInvoicePay, MEDIUM_INVOICE_STATUS_AGREE,
+                            MEDIUM_INVOICE_STATUS_F_AGREE)
 
 from models.user import User
 from models.medium import Medium
@@ -225,7 +226,21 @@ def apply_pay(invoice_id):
                     invoice.medium_invoice.invoice_num, invoice.detail)), msg_channel=3)
         send_type = "saler"
     elif action == 3:
-        action_msg = u'媒体打款申请已同意'
+        action_msg = u'媒体打款申请'
+        for invoice in invoice_pays:
+            invoice.pay_status = MEDIUM_INVOICE_STATUS_F_AGREE
+            invoice.save()
+            flash(u'[副总裁同意%s媒体打款，打款金额: %s, 发票号: %s]  %s ' %
+                  (invoice.medium_invoice.company, invoice.money,
+                   invoice.medium_invoice.invoice_num, invoice.detail), 'success')
+
+            invoice.medium_invoice.client_order.add_comment(g.user, u"%s,%s" % (
+                action_msg, u' 副总裁同意%s媒体打款，打款金额: %s, 发票号: %s  %s ' %
+                (invoice.medium_invoice.company, invoice.money,
+                    invoice.medium_invoice.invoice_num, invoice.detail)), msg_channel=3)
+        send_type = "saler"
+    elif action == 4:
+        action_msg = u'黄亮已批准媒体打款'
         to_users += User.finances()
         for invoice in invoice_pays:
             invoice.pay_status = MEDIUM_INVOICE_STATUS_AGREE
@@ -243,6 +258,7 @@ def apply_pay(invoice_id):
         action_msg = u'消息提醒'
 
     context = {"to_users": to_users,
+               "action": action,
                "to_other": emails,
                "action_msg": action_msg,
                "info": msg,

@@ -152,7 +152,7 @@ def subordinates():
     quarter = int(request.values.get('quarter', 0))
     status = int(request.values.get('status', 100))
     year = int(request.values.get('year', 0))
-    if g.user.is_super_leader():
+    if g.user.is_super_leader() or g.user.is_HR_leader():
         okr = [k for k in Okr.all() if k.status in [
             OKR_STATUS_APPLY, OKR_STATUS_PASS]]
         under_users = [{'uid': k.id, 'name': k.name} for k in User.all()]

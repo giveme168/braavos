@@ -49,7 +49,6 @@
             {% endif %}
         </form>
     </div>
-    <br/>
     <div class='tabulation'>
         <table border='1'>
             <thead>
@@ -106,7 +105,7 @@
                     <td>{{k.status_cn}}</td>
                     {% if k.version == 1 %}
                         <td>无</td>
-                    {% elif k.version ==2 %}
+                    {% elif k.version in [2, 3] %}
                         <td>{{k.personnal_status_cn|safe}}</td>
                     {% endif %}
                     <td>
@@ -114,13 +113,13 @@
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=1)}}">打回重填</a><br/>
                             {% if k.version == 1 %}
                             <a href="{{url_for('account_kpi.check_apply', r_id=k.id)}}">审批</a><br/>
-                            {% elif k.version == 2 %}
+                            {% elif k.version in [2, 3] %}
                             <a href="{{url_for('account_kpi.check_apply_v2', r_id=k.id)}}">审批</a><br/>
                             {% endif %}
                         {% elif k.status == 3 and g.user.is_kpi_leader %}
                             {% if k.version == 1 %}
                             <a href="{{url_for('account_kpi.check_apply', r_id=k.id)}}">重新审批</a><br/>
-                            {% elif k.version == 2 %}
+                            {% elif k.version in [2, 3] %}
                             <a href="{{url_for('account_kpi.check_apply_v2', r_id=k.id)}}">重新审批</a><br/>
                             {% endif %}
                             <a href="{{url_for('account_kpi.apply', r_id=k.id, status=4)}}">提交HR</a><br/>

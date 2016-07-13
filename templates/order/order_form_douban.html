@@ -31,6 +31,25 @@
     {{ form_field(form.contract_type) }}
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}
+    <div class="input-group-menu">
+      <div class="name" style="color:red;">单笔返点 : </div>
+      <div id="self_rebate_status">
+        <select name="self_rebate" id="self_rebate"  class="surname" style="width:300px;">
+          <option value="0">无单笔返点</option>
+          <option value="1">有单笔返点</option>
+        </select>
+      </div>
+      <div id="self_rebate_value" style="display:none;">
+        <input type="text" id="self_rabate_value" name="self_rabate_value" class=" surname" style="width:300px;" value='0'>
+        <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
+      </div>
+    </div>
+    <div class="input-group-menu" >
+      <div class="name" style="color:red;">单笔返点的说明 : </div>
+      <div class="name" style="color:red; width:400px;">
+        项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
+      </div>
+    </div>
     <div class="state" style="margin-left:40%;">
         <input type="submit" value="保存">
     </div>
@@ -67,8 +86,7 @@
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}
     {{ form_field(replace_saler_form.replace_salers) }}
-    {% if douban_order %}
-    <div class="input-group-menu" {% if g.user.is_super_leader() or g.user.is_leader() or douban_order.can_media_leader_action(g.user) or g.user.is_contract()%}{% else %} style="display:none;"{% endif %}>
+    <div class="input-group-menu">
       <div class="name" style="color:red;">单笔返点 : </div>
       <div id="self_rebate_status">
         <select name="self_rebate" id="self_rebate"  class="surname" style="width:300px;">
@@ -81,7 +99,12 @@
         <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
       </div>
     </div>
-    {% endif %}
+    <div class="input-group-menu" >
+      <div class="name" style="color:red;">单笔返点的说明 : </div>
+      <div class="name" style="color:red; width:400px;">
+        项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
+      </div>
+    </div>
     <div class="state" style="margin-left:40%;">
         <input type="submit" value="保存">
     </div>
@@ -117,6 +140,25 @@
     {{ form_field(form.contract_type) }}
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}
+    <div class="input-group-menu">
+      <div class="name" style="color:red;">单笔返点 : </div>
+      <div id="self_rebate_status">
+        <select name="self_rebate" id="self_rebate"  class="surname" style="width:300px;">
+          <option value="0">无单笔返点</option>
+          <option value="1">有单笔返点</option>
+        </select>
+      </div>
+      <div id="self_rebate_value" style="display:none;">
+        <input type="text" id="self_rabate_value" name="self_rabate_value" class=" surname" style="width:300px;" value='0'>
+        <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
+      </div>
+    </div>
+    <div class="input-group-menu" >
+      <div class="name" style="color:red;">单笔返点的说明 : </div>
+      <div class="name" style="color:red; width:400px;">
+        项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
+      </div>
+    </div>
     <div class="state" style="margin-left:40%;">
         <input type="submit" value="保存">
     </div>
@@ -124,7 +166,7 @@
 {% else %}
 <div class="col-md-12">
     <div class="col-md-6" style="margin-left: 20px;">
-        {% if g.user.is_operater %}
+        {% if g.user.is_operater() %}
         <form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('order.douban_order_edit_cpm', order_id=douban_order.id)}}">
         {% endif %}
         <table class="table table-bordered">
@@ -211,7 +253,6 @@
             <th>替代销售</th>
             <td>{{douban_order.replace_sales_names}}</td>
           </tr>
-          {% if (g.user.is_super_leader() or g.user.is_leader() or douban_order.can_media_leader_action(g.user)) and douban_order %}
           <tr>
             <th style="color:red;">单笔返点</th>
             <td>{% if douban_order.self_agent_rebate_value.status == '0' %}
@@ -220,9 +261,8 @@
                 {{douban_order.self_agent_rebate_value.value}}元
               {% endif %}</td>
           </tr>
-          {% endif %}
         </table>
-        {% if g.user.is_operater %}
+        {% if g.user.is_operater() %}
         <input type="submit" class="btn btn-primary btn-sm col-md-offset-2" value="保存"/>
         </form>
         {% endif %}
@@ -263,7 +303,7 @@ $(document).ready(function(){
       endDate.setDate(endDate.getDate() + 90); 
       $('#reminde_date').val(endDate.Format("yyyy-MM-dd"))
     });
-    {% if douban_order %}
+    
     $("#self_rebate").change(function(e){
       var self_rebate = $('#self_rebate').val()
       if(self_rebate==1){
@@ -275,7 +315,11 @@ $(document).ready(function(){
       }
       set_default_rebate()
     })
+    {% if douban_order %}
     var self_agent_rebate = "{{douban_order.self_agent_rebate}}";
+    {% else %}
+    var self_agent_rebate = "0-0";
+    {% endif %}
     var p_self_agent_rebate = self_agent_rebate.split('-')
     $('#self_rebate').val(p_self_agent_rebate[0]);
     $('#self_rabate_value').val(p_self_agent_rebate[1]);
@@ -294,7 +338,7 @@ $(document).ready(function(){
     $('#client_start').change(function(){
       set_default_rebate();
     })**/
-    {% endif %}
+    
 });
 function set_default_rebate(){
   $.ajax({

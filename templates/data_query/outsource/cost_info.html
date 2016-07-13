@@ -50,7 +50,15 @@
                 </tr>
                 {% for k in  orders %}
                 <tr>
-                    <td>{{k.contract or "无合同号"}}</td>
+                    <td>
+                        {% if k.__tablename__ == 'bra_client_order' %}
+                        <a target="_blank" href='{{url_for("saler_client_order_other_cost.index", order_id=k.id)}}'>
+                        {% else %}
+                        <a target="_blank" href='{{url_for("saler_douban_order_other_cost.index", order_id=k.id)}}'>
+                        {% endif %}
+                        {{k.contract or "无合同号"}}
+                        </a>
+                    </td>
                     <td>{{k.campaign}}</td>
                     <td>{{k.money|format_price}}</td>
                     <td>{{k.locations_cn}}</td>

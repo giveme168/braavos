@@ -273,8 +273,11 @@ def medium_rebate_delete(medium_id, rebate_id):
 
 @searchAd_client_bp.route('/clients', methods=['GET'])
 def clients():
+    info = request.values.get('info', '')
     clients = searchAdClient.all()
-    return tpl('searchAd_clients.html', clients=clients)
+    if info:
+        clients = [c for c in clients if info in c.name]
+    return tpl('searchAd_clients.html', clients=clients, info=info)
 
 
 @searchAd_client_bp.route('/groups', methods=['GET'])
@@ -286,7 +289,10 @@ def groups():
 @searchAd_client_bp.route('/agents', methods=['GET'])
 def agents():
     agents = searchAdAgent.all()
-    return tpl('/searchAdclient/agent/searchAd_index.html', agents=agents)
+    info = request.values.get('info', '')
+    if info:
+        agents = [k for k in agents if info in k.name]
+    return tpl('/searchAdclient/agent/searchAd_index.html', agents=agents, info=info)
 
 
 @searchAd_client_bp.route('/agent/<agent_id>/rebate')

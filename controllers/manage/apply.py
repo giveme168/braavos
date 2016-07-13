@@ -3,11 +3,10 @@ from flask import Blueprint, request, g, abort
 from flask import render_template as tpl
 
 from models.user import TEAM_TYPE_LEADER, TEAM_TYPE_SUPER_LEADER
-from models.client_order import (ClientOrder, CONTRACT_STATUS_APPLYCONTRACT,
-                                 CONTRACT_STATUS_DELETEAPPLY, CONTRACT_STATUS_DELETEAGREE)
+from models.client_order import (ClientOrder, CONTRACT_STATUS_DELETEAPPLY, CONTRACT_STATUS_DELETEAGREE)
 from models.douban_order import DoubanOrder
 from models.invoice import (Invoice, INVOICE_STATUS_APPLY, MediumInvoicePay, MEDIUM_INVOICE_STATUS_APPLY,
-                            MediumRebateInvoice, AgentInvoicePay)
+                            MediumRebateInvoice, AgentInvoicePay, MEDIUM_INVOICE_STATUS_F_AGREE)
 from models.outsource import (MergerOutSource, MergerDoubanOutSource, MergerPersonalOutSource,
                               MergerDoubanPersonalOutSource, MERGER_OUTSOURCE_STATUS_APPLY)
 
@@ -17,12 +16,22 @@ manage_apply_bp = Blueprint(
 
 @manage_apply_bp.route('/order', methods=['GET'])
 def order():
-    if not (g.user.is_leader() or g.user.is_super_leader()):
+    if not (g.user.is_leader() or g.user.is_super_leader() or g.user.is_contract()):
         abort(403)
-    orders = list(ClientOrder.query.filter_by(
-        contract_status=CONTRACT_STATUS_APPLYCONTRACT))
-    orders += list(DoubanOrder.query.filter_by(contract_status=CONTRACT_STATUS_APPLYCONTRACT))
-    orders = [k for k in orders if k.status == 1]
+    status = int(request.values.get('status', 1))
+    client_orders = list(ClientOrder.query.filter_by(status=1))
+    douban_orders = list(DoubanOrder.query.filter_by(status=1))
+    if status in [1, 4]:
+        orders = [o for o in client_orders if o.contract_status == status]
+        orders += [o for o in douban_orders if o.contract_status == status]
+    elif status == 28:
+        orders = [o for o in client_orders if o.contract_status != 20]
+        orders += [o for o in douban_orders if o.contract_status != 20]
+    elif status == 29:
+        orders = [o for o in client_orders if o.medium_status != 0]
+    elif status == 35:
+        orders = [o for o in client_orders if o.contract_status == 2]
+        orders += [o for o in douban_orders if o.contract_status == 2]
     if g.user.team.type == TEAM_TYPE_LEADER:
         orders = [o for o in orders if g.user.location in o.locations]
     search_info = request.values.get('search_info', '')
@@ -33,6 +42,27 @@ def order():
     if location:
         orders = [k for k in orders if location in k.locations]
     return tpl('/manage/apply/order.html', title=u'合同审批', orders=orders,
+               search_info=search_info, location=location, a_type="order", status=status)
+
+
+@manage_apply_bp.route('/order/finance/del', methods=['GET'])
+def order_finance_del():
+    if not (g.user.is_leader() or g.user.is_super_leader()):
+        abort(403)
+    orders = list(ClientOrder.query.filter_by(
+        contract_status=CONTRACT_STATUS_DELETEAGREE))
+    orders += list(DoubanOrder.query.filter_by(contract_status=CONTRACT_STATUS_DELETEAGREE))
+    orders = [k for k in orders if k.status == 1]
+    if g.user.team.type == TEAM_TYPE_LEADER:
+        orders = [o for o in orders if g.user.location in o.locations]
+    search_info = request.values.get('search_info', '')
+    location = int(request.values.get('location', 0))
+    if search_info:
+        orders = [k for k in orders if search_info.lower().strip()
+                  in k.search_info.lower()]
+    if location:
+        orders = [k for k in orders if location in k.locations]
+    return tpl('/manage/apply/order.html', title=u'撤单审批', orders=orders,
                search_info=search_info, location=location, a_type="order")
 
 
@@ -99,8 +129,14 @@ def invoice():
 def medium_pay():
     if not g.user.is_super_leader():
         abort(403)
+    if g.user.email == 'yangzhuo@inad.com':
+        pay_status = MEDIUM_INVOICE_STATUS_APPLY
+    elif g.user.email == 'huangliang@inad.com':
+        pay_status = MEDIUM_INVOICE_STATUS_F_AGREE
+    else:
+        pay_status = request.values.get('pay_status', MEDIUM_INVOICE_STATUS_APPLY)
     orders = list(set([k.client_order for k in MediumInvoicePay.query.filter_by(
-        pay_status=MEDIUM_INVOICE_STATUS_APPLY)]))
+        pay_status=pay_status)]))
     search_info = request.values.get('search_info', '')
     location = int(request.values.get('location', 0))
     if search_info:
@@ -109,7 +145,8 @@ def medium_pay():
     if location:
         orders = [k for k in orders if location in k.locations]
     return tpl('/manage/apply/order.html', title=u'媒体打款审批', orders=orders,
-               search_info=search_info, location=location, a_type="medium_pay")
+               search_info=search_info, location=location, a_type="medium_pay",
+               pay_status=pay_status)
 
 
 @manage_apply_bp.route('/order/medium_rebate_invoice', methods=['GET'])
@@ -135,8 +172,14 @@ def medium_rebate_invoice():
 def agent_pay():
     if not g.user.is_super_leader():
         abort(403)
+    if g.user.email == 'yangzhuo@inad.com':
+        pay_status = MEDIUM_INVOICE_STATUS_APPLY
+    elif g.user.email == 'huangliang@inad.com':
+        pay_status = MEDIUM_INVOICE_STATUS_F_AGREE
+    else:
+        pay_status = request.values.get('pay_status', MEDIUM_INVOICE_STATUS_APPLY)
     orders = list(set([k.client_order for k in AgentInvoicePay.query.filter_by(
-        pay_status=MEDIUM_INVOICE_STATUS_APPLY)]))
+        pay_status=pay_status)]))
     search_info = request.values.get('search_info', '')
     location = int(request.values.get('location', 0))
     if search_info:
@@ -145,7 +188,8 @@ def agent_pay():
     if location:
         orders = [k for k in orders if location in k.locations]
     return tpl('/manage/apply/order.html', title=u'代理返点打款审批', orders=orders,
-               search_info=search_info, location=location, a_type="agent_pay")
+               search_info=search_info, location=location, a_type="agent_pay",
+               pay_status=pay_status)
 
 
 @manage_apply_bp.route('/order/outsource', methods=['GET'])
