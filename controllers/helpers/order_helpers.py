@@ -129,7 +129,7 @@ def write_client_excel(orders):
                             th, 2, orders[k].client.name, align_left)
                         worksheet.write(th, 3, orders[k].campaign, align_left)
                         if order_id in ex_order_ids:
-                            worksheet.write(th, 4, 0, align_left)
+                            worksheet.write(th, 4, '', align_left)
                         else:
                             worksheet.write(th, 4, orders[k].money, align_left)
                         worksheet.write(

@@ -17,6 +17,8 @@
           <div class="select_option return">
               <a href="{{url_for('client.new_agent')}}"><input type="button" value="添加"></a>
           </div>
+          {% endif %}
+          {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_finance() %}
           <div class="select_option return">
               <a href="?action=excel"><input type="button" value="导出"></a>
           </div>
@@ -30,11 +32,13 @@
                     <th>#id</th>
                     <th>名称</th>
                     <th>所属集团</th>
-                    {% if g.user.is_contract() or g.user.is_super_leader()%}
+                    {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_finance() %}
                     <th>2014年返点</th>
                     <th>2015年返点</th>
                     <th>2016年返点</th>
-                    <th>操作</th>
+                      {% if not g.user.is_finance() %}
+                      <th>操作</th>
+                      {% endif %}
                     {% endif %}
                 </tr>
             </thead>
@@ -48,7 +52,9 @@
                         <td>{{a.rebate_2014}}</td>
                         <td>{{a.rebate_2015}}</td>
                         <td>{{a.rebate_2016}}</td>
+                        {% if not g.user.is_finance() %}
                         <td><a href="{{url_for('client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
+                        {% endif %}
                     {% endif %}
                 </tr>
                 {% endfor %}

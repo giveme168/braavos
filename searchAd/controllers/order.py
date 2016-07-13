@@ -27,6 +27,7 @@ from ..models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATU
                                    STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
                                    CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS,
                                    CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH, CONTRACT_STATUS_CHECKCONTRACT)
+from ..models.invoice import searchAdInvoice
 from ..forms.order import ClientOrderForm, MediumOrderForm, FrameworkOrderForm, RebateOrderForm
 
 from libs.email_signals import zhiqu_contract_apply_signal
@@ -555,7 +556,8 @@ def contract_status_change(order, action, emails, msg):
 
 @searchAd_order_bp.route('/my_orders', methods=['GET'])
 def my_searchAd_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_searchad_media() or g.user.is_aduit():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_searchad_media() or \
+            g.user.is_aduit() or g.user.is_finance():
         orders = searchAdClientOrder.all()
     elif g.user.is_leader():
         orders = [
@@ -610,6 +612,8 @@ def display_orders(orders, title, status_id=-1):
             orders = [o for o in orders if o.contract_status == 2]
         elif status_id == 36:
             orders = [o for o in orders if o.contract_status in [4, 5, 10, 19, 20]]
+        elif status_id == 37:
+            orders = [i.client_order for i in searchAdInvoice.all() if i.invoice_status == 2]
         else:
             orders = [o for o in orders if o.contract_status == status_id]
     if search_info != '':
@@ -914,7 +918,7 @@ def framework_order_info(order_id):
 
 @searchAd_order_bp.route('/my_framework_orders', methods=['GET'])
 def my_framework_orders():
-    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_aduit():
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_finance() or g.user.is_aduit():
         orders = searchAdFrameworkOrder.all()
         if g.user.is_admin():
             pass
@@ -924,9 +928,6 @@ def my_framework_orders():
         elif g.user.is_contract():
             orders = [o for o in orders if o.contract_status in [
                 CONTRACT_STATUS_APPLYPASS, CONTRACT_STATUS_APPLYPRINT]]
-        elif g.user.is_media() or g.user.is_media_leader():
-            orders = [
-                o for o in orders if o.contract_status == CONTRACT_STATUS_MEDIA]
     elif g.user.is_leader():
         orders = [
             o for o in searchAdFrameworkOrder.all() if g.user.location in o.locations]

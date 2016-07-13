@@ -59,7 +59,13 @@
                   {% else %}
                     <tr>
                   {% endif %}
-                  <td>{{invoice.money}}元 {% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
+                  <td>{{invoice.money}}元 
+                    {% if invoice.invoice_num == '88888888' %}
+                      <span class="label label-danger">先付款-发票未开</span>
+                    {% elif invoice.company != invoice.medium.abbreviation %}
+                      <span class="label label-danger">付款其他媒体</span>
+                    {% endif %}
+                  </td>
                   <td>{{invoice.get_pay_money}}元</td>
                   {% if invoice.get_apply_pay_money > 0 %}
                     <td style="color:red;">{{invoice.get_apply_pay_money}}元</td>
