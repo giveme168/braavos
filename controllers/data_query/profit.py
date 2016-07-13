@@ -296,7 +296,7 @@ def client_order():
                                                all_medium_rebate, all_medium_rebate_invoice, now_month
                                                ) for k in client_orders]
     client_order_data = [k for k in client_order_data if k[
-        'contract_status'] not in [0, 7, 8, 9]]
+        'contract_status'] not in [0, 7, 8, 81, 9]]
     if client_order_data:
         client_order_data = sorted(
             client_order_data, key=operator.itemgetter('start_date_cn'), reverse=False)
@@ -325,7 +325,7 @@ def douban_order():
     douban_order_data += [_order_to_dict(
         k, all_client_back_moneys, all_agent_rebate, now_month) for k in medium_orders]
     douban_order_data = [k for k in douban_order_data if k[
-        'contract_status'] not in [0, 7, 8, 9]]
+        'contract_status'] not in [0, 7, 8, 81, 9]]
     if douban_order_data:
         douban_order_data = sorted(
             douban_order_data, key=operator.itemgetter('start_date_cn'), reverse=False)

@@ -20,7 +20,8 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  CONTRACT_STATUS_PRINTED, CONTRACT_STATUS_MEDIA, CONTRACT_STATUS_CN,
                                  STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
                                  CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS,
-                                 CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH, CONTRACT_STATUS_CHECKCONTRACT)
+                                 CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH, CONTRACT_STATUS_CHECKCONTRACT,
+                                 CONTRACT_STATUS_DELETEFINANCE)
 from models.client_order import ClientOrder, ClientOrderExecutiveReport, IntentionOrder, COMPLETE_PERCENT_CN
 from models.client_medium_order import ClientMediumOrder
 from models.framework_order import FrameworkOrder
@@ -587,6 +588,14 @@ def contract_status_change(order, action, emails, msg):
         leaders += k.team_leaders
     to_users = salers + [order.creator, g.user]
     emails += [k.email for k in list(set(leaders))]
+
+    # 判断客户金额是否等于媒体售卖金额总和
+    if action in [1, 2]:
+        if order.__tablename__ == 'bra_client_order':
+            medium_orders = order.medium_orders
+            if order.money != sum([o.sale_money for o in medium_orders]):
+                flash(u'客户合同金额与媒体合同售卖金额总和不符，请确认后进行审批!', 'danger')
+                return redirect(order.info_path())
     if action == 1:
         order.contract_status = CONTRACT_STATUS_MEDIA
         action_msg = u"申请利润分配"
@@ -616,14 +625,18 @@ def contract_status_change(order, action, emails, msg):
         order.contract_status = CONTRACT_STATUS_DELETEAPPLY
         to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 8:
-        action_msg = u"确认撤单申请"
+        action_msg = u"区域Leader确认撤单, 请财务确认"
         order.contract_status = CONTRACT_STATUS_DELETEAGREE
+        to_users = to_users + order.leaders + User.medias() + User.contracts() + User.finances()
+    elif action == 81:
+        action_msg = u'财务确认撤单，请黄亮确认'
+        order.contract_status = CONTRACT_STATUS_DELETEFINANCE
         to_users = to_users + order.leaders + User.medias() + User.contracts()
     elif action == 9:
         action_msg = u"同意撤单"
         order.contract_status = CONTRACT_STATUS_DELETEPASS
         order.status = STATUS_DEL
-        to_users = User.media_leaders() + User.contracts() + User.super_leaders()
+        to_users = User.media_leaders() + User.contracts() + User.super_leaders() + User.finances()
         if order.__tablename__ == 'bra_douban_order' and order.contract:
             to_users += User.douban_contracts()
         _delete_executive_report(order)
@@ -981,7 +994,7 @@ def framework_order_info(order_id):
 @order_bp.route('/my_framework_orders', methods=['GET'])
 def my_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or\
-            g.user.is_contract() or g.user.is_aduit():
+            g.user.is_aduit() or g.user.is_finance():
         orders = FrameworkOrder.all()
         if g.user.is_admin() or g.user.is_contract() or g.user.is_finance():
             pass
@@ -1110,7 +1123,7 @@ def get_medium_framework_form(order):
 @order_bp.route('/my_medium_framework_orders', methods=['GET'])
 def my_medium_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media_leader() or\
-            g.user.is_contract() or g.user.is_aduit():
+            g.user.is_finance() or g.user.is_aduit():
         orders = MediumFrameworkOrder.all()
         if g.user.is_admin() or g.user.is_contract() or g.user.is_finance():
             pass

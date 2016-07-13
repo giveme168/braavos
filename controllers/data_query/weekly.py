@@ -195,7 +195,7 @@ def douban_index():
         DoubanOrderExecutiveReport.month_day >= start_Q_month, DoubanOrderExecutiveReport.month_day <= end_Q_month)
         if report.status == 1]))
     douban_orders = [
-        _douban_order_to_dict(k, now_year, Q_monthes) for k in douban_orders if k.contract_status not in [7, 8, 9]]
+        _douban_order_to_dict(k, now_year, Q_monthes) for k in douban_orders if k.contract_status not in [7, 8, 81, 9]]
     if g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or \
             g.user.is_finance() or g.user.is_media_leader():
         douban_orders = douban_orders
@@ -393,7 +393,7 @@ def index():
 
     # 获取未撤单的合同
     client_orders = [
-        _client_order_to_dict(k, now_year, Q_monthes) for k in client_orders if k.contract_status not in [7, 8, 9]]
+        _client_order_to_dict(k, now_year, Q_monthes) for k in client_orders if k.contract_status not in [7, 8, 81, 9]]
 
     # 根据媒体查询合同
     if medium_id:
@@ -799,7 +799,7 @@ def medium_index():
                                                after_Q_monthes) for k in set(douban_orders)]
     # 去除撤单、新建合同
     douban_orders = [k for k in douban_orders if k[
-        'contract_status'] not in [0, 7, 8, 9]]
+        'contract_status'] not in [0, 7, 8, 81, 9]]
     # 获取查询区间的豆瓣合同
     douban_orders = [k for k in douban_orders if len(
         pre_month_days & k['pre_month_days']) > 0]
@@ -837,7 +837,7 @@ def medium_index():
                                                now_Q_monthes,
                                                after_Q_monthes) for k in set(medium_orders)]
     medium_orders = [k for k in medium_orders if k[
-        'contract_status'] not in [0, 7, 8, 9] and k['status'] == 1]
+        'contract_status'] not in [0, 7, 8, 81, 9] and k['status'] == 1]
     # 获取查询区间的媒体合同
     medium_orders = [k for k in medium_orders if len(
         pre_month_days & k['pre_month_days']) > 0]

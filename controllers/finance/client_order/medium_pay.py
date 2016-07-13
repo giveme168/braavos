@@ -30,7 +30,7 @@ def apply():
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
 
-    orders = list(MediumInvoicePay.query.filter_by(pay_status=3))
+    orders = list(MediumInvoicePay.query.filter_by(pay_status=4))
     if location_id >= 0:
         orders = [
             o for o in orders if location_id in o.medium_invoice.client_order.locations]
@@ -259,6 +259,7 @@ def invoice_pass(invoice_id):
     else:
         action_msg = u'消息提醒'
     context = {"to_users": to_users,
+               "action": 0,
                "action_msg": action_msg,
                "info": msg,
                "invoice": invoice,

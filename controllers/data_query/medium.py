@@ -7,7 +7,7 @@ from flask import render_template as tpl
 
 from models.medium import Medium
 from libs.date_helpers import get_monthes_pre_days
-from models.order import MediumOrderExecutiveReport
+from models.order import Order
 from controllers.data_query.helpers.medium_helpers import write_client_excel
 
 
@@ -46,8 +46,22 @@ def _parse_dict_order(order):
     else:
         d_order['agent_rebate_value'] = d_order[
             'sale_money'] * agent_rebate / 100
-    d_order['status'] = order.status
+    d_order['status'] = order.client_order.status
     return d_order
+
+
+def pre_month_money(money, start, end):
+    start = datetime.datetime.strptime(start.strftime('%Y-%m-%d'), '%Y-%m-%d')
+    end = datetime.datetime.strptime(end.strftime('%Y-%m-%d'), '%Y-%m-%d')
+    if money:
+        pre_money = float(money) / ((end - start).days + 1)
+    else:
+        pre_money = 0
+    pre_month_days = get_monthes_pre_days(start, end)
+    pre_month_money_data = []
+    for k in pre_month_days:
+        pre_month_money_data.append({'month_day': k['month'], 'money': pre_money * k['days']})
+    return pre_month_money_data
 
 
 @data_query_medium_bp.route('/', methods=['GET'])
@@ -63,19 +77,64 @@ def index():
     pre_monthes = get_monthes_pre_days(start_date_month, end_date_month)
     medium_id = int(request.values.get('medium_id', 0))
 
-    ex_medium_orders = MediumOrderExecutiveReport.query.filter(
-        MediumOrderExecutiveReport.month_day >= start_date_month,
-        MediumOrderExecutiveReport.month_day <= end_date_month)
-    ex_medium_orders = [_parse_dict_order(
-        k) for k in ex_medium_orders if k.status == 1]
-    ex_medium_orders = [k for k in ex_medium_orders if k[
-        'contract_status'] not in [0, 1, 6, 7, 8, 9] and k['status'] == 1]
+    ex_medium_orders = [o for o in Order.all(
+    ) if o.medium_start.year == year or o.medium_end.year == year]
+    obj_data = []
+    for order in ex_medium_orders:
+        pre_month_sale_money = pre_month_money(order.sale_money, order.medium_start, order.medium_end)
+        pre_month_medium_money2 = pre_month_money(order.medium_money2, order.medium_start, order.medium_end)
+        # 单笔返点
+        agent_rebate = order.client_order.agent_rebate
+        try:
+            self_agent_rebate = order.client_order.self_agent_rebate
+            self_agent_rebate = float(self_agent_rebate.split('-')[0])
+            self_agent_rebate_value = float(self_agent_rebate.split('-')[1])
+        except:
+            self_agent_rebate = 0
+            self_agent_rebate_value = 0
+        for p in range(len(pre_month_sale_money)):
+            d_order = {}
+            d_order['medium_id'] = order.medium.id
+            d_order['money'] = order.client_order.money
+            d_order['contract_status'] = order.client_order.contract_status
+            d_order['status'] = order.client_order.status
+            d_order['sale_money'] = pre_month_sale_money[p]['money']
+            d_order['medium_money2'] = pre_month_medium_money2[p]['money']
+            d_order['month_day'] = pre_month_sale_money[p]['month_day']
+            medium_rebate = order.medium_rebate_by_year(d_order['month_day'])
+            # 媒体单笔返点
+            try:
+                self_medium_rebate_data = order.self_medium_rebate
+                self_medium_rebate = self_medium_rebate_data.split('-')[0]
+                self_medium_rebate_value = float(self_medium_rebate_data.split('-')[1])
+            except:
+                self_medium_rebate = 0
+                self_medium_rebate_value = 0
+            if int(self_medium_rebate):
+                if d_order['sale_money']:
+                    d_order['medium_rebate_value'] = d_order['sale_money'] / d_order['money'] * self_medium_rebate_value
+                else:
+                    d_order['medium_rebate_value'] == 0
+            else:
+                d_order['medium_rebate_value'] = d_order['medium_money2'] * medium_rebate / 100
+
+            if self_agent_rebate:
+                if d_order['money']:
+                    d_order['agent_rebate_value'] = self_agent_rebate_value * d_order['sale_money'] / d_order['money']
+                else:
+                    d_order['agent_rebate_value'] = 0
+            else:
+                d_order['agent_rebate_value'] = d_order['sale_money'] * agent_rebate / 100
+            obj_data.append(d_order)
+    ex_medium_orders = [k for k in obj_data if k[
+        'contract_status'] not in [0, 1, 3, 6, 7, 8, 81, 9] and k['status'] == 1]
 
     medium_data = []
     if medium_id:
         mediums = Medium.query.filter_by(id=medium_id)
     else:
         mediums = Medium.all()
+    sum_sale_money = 0
     for k in mediums:
         sale_money_data = []
         medium_money2_data = []
@@ -90,12 +149,14 @@ def index():
                                       'medium_id'] == k.id and ex['month_day'].date() == i['month'].date()]))
             agent_rebate_data.append(sum([ex['agent_rebate_value'] for ex in ex_medium_orders if ex[
                                      'medium_id'] == k.id and ex['month_day'].date() == i['month'].date()]))
+        sum_sale_money += sum(sale_money_data)
         medium_data.append({'id': k.id, 'name': k.name,
                             'level': k.level or 100,
                             'sale_money_data': sale_money_data,
                             'medium_money2_data': medium_money2_data,
                             'medium_rebate_data': medium_rebate_data,
                             'agent_rebate_data': agent_rebate_data})
+    print sum_sale_money
     medium_data = sorted(
         medium_data, key=operator.itemgetter('level'), reverse=False)
     if request.values.get('action', '') == 'download':

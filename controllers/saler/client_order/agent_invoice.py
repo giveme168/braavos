@@ -7,7 +7,7 @@ from flask import render_template as tpl
 from models.client_order import ClientOrder
 from models.invoice import (AgentInvoice, INVOICE_TYPE_CN, AGENT_INVOICE_BOOL_INVOICE_CN,
                             AGENT_INVOICE_STATUS_NORMAL, AGENT_INVOICE_STATUS_APPLY,
-                            AGENT_INVOICE_STATUS_CN,
+                            AGENT_INVOICE_STATUS_CN, AGENT_INVOICE_STATUS_F_AGREE,
                             AgentInvoicePay, AGENT_INVOICE_STATUS_AGREE)
 from models.user import User
 from models.client import Agent
@@ -225,7 +225,21 @@ def apply_pay(invoice_id):
                     invoice.agent_invoice.invoice_num, invoice.detail)), msg_channel=5)
         send_type = "saler"
     elif action == 3:
-        action_msg = u'代理返点打款申请已同意'
+        action_msg = u'代理返点打款申请'
+        for invoice in invoice_pays:
+            invoice.pay_status = AGENT_INVOICE_STATUS_F_AGREE
+            invoice.save()
+            flash(u'[副总裁同意%s代理订单打款申请，打款金额: %s, 发票号: %s]  %s ' %
+                  (invoice.agent_invoice.company, invoice.money,
+                   invoice.agent_invoice.invoice_num, invoice.detail), 'success')
+
+            invoice.agent_invoice.client_order.add_comment(g.user, u"%s,%s" % (
+                action_msg, u'[副总裁同意%s代理订单打款申请，打款金额: %s, 发票号: %s]  %s ' %
+                (invoice.agent_invoice.company, invoice.money,
+                    invoice.agent_invoice.invoice_num, invoice.detail)), msg_channel=5)
+        send_type = "saler"
+    elif action == 4:
+        action_msg = u'黄亮已批准代理返点打款'
         to_users += User.finances()
         for invoice in invoice_pays:
             invoice.pay_status = AGENT_INVOICE_STATUS_AGREE
@@ -235,7 +249,7 @@ def apply_pay(invoice_id):
                    invoice.agent_invoice.invoice_num, invoice.detail), 'success')
 
             invoice.agent_invoice.client_order.add_comment(g.user, u"%s,%s" % (
-                action_msg, u'[%s代理同意打款，打款金额: %s, 发票号: %s]  %s ' %
+                action_msg, u'[同意%s代理订单打款申请，打款金额: %s, 发票号: %s]  %s ' %
                 (invoice.agent_invoice.company, invoice.money,
                     invoice.agent_invoice.invoice_num, invoice.detail)), msg_channel=5)
         send_type = "finance"
@@ -243,6 +257,7 @@ def apply_pay(invoice_id):
         action_msg = u'消息提醒'
 
     context = {"to_users": to_users,
+               "action": action,
                "to_other": emails,
                "action_msg": action_msg,
                "info": msg,

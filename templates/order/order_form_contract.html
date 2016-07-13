@@ -212,7 +212,7 @@
             {% if order.contract_status in [5, 19] and g.user.is_contract() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="120">项目归档（确认）</button>
             {% endif %}
-            {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 9]%}
+            {% if order.can_admin(g.user) and order.contract_status not in [7, 8, 81, 9]%}
               {% if order.can_edit_contract_time() %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7" style="background: #ec3341;">申请撤单</button>
               {% else %}
@@ -220,7 +220,7 @@
               {% endif %}
             {% endif %}
             {% if order.contract_status == 7 %}
-              {%if order.can_admin(g.user) %}
+              {% if order.can_admin(g.user) %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">再次申请撤单</button>
               {% endif %}
               {% if g.user.is_leader() %} 
@@ -228,9 +228,14 @@
               {% endif %}
             {% endif %}
             {% if order.contract_status == 8 %}
-              {% if g.user.is_leader() %} 
-                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="8">再次确认撤单</button>
+              {% if order.can_admin(g.user) %} 
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="8">提醒财务确认撤单</button>
               {% endif %}
+              {% if g.user.is_finance() %}
+                <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="81">财务确认撤单</button>
+              {% endif %}
+            {% endif %}
+            {% if order.contract_status == 81 %}
               {% if g.user.is_super_leader() %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="9">同意撤单</button>
               {% endif %}
@@ -339,7 +344,7 @@
    var email = $("#contract-email").val();
    var msg = $("#msg").val();
    var table_name = $('#table_name').val()
-   if(actionVal == '1'){
+   if(actionVal == '1' || actionVal == '2'){
       if(table_name == 'bra_client_order'){
         var money = parseFloat($('#money').val());
         var client_start = new Date($('#client_start').val());

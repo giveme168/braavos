@@ -49,6 +49,7 @@ CONTRACT_STATUS_PRINTED = 5
 CONTRACT_STATUS_MEDIA = 6
 CONTRACT_STATUS_DELETEAPPLY = 7
 CONTRACT_STATUS_DELETEAGREE = 8
+CONTRACT_STATUS_DELETEFINANCE = 81
 CONTRACT_STATUS_DELETEPASS = 9
 CONTRACT_STATUS_CHECKCONTRACT = 10
 CONTRACT_STATUS_PRE_FINISH = 19
@@ -64,6 +65,7 @@ CONTRACT_STATUS_CN = {
     CONTRACT_STATUS_DELETEAPPLY: u'撤单申请中...',
     CONTRACT_STATUS_DELETEAGREE: u'确认撤单',
     CONTRACT_STATUS_DELETEPASS: u'同意撤单',
+    CONTRACT_STATUS_DELETEFINANCE: u'财务确认撤单',
     CONTRACT_STATUS_PRE_FINISH: u'项目归档（预）',
     CONTRACT_STATUS_FINISH: u'项目归档（确认）',
     CONTRACT_STATUS_CHECKCONTRACT: u'审批合同通过'
@@ -719,6 +721,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def search_info(self):
         return (self.client.name + self.agent.name +
                 self.campaign + self.contract +
+                "".join([k.name for k in self.direct_sales + self.agent_sales]) +
                 "".join([mo.medium.name + mo.medium_contract for mo in self.medium_orders]) +
                 "".join([ado.contract for ado in self.associated_douban_orders]))
 

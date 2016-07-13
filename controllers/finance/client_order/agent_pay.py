@@ -76,7 +76,7 @@ def apply():
     year = int(request.values.get('year', datetime.datetime.now().year))
     orders = list([
         invoicepay.agent_invoice.client_order for invoicepay in
-        AgentInvoicePay.get_agent_invoices_pay_status(3)])
+        AgentInvoicePay.get_agent_invoices_pay_status(4)])
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     orders = [k for k in orders if k.client_start.year ==
@@ -202,6 +202,7 @@ def invoice_pass(invoice_id):
     else:
         action_msg = u'消息提醒'
     context = {"to_users": to_users,
+               "action": 0,
                "action_msg": action_msg,
                "info": msg,
                "invoice": invoice,
