@@ -194,3 +194,11 @@ def status(user_id, lid):
         return redirect(url_for('account_okr.index', user_id=user_id))
     else:
         return redirect(url_for('account_okr.subordinates'))
+
+
+# evaluate okr when status=pass
+@account_okr_bp.route('/<user_id>/<lid>/evaluate', methods=['GET', 'POST'])
+def evaluate(user_id, lid):
+    okr = Okr.get(lid)
+    okrlist = json.loads(okr.o_kr)
+    return tpl('/account/okr/evaluate.html', okrlist=okrlist, okr=okr)
