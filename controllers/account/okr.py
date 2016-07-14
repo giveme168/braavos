@@ -2,7 +2,8 @@
 from flask import request, redirect, url_for, Blueprint, flash, json, g, current_app
 from flask import render_template as tpl
 
-from models.user import User, Okr, OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_BACK, OKR_STATUS_NORMAL, OKR_QUARTER_CN
+from models.user import User, Okr, OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_BACK, OKR_STATUS_NORMAL, \
+    OKR_QUARTER_CN, OKR_STATUS_MID_EVALUATION_APPLY
 from libs.email_signals import account_okr_apply_signal
 
 account_okr_bp = Blueprint('account_okr', __name__, template_folder='../../templates/account/okr/')
@@ -15,6 +16,8 @@ PRIORITY_LIST = ['P0', 'P1', 'P2', 'P3']
 @account_okr_bp.route('/')
 def index():
     okrs = [k for k in Okr.all() if k.creator == g.user]
+    for okr in okrs:
+        print okr.status
     # 后面接一个排序按照日期早晚
     return tpl('/account/okr/index.html', okrs=okrs)
 
@@ -196,9 +199,34 @@ def status(user_id, lid):
         return redirect(url_for('account_okr.subordinates'))
 
 
-# evaluate okr when status=pass
+# evaluate okr in the mid of a quarter
 @account_okr_bp.route('/<user_id>/<lid>/evaluate', methods=['GET', 'POST'])
 def evaluate(user_id, lid):
     okr = Okr.get(lid)
     okrlist = json.loads(okr.o_kr)
-    return tpl('/account/okr/evaluate.html', okrlist=okrlist, okr=okr)
+    if request.method == 'POST':
+        # 拿到评价的数据以及insert的查询字段
+        okr_json = request.values.get('okr_json')
+        o_kr = json.loads(okr_json)
+        status = int(o_kr['status'])
+        # 填入对应id的那一条数据
+        okrtext = json.dumps(o_kr['okrs'])
+        okr_update = Okr.query.get(lid)
+        okr_update.status = status
+        okr_update.o_kr = okrtext
+        okr_update.save()
+
+        if int(status) == OKR_STATUS_MID_EVALUATION_APPLY:
+            flash(u'已发送申请', 'success')
+            account_okr_apply_signal.send(
+                current_app._get_current_object(), okr=okr_update)
+        else:
+            flash(u'修改成功', 'success')
+        return redirect(url_for('account_okr.index'))
+
+    return tpl('/account/okr/evaluate.html',
+               okrlist=okrlist,
+               year=str(okr.year),
+               quarter=okr.quarter,
+               okr=okr,
+               priority_list=PRIORITY_LIST)

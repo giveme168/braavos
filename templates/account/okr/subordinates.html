@@ -18,6 +18,11 @@
                     <option value="100" selected>所有状态</option>
                     <option value="2">申请中</option>
                     <option value="3">通过申请</option>
+                    <option value="7">完成季中评价</option>
+                    <option value="8">季度评价申请</option>
+                    <option value="9">通过季度申请</option>
+
+
                 </select>
             </div>
             <div class="select_option">
@@ -42,7 +47,7 @@
                     <th>年度</th>
                     <th>季度</th>
                     <th>状态</th>
-                    <th>状态</th>
+                    <th>操作</th>
                 </tr>
             </thead>
             <tbody>
@@ -58,13 +63,20 @@
                                 <a href="javascript:back('{{url_for('account_okr.index', user_id=g.user.id, lid=l.id)}}?status=0','{{l.creator.name}}')">取消OKR审核申请</a><br/>
                             {% endif %}
                         {% else %}
-                            {% if l.status != 3 %}
+                            {% if l.status == 2 %}
                                     {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}
                                         <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=3">通过</a><br/>
                                         <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=4">不通过</a><br/>
                                     {% endif %}
+                              {% endif %}
+
+                            {% if l.status == 8 %}
+                                    {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}
+                                        <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=9">通过</a><br/>
+                                        <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=10">不通过</a><br/>
+                                    {% endif %}
                             {% endif %}
-                        {% endif %}
+                    {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
@@ -107,3 +119,5 @@ function back(url, name){
 }
 </script>
 {% endblock %}
+
+
