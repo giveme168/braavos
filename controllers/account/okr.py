@@ -282,6 +282,23 @@ def final_evaluate(user_id, lid):
 
 @account_okr_bp.route('/all_okrs', methods=['GET'])
 def allokrs():
+    status = int(request.values.get('status', 100))
+    user_id = int(request.values.get('user_id', 0))
+    year = int(request.values.get('year', 0))
+    quarter = int(request.values.get('quarter', 0))
+
     status_list = [3, 6, 9]
-    okrs = Okr.query.filter(Okr.status.in_(status_list)).filter(Okr.creator_id != g.user.id)
-    return tpl('all_okrs.html', okrs=okrs)
+    okrs = [o for o in Okr.query.filter(Okr.creator_id != g.user.id) if o.status in status_list]
+    if status != 100:
+        okrs = [o for o in okrs if o.status == status]
+    if user_id:
+        okrs = [o for o in okrs if o.creator_id == user_id]
+    if year != 0:
+        okrs = [o for o in okrs if o.year == year]
+    if quarter != 0:
+        okrs = [o for o in okrs if o.quarter == quarter]
+    
+    return tpl('all_okrs.html', okrs=okrs, status=status, users=User.all_active(),
+               params="&status=%s&user_id=%s$year=%s&quarter=%s" % (str(status), str(user_id), str(year), str(quarter)),
+               user_id=user_id
+               )
