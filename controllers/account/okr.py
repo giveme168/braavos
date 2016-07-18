@@ -167,12 +167,16 @@ def subordinates():
         okr = [k for k in okr if k.creator.id == int(user_id)]
     if status != 100:
         okr = [k for k in okr if k.status == status]
+    if year:
+        okr = [o for o in okr if o.year == year]
+    if quarter:
+        okr = [o for o in okr if o.quarter == quarter]
     okrs = sorted(okr, key=lambda x: x.year, reverse=True)
     return tpl('/account/okr/subordinates.html', okrs=okrs, user_id=user_id,
                quarter=quarter, year=year,
                title=u'下属的OKR申请审核列表', under_users=under_users, status=status,
-               params="&user_id=%s&status=%s" % (
-                   user_id, str(status)),
+               params="&user_id=%s&status=%s&year=%s&quarter=%s" % (
+                   user_id, str(status), year, quarter),
                )
 
 
@@ -182,11 +186,10 @@ def info(lid):
     okr = Okr.query.get(lid)
     okrlist = json.loads(okr.o_kr)
     under_user = _get_all_under_users(g.user.id)
-    mark = False
-    for u in under_user:
-        if okr.creator.id == u['uid']:
-            mark = True
-            break
+    if okr.creator_id not in [u['uid'] for u in under_user]:
+        mark = False
+    else:
+        mark = True
     if not (g.user.is_super_leader() or g.user.is_HR_leader() or mark):
         okr.summary = u'您无权查看okr小结'
 
@@ -293,11 +296,10 @@ def allokrs():
         okrs = [o for o in okrs if o.status == status]
     if user_id:
         okrs = [o for o in okrs if o.creator_id == user_id]
-    if year != 0:
+    if year:
         okrs = [o for o in okrs if o.year == year]
-    if quarter != 0:
+    if quarter:
         okrs = [o for o in okrs if o.quarter == quarter]
-    
     return tpl('all_okrs.html', okrs=okrs, status=status, users=User.all_active(),
                params="&status=%s&user_id=%s$year=%s&quarter=%s" % (str(status), str(user_id), str(year), str(quarter)),
                user_id=user_id
