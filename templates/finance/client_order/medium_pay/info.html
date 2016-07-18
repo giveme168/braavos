@@ -14,6 +14,7 @@
             <th>媒体总金额</th>
             <th>发票总金额</th>
             <th>已打款金额</th>
+            <th>媒体返点(系统计算)</th>
             <th>已开返点发票金额</th>
           </tr>
         </thead>
@@ -22,6 +23,7 @@
             <td>{{order.mediums_money2}}元</td>
             <td>{{order.mediums_invoice_sum}}元</td>
             <td>{{order.mediums_invoice_pass_sum}}元</td>
+            <td>{{order.mediums_rebate_money}}元</td>
             <td>{{order.get_medium_rebate_invoice_pass_money()}}元</td>
           </tr>
         </tbody>
