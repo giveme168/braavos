@@ -3,7 +3,7 @@ from flask import request, redirect, url_for, Blueprint, flash, json, g, current
 from flask import render_template as tpl
 
 from models.user import User, Okr, OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_BACK, OKR_STATUS_NORMAL, \
-    OKR_QUARTER_CN, OKR_STATUS_MID_EVALUATION_APPLY
+    OKR_QUARTER_CN, OKR_STATUS_MID_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED
 from libs.email_signals import account_okr_apply_signal
 
 account_okr_bp = Blueprint('account_okr', __name__, template_folder='../../templates/account/okr/')
@@ -16,8 +16,6 @@ PRIORITY_LIST = ['P0', 'P1', 'P2', 'P3']
 @account_okr_bp.route('/')
 def index():
     okrs = [k for k in Okr.all() if k.creator == g.user]
-    for okr in okrs:
-        print okr.status
     # 后面接一个排序按照日期早晚
     return tpl('/account/okr/index.html', okrs=okrs)
 
@@ -113,9 +111,10 @@ def update(user_id, lid):
         else:
             flash(u'修改成功', 'success')
         return redirect(url_for('account_okr.index'))
-    okr = Okr.get(lid)
+    okr = Okr.query.get(lid)
     okrlist = json.loads(okr.o_kr)
     return tpl('/account/okr/update_new.html',
+               okr=okr,
                okrlist=okrlist,
                year=str(okr.year),
                quarter=okr.quarter,
@@ -127,7 +126,7 @@ def update(user_id, lid):
 # delete the log in database
 @account_okr_bp.route('/<user_id>/<lid>/delete')
 def delete(user_id, lid):
-    Okr.get(lid).delete()
+    Okr.query.get(lid).delete()
     flash(u'删除成功', 'success')
     return redirect(url_for('account_okr.index', user_id=user_id))
 
@@ -157,11 +156,12 @@ def subordinates():
     year = int(request.values.get('year', 0))
     if g.user.is_super_leader() or g.user.is_HR_leader():
         okr = [k for k in Okr.all() if k.status in [
-            OKR_STATUS_APPLY, OKR_STATUS_PASS]]
+            OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED]]
         under_users = [{'uid': k.id, 'name': k.name} for k in User.all()]
     else:
         under_users = _get_all_under_users(g.user.id)
-        okr = [k for k in Okr.all() if k.status in [OKR_STATUS_APPLY, OKR_STATUS_PASS]]
+        okr = [k for k in Okr.all() if k.status in [OKR_STATUS_APPLY, OKR_STATUS_PASS,
+                                                    OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED]]
 
     if user_id:
         okr = [k for k in okr if k.creator.id == int(user_id)]
@@ -179,16 +179,25 @@ def subordinates():
 # display the detail okr content of the subordinates
 @account_okr_bp.route('/<lid>/info', methods=['GET', 'POST'])
 def info(lid):
-    okr = Okr.get(lid)
+    okr = Okr.query.get(lid)
     okrlist = json.loads(okr.o_kr)
+    under_user = _get_all_under_users(g.user.id)
+    mark = False
+    for u in under_user:
+        if okr.creator.id == u['uid']:
+            mark = True
+            break
+    if not (g.user.is_super_leader() or g.user.is_HR_leader() or mark):
+        okr.summary = u'您无权查看okr小结'
+
     return tpl('/account/okr/info.html', okrlist=okrlist, okr=okr)
 
 
 @account_okr_bp.route('/<user_id>/<lid>/status')
 def status(user_id, lid):
-    status = int(request.values.get('status', 1))
+    okr_status = int(request.values.get('status', 1))
     okr = Okr.query.get(lid)
-    okr.status = status
+    okr.status = okr_status
     okr.save()
     flash(okr.status_cn, 'success')
     account_okr_apply_signal.send(
@@ -200,16 +209,14 @@ def status(user_id, lid):
 
 
 # evaluate okr in the mid of a quarter
-@account_okr_bp.route('/<user_id>/<lid>/evaluate', methods=['GET', 'POST'])
-def evaluate(user_id, lid):
-    okr = Okr.get(lid)
+@account_okr_bp.route('/<user_id>/<lid>/mid_evaluate', methods=['GET', 'POST'])
+def mid_evaluate(user_id, lid):
+    okr = Okr.query.get(lid)
     okrlist = json.loads(okr.o_kr)
     if request.method == 'POST':
-        # 拿到评价的数据以及insert的查询字段
         okr_json = request.values.get('okr_json')
         o_kr = json.loads(okr_json)
         status = int(o_kr['status'])
-        # 填入对应id的那一条数据
         okrtext = json.dumps(o_kr['okrs'])
         okr_update = Okr.query.get(lid)
         okr_update.status = status
@@ -224,9 +231,57 @@ def evaluate(user_id, lid):
             flash(u'修改成功', 'success')
         return redirect(url_for('account_okr.index'))
 
-    return tpl('/account/okr/evaluate.html',
-               okrlist=okrlist,
-               year=str(okr.year),
-               quarter=okr.quarter,
-               okr=okr,
-               priority_list=PRIORITY_LIST)
+    if okr.status == 3:
+        return tpl('/account/okr/mid_evaluate.html',
+                   okrlist=okrlist,
+                   okr=okr,
+                   priority_list=PRIORITY_LIST)
+    else:
+        return tpl('/account/okr/update_mid_eval.html',
+                   okrlist=okrlist,
+                   okr=okr,
+                   )
+
+
+@account_okr_bp.route('/<user_id>/<lid>/final_evaluate', methods=['GET', 'POST'])
+def final_evaluate(user_id, lid):
+    okr = Okr.query.get(lid)
+    okrlist = json.loads(okr.o_kr)
+    if request.method == 'POST':
+        # 拿到评价的数据以及insert的查询字段
+        okr_json = request.values.get('okr_json')
+        o_kr = json.loads(okr_json)
+        status = int(o_kr['status'])
+        summary = o_kr['summary']
+        okrtext = json.dumps(o_kr['okrs'])
+        okr_update = Okr.query.get(lid)
+        okr_update.status = status
+        okr_update.summary = summary
+        okr_update.o_kr = okrtext
+        okr_update.save()
+
+        if int(status) == OKR_STATUS_EVALUATION_APPLY:
+            flash(u'已发送申请', 'success')
+            account_okr_apply_signal.send(
+                current_app._get_current_object(), okr=okr_update)
+        else:
+            flash(u'修改成功', 'success')
+        return redirect(url_for('account_okr.index'))
+
+    if okr.status == 6:
+        return tpl('/account/okr/final_evaluate.html',
+                   okrlist=okrlist,
+                   okr=okr,
+                   priority_list=PRIORITY_LIST)
+    else:
+        return tpl('/account/okr/update_final_eval.html',
+                   okrlist=okrlist,
+                   okr=okr,
+                   )
+
+
+@account_okr_bp.route('/all_okrs', methods=['GET'])
+def allokrs():
+    status_list = [3, 6, 9]
+    okrs = Okr.query.filter(Okr.status.in_(status_list)).filter(Okr.creator_id != g.user.id)
+    return tpl('all_okrs.html', okrs=okrs)

@@ -46,15 +46,15 @@
                                 <br/>
                                 <a href="javascript:check_del('{{ url_for('account_okr.delete', user_id=g.user.id, lid=l.id) }}')">删除</a>
                              {% elif l.status == 3 %}
-                                <a href="{{ url_for('account_okr.evaluate', user_id=g.user.id, lid=l.id) }}">中期评价</a><br/>
+                                <a href="{{ url_for('account_okr.mid_evaluate', user_id=g.user.id, lid=l.id) }}">中期评价</a><br/>
                              {% elif l.status == 5 %}
-                                <a href="{{ url_for('account_okr.update', user_id=g.user.id, lid=l.id) }}">修改</a><br/>
+                                <a href="{{ url_for('account_okr.mid_evaluate', user_id=g.user.id, lid=l.id) }}">修改</a><br/>
                                 <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=6">发送申请</a>
                                 <br>
                              {% elif l.status == 6 %}
-                                <a href="{{ url_for('account_okr.evaluate', user_id=g.user.id, lid=l.id) }}">季度评价</a><br/>
+                                <a href="{{ url_for('account_okr.final_evaluate', user_id=g.user.id, lid=l.id) }}">季度评价</a><br/>
                              {% elif l.status == 7 %}
-                                <a href="{{ url_for('account_okr.update', user_id=g.user.id, lid=l.id) }}">修改</a><br/>
+                                <a href="{{ url_for('account_okr.final_evaluate', user_id=g.user.id, lid=l.id) }}">修改</a><br/>
                                 <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=8">发送申请</a>
                                 <br>
                              {% elif l.status == 8 %}
@@ -62,7 +62,7 @@
                                 <br/>
                                 <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=8">再次发送申请</a>
                              {% elif l.status == 10 %}
-                                <a href="{{ url_for('account_okr.update', user_id=g.user.id, lid=l.id) }}">修改</a><br/>
+                                <a href="{{ url_for('account_okr.final_evaluate', user_id=g.user.id, lid=l.id) }}">修改</a><br/>
                                 <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=8">发送申请</a>
                                 <br/>
                             {% endif %}

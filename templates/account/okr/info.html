@@ -23,14 +23,21 @@
                 <tr>
                     <th>季度目标(O)</th>
                     <th style="width:150px;">目标优先级 P(O)</th>
-                    {% if okr.status==5 or 6 %}
+                    {% if okr.status in [5,6] %}
                         <th style="width:25px;">中期评价</th>
                     {% endif %}
-
+                    {% if okr.status in [7,8,9,10] %}
+                        <th style="width:25px;">中期评价</th>
+                        <th style="width:25px;">季末评价</th>
+                    {% endif %}
                     <th>主要成绩</th>
                     <th style="width:200px;">成绩优先级 P(KR)</th>
-                    {% if okr.status==5 or 6 %}
+                    {% if okr.status in [5,6] %}
                         <th style="width:25px;">中期评价</th>
+                    {% endif %}
+                    {% if okr.status in [7,8,9,10] %}
+                        <th style="width:25px;">中期评价</th>
+                        <th style="width:25px;">季末评价</th>
                     {% endif %}
                 </tr>
                 </thead>
@@ -47,9 +54,17 @@
                                 <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
                                     <span>{{ okr_tem['priority'] }}</span>
                                 </td>
-                                {% if okr.status== 5 or 6 %}
+                                {% if okr.status in [5,6] %}
                                     <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
                                         <span>{{ okr_tem['mid_eval_o'] }}</span>
+                                    </td>
+                                {% endif %}
+                                {% if okr.status in [7,8,9,10] %}
+                                    <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
+                                        <span>{{ okr_tem['mid_eval_o'] }}</span>
+                                    </td>
+                                    <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
+                                        <span>{{ okr_tem['final_eval_o'] }}</span>
                                     </td>
                                 {% endif %}
                             {% endif %}
@@ -59,9 +74,17 @@
                             <td class="remove_row">
                                 <span>{{ kr['results_PKR'] }}</span>
                             </td>
-                            {% if okr.status== 5 or 6 %}
+                            {% if okr.status in [5,6] %}
                                 <td class="remove_row">
                                     <span>{{ kr['mid_eval_kr'] }}</span>
+                                </td>
+                            {% endif %}
+                            {% if okr.status in [7,8,9,10] %}
+                                <td class="merge_row">
+                                    <span>{{ kr['mid_eval_kr'] }}</span>
+                                </td>
+                                <td class="merge_row">
+                                    <span>{{ kr['final_eval_kr'] }}</span>
                                 </td>
                             {% endif %}
                         </tr>
@@ -70,6 +93,12 @@
                 {% endfor %}
 
             </table>
+        </div>
+        <div  style="clear:both;width:96%;margin-left:2%;height: 100px;">
+            <td class="remove_row">
+                <span style="margin-bottom: 10px;">季度个人小结</span>
+                <textarea class="summary" rows="8" style="border:1px solid #ccc; width: 100%" readonly>{{ okr.summary }}</textarea>
+            </td>
         </div>
         <div class="state" style="margin-left:25%;margin-top:50px;">
             <a href="javascript:history.go(-1);"><input type="button" value="返回"></a>
