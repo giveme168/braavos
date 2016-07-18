@@ -10,9 +10,8 @@ db.create_all()
 
 from models.user import (User, Team, TEAM_TYPE_SUPER_ADMIN, TEAM_TYPE_MEDIUM,
                          TEAM_TYPE_LEADER, TEAM_TYPE_DIRECT_SELLER)
-from models.medium import Medium, AdSize, AdUnit, AdPosition, TARGET_BLANK
-from models.consts import STATUS_ON
-from models.client import Client, Agent
+from models.medium import Medium, MediumGroup
+from models.client import Client, Agent, Group
 from models.order import Order
 from config import DEFAULT_PASSWORD
 
@@ -26,8 +25,12 @@ user = User.add(name="admin", email="test0@inad.com", password=DEFAULT_PASSWORD,
 leader = User.add(name="leader", email="test1@inad.com", password=DEFAULT_PASSWORD, team=leader_team)
 saler = User.add(name="saler", email="test2@inad.com", password=DEFAULT_PASSWORD, team=sale_team)
 
-medium = Medium.add(u"测试媒体", owner=medium_team)
+medium_group = MediumGroup.add(name='测试媒体供应商', tax_num="", address="",
+                               phone_num="", bank="", bank_num="", level=100)
+medium = Medium.add(medium_group, u"测试媒体", owner=medium_team)
 
 client = Client.add(u"测试客户", 0)
 
-agent = Agent.add(u"测试代理")
+group = Group.add(u'测试代理集团')
+
+agent = Agent.add(u"测试代理", group=group)
