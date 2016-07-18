@@ -12,6 +12,21 @@ from models.invoice import AgentInvoice
 from consts import CLIENT_INDUSTRY_CN
 
 
+FILE_TYPE_LICENCE = 100  # 营业执照
+FILE_TYPE_F_CERTIFICATE = 101  # 税务登记证
+FILE_TYPE_O_CERTIFICATE = 102  # 组织机构代码证
+FILE_TYPE_TAX_CERTIFICATE = 103  # 一般纳税人证明
+FILE_TYPE_T_INFO = 104  # 盖章的开票信息
+
+FILE_TYPE_CN = {
+    FILE_TYPE_LICENCE: u'营业执照',
+    FILE_TYPE_F_CERTIFICATE: u'税务登记证',
+    FILE_TYPE_O_CERTIFICATE: u'组织机构代码证',
+    FILE_TYPE_TAX_CERTIFICATE: u'一般纳税人证明',
+    FILE_TYPE_T_INFO: u'盖章的开票信息'
+}
+
+
 class Client(db.Model, BaseModelMixin):
     __tablename__ = 'client'
 

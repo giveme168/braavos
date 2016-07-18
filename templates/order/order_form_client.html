@@ -148,25 +148,6 @@
         <input type="submit" value="保存">
     </div>
 </form>
-
-{% if mediums %}
-<script type="txt/template" id="medium-tpl">
-  <div class="form-group">
-    <label class="medium-control">投放媒体 : </label>
-    <select name="medium" type="text" class="form-control medium-control">
-      {% for m in mediums %}
-        <option value="{{m[0]}}">{{m[1]}}</option>
-      {% endfor %}
-    </select>
-    <label class="medium-control">售卖金额(元) : </label>
-    <input name="medium-money" type="text" class="form-control medium-control" placeholder="售卖金额(元)" value="0"/>
-    <button class="btn btn-sm btn-default medium-remove"> 取消 </button>
-  </div>
-</script>
-<style>
-  .medium-control{margin-right: 10px; text-align: right; width:20%; display: inline-block;}
-</style>
-{% endif %}
 <script>
 Date.prototype.Format = function (fmt) { //author: meizz 
     var o = {
@@ -196,15 +177,46 @@ $(document).ready(function(){
         {% endif %}
         minView: 2
       });
+
+    var mids = []
+    for (var i=0; i<100; i++){
+      mids.push(i)
+    }
+
+    function set_mediums(medium_group_id, html_mid){
+        $.ajax({
+          type: "GET",
+          url: "/clients/medium_groups/"+medium_group_id+"/mediums",
+          dataType: "json",
+          success: function(data){
+              $('#medium_'+html_mid).empty();   //清空resText里面的所有内容
+              var data = data['data'];
+              for(var i=0; i<data.length; i++){
+                  $('#medium_'+html_mid).append("<option value='"+data[i]['mid']+"'>"+data[i]['name']+"</option>");
+              }
+          }
+      })
+    }
+    {% if mediums %}
     $(".add-new-medium").click(function(e){
       e.preventDefault();
-      var medium_tpl = $("#medium-tpl").html();
+      var mid = mids.pop()
+      var medium_tpl = '<div class="input-row-box" id="medium_order_div_'+mid+'"><div class="input-group-menu"><div class="name">媒体供应商 : </div><select class="surname" style="width:300px;" name="medium_group" id="medium_group_'+mid+'">'
+      {% for m in mediums %}
+        medium_tpl += '<option value="{{m.id}}">{{m.name}}</option>'
+      {% endfor %}
+      medium_tpl += '</select></div><div class="input-group-menu"><div class="name">投放媒体 : </div><select class="surname" style="width:300px;" name="medium" id="medium_'+mid+'"></select></div><div class="input-group-menu" ><div class="name">售卖金额(元) : </div><input class="surname" style="width:300px;" name="medium-money" type="text"  placeholder="售卖金额(元)" value="0" /></div><div class="state" style="margin-left: 600px;"><button class="medium-remove" id="medium-remove-'+mid+'"> 取消 </button> </div></div>'
       $(this).parents("form").find("#mediums").append(medium_tpl);
-      $(".medium-remove").click(function(e){
+      set_mediums('{{mediums[0].id}}', mid)
+      $("#medium-remove-"+mid).click(function(e){
         e.preventDefault();
-        $(this).parents(".form-group").remove();
+        $('#medium_order_div_'+mid).remove();
       });
+      $('#medium_group_'+mid).change(function(){
+          set_mediums(this.value, mid)
+       })
     });
+    {% endif %}
     $("#client_end").change(function(e){
       var endDate = new Date($('#client_end').val());
       endDate.setDate(endDate.getDate() + 90); 

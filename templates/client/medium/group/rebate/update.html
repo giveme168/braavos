@@ -1,0 +1,43 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %} 媒体供应商返点信息{% endblock %}
+
+{% block content %}
+{% include "/client/client_base_v1_0_0.html" %}
+<div class="container bra-box">
+    <h3>修改 {{medium_group.name}} 返点信息</h3>
+    <form class="input-row-box" method="POST" action="{{url_for('client.medium_group_rebate_update', medium_group_id=medium_group.id, rid=medium_group_rebate.id)}}" onsubmit="return check_form(this);">
+        <div class="input-group-menu">
+          <div class="name">执行年 : </div>
+            <select name="year" id="year" class="surname" style="width:300px;">
+                {% for k in range(0, 5) %}
+                <option value="{{2014+k}}">{{2014+k}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="input-group-menu">
+          <div class="name">返点信息 : </div>
+            <input type="number" name="rebate" step="any" id="rebate" class="surname" style="width:300px;" placeholder="请输入数字" value="{{medium_group_rebate.rebate}}"/>
+            <span style="color:red;" class="tips">%</span>
+        </div>
+        <div class="state" style="margin-left:40%;">
+            <a href="{{url_for('client.medium_group_detail', medium_group_id=medium_group.id)}}"><input type="button" value="返回"></a>
+            <input type="submit" value="保存">
+        </div>
+    </from>
+</div>
+<script>
+function check_form(obj){
+    if (obj.rebate.value == ''){
+        alert('请输入返点信息')
+        obj.rebate.focus()
+        return false;
+    }
+    return true;
+}
+$(function(){
+  $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+  $("#year").val(parseInt('{{medium_group_rebate.year.year}}'))
+  $("#year").trigger("chosen:updated");
+})
+</script>
+{% endblock %}

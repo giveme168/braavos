@@ -437,7 +437,20 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def mediums_rebate_money(self):
-        return sum([medium_order.get_medium_rebate_money() for medium_order in self.medium_orders])
+        rebate_money = 0
+        for medium_order in self.medium_orders:
+            try:
+                self_medium_rebate_data = medium_order.self_medium_rebate
+                self_medium_rebate = self_medium_rebate_data.split('-')[0]
+                self_medium_rebate_value = float(self_medium_rebate_data.split('-')[1])
+            except:
+                self_medium_rebate = 0
+                self_medium_rebate_value = 0
+        if int(self_medium_rebate):
+            rebate_money += self_medium_rebate_value
+        else:
+            rebate_money += medium_order.get_medium_rebate_money()
+        return rebate_money
 
     def get_medium_rebate_money(self, medium):
         for medium_order in self.medium_orders:
@@ -452,6 +465,15 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def agents_rebate_money(self):
+        try:
+            self_agent_rebate_data = self.self_agent_rebate
+            self_agent_rebate = self_agent_rebate_data.split('-')[0]
+            self_agent_rebate_value = float(self_agent_rebate_data.split('-')[1])
+        except:
+            self_agent_rebate = 0
+            self_agent_rebate_value = 0
+        if int(self_agent_rebate):
+            return self_agent_rebate_value
         return self.agent_money
 
     @property
@@ -1292,7 +1314,7 @@ class BackMoney(db.Model, BaseModelMixin):
 
     @property
     def real_back_money_diff_time(self):
-        return (self.back_time.date() - self.client_order.reminde_date).days
+        return (self.back_time.date() - self.client_order.client_end).days
 
 
 class MediumBackMoney(db.Model, BaseModelMixin):

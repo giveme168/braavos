@@ -12,6 +12,7 @@ from models.item import OCCUPY_RESOURCE_STATUS, ITEM_STATUS_ORDER
 from models.order import Order, MediumOrderExecutiveReport
 from models.mixin.attachment import AttachmentMixin
 from models.mixin.comment import CommentMixin
+from models.user import Team
 
 
 TARGET_TOP = 1
@@ -87,10 +88,81 @@ LEVEL_CN = {
 }
 
 
+class MediumGroup(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
+    __tablename__ = 'medium_group'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    tax_num = db.Column(db.String(100))  # 税号
+    address = db.Column(db.String(100))  # 地址
+    phone_num = db.Column(db.String(100))  # 电话
+    bank = db.Column(db.String(100))  # 开户银行
+    bank_num = db.Column(db.String(100))  # 银行号
+    level = db.Column(db.Integer)  # 媒体级别
+    rebates = db.relationship('MediumGroupRebate')
+    mediums = db.relationship('Medium')
+    __mapper_args__ = {'order_by': id.desc()}
+
+    def __init__(self, name, tax_num, address, phone_num, bank, bank_num, level=100):
+        self.name = name
+        self.tax_num = tax_num or ""
+        self.address = address or ""
+        self.phone_num = phone_num or ""
+        self.bank = bank or ""
+        self.bank_num = bank_num or ""
+        self.level = level
+
+    def __repr__(self):
+        return '<MediumGroup %s>' % (self.id)
+
+    @property
+    def level_cn(self):
+        return LEVEL_CN[self.level or 100]
+
+    @classmethod
+    def name_exist(cls, name):
+        is_exist = MediumGroup.query.filter_by(name=name).count() > 0
+        return is_exist
+
+
+class MediumGroupRebate(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_medium_group_rebate'
+
+    id = db.Column(db.Integer, primary_key=True)
+    medium_group_id = db.Column(db.Integer, db.ForeignKey('medium_group.id'))  # 代理公司id
+    medium_group = db.relationship('MediumGroup', backref=db.backref('medium_group_rebate', lazy='dynamic'))
+    rebate = db.Column(db.Float)
+    year = db.Column(db.Date)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship('User', backref=db.backref('created_medium_group_rebate', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)  # 添加时间
+    __table_args__ = (db.UniqueConstraint('medium_group_id', 'year', name='_medium_group_rebate_year'),)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, medium_group, rebate=0.0, year=None, creator=None, create_time=None):
+        self.medium_group = medium_group
+        self.rebate = rebate
+        self.year = year or datetime.datetime.now().year
+        self.creator = creator
+        self.create_time = create_time or datetime.datetime.now()
+
+    def __repr__(self):
+        return '<MediumGroupRebate %s>' % (self.id)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime("%Y-%m-%d")
+
+    @property
+    def year_cn(self):
+        return self.year.year
+
+
 class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'medium'
 
     id = db.Column(db.Integer, primary_key=True)
+    medium_group_id = db.Column(db.Integer, db.ForeignKey('medium_group.id'))  # 代理公司id
+    medium_group = db.relationship('MediumGroup', backref=db.backref('medium_group_medium', lazy='dynamic'))
     name = db.Column(db.String(100))
     abbreviation = db.Column(db.String(100))
     owner_id = db.Column(db.Integer, db.ForeignKey('team.id'))
@@ -105,10 +177,11 @@ class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     rebates = db.relationship('MediumRebate')
     __mapper_args__ = {'order_by': id.desc()}
 
-    def __init__(self, name, owner, level=100, abbreviation=None, tax_num="",
+    def __init__(self, medium_group, name, owner=1, level=100, abbreviation=None, tax_num="",
                  address="", phone_num="", bank="", bank_num=""):
+        self.medium_group = medium_group
         self.name = name
-        self.owner = owner
+        self.owner = Team.get(owner)
         self.level = level
         self.abbreviation = abbreviation or ""
         self.tax_num = tax_num

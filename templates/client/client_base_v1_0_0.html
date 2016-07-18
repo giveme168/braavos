@@ -22,8 +22,8 @@
               <a href="{{url_for('client.groups')}}">代理集团</a>
               <span>|</span>
             </li>
-            <li id="_mediums_" class="nav-last">
-              <a href="{{url_for('client.mediums')}}">媒体</a>
+            <li id="_medium_groups_" class="nav-last">
+              <a href="{{url_for('client.medium_groups')}}">媒体供应商</a>
             </li>
         </ul>
     </div>
@@ -48,6 +48,9 @@
         }
         if (p_pathname[2] == 'new_medium'){
             $('#_mediums_').addClass("active");
+        }
+        if (p_pathname[2] == 'new_medium_group'){
+            $('#_medium_groups_').addClass("active");
         }
 
     })
