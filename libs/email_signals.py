@@ -824,8 +824,7 @@ by %s
 
 def account_okr_apply(sender, okr):
     status = okr.status
-    print status
-    if status in [0, 2]:
+    if status in [0, 2, 8]:
         if status == 0:
             to_name = u''
         else:
@@ -833,8 +832,8 @@ def account_okr_apply(sender, okr):
                 [k.name for k in okr.creator.team_leaders]) + u'请审批您下属的OKR审核申请'
         url = mail.app.config['DOMAIN'] + \
             url_for('account_okr.info', lid=okr.id)
-    else:
-        if status == 3:
+    elif status in [3, 4, 9, 10]:
+        if status in [3, 9]:
             to_name = okr.creator.name + u'您的OKR审核已批准'
         else:
             to_name = okr.creator.name + u'您的OKR审核申请被拒绝'
