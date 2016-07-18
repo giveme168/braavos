@@ -196,14 +196,14 @@
                     <td>{{o.start_date_cn}}</td>
                     <td>{{o.end_date_cn}}</td>
                     {% if a_type == 'medium_pay' %}
-                        <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_medium_invoice_pay_by_status(2)|sum(attribute='money')|format_price}}元</a></td>
-                        <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_medium_invoice_pay_by_status(2)|length}}</a></td>
+                        <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_medium_invoice_pay_by_status(pay_status)|sum(attribute='money')|format_price}}元</a></td>
+                        <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_medium_invoice_pay_by_status(pay_status)|length}}</a></td>
                     {% elif a_type == 'medium_rebate_invoice' %}
                         <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_medium_rebate_invoice_by_status(2)|sum(attribute='money')|format_price}}元</a></td>
                         <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_medium_rebate_invoice_by_status(2)|length}}</a></td>
                     {% elif a_type == 'agent_pay' %}
-                        <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_agent_invoice_pay_by_status(2)|sum(attribute='money')|format_price}}元</a></td>
-                        <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_agent_invoice_pay_by_status(2)|length}}</a></td>
+                        <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_agent_invoice_pay_by_status(pay_status)|sum(attribute='money')|format_price}}元</a></td>
+                        <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_agent_invoice_pay_by_status(pay_status)|length}}</a></td>
                     {% elif a_type == 'invoice' %}
                         <td><a href="{{url}}" target="_blank" style="color:red">{{ o.get_invoice_by_status(2)|sum(attribute='money')|format_price}}元</a></td>
                         <td><a href="{{url}}" target="_blank" style="color:red">{{o.get_invoice_by_status(2)|length}}</a></td>

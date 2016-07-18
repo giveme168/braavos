@@ -1,0 +1,54 @@
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_field %}
+
+{% block content %}
+{% include "/client/client_base_v1_0_0.html" %}
+<div class="container bra-box">
+    <h3>添加媒体供应商</h3>
+    <form class="input-row-box" method="POST">
+        <div class="input-group-menu">
+            <div class="name">媒体级别: </div>
+            <select name="level" id="level" class="surname" style="width:350px;">
+                <option value=1>S级</option>
+                <option value=2>A级</option>
+                <option value=3>B级</option>
+                <option value=4>C级</option>
+                <option value=100>其他</option>
+            </select>
+          </div>
+        <div class="input-group-menu">
+            <div class="name">供应商公司名称: </div>
+            <input type="text" name="name" id="name">
+        </div>
+        <div class="input-group-menu">
+            <div class="name">税号: </div>
+            <input type="text" name="tax_num" id="tax_num">
+        </div>
+        <div class="input-group-menu">
+            <div class="name">公司地址: </div>
+            <input type="text" name="address" id="address">
+        </div>
+        <div class="input-group-menu">
+            <div class="name">联系方式: </div>
+            <input type="text" name="phone_num" id="phone_num">
+        </div>
+        <div class="input-group-menu">
+            <div class="name">开户行: </div>
+            <input type="text" name="bank" id="bank">
+        </div>
+        <div class="input-group-menu">
+            <div class="name">银行账号: </div>
+            <input type="text" name="bank_num" id="bank_num">
+        </div>
+        <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+        </div>
+    </form>
+    <br/>
+</div>
+<script>
+    $(function(){
+      $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: false}); 
+    })
+</script>
+{% endblock %}

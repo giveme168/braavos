@@ -1,14 +1,14 @@
 """add column summary in user_okr
 
 Revision ID: 2f6ba45519b0
-Revises: 4d106603aabb
+Revises: 44da80b9e5ad
 Create Date: 2016-07-18 16:53:51.358714
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '2f6ba45519b0'
-down_revision = '4d106603aabb'
+down_revision = '44da80b9e5ad'
 
 from alembic import op
 import sqlalchemy as sa

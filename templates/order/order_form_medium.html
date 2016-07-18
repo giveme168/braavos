@@ -1,10 +1,10 @@
 {% from 'form_v1_0_0.html' import form_field %}
 
-{% macro order_medium_form(form, medium_order) -%}
+{% macro order_medium_form(form, medium_order, medium_groups) -%}
   {% if g.user.is_super_leader() %}
-    {{ order_medium_edited_form(form, medium_order) }}
+    {{ order_medium_edited_form(form, medium_order, order, medium_groups) }}
   {% elif medium_order.can_admin(g.user) and medium_order.contract_status in [0, 3, 6]%}
-    {{ order_medium_edited_form(form, medium_order) }}
+    {{ order_medium_edited_form(form, medium_order, order, medium_groups) }}
   {% else %}
     {{ order_medium_table(medium_order) }}
   {% endif %}
@@ -17,6 +17,10 @@
         <form class="form form-horizontal outsource-status-form" method="POST" action="{{url_for('order.order_medium_edit_cpm', medium_id=order.id)}}">
         {% endif %}
         <table class="table table-bordered">
+          <tr>
+            <th>媒体供应商 </th>
+            <td>{{order.medium.medium_group.name}}</td>
+          </tr>
           <tr>
             <th>投放媒体 </th>
             <td>{{order.medium.name}}</td>
@@ -149,21 +153,34 @@
 </script>
 {%- endmacro %}
 
-{% macro new_order_medium_form(form, client_order) -%}
-    {{ order_medium_edited_form(form, medium_order=None, order=client_order) }}
+{% macro new_order_medium_form(form, client_order, medium_groups) -%}
+    {{ order_medium_edited_form(form, medium_order=None, order=client_order, medium_groups=medium_groups) }}
 {%- endmacro %}
 
-{% macro order_medium_edited_form(form, medium_order=None, order=None) -%}
+{% macro order_medium_edited_form(form, medium_order=None, order=None, medium_groups=[]) -%}
 {% if medium_order %}
-<form class="input-row-box" method="POST" action="{{medium_order.edit_path()}}">
-  {% if g.user.is_super_leader() %}
-  <a style="color:red;" href="{{url_for('order.medium_order_delete', order_id=medium_order.client_order.id, medium_id=medium_order.id)}}">删除媒体订单</a>
-  {% endif %}
-{% else %}
-<form class="input-row-box" method="POST" action="{{url_for('order.order_new_medium', order_id=order.id)}}">
+  <form class="input-row-box" method="POST" action="{{medium_order.edit_path()}}">
+    {% if g.user.is_super_leader() %}
+    <a style="color:red;" href="{{url_for('order.medium_order_delete', order_id=medium_order.client_order.id, medium_id=medium_order.id)}}">删除媒体订单</a>
+    {% endif %}
+  {% else %}
+  <form class="input-row-box" method="POST" action="{{url_for('order.order_new_medium', order_id=order.id)}}">
 {% endif %}
     {{form.csrf_token}}
-    {{ form_field(form.medium) }}
+    <div class="input-group-menu">
+      <div class="name">媒体供应商：</div>
+      <select class="surname" style="width:300px;" name="medium_group" id="medium_group_{{medium_order.id or 0}}">
+          {% for g in medium_groups %}
+          <option value="{{g.id}}">{{g.name}}</option>
+          {% endfor %}
+      </select>
+    </div>
+    <div class="input-group-menu">
+      <div class="name">投放媒体：</div>
+      <select class="surname" style="width:300px;" name="medium" id="medium_{{medium_order.id or 0}}">
+          <option value=""></option>
+      </select>
+    </div>
     {{ form_field(form.sale_money) }}
     {{ form_field(form.medium_money2) }}
     {{ form_field(form.medium_money) }}
@@ -208,8 +225,38 @@
     </div>
 </form>
 <script>
+  function set_mediums(medium_group_id, html_mid, medium_id){
+        $.ajax({
+          type: "GET",
+          url: "/clients/medium_groups/"+medium_group_id+"/mediums",
+          dataType: "json",
+          success: function(data){
+              $('#medium_'+html_mid).empty();   //清空resText里面的所有内容
+              var data = data['data'];
+              var innelhtml = ""
+              for(var i=0; i<data.length; i++){
+                  innelhtml += "<option value='"+data[i]['mid']+"'>"+data[i]['name']+"</option>";
+              }
+              $('#medium_'+html_mid).html(innelhtml); 
+              if (medium_id != 0){
+                $('#medium_'+html_mid).val(medium_id); 
+              }
+              $('#medium_'+html_mid).trigger("chosen:updated");
+              
+          }
+      })
+    }
   $(function(){
+     //初始化新建媒体订单数据
+     set_mediums(1, 0, 0)
+
      {% if medium_order %}
+       // 初始化媒体订单供应商数据
+       set_mediums('{{medium_order.medium.medium_group.id}}', '{{medium_order.id}}', '{{medium_order.medium.id}}')
+       
+       $('#medium_group_{{medium_order.id}}').val("{{medium_order.medium.medium_group.id}}");
+       $('#medium_group_{{medium_order.id}}').trigger("chosen:updated");
+
        var self_medium_rebate = "{{medium_order.self_medium_rebate or '0-0'}}";
        var p_self_medium_rebate = self_medium_rebate.split('-')
        $('#self_medium_rebate_{{medium_order.id}}').val(p_self_medium_rebate[0]);
@@ -223,6 +270,10 @@
          $('#self_medium_rebate_status_{{medium_order.id}}').css('display', 'none');
        }
       {% endif %}
+      $('#medium_group_{{medium_order.id or 0}}').change(function(){
+          var mid = this.id.split('_')[2]
+          set_mediums(this.value, mid, 0)
+       })
      $('#finish_status_{{medium_order.id}}').val(parseInt('{{medium_order.finish_status}}'))
      $('#finish_status_{{medium_order.id}}').trigger("chosen:updated");
   })

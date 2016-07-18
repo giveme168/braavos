@@ -140,3 +140,17 @@ class AttachmentMixin():
 
     def get_last_user_pic_file(self):
         return self.get_user_pic_files().first()
+
+    def add_client_attachment(self, user, filename, type):
+        Attachment.add(self.target_type, self.target_id, filename,
+                       type, user, datetime.datetime.now())
+        return self.get_last_schedule()
+
+    def get_client_attachments(self, type):
+        return Attachment.query.filter_by(target_type=self.target_type,
+                                          target_id=self.target_id,
+                                          attachment_type=type
+                                          ).order_by(Attachment.create_time.desc())
+
+    def get_last_client_file(self, type):
+        return self.get_client_attachments(type).first()

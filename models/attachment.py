@@ -81,6 +81,10 @@ class Attachment(db.Model, BaseModelMixin):
         return get_full_path(self.filename)
 
     @property
+    def client_path(self):
+        return get_full_path(self.filename)
+
+    @property
     def path(self):
         return get_attachment_path(self.filename)
 
@@ -112,7 +116,7 @@ class Attachment(db.Model, BaseModelMixin):
         from .associated_douban_order import AssociatedDoubanOrder
         from .client import Agent
         from .user import User
-        from .medium import Medium
+        from .medium import Medium, MediumGroup
 
         # add for searchAd team
         from searchAd.models.order import searchAdOrder
@@ -131,5 +135,6 @@ class Attachment(db.Model, BaseModelMixin):
             'Agent': Agent,
             'User': User,
             'Medium': Medium,
+            'MediumGroup': MediumGroup
         }
         return TARGET_DICT[self.target_type].get(self.target_id)
