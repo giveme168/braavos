@@ -2,8 +2,9 @@
 from flask import request, redirect, url_for, Blueprint, flash, json, g, current_app
 from flask import render_template as tpl
 
-from models.user import User, Okr, OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_BACK, OKR_STATUS_NORMAL, \
-    OKR_QUARTER_CN, OKR_STATUS_MID_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED
+from models.user import (User, Okr, OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_BACK, OKR_STATUS_NORMAL,
+                         OKR_STATUS_MID_EVALUATION_APPLY, OKR_QUARTER_CN, OKR_STATUS_MID_EVALUATION_APPLY,
+                         OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED)
 from libs.email_signals import account_okr_apply_signal
 
 account_okr_bp = Blueprint('account_okr', __name__, template_folder='../../templates/account/okr/')
@@ -156,12 +157,14 @@ def subordinates():
     year = int(request.values.get('year', 0))
     if g.user.is_super_leader() or g.user.is_HR_leader():
         okr = [k for k in Okr.all() if k.status in [
-            OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED]]
+            OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_MID_EVALUATION_APPLY,
+            OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED]]
         under_users = [{'uid': k.id, 'name': k.name} for k in User.all()]
     else:
         under_users = _get_all_under_users(g.user.id)
         okr = [k for k in Okr.all() if k.status in [OKR_STATUS_APPLY, OKR_STATUS_PASS,
-                                                    OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED]]
+                                                    OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_MID_EVALUATION_APPLY,
+                                                    OKR_STATUS_EVALUATION_APPROVED]]
 
     if user_id:
         okr = [k for k in okr if k.creator.id == int(user_id)]

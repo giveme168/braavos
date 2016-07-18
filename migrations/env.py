@@ -14,7 +14,7 @@ fileConfig(config.config_file_name)
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
-from models.user import User, Team
+from models.user import User, Team, Okr
 from models.client import Client, Group, Agent, AgentRebate
 from models.comment import Comment
 from models.attachment import Attachment
