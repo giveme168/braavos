@@ -1,9 +1,9 @@
-{% extends "/base.html" %}
-{% from 'form.html' import form_tpl_ex_form %}
+{% extends "/base_v1_0_0.html" %}
+{% from 'form_v1_0_0.html' import form_tpl_ex_form %}
 {% block title %}修改绩效考核表{% endblock %}
 
 {% block content %}
-{% include "/account/account_base.html" %}
+{% include "/account/account_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:1100px;">
     <h3>修改绩效考核表&nbsp;&nbsp;&nbsp;<a style="color:red;" href="#" data-toggle="modal" data-target=".bs-example-modal-lg">查看填写说明</a></h3>
     <form class="form form-horizontal" method="POST" action="{{url_for('account_kpi.update', r_id=report.id)}}" onsubmit="return check_form(this);">
@@ -799,6 +799,7 @@
 
     }
     $(function(){
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
         $('#kr_1_w').val(parseInt('{{report.now_report_obj.kr_1_w}}'))
         $('#kr_2_w').val(parseInt('{{report.now_report_obj.kr_2_w}}'))
         $('#kr_3_w').val(parseInt('{{report.now_report_obj.kr_3_w}}'))
