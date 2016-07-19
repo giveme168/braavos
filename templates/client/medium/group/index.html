@@ -1,0 +1,41 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}媒体供应商列表{% endblock %}
+
+{% block content %}
+{% include "/client/client_base_v1_0_0.html" %}
+<div class="container bra-box">
+    <h3> 媒体供应商列表
+        {% if g.user.is_contract() or g.user.is_super_leader() %}<a class="btn btn-default btn-sm" href="{{url_for('client.new_medium_group')}}">新建</a>{% endif %}
+    </h3>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>媒体供应商</th>
+                    <th>级别</th>
+                    <th>媒体名称</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mg in mediums %}
+                <tr>
+                    <td rowspan="{{mg.mediums|length + 1}}"><a href="{{url_for('client.medium_group_detail', medium_group_id=mg.id)}}">{{mg.name}}</a></td>
+                    <td rowspan="{{mg.mediums|length + 1}}">{{mg.level_cn}}</td>
+                </tr>
+                {% for m in mg.mediums %}
+                    <tr>
+                        <td>
+                            {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_media() or g.user.is_finance() %}
+                            <a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a>
+                            {% else %}
+                            {{m.name}}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

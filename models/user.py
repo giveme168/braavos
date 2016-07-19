@@ -589,14 +589,26 @@ OKR_STATUS_BACK = 0
 OKR_STATUS_NORMAL = 1
 OKR_STATUS_APPLY = 2
 OKR_STATUS_PASS = 3
-OKR_STATUS_APPLYBACK = 4
+OKR_STATUS_DENIED = 4
+OKR_STATUS_MID_EVALUATION = 5
+OKR_STATUS_MID_EVALUATION_APPLY = 6  # 无需上级审核,但是不能修改
+OKR_STATUS_EVALUATION = 7
+OKR_STATUS_EVALUATION_APPLY = 8
+OKR_STATUS_EVALUATION_APPROVED = 9
+OKR_STATUS_EVALUATION_DENIED = 10
 
 OKR_STATUS_CN = {
     OKR_STATUS_BACK: u'撤销申请',
     OKR_STATUS_NORMAL: u'待申请',
     OKR_STATUS_APPLY: u'申请中',
     OKR_STATUS_PASS: u'通过申请',
-    OKR_STATUS_APPLYBACK: u'不通过',
+    OKR_STATUS_DENIED: u'不通过',
+    OKR_STATUS_MID_EVALUATION: u'中期评价',
+    OKR_STATUS_MID_EVALUATION_APPLY: u'中期评价已提交',
+    OKR_STATUS_EVALUATION: u'季末评价中',
+    OKR_STATUS_EVALUATION_APPLY: u'季末评价申请中',
+    OKR_STATUS_EVALUATION_APPROVED: u'季末评价通过',
+    OKR_STATUS_EVALUATION_DENIED: u'季末评价驳回',
 }
 
 
@@ -612,16 +624,18 @@ class Okr(db.Model, BaseModelMixin):
     creator = db.relationship(
         'User', backref=db.backref('creator_okr', lazy='dynamic'))
     __mapper_args__ = {'order_by': id.desc()}
+    summary = db.Column(db.Text(), nullable=True)
 
     def __init__(self, o_kr, quarter,
                  # senders=None,
-                 creator, year, status=1):
+                 creator, year, status=1, summary=None):
         self.o_kr = o_kr
         self.quarter = quarter
         self.year = year
         # self.senders = senders or []
         self.creator = creator
         self.status = status
+        self.summary = summary
 
     @property
     def quarter_cn(self):

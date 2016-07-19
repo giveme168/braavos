@@ -6,21 +6,24 @@
 <div class="container bra-box">
     <h3>{{ title }}</h3>
     <form class="input-row-box" method="POST">
-      {{form.csrf_token}}
-      {{ form_field(form.name) }}
-      {{ form_field(form.abbreviation) }}
-      {{ form_field(form.owner) }}
-      {{ form_field(form.level) }}
-      {{ form_field(form.tax_num) }}
-      {{ form_field(form.address) }}
-      {{ form_field(form.phone_num) }}
-      {{ form_field(form.bank) }}
-      {{ form_field(form.bank_num) }}
+      <div class="input-group-menu">
+            <div class="name">媒体名称: </div>
+            <input type="text" name="name" id="name" value='{{medium.name}}'>
+      </div>
+      <div class="input-group-menu">
+            <div class="name">所属媒体供应商: </div>
+            <select class="surname" style="width:350px;" name="medium_group_id" id="medium_group_id" >
+            {% for g in medium_groups %}
+                <option value="{{g.id}}">{{g.name}}</option>
+            {% endfor %}
+            </select>
+      </div>
       <div class="state" style="margin-left:40%;">
           <input type="submit" value="保存">
       </div>
     </form>
     <br/>
+    {#
     {% if status == 'update' %}
     <div class="form form-horizontal">
         <div class="form-group">
@@ -64,6 +67,7 @@
     </div>
     {% endif %}
     {% endif %}
+    #}
 </div>
 <script>
     $(function(){
@@ -85,6 +89,8 @@
                 $(this).parents("form").submit();
             }
         });
+        $("#medium_group_id").val(parseInt('{{medium.medium_group_id or medium_group_id}}'))
+        $("#medium_group_id").trigger("chosen:updated");
     })
 </script>
 {% endblock %}

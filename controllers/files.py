@@ -33,6 +33,14 @@ FILE_TYPE_FINISH = 10
 FILE_TYPE_MEDIUM = 12
 
 
+# 客户资质（包括代理和媒体）
+FILE_TYPE_LICENCE = 100  # 营业执照
+FILE_TYPE_F_CERTIFICATE = 101  # 税务登记证
+FILE_TYPE_O_CERTIFICATE = 102  # 组织机构代码证
+FILE_TYPE_TAX_CERTIFICATE = 103  # 一般纳税人证明
+FILE_TYPE_T_INFO = 104  # 盖章的开票信息
+
+
 @files_bp.route('/files/<filename>', methods=['GET'])
 def files(filename):
     config = app.upload_set_config.get('files')

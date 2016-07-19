@@ -13,7 +13,7 @@ from forms.order import (ClientOrderForm, MediumOrderForm,
                          ClientMediumOrderForm)
 
 from models.client import Client, Group, Agent, AgentRebate
-from models.medium import Medium
+from models.medium import Medium, MediumGroup
 from models.order import Order, MediumOrderExecutiveReport
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
@@ -66,7 +66,7 @@ def index():
 @order_bp.route('/new_order', methods=['GET', 'POST'])
 def new_order():
     form = ClientOrderForm(request.form)
-    mediums = [(m.id, m.name) for m in Medium.all()]
+    mediums = [{'id': m.id, 'name': m.name}for m in MediumGroup.all()]
     if request.method == 'POST' and form.validate():
         if ClientOrder.query.filter_by(campaign=form.campaign.data).count() > 0:
             flash(u'campaign名称已存在，请更换其他名称!', 'danger')
@@ -412,7 +412,8 @@ def order_info(order_id, tab_id=1):
                'reminder_emails': reminder_emails,
                'now_date': datetime.now(),
                'tab_id': tab_id or 1,
-               'replace_saler_form': replace_saler_form}
+               'replace_saler_form': replace_saler_form,
+               'medium_groups': MediumGroup.all()}
     return tpl('order_detail_info.html', **context)
 
 
@@ -456,6 +457,8 @@ def medium_order(mo_id):
     last_status = mo.finish_status
     finish_status = int(request.values.get('finish_status', 1))
     if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader():
+        mo.medium = Medium.get(form.medium.data)
+    if mo.client_order.contract_status in [0, 1, 6]:
         mo.medium = Medium.get(form.medium.data)
     self_medium_rebate = int(request.values.get('self_medium_rebate', 0))
     self_medium_rabate_value = float(request.values.get('self_medium_rabate_value', 0))
