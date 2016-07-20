@@ -11,7 +11,7 @@
                     <span>|</span>
                 </li>
             {% endif %}
-            <li id="all_okrs">
+            <li id="_all_okrs_">
                 <a href="{{ url_for('account_okr.allokrs') }}">所有人的okr</a>
                 <span>|</span>
             </li>
@@ -26,7 +26,9 @@
             $('#_' + p_pathname[3] + '_').addClass("active");
         } else if (p_pathname[3] == 'subordinates') {
             $('#_' + p_pathname[3] + '_').addClass("active");
-        } else {
+        } else if (p_pathname[3] == 'all_okrs'){
+            $('#_' + p_pathname[3] + '_').addClass("active");
+        }else {
             $('#__').addClass("active");
         }
 
