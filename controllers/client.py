@@ -133,7 +133,8 @@ def agent_detail(agent_id):
                form=form,
                agent=agent,
                status='update',
-               title=u"代理/直客-" + agent.name)
+               title=u"代理/直客-" + agent.name,
+               FILE_TYPE_CN=FILE_TYPE_CN)
 
 
 @client_bp.route('/group/<group_id>/delete', methods=['GET', 'POST'])
@@ -257,6 +258,8 @@ def medium_group_detail(medium_group_id):
 def files_upload(f_type, id):
     if f_type == 'medium_group':
         obj_data = MediumGroup.get(id)
+    elif f_type == 'agent':
+        obj_data = Agent.get(id)
     type = int(request.values.get('type', 5))
     try:
         request.files['file'].filename.encode('gb2312')
@@ -264,11 +267,15 @@ def files_upload(f_type, id):
         flash(u'文件名中包含非正常字符，请使用标准字符', 'danger')
         if f_type == 'medium_group':
             return redirect(url_for('client.medium_group_detail', medium_group_id=id))
+        elif f_type == 'agent':
+            return redirect(url_for('client.agent_detail', agent_id=id))
     filename = files_set.save(request.files['file'])
     obj_data.add_client_attachment(g.user, filename, type)
     flash(FILE_TYPE_CN[type] + u' 上传成功', 'success')
     if f_type == 'medium_group':
         return redirect(url_for('client.medium_group_detail', medium_group_id=id))
+    elif f_type == 'agent':
+            return redirect(url_for('client.agent_detail', agent_id=id))
 
 
 @client_bp.route('/<f_type>/<type>/<aid>/<id>/files_delete', methods=['GET'])
@@ -278,6 +285,8 @@ def files_delete(f_type, type, aid, id):
     flash(FILE_TYPE_CN[int(type)] + u' 删除成功', 'success')
     if f_type == 'medium_group':
         return redirect(url_for('client.medium_group_detail', medium_group_id=id))
+    elif f_type == 'agent':
+            return redirect(url_for('client.agent_detail', agent_id=id))
 
 
 @client_bp.route('/medium_groups', methods=['GET'])
@@ -289,6 +298,7 @@ def medium_groups():
         dict_medium['id'] = medium.id
         dict_medium['name'] = medium.name
         dict_medium['level'] = medium.level or 100
+        dict_medium['mediums'] = medium.mediums
         medium_data.append(dict_medium)
     medium_data = sorted(medium_data, key=operator.itemgetter('level'), reverse=False)
     return tpl('/client/medium/group/index.html', mediums=medium_data)

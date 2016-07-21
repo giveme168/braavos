@@ -118,6 +118,22 @@ def new_order():
             flash(u'新建合同成功，等待合同管理员分配合同号!', 'success')
         else:
             flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
+            salers = order.direct_sales + order.agent_sales + order.assistant_sales
+            leaders = []
+            for k in salers:
+                leaders += k.team_leaders
+            to_users = salers + [order.creator, g.user]
+            emails = [k.email for k in list(set(leaders))]
+            context = {
+                "to_other": emails,
+                "sender": g.user,
+                "to_users": to_users,
+                "action_msg": u'新建订单',
+                "order": order,
+                "info": '',
+                "action": 0
+            }
+            zhiqu_contract_apply_signal.send(current_app._get_current_object(), context=context, douban_type=False)
         return redirect(order.info_path())
     else:
         form.client_start.data = datetime.now().date()

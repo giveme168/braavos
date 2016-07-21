@@ -138,7 +138,7 @@
       </div>
     </div>
     {% if mediums %}
-    <hr/>
+    <hr style="margin-top: 50px;" />
     <div id="mediums">
     </div>
     <button class="btn btn-sm btn-default add-new-medium"><span class="glyphicon glyphicon-plus"></span>  投放媒体 </button>
@@ -191,9 +191,15 @@ $(document).ready(function(){
           success: function(data){
               $('#medium_'+html_mid).empty();   //清空resText里面的所有内容
               var data = data['data'];
+              html_inner = ""
               for(var i=0; i<data.length; i++){
-                  $('#medium_'+html_mid).append("<option value='"+data[i]['mid']+"'>"+data[i]['name']+"</option>");
+                  html_inner += "<option value='"+data[i]['mid']+"'>"+data[i]['name']+"</option>"
               }
+              $('#medium_'+html_mid).html(html_inner);
+              $('#medium_'+html_mid).chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+              $('#medium_group_'+html_mid).chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+              $('#medium_'+html_mid).trigger("chosen:updated");
+              $('#medium_group_'+html_mid).trigger("chosen:updated");
           }
       })
     }
@@ -205,7 +211,7 @@ $(document).ready(function(){
       {% for m in mediums %}
         medium_tpl += '<option value="{{m.id}}">{{m.name}}</option>'
       {% endfor %}
-      medium_tpl += '</select></div><div class="input-group-menu"><div class="name">投放媒体 : </div><select class="surname" style="width:300px;" name="medium" id="medium_'+mid+'"></select></div><div class="input-group-menu" ><div class="name">售卖金额(元) : </div><input class="surname" style="width:300px;" name="medium-money" type="text"  placeholder="售卖金额(元)" value="0" /></div><div class="state" style="margin-left: 600px;"><button class="medium-remove" id="medium-remove-'+mid+'"> 取消 </button> </div></div>'
+      medium_tpl += '</select></div><div class="input-group-menu"><div class="name">投放媒体 : </div><select class="surname" style="width:300px;" name="medium" id="medium_'+mid+'"></select></div><div class="input-group-menu" ><div class="name">售卖金额(元) : </div><input class="surname" style="width:300px;" name="medium-money" type="text"  placeholder="售卖金额(元)" value="0" /></div><div class="state" style="margin-left: 600px;"><button class="medium-remove" id="medium-remove-'+mid+'"> 取消 </button> </div><hr/></div>'
       $(this).parents("form").find("#mediums").append(medium_tpl);
       set_mediums('{{mediums[0].id}}', mid)
       $("#medium-remove-"+mid).click(function(e){
