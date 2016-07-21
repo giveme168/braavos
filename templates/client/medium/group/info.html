@@ -214,6 +214,47 @@
             </tbody>
         </table>
     </div>
+    <h3 style="float:left;">其他附件</h3>
+    <div class="form form-horizontal" style="float:left; margin-top: 20px;margin-bottom: 10px;">
+        <div class="form-group">
+            <div class="col-sm-10">
+                <form method="POST" action="{{url_for('files.client_medium_group_upload')}}" enctype="multipart/form-data">
+                <input class="hide" type="text" name="medium" value="{{medium_group.id}}">
+                <input class="file-widget-input hide" type="file" name="file">
+                <button class="file-widget-btn btn btn-sm btn-primary">
+                  <span>其他资料上传</span>
+                </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if medium_group.get_medium_group_attachments().count() > 0 %}
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>资料名称</th>
+                    <th>上传日期</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attachment in medium_group.get_medium_group_attachments() %}
+                <tr>
+                    <td>{{attachment.filename}}</td>
+                    <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                    <td>
+                        <a href="{{attachment.agent_path}}">下载</a>&nbsp;&nbsp;
+                        {% if g.user.is_contract() %}
+                            <a href="{{url_for('client.medium_group_files_delete', medium_group_id=medium_group.id, aid=attachment.id)}}">删除</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 </div>
 <script>
     function delete_rebate(medium_group_id, rid){

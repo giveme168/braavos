@@ -123,6 +123,9 @@ class MediumGroup(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         is_exist = MediumGroup.query.filter_by(name=name).count() > 0
         return is_exist
 
+    def medium_group_path(self):
+        return url_for('client.medium_group_detail', medium_group_id=self.id)
+
 
 class MediumGroupRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_group_rebate'

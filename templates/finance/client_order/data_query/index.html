@@ -166,6 +166,7 @@
                     <th>返点发票金额</th>
                     <th>回款比例</th>
                     <th>返点发票时间</th>
+                    <th>发票时间差</td>
                     {% elif t_type == 'rebate_agent_invoice' %}
                     <th>返点发票金额</th>
                     <th>返点发票时间</th>
@@ -243,6 +244,7 @@
                     <td>{{o.money|format_price}}</td>
                     <td>{{o.client_order.back_money_percent}}%</td>
                     <td>{{o.back_time_cn}}</td>
+                    <td>{{o.real_back_invoice_diff_time}}天</td>
                     {% elif t_type == 'rebate_agent_invoice' %}
                     <td>{{o.money|format_price}}</td>
                     <td>{{o.add_time_cn}}</td>
@@ -263,7 +265,7 @@
                 {% endfor %}
                 <tr>
                     <td colspan=12 style="text-align: center;">总计</td>
-                    <td {% if t_type == 'back_money' %} colspan=4 {% elif t_type == 'back_invoice' %} colspan=3 {% else %} colspan=2 {% endif %}style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>
+                    <td {% if t_type in ['back_money', 'back_invoice'] %} colspan=4 {% elif t_type == 'back_invoice' %} colspan=3 {% else %} colspan=2 {% endif %}style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>
                 </tr>
             </tbody>
         </table>

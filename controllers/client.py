@@ -291,8 +291,12 @@ def files_delete(f_type, type, aid, id):
 
 @client_bp.route('/medium_groups', methods=['GET'])
 def medium_groups():
+    info = request.values.get('info', '')
+    medium_groups = MediumGroup.all()
+    if info:
+        medium_groups = [mg for mg in medium_groups if info in mg.name]
     medium_data = []
-    for medium in MediumGroup.all():
+    for medium in medium_groups:
         dict_medium = {}
         dict_medium['level_cn'] = medium.level_cn
         dict_medium['id'] = medium.id
@@ -301,7 +305,7 @@ def medium_groups():
         dict_medium['mediums'] = medium.mediums
         medium_data.append(dict_medium)
     medium_data = sorted(medium_data, key=operator.itemgetter('level'), reverse=False)
-    return tpl('/client/medium/group/index.html', mediums=medium_data)
+    return tpl('/client/medium/group/index.html', mediums=medium_data, info=info)
 
 
 @client_bp.route('/new_medium_group', methods=['GET', 'POST'])
@@ -439,6 +443,14 @@ def medium_files_delete(medium_id, aid):
     attachment.delete()
     flash(u'删除成功!', 'success')
     return redirect(url_for("client.medium_detail", medium_id=medium_id))
+
+
+@client_bp.route('/medium_group/<medium_group_id>/files/<aid>/delete', methods=['GET'])
+def medium_group_files_delete(medium_group_id, aid):
+    attachment = Attachment.get(aid)
+    attachment.delete()
+    flash(u'删除成功!', 'success')
+    return redirect(url_for("client.medium_group_detail", medium_group_id=medium_group_id))
 
 
 @client_bp.route('/medium_groups/medium/<medium_id>/rebate/create', methods=['GET', 'POST'])
