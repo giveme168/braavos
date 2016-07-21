@@ -51,7 +51,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for k in [100, 101, 102, 103, 104] %}
+                {% for k in [100, 101, 102, 103, 104, 105] %}
                 {{ file_upload(agent, url_for('client.files_upload', f_type='agent' ,id=agent.id), k)}}
                 {% endfor %}
             </tbody>

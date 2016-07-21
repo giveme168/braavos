@@ -369,10 +369,10 @@ def order_info():
         order_dict = {}
         if k.__tablename__ == 'bra_client_order':
             order_dict['outsource_obj'] = [o for o in outsources if o[
-                'order_type'] == 'client_order' and o['order_id'] == k.id]
+                'order_type'] == 'client_order' and o['order_id'] == k.id and o['on_time'].year == now_year]
         else:
             order_dict['outsource_obj'] = [o for o in outsources if o[
-                'order_type'] == 'douban_order' and o['order_id'] == k.id]
+                'order_type'] == 'douban_order' and o['order_id'] == k.id and o['on_time'].year == now_year]
         order_dict['contract'] = k.contract
         order_dict['campaign'] = k.campaign
         order_dict['money'] = k.money

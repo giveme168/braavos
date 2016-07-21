@@ -35,6 +35,11 @@ def agents():
             t_info_file = agent_t_info_file.agent_path
         else:
             t_info_file = ''
+        agent_a_licence_file = k.get_last_client_file(105)
+        if agent_a_licence_file:
+            a_licence_file = agent_a_licence_file.agent_path
+        else:
+            a_licence_file = ''
         dict_agent = {}
         dict_agent['id'] = k.id
         dict_agent['name'] = k.name
@@ -43,6 +48,7 @@ def agents():
         dict_agent['o_certifcate_file'] = o_certifcate_file
         dict_agent['tax_certifcate_file'] = tax_certifcate_file
         dict_agent['t_info_file'] = t_info_file
+        dict_agent['a_licence_file'] = a_licence_file
         dict_agent['files'] = [f.agent_path for f in k.get_agent_attachments()]
         clients.append(dict_agent)
     return jsonify({'data': clients})
