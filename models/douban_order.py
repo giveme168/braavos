@@ -971,6 +971,10 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
     def order(self):
         return self.douban_order
 
+    @property
+    def real_back_invoice_diff_time(self):
+        return (self.back_time.date() - self.douban_order.client_end).days
+
 
 TARGET_TYPE_FLASH5 = 1
 TARGET_TYPE_KOL = 2
