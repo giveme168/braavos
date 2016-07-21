@@ -12,12 +12,8 @@
     <div class="top-nav" {% if not (g.user.is_super_leader() or g.user.is_finance()) %}style="top: 20px;"{% endif %}>
         {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_searchad_leader() %}
         <ul>
-            <li id="_profitclient_order_" class="nav-first">
-              <a href="{{url_for('searchAd_data_query_profit.client_order')}}">媒体订单执行成本</a>
-              <span>|</span>
-            </li>
-            <li class="nav-last" id="_profitrebate_order_">
-              <a href="{{url_for('searchAd_data_query_profit.rebate_order')}}">返点订单执行成本</a>
+            <li id="_accruedsearch_client_order_"">
+              <a href="{{url_for('searchAd_data_query_accrued.search_client_order')}}">效果业务收入计提</a>
             </li>
         </ul>
         {% endif %}
