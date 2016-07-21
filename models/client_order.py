@@ -1381,6 +1381,10 @@ class BackInvoiceRebate(db.Model, BaseModelMixin):
     def order(self):
         return self.client_order
 
+    @property
+    def real_back_invoice_diff_time(self):
+        return (self.back_time.date() - self.client_order.client_end).days
+
 
 class ClientOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_executive_report'

@@ -4,9 +4,22 @@
 {% block content %}
 {% include "/client/client_base_v1_0_0.html" %}
 <div class="container bra-box">
-    <h3> 媒体供应商列表
-        {% if g.user.is_contract() or g.user.is_super_leader() %}<a class="btn btn-default btn-sm" href="{{url_for('client.new_medium_group')}}">新建</a>{% endif %}
-    </h3>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input">
+                <input type="text" placeholder="媒体供应商名称" value="{{info}}" name="info" id="info">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            {% if g.user.is_contract() or g.user.is_super_leader() %}
+            <div class="select_option return">
+                <a href="{{url_for('client.new_medium_group')}}"><input type="button" value="添加"></a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
     <div class='tabulation'>
         <table border='1'>
             <thead>
