@@ -32,6 +32,11 @@ def _medium_to_dict(medium):
         t_info_file = medium_t_info_file.agent_path
     else:
         t_info_file = ''
+    medium_a_licence_file = medium.get_last_client_file(105)
+    if medium_a_licence_file:
+        a_licence_file = medium_a_licence_file.agent_path
+    else:
+        a_licence_file = ''
     dict_medium = {}
     dict_medium['id'] = medium.id
     dict_medium['name'] = medium.name
@@ -43,6 +48,7 @@ def _medium_to_dict(medium):
     dict_medium['f_certifcate_file'] = f_certifcate_file
     dict_medium['o_certifcate_file'] = o_certifcate_file
     dict_medium['tax_certifcate_file'] = tax_certifcate_file
+    dict_medium['a_licence_file'] = a_licence_file
     dict_medium['t_info_file'] = t_info_file
     return dict_medium
 
@@ -84,6 +90,11 @@ def groups():
             t_info_file = mg_t_info_file.agent_path
         else:
             t_info_file = ''
+        medium_a_licence_file = mg.get_last_client_file(105)
+        if medium_a_licence_file:
+            a_licence_file = medium_a_licence_file.agent_path
+        else:
+            a_licence_file = ''
         dict_medium = {}
         dict_medium['id'] = mg.id
         dict_medium['name'] = mg.name
@@ -93,6 +104,7 @@ def groups():
         dict_medium['f_certifcate_file'] = f_certifcate_file
         dict_medium['o_certifcate_file'] = o_certifcate_file
         dict_medium['tax_certifcate_file'] = tax_certifcate_file
+        dict_medium['a_licence_file'] = a_licence_file
         dict_medium['t_info_file'] = t_info_file
         dict_medium['mediums'] = [_medium_to_dict(m) for m in mg.mediums]
         groups.append(dict_medium)

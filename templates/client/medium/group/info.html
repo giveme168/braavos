@@ -208,7 +208,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for k in [100, 101, 102, 103, 104] %}
+                {% for k in [100, 101, 102, 103, 104, 105] %}
                 {{ file_upload(medium_group, url_for('client.files_upload', f_type='medium_group' ,id=medium_group.id), k)}}
                 {% endfor %}
             </tbody>
