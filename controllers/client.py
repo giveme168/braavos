@@ -8,6 +8,7 @@ from flask import render_template as tpl, flash
 from models.client import Client, Group, Agent, AgentRebate, AgentMediumRebate, FILE_TYPE_CN
 from models.medium import MediumGroup, Medium, MediumRebate, MediumGroupRebate
 from models.attachment import Attachment
+from models.order import Order
 from forms.client import NewClientForm, NewGroupForm, NewAgentForm
 from controllers.helpers.client_helpers import write_client_excel, write_medium_excel
 
@@ -275,7 +276,7 @@ def files_upload(f_type, id):
     if f_type == 'medium_group':
         return redirect(url_for('client.medium_group_detail', medium_group_id=id))
     elif f_type == 'agent':
-            return redirect(url_for('client.agent_detail', agent_id=id))
+        return redirect(url_for('client.agent_detail', agent_id=id))
 
 
 @client_bp.route('/<f_type>/<type>/<aid>/<id>/files_delete', methods=['GET'])
@@ -286,7 +287,7 @@ def files_delete(f_type, type, aid, id):
     if f_type == 'medium_group':
         return redirect(url_for('client.medium_group_detail', medium_group_id=id))
     elif f_type == 'agent':
-            return redirect(url_for('client.agent_detail', agent_id=id))
+        return redirect(url_for('client.agent_detail', agent_id=id))
 
 
 @client_bp.route('/medium_groups', methods=['GET'])
@@ -622,6 +623,26 @@ def agent_get_rebate_json():
         agent_id=agent_id, year=year).first()
     if agent_rebates:
         return jsonify({'ret': True, 'rebate': agent_rebates.inad_rebate})
+    return jsonify({'ret': False, 'rebate': 0})
+
+
+@client_bp.route('/medium/get_rebate_json', methods=['GET', 'POST'])
+def medium_get_rebate_json():
+    medium_order_id = request.values.get('medium_order_id', 0)
+    order = Order.get(medium_order_id)
+    if not order:
+        return jsonify({'ret': False, 'rebate': 0})
+    year = datetime.datetime.strptime(str(order.medium_start.year), '%Y')
+    medium_rebates = MediumRebate.query.filter_by(medium_id=order.medium.id, year=year).first()
+    if medium_rebates:
+        return jsonify({'ret': True, 'rebate': medium_rebates.rebate / 100 * order.medium_money2})
+    else:
+        medium_group_rebates = MediumGroupRebate.query.filter_by(medium_group_id=order.medium.medium_group.id,
+                                                                 year=year).first()
+        if medium_group_rebates:
+            return jsonify({'ret': True, 'rebate': medium_group_rebates.rebate / 100 * order.medium_money2})
+        else:
+            return jsonify({'ret': True, 'rebate': 0})
     return jsonify({'ret': False, 'rebate': 0})
 
 
