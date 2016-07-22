@@ -1231,6 +1231,20 @@ by %s\n
         else:
             return 0
 
+    # 合同归档状态
+    @property
+    def medium_finish_contract_status(self):
+        status = []
+        for k in self.medium_orders:
+            if k.get_last_finish():
+                status.append(0)
+            else:
+                status.append(1)
+        if 0 in status:
+            return 0
+        else:
+            return 1
+
     # 获取当月代理真实返点
     def real_rebate_agent_money_by_month(self, year, month):
         pre_rebate_money = (self.agent_invoice_pass_sum + self.back_invoice_rebate_money) / \

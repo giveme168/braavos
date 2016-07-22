@@ -1526,7 +1526,7 @@ def douban_display_orders(orders, title, status_id=-1):
         elif status_id == 28:
             orders = [o for o in orders if o.contract_status != 20]
         elif status_id == 32:
-            orders = [o for o in orders if o.back_money_status != 0]
+            orders = [o for o in orders if o.back_money_status != 0 and o.contract]
         elif status_id == 35:
             orders = [o for o in orders if o.contract_status == 2]
         elif status_id == 36:

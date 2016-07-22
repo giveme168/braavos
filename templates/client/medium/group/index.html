@@ -18,6 +18,11 @@
                 <a href="{{url_for('client.new_medium_group')}}"><input type="button" value="添加"></a>
             </div>
             {% endif %}
+            {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_finance() %}
+          <div class="select_option return">
+              <a href="?action=excel"><input type="button" value="导出"></a>
+          </div>
+          {% endif %}
         </form>
     </div>
     <div class='tabulation'>
