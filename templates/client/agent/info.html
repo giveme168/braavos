@@ -39,6 +39,7 @@
     <h3>{{ title }}</h3>
     {{ form_tpl(form) }}
     <br/>
+    {% if status == 'update' %}
     <h3>代理/直客 资质</h3>
     <div class='tabulation'>
         <table border='1'>
@@ -58,7 +59,7 @@
         </table>
     </div>
     <br/>
-    {% if status == 'update' %}
+    
     <h3 style="float:left;">其他资料</h3>
         <div class="form form-horizontal" style="float:left; margin-top: 20px;margin-bottom: 10px;">
             <div class="form-group">
@@ -73,7 +74,6 @@
                 </div>
             </div>
         </div>
-    {% endif %}
     {% if agent.get_agent_attachments().count() > 0 %}
     <div class='tabulation'>
         <table border='1'>
@@ -100,6 +100,7 @@
             </tbody>
         </table>
     </div>
+    {% endif %}
     {% endif %}
 </div>
 <script>

@@ -108,7 +108,7 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
         action = None
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and douban_type:
         contract_apply_douban(sender, context)
-    if int(action) == 0:
+    if action is not None and int(action) == 0:
         action_info = order.creator.name + u'新建了合同，请申请利润分配'
     elif action and int(action) == 1:
         if order.__tablename__ == 'bra_medium_framework_order':

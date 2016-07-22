@@ -71,7 +71,7 @@
               {% for c in cases.object_list %}
               <tr>
                   <td><a href="{{url_for('mediums_planning.info', type=type, cid=c.id)}}">{{c.name}}</a>{% if type == '2' and c.is_win == 1 %}&nbsp;<span class="glyphicon glyphicon-thumbs-up glyphicon-plus" aria-hidden="true"></span>{% endif %}</td>
-                  <td>{{c.mediums_name}}</td>
+                  <td>{{c.mediums_name|safe}}</td>
                   <td>{{c.brand}}</td>
                   <td>{{c.industry}}</td>
                   <!--<td>{{c.tags}}</td>-->
