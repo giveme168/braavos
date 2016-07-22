@@ -20,7 +20,7 @@ def index():
     info = request.values.get('info', '')
     mediums = [{'files_update_time': k.files_update_time,
                 'level_cn': k.medium_group.level_cn,
-                'id': k.id, 'name': k.medium_group.name + "-" + k.name, 'level': k.level or 100
+                'id': k.id, 'name': k.medium_group.name + "-" + k.name, 'level': k.medium_group.level or 100
                 }for k in Medium.all()]
     if info:
         mediums = [m for m in mediums if info in m['name']]

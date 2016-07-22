@@ -294,7 +294,7 @@ def medium_groups():
     info = request.values.get('info', '')
     medium_groups = MediumGroup.all()
     if info:
-        medium_groups = [mg for mg in medium_groups if info in mg.name]
+        medium_groups = [mg for mg in medium_groups if info in mg.search_info]
     medium_data = []
     for medium in medium_groups:
         dict_medium = {}
