@@ -10,7 +10,7 @@ from models.medium import MediumGroup, Medium, MediumRebate, MediumGroupRebate
 from models.attachment import Attachment
 from models.order import Order
 from forms.client import NewClientForm, NewGroupForm, NewAgentForm
-from controllers.helpers.client_helpers import write_client_excel, write_medium_excel
+from controllers.helpers.client_helpers import write_client_excel, write_medium_excel, write_medium_group_excel
 
 from libs.files import files_set
 
@@ -346,6 +346,8 @@ def medium_groups():
         dict_mg['mediums'] = medium_data
         medium_group_data.append(dict_mg)
     medium_group_data = sorted(medium_group_data, key=operator.itemgetter('level'), reverse=False)
+    if request.values.get('action') == 'excel':
+        return write_medium_group_excel(medium_group_data)
     return tpl('/client/medium/group/index.html', mediums=medium_group_data, info=info)
 
 
