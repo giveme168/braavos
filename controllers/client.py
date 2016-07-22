@@ -295,17 +295,57 @@ def medium_groups():
     medium_groups = MediumGroup.all()
     if info:
         medium_groups = [mg for mg in medium_groups if info in mg.search_info]
-    medium_data = []
-    for medium in medium_groups:
-        dict_medium = {}
-        dict_medium['level_cn'] = medium.level_cn
-        dict_medium['id'] = medium.id
-        dict_medium['name'] = medium.name
-        dict_medium['level'] = medium.level or 100
-        dict_medium['mediums'] = medium.mediums
-        medium_data.append(dict_medium)
-    medium_data = sorted(medium_data, key=operator.itemgetter('level'), reverse=False)
-    return tpl('/client/medium/group/index.html', mediums=medium_data, info=info)
+    medium_rebate = MediumRebate.all()
+    medium_rebate_data = {}
+    for k in medium_rebate:
+        if str(k.medium.id) + '_' + str(k.year.year) not in medium_rebate_data:
+            medium_rebate_data[str(k.medium.id) + '_' + str(k.year.year)] = str(k.rebate) + '%'
+    medium_group_rebate = MediumGroupRebate.all()
+    medium_group_rebate_data = {}
+    for k in medium_group_rebate:
+        if str(k.medium_group.id) + '_' + str(k.year.year) not in medium_group_rebate_data:
+            medium_group_rebate_data[str(k.medium_group.id) + '_' + str(k.year.year)] = str(k.rebate) + '%'
+    medium_group_data = []
+    for medium_group in medium_groups:
+        dict_mg = {}
+        dict_mg['level_cn'] = medium_group.level_cn
+        dict_mg['id'] = medium_group.id
+        dict_mg['name'] = medium_group.name
+        dict_mg['level'] = medium_group.level or 100
+        if str(medium_group.id) + '_2014' in medium_group_rebate_data:
+            dict_mg['rebate_2014'] = medium_group_rebate_data[str(medium_group.id) + '_2014']
+        else:
+            dict_mg['rebate_2014'] = u'无'
+        if str(medium_group.id) + '_2015' in medium_group_rebate_data:
+            dict_mg['rebate_2015'] = medium_group_rebate_data[str(medium_group.id) + '_2015']
+        else:
+            dict_mg['rebate_2015'] = u'无'
+        if str(medium_group.id) + '_2016' in medium_group_rebate_data:
+            dict_mg['rebate_2016'] = medium_group_rebate_data[str(medium_group.id) + '_2016']
+        else:
+            dict_mg['rebate_2016'] = u'无'
+        medium_data = []
+        for medium in medium_group.mediums:
+            dict_medium = {}
+            dict_medium['id'] = medium.id
+            dict_medium['name'] = medium.name
+            if str(medium.id) + '_2014' in medium_rebate_data:
+                dict_medium['rebate_2014'] = medium_rebate_data[str(medium.id) + '_2014']
+            else:
+                dict_medium['rebate_2014'] = u'无'
+            if str(medium.id) + '_2015' in medium_rebate_data:
+                dict_medium['rebate_2015'] = medium_rebate_data[str(medium.id) + '_2015']
+            else:
+                dict_medium['rebate_2015'] = u'无'
+            if str(medium.id) + '_2016' in medium_rebate_data:
+                dict_medium['rebate_2016'] = medium_rebate_data[str(medium.id) + '_2016']
+            else:
+                dict_medium['rebate_2016'] = u'无'
+            medium_data.append(dict_medium)
+        dict_mg['mediums'] = medium_data
+        medium_group_data.append(dict_mg)
+    medium_group_data = sorted(medium_group_data, key=operator.itemgetter('level'), reverse=False)
+    return tpl('/client/medium/group/index.html', mediums=medium_group_data, info=info)
 
 
 @client_bp.route('/new_medium_group', methods=['GET', 'POST'])

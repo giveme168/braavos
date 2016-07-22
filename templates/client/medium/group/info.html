@@ -122,7 +122,7 @@
         </div>
     {% endif %}
     <br/>
-    {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_finance() %}
+    {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_finance() or g.user.is_contract() %}
     <h3>媒体供应商返点列表
         <a class="btn btn-default btn-sm" href="{{url_for('client.medium_group_rebate_create', medium_group_id=medium_group.id)}}">新建</a>
     </h3>
@@ -162,11 +162,11 @@
                 <tr>
                     <th>#id</th>
                     <th>名称</th>
-                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() %}
+                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_contract() %}
                     <th>2014年返点</th>
                     <th>2015年返点</th>
                     <th>2016年返点</th>
-                        {% if g.user.is_media_leader() or g.user.is_super_leader() %}
+                        {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_contract()%}
                         <th>操作</th>
                         {% endif %}
                     {% endif %}
@@ -183,11 +183,11 @@
                         {{m.name}}
                         {% endif %}
                     </td>
-                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() %}
+                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_contract() %}
                         <td>{{m.rebate_2014}}</td>
                         <td>{{m.rebate_2015}}</td>
                         <td>{{m.rebate_2016}}</td>
-                        {% if g.user.is_media_leader() or g.user.is_super_leader() %}
+                        {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_contract()%}
                             <td><a href="{{url_for('client.medium_rebate', medium_id=m.id)}}">设置返点</a></td>
                         {% endif %}
                     {% endif %}
