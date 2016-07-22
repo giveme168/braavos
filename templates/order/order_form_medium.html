@@ -138,14 +138,26 @@
       if(self_rebate==1){
         $('#self_medium_rebate_status_'+id).css('display', 'none');
         $('#self_medium_rebate_value_'+id).css('display', 'block');
+        set_medium_rebate(id)
       }else{
         $('#self_medium_rebate_value_'+id).css('display', 'none');
         $('#self_medium_rebate_status_'+id).css('display', 'block');
       }
   }
+  function set_medium_rebate(id){
+    $.ajax({
+      type: 'POST',
+      url: "/clients/medium/get_rebate_json",
+      data: {'medium_order_id':id},
+      dataType: 'json',
+      success:function(data) {
+          $('#self_medium_rabate_value_'+id).val(data['rebate']);
+      }
+    });
+  }
   function default_medium_rebate(id){
     $('#self_medium_rebate_'+id).val(0);
-    $('#self_medium_rabate_value_'+id).val('0');
+    $('#self_medium_rabate_value_'+id).val('0.0');
     $('#self_medium_rebate_'+id).trigger("chosen:updated");
     $('#self_medium_rebate_value_'+id).css('display', 'none');
     $('#self_medium_rebate_status_'+id).css('display', 'block');
@@ -282,14 +294,26 @@
       if(self_rebate==1){
         $('#self_medium_rebate_status_'+id).css('display', 'none');
         $('#self_medium_rebate_value_'+id).css('display', 'block');
+        set_medium_rebate(id)
       }else{
         $('#self_medium_rebate_value_'+id).css('display', 'none');
         $('#self_medium_rebate_status_'+id).css('display', 'block');
       }
   }
+  function set_medium_rebate(id){
+    $.ajax({
+      type: 'POST',
+      url: "/clients/medium/get_rebate_json",
+      data: {'medium_order_id':id},
+      dataType: 'json',
+      success:function(data) {
+          $('#self_medium_rabate_value_'+id).val(data['rebate']);
+      }
+    });
+  }
   function default_medium_rebate(id){
     $('#self_medium_rebate_'+id).val(0);
-    $('#self_medium_rabate_value_'+id).val('0');
+    $('#self_medium_rabate_value_'+id).val('0.0');
     $('#self_medium_rebate_'+id).trigger("chosen:updated");
     $('#self_medium_rebate_value_'+id).css('display', 'none');
     $('#self_medium_rebate_status_'+id).css('display', 'block');

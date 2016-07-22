@@ -786,9 +786,9 @@ def display_orders(orders, title, status_id=-1):
         elif status_id == 31:
             orders = [o for o in orders if o.back_money_status == 0]
         elif status_id == 32:
-            orders = [o for o in orders if o.back_money_status != 0]
+            orders = [o for o in orders if o.back_money_status != 0 and o.contract]
         elif status_id == 33:
-            orders = [o for o in orders if o.invoice_pass_sum != float(o.money)]
+            orders = [o for o in orders if o.invoice_pass_sum != float(o.money) and o.contract]
         elif status_id == 34:
             orders = [o for o in orders if o.invoice_pass_sum == float(o.money)]
         elif status_id == 35:
