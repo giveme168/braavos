@@ -17,12 +17,15 @@ mediums_files_bp = Blueprint(
 
 @mediums_files_bp.route('/index', methods=['GET'])
 def index():
+    info = request.values.get('info', '')
     mediums = [{'files_update_time': k.files_update_time,
                 'level_cn': k.medium_group.level_cn,
                 'id': k.id, 'name': k.medium_group.name + "-" + k.name, 'level': k.level or 100
                 }for k in Medium.all()]
+    if info:
+        mediums = [m for m in mediums if info in m['name']]
     mediums = sorted(mediums, key=operator.itemgetter('level'), reverse=False)
-    return tpl('/mediums/files/index.html', mediums=mediums)
+    return tpl('/mediums/files/index.html', mediums=mediums, info=info)
 
 
 @mediums_files_bp.route('/<mid>/info', methods=['GET'])

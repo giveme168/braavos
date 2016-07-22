@@ -22,7 +22,7 @@ class MediumsForm(Form):
 
     def __init__(self, *args, **kwargs):
         super(MediumsForm, self).__init__(*args, **kwargs)
-        self.mediums.choices = [(m.id, m.name) for m in Medium.all()]
+        self.mediums.choices = [(m.id, m.medium_group.name + '-' + m.name) for m in Medium.all()]
 
 
 @mediums_planning_bp.route('/<type>/index', methods=['GET'])

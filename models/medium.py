@@ -1201,7 +1201,7 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def mediums_name(self):
-        return ','.join([k.name for k in self.mediums])
+        return '<br/>'.join([k.name for k in self.mediums])
 
     @property
     def mediums_id(self):

@@ -4,6 +4,17 @@
 {% block content%}
 {% include "/mediums/mediums_base_v1_0_0.html" %}
 <div class="container bra-box">
+    <div class="search-bar">
+      <form class="menu-btn-bar" style="float:left;">
+          <div class="search-input">
+              <input type="text" placeholder="媒体供应商名称" value="{{info}}" name="info" id="info">
+              <img src="/static/image/search.png" alt="#">
+          </div>
+          <div class="select_option screen">
+              <input type="submit" value="筛选">
+          </div>
+      </form>
+    </div>
     <div class='tabulation'>
         <table border='1'>
             <thead>
