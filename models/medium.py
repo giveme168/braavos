@@ -126,6 +126,10 @@ class MediumGroup(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def medium_group_path(self):
         return url_for('client.medium_group_detail', medium_group_id=self.id)
 
+    @property
+    def search_info(self):
+        return self.name + ''.join([m.name for m in self.mediums])
+
 
 class MediumGroupRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_group_rebate'
