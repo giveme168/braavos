@@ -68,11 +68,17 @@ def new_agent():
         if not db_agent_name:
             agent = Agent.add(form.name.data, Group.get(form.group.data),
                               form.tax_num.data, form.address.data, form.phone_num.data,
-                              form.bank.data, form.bank_num.data)
+                              form.bank.data, form.bank_num.data, form.contact.data,
+                              form.contact_phone.data)
             flash(u'新建代理/直客(%s)成功!' % agent.name, 'success')
         else:
             flash(u'新建代理/直客(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
             return tpl('/client/agent/info.html', form=form, title=u"新建代理公司", status='news')
+        agent.add_comment(g.user, u"新建了代理: %s\n\n税号：%s\n\n地址：%s\n\n电话：%s\n\n开户行：%s\n\n\
+            银行账号：%s\n\n内部联系人：%s\n\n内部联系人电话：%s\n\n" %
+                          (agent.name, agent.tax_num, agent.address, agent.phone_num,
+                           agent.bank, agent.bank_num, agent.contact, agent.contact_phone),
+                          msg_channel=13)
         return redirect(url_for("client.agents"))
     return tpl('/client/agent/info.html',
                form=form,
@@ -120,7 +126,14 @@ def agent_detail(agent_id):
         agent.phone_num = form.phone_num.data
         agent.bank = form.bank.data
         agent.bank_num = form.bank_num.data
+        agent.contact = form.contact.data
+        agent.contact_phone = form.contact_phone.data
         agent.save()
+        agent.add_comment(g.user, u"修改了代理: %s\n\n税号：%s\n\n地址：%s\n\n电话：%s\n\n开户行：%s\n\n\
+            银行账号：%s\n\n内部联系人：%s\n\n内部联系人电话：%s\n\n" %
+                          (agent.name, agent.tax_num, agent.address, agent.phone_num,
+                           agent.bank, agent.bank_num, agent.contact, agent.contact_phone),
+                          msg_channel=13)
         flash(u'保存成功', 'success')
     else:
         form.name.data = agent.name
@@ -130,6 +143,8 @@ def agent_detail(agent_id):
         form.phone_num.data = agent.phone_num
         form.bank.data = agent.bank
         form.bank_num.data = agent.bank_num
+        form.contact.data = agent.contact or ""
+        form.contact_phone.data = agent.contact_phone or ""
     return tpl('/client/agent/info.html',
                form=form,
                agent=agent,
@@ -249,6 +264,10 @@ def medium_group_detail(medium_group_id):
         medium_group.bank_num = bank_num
         medium_group.level = level
         medium_group.save()
+        medium_group.add_comment(g.user, u"修改了媒体供应商: %s\n\n税号：%s\n\n地址：%s\n\n电话：%s\n\n开户行：%s\n\n银行账号：%s\n\n" %
+                                 (medium_group.name, medium_group.tax_num, medium_group.address,
+                                  medium_group.phone_num, medium_group.bank, medium_group.bank_num),
+                                 msg_channel=14)
         flash(u'修改（%s）媒体供应商成功!' % medium_group.name, 'success')
         return redirect(url_for("client.medium_group_detail", medium_group_id=medium_group.id))
     return tpl('/client/medium/group/info.html', medium_group=medium_group, medium_data=medium_data,
@@ -374,6 +393,10 @@ def new_medium_group():
                 bank_num=bank_num,
                 level=level)
             medium_group.save()
+            medium_group.add_comment(g.user, u"新建了媒体供应商: %s\n\n税号：%s\n\n地址：%s\n\n电话：%s\n\n开户行：%s\n\n银行账号：%s\n\n" %
+                                     (medium_group.name, medium_group.tax_num, medium_group.address,
+                                      medium_group.phone_num, medium_group.bank, medium_group.bank_num),
+                                     msg_channel=14)
             flash(u'新建(%s)媒体供应商成功!' % medium_group.name, 'success')
         else:
             flash(u'新建(%s)媒体供应商失败, 名称已经被占用!' % name, 'danger')

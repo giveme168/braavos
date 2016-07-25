@@ -32,6 +32,7 @@ FILE_TYPE_AGENT = 9
 FILE_TYPE_FINISH = 10
 FILE_TYPE_MEDIUM = 12
 FILE_TYPE_MEDIUM_GROUP = 13
+FILE_TYPE_BILL = 14   # 效果部门结算单
 
 
 # 客户资质（包括代理和媒体）
@@ -92,6 +93,9 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
         elif file_type == FILE_TYPE_FINISH:
             attachment = order.add_finish_attachment(g.user, filename)
             flash(u'合同扫描件上传成功!', 'success')
+        elif file_type == FILE_TYPE_BILL:
+            attachment = order.add_finish_attachment(g.user, filename)
+            flash(u'结算单上传成功!', 'success')
         elif file_type == FILE_TYPE_SCHEDULE:
             attachment = order.add_schedule_attachment(g.user, filename)
             flash(u'文件上传成功!', 'success')
@@ -499,6 +503,13 @@ def finish_searchAd_client_order_upload():
     order_id = request.values.get('order')
     order = searchAdClientOrder.get(order_id)
     return attachment_upload(order, FILE_TYPE_FINISH)
+
+
+@files_bp.route('/bill/searchAd_client_order/upload', methods=['POST'])
+def bill_searchAd_client_order_upload():
+    order_id = request.values.get('order')
+    order = searchAdClientOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_BILL)
 
 
 @files_bp.route('/finish/searchAd_rebate_order/upload', methods=['POST'])

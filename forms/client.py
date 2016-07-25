@@ -26,6 +26,8 @@ class NewAgentForm(Form):
     phone_num = TextField(u'公司电话')
     bank = TextField(u'公司开户银行')
     bank_num = TextField(u'公司银行账号')
+    contact = TextField(u'公司内部联系人')
+    contact_phone = TextField(u'公司内部联系人电话')
 
     def __init__(self, *args, **kwargs):
         super(NewAgentForm, self).__init__(*args, **kwargs)

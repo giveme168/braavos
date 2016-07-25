@@ -50,7 +50,7 @@ def apply():
         client_order = i.medium_invoice.client_order
         medium_invoices = [k.id for k in MediumInvoice.query.filter_by(client_order=client_order)]
         pays = [k for k in MediumInvoicePay.all() if k.medium_invoice_id in medium_invoices]
-        i.apply_num = len([k for k in pays if k.pay_status == 3])
+        i.apply_num = len([k for k in pays if k.pay_status == 4])
         i.pay_num = len([k for k in pays if k.pay_status == 0])
     return tpl('/finance/client_order/medium_pay/index.html', orders=orders, title=u'申请中的媒体付款',
                locations=select_locations, location_id=location_id,
@@ -99,7 +99,7 @@ def index():
         client_order = i
         medium_invoices = [k.id for k in MediumInvoice.query.filter_by(client_order=client_order)]
         pays = [k for k in MediumInvoicePay.all() if k.medium_invoice_id in medium_invoices]
-        i.apply_num = len([k for k in pays if k.pay_status == 3])
+        i.apply_num = len([k for k in pays if k.pay_status == 4])
         i.pay_num = len([k for k in pays if k.pay_status == 0])
     return tpl('/finance/client_order/medium_pay/index_pass.html', orders=orders, title=u'申请中的媒体付款',
                locations=select_locations, location_id=location_id,
@@ -176,8 +176,10 @@ def invoice_pay_time_update(invoice_id):
     invoice.pay_time = pay_time
     invoice.save()
     flash(u'保存成功!', 'success')
-    invoice.client_order.add_comment(g.user,
-                                     u"更新了付款时间:\n\r%s" % pay_time,
+    invoice.client_order.add_comment(g.user, u"财务更新了打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                        打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                     (invoice.medium_invoice.invoice_num, str(invoice.money),
+                                      invoice.pay_time, invoice.company, invoice.bank, invoice.bank_num),
                                      msg_channel=3)
     return jsonify({'ret': True})
 
@@ -209,16 +211,25 @@ def new_invoice_pay(invoice_id):
     money = float(request.values.get('money', 0))
     pay_time = request.values.get('pay_time', '')
     detail = request.values.get('detail', '')
+    bank = request.values.get('bank', '')
+    bank_num = request.values.get('bank_num', '')
+    company = request.values.get('company', '')
     pay = MediumInvoicePay.add(money=money,
                                pay_status=0,
                                medium_invoice=invoice,
                                pay_time=pay_time,
-                               detail=detail)
+                               detail=detail,
+                               bank=bank,
+                               bank_num=bank_num,
+                               company=company)
     pay.save()
     flash(u'新建付款信息成功!', 'success')
-    invoice.client_order.add_comment(g.user, u"添加已付款信息  发票号：%s  付款金额：%s元  付款时间：%s" % (
-        invoice.invoice_num, str(money), pay_time), msg_channel=3)
-    return redirect(url_for("finance_client_order_medium_pay.info", order_id=invoice.client_order.id))
+    invoice.client_order.add_comment(g.user, u"财务添加打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                        打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                     (invoice.invoice_num, str(money),
+                                      pay_time, company, bank, bank_num),
+                                     msg_channel=3)
+    return redirect(url_for("finance_client_order_medium_pay.pay_info", invoice_id=invoice.id))
 
 
 @finance_client_order_medium_pay_bp.route('/<invoice_id>/pass', methods=['POST'])
@@ -279,8 +290,12 @@ def invoice_pay_delete(invoice_id, pid):
     invoice = MediumInvoice.get(invoice_id)
     invoice_pay = MediumInvoicePay.get(pid)
     flash(u'删除成功', 'success')
-    invoice.client_order.add_comment(g.user, u"删除了付款信息  发票号：%s  付款金额：%s元  付款时间：%s" % (
-        invoice.invoice_num, str(invoice_pay.money), invoice_pay.pay_time_cn), msg_channel=3)
+    invoice.client_order.add_comment(g.user, u"财务删除打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                        打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                     (invoice.invoice_num, str(invoice_pay.money),
+                                      invoice_pay.pay_time, invoice_pay.company,
+                                      invoice_pay.bank, invoice_pay.bank_num),
+                                     msg_channel=3)
     invoice_pay.delete()
     return redirect(url_for("finance_client_order_medium_pay.pay_info", invoice_id=invoice_id))
 
