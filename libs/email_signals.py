@@ -67,12 +67,12 @@ def password_changed(sender, user):
                      body=u'您的InAd帐号密码已经被重新设置, 如果不是您的操作, 请联系广告平台管理员')
 
 
-def add_comment(sender, comment, msg_channel=0):
+def add_comment(sender, comment, msg_channel=0, url=''):
     send_simple_mail(u'InAd留言提醒[%s]' % comment.target.name,
                      recipients=[
                          u.email for u in
                          comment.target.get_mention_users(except_user=comment.creator, msg_channel=msg_channel)],
-                     body=(u'%s的新留言:\n\n %s' % (comment.creator.name, comment.msg)))
+                     body=(u'%s的新留言:\n\n %s \n\n留言地址：%s' % (comment.creator.name, comment.msg, url)))
 
 
 def contract_apply_douban(sender, apply_context):
