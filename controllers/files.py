@@ -19,7 +19,7 @@ from searchAd.models.client_order import searchAdClientOrder
 from searchAd.models.order import searchAdOrder
 from searchAd.models.rebate_order import searchAdRebateOrder
 from models.client import Agent
-from models.medium import Medium
+from models.medium import Medium, MediumGroup
 
 
 files_bp = Blueprint('files', __name__, template_folder='../templates/files')
@@ -31,6 +31,8 @@ FILE_TYPE_OTHERS = 4
 FILE_TYPE_AGENT = 9
 FILE_TYPE_FINISH = 10
 FILE_TYPE_MEDIUM = 12
+FILE_TYPE_MEDIUM_GROUP = 13
+FILE_TYPE_BILL = 14   # 效果部门结算单
 
 
 # 客户资质（包括代理和媒体）
@@ -81,7 +83,7 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
             flash(u'文件名中包含非正常字符，请使用标准字符', 'danger')
             return redirect("%s" % (order.info_path()))
 
-        if file_type in [FILE_TYPE_AGENT, FILE_TYPE_MEDIUM]:
+        if file_type in [FILE_TYPE_AGENT, FILE_TYPE_MEDIUM, FILE_TYPE_MEDIUM_GROUP]:
             filename = files_set.save(request.files['file'])
         else:
             filename = attachment_set.save(request.files['file'])
@@ -91,6 +93,9 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
         elif file_type == FILE_TYPE_FINISH:
             attachment = order.add_finish_attachment(g.user, filename)
             flash(u'合同扫描件上传成功!', 'success')
+        elif file_type == FILE_TYPE_BILL:
+            attachment = order.add_finish_attachment(g.user, filename)
+            flash(u'结算单上传成功!', 'success')
         elif file_type == FILE_TYPE_SCHEDULE:
             attachment = order.add_schedule_attachment(g.user, filename)
             flash(u'文件上传成功!', 'success')
@@ -106,6 +111,10 @@ def attachment_upload(order, file_type=FILE_TYPE_CONTRACT):
             flash(u'资料上传成功', 'success')
             order.add_medium_attachment(g.user, filename)
             return redirect(order.medium_path())
+        elif file_type == FILE_TYPE_MEDIUM_GROUP:
+            flash(u'资料上传成功', 'success')
+            order.add_medium_group_attachment(g.user, filename)
+            return redirect(order.medium_group_path())
         elif file_type == FILE_TYPE_OTHERS:
             flash(u'其他资料上传成功', 'success')
             attachment = order.add_other_attachment(g.user, filename)
@@ -496,6 +505,13 @@ def finish_searchAd_client_order_upload():
     return attachment_upload(order, FILE_TYPE_FINISH)
 
 
+@files_bp.route('/bill/searchAd_client_order/upload', methods=['POST'])
+def bill_searchAd_client_order_upload():
+    order_id = request.values.get('order')
+    order = searchAdClientOrder.get(order_id)
+    return attachment_upload(order, FILE_TYPE_BILL)
+
+
 @files_bp.route('/finish/searchAd_rebate_order/upload', methods=['POST'])
 def finish_searchAd_rebate_order_upload():
     order_id = request.values.get('order')
@@ -549,3 +565,10 @@ def client_medium_upload():
     medium_id = request.values.get('medium')
     medium = Medium.get(medium_id)
     return attachment_upload(medium, FILE_TYPE_MEDIUM)
+
+
+@files_bp.route('/client/medium_group/upload', methods=['POST'])
+def client_medium_group_upload():
+    medium_id = request.values.get('medium')
+    medium_group = MediumGroup.get(medium_id)
+    return attachment_upload(medium_group, FILE_TYPE_MEDIUM_GROUP)

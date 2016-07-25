@@ -8,8 +8,9 @@ from flask import render_template as tpl, flash
 from models.client import Client, Group, Agent, AgentRebate, AgentMediumRebate, FILE_TYPE_CN
 from models.medium import MediumGroup, Medium, MediumRebate, MediumGroupRebate
 from models.attachment import Attachment
+from models.order import Order
 from forms.client import NewClientForm, NewGroupForm, NewAgentForm
-from controllers.helpers.client_helpers import write_client_excel, write_medium_excel
+from controllers.helpers.client_helpers import write_client_excel, write_medium_excel, write_medium_group_excel
 
 from libs.files import files_set
 
@@ -67,11 +68,17 @@ def new_agent():
         if not db_agent_name:
             agent = Agent.add(form.name.data, Group.get(form.group.data),
                               form.tax_num.data, form.address.data, form.phone_num.data,
-                              form.bank.data, form.bank_num.data)
+                              form.bank.data, form.bank_num.data, form.contact.data,
+                              form.contact_phone.data)
             flash(u'新建代理/直客(%s)成功!' % agent.name, 'success')
         else:
             flash(u'新建代理/直客(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
             return tpl('/client/agent/info.html', form=form, title=u"新建代理公司", status='news')
+        agent.add_comment(g.user, u"新建了代理: %s\n\n税号：%s\n\n地址：%s\n\n电话：%s\n\n开户行：%s\n\n\
+            银行账号：%s\n\n内部联系人：%s\n\n内部联系人电话：%s\n\n" %
+                          (agent.name, agent.tax_num, agent.address, agent.phone_num,
+                           agent.bank, agent.bank_num, agent.contact, agent.contact_phone),
+                          msg_channel=13)
         return redirect(url_for("client.agents"))
     return tpl('/client/agent/info.html',
                form=form,
@@ -119,7 +126,14 @@ def agent_detail(agent_id):
         agent.phone_num = form.phone_num.data
         agent.bank = form.bank.data
         agent.bank_num = form.bank_num.data
+        agent.contact = form.contact.data
+        agent.contact_phone = form.contact_phone.data
         agent.save()
+        agent.add_comment(g.user, u"修改了代理: %s\n\n税号：%s\n\n地址：%s\n\n电话：%s\n\n开户行：%s\n\n\
+            银行账号：%s\n\n内部联系人：%s\n\n内部联系人电话：%s\n\n" %
+                          (agent.name, agent.tax_num, agent.address, agent.phone_num,
+                           agent.bank, agent.bank_num, agent.contact, agent.contact_phone),
+                          msg_channel=13)
         flash(u'保存成功', 'success')
     else:
         form.name.data = agent.name
@@ -129,6 +143,8 @@ def agent_detail(agent_id):
         form.phone_num.data = agent.phone_num
         form.bank.data = agent.bank
         form.bank_num.data = agent.bank_num
+        form.contact.data = agent.contact or ""
+        form.contact_phone.data = agent.contact_phone or ""
     return tpl('/client/agent/info.html',
                form=form,
                agent=agent,
@@ -248,6 +264,10 @@ def medium_group_detail(medium_group_id):
         medium_group.bank_num = bank_num
         medium_group.level = level
         medium_group.save()
+        medium_group.add_comment(g.user, u"修改了媒体供应商: %s\n\n税号：%s\n\n地址：%s\n\n电话：%s\n\n开户行：%s\n\n银行账号：%s\n\n" %
+                                 (medium_group.name, medium_group.tax_num, medium_group.address,
+                                  medium_group.phone_num, medium_group.bank, medium_group.bank_num),
+                                 msg_channel=14)
         flash(u'修改（%s）媒体供应商成功!' % medium_group.name, 'success')
         return redirect(url_for("client.medium_group_detail", medium_group_id=medium_group.id))
     return tpl('/client/medium/group/info.html', medium_group=medium_group, medium_data=medium_data,
@@ -275,7 +295,7 @@ def files_upload(f_type, id):
     if f_type == 'medium_group':
         return redirect(url_for('client.medium_group_detail', medium_group_id=id))
     elif f_type == 'agent':
-            return redirect(url_for('client.agent_detail', agent_id=id))
+        return redirect(url_for('client.agent_detail', agent_id=id))
 
 
 @client_bp.route('/<f_type>/<type>/<aid>/<id>/files_delete', methods=['GET'])
@@ -286,22 +306,68 @@ def files_delete(f_type, type, aid, id):
     if f_type == 'medium_group':
         return redirect(url_for('client.medium_group_detail', medium_group_id=id))
     elif f_type == 'agent':
-            return redirect(url_for('client.agent_detail', agent_id=id))
+        return redirect(url_for('client.agent_detail', agent_id=id))
 
 
 @client_bp.route('/medium_groups', methods=['GET'])
 def medium_groups():
-    medium_data = []
-    for medium in MediumGroup.all():
-        dict_medium = {}
-        dict_medium['level_cn'] = medium.level_cn
-        dict_medium['id'] = medium.id
-        dict_medium['name'] = medium.name
-        dict_medium['level'] = medium.level or 100
-        dict_medium['mediums'] = medium.mediums
-        medium_data.append(dict_medium)
-    medium_data = sorted(medium_data, key=operator.itemgetter('level'), reverse=False)
-    return tpl('/client/medium/group/index.html', mediums=medium_data)
+    info = request.values.get('info', '')
+    medium_groups = MediumGroup.all()
+    if info:
+        medium_groups = [mg for mg in medium_groups if info in mg.search_info]
+    medium_rebate = MediumRebate.all()
+    medium_rebate_data = {}
+    for k in medium_rebate:
+        if str(k.medium.id) + '_' + str(k.year.year) not in medium_rebate_data:
+            medium_rebate_data[str(k.medium.id) + '_' + str(k.year.year)] = str(k.rebate) + '%'
+    medium_group_rebate = MediumGroupRebate.all()
+    medium_group_rebate_data = {}
+    for k in medium_group_rebate:
+        if str(k.medium_group.id) + '_' + str(k.year.year) not in medium_group_rebate_data:
+            medium_group_rebate_data[str(k.medium_group.id) + '_' + str(k.year.year)] = str(k.rebate) + '%'
+    medium_group_data = []
+    for medium_group in medium_groups:
+        dict_mg = {}
+        dict_mg['level_cn'] = medium_group.level_cn
+        dict_mg['id'] = medium_group.id
+        dict_mg['name'] = medium_group.name
+        dict_mg['level'] = medium_group.level or 100
+        if str(medium_group.id) + '_2014' in medium_group_rebate_data:
+            dict_mg['rebate_2014'] = medium_group_rebate_data[str(medium_group.id) + '_2014']
+        else:
+            dict_mg['rebate_2014'] = u'无'
+        if str(medium_group.id) + '_2015' in medium_group_rebate_data:
+            dict_mg['rebate_2015'] = medium_group_rebate_data[str(medium_group.id) + '_2015']
+        else:
+            dict_mg['rebate_2015'] = u'无'
+        if str(medium_group.id) + '_2016' in medium_group_rebate_data:
+            dict_mg['rebate_2016'] = medium_group_rebate_data[str(medium_group.id) + '_2016']
+        else:
+            dict_mg['rebate_2016'] = u'无'
+        medium_data = []
+        for medium in medium_group.mediums:
+            dict_medium = {}
+            dict_medium['id'] = medium.id
+            dict_medium['name'] = medium.name
+            if str(medium.id) + '_2014' in medium_rebate_data:
+                dict_medium['rebate_2014'] = medium_rebate_data[str(medium.id) + '_2014']
+            else:
+                dict_medium['rebate_2014'] = u'无'
+            if str(medium.id) + '_2015' in medium_rebate_data:
+                dict_medium['rebate_2015'] = medium_rebate_data[str(medium.id) + '_2015']
+            else:
+                dict_medium['rebate_2015'] = u'无'
+            if str(medium.id) + '_2016' in medium_rebate_data:
+                dict_medium['rebate_2016'] = medium_rebate_data[str(medium.id) + '_2016']
+            else:
+                dict_medium['rebate_2016'] = u'无'
+            medium_data.append(dict_medium)
+        dict_mg['mediums'] = medium_data
+        medium_group_data.append(dict_mg)
+    medium_group_data = sorted(medium_group_data, key=operator.itemgetter('level'), reverse=False)
+    if request.values.get('action') == 'excel':
+        return write_medium_group_excel(medium_group_data)
+    return tpl('/client/medium/group/index.html', mediums=medium_group_data, info=info)
 
 
 @client_bp.route('/new_medium_group', methods=['GET', 'POST'])
@@ -327,6 +393,10 @@ def new_medium_group():
                 bank_num=bank_num,
                 level=level)
             medium_group.save()
+            medium_group.add_comment(g.user, u"新建了媒体供应商: %s\n\n税号：%s\n\n地址：%s\n\n电话：%s\n\n开户行：%s\n\n银行账号：%s\n\n" %
+                                     (medium_group.name, medium_group.tax_num, medium_group.address,
+                                      medium_group.phone_num, medium_group.bank, medium_group.bank_num),
+                                     msg_channel=14)
             flash(u'新建(%s)媒体供应商成功!' % medium_group.name, 'success')
         else:
             flash(u'新建(%s)媒体供应商失败, 名称已经被占用!' % name, 'danger')
@@ -439,6 +509,14 @@ def medium_files_delete(medium_id, aid):
     attachment.delete()
     flash(u'删除成功!', 'success')
     return redirect(url_for("client.medium_detail", medium_id=medium_id))
+
+
+@client_bp.route('/medium_group/<medium_group_id>/files/<aid>/delete', methods=['GET'])
+def medium_group_files_delete(medium_group_id, aid):
+    attachment = Attachment.get(aid)
+    attachment.delete()
+    flash(u'删除成功!', 'success')
+    return redirect(url_for("client.medium_group_detail", medium_group_id=medium_group_id))
 
 
 @client_bp.route('/medium_groups/medium/<medium_id>/rebate/create', methods=['GET', 'POST'])
@@ -570,6 +648,26 @@ def agent_get_rebate_json():
         agent_id=agent_id, year=year).first()
     if agent_rebates:
         return jsonify({'ret': True, 'rebate': agent_rebates.inad_rebate})
+    return jsonify({'ret': False, 'rebate': 0})
+
+
+@client_bp.route('/medium/get_rebate_json', methods=['GET', 'POST'])
+def medium_get_rebate_json():
+    medium_order_id = request.values.get('medium_order_id', 0)
+    order = Order.get(medium_order_id)
+    if not order:
+        return jsonify({'ret': False, 'rebate': 0})
+    year = datetime.datetime.strptime(str(order.medium_start.year), '%Y')
+    medium_rebates = MediumRebate.query.filter_by(medium_id=order.medium.id, year=year).first()
+    if medium_rebates:
+        return jsonify({'ret': True, 'rebate': medium_rebates.rebate / 100 * order.medium_money2})
+    else:
+        medium_group_rebates = MediumGroupRebate.query.filter_by(medium_group_id=order.medium.medium_group.id,
+                                                                 year=year).first()
+        if medium_group_rebates:
+            return jsonify({'ret': True, 'rebate': medium_group_rebates.rebate / 100 * order.medium_money2})
+        else:
+            return jsonify({'ret': True, 'rebate': 0})
     return jsonify({'ret': False, 'rebate': 0})
 
 

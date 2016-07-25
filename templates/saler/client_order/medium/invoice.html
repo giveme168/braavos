@@ -66,12 +66,12 @@
                           <th>银行账号</th>
                         </tr>
                         <tr>
-                          <td>{{invoice.medium.abbreviation}}</td>
-                          <td>{{invoice.medium.tax_num}}</td>
-                          <td>{{invoice.medium.address}}</td>
-                          <td>{{invoice.medium.phone_num}}</td>
-                          <td>{{invoice.medium.bank}}</td>
-                          <td>{{invoice.medium.bank_num}}</td>
+                          <td>{{invoice.medium.medium_group.name}}</td>
+                          <td>{{invoice.medium.medium_group.tax_num}}</td>
+                          <td>{{invoice.medium.medium_group.address}}</td>
+                          <td>{{invoice.medium.medium_group.phone_num}}</td>
+                          <td>{{invoice.medium.medium_group.bank}}</td>
+                          <td>{{invoice.medium.medium_group.bank_num}}</td>
                         </tr>
                       </table>
                   </div>
@@ -127,11 +127,17 @@
                   {% endif %}
                   <table class="table table-bordered table-striped">
                     <tr>
+                      <th>公司名称</th>
+                      <th>开户行</th>
+                      <th>银行账号</th>
                       <th>打款时间</th>
                       <th>打款金额</th>
                       <th>备注</th>
                     </tr>
                     <tr>
+                      <td>{{i.company or ""}}</td>
+                      <td>{{i.bank or ""}}</td>
+                      <td>{{i.bank_num or ""}}</td>
                       <td>{{i.pay_time_cn}}</td>
                       <td>{{i.money}}元</td>
                       <td>{{i.detail}}</td>
@@ -140,10 +146,22 @@
                {% else %}
                <div class="well">
                <input type="checkbox" name="invoice-id" class="invoice-id" value="{{i.id}}"/>
-               <form class="input-row-box" method="POST" action="{{url_for('saler_client_order_medium_invoice.update_invoice_pay', invoice_id=invoice.id, invoice_pay_id=i.id)}}" onsubmit="return checkform(this)">
+               <form class="input-row-box" method="POST" action="{{url_for('saler_client_order_medium_invoice.update_invoice_pay', invoice_id=invoice.id, invoice_pay_id=i.id)}}" onsubmit="return check_pay_form(this)">
+                <div class="input-group-menu">
+                    <div class="name">公司名称 : </div>
+                       <input type="text" id="company" name="company" value="{{i.company or ''}}" class="surname" style="width:300px;" >
+                </div>
+                 <div class="input-group-menu">
+                    <div class="name">开户行 : </div>
+                       <input type="text" id="bank" name="bank" value="{{i.bank or ''}}" class="surname" style="width:300px;" >
+                </div>
+                 <div class="input-group-menu">
+                    <div class="name">银行账号 : </div>
+                       <input type="text" id="bank_num" name="bank_num" value="{{i.bank_num or ''}}" class="surname" style="width:300px;">
+                </div>
                 <div class="input-group-menu">
                     <div class="name">打款时间 : </div>
-                       <input type="text" id="pay_time" name="pay_time" value="{{i.pay_time_cn}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+                       <input type="text" id="pay_time" name="pay_time" value="{{i.pay_time_cn}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd" readonly="readonly">
                 </div>
                 <div class="input-group-menu">
                   <div class="name">打款金额 : </div>
@@ -178,10 +196,22 @@
       <div class="panel-body">
         <div class="well">
             <h4></h4>
-            <form class="input-row-box" method="POST" action="{{url_for('saler_client_order_medium_invoice.new_invoice_pay', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+            <form class="input-row-box" method="POST" action="{{url_for('saler_client_order_medium_invoice.new_invoice_pay', invoice_id=invoice.id)}}" onsubmit="return check_pay_form(this)">
+            <div class="input-group-menu">
+                <div class="name">公司名称 : </div>
+                   <input type="text" id="company" name="company" value="" class="surname" style="width:300px;" >
+            </div>
+             <div class="input-group-menu">
+                <div class="name">开户行 : </div>
+                   <input type="text" id="bank" name="bank" value="" class="surname" style="width:300px;" >
+            </div>
+             <div class="input-group-menu">
+                <div class="name">银行账号 : </div>
+                   <input type="text" id="bank_num" name="bank_num" value="" class="surname" style="width:300px;">
+            </div>
             <div class="input-group-menu">
                     <div class="name">打款时间 : </div>
-                   <input type="text" id="pay_time" name="pay_time" value="" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+                   <input type="text" id="pay_time" name="pay_time" value="" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd" readonly="readonly">
             </div>
             <div class="input-group-menu">
                     <div class="name">打款金额 : </div>
@@ -204,6 +234,31 @@
   {% endif %}
 </div>
 <script>
+function check_pay_form(obj){
+    if (obj.company.value == ''){
+      alert('请填写公司名称');
+      obj.company.focus();
+      return false
+    }else if(obj.bank.value == ''){
+      alert('请填写开户行');
+      obj.bank.focus()
+      return false
+    }else if(obj.bank_num.value == ''){
+      alert('请填写银行账号');
+      obj.bank_num.focus()
+      return false
+    }else if(obj.pay_time.value == ''){
+      alert('请选择打款时间');
+      obj.pay_time.focus()
+      return false
+    }else if(obj.money.value == ''){
+      alert('请填写打款金额');
+      obj.money.focus()
+      return false
+    }else{
+      return true
+    }
+}
 $(document).ready(function(){
     $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     $('.datetimepicker').datetimepicker({

@@ -134,12 +134,12 @@
                             <th>银行账号</th>
                           </tr>
                           <tr>
-                            <td>{{invoice.medium.abbreviation}}</td>
-                            <td>{{invoice.medium.tax_num}}</td>
-                            <td>{{invoice.medium.address}}</td>
-                            <td>{{invoice.medium.phone_num}}</td>
-                            <td>{{invoice.medium.bank}}</td>
-                            <td>{{invoice.medium.bank_num}}</td>
+                            <td>{{invoice.medium.medium_group.name}}</td>
+                            <td>{{invoice.medium.medium_group.tax_num}}</td>
+                            <td>{{invoice.medium.medium_group.address}}</td>
+                            <td>{{invoice.medium.medium_group.phone_num}}</td>
+                            <td>{{invoice.medium.medium_group.bank}}</td>
+                            <td>{{invoice.medium.medium_group.bank_num}}</td>
                           </tr>
                         </table>
                     </div>
@@ -163,6 +163,9 @@
                     <div class="col-md-21" style="">
                         <table class="table table-bordered table-striped">
                           <tr>
+                            <th>公司名称</th>
+                            <th>开户行</th>
+                            <th>银行账号</th>
                             <th>打款时间</th>
                             <th>打款金额</th>
                             <th>备注</th>
@@ -170,6 +173,9 @@
                           </tr>
                           {% for invoice in invoices_data_pass %}
                           <tr>
+                            <td>{{invoice.company or ''}}</td>
+                            <td>{{invoice.bank or ''}}</td>
+                            <td>{{invoice.bank_num or ''}}</td>
                             <td>{{invoice.pay_time_cn}}</td>
                             <td>{{invoice.money}}元</td>
                             <td>{{invoice.detail}}</td>
@@ -198,23 +204,27 @@
                     <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
                     {{ invoice.medium_invoice.company }}-{{ invoice.money }}元
                 </h4>
-                <div class="col-md-12">
-                    <div class="col-md-6" style="margin-left: 20px;">
-                        <table class="table table-bordered table-striped">
-                          <tr>
-                            <th>打款时间</th>
-                            <th>打款金额</th>
-                            <th>备注</th>
-                            <th>操作</th>
-                          </tr>
-                          <tr>
-                            <td>{{invoice.pay_time_cn}}</td>
-                            <td>{{invoice.money}}元</td>
-                            <td>{{invoice.detail}}</td>
-                            <td><a href="javascript:show_update_pay_time('{{invoice.id}}','{{invoice.pay_time_cn}}')">修改打款时间</a></td>
-                          </tr>
-                        </table>
-                    </div>
+                <div style="margin-left: 20px;">
+                    <table class="table table-bordered table-striped">
+                      <tr>
+                        <th>公司名称</th>
+                        <th>开户行</th>
+                        <th>银行账号</th>
+                        <th>打款时间</th>
+                        <th>打款金额</th>
+                        <th>备注</th>
+                        <th>操作</th>
+                      </tr>
+                      <tr>
+                        <td>{{invoice.company or ''}}</td>
+                        <td>{{invoice.bank or ''}}</td>
+                        <td>{{invoice.bank_num or ''}}</td>
+                        <td>{{invoice.pay_time_cn}}</td>
+                        <td>{{invoice.money}}元</td>
+                        <td>{{invoice.detail}}</td>
+                        <td><a href="javascript:show_update_pay_time('{{invoice.id}}','{{invoice.pay_time_cn}}')">修改打款时间</a></td>
+                      </tr>
+                    </table>
                 </div>
                 {% endfor %}
                 {{ status_box(invoices_data_apply[0]) }}
@@ -232,11 +242,29 @@
         <div class="panel-body">
           <div class="well">
               <h4></h4>
-              <form class="form form-horizontal" method="POST" action="{{url_for('finance_client_order_medium_pay.new_invoice_pay', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+              <form class="form form-horizontal" method="POST" action="{{url_for('finance_client_order_medium_pay.new_invoice_pay', invoice_id=invoice.id)}}" onsubmit="return check_pay_form(this)">
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">公司名称 : </label>
+                  <div class="col-sm-4">
+                     <input type="text" id="company" name="company" value="" class="form-control bra-form-control">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">开户行 : </label>
+                  <div class="col-sm-4">
+                     <input type="text" id="bank" name="bank" value="" class="form-control bra-form-control">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="client_start" class="col-sm-2 control-label">银行账号 : </label>
+                  <div class="col-sm-4">
+                     <input type="text" id="bank_num" name="bank_num" value="" class="form-control bra-form-control">
+                  </div>
+              </div>
               <div class="form-group">
                   <label for="client_start" class="col-sm-2 control-label">打款时间 : </label>
                   <div class="col-sm-4">
-                     <input type="text" id="pay_time" name="pay_time" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd">
+                     <input type="text" id="pay_time" name="pay_time" value="" class="datetimepicker form-control bra-form-control" data-date-format="yyyy-mm-dd"  readonly="readonly">
                   </div>
               </div>
               <div class="form-group">
@@ -286,6 +314,31 @@
   </div>
 </div>
 <script>
+   function check_pay_form(obj){
+    if (obj.company.value == ''){
+      alert('请填写公司名称');
+      obj.company.focus();
+      return false
+    }else if(obj.bank.value == ''){
+      alert('请填写开户行');
+      obj.bank.focus()
+      return false
+    }else if(obj.bank_num.value == ''){
+      alert('请填写银行账号');
+      obj.bank_num.focus()
+      return false
+    }else if(obj.pay_time.value == ''){
+      alert('请选择打款时间');
+      obj.pay_time.focus()
+      return false
+    }else if(obj.money.value == ''){
+      alert('请填写打款金额');
+      obj.money.focus()
+      return false
+    }else{
+      return true
+    }
+}
    function delete_pay_money(invoice_id, pid){
      if(confirm('你要确认要删除此项付款吗？')){
         window.location.href="/finance/client_order/medium_pay/"+invoice_id+"/"+pid+"/pay_delete";       

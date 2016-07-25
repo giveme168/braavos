@@ -83,11 +83,13 @@ class Agent(db.Model, BaseModelMixin, AttachmentMixin, CommentMixin):
     phone_num = db.Column(db.String(100))  # 电话
     bank = db.Column(db.String(100))  # 银行
     bank_num = db.Column(db.String(100))  # 银行号
+    contact = db.Column(db.String(50))  # 公司内部联系人
+    contact_phone = db.Column(db.String(100))  # 公司内部联系人电话
     rebates = db.relationship('AgentRebate')
 
     def __init__(self, name, group=None,
                  tax_num="", address="", phone_num="",
-                 bank="", bank_num=""):
+                 bank="", bank_num="", contact="", contact_phone=""):
         self.name = name
         self.group = group
         self.tax_num = tax_num
@@ -95,6 +97,8 @@ class Agent(db.Model, BaseModelMixin, AttachmentMixin, CommentMixin):
         self.phone_num = phone_num
         self.bank = bank
         self.bank_num = bank_num
+        self.contact = contact
+        self.contact_phone = contact_phone
 
     @classmethod
     def name_exist(cls, name):

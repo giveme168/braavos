@@ -1,4 +1,5 @@
 {% extends "/base_v1_0_0.html" %}
+{% from 'comments.html' import comments_box %}
 {% from 'form_v1_0_0.html' import form_tpl %}
 
 {% block content %}
@@ -19,6 +20,7 @@
         {% endif %}
     </td>
     <td>{% if agent_file %}{{agent_file.create_time.strftime('%Y-%m-%d %H:%M:%S')}}{% else %} 暂无 {% endif %}</td>
+    <td>{% if agent_file %}{{agent_file.creator.name}}{% else %} 暂无 {% endif %}</td>
     <td>
         {% if g.user.is_contract() or  g.user.is_super_leader() %}
             {% if agent_file %}
@@ -39,68 +41,75 @@
     <h3>{{ title }}</h3>
     {{ form_tpl(form) }}
     <br/>
-    <h3>代理/直客 资质</h3>
-    <div class='tabulation'>
-        <table border='1'>
-            <thead>
-                <tr>
-                    <th>附件类型</th>
-                    <th>附件名称</th>
-                    <th>上传日期</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for k in [100, 101, 102, 103, 104, 105] %}
-                {{ file_upload(agent, url_for('client.files_upload', f_type='agent' ,id=agent.id), k)}}
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <br/>
     {% if status == 'update' %}
-    <h3 style="float:left;">其他资料</h3>
-        <div class="form form-horizontal" style="float:left; margin-top: 20px;margin-bottom: 10px;">
-            <div class="form-group">
-                <div class="col-sm-10">
-                    <form method="POST" action="{{url_for('files.client_agent_upload')}}" enctype="multipart/form-data">
-                    <input class="hide" type="text" name="agent" value="{{agent.id}}">
-                    <input class="file-widget-input hide" type="file" name="file">
-                    <button class="file-widget-btn btn btn-sm btn-primary">
-                      <span>其他资料上传</span>
-                    </button>
-                    </form>
+        <h3>代理/直客 资质</h3>
+        <div class='tabulation'>
+            <table border='1'>
+                <thead>
+                    <tr>
+                        <th>附件类型</th>
+                        <th>附件名称</th>
+                        <th>上传日期</th>
+                        <th>上传人</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for k in [100, 101, 102, 103, 104, 105] %}
+                    {{ file_upload(agent, url_for('client.files_upload', f_type='agent' ,id=agent.id), k)}}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br/>
+        
+        <h3 style="float:left;">其他资料</h3>
+            <div class="form form-horizontal" style="float:left; margin-top: 20px;margin-bottom: 10px;">
+                <div class="form-group">
+                    <div class="col-sm-10">
+                        <form method="POST" action="{{url_for('files.client_agent_upload')}}" enctype="multipart/form-data">
+                        <input class="hide" type="text" name="agent" value="{{agent.id}}">
+                        <input class="file-widget-input hide" type="file" name="file">
+                        <button class="file-widget-btn btn btn-sm btn-primary">
+                          <span>其他资料上传</span>
+                        </button>
+                        </form>
+                    </div>
                 </div>
             </div>
+        {% if agent.get_agent_attachments().count() > 0 %}
+        <div class='tabulation'>
+            <table border='1'>
+                <thead>
+                    <tr>
+                        <th>资料名称</th>
+                        <th>上传日期</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for attachment in agent.get_agent_attachments() %}
+                    <tr>
+                        <td>{{attachment.filename}}</td>
+                        <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                        <td>
+                            <a href="{{attachment.agent_path}}">下载</a>&nbsp;&nbsp;
+                            {% if g.user.is_contract() %}
+                                <a href="{{url_for('client.agent_files_delete', agent_id=agent.id, aid=attachment.id)}}">删除</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+        {% endif %}
+        {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_finance() %}
+        <hr style="margin-top: 100px;">
+        <div>{{ comments_box(agent, msg_channel=13, text=False) }}</div>
+        {% endif %}
     {% endif %}
-    {% if agent.get_agent_attachments().count() > 0 %}
-    <div class='tabulation'>
-        <table border='1'>
-            <thead>
-                <tr>
-                    <th>资料名称</th>
-                    <th>上传日期</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for attachment in agent.get_agent_attachments() %}
-                <tr>
-                    <td>{{attachment.filename}}</td>
-                    <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
-                    <td>
-                        <a href="{{attachment.agent_path}}">下载</a>&nbsp;&nbsp;
-                        {% if g.user.is_contract() %}
-                            <a href="{{url_for('client.agent_files_delete', agent_id=agent.id, aid=attachment.id)}}">删除</a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% endif %}
+
 </div>
 <script>
     function delete_file(mid, oid, name, type){

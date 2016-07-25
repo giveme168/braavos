@@ -349,16 +349,22 @@ class MediumInvoicePay(db.Model, BaseModelMixin):
         'MediumInvoice', backref=db.backref('medium_invoice_pays', lazy='dynamic'))
     detail = db.Column(db.String(200))  # 留言
     pay_status = db.Column(db.Integer)  # 付款状态
+    bank = db.Column(db.String(100))
+    bank_num = db.Column(db.String(100))
+    company = db.Column(db.String(100))
     money = db.Column(db.Float)  # 打款金额
     pay_time = db.Column(db.DateTime)  # 打款时间
     create_time = db.Column(db.DateTime)  # 添加时间
 
     def __init__(self, medium_invoice, detail="", pay_status=MEDIUM_INVOICE_STATUS_NORMAL,
-                 money=0.0, pay_time=None):
+                 money=0.0, pay_time=None, bank="", bank_num="", company=""):
         self.medium_invoice = medium_invoice
         self.detail = detail
         self.pay_status = pay_status
         self.money = money
+        self.bank = bank
+        self.bank_num = bank_num
+        self.company = company
         self.create_time = datetime.date.today()
         self.pay_time = pay_time or datetime.date.today()
 
@@ -525,16 +531,22 @@ class AgentInvoicePay(db.Model, BaseModelMixin):
         'AgentInvoice', backref=db.backref('agent_invoice_pays', lazy='dynamic'))
     detail = db.Column(db.String(200))  # 留言
     pay_status = db.Column(db.Integer)  # 付款状态
+    bank = db.Column(db.String(100))
+    bank_num = db.Column(db.String(100))
+    company = db.Column(db.String(100))
     money = db.Column(db.Float)  # 打款金额
     pay_time = db.Column(db.DateTime)  # 打款时间
     create_time = db.Column(db.DateTime)  # 添加时间
 
     def __init__(self, agent_invoice, detail="", pay_status=AGENT_INVOICE_STATUS_NORMAL,
-                 money=0.0, pay_time=None):
+                 money=0.0, pay_time=None, bank="", bank_num="", company=""):
         self.agent_invoice = agent_invoice
         self.detail = detail
         self.pay_status = pay_status
         self.money = money
+        self.bank = bank
+        self.bank_num = bank_num
+        self.company = company
         self.create_time = datetime.date.today()
         self.pay_time = pay_time or datetime.date.today()
 

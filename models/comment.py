@@ -19,6 +19,8 @@ from . import db, BaseModelMixin
 # 10: 杂项成本
 # 11: 洽谈中的订单
 # 12: 对账单
+# 13: 代理信息
+# 14：媒体信息
 ##################
 class Comment(db.Model, BaseModelMixin):
     __tablename__ = 'bra_comment'

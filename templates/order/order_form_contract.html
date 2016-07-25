@@ -223,7 +223,7 @@
               {% if order.can_admin(g.user) %}
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="7">再次申请撤单</button>
               {% endif %}
-              {% if g.user.is_leader() %} 
+              {% if g.user.is_leader() or order.can_media_leader_action(g.user) %} 
                 <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="8">确认撤单</button>
               {% endif %}
             {% endif %}

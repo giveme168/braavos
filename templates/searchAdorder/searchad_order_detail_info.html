@@ -3,7 +3,7 @@
 {% from 'searchad_order_form_medium.html' import order_medium_form %}
 {% from 'searchad_order_form_medium.html' import new_order_medium_form %}
 {% from 'searchad_order_form_contract.html' import order_contract_form %}
-{% from 'searchad_order_form_attachment.html' import client_order_attachment, medium_order_attachment, finish_client_order_attachment, finish_medium_order_attachment %}
+{% from 'searchad_order_form_attachment.html' import client_order_attachment, medium_order_attachment, finish_client_order_attachment, finish_medium_order_attachment, bill_client_order_attachment %}
 {% from 'comments.html' import comments_box %}
 {% macro contract_box(order, client_form, new_medium_form, medium_forms, reminder_emails) -%}
     <div class="panel-group" id="client_accordion">
@@ -22,12 +22,13 @@
                     {% if not g.user.is_aduit() %}
                         <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
                     {% endif %}
+                    {{ bill_client_order_attachment(order) }}
                     {{ client_order_attachment(order) }}
                     {% if order.contract_status == 20 %}
-                    {% if not g.user.is_aduit() %}
-                        <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
-                    {% endif %}
-                    {{ finish_client_order_attachment(order) }}
+                        {% if not g.user.is_aduit() %}
+                            <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
+                        {% endif %}
+                        {{ finish_client_order_attachment(order) }}
                     {% endif %}
                 </div>
             </div>
