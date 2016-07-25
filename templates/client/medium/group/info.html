@@ -1,4 +1,5 @@
 {% extends "/base_v1_0_0.html" %}
+{% from 'comments.html' import comments_box %}
 {% from 'form_v1_0_0.html' import form_field %}
 
 {% block content %}
@@ -18,6 +19,8 @@
             暂无
         {% endif %}
     </td>
+    <td>{% if medium_group_file %}{{medium_group_file.create_time.strftime('%Y-%m-%d %H:%M:%S')}}{% else %} 暂无 {% endif %}</td>
+    <td>{% if medium_group_file %}{{medium_group_file.creator.name}}{% else %} 暂无 {% endif %}</td>
     <td>
         {% if g.user.is_contract() or  g.user.is_super_leader() or g.user.is_media_leader() %}
             {% if medium_group_file %}
@@ -184,6 +187,8 @@
                 <tr>
                     <th>附件类型</th>
                     <th>附件名称</th>
+                    <th>上传日期</th>
+                    <th>上传人</th>
                     <th>操作</th>
                 </tr>
             </thead>
@@ -236,6 +241,10 @@
             </tbody>
         </table>
     </div>
+    {% endif %}
+    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_finance() or g.user.is_media_leader() %}
+    <hr style="margin-top: 100px;">
+    <div>{{ comments_box(medium_group, msg_channel=14, text=False) }}</div>
     {% endif %}
 </div>
 <script>

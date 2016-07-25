@@ -25,30 +25,17 @@ def index():
     if not g.user.is_finance():
         abort(404)
     orders = list(ClientOrder.all())
-    if request.args.get('selected_status'):
-        status_id = int(request.args.get('selected_status'))
-    else:
-        status_id = -1
-
-    orderby = request.args.get('orderby', '')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
     year = int(request.values.get('year', datetime.datetime.now().year))
-    # page = max(1, page)
-    # start = (page - 1) * ORDER_PAGE_NUM
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
-    if status_id >= 0:
-        orders = [o for o in orders if o.contract_status == status_id]
     orders = [k for k in orders if k.client_start.year ==
               year or k.client_end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
-    if orderby and len(orders):
-        orders = sorted(
-            orders, key=lambda x: getattr(x, orderby), reverse=True)
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
@@ -58,13 +45,18 @@ def index():
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
+    for i in orders.object_list:
+        client_order = i
+        agent_invoices = [k.id for k in AgentInvoice.query.filter_by(client_order=client_order)]
+        pays = [k for k in AgentInvoicePay.all() if k.agent_invoice_id in agent_invoices]
+        i.apply_num = len([k for k in pays if k.pay_status == 4])
+        i.pay_num = len([k for k in pays if k.pay_status == 0])
     return tpl('/finance/client_order/agent_pay/index.html', orders=orders, title=u'全部客户付款',
                locations=select_locations, location_id=location_id,
-               statuses=select_statuses, status_id=status_id,
-               orderby=orderby, now_date=datetime.date.today(),
+               statuses=select_statuses, now_date=datetime.date.today(),
                search_info=search_info, page=page, year=year,
-               params='&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s&year=%s' %
-                      (orderby, search_info, location_id, status_id, str(year)))
+               params='&&searchinfo=%s&selected_location=%s&year=%s' %
+                      (search_info, location_id, str(year)))
 
 
 @finance_client_order_agent_pay_bp.route('/apply', methods=['GET'])
@@ -73,27 +65,28 @@ def apply():
         abort(404)
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
-    year = int(request.values.get('year', datetime.datetime.now().year))
-    orders = list([
-        invoicepay.agent_invoice.client_order for invoicepay in
-        AgentInvoicePay.get_agent_invoices_pay_status(4)])
+    orders = list(AgentInvoicePay.query.filter_by(pay_status=4))
     if location_id >= 0:
-        orders = [o for o in orders if location_id in o.locations]
-    orders = [k for k in orders if k.client_start.year ==
-              year or k.client_end.year == year]
+        orders = [o for o in orders if location_id in o.agent_invoice.client_order.locations]
     if search_info != '':
         orders = [
-            o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
+            o for o in orders if search_info.lower() in o.agent_invoice.client_order.search_invoice_info.lower()]
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
+    for i in orders:
+        client_order = i.agent_invoice.client_order
+        agent_invoices = [k.id for k in AgentInvoice.query.filter_by(client_order=client_order)]
+        pays = [k for k in AgentInvoicePay.all() if k.agent_invoice_id in agent_invoices]
+        i.apply_num = len([k for k in pays if k.pay_status == 4])
+        i.pay_num = len([k for k in pays if k.pay_status == 0])
     return tpl('/finance/client_order/agent_pay/index_pass.html', orders=orders, title=u'申请中的客户付款',
                locations=select_locations,
                location_id=location_id, statuses=select_statuses,
-               now_date=datetime.date.today(), search_info=search_info, year=year,
-               params='?&searchinfo=%s&selected_location=%s&year=%s' %
-                      (search_info, location_id, str(year)))
+               now_date=datetime.date.today(), search_info=search_info,
+               params='?&searchinfo=%s&selected_location=%s' %
+                      (search_info, location_id))
 
 
 @finance_client_order_agent_pay_bp.route('/pass', methods=['GET'])
@@ -143,8 +136,10 @@ def invoice_pay_time_update(invoice_id):
     invoice.pay_time = pay_time
     invoice.save()
     flash(u'保存成功!', 'success')
-    invoice.client_order.add_comment(g.user,
-                                     u"更新了付款时间:\n\r%s" % pay_time,
+    invoice.client_order.add_comment(g.user, u"财务更新了打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                        打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                     (invoice.agent_invoice.invoice_num, str(invoice.money),
+                                      invoice.pay_time, invoice.company, invoice.bank, invoice.bank_num),
                                      msg_channel=5)
     return jsonify({'ret': True})
 
@@ -221,8 +216,12 @@ def invoice_pay_delete(invoice_id, pid):
     invoice = AgentInvoice.get(invoice_id)
     invoice_pay = AgentInvoicePay.get(pid)
     flash(u'删除成功', 'success')
-    invoice.client_order.add_comment(g.user, u"删除了付款信息  发票号：%s  付款金额：%s元  付款时间：%s" % (
-        invoice.invoice_num, str(invoice_pay.money), invoice_pay.pay_time_cn), msg_channel=5)
+    invoice.client_order.add_comment(g.user, u"财务删除打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                        打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                     (invoice.invoice_num, str(invoice_pay.money),
+                                      invoice_pay.pay_time, invoice_pay.company,
+                                      invoice_pay.bank, invoice_pay.bank_num),
+                                     msg_channel=5)
     invoice_pay.delete()
     return redirect(url_for("finance_client_order_agent_pay.pay_info", invoice_id=invoice_id))
 
@@ -258,6 +257,9 @@ def new_invoice_pay(invoice_id):
     money = float(request.values.get('money', 0))
     pay_time = request.values.get('pay_time', '')
     detail = request.values.get('detail', '')
+    bank = request.values.get('bank', '')
+    bank_num = request.values.get('bank_num', '')
+    company = request.values.get('company', '')
     mi = AgentInvoice.get(invoice_id)
     if mi.pay_invoice_money + money > mi.money:
         flash(u'付款金额大于发票金额，请重新填写!', 'danger')
@@ -266,12 +268,15 @@ def new_invoice_pay(invoice_id):
                               agent_invoice=mi,
                               pay_time=pay_time,
                               pay_status=AGENT_INVOICE_STATUS_PASS,
-                              detail=detail)
+                              detail=detail,
+                              bank=bank,
+                              bank_num=bank_num,
+                              company=company)
     pay.save()
     flash(u'付款成功!', 'success')
-    pay.agent_invoice.client_order.add_comment(g.user, u'代理订单款已打款,名称%s, 打款金额%s ' % (
-        pay.agent_invoice.client_order.name +
-        '-' + pay.agent_invoice.agent.name,
-        str(pay.money)),
-        msg_channel=5)
+    mi.client_order.add_comment(g.user, u"财务添加打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                        打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                (mi.invoice_num, str(money),
+                                 pay_time, company, bank, bank_num),
+                                msg_channel=5)
     return redirect(url_for("finance_client_order_agent_pay.pay_info", invoice_id=invoice_id))
