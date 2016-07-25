@@ -223,8 +223,8 @@
                             {{o.company}}
                         {% else %}
                             {% for mo in o.client_order.medium_orders %}    
-                            {{mo.medium.name}}
-                            <br><br>
+                            {{mo.medium.medium_group.name}}-{{mo.medium.name}}
+                            <br>
                             {% endfor %}
                         {% endif %}
                     </td>
