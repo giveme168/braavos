@@ -117,7 +117,7 @@ $(function(){
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file" style="border-radius: 20px;">
   <button class="file-widget-btn btn btn-sm btn-primary">
-    <span>上传对账单</span>
+    <span>上传结算单</span>
   </button>
   {% set schedule = order.get_last_finish() %}
   {% if schedule %}

@@ -1,11 +1,31 @@
 # -*- coding: UTF-8 -*-
 import datetime
+from flask import url_for
 
 from models import db, BaseModelMixin
+from models.mixin.attachment import AttachmentMixin
+from models.mixin.comment import CommentMixin
 from models.consts import CLIENT_INDUSTRY_CN
 
 from .client_order import searchAdClientOrder
 from .invoice import searchAdAgentInvoice
+
+
+FILE_TYPE_LICENCE = 100  # 营业执照
+FILE_TYPE_F_CERTIFICATE = 101  # 税务登记证
+FILE_TYPE_O_CERTIFICATE = 102  # 组织机构代码证
+FILE_TYPE_TAX_CERTIFICATE = 103  # 一般纳税人证明
+FILE_TYPE_T_INFO = 104  # 盖章的开票信息
+FILE_TYPE_A_LICENCE = 105  # 开户许可证
+
+FILE_TYPE_CN = {
+    FILE_TYPE_LICENCE: u'营业执照',
+    FILE_TYPE_F_CERTIFICATE: u'税务登记证',
+    FILE_TYPE_O_CERTIFICATE: u'组织机构代码证',
+    FILE_TYPE_TAX_CERTIFICATE: u'一般纳税人证明',
+    FILE_TYPE_T_INFO: u'盖章的开票信息',
+    FILE_TYPE_A_LICENCE: u'开户许可证'
+}
 
 
 class searchAdClient(db.Model, BaseModelMixin):
@@ -50,7 +70,7 @@ class searchAdGroup(db.Model, BaseModelMixin):
         return is_exist
 
 
-class searchAdAgent(db.Model, BaseModelMixin):
+class searchAdAgent(db.Model, BaseModelMixin, AttachmentMixin, CommentMixin):
     __tablename__ = 'searchAd_agent'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -117,6 +137,9 @@ class searchAdAgent(db.Model, BaseModelMixin):
 
     def get_agent_invoice_count(self):
         return searchAdAgentInvoice.query.filter_by(agent_id=self.id).count()
+
+    def agent_path(self):
+        return url_for('searchAd_client.agent_detail', agent_id=self.id)
 
 
 class searchAdAgentRebate(db.Model, BaseModelMixin):

@@ -1041,7 +1041,7 @@ by:
     _insert_person_notcie(to_users, title, body)
     flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
     send_html_mail(title, _get_active_user_email(to_users) +
-                   to_emails + ['planning@inad.com'], body=body.replace('\n', '<br/>'))
+                   to_emails + ['planning@inad.com', 'yangzhuo@inad.com'], body=body.replace('\n', '<br/>'))
 
 
 def account_kpi_apply(sender, apply_context):
