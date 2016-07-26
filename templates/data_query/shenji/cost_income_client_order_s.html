@@ -3,20 +3,19 @@
 {% block content %}
 {% include "/data_query/shenji/shenji_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:6400px;">
-    {% if g.user.is_super_leader() %}
     <div class="table-switch">
         <ul>
-            <li id="_0_li" class="actives">
-                <a id="_0_" href="{{url_for('data_query_shenji_cost_income_client_order.index')}}" class="on">外部</a>
+            <li id="_0_li" >
+                <a id="_0_" href="{{url_for('data_query_shenji_cost_income_client_order.index')}}" >外部</a>
             </li>
-            <li id="_1_li">
-                <a id="_1_" href="{{url_for('data_query_shenji_cost_income_client_order.index')}}?shenji=1">内部</a>
+            <li id="_1_li" class="actives">
+                <a id="_1_" href="{{url_for('data_query_shenji_cost_income_client_order.index')}}?shenji=1" class="on">内部</a>
             </li>
         </ul>
     </div>
-    {% endif %}
     <div class="search-bar">
         <form class="menu-btn-bar" style="float:left;">
+            <input type="hidden" name="shenji" value="1">
             <div class="select_option">
                 <label for="sale_type" class="control-label">查询时间：</label>
                 <select class="form-control special_sale" name="year" id="year" style="width:100px;">
@@ -52,6 +51,7 @@
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">代理/直客</th>
                 <th colspan=13 style="vertical-align: middle;text-align: center;">客户执行金额</th>
                 <th colspan=13 style="vertical-align: middle;text-align: center;">客户返点</th>
+                <th colspan=13 style="vertical-align: middle;text-align: center;">外包成本</th>
                 <th colspan=13 style="vertical-align: middle;text-align: center;">合同利润</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">投放媒体</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体合同号</th>
@@ -61,6 +61,10 @@
                 <th colspan=13 style="vertical-align: middle;text-align: center;">媒体返点</th>
             </tr>
             <tr>
+                {% for k in range(12) %}
+                <th>{{k+1}}月</th>
+                {% endfor %}
+                <th>总计</th>
                 {% for k in range(12) %}
                 <th>{{k+1}}月</th>
                 {% endfor %}
@@ -107,6 +111,10 @@
                     <td rowspan='{{k.medium_data|length+1}}'>{{i|format_price}}</td>
                     {% endfor %}
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.money_rebate_data|sum|format_price}}</td>
+                    {% for i in k.outsource_data %}
+                    <td rowspan='{{k.medium_data|length+1}}'>{{i|format_price}}</td>
+                    {% endfor %}
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.outsource_data|sum|format_price}}</td>
                     {% for i in k.profit_data %}
                     <td rowspan='{{k.medium_data|length+1}}'>{{i|format_price}}</td>
                     {% endfor %}
@@ -140,6 +148,8 @@
                 <td>{{total_money_data|sum|format_price}}</td>
                 {% for i in total_money_rebate_data %}<td>{{i|format_price}}</td>{% endfor %}
                 <td>{{total_money_rebate_data|sum|format_price}}</td>
+                {% for i in total_outsource_data %}<td>{{i|format_price}}</td>{% endfor %}
+                <td>{{total_outsource_data|sum|format_price}}</td>
                 {% for i in total_profit_data %}<td>{{i|format_price}}</td>{% endfor %}
                 <td>{{total_profit_data|sum|format_price}}</td>
                 <td colspan=2 style="vertical-align: middle;text-align: center;"></td>
@@ -162,7 +172,7 @@
     });
     function download(){
         var year = $('#year').val();
-        params = '?action=excel&year='+year;
+        params = '?shenji=1&action=excel&year='+year;
         window.location.href = window.location.pathname + params;
     }
 </script>
