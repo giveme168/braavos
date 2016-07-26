@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-import itertools
 import datetime
-from datetime import timedelta
 
-from flask import json
+from flask import url_for
 
 from models import db, BaseModelMixin
-from models.consts import STATUS_CN, DATE_FORMAT
-from models.mixin.delivery import DeliveryMixin
-from models.item import OCCUPY_RESOURCE_STATUS, ITEM_STATUS_ORDER
+from models.mixin.attachment import AttachmentMixin
+from models.mixin.comment import CommentMixin
 from .order import searchAdOrder, searchAdMediumOrderExecutiveReport
 
 TARGET_TOP = 1
@@ -71,7 +68,7 @@ ad_position_unit_table = db.Table('searchAd_ad_position_unit',
                                   )
 
 
-class searchAdMedium(db.Model, BaseModelMixin):
+class searchAdMedium(db.Model, BaseModelMixin, AttachmentMixin, CommentMixin):
     __tablename__ = 'searchAd_medium'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -98,9 +95,6 @@ class searchAdMedium(db.Model, BaseModelMixin):
         self.phone_num = phone_num
         self.bank = bank
         self.bank_num = bank_num
-
-    def positions_info_by_date(self):
-        return positions_info(self.positions)
 
     @classmethod
     def name_exist(cls, name):
@@ -155,6 +149,9 @@ class searchAdMedium(db.Model, BaseModelMixin):
         if len(rebate) > 0:
             return rebate[0].rebate
         return 0
+
+    def medium_path(self):
+        return url_for('searchAd_client.medium_detail', medium_id=self.id)
 
 
 class searchAdMediumRebate(db.Model, BaseModelMixin):

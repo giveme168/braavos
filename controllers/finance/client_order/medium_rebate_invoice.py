@@ -27,7 +27,7 @@ ORDER_PAGE_NUM = 50
 def index():
     if not g.user.is_finance():
         abort(404)
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     year = int(request.values.get('year', datetime.datetime.now().year))
     orders = set([
@@ -59,7 +59,7 @@ def index_pass():
         abort(404)
     orders = list(ClientOrder.all())
     orderby = request.args.get('orderby', '')
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
     year = int(request.values.get('year', datetime.datetime.now().year))

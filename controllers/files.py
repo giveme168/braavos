@@ -8,6 +8,8 @@ from models.client_order import (ClientOrder, CONTRACT_STATUS_NEW, CONTRACT_STAT
 from models.framework_order import FrameworkOrder
 from models.medium_framework_order import MediumFrameworkOrder
 from searchAd.models.framework_order import searchAdFrameworkOrder
+from searchAd.models.client import searchAdAgent
+from searchAd.models.medium import searchAdMedium
 from models.douban_order import DoubanOrder
 from models.client_medium_order import ClientMediumOrder
 from models.associated_douban_order import AssociatedDoubanOrder
@@ -341,6 +343,13 @@ def client_agent_upload():
     return attachment_upload(agent, FILE_TYPE_AGENT)
 
 
+@files_bp.route('/searchAd_client/agent/upload', methods=['POST'])
+def searchAd_client_agent_upload():
+    agent_id = request.values.get('agent')
+    agent = searchAdAgent.get(agent_id)
+    return attachment_upload(agent, FILE_TYPE_AGENT)
+
+
 @files_bp.route('/outsource/douban_order/upload', methods=['POST'])
 def outsource_douban_order_upload():
     order_id = request.values.get('order')
@@ -564,6 +573,13 @@ def client_medium_order_files(order_id):
 def client_medium_upload():
     medium_id = request.values.get('medium')
     medium = Medium.get(medium_id)
+    return attachment_upload(medium, FILE_TYPE_MEDIUM)
+
+
+@files_bp.route('/searchAd_client/medium/upload', methods=['POST'])
+def searchAd_client_medium_upload():
+    medium_id = request.values.get('medium')
+    medium = searchAdMedium.get(medium_id)
     return attachment_upload(medium, FILE_TYPE_MEDIUM)
 
 

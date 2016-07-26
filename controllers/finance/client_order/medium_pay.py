@@ -26,7 +26,7 @@ def apply():
     if not g.user.is_finance():
         abort(404)
     medium_id = int(request.args.get('medium_id', 0))
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
 
@@ -72,7 +72,7 @@ def index():
         status_id = -1
 
     orderby = request.args.get('orderby', '')
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
     year = int(request.values.get('year', datetime.datetime.now().year))
