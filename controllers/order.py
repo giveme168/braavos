@@ -2192,3 +2192,26 @@ def client_medium_attach_status(order_id, attachment_id, status):
     order = ClientMediumOrder.get(order_id)
     attachment_status_change(order, attachment_id, status)
     return redirect(order.info_path())
+
+
+@order_bp.route('/edit_client_order', methods=['GET'])
+def edit_client_order():
+    year = str(request.values.get('year', datetime.now().year))
+    search_info = request.args.get('searchinfo', '')
+    location = int(request.args.get('location', 0))
+    status = int(request.values.get('status', 0))
+    page = int(request.args.get('p', 1))
+    orders = []
+    paginator = Paginator(orders, ORDER_PAGE_NUM)
+    try:
+        orders = paginator.page(page)
+    except:
+        orders = paginator.page(paginator.num_pages)
+    params = '&searchinfo=%s&year=%s&location=%s&status=%s' % (search_info, str(year), location, status)
+    return tpl('edit_client_orders.html', orders=orders, year=year, search_info=search_info, page=page, params=params,
+               location=location, status=status)
+
+
+@order_bp.route('/edit_client_order/create', methods=['GET'])
+def edit_client_order_create():
+    return tpl('edit_client_order_create.html')

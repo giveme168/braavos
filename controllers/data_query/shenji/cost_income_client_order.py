@@ -9,6 +9,7 @@ from flask import render_template as tpl
 from models.client_order import ClientOrder, BackMoney, BackInvoiceRebate
 from models.client import AgentRebate
 from models.medium import MediumRebate
+from models.outsource import OutSource
 from libs.date_helpers import get_monthes_pre_days
 from controllers.data_query.helpers.shenji_helpers import write_client_order_excel
 from flask import Blueprint
@@ -16,6 +17,11 @@ from flask import Blueprint
 cost_income_client_order_bp = Blueprint(
     'data_query_shenji_cost_income_client_order', __name__,
     template_folder='../../templates/data_query')
+
+
+def _all_client_order_outsource():
+    return [{'order_id': o.medium_order.client_order.id,
+             'money': o.num} for o in OutSource.all() if o.status in [2, 3, 4]]
 
 
 def _all_client_order_back_moneys():
@@ -50,7 +56,9 @@ def pre_month_money(money, start, end):
     return pre_month_money_data
 
 
-def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_medium_rebate, pre_year_month):
+def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate,
+                          all_medium_rebate, pre_year_month, all_outsource,
+                          shenji=1):
     dict_order = {}
     dict_order['order_id'] = client_order.id
     dict_order['locations_cn'] = client_order.locations_cn
@@ -74,6 +82,18 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
         client_order.client_start.strftime(dt_format), dt_format)
     end_datetime = datetime.datetime.strptime(
         client_order.client_end.strftime(dt_format), dt_format)
+    # 获取所有外包信息
+    t_outsource_money = sum([o['money'] for o in all_outsource if o['order_id'] == dict_order['order_id']])
+    outsource_ex_data = pre_month_money(t_outsource_money,
+                                        start_datetime,
+                                        end_datetime)
+    dict_order['outsource_data'] = []
+    for k in pre_year_month:
+        if k['month'] in outsource_ex_data:
+            dict_order['outsource_data'].append(
+                outsource_ex_data[k['month']])
+        else:
+            dict_order['outsource_data'].append(0)
     # 客户执行金额
     dict_order['money_data'] = [0 for k in pre_year_month]
     # 初始化媒体数据容器
@@ -179,6 +199,8 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
     dict_order['profit_data'] = numpy.array(dict_order['money_data']) - \
         numpy.array(dict_order['money_rebate_data']) - total_medium_money2_data + \
         total_medium_money2_rebate_data
+    if shenji:
+        dict_order['profit_data'] = numpy.array(dict_order['profit_data']) - numpy.array(dict_order['outsource_data'])
     dict_order['total_medium_money2_data'] = total_medium_money2_data
     dict_order['total_medium_money2_rebate_data'] = total_medium_money2_rebate_data
     return dict_order
@@ -188,6 +210,7 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate, all_m
 def index():
     if not (g.user.is_super_leader() or g.user.is_aduit() or g.user.is_finance() or g.user.is_contract()):
         abort(403)
+    shenji = int(request.values.get('shenji', 0))
     now_date = datetime.datetime.now()
     year = int(request.values.get('year', now_date.year))
     # 获取整年月份
@@ -199,6 +222,8 @@ def index():
     all_agent_rebate = _all_agent_rebate()
     # 获取媒体返点系数
     all_medium_rebate = _all_medium_rebate()
+    # 获取所有外包信息
+    all_outsource = _all_client_order_outsource()
     # 获取当年合同
     orders = ClientOrder.query.filter(ClientOrder.status == 1,
                                       ClientOrder.contract != '')
@@ -207,18 +232,21 @@ def index():
               year or k.client_end.year == year]
     # 格式化合同
     orders = [_client_order_to_dict(k, back_money_data, all_agent_rebate,
-                                    all_medium_rebate, pre_year_month
-                                    ) for k in orders]
+                                    all_medium_rebate, pre_year_month,
+                                    all_outsource, shenji) for k in orders]
     # 去掉撤单、申请中的合同
     orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20]]
     orders = sorted(
         orders, key=operator.itemgetter('start_date_cn'), reverse=False)
+    total_outsource_data = [0 for k in range(12)]
     total_money_data = [0 for k in range(12)]
     total_money_rebate_data = [0 for k in range(12)]
     total_profit_data = [0 for k in range(12)]
     total_medium_money2_data = [0 for k in range(12)]
     total_medium_money2_rebate_data = [0 for k in range(12)]
     for k in orders:
+        total_outsource_data = numpy.array(
+            total_outsource_data) + numpy.array(k['outsource_data'])
         total_money_data = numpy.array(
             total_money_data) + numpy.array(k['money_data'])
         total_money_rebate_data = numpy.array(
@@ -234,8 +262,15 @@ def index():
                                         total_money_rebate_data=total_money_rebate_data,
                                         total_profit_data=total_profit_data,
                                         total_medium_money2_data=total_medium_money2_data,
-                                        total_medium_money2_rebate_data=total_medium_money2_rebate_data)
-    return tpl('/shenji/cost_income_client_order.html', orders=orders, year=year, total_money_data=total_money_data,
+                                        total_medium_money2_rebate_data=total_medium_money2_rebate_data,
+                                        total_outsource_data=total_outsource_data,
+                                        shenji=shenji)
+    if shenji:
+        tpl_html = '/shenji/cost_income_client_order_s.html'
+    else:
+        tpl_html = '/shenji/cost_income_client_order.html'
+    return tpl(tpl_html, orders=orders, year=year, total_money_data=total_money_data,
                total_money_rebate_data=total_money_rebate_data, total_profit_data=total_profit_data,
                total_medium_money2_data=total_medium_money2_data,
-               total_medium_money2_rebate_data=total_medium_money2_rebate_data)
+               total_medium_money2_rebate_data=total_medium_money2_rebate_data,
+               total_outsource_data=total_outsource_data)

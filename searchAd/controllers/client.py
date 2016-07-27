@@ -6,10 +6,12 @@ from flask import render_template as tpl, flash
 
 from models.user import Team
 
-from ..models.client import searchAdClient, searchAdGroup, searchAdAgent, searchAdAgentRebate
+from ..models.client import searchAdClient, searchAdGroup, searchAdAgent, searchAdAgentRebate, FILE_TYPE_CN
 from ..models.medium import searchAdMedium, searchAdMediumRebate
+from models.attachment import Attachment
 from ..forms.client import NewClientForm, NewGroupForm, NewAgentForm
 from ..forms.medium import NewMediumForm
+from libs.files import files_set
 
 searchAd_client_bp = Blueprint('searchAd_client', __name__, template_folder='../../templates/searchAdclient')
 
@@ -59,8 +61,8 @@ def new_agent():
         db_agent_name = searchAdAgent.name_exist(form.name.data)
         if not db_agent_name:
             agent = searchAdAgent.add(form.name.data, searchAdGroup.get(form.group.data),
-                              form.tax_num.data, form.address.data, form.phone_num.data,
-                              form.bank.data, form.bank_num.data)
+                                      form.tax_num.data, form.address.data, form.phone_num.data,
+                                      form.bank.data, form.bank_num.data)
             flash(u'新建代理/直客(%s)成功!' % agent.name, 'success')
         else:
             flash(u'新建代理/直客(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
@@ -73,26 +75,25 @@ def new_agent():
 
 @searchAd_client_bp.route('/new_medium', methods=['GET', 'POST'])
 def new_medium():
-    form = NewMediumForm(request.form)
-    if request.method == 'POST' and form.validate():
-        db_medium_name = searchAdMedium.name_exist(form.name.data)
+    if request.method == 'POST':
+        db_medium_name = searchAdMedium.name_exist(request.values.get('name', ''))
         if not db_medium_name:
             medium = searchAdMedium.add(
-                name=form.name.data,
-                owner=Team.get(form.owner.data),
-                abbreviation=form.abbreviation.data,
-                tax_num=form.tax_num.data,
-                address=form.address.data,
-                phone_num=form.phone_num.data,
-                bank=form.bank.data,
-                bank_num=form.bank_num.data)
+                name=request.values.get('name', ''),
+                owner=Team.get(1),
+                abbreviation=request.values.get('abbreviation', ''),
+                tax_num=request.values.get('tax_num', ''),
+                address=request.values.get('address', ''),
+                phone_num=request.values.get('phone_num', ''),
+                bank=request.values.get('bank', ''),
+                bank_num=request.values.get('bank_num', ''))
             medium.save()
             flash(u'新建媒体(%s)成功!' % medium.name, 'success')
         else:
-            flash(u'新建媒体(%s)失败, 名称已经被占用!' % form.name.data, 'danger')
-            return tpl('/searchAdclient/medium/searchAd_info.html', form=form, title=u"新建媒体")
+            flash(u'新建媒体(%s)失败, 名称已经被占用!' % request.values.get('name', ''), 'danger')
+            return tpl('/searchAdclient/medium/searchAd_info.html', title=u"新建媒体")
         return redirect(url_for("searchAd_client.medium_detail", medium_id=medium.id))
-    return tpl('/searchAdclient/medium/searchAd_info.html', form=form, title=u"新建媒体")
+    return tpl('/searchAdclient/medium/searchAd_info.html', title=u"新建媒体", medium=None)
 
 
 @searchAd_client_bp.route('/client/<client_id>', methods=['GET', 'POST'])
@@ -152,7 +153,10 @@ def agent_detail(agent_id):
         form.bank_num.data = agent.bank_num
     return tpl('/searchAdclient/agent/searchAd_info.html',
                form=form,
-               title=u"代理/直客-" + agent.name)
+               title=u"代理/直客-" + agent.name,
+               agent=agent,
+               FILE_TYPE_CN=FILE_TYPE_CN,
+               status="update")
 
 
 @searchAd_client_bp.route('/group/<group_id>/delete', methods=['GET', 'POST'])
@@ -185,28 +189,21 @@ def medium_detail(medium_id):
     medium = searchAdMedium.get(medium_id)
     if not medium:
         abort(404)
-    form = NewMediumForm(request.form)
-    if request.method == 'POST' and form.validate():
-        medium.name = form.name.data
-        medium.owner = Team.get(form.owner.data)
-        medium.abbreviation = form.abbreviation.data
-        medium.tax_num = form.tax_num.data
-        medium.address = form.address.data
-        medium.phone_num = form.phone_num.data
-        medium.bank = form.bank.data
-        medium.bank_num = form.bank_num.data
+    if request.method == 'POST':
+        medium.name = request.values.get('name', '')
+        medium.owner = Team.get(1)
+        medium.abbreviation = request.values.get('abbreviation', '')
+        medium.tax_num = request.values.get('tax_num', '')
+        medium.address = request.values.get('address', '')
+        medium.phone_num = request.values.get('phone_num', '')
+        medium.bank = request.values.get('bank', '')
+        medium.bank_num = request.values.get('bank_num', '')
         medium.save()
         flash(u'保存成功!', 'success')
-    else:
-        form.name.data = medium.name
-        form.owner.data = medium.owner_id
-        form.abbreviation.data = medium.abbreviation
-        form.tax_num.data = medium.tax_num
-        form.address.data = medium.address
-        form.phone_num.data = medium.phone_num
-        form.bank.data = medium.bank
-        form.bank_num.data = medium.bank_num
-    return tpl('/searchAdclient/medium/searchAd_info.html', form=form, title=u"媒体-" + medium.name)
+    return tpl('/searchAdclient/medium/searchAd_info.html', title=u"媒体-" + medium.name,
+               medium=medium,
+               status="update",
+               FILE_TYPE_CN=FILE_TYPE_CN)
 
 
 @searchAd_client_bp.route('/mediums', methods=['GET'])
@@ -234,10 +231,10 @@ def medium_rebate_create(medium_id):
             flash(u'该执行年返点信息已存在!', 'danger')
             return tpl('/searchAdclient/medium/rebate/searchAd_create.html', medium=medium)
         searchAdMediumRebate.add(medium=medium,
-                         rebate=rebate,
-                         year=now_year,
-                         creator=g.user,
-                         create_time=datetime.datetime.now())
+                                 rebate=rebate,
+                                 year=now_year,
+                                 creator=g.user,
+                                 create_time=datetime.datetime.now())
         flash(u'添加成功!', 'success')
         return redirect(url_for('searchAd_client.medium_rebate', medium_id=medium_id))
     return tpl('/searchAdclient/medium/rebate/searchAd_create.html', medium=medium)
@@ -315,11 +312,11 @@ def agent_rebate_create(agent_id):
             flash(u'该执行年返点信息已存在!', 'danger')
             return tpl('/searchAdclient/agent/rebate/searchAd_create.html', agent=agent)
         searchAdAgentRebate.add(agent=agent,
-                        douban_rebate=douban_rebate,
-                        inad_rebate=inad_rebate,
-                        year=now_year,
-                        creator=g.user,
-                        create_time=datetime.datetime.now())
+                                douban_rebate=douban_rebate,
+                                inad_rebate=inad_rebate,
+                                year=now_year,
+                                creator=g.user,
+                                create_time=datetime.datetime.now())
         flash(u'添加成功!', 'success')
         return redirect(url_for('searchAd_client.agent_rebate', agent_id=agent_id))
     return tpl('/searchAdclient/agent/rebate/searchAd_create.html', agent=agent)
@@ -353,3 +350,54 @@ def agent_rebate_update(agent_id, rebate_id):
         flash(u'修改成功!', 'success')
         return redirect(url_for('searchAd_client.agent_rebate', agent_id=agent_id))
     return tpl('/searchAdclient/agent/rebate/searchAd_update.html', agent=agent, rebate=rebate)
+
+
+@searchAd_client_bp.route('/<f_type>/<id>/files_upload', methods=['POST'])
+def files_upload(f_type, id):
+    if f_type == 'medium':
+        obj_data = searchAdMedium.get(id)
+    elif f_type == 'agent':
+        obj_data = searchAdAgent.get(id)
+    type = int(request.values.get('type', 5))
+    try:
+        request.files['file'].filename.encode('gb2312')
+    except:
+        flash(u'文件名中包含非正常字符，请使用标准字符', 'danger')
+        if f_type == 'medium':
+            return redirect(url_for('searchAd_client.medium_detail', medium_id=id))
+        elif f_type == 'agent':
+            return redirect(url_for('searchAd_client.agent_detail', agent_id=id))
+    filename = files_set.save(request.files['file'])
+    obj_data.add_client_attachment(g.user, filename, type)
+    flash(FILE_TYPE_CN[type] + u' 上传成功', 'success')
+    if f_type == 'medium':
+        return redirect(url_for('searchAd_client.medium_detail', medium_id=id))
+    elif f_type == 'agent':
+        return redirect(url_for('searchAd_client.agent_detail', agent_id=id))
+
+
+@searchAd_client_bp.route('/<f_type>/<type>/<aid>/<id>/files_delete', methods=['GET'])
+def files_delete(f_type, type, aid, id):
+    attachment = Attachment.get(aid)
+    attachment.delete()
+    flash(FILE_TYPE_CN[int(type)] + u' 删除成功', 'success')
+    if f_type == 'medium':
+        return redirect(url_for('searchAd_client.medium_detail', medium_id=id))
+    elif f_type == 'agent':
+        return redirect(url_for('searchAd_client.agent_detail', agent_id=id))
+
+
+@searchAd_client_bp.route('/agent/<agent_id>/files/<aid>/delete', methods=['GET'])
+def agent_files_delete(agent_id, aid):
+    attachment = Attachment.get(aid)
+    attachment.delete()
+    flash(u'删除成功!', 'success')
+    return redirect(url_for("searchAd_client.agent_detail", agent_id=agent_id))
+
+
+@searchAd_client_bp.route('/medium/<medium_id>/files/<aid>/delete', methods=['GET'])
+def medium_files_delete(medium_id, aid):
+    attachment = Attachment.get(aid)
+    attachment.delete()
+    flash(u'删除成功!', 'success')
+    return redirect(url_for("searchAd_client.medium_detail", medium_id=medium_id))
