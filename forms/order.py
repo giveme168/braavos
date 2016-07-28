@@ -1,9 +1,9 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 from wtforms import (TextField, validators, SelectField, SelectMultipleField,
                      IntegerField, TextAreaField, DateField, FloatField)
 from libs.wtf import Form
 from models.client import Client, Group, Agent
-from models.medium import Medium
+from models.medium import Medium, MediumGroup
 from models.order import DISCOUNT_SALE
 from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN, SALE_TYPE_CN
 from models.user import User
@@ -123,7 +123,7 @@ class MediumFrameworkOrderForm(Form):
 
     def __init__(self, *args, **kwargs):
         super(MediumFrameworkOrderForm, self).__init__(*args, **kwargs)
-        self.mediums.choices = [(a.id, a.name) for a in Medium.all()]
+        self.mediums.choices = [(a.id, a.medium_group.name + '-' + a.name) for a in Medium.all()]
         self.medium_users.choices = [(m.id, m.name) for m in User.medias()]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
 
@@ -132,7 +132,7 @@ class MediumFrameworkOrderForm(Form):
             if any(self.medium_users.data):
                 return True
             else:
-                self.direct_sales.errors.append(u"直接销售和渠道销售不能全为空")
+                self.medium_users.errors.append(u"直接销售和渠道销售不能全为空")
                 return False
         return False
 
@@ -210,6 +210,7 @@ class ClientMediumOrderForm(Form):
     contract_type = SelectField(u'合同模板类型', coerce=int)
     resource_type = SelectField(u'售卖类型', coerce=int)
     sale_type = SelectField(u'代理/直客', coerce=int)
+    medium_group = SelectField(u'媒体供应商媒体', coerce=int)
     medium = SelectField(u'投放媒体', coerce=int)
     medium_money = FloatField(u'媒体服务费(元)', default=0)
 
@@ -232,6 +233,7 @@ class ClientMediumOrderForm(Form):
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
         self.resource_type.choices = RESOURCE_TYPE_CN.items()
         self.sale_type.choices = SALE_TYPE_CN.items()
+        self.medium_group.choices = [(m.id, m.name) for m in MediumGroup.all()]
         self.medium.choices = [(m.id, m.name) for m in Medium.all()]
 
     def validate(self):
