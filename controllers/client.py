@@ -674,7 +674,6 @@ def medium_get_rebate_json():
 @client_bp.route('/agent/<agent_id>/medium_rebate/create', methods=['GET', 'POST'])
 def agent_medium_rebate_create(agent_id):
     agent = Agent.get(agent_id)
-    mediums = Medium.all()
     if request.method == 'POST':
         rebate = float(request.values.get('rebate', 0))
         year = request.values.get(
@@ -699,7 +698,7 @@ def agent_medium_rebate_create(agent_id):
         agent.add_comment(g.user, u"新建了媒体返点信息: 所属媒体:%s 执行年:%s 返点信息:%s%%" %
                           (medium.name, year, str(rebate)), msg_channel=9)
         return redirect(url_for('client.agent_rebate', agent_id=agent_id))
-    return tpl('/client/agent/rebate/medium/create.html', agent=agent, mediums=mediums)
+    return tpl('/client/agent/rebate/medium/create.html', agent=agent, medium_groups=MediumGroup.all())
 
 
 @client_bp.route('/agent/<agent_id>/medium_rebate/<rebate_id>/delete', methods=['GET'])
@@ -716,7 +715,6 @@ def agent_medium_rebate_delete(agent_id, rebate_id):
 def agent_medium_rebate_update(agent_id, rebate_id):
     agent = Agent.get(agent_id)
     rebate = AgentMediumRebate.get(rebate_id)
-    mediums = Medium.all()
     if request.method == 'POST':
         g_rebate = float(request.values.get('rebate', 0))
         year = request.values.get(
@@ -747,7 +745,7 @@ def agent_medium_rebate_update(agent_id, rebate_id):
         agent.add_comment(g.user, u"修改了媒体返点信息: 所属媒体:%s 执行年:%s 返点信息:%s%%" %
                           (medium.name, year, str(rebate.rebate)), msg_channel=9)
         return redirect(url_for('client.agent_rebate', agent_id=agent_id))
-    return tpl('/client/agent/rebate/medium/update.html', agent=agent, rebate=rebate, mediums=mediums)
+    return tpl('/client/agent/rebate/medium/update.html', agent=agent, rebate=rebate, medium_groups=MediumGroup.all())
 
 
 @client_bp.route('/agent/<agent_id>/rebate/create', methods=['GET', 'POST'])
