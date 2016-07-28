@@ -10,7 +10,6 @@ import xlsxwriter
 def write_client_order_excel(orders, year, total_money_data, total_money_rebate_data,
                              total_profit_data, total_medium_money2_data, total_medium_money2_rebate_data,
                              total_outsource_data, shenji):
-    print shenji
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -161,7 +160,7 @@ def write_client_order_excel(orders, year, total_money_data, total_money_rebate_
                 for i in range(len(outsource_data)):
                     worksheet.write(
                         th, 39 + i, outsource_data[i], money_align_left)
-                worksheet.write(th, 51, sum(money_rebate_data), money_align_left)
+                worksheet.write(th, 51, sum(outsource_data), money_align_left)
                 profit_data = orders[k]['profit_data']
                 for i in range(len(profit_data)):
                     worksheet.write(th, 82 + i, profit_data[i], money_align_left)

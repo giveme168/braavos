@@ -1952,6 +1952,8 @@ def new_client_medium_order():
         if ClientMediumOrder.query.filter_by(campaign=form.campaign.data).count() > 0:
             flash(u'campaign名称已存在，请更换其他名称!', 'danger')
             return redirect(url_for("order.new_client_medium_order"))
+        self_rebate = int(request.values.get('self_rebate', 0))
+        self_rabate_value = float(request.values.get('self_rabate_value', 0))
         order = ClientMediumOrder.add(client=Client.get(form.client.data),
                                       agent=Agent.get(form.agent.data),
                                       campaign=form.campaign.data,
@@ -1974,7 +1976,8 @@ def new_client_medium_order():
                                       create_time=datetime.now(),
                                       finish_time=datetime.now(),
                                       medium=Medium.get(form.medium.data),
-                                      medium_money=form.medium_money.data)
+                                      medium_money=form.medium_money.data,
+                                      self_agent_rebate=str(self_rebate) + '-' + str(self_rabate_value))
         order.add_comment(g.user, u"新建了直签媒体订单")
         flash(u'新建订单成功, 请上传合同!', 'success')
         return redirect(url_for("order.client_medium_order_info", order_id=order.id))
@@ -2005,6 +2008,7 @@ def get_client_medium_order_form(order):
     form.contract_type.data = order.contract_type
     form.resource_type.data = order.resource_type
     form.sale_type.data = order.sale_type
+    form.medium_group.data = order.medium.medium_group_id
     form.medium.data = order.medium.id
     form.medium_money.data = order.medium_money
     return form
@@ -2048,12 +2052,12 @@ def client_medium_order_info(order_id):
                     order.contract_type = form.contract_type.data
                     order.resource_type = form.resource_type.data
                     order.sale_type = form.sale_type.data
-                    order.medium = form.medium.data
+                    order.medium = Medium.get(form.medium.data)
                     order.medium_money = form.medium_money.data
+                    order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
                     if g.user.is_super_admin() or g.user.is_contract():
                         order.replace_sales = User.gets(
                             replace_saler_form.replace_salers.data)
-                        order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
                     order.save()
                     order.add_comment(g.user, u"更新了该订单信息")
                     flash(u'[直签媒体订单]%s 保存成功!' % order.name, 'success')

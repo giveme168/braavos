@@ -53,6 +53,7 @@
         <table border='1'>
             <thead>
                 <tr>
+                    <th>媒体供应商</th>
                     <th>所属媒体</th>
                     <th>执行年</th>
                     <th>返点</th>
@@ -66,6 +67,7 @@
             <tbody>
                 {% for r in medium_rebates %}
                 <tr>
+                    <td>{{r.medium.medium_group.name}}</td>
                     <td>{{r.medium.name}}</td>
                     <td>{{r.year.year}}</td>
                     <td>{{r.rebate}}%</td>
