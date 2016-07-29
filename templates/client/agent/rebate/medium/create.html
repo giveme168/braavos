@@ -70,11 +70,11 @@ $(function(){
               var data = data['data'];
               html_inner = ""
               for(var i=0; i<data.length; i++){
-                  if (data[i]['name'].indexOf(medium_name)>0){
+                  if (data[i]['name'].indexOf(medium_name)>=0){
                     html_inner += "<li class='list-group-item'>"+data[i]['name']+"</li>"
                   }
               }
-              if (html_inner.length > 0){
+              if (html_inner.length > 0 && medium_name.length > 0){
                 $('.list-group').html(html_inner)
               }
           }

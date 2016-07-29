@@ -53,6 +53,7 @@
                 <th colspan=13 style="vertical-align: middle;text-align: center;">客户执行金额</th>
                 <th colspan=13 style="vertical-align: middle;text-align: center;">客户返点</th>
                 <th colspan=13 style="vertical-align: middle;text-align: center;">合同利润</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体供应商</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">投放媒体</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体合同号</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体售卖金额</th>
@@ -114,6 +115,7 @@
                 </tr>
                 {% for m in k.medium_data %}
                 <tr>
+                    <td>{{m.medium_group_name}}</td>
                     <td>{{m.name}}</td>
                     <td>{{m.medium_contract}}</td>
                     <td>{{m.sale_money|format_price}}</td>
@@ -142,7 +144,7 @@
                 <td>{{total_money_rebate_data|sum|format_price}}</td>
                 {% for i in total_profit_data %}<td>{{i|format_price}}</td>{% endfor %}
                 <td>{{total_profit_data|sum|format_price}}</td>
-                <td colspan=2 style="vertical-align: middle;text-align: center;"></td>
+                <td colspan=3 style="vertical-align: middle;text-align: center;"></td>
                 <td>{{orders|sum('medium_sale_money')|format_price}}</td>
                 <td>{{orders|sum('medium_medium_money2')|format_price}}</td>
                 {% for i in total_medium_money2_data %}<td>{{i|format_price}}</td>{% endfor %}

@@ -40,24 +40,25 @@ def write_client_order_excel(orders, year, total_money_data, total_money_rebate_
         for k in range(12):
             worksheet.write(1, 39 + k, str(k + 1) + u'月', align_center)
         worksheet.write(1, 51, u'总计', align_center)
-        worksheet.merge_range(0, 52, 1, 52, u'投放媒体', align_center)
-        worksheet.merge_range(0, 53, 1, 53, u'媒体合同号', align_center)
-        worksheet.merge_range(0, 54, 1, 54, u'媒体售卖金额', align_center)
-        worksheet.merge_range(0, 55, 1, 55, u'媒体金额', align_center)
-        worksheet.merge_range(0, 56, 0, 68, u'媒体执行金额', align_center)
+        worksheet.merge_range(0, 52, 1, 52, u'媒体供应商', align_center)
+        worksheet.merge_range(0, 53, 1, 53, u'投放媒体', align_center)
+        worksheet.merge_range(0, 54, 1, 54, u'媒体合同号', align_center)
+        worksheet.merge_range(0, 55, 1, 55, u'媒体售卖金额', align_center)
+        worksheet.merge_range(0, 56, 1, 56, u'媒体金额', align_center)
+        worksheet.merge_range(0, 57, 0, 69, u'媒体执行金额', align_center)
         for k in range(12):
-            worksheet.write(1, 56 + k, str(k + 1) + u'月', align_center)
-        worksheet.write(1, 68, u'总计', align_center)
-        worksheet.merge_range(0, 69, 0, 81, u'媒体返点', align_center)
+            worksheet.write(1, 57 + k, str(k + 1) + u'月', align_center)
+        worksheet.write(1, 69, u'总计', align_center)
+        worksheet.merge_range(0, 70, 0, 82, u'媒体返点', align_center)
         for k in range(12):
-            worksheet.write(1, 69 + k, str(k + 1) + u'月', align_center)
-        worksheet.write(1, 81, u'总计', align_center)
-        worksheet.merge_range(0, 82, 0, 94, u'合同利润', align_center)
+            worksheet.write(1, 70 + k, str(k + 1) + u'月', align_center)
+        worksheet.write(1, 82, u'总计', align_center)
+        worksheet.merge_range(0, 83, 0, 95, u'合同利润', align_center)
         for k in range(12):
-            worksheet.write(1, 82 + k, str(k + 1) + u'月', align_center)
-        worksheet.write(1, 94, u'总计', align_center)
+            worksheet.write(1, 83 + k, str(k + 1) + u'月', align_center)
+        worksheet.write(1, 95, u'总计', align_center)
         # 设置宽度为30
-        for k in range(94):
+        for k in range(95):
             worksheet.set_column(k, 0, 15)
         th = 2
         for k in range(len(orders)):
@@ -110,25 +111,26 @@ def write_client_order_excel(orders, year, total_money_data, total_money_rebate_
                 profit_data = orders[k]['profit_data']
                 for i in range(len(profit_data)):
                     worksheet.merge_range(
-                        th, 82 + i, th + len(medium_data) - 1, 82 + i, profit_data[i], money_align_left)
+                        th, 83 + i, th + len(medium_data) - 1, 83 + i, profit_data[i], money_align_left)
                 worksheet.merge_range(
-                    th, 94, th + len(medium_data) - 1, 94, sum(profit_data), money_align_left)
+                    th, 95, th + len(medium_data) - 1, 95, sum(profit_data), money_align_left)
                 for m in medium_data:
-                    worksheet.write(th, 52, m['name'], align_left)
-                    worksheet.write(th, 53, m['medium_contract'], align_left)
-                    worksheet.write(th, 54, m['sale_money'], money_align_left)
-                    worksheet.write(th, 55, m['medium_money2'], money_align_left)
+                    worksheet.write(th, 52, m['medium_group_name'], align_left)
+                    worksheet.write(th, 53, m['name'], align_left)
+                    worksheet.write(th, 54, m['medium_contract'], align_left)
+                    worksheet.write(th, 55, m['sale_money'], money_align_left)
+                    worksheet.write(th, 56, m['medium_money2'], money_align_left)
                     medium_money2_data = m['medium_money2_data']
                     for i in range(len(medium_money2_data)):
                         worksheet.write(
-                            th, 56 + i, medium_money2_data[i], money_align_left)
-                    worksheet.write(th, 68, sum(
+                            th, 57 + i, medium_money2_data[i], money_align_left)
+                    worksheet.write(th, 69, sum(
                         medium_money2_data), money_align_left)
                     medium_money2_rebate_data = m['medium_money2_rebate_data']
                     for i in range(len(medium_money2_rebate_data)):
                         worksheet.write(
-                            th, 69 + i, medium_money2_rebate_data[i], money_align_left)
-                    worksheet.write(th, 81, sum(
+                            th, 70 + i, medium_money2_rebate_data[i], money_align_left)
+                    worksheet.write(th, 82, sum(
                         medium_money2_rebate_data), money_align_left)
                     worksheet.set_row(th, 20)
                     th += 1
@@ -163,28 +165,29 @@ def write_client_order_excel(orders, year, total_money_data, total_money_rebate_
                 worksheet.write(th, 51, sum(outsource_data), money_align_left)
                 profit_data = orders[k]['profit_data']
                 for i in range(len(profit_data)):
-                    worksheet.write(th, 82 + i, profit_data[i], money_align_left)
-                worksheet.write(th, 94, sum(profit_data), money_align_left)
+                    worksheet.write(th, 83 + i, profit_data[i], money_align_left)
+                worksheet.write(th, 95, sum(profit_data), money_align_left)
                 if medium_data:
-                    worksheet.write(th, 52, medium_data[0]['name'], align_left)
-                    worksheet.write(th, 53, medium_data[0][
-                                    'medium_contract'], align_left)
+                    worksheet.write(th, 52, medium_data[0]['medium_group_name'], align_left)
+                    worksheet.write(th, 53, medium_data[0]['name'], align_left)
                     worksheet.write(th, 54, medium_data[0][
-                                    'sale_money'], money_align_left)
+                                    'medium_contract'], align_left)
                     worksheet.write(th, 55, medium_data[0][
+                                    'sale_money'], money_align_left)
+                    worksheet.write(th, 56, medium_data[0][
                                     'medium_money2'], money_align_left)
                     medium_money2_data = medium_data[0]['medium_money2_data']
                     for i in range(len(medium_money2_data)):
                         worksheet.write(
-                            th, 56 + i, medium_money2_data[i], money_align_left)
-                    worksheet.write(th, 68, sum(
+                            th, 57 + i, medium_money2_data[i], money_align_left)
+                    worksheet.write(th, 69, sum(
                         medium_money2_data), money_align_left)
                     medium_money2_rebate_data = medium_data[
                         0]['medium_money2_rebate_data']
                     for i in range(len(medium_money2_rebate_data)):
                         worksheet.write(
-                            th, 69 + i, medium_money2_rebate_data[i], money_align_left)
-                    worksheet.write(th, 81, sum(
+                            th, 70 + i, medium_money2_rebate_data[i], money_align_left)
+                    worksheet.write(th, 82, sum(
                         medium_money2_rebate_data), money_align_left)
                 worksheet.set_row(th, 21)
                 th += 1
@@ -208,23 +211,23 @@ def write_client_order_excel(orders, year, total_money_data, total_money_rebate_
             worksheet.write(
                 th, 39 + k, total_outsource_data[k], money_align_left)
         worksheet.write(th, 51, sum(total_outsource_data), money_align_left)
-        worksheet.merge_range(th, 52, th, 53, '', align_center)
-        worksheet.write(th, 54, sum([k['medium_sale_money']
+        worksheet.merge_range(th, 52, th, 54, '', align_center)
+        worksheet.write(th, 55, sum([k['medium_sale_money']
                                      for k in orders]), money_align_left)
-        worksheet.write(th, 55, sum([k['medium_medium_money2']
+        worksheet.write(th, 56, sum([k['medium_medium_money2']
                                      for k in orders]), money_align_left)
         for k in range(len(total_medium_money2_data)):
             worksheet.write(
-                th, 56 + k, total_medium_money2_data[k], money_align_left)
-        worksheet.write(th, 68, sum(total_medium_money2_data), money_align_left)
+                th, 57 + k, total_medium_money2_data[k], money_align_left)
+        worksheet.write(th, 69, sum(total_medium_money2_data), money_align_left)
         for k in range(len(total_medium_money2_rebate_data)):
             worksheet.write(
-                th, 69 + k, total_medium_money2_rebate_data[k], money_align_left)
-        worksheet.write(th, 81, sum(
+                th, 70 + k, total_medium_money2_rebate_data[k], money_align_left)
+        worksheet.write(th, 82, sum(
             total_medium_money2_rebate_data), money_align_left)
         for k in range(len(total_profit_data)):
-            worksheet.write(th, 82 + k, total_profit_data[k], money_align_left)
-        worksheet.write(th, 94, sum(total_profit_data), money_align_left)
+            worksheet.write(th, 83 + k, total_profit_data[k], money_align_left)
+        worksheet.write(th, 95, sum(total_profit_data), money_align_left)
     else:
         keys = [u'区域', u'代理/直客', u'客户合同号', u'客户', u'Campaign', u'客户合同金额', u'执行开始',
                 u'执行结束', u'回款日期', u'回款总金额', u'欠款总金额', u'售卖类型', u'代理/直客']
@@ -240,24 +243,25 @@ def write_client_order_excel(orders, year, total_money_data, total_money_rebate_
         for k in range(12):
             worksheet.write(1, 26 + k, str(k + 1) + u'月', align_center)
         worksheet.write(1, 38, u'总计', align_center)
-        worksheet.merge_range(0, 39, 1, 39, u'投放媒体', align_center)
-        worksheet.merge_range(0, 40, 1, 40, u'媒体合同号', align_center)
-        worksheet.merge_range(0, 41, 1, 41, u'媒体售卖金额', align_center)
-        worksheet.merge_range(0, 42, 1, 42, u'媒体金额', align_center)
-        worksheet.merge_range(0, 43, 0, 55, u'媒体执行金额', align_center)
+        worksheet.merge_range(0, 39, 1, 39, u'媒体供应商', align_center)
+        worksheet.merge_range(0, 40, 1, 40, u'投放媒体', align_center)
+        worksheet.merge_range(0, 41, 1, 41, u'媒体合同号', align_center)
+        worksheet.merge_range(0, 42, 1, 42, u'媒体售卖金额', align_center)
+        worksheet.merge_range(0, 43, 1, 43, u'媒体金额', align_center)
+        worksheet.merge_range(0, 44, 0, 56, u'媒体执行金额', align_center)
         for k in range(12):
-            worksheet.write(1, 43 + k, str(k + 1) + u'月', align_center)
-        worksheet.write(1, 55, u'总计', align_center)
-        worksheet.merge_range(0, 56, 0, 68, u'媒体返点', align_center)
+            worksheet.write(1, 44 + k, str(k + 1) + u'月', align_center)
+        worksheet.write(1, 56, u'总计', align_center)
+        worksheet.merge_range(0, 57, 0, 69, u'媒体返点', align_center)
         for k in range(12):
-            worksheet.write(1, 56 + k, str(k + 1) + u'月', align_center)
-        worksheet.write(1, 68, u'总计', align_center)
-        worksheet.merge_range(0, 69, 0, 81, u'合同利润', align_center)
+            worksheet.write(1, 57 + k, str(k + 1) + u'月', align_center)
+        worksheet.write(1, 69, u'总计', align_center)
+        worksheet.merge_range(0, 70, 0, 82, u'合同利润', align_center)
         for k in range(12):
-            worksheet.write(1, 69 + k, str(k + 1) + u'月', align_center)
-        worksheet.write(1, 81, u'总计', align_center)
+            worksheet.write(1, 70 + k, str(k + 1) + u'月', align_center)
+        worksheet.write(1, 82, u'总计', align_center)
         # 设置宽度为30
-        for k in range(81):
+        for k in range(82):
             worksheet.set_column(k, 0, 15)
         th = 2
         for k in range(len(orders)):
@@ -304,25 +308,26 @@ def write_client_order_excel(orders, year, total_money_data, total_money_rebate_
                 profit_data = orders[k]['profit_data']
                 for i in range(len(profit_data)):
                     worksheet.merge_range(
-                        th, 69 + i, th + len(medium_data) - 1, 69 + i, profit_data[i], money_align_left)
+                        th, 70 + i, th + len(medium_data) - 1, 70 + i, profit_data[i], money_align_left)
                 worksheet.merge_range(
-                    th, 81, th + len(medium_data) - 1, 81, sum(profit_data), money_align_left)
+                    th, 82, th + len(medium_data) - 1, 82, sum(profit_data), money_align_left)
                 for m in medium_data:
-                    worksheet.write(th, 39, m['name'], align_left)
-                    worksheet.write(th, 40, m['medium_contract'], align_left)
-                    worksheet.write(th, 41, m['sale_money'], money_align_left)
-                    worksheet.write(th, 42, m['medium_money2'], money_align_left)
+                    worksheet.write(th, 39, m['medium_group_name'], align_left)
+                    worksheet.write(th, 40, m['name'], align_left)
+                    worksheet.write(th, 41, m['medium_contract'], align_left)
+                    worksheet.write(th, 42, m['sale_money'], money_align_left)
+                    worksheet.write(th, 43, m['medium_money2'], money_align_left)
                     medium_money2_data = m['medium_money2_data']
                     for i in range(len(medium_money2_data)):
                         worksheet.write(
-                            th, 43 + i, medium_money2_data[i], money_align_left)
-                    worksheet.write(th, 55, sum(
+                            th, 44 + i, medium_money2_data[i], money_align_left)
+                    worksheet.write(th, 56, sum(
                         medium_money2_data), money_align_left)
                     medium_money2_rebate_data = m['medium_money2_rebate_data']
                     for i in range(len(medium_money2_rebate_data)):
                         worksheet.write(
-                            th, 56 + i, medium_money2_rebate_data[i], money_align_left)
-                    worksheet.write(th, 68, sum(
+                            th, 57 + i, medium_money2_rebate_data[i], money_align_left)
+                    worksheet.write(th, 69, sum(
                         medium_money2_rebate_data), money_align_left)
                     worksheet.set_row(th, 20)
                     th += 1
@@ -352,28 +357,29 @@ def write_client_order_excel(orders, year, total_money_data, total_money_rebate_
                 worksheet.write(th, 38, sum(money_rebate_data), money_align_left)
                 profit_data = orders[k]['profit_data']
                 for i in range(len(profit_data)):
-                    worksheet.write(th, 69 + i, profit_data[i], money_align_left)
-                worksheet.write(th, 81, sum(profit_data), money_align_left)
+                    worksheet.write(th, 70 + i, profit_data[i], money_align_left)
+                worksheet.write(th, 82, sum(profit_data), money_align_left)
                 if medium_data:
-                    worksheet.write(th, 39, medium_data[0]['name'], align_left)
-                    worksheet.write(th, 40, medium_data[0][
-                                    'medium_contract'], align_left)
+                    worksheet.write(th, 39, medium_data[0]['medium_group_name'], align_left)
+                    worksheet.write(th, 40, medium_data[0]['name'], align_left)
                     worksheet.write(th, 41, medium_data[0][
-                                    'sale_money'], money_align_left)
+                                    'medium_contract'], align_left)
                     worksheet.write(th, 42, medium_data[0][
+                                    'sale_money'], money_align_left)
+                    worksheet.write(th, 43, medium_data[0][
                                     'medium_money2'], money_align_left)
                     medium_money2_data = medium_data[0]['medium_money2_data']
                     for i in range(len(medium_money2_data)):
                         worksheet.write(
-                            th, 43 + i, medium_money2_data[i], money_align_left)
-                    worksheet.write(th, 55, sum(
+                            th, 44 + i, medium_money2_data[i], money_align_left)
+                    worksheet.write(th, 56, sum(
                         medium_money2_data), money_align_left)
                     medium_money2_rebate_data = medium_data[
                         0]['medium_money2_rebate_data']
                     for i in range(len(medium_money2_rebate_data)):
                         worksheet.write(
-                            th, 56 + i, medium_money2_rebate_data[i], money_align_left)
-                    worksheet.write(th, 68, sum(
+                            th, 57 + i, medium_money2_rebate_data[i], money_align_left)
+                    worksheet.write(th, 69, sum(
                         medium_money2_rebate_data), money_align_left)
                 worksheet.set_row(th, 21)
                 th += 1
@@ -393,23 +399,23 @@ def write_client_order_excel(orders, year, total_money_data, total_money_rebate_
             worksheet.write(
                 th, 26 + k, total_money_rebate_data[k], money_align_left)
         worksheet.write(th, 38, sum(total_money_rebate_data), money_align_left)
-        worksheet.merge_range(th, 39, th, 40, '', align_center)
-        worksheet.write(th, 41, sum([k['medium_sale_money']
+        worksheet.merge_range(th, 39, th, 41, '', align_center)
+        worksheet.write(th, 42, sum([k['medium_sale_money']
                                      for k in orders]), money_align_left)
-        worksheet.write(th, 42, sum([k['medium_medium_money2']
+        worksheet.write(th, 43, sum([k['medium_medium_money2']
                                      for k in orders]), money_align_left)
         for k in range(len(total_medium_money2_data)):
             worksheet.write(
-                th, 43 + k, total_medium_money2_data[k], money_align_left)
-        worksheet.write(th, 55, sum(total_medium_money2_data), money_align_left)
+                th, 44 + k, total_medium_money2_data[k], money_align_left)
+        worksheet.write(th, 56, sum(total_medium_money2_data), money_align_left)
         for k in range(len(total_medium_money2_rebate_data)):
             worksheet.write(
-                th, 56 + k, total_medium_money2_rebate_data[k], money_align_left)
-        worksheet.write(th, 68, sum(
+                th, 57 + k, total_medium_money2_rebate_data[k], money_align_left)
+        worksheet.write(th, 69, sum(
             total_medium_money2_rebate_data), money_align_left)
         for k in range(len(total_profit_data)):
-            worksheet.write(th, 69 + k, total_profit_data[k], money_align_left)
-        worksheet.write(th, 81, sum(total_profit_data), money_align_left)
+            worksheet.write(th, 70 + k, total_profit_data[k], money_align_left)
+        worksheet.write(th, 82, sum(total_profit_data), money_align_left)
     workbook.close()
     response.data = output.getvalue()
     filename = ("cost_income_client_order-%s.xls" % (str(year)))
