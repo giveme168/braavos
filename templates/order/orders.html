@@ -11,6 +11,7 @@
                 <th>Campaign</th>
                 <th>合同金额</th>
                 <th>合同号</th>
+                <th>合同状态</th>
                 <th>回款比例</th>
                 <th>回款总金额</th>
                 <th>欠款金额</th>
@@ -31,7 +32,6 @@
                 <th>执行</th>
                 <th>豆瓣金额</th>
                 <th>豆瓣合同号</th>
-                <th>合同状态</th>
                 {% if g.user.is_super_admin() %}
                 <th>操作</th>
                 {% endif %}
@@ -49,6 +49,7 @@
                 <td><a href="{{o.info_path()}}">{{o.campaign}}</a></td>
                 <td>{{o.money}}</td>
                 <td><a href="{{o.info_path()}}">{{o.contract or "无合同号"}}</a></td>
+                <td>{{o.contract_status_cn}}</td>
                 <td>{{o.back_money_percent}}%</td>
                 <td>{{o.back_moneys}}</td>
                 <td>{{o.money-o.back_moneys}}</td>
@@ -111,7 +112,6 @@
                     <br><br>
                     {% endfor %}
                 </td>
-                <td>{{o.contract_status_cn}}</td>
                 {% if g.user.is_super_admin() %}
                 <td>
                         {% if o.status == 0 %}

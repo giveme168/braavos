@@ -1,0 +1,17 @@
+{% extends "base_v1_0_0.html" %}
+{% block title %}订单修改列表{% endblock %}
+{% block content %}
+{% include "order_base_v1_0_0.html" %}
+<div class="container bra-box" style="min-height: 700px;">
+    <div class="tab-content" style="text-align: center;">
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="exampleInputName2"></label>
+                <input class="form-control" id="info" name="info" placeholder="合同号、项目名称" type="text" style="width:400px;">
+                </input>
+            </div>
+            <button type="submit" class="btn btn-default">查询</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

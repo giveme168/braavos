@@ -155,6 +155,7 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     agent = db.Column(db.String(100))     # 代理名称
+    medium_group_id = db.Column(db.Integer)  # 代理公司id
     medium_id = db.Column(db.Integer)
     complete_percent = db.Column(db.Integer)
     money = db.Column(db.Float())         # 客户合同金额
@@ -175,7 +176,7 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
     order_id = db.Column(db.String(10))
 
     def __init__(self, agent, client, campaign, medium_id,
-                 complete_percent=1, money=0.0,
+                 medium_group_id, complete_percent=1, money=0.0,
                  client_start=None, client_end=None,
                  direct_sales=None, agent_sales=None,
                  creator=None, create_time=None,
@@ -184,6 +185,7 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
         self.agent = agent
         self.client = client
         self.campaign = campaign
+        self.medium_group_id = medium_group_id
         self.medium_id = medium_id
         self.complete_percent = complete_percent
         self.money = money
@@ -382,6 +384,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def mediums(self):
         return [x.medium for x in self.medium_orders]
+
+    @property
+    def medium_groups(self):
+        return [x.medium_group for x in self.medium_orders]
 
     @property
     def agents(self):

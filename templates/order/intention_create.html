@@ -8,12 +8,18 @@
     <h3>填写洽谈中的订单</h3>
     <form class="input-row-box" method="POST" onsubmit="return checkform(this)">
         <div class="input-group-menu">
+          <div class="name">媒体供应商 : </div>
+            <select id="medium_group_id" name="medium_group_id" class="surname" style="width:300px;">
+                <option value="0">豆瓣</option>
+                {% for k in medium_groups %}
+                <option value='{{k.id}}'>{{k.name}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="input-group-menu">
           <div class="name">投放媒体 : </div>
             <select id="medium_id" name="medium_id" class="surname" style="width:300px;">
                 <option value="0">豆瓣</option>
-                {% for k in mediums %}
-                <option value='{{k.id}}'>{{k.name}}</option>
-                {% endfor %}
             </select>
         </div>
         <div class="input-group-menu">
@@ -133,6 +139,27 @@ function get_ex_time(){
     })
 }
 
+function set_mediums(medium_group_id){
+    $.ajax({
+      type: "GET",
+      url: "/clients/medium_groups/"+medium_group_id+"/mediums",
+      dataType: "json",
+      success: function(data){
+          $('#medium_id').empty();   //清空resText里面的所有内容
+          var data = data['data'];
+          html_inner = ""
+          for(var i=0; i<data.length; i++){
+              html_inner += "<option value='"+data[i]['mid']+"'>"+data[i]['name']+"</option>"
+          }
+          $('#medium_id').html(html_inner);
+          $('#medium_id').chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+          $('#medium_group_id').chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+          $('#medium_id').trigger("chosen:updated");
+          $('#medium_group_id').trigger("chosen:updated");
+      }
+  })
+}
+
 $(function(){
     $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
     $('.datetimepicker').datetimepicker({
@@ -157,6 +184,18 @@ $(function(){
         if (start_date != ''){
             get_ex_time()
         }
+    })
+
+    $('#medium_group_id').change(function(){
+        if (this.value == 0){
+          var html_inner = "<option value='0'>豆瓣</option>"
+          $('#medium_id').html(html_inner);
+          $('#medium_id').chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+          $('#medium_id').trigger("chosen:updated");
+        }else{
+            set_mediums(this.value)
+        }
+        
     })
 })
 </script>

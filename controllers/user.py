@@ -29,10 +29,11 @@ def login():
         if is_pwd:
             username = request.values.get('email', '')
             password = request.values.get('password', '')
-            if check_auth_by_mail(username, password):
+            ret = check_auth_by_mail(username, password)
+            if ret[0]:
                 user = User.query.filter_by(email=username).first()
             else:
-                return tpl('login.html', form=form, msg=u"用户名或者密码错误.")
+                return tpl('login.html', form=form, msg=ret[1])
         else:
             password = request.values.get('password')
             if password == DEFAULT_PASSWORD and not DevelopmentConfig.DEBUG:

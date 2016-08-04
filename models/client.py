@@ -178,6 +178,7 @@ class AgentRebate(db.Model, BaseModelMixin):
         return self.create_time.strftime("%Y-%m-%d")
 
 
+# 已废除此表
 class AgentMediumRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_agent_medium_rebate'
     id = db.Column(db.Integer, primary_key=True)
@@ -198,6 +199,35 @@ class AgentMediumRebate(db.Model, BaseModelMixin):
         self.agent = agent
         self.medium = medium
         self.medium_name = medium_name
+        self.rebate = rebate
+        self.year = year or datetime.date.tody()
+        self.creator = creator
+        self.create_time = create_time or datetime.datetime.now()
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime("%Y-%m-%d")
+
+
+class AgentMediaRebate(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_agent_media_rebate'
+    id = db.Column(db.Integer, primary_key=True)
+    agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))  # 代理公司id
+    agent = db.relationship('Agent', backref=db.backref('agent_media_rebate', lazy='dynamic'))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))  # 媒体
+    media = db.relationship('Media', backref=db.backref('media_agent_rebate', lazy="dynamic"))
+    rebate = db.Column(db.Float)
+    year = db.Column(db.Date)
+
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship('User', backref=db.backref('created_media_agent_rebate', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)  # 添加时间
+    __table_args__ = (db.UniqueConstraint('agent_id', 'media_id', 'year', name='_agent_media_year_rebate'),)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, agent, media, rebate=0.0, year=None, creator=None, create_time=None):
+        self.agent = agent
+        self.media = media
         self.rebate = rebate
         self.year = year or datetime.date.tody()
         self.creator = creator

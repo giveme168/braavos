@@ -15,7 +15,7 @@
             <td>{{invoice.company}}
                 {% if invoice.invoice_num == '88888888' %}
                   <span class="label label-danger">先付款-发票未开</span>
-                {% elif invoice.company != invoice.medium.abbreviation %}
+                {% elif invoice.company != invoice.medium_group.name %}
                   <span class="label label-danger">付款其他媒体</span>
                 {% endif %}
             </td>
@@ -90,8 +90,18 @@
         {% if g.user.is_super_leader() or invoice.client_order.can_admin(g.user) or g.user.is_finance() %}
         <form class="input-row-box" method="POST" action="{{url_for('finance_client_order_medium_pay.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
-        {{ form_field(form.client_order)}}
-        {{ form_field(form.medium)}}
+        <div class="input-group-menu">
+          <div class="name">媒体供应商：</div>
+          <select class="surname" style="width:300px;" name="medium_group" id="medium_group_{{invoice.id or 0}}">
+              <option value="{{invoice.medium_group.id}}">{{invoice.medium_group.name}}</option>
+          </select>
+        </div>
+        <div class="input-group-menu">
+          <div class="name">投放媒体：</div>
+          <select class="surname" style="width:300px;" name="medium" id="medium_{{invoice.id or 0}}">
+              <option value="{{invoice.medium.id}}">{{invoice.medium.name}}</option>
+          </select>
+        </div>
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}

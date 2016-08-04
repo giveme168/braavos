@@ -99,6 +99,7 @@ class MediumGroup(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     bank_num = db.Column(db.String(100))  # 银行号
     level = db.Column(db.Integer)  # 媒体级别
     rebates = db.relationship('MediumGroupRebate')
+    media_rebates = db.relationship('MediumGroupMediaRebate')
     mediums = db.relationship('Medium')
     __mapper_args__ = {'order_by': id.desc()}
 
@@ -135,7 +136,7 @@ class MediumGroupRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_group_rebate'
 
     id = db.Column(db.Integer, primary_key=True)
-    medium_group_id = db.Column(db.Integer, db.ForeignKey('medium_group.id'))  # 代理公司id
+    medium_group_id = db.Column(db.Integer, db.ForeignKey('medium_group.id'))
     medium_group = db.relationship('MediumGroup', backref=db.backref('medium_group_rebate', lazy='dynamic'))
     rebate = db.Column(db.Float)
     year = db.Column(db.Date)
@@ -164,6 +165,75 @@ class MediumGroupRebate(db.Model, BaseModelMixin):
         return self.year.year
 
 
+# 二级媒体表
+class Media(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
+    __tablename__ = 'media'
+    id = db.Column(db.Integer, primary_key=True)
+    level = db.Column(db.Integer)
+    name = db.Column(db.String(100))
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('creator_media', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)   # 添加时间
+    __mapper_args__ = {'order_by': id.desc()}
+
+    def __init__(self, name, creator, create_time=None, level=100):
+        self.name = name
+        self.creator = creator
+        self.level = level
+        self.create_time = create_time or datetime.datetime.now()
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime("%Y-%m-%d")
+
+    @property
+    def level_cn(self):
+        return LEVEL_CN[self.level or 100]
+
+    def medium_path(self):
+        return url_for('client.media_detail', media_id=self.id)
+
+
+class MediumGroupMediaRebate(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_medium_group_media_rebate'
+    id = db.Column(db.Integer, primary_key=True)
+    medium_group_id = db.Column(db.Integer, db.ForeignKey('medium_group.id'))
+    medium_group = db.relationship('MediumGroup',
+                                   backref=db.backref('medium_group_media_rebate_medium_group',
+                                                      lazy='dynamic'))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))  # 代理公司id
+    media = db.relationship('Media', backref=db.backref('medium_group_media_rebate_media', lazy='dynamic'))
+    rebate = db.Column(db.Float)
+    year = db.Column(db.Date)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship('User', backref=db.backref('medium_group_media_rebate_medium_group_creator',
+                                                         lazy='dynamic'))
+    create_time = db.Column(db.DateTime)  # 添加时间
+    __table_args__ = (db.UniqueConstraint('medium_group_id', 'media_id', 'year', name='_medium_group_media_year'),)
+    __mapper_args__ = {'order_by': create_time.desc()}
+
+    def __init__(self, medium_group, media, rebate=0.0, year=None, creator=None, create_time=None):
+        self.medium_group = medium_group
+        self.media = media
+        self.rebate = rebate
+        self.year = year or datetime.datetime.now().year
+        self.creator = creator
+        self.create_time = create_time or datetime.datetime.now()
+
+    def __repr__(self):
+        return '<MediumGroupRebate %s>' % (self.id)
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime("%Y-%m-%d")
+
+    @property
+    def year_cn(self):
+        return self.year.year
+
+
+# 废除掉的以前的媒体表
 class Medium(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'medium'
 

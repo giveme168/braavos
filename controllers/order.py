@@ -96,13 +96,16 @@ def new_order():
                               order.client.name,
                               order.campaign
                           ))
+        medium_group_ids = request.values.getlist('medium_group')
         medium_ids = request.values.getlist('medium')
         medium_moneys = request.values.getlist('medium-money')
         if medium_ids and medium_moneys and len(medium_ids) == len(medium_moneys):
             for x in range(len(medium_ids)):
                 medium = Medium.get(medium_ids[x])
+                medium_group = MediumGroup.get(medium_group_ids[x])
                 mo = Order.add(campaign=order.campaign,
                                medium=medium,
+                               medium_group=medium_group,
                                sale_money=float(medium_moneys[x] or 0),
                                medium_money=0,
                                medium_money2=0,
@@ -440,8 +443,11 @@ def order_new_medium(order_id):
         abort(404)
     form = MediumOrderForm(request.form)
     if request.method == 'POST':
+        medium_group_id = request.values.get('medium_group', 0)
+        medium_id = request.values.get('medium', 0)
         mo = Order.add(campaign=co.campaign,
-                       medium=Medium.get(form.medium.data),
+                       medium_group=MediumGroup.get(medium_group_id),
+                       medium=Medium.get(medium_id),
                        medium_money=float(form.medium_money.data or 0),
                        medium_money2=float(form.medium_money2.data or 0),
                        sale_money=float(form.sale_money.data or 0),
@@ -472,10 +478,14 @@ def medium_order(mo_id):
     form = MediumOrderForm(request.form)
     last_status = mo.finish_status
     finish_status = int(request.values.get('finish_status', 1))
+    medium_group_id = request.values.get('medium_group', 0)
+    medium_id = request.values.get('medium', 0)
     if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader():
-        mo.medium = Medium.get(form.medium.data)
+        mo.medium_group = MediumGroup.get(medium_group_id)
+        mo.medium = Medium.get(medium_id)
     if mo.client_order.contract_status in [0, 1, 6]:
-        mo.medium = Medium.get(form.medium.data)
+        mo.medium_group = MediumGroup.get(medium_group_id)
+        mo.medium = Medium.get(medium_id)
     self_medium_rebate = int(request.values.get('self_medium_rebate', 0))
     self_medium_rabate_value = float(request.values.get('self_medium_rabate_value', 0))
     mo.medium_money = float(form.medium_money.data or 0)
@@ -1747,7 +1757,9 @@ def intention_order_create():
         client_end = end_time
         direct_sales = request.values.getlist('direct_sales')
         agent_sales = request.values.getlist('agent_sales')
+        medium_group_id = int(request.values.get('medium_group_id', 0))
         intention_order = IntentionOrder.add(
+            medium_group_id=medium_group_id,
             medium_id=medium_id,
             agent=agent,
             client=client,
@@ -1770,7 +1782,8 @@ def intention_order_create():
         return redirect(url_for('order.intention_order_update', intention_id=intention_order.id))
     return tpl('intention_create.html', direct_form=DirectForm(),
                agent_form=AgentForm(), agent=Agent.all(), client=Client.all(),
-               mediums=Medium.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN)
+               mediums=Medium.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN,
+               medium_groups=MediumGroup.all())
 
 
 @order_bp.route('/intention_order/<intention_id>/delete', methods=['GET', 'POST'])
@@ -1816,11 +1829,13 @@ def intention_order_update(intention_id):
         client = request.values.get('client', '')
         campaign = request.values.get('campaign', '')
         complete_percent = int(request.values.get('complete_percent', 1))
+        medium_group_id = int(request.values.get('medium_group_id', 0))
         money = sum([k['money'] for k in ex_money_data])
         client_start = start_time
         client_end = end_time
         direct_sales = request.values.getlist('direct_sales')
         agent_sales = request.values.getlist('agent_sales')
+        intention_order.medium_group_id = medium_group_id
         intention_order.medium_id = medium_id
         intention_order.agent = agent
         intention_order.client = client
@@ -1852,7 +1867,8 @@ def intention_order_update(intention_id):
     return tpl('intention_update.html', direct_form=direct_form, intention_order=intention_order,
                agent_form=agent_form, agent=Agent.all(), client=Client.all(),
                is_data_agent=is_data_agent, is_data_client=is_data_client,
-               mediums=Medium.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN)
+               mediums=Medium.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN,
+               medium_groups=MediumGroup.all())
 
 
 @order_bp.route('/ex_time', methods=['GET'])
@@ -1923,6 +1939,7 @@ def intention_order_in_real(iid):
                               order.campaign
                           ))
         mo = Order.add(campaign=order.campaign,
+                       medium_group=MediumGroup.get(intention_order.medium_group_id),
                        medium=Medium.get(intention_order.medium_id),
                        sale_money=intention_order.money,
                        medium_money=0,
@@ -1975,6 +1992,7 @@ def new_client_medium_order():
                                       creator=g.user,
                                       create_time=datetime.now(),
                                       finish_time=datetime.now(),
+                                      medium_group=MediumGroup.get(form.medium_group.data),
                                       medium=Medium.get(form.medium.data),
                                       medium_money=form.medium_money.data,
                                       self_agent_rebate=str(self_rebate) + '-' + str(self_rabate_value))
@@ -2008,7 +2026,7 @@ def get_client_medium_order_form(order):
     form.contract_type.data = order.contract_type
     form.resource_type.data = order.resource_type
     form.sale_type.data = order.sale_type
-    form.medium_group.data = order.medium.medium_group_id
+    form.medium_group.data = order.medium_group_id
     form.medium.data = order.medium.id
     form.medium_money.data = order.medium_money
     return form
@@ -2219,3 +2237,13 @@ def edit_client_order():
 @order_bp.route('/edit_client_order/create', methods=['GET'])
 def edit_client_order_create():
     return tpl('edit_client_order_create.html')
+
+
+@order_bp.route('/edit_client_order/search', methods=['GET'])
+def edit_client_order_search():
+    info = request.values.get('info', '')
+    if info:
+        orders = [order for order in ClientOrder.all() if info.lower().strip() in order.search_info.lower()]
+    else:
+        orders = []
+    return tpl('edit_client_order_search.html', info=info, orders=orders)

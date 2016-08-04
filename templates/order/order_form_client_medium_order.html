@@ -346,7 +346,7 @@ $(function(){
     {% if form and not order %}
         set_mediums(1)
     {% else %}
-        set_mediums(parseInt('{{order.medium.medium_group_id}}'))
+        set_mediums(parseInt('{{order.medium_group_id}}'))
     {% endif %}
 });
 function set_mediums(medium_group_id){

@@ -25,23 +25,20 @@
           {% endif %}
         </form>
     </div>
+    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_contract() %}
     <div class='tabulation'>
         <table border='1'>
             <thead>
                 <tr>
                     <th>媒体供应商</th>
                     <th>级别</th>
-                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_contract() %}
                     <th>2014年返点</th>
                     <th>2015年返点</th>
                     <th>2016年返点</th>
-                    {% endif %}
                     <th>媒体名称</th>
-                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_contract() %}
                     <th>2014年返点</th>
                     <th>2015年返点</th>
                     <th>2016年返点</th>
-                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -49,31 +46,47 @@
                 <tr>
                     <td rowspan="{{mg.mediums|length + 1}}"><a href="{{url_for('client.medium_group_detail', medium_group_id=mg.id)}}">{{mg.name}}</a></td>
                     <td rowspan="{{mg.mediums|length + 1}}">{{mg.level_cn}}</td>
-                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_contract() %}
                     <td rowspan="{{mg.mediums|length + 1}}">{{mg.rebate_2014}}</td>
                     <td rowspan="{{mg.mediums|length + 1}}">{{mg.rebate_2015}}</td>
                     <td rowspan="{{mg.mediums|length + 1}}">{{mg.rebate_2016}}</td>
-                    {% endif %}
                 </tr>
-                {% for m in mg.mediums %}
-                    <tr>
-                        <td>
-                            {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_media() or g.user.is_finance() %}
-                            <a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a>
-                            {% else %}
-                            {{m.name}}
-                            {% endif %}
-                        </td>
-                        {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_contract() %}
-                        <td>{{m.rebate_2014}}</td>
-                        <td>{{m.rebate_2015}}</td>
-                        <td>{{m.rebate_2016}}</td>
-                        {% endif %}
-                    </tr>
-                {% endfor %}
+                    {% for m in mg.mediums %}
+                        <tr>
+                            <td>{{m.name}}</td>
+                            <td>{{m.rebate_2014}}</td>
+                            <td>{{m.rebate_2015}}</td>
+                            <td>{{m.rebate_2016}}</td>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    {% else %}
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>媒体供应商</th>
+                    <th>级别</th>
+                    <th>媒体名称</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mg in mediums %}
+                <tr>
+                    <td rowspan="{{mg.mediums|length + 1}}"><a href="{{url_for('client.medium_group_detail', medium_group_id=mg.id)}}">{{mg.name}}</a></td>
+                    <td rowspan="{{mg.mediums|length + 1}}">{{mg.level_cn}}</td>
+                </tr>
+                    {% for m in mg.mediums %}
+                        <tr>
+                            <td>{{m.name}}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

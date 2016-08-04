@@ -170,6 +170,9 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
     self_agent_rebate = db.Column(db.String(20))  # 单笔返点
 
     # 媒体合同信息
+    medium_group_id = db.Column(db.Integer, db.ForeignKey('medium_group.id'))  # 代理公司id
+    medium_group = db.relationship('MediumGroup', backref=db.backref('medium_group_client_medium_order',
+                                                                     lazy='dynamic'))
     medium = db.relationship(
         'Medium', backref=db.backref('client_medium', lazy='dynamic'))
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 媒体
@@ -179,7 +182,7 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
     kind = "client-medium-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
-    def __init__(self, agent, client, campaign, status=STATUS_ON,
+    def __init__(self, agent, client, campaign, medium_group, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  medium_CPM=0, sale_CPM=0, finish_time=None,
                  back_money_status=BACK_MONEY_STATUS_NOW, self_agent_rebate='0-0',
@@ -224,6 +227,7 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
         self.status = status
         self.back_money_status = back_money_status
         self.self_agent_rebate = self_agent_rebate
+        self.medium_group = medium_group
         self.medium = medium
         self.medium_money = medium_money or 0
 

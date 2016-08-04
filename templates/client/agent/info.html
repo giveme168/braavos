@@ -10,7 +10,7 @@
     <td>{{FILE_TYPE_CN[type]}}</td>
     <td>{% set agent_file = agent.get_last_client_file(type) %}
         {% if agent_file %}
-            {% if g.user.is_contract() or g.user.is_super_leader() %}
+            {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_finance() %}
             <a href="{{agent_file.client_path}}">{{agent_file.filename}}</a>
             {% else %}
             {{agent_file.filename}}

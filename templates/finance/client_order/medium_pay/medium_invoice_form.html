@@ -9,8 +9,22 @@
         </h4>
         <form class="input-row-box" method="POST" action="{{url_for('finance_client_order_medium_pay.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
-        {{ form_field(form.client_order)}}
-        {{ form_field(form.medium)}}
+        <div class="input-group-menu">
+          <div class="name">媒体供应商：</div>
+          <select class="surname" style="width:300px;" name="medium_group" id="medium_group_{{invoice.id or 0}}">
+              {% for g in order.medium_groups %}
+              <option value="{{g.id}}">{{g.name}}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="input-group-menu">
+          <div class="name">投放媒体：</div>
+          <select class="surname" style="width:300px;" name="medium" id="medium_{{invoice.id or 0}}">
+              {% for g in order.mediums %}
+              <option value="{{g.id}}">{{g.name}}</option>
+              {% endfor %}
+          </select>
+        </div>
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}
@@ -111,18 +125,22 @@
     <div class="well">
         <form class="input-row-box" method="POST" action="{{url_for('finance_client_order_medium_pay.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
-        {{ form_field(form.client_order)}}
         <div class="input-group-menu">
-          <div class="name">媒体 : </div>
-            <select class="surname" style="width:300px;" id="new_medium" name="medium" onchange="check_medium(this)">
-              {% for medium in order.mediums %}
-              <option value="{{medium.id}}">{{medium.name}}</option>
+          <div class="name">媒体供应商：</div>
+          <select class="surname" style="width:300px;" name="medium_group" id="medium_group_{{invoice.id or 0}}">
+              {% for g in order.medium_groups %}
+              <option value="{{g.id}}">{{g.name}}</option>
               {% endfor %}
-            </select>
-            <span class="errors"></span>
-            <span class="tips"></span>
+          </select>
         </div>
-        <!--{{ form_field(form.medium)}}-->
+        <div class="input-group-menu">
+          <div class="name">投放媒体：</div>
+          <select class="surname" style="width:300px;" name="medium" id="medium_{{invoice.id or 0}}">
+              {% for g in order.mediums %}
+              <option value="{{g.id}}">{{g.name}}</option>
+              {% endfor %}
+          </select>
+        </div>
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}
@@ -144,40 +162,67 @@
         </div>
         </form>
     </div>
-    <script>
+{% endif %}
+ <script>
+    function set_mediums(medium_group_id, html_mid, mid){
+      var inner_html = ""
+      var medium_obj = []
+      {% for o in order.medium_orders %}
+      medium_obj.push({'medium_group_id': parseInt('{{o.medium_group.id}}'), 'medium_name': '{{o.medium.name}}', 'medium_id': parseInt('{{o.medium.id}}')})
+      {% endfor %}
+      for (var i=0; i<medium_obj.length; i++){
+        if (medium_obj[i]['medium_group_id'] == medium_group_id){
+          inner_html += "<option value='"+medium_obj[i]['medium_id']+"'>"+medium_obj[i]['medium_name']+"</option>";
+        }
+      }
+      $('#medium_'+html_mid).empty();   //清空resText里面的所有内容
+      $('#medium_'+html_mid).html(inner_html); 
+      if (mid != 0){
+        $('#medium_'+html_mid).val(mid); 
+      }
+      $('#medium_'+html_mid).trigger("chosen:updated");
+
+      $.ajax({
+        type: 'GET',
+        url: "/clients/medium_groups/"+medium_group_id+"/info",
+        data: {} ,
+        dataType: 'json',
+        success:function(data) {
+            var data = data['data'];
+            $('#tax_id').val(data['tax_num'])
+            $('#address').val(data['address'])
+            $('#bank').val(data['bank'])
+            $('#bank_id').val(data['bank_num'])
+            $('#phone').val(data['phone_num'])
+            $('#company').val(data['name'])
+        }
+      });
+    }
     function checkform(obj){
       if (obj.back_time.value == ""){
         alert('请选择回款时间')
         return false
       }
     }
-    function check_medium(e){
-      $.ajax({
-        type: 'POST',
-        url: "/saler/client_order/medium_invoice/"+e.value+"/tax_info",
-        data: {'id':e.value} ,
-        dataType: 'json',
-        success:function(data) {
-            $(e).closest("form").find('#tax_id').val(data['tax_num'])
-            $(e).closest("form").find('#address').val(data['address'])
-            $(e).closest("form").find('#bank').val(data['bank'])
-            $(e).closest("form").find('#bank_id').val(data['bank_num'])
-            $(e).closest("form").find('#phone').val(data['phone_num'])
-            $(e).closest("form").find('#company').val(data['abbreviation'])
-
-        }
-      });
-    }
-
-    $(document).ready(function(){
+    $(function(){
         $('.datetimepicker').datetimepicker({
             autoclose: true,
             todayHighlight: true,
             language: 'zh-CN',
             minView: 2
-        });
+          });
         $('#new_medium').trigger("change");
     })
+    $('#medium_group_{{invoice.id or 0}}').change(function(){
+        var mid = this.id.split('_')[2]
+        set_mediums(this.value, mid, 0)
+    })
+    {% if invoice %}
+      $('#medium_group_{{invoice.id}}').val('{{invoice.medium_group_id}}');
+      $('#medium_group_{{invoice.id}}').trigger("chosen:updated");
+      set_mediums(parseInt('{{invoice.medium_group_id}}'), parseInt('{{invoice.id}}'), parseInt('{{invoice.medium_id}}'))
+    {% else %}
+      set_mediums(parseInt('{{order.medium_orders[0].medium_group_id}}'), 0, 0)
+    {% endif %}
 </script>
-{% endif %}
 {%- endmacro %}

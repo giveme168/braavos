@@ -6,31 +6,14 @@
 <div class="container bra-box">
     <h3>修改 {{agent.name}} 返点信息</h3>
     <form class="input-row-box" method="POST" action="{{url_for('client.agent_medium_rebate_update', agent_id=agent.id, rebate_id=rebate.id)}}" onsubmit="return check_form(this);">
-         <!--
-        <div class="input-group-menu">
-          <div class="name">媒体供应商 : </div>
-            <select name="medium_group" id="medium_group" class="usrname" style="width:300px;">
-                {% for k in medium_groups %}
-                <option value="{{k.id}}">{{k.name}}</option>
+         <div class="input-group-menu" style="width: 700px;">
+          <div class="name">所属媒体 : </div>
+            <select name="media_id" id="media_id" class="usrname" style="width:300px;">
+                {% for m in medias %}
+                <option value="{{m.id}}">{{m.name}}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="input-group-menu">
-          <div class="name">所属媒体 : </div>
-            <select name="medium" id="medium" class="usrname" style="width:300px;">
-                {% for k in mediums %}
-                <option value="{{k.id}}">{{k.name}}</option>
-                {% endfor %}
-            </select>
-        </div>
-        -->
-        <div class="input-group-menu" style="width: 700px;">
-          <div class="name">所属媒体 : </div>
-            <input name="medium_name" id="medium_name" class="usrname" style="width:300px;" value="{{rebate.medium_name or ""}}">
-            <ul class="list-group" style="float: right;" >
-            </ul>
-        </div>
-
         <div class="input-group-menu" style="width: 700px;">
           <div class="name">执行年 : </div>
             <select name="year" id="year" class="usrname" style="width:300px;">
@@ -53,29 +36,10 @@
 <script>
 $(function(){
    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
-   $('#year').val('{{rebate.year.year}}')
+   $('#year').val('{{rebate.year.year}}');
    $("#year").trigger("chosen:updated");
-   $('#medium_name').on('input',function(e){  
-  var medium_name = this.value
-    $.ajax({
-          type: "GET",
-          url: "/clients/medium_groups/mediums_json",
-          dataType: "json",
-          success: function(data){
-              $('.list-group').html('');   //清空resText里面的所有内容
-              var data = data['data'];
-              html_inner = ""
-              for(var i=0; i<data.length; i++){
-                  if (data[i]['name'].indexOf(medium_name)>=0){
-                    html_inner += "<li class='list-group-item'>"+data[i]['name']+"</li>"
-                  }
-              }
-              if (html_inner.length > 0 && medium_name.length > 0){
-                $('.list-group').html(html_inner);
-              }
-          }
-      })
-  });  
+   $('#media_id').val('{{rebate.media_id}}');
+   $("#media_id").trigger("chosen:updated");
 })
 function check_form(obj){
     if (obj.rebate.value == ''){
