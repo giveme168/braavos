@@ -45,7 +45,7 @@
                         <tbody>
                             {% for back in back_moneys %}
                             <tr>
-                                <td>{{back.order.medium.name}}</td>
+                                <td>{{back.order.medium_group.name}}-{{back.order.medium.name}}</td>
                                 <td>{{back.back_time_cn}}</td>
                                 <td>{{back.money}}</td>
                                 <td><a href="{{url_for('finance_client_order_medium_back_money.delete',order_id=order.id, bid=back.id)}}">删除</a></td>
@@ -110,7 +110,7 @@
                             <div class="col-sm-4">
                                 <select type="text" id="medium" name="medium" class="form-control bra-form-control">
                                     {% for k in order.medium_orders %}
-                                    <option value="{{k.id}}">{{k.medium.name}}</option>
+                                    <option value="{{k.id}}">{{k.medium_group.name}}-{{k.medium.name}}</option>
                                     {% endfor %}
                                 </select>
                             </div>

@@ -19,7 +19,7 @@
         <table class="table table-bordered">
           <tr>
             <th>媒体供应商 </th>
-            <td>{{order.medium.medium_group.name}}</td>
+            <td>{{order.medium_group.name}}</td>
           </tr>
           <tr>
             <th>投放媒体 </th>
@@ -264,9 +264,9 @@
 
      {% if medium_order %}
        // 初始化媒体订单供应商数据
-       set_mediums('{{medium_order.medium.medium_group.id}}', '{{medium_order.id}}', '{{medium_order.medium.id}}')
+       set_mediums('{{medium_order.medium_group.id}}', '{{medium_order.id}}', '{{medium_order.medium.id}}')
        
-       $('#medium_group_{{medium_order.id}}').val("{{medium_order.medium.medium_group.id}}");
+       $('#medium_group_{{medium_order.id}}').val("{{medium_order.medium_group.id}}");
        $('#medium_group_{{medium_order.id}}').trigger("chosen:updated");
 
        var self_medium_rebate = "{{medium_order.self_medium_rebate or '0-0'}}";

@@ -80,8 +80,22 @@
                 <div class="well">
                   <form class="input-row-box" method="POST" action="{{url_for('finance_client_order_medium_rebate_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
                   {{ new_invoice_form.csrf_token }}
-                  {{ form_field(new_invoice_form.client_order) }}
-                  {{ form_field(new_invoice_form.medium)}}
+                  <div class="input-group-menu">
+                    <div class="name">媒体供应商：</div>
+                    <select class="surname" style="width:300px;" name="medium_group" id="medium_group_0">
+                        {% for g in order.medium_groups %}
+                        <option value="{{g.id}}">{{g.name}}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="input-group-menu">
+                    <div class="name">投放媒体：</div>
+                    <select class="surname" style="width:300px;" name="medium" id="medium_0">
+                        {% for g in order.mediums %}
+                        <option value="{{g.id}}">{{g.name}}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
                   {{ form_field(new_invoice_form.company) }}
                   {{ form_field(new_invoice_form.tax_id) }}
                   {{ form_field(new_invoice_form.address) }}
@@ -134,17 +148,33 @@
     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
-  $(function(){
-    showInvoice = function(ele){
-      $(ele).hide();
-      $("#new-invoice").show();
-    };
-  });
+  function set_mediums(medium_group_id, html_mid, mid){
+    var inner_html = ""
+    var medium_obj = []
+    {% for o in order.medium_orders %}
+    medium_obj.push({'medium_group_id': parseInt('{{o.medium_group.id}}'), 'medium_name': '{{o.medium.name}}', 'medium_id': parseInt('{{o.medium.id}}')})
+    {% endfor %}
+    for (var i=0; i<medium_obj.length; i++){
+      if (medium_obj[i]['medium_group_id'] == medium_group_id){
+        inner_html += "<option value='"+medium_obj[i]['medium_id']+"'>"+medium_obj[i]['medium_name']+"</option>";
+      }
+    }
+    $('#medium_'+html_mid).empty();   //清空resText里面的所有内容
+    $('#medium_'+html_mid).html(inner_html); 
+    if (mid != 0){
+      $('#medium_'+html_mid).val(mid); 
+    }
+    $('#medium_'+html_mid).trigger("chosen:updated");
+  }
   function check_all(e){
     $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));
     $(e).parent().find(".invoice-id").trigger("change");
   }
   $(function(){
+    showInvoice = function(ele){
+      $(ele).hide();
+      $("#new-invoice").show();
+    };
     $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     $(".invoice-id").change(function(e){
       if($(this).prop("checked")){
@@ -183,6 +213,17 @@
          }
       }
     });
+    $('#medium_group_0').change(function(){
+        var mid = this.id.split('_')[2]
+        set_mediums(this.value, mid, 0)
+    });
+    $('#create_time').val(new Date().Format("yyyy-MM-dd"))
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+    });
   });
   function checkform(obj){
       if (obj.back_time.value == ""){
@@ -205,16 +246,6 @@
         return true
       }
     }
-
-    $(document).ready(function(){
-        $('#create_time').val(new Date().Format("yyyy-MM-dd"))
-        $('.datetimepicker').datetimepicker({
-            autoclose: true,
-            todayHighlight: true,
-            language: 'zh-CN',
-            minView: 2
-        });
-    })
 </script>
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <form class="form form-horizontal outsource-status-form" method="POST" action="" id="edit_table_form">

@@ -11,7 +11,7 @@ from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_
                             MEDIUM_INVOICE_STATUS_F_AGREE)
 
 from models.user import User
-from models.medium import Medium
+from models.medium import Medium, MediumGroup
 from forms.invoice import MediumInvoiceForm
 from libs.email_signals import medium_invoice_apply_signal
 
@@ -51,7 +51,8 @@ def new_invoice(order_id, redirect_endpoint='saler_client_order_medium_invoice.i
     #     return redirect(url_for(redirect_endpoint, order_id=order_id))
     if request.method == 'POST':
         invoice = MediumInvoice.add(client_order=order,
-                                    medium=Medium.get(form.medium.data),
+                                    medium=Medium.get(request.values.get('medium')),
+                                    medium_group=MediumGroup.get(request.values.get('medium_group')),
                                     company=form.company.data,
                                     tax_id=form.tax_id.data,
                                     address=form.address.data,

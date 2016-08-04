@@ -89,6 +89,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     campaign = db.Column(db.String(100))  # 活动名称
+    medium_group_id = db.Column(db.Integer, db.ForeignKey('medium_group.id'))  # 代理公司id
+    medium_group = db.relationship('MediumGroup', backref=db.backref('medium_group_order', lazy='dynamic'))
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 投放媒体
     medium = db.relationship(
         'Medium', backref=db.backref('orders', lazy='dynamic'))
@@ -121,7 +123,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_generate = True
     kind = "medium-order"
 
-    def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
+    def __init__(self, campaign, medium, medium_group, order_type=ORDER_TYPE_NORMAL,
                  medium_contract="", medium_money=0, sale_money=0, medium_money2=0,
                  medium_CPM=0, sale_CPM=0, finish_status=1,
                  discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
@@ -130,6 +132,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                  self_medium_rebate='0-0',):
         self.campaign = campaign
         self.medium = medium
+        self.medium_group = medium_group
         self.order_type = order_type
 
         self.medium_contract = medium_contract

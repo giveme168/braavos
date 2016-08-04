@@ -106,7 +106,7 @@
     {% endif %}
     <br/>
     {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_finance() or g.user.is_contract() %}
-    <h3>媒体供应商返点列表
+    <h3>供应商返点列表
         <a class="btn btn-default btn-sm" href="{{url_for('client.medium_group_rebate_create', medium_group_id=medium_group.id)}}">新建</a>
     </h3>
     <div class='tabulation'>
@@ -135,7 +135,39 @@
         </table>
     </div>
     <br>
+    <h3>供应商针对媒体返点列表
+        <a class="btn btn-default btn-sm" href="{{url_for('client.medium_group_media_rebate_create', medium_group_id=medium_group.id)}}">新建</a>
+    </h3>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>针对媒体</th>
+                    <th>时间</th>
+                    <th>返点比例</th>
+                    <th>最后修改人</th>
+                    <th>最后修改时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in medium_group.media_rebates %}
+                <tr>
+                    <td>{{r.media.name}}</td>
+                    <td>{{r.year_cn}}</td>
+                    <td>{{r.rebate}}%</td>
+                    <td>{{r.creator.name}}</td>
+                    <td>{{r.create_time_cn}}</td>
+                    <td><a href="javascript:delete_media_rebate('{{medium_group.id}}', '{{r.id}}')">删除</a>&nbsp;
+                        <a href="{{url_for('client.medium_group_media_rebate_update', medium_group_id=medium_group.id, rid=r.id)}}">修改</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <br>
     {% endif %}
+    <div style="display: none;">
     <h3>媒体列表
         {% if g.user.is_media_leader() or g.user.is_super_leader() %}<a class="btn btn-default btn-sm" href="{{url_for('client.new_medium', medium_group_id=medium_group.id)}}">新建</a>{% endif %}
     </h3>
@@ -180,6 +212,7 @@
         </table>
     </div>
     <br/>
+    </div>
     <h3>媒体供应商资质</h3>
     <div class='tabulation'>
         <table border='1'>
@@ -248,6 +281,12 @@
     {% endif %}
 </div>
 <script>
+    function delete_media_rebate(medium_group_id, rid){
+        if(confirm("确定要清除这条返点记录吗？"))
+        {
+            window.location.href = "/clients/medium_groups/"+medium_group_id+"/media/rebate/"+rid+"/delete"
+        }
+    }
     function delete_rebate(medium_group_id, rid){
         if(confirm("确定要清除这条返点记录吗？"))
         {

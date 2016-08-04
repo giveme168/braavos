@@ -3,7 +3,7 @@ import datetime
 
 from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
 from flask import render_template as tpl
-from models.medium import Medium
+from models.medium import Medium, MediumGroup
 from models.client_order import ClientOrder
 from models.invoice import (MediumRebateInvoice, INVOICE_STATUS_CN, INVOICE_TYPE_CN,
                             INVOICE_STATUS_NORMAL, INVOICE_STATUS_PASS,
@@ -50,8 +50,10 @@ def get_invoice_from(client_order, invoice=None):
         invoice_form.client_order.choices = [
             (invoice.client_order.id, invoice.client_order.client.name)]
         invoice_form.medium.choices = [(medium.id, medium.name) for medium in invoice.client_order.mediums]
+        invoice_form.medium_group.choices = [(medium.id, medium.name) for medium in invoice.client_order.medium_groups]
         if invoice:
             invoice_form.medium.data = invoice.medium.id
+            invoice_form.medium_group.data = invoice.medium_group.id
         invoice_form.company.data = invoice.company
         invoice_form.bank.data = invoice.bank
         invoice_form.bank_id.data = invoice.bank_id
@@ -66,14 +68,7 @@ def get_invoice_from(client_order, invoice=None):
     else:
         invoice_form.client_order.choices = [(client_order.id, client_order.client.name)]
         invoice_form.medium.choices = [(medium.id, medium.name) for medium in client_order.mediums]
-        '''
-        invoice_form.company.data = u'上海致趣广告有限公司'
-        invoice_form.bank.data = u'招商银行股份有限公司上海丽园支行'
-        invoice_form.bank_id.data = u'308290003425'
-        invoice_form.address.data = u'上海市嘉定区嘉定镇沪宜公路3638号3幢1156室'
-        invoice_form.phone.data = u'021-60513176'
-        invoice_form.tax_id.data = u'310114301420674'
-        '''
+        invoice_form.medium_group.choices = [(medium.id, medium.name) for medium in client_order.medium_groups]
         invoice_form.back_time.data = datetime.date.today()
     return invoice_form
 
@@ -85,8 +80,9 @@ def new_invoice(order_id, redirect_epoint='saler_client_order_medium_rebate_invo
         abort(404)
     form = MediumRebateInvoiceForm(request.form)
     form.client_order.choices = [(order.id, order.client.name)]
+    form.medium_group.choices = [(m.id, m.name) for m in order.medium_groups]
     form.medium.choices = [(medium.id, medium.name) for medium in order.mediums]
-    if request.method == 'POST' and form.validate():
+    if request.method == 'POST':
         medium = Medium.get(form.medium.data)
         # if float(form.money.data) > float(order.get_medium_rebate_money(medium) -
         #                                   order.get_medium_rebate_invoice_apply_sum(medium) -
@@ -94,7 +90,8 @@ def new_invoice(order_id, redirect_epoint='saler_client_order_medium_rebate_invo
         #     flash(u"新建发票失败，您申请的发票超过了媒体:%s 返点金额: %s" % (medium.name, order.get_medium_rebate_money(medium)), 'danger')
         #     return redirect(url_for(redirect_epoint, order_id=order_id))
         invoice = MediumRebateInvoice.add(client_order=order,
-                                          medium=Medium.get(form.medium.data),
+                                          medium_group=MediumGroup.get(request.values.get('medium_group')),
+                                          medium=Medium.get(request.values.get('medium')),
                                           company=form.company.data,
                                           tax_id=form.tax_id.data,
                                           address=form.address.data,
@@ -126,7 +123,7 @@ def update_invoice(invoice_id):
     form.client_order.choices = [
         (invoice.client_order.id, invoice.client_order.client.name)]
     form.medium.choices = [(medium.id, medium.name) for medium in invoice.client_order.mediums]
-    if request.method == 'POST' and form.validate():
+    if request.method == 'POST':
         back_time = request.values.get('back_time', datetime.date.today())
         if not form.company.data:
             flash(u"修改发票失败，公司名称不能为空", 'danger')

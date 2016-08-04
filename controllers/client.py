@@ -5,8 +5,8 @@ import operator
 from flask import Blueprint, request, redirect, abort, url_for, g, jsonify
 from flask import render_template as tpl, flash
 
-from models.client import Client, Group, Agent, AgentRebate, AgentMediumRebate, FILE_TYPE_CN
-from models.medium import MediumGroup, Medium, MediumRebate, MediumGroupRebate
+from models.client import Client, Group, Agent, AgentRebate, AgentMediaRebate, FILE_TYPE_CN
+from models.medium import MediumGroup, Medium, MediumRebate, MediumGroupRebate, Media, MediumGroupMediaRebate
 from models.attachment import Attachment
 from models.order import Order
 from forms.client import NewClientForm, NewGroupForm, NewAgentForm
@@ -180,6 +180,61 @@ def group_detail(group_id):
                title=u"代理集团-" + group.name)
 
 
+@client_bp.route('/medias', methods=['GET'])
+def medias():
+    medias = []
+    for k in Media.all():
+        m = {}
+        m['name'] = k.name
+        m['id'] = k.id
+        m['level'] = k.level or 100
+        m['level_cn'] = k.level_cn
+        m['create_time_cn'] = k.create_time_cn
+        m['creator_name'] = k.creator.name
+        medias.append(m)
+    medias = sorted(medias, key=operator.itemgetter('level'), reverse=False)
+    return tpl('/client/medium/media/index.html', medias=medias)
+
+
+@client_bp.route('/new_media', methods=['GET', 'POST'])
+def new_media():
+    if request.method == 'POST':
+        name = request.values.get('name')
+        level = int(request.values.get('level', 100))
+        count_name = Media.query.filter_by(name=name).count()
+        if count_name:
+            flash(u'已存在相同媒体，请重新添加', 'danger')
+            return tpl('/client/medium/media/create.html')
+        media = Media.add(name=name,
+                          level=level,
+                          creator=g.user,
+                          create_time=datetime.datetime.now())
+        return redirect(url_for('client.media_detail', media_id=media.id))
+    return tpl('/client/medium/media/create.html')
+
+
+@client_bp.route('/medias/<media_id>', methods=['GET', 'POST'])
+def media_detail(media_id):
+    if not (g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_media() or g.user.is_finance()):
+        abort(403)
+    media = Media.get(media_id)
+    if not media:
+        abort(404)
+    if request.method == 'POST':
+        name = request.values.get('name', '')
+        level = int(request.values.get('level', 100))
+        count_name = Media.query.filter_by(name=name).count()
+        if count_name and name != media.name:
+            flash(u'已存在相同媒体，请重新添加', 'danger')
+            return tpl('/client/medium/media/create.html')
+        media.level = level
+        media.name = name
+        media.save()
+        flash(u'保存成功!', 'success')
+        return redirect(url_for('client.media_detail', media_id=media.id))
+    return tpl('/client/medium/media/update.html', media=media)
+
+
 @client_bp.route('/medium_groups/<medium_group_id>/new_medium', methods=['GET', 'POST'])
 def new_medium(medium_group_id):
     if not (g.user.is_media_leader() or g.user.is_super_leader()):
@@ -219,6 +274,7 @@ def medium_detail(medium_id):
 @client_bp.route('/medium_groups/<medium_group_id>', methods=['GET', 'POST'])
 def medium_group_detail(medium_group_id):
     medium_group = MediumGroup.get(medium_group_id)
+    '''
     medium_rebate = MediumRebate.all()
     medium_rebate_data = {}
     for k in medium_rebate:
@@ -242,6 +298,7 @@ def medium_group_detail(medium_group_id):
         else:
             dict_medium['rebate_2016'] = u'无'
         medium_data.append(dict_medium)
+    '''
     if request.method == 'POST':
         name = request.values.get('name', "")
         tax_num = request.values.get('tax_num', "")
@@ -270,7 +327,7 @@ def medium_group_detail(medium_group_id):
                                  msg_channel=14)
         flash(u'修改（%s）媒体供应商成功!' % medium_group.name, 'success')
         return redirect(url_for("client.medium_group_detail", medium_group_id=medium_group.id))
-    return tpl('/client/medium/group/info.html', medium_group=medium_group, medium_data=medium_data,
+    return tpl('/client/medium/group/info.html', medium_group=medium_group, medium_data=[],
                FILE_TYPE_CN=FILE_TYPE_CN)
 
 
@@ -315,6 +372,12 @@ def medium_groups():
     medium_groups = MediumGroup.all()
     if info:
         medium_groups = [mg for mg in medium_groups if info in mg.search_info]
+    media_rebate = MediumGroupMediaRebate.all()
+    media_rebate_data = {}
+    for k in media_rebate:
+        if str(k.medium_group.id) + '_' + str(k.media.id) + '_' + str(k.year.year) not in media_rebate_data:
+            media_rebate_data[str(k.medium_group.id) + '_' + str(k.media.id) +
+                              '_' + str(k.year.year)] = str(k.rebate) + '%'
     medium_rebate = MediumRebate.all()
     medium_rebate_data = {}
     for k in medium_rebate:
@@ -363,6 +426,27 @@ def medium_groups():
                 dict_medium['rebate_2016'] = u'无'
             medium_data.append(dict_medium)
         dict_mg['mediums'] = medium_data
+        media_data = []
+        for rebate in medium_group.media_rebates:
+            dict_medium = {}
+            dict_medium['name'] = rebate.media.name
+            if str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2014' in media_rebate_data:
+                dict_medium['rebate_2014'] = media_rebate_data[
+                    str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2014']
+            else:
+                dict_medium['rebate_2014'] = u'无'
+            if str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2015' in media_rebate_data:
+                dict_medium['rebate_2015'] = media_rebate_data[
+                    str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2015']
+            else:
+                dict_medium['rebate_2015'] = u'无'
+            if str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2016' in media_rebate_data:
+                dict_medium['rebate_2016'] = media_rebate_data[
+                    str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2016']
+            else:
+                dict_medium['rebate_2016'] = u'无'
+            media_data.append(dict_medium)
+        dict_mg['medias'] = media_data
         medium_group_data.append(dict_mg)
     medium_group_data = sorted(medium_group_data, key=operator.itemgetter('level'), reverse=False)
     if request.values.get('action') == 'excel':
@@ -405,7 +489,7 @@ def new_medium_group():
     return tpl('/client/medium/group/create.html')
 
 
-@client_bp.route('/medium_groups/mediums', methods=['GET'])
+@client_bp.route('/mediums', methods=['GET'])
 def mediums():
     medium_rebate = MediumRebate.all()
     medium_rebate_data = {}
@@ -449,6 +533,20 @@ def get_mediums_by_group(gid):
 @client_bp.route('/medium_groups/mediums_json', methods=['GET'])
 def mediums_json():
     return jsonify({'ret': True, 'data': [{'name': m.name} for m in Medium.all()]})
+
+
+@client_bp.route('/medium_groups/<gid>/info', methods=['GET'])
+def medium_group_info_json(gid):
+    medium_group = MediumGroup.get(gid)
+    dict_g = {}
+    dict_g['id'] = medium_group.id
+    dict_g['name'] = medium_group.name
+    dict_g['tax_num'] = medium_group.tax_num
+    dict_g['address'] = medium_group.address
+    dict_g['phone_num'] = medium_group.phone_num
+    dict_g['bank'] = medium_group.bank
+    dict_g['bank_num'] = medium_group.bank_num
+    return jsonify({'ret': True, 'data': dict_g})
 
 
 @client_bp.route('/medium_groups/<medium_group_id>/rebate/create', methods=['GET', 'POST'])
@@ -524,6 +622,74 @@ def medium_group_files_delete(medium_group_id, aid):
     return redirect(url_for("client.medium_group_detail", medium_group_id=medium_group_id))
 
 
+@client_bp.route('/medium_groups/<medium_group_id>/media/rebate/<rid>/delete', methods=['GET'])
+def medium_group_media_rebate_delete(medium_group_id, rid):
+    MediumGroupMediaRebate.get(rid).delete()
+    flash(u'删除成功!', 'success')
+    return redirect(url_for('client.medium_group_detail', medium_group_id=medium_group_id))
+
+
+@client_bp.route('/medium_groups/<medium_group_id>/media/rebate/create', methods=['GET', 'POST'])
+def medium_group_media_rebate_create(medium_group_id):
+    medias = Media.all()
+    medium_group = MediumGroup.get(medium_group_id)
+    if request.method == 'POST':
+        media_id = request.values.get('media_id')
+        rebate = float(request.values.get('rebate', 0))
+        year = request.values.get(
+            'year', datetime.datetime.now().strftime('%Y'))
+        now_year = datetime.datetime.strptime(year, '%Y').date()
+        media = Media.get(media_id)
+        try:
+            MediumGroupMediaRebate.add(medium_group=medium_group,
+                                       media=media,
+                                       rebate=rebate,
+                                       year=now_year,
+                                       creator=g.user,
+                                       create_time=datetime.datetime.now())
+            flash(u'添加成功!', 'success')
+            return redirect(url_for('client.medium_group_detail', medium_group_id=medium_group_id))
+        except:
+            flash(u'该执行年返点信息已存在!', 'danger')
+            return tpl('/client/medium/group/media_rebate/create.html', medias=medias, medium_group=medium_group)
+    return tpl('/client/medium/group/media_rebate/create.html', medias=medias, medium_group=medium_group)
+
+
+@client_bp.route('/medium_groups/<medium_group_id>/media/rebate/<rid>/update', methods=['GET', 'POST'])
+def medium_group_media_rebate_update(medium_group_id, rid):
+    medias = Media.all()
+    medium_group = MediumGroup.get(medium_group_id)
+    media_rebate = MediumGroupMediaRebate.get(rid)
+    if request.method == 'POST':
+        media_id = request.values.get('media_id')
+        rebate = float(request.values.get('rebate', 0))
+        year = request.values.get(
+            'year', datetime.datetime.now().strftime('%Y'))
+        now_year = datetime.datetime.strptime(year, '%Y').date()
+        media = Media.get(media_id)
+        try:
+            media_rebate.media = media
+            media_rebate.rebate = rebate
+            media_rebate.year = now_year
+            media_rebate.creator = g.user
+            media_rebate.create_time = datetime.datetime.now()
+            media_rebate.save()
+            flash(u'修改成功!', 'success')
+            return redirect(url_for('client.medium_group_media_rebate_update',
+                                    medium_group_id=medium_group_id,
+                                    rid=rid))
+        except:
+            flash(u'该执行年返点信息已存在!', 'danger')
+            return tpl('/client/medium/group/media_rebate/update.html',
+                       medias=medias,
+                       medium_group=medium_group,
+                       media_rebate=media_rebate)
+    return tpl('/client/medium/group/media_rebate/update.html',
+               medias=medias,
+               medium_group=medium_group,
+               media_rebate=media_rebate)
+
+
 @client_bp.route('/medium_groups/medium/<medium_id>/rebate/create', methods=['GET', 'POST'])
 def medium_rebate_create(medium_id):
     medium = Medium.get(medium_id)
@@ -592,15 +758,15 @@ def groups():
 def agents():
     agents = Agent.all()
     agent_rebate = AgentRebate.all()
-    agent_mediun_rebate = AgentMediumRebate.all()
+    agent_mediun_rebate = AgentMediaRebate.all()
     agent_rebate_data = {}
     for k in agent_rebate:
         if str(k.agent.id) + '_' + str(k.year.year) not in agent_rebate_data:
             agent_rebate_data[str(k.agent.id) + '_' + str(k.year.year)] = str(k.inad_rebate) + '%'
     agent_medium_rebate_data = {}
     for k in agent_mediun_rebate:
-        if str(k.agent.id) + '_' + k.medium_name or '' + '_' + str(k.year.year) not in agent_rebate_data:
-            agent_medium_rebate_data[str(k.agent.id) + '_' + k.medium_name + '_' +
+        if str(k.agent.id) + '_' + k.media.name or '' + '_' + str(k.year.year) not in agent_rebate_data:
+            agent_medium_rebate_data[str(k.agent.id) + '_' + k.media.name + '_' +
                                      str(k.year.year)] = str(k.rebate) + '%'
     info = request.values.get('info', '')
     if info:
@@ -625,7 +791,7 @@ def agents():
         else:
             dict_agent['rebate_2016'] = u'无'
         dict_agent['mediums_rebate'] = []
-        agent_mediums = set([k.medium_name for k in agent_mediun_rebate if k.agent == agent])
+        agent_mediums = set([k.media.name for k in agent_mediun_rebate if k.agent == agent])
         for m in agent_mediums:
             m_dict = {}
             m_dict['name'] = m
@@ -660,7 +826,7 @@ def agent_files_delete(agent_id, aid):
 def agent_rebate(agent_id):
     agent = Agent.get(agent_id)
     rebates = AgentRebate.query.filter_by(agent=agent)
-    medium_rebates = AgentMediumRebate.query.filter_by(agent=agent)
+    medium_rebates = AgentMediaRebate.query.filter_by(agent=agent)
     return tpl('/client/agent/rebate/index.html',
                agent=agent, rebates=rebates,
                medium_rebates=medium_rebates)
@@ -708,27 +874,31 @@ def agent_medium_rebate_create(agent_id):
         year = request.values.get(
             'year', datetime.datetime.now().strftime('%Y'))
         now_year = datetime.datetime.strptime(year, '%Y').date()
-        medium_name = request.values.get('medium_name', '')
-        AgentMediumRebate.add(agent=agent,
-                              medium=Medium.get(1),
-                              medium_name=medium_name,
-                              rebate=rebate,
-                              year=now_year,
-                              creator=g.user,
-                              create_time=datetime.datetime.now())
-        flash(u'添加成功!', 'success')
-        agent.add_comment(g.user, u"新建了媒体返点信息: 所属媒体:%s 执行年:%s 返点信息:%s%%" %
-                          (medium_name, year, str(rebate)), msg_channel=9)
-        return redirect(url_for('client.agent_rebate', agent_id=agent_id))
-    return tpl('/client/agent/rebate/medium/create.html', agent=agent, medium_groups=MediumGroup.all())
+        media_id = request.values.get('media_id', '')
+        media = Media.get(media_id)
+        try:
+            AgentMediaRebate.add(agent=agent,
+                                 media=media,
+                                 rebate=rebate,
+                                 year=now_year,
+                                 creator=g.user,
+                                 create_time=datetime.datetime.now())
+            flash(u'添加成功!', 'success')
+            agent.add_comment(g.user, u"新建了媒体返点信息: 所属媒体:%s 执行年:%s 返点信息:%s%%" %
+                              (media.name, year, str(rebate)), msg_channel=9)
+            return redirect(url_for('client.agent_rebate', agent_id=agent_id))
+        except:
+            flash(u'已存在该媒体的年度返点!', 'danger')
+            return tpl('/client/agent/rebate/medium/create.html', agent=agent, medias=Media.all())
+    return tpl('/client/agent/rebate/medium/create.html', agent=agent, medias=Media.all())
 
 
 @client_bp.route('/agent/<agent_id>/medium_rebate/<rebate_id>/delete', methods=['GET'])
 def agent_medium_rebate_delete(agent_id, rebate_id):
-    rebate = AgentMediumRebate.get(rebate_id)
+    rebate = AgentMediaRebate.get(rebate_id)
     agent = Agent.get(agent_id)
     agent.add_comment(g.user, u"删除了媒体返点信息: 所属媒体:%s 执行年:%s 返点信息:%s%%" %
-                      (rebate.medium.name, rebate.year.year, str(rebate.rebate)), msg_channel=9)
+                      (rebate.media.name, rebate.year.year, str(rebate.rebate)), msg_channel=9)
     rebate.delete()
     return redirect(url_for('client.agent_rebate', agent_id=agent_id))
 
@@ -736,25 +906,27 @@ def agent_medium_rebate_delete(agent_id, rebate_id):
 @client_bp.route('/agent/<agent_id>/medium_rebate/<rebate_id>/update', methods=['GET', 'POST'])
 def agent_medium_rebate_update(agent_id, rebate_id):
     agent = Agent.get(agent_id)
-    rebate = AgentMediumRebate.get(rebate_id)
+    rebate = AgentMediaRebate.get(rebate_id)
     if request.method == 'POST':
         g_rebate = float(request.values.get('rebate', 0))
         year = request.values.get(
             'year', datetime.datetime.now().strftime('%Y'))
         now_year = datetime.datetime.strptime(year, '%Y').date()
-        medium_name = request.values.get('medium_name', '')
-        rebate.medium = Medium.get(1)
-        rebate.medium_name = medium_name
-        rebate.year = now_year
-        rebate.rebate = g_rebate
-        rebate.creator = g.user
-        rebate.create_time = datetime.datetime.now()
-        rebate.save()
-        flash(u'修改成功!', 'success')
-        agent.add_comment(g.user, u"修改了媒体返点信息: 所属媒体:%s 执行年:%s 返点信息:%s%%" %
-                          (medium_name, year, str(rebate.rebate)), msg_channel=9)
-        return redirect(url_for('client.agent_rebate', agent_id=agent_id))
-    return tpl('/client/agent/rebate/medium/update.html', agent=agent, rebate=rebate, medium_groups=MediumGroup.all())
+        try:
+            rebate.media = Media.get(request.values.get('media_id'))
+            rebate.year = now_year
+            rebate.rebate = g_rebate
+            rebate.creator = g.user
+            rebate.create_time = datetime.datetime.now()
+            rebate.save()
+            flash(u'修改成功!', 'success')
+            agent.add_comment(g.user, u"修改了媒体返点信息: 所属媒体:%s 执行年:%s 返点信息:%s%%" %
+                              (rebate.media.name, year, str(rebate.rebate)), msg_channel=9)
+            return redirect(url_for('client.agent_rebate', agent_id=agent_id))
+        except:
+            flash(u'已存在该媒体的年度返点!', 'danger')
+            return tpl('/client/agent/rebate/medium/update.html', agent=agent, rebate=rebate, medias=Media.all())
+    return tpl('/client/agent/rebate/medium/update.html', agent=agent, rebate=rebate, medias=Media.all())
 
 
 @client_bp.route('/agent/<agent_id>/rebate/create', methods=['GET', 'POST'])
