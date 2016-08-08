@@ -83,7 +83,7 @@ def write_client_excel(orders):
                         th, 18, th + len(orders[k].medium_orders) - 1, 18, orders[k].sale_type_cn, align_left)
                     for i in range(len(mediums)):
                         worksheet.write(
-                            th, 19, mediums[i].medium.name, align_left)
+                            th, 19, mediums[i].media.name, align_left)
                         worksheet.write(
                             th, 20, mediums[i].finish_status_cn, align_left)
                         worksheet.write(
@@ -170,7 +170,7 @@ def write_client_excel(orders):
                         worksheet.write(
                             th, 18, orders[k].sale_type_cn, align_left)
                         worksheet.write(
-                            th, 19, mediums[i].medium.name, align_left)
+                            th, 19, mediums[i].media.name, align_left)
                         worksheet.write(
                             th, 20, mediums[i].finish_status_cn, align_left)
                         worksheet.write(
@@ -234,7 +234,7 @@ def write_client_excel(orders):
                 worksheet.write(th, 18, orders[k].sale_type_cn, align_left)
                 if orders[k].medium_orders:
                     worksheet.write(
-                        th, 19, orders[k].medium_orders[0].medium.name, align_left)
+                        th, 19, orders[k].medium_orders[0].media.name, align_left)
                     worksheet.write(
                         th, 20, orders[k].medium_orders[0].finish_status_cn, align_left)
                     worksheet.write(
@@ -393,7 +393,7 @@ def write_searchAd_client_excel(orders):
             worksheet.merge_range(
                 th, 13, th + len(orders[k].medium_orders) - 1, 13, orders[k].sale_type_cn, align_left)
             for i in range(len(mediums)):
-                worksheet.write(th, 14, mediums[i].medium.name, align_left)
+                worksheet.write(th, 14, mediums[i].media.name, align_left)
                 worksheet.write(th, 15, mediums[i].medium_contract, align_left)
                 worksheet.write(th, 16, mediums[i].sale_money, align_left)
                 worksheet.write(th, 17, mediums[i].medium_money2, align_left)
@@ -422,7 +422,7 @@ def write_searchAd_client_excel(orders):
             worksheet.write(th, 13, orders[k].sale_type_cn, align_left)
             if orders[k].medium_orders:
                 worksheet.write(
-                    th, 14, orders[k].medium_orders[0].medium.name, align_left)
+                    th, 14, orders[k].medium_orders[0].media.name, align_left)
                 worksheet.write(
                     th, 15, orders[k].medium_orders[0].medium_contract, align_left)
                 worksheet.write(

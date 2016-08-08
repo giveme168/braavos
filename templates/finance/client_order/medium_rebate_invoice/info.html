@@ -90,8 +90,8 @@
                   </div>
                   <div class="input-group-menu">
                     <div class="name">投放媒体：</div>
-                    <select class="surname" style="width:300px;" name="medium" id="medium_0">
-                        {% for g in order.mediums %}
+                    <select class="surname" style="width:300px;" name="media" id="media_0">
+                        {% for g in order.medias %}
                         <option value="{{g.id}}">{{g.name}}</option>
                         {% endfor %}
                     </select>
@@ -148,24 +148,6 @@
     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
-  function set_mediums(medium_group_id, html_mid, mid){
-    var inner_html = ""
-    var medium_obj = []
-    {% for o in order.medium_orders %}
-    medium_obj.push({'medium_group_id': parseInt('{{o.medium_group.id}}'), 'medium_name': '{{o.medium.name}}', 'medium_id': parseInt('{{o.medium.id}}')})
-    {% endfor %}
-    for (var i=0; i<medium_obj.length; i++){
-      if (medium_obj[i]['medium_group_id'] == medium_group_id){
-        inner_html += "<option value='"+medium_obj[i]['medium_id']+"'>"+medium_obj[i]['medium_name']+"</option>";
-      }
-    }
-    $('#medium_'+html_mid).empty();   //清空resText里面的所有内容
-    $('#medium_'+html_mid).html(inner_html); 
-    if (mid != 0){
-      $('#medium_'+html_mid).val(mid); 
-    }
-    $('#medium_'+html_mid).trigger("chosen:updated");
-  }
   function check_all(e){
     $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));
     $(e).parent().find(".invoice-id").trigger("change");
@@ -212,10 +194,6 @@
             e.preventDefault();
          }
       }
-    });
-    $('#medium_group_0').change(function(){
-        var mid = this.id.split('_')[2]
-        set_mediums(this.value, mid, 0)
     });
     $('#create_time').val(new Date().Format("yyyy-MM-dd"))
     $('.datetimepicker').datetimepicker({
@@ -340,7 +318,7 @@
           </tr>
           <tr>
             <th>公司名称</th>
-            <td><a href="{{url_for('client.medium_detail', medium_id=invoice.medium_id)}}" target="_blank">{{invoice.company}}</a></td>
+            <td><a href="{{url_for('client.medium_group_detail', medium_group_id=invoice.medium_group_id)}}" target="_blank">{{invoice.company}}</a></td>
           </tr>
           <tr>
             <th>税号</th>

@@ -98,8 +98,8 @@
         </div>
         <div class="input-group-menu">
           <div class="name">投放媒体：</div>
-          <select class="surname" style="width:300px;" name="medium" id="medium_{{invoice.id or 0}}">
-              <option value="{{invoice.medium.id}}">{{invoice.medium.name}}</option>
+          <select class="surname" style="width:300px;" name="media" id="media_{{invoice.id or 0}}">
+              <option value="{{invoice.media.id}}">{{invoice.media.name}}</option>
           </select>
         </div>
         {{ form_field(form.company) }}
@@ -144,12 +144,12 @@
                             <th>银行账号</th>
                           </tr>
                           <tr>
-                            <td>{{invoice.medium.medium_group.name}}</td>
-                            <td>{{invoice.medium.medium_group.tax_num}}</td>
-                            <td>{{invoice.medium.medium_group.address}}</td>
-                            <td>{{invoice.medium.medium_group.phone_num}}</td>
-                            <td>{{invoice.medium.medium_group.bank}}</td>
-                            <td>{{invoice.medium.medium_group.bank_num}}</td>
+                            <td>{{invoice.medium_group.name}}</td>
+                            <td>{{invoice.medium_group.tax_num}}</td>
+                            <td>{{invoice.medium_group.address}}</td>
+                            <td>{{invoice.medium_group.phone_num}}</td>
+                            <td>{{invoice.medium_group.bank}}</td>
+                            <td>{{invoice.medium_group.bank_num}}</td>
                           </tr>
                         </table>
                     </div>

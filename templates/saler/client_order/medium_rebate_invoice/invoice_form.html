@@ -1,29 +1,15 @@
 {% from '/form_v1_0_0.html' import form_field %}
 {% macro invoice_form(order, form, INVOICE_TYPE_CN, invoice=None) -%}
 {% if invoice %}
-    {% if order.can_admin(g.user) and invoice.invoice_status in [1, 2, 4] %}
+    {% if order.can_admin(g.user) and invoice.invoice_status in [1, 4] %}
     <h4>
         <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
         {{ invoice.company }}-{{ invoice.money }}元
     </h4>
     <form class="input-row-box" method="POST" action="{{url_for('saler_client_order_medium_rebate_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
         {{ form.csrf_token }}
-        <div class="input-group-menu">
-          <div class="name">媒体供应商：</div>
-          <select class="surname" style="width:300px;" name="medium_group" id="medium_group_{{invoice.id}}">
-              {% for g in order.medium_groups %}
-              <option value="{{g.id}}">{{g.name}}</option>
-              {% endfor %}
-          </select>
-        </div>
-        <div class="input-group-menu">
-          <div class="name">投放媒体：</div>
-          <select class="surname" style="width:300px;" name="medium" id="medium_{{invoice.id}}">
-              {% for g in order.mediums %}
-              <option value="{{g.id}}">{{g.name}}</option>
-              {% endfor %}
-          </select>
-        </div>
+        {{ form_field(form.medium_group) }}
+        {{ form_field(form.media) }}
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}
@@ -63,7 +49,7 @@
               </tr>
               <tr>
                   <th>媒体</th>
-                  <td>{{invoice.medium.name}}</td>
+                  <td>{{invoice.media.name}}</td>
               </tr>
                 <th>税号</th>
                 <td>{{invoice.tax_id}}</td>
@@ -112,22 +98,8 @@
     <div class="well">
         <form class="input-row-box" method="POST" action="{{url_for('saler_client_order_medium_rebate_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
         {{ form.csrf_token}}
-        <div class="input-group-menu">
-          <div class="name">媒体供应商：</div>
-          <select class="surname" style="width:300px;" name="medium_group" id="medium_group_{{invoice.id or 0}}">
-              {% for g in order.medium_groups %}
-              <option value="{{g.id}}">{{g.name}}</option>
-              {% endfor %}
-          </select>
-        </div>
-        <div class="input-group-menu">
-          <div class="name">投放媒体：</div>
-          <select class="surname" style="width:300px;" name="medium" id="medium_{{invoice.id or 0}}">
-              {% for g in order.mediums %}
-              <option value="{{g.id}}">{{g.name}}</option>
-              {% endfor %}
-          </select>
-        </div>
+        {{ form_field(form.medium_group) }}
+        {{ form_field(form.media) }}
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}
@@ -148,39 +120,6 @@
     </div>
 {% endif %}
 <script>
-    function set_mediums(medium_group_id, html_mid, mid){
-      var inner_html = ""
-      var medium_obj = []
-      {% for o in order.medium_orders %}
-      medium_obj.push({'medium_group_id': parseInt('{{o.medium_group.id}}'), 'medium_name': '{{o.medium.name}}', 'medium_id': parseInt('{{o.medium.id}}')})
-      {% endfor %}
-      for (var i=0; i<medium_obj.length; i++){
-        if (medium_obj[i]['medium_group_id'] == medium_group_id){
-          inner_html += "<option value='"+medium_obj[i]['medium_id']+"'>"+medium_obj[i]['medium_name']+"</option>";
-        }
-      }
-      $('#medium_'+html_mid).empty();   //清空resText里面的所有内容
-      $('#medium_'+html_mid).html(inner_html); 
-      if (mid != 0){
-        $('#medium_'+html_mid).val(mid); 
-      }
-      $('#medium_'+html_mid).trigger("chosen:updated");
-    }
-    function checkform(obj){
-      if (obj.back_time.value == ""){
-        alert('请选择回款时间')
-        return false
-      }
-      var now_date = new Date()
-      now_date.setMonth(now_date.getMonth() + 1)
-      var back_time = new Date(obj.back_time.value)
-      if (back_time > now_date){
-        alert('申请发票的回款时间超过了一个月')
-        return false
-      }else{
-        return true
-      }
-    }
     $(function(){
         $('.datetimepicker').datetimepicker({
             autoclose: true,
@@ -190,16 +129,11 @@
           });
         $('#new_medium').trigger("change");
     })
-    $('#medium_group_{{invoice.id or 0}}').change(function(){
-        var mid = this.id.split('_')[2]
-        set_mediums(this.value, mid, 0)
-    })
+    
     {% if invoice %}
       $('#medium_group_{{invoice.id}}').val('{{invoice.medium_group_id}}');
       $('#medium_group_{{invoice.id}}').trigger("chosen:updated");
-      set_mediums(parseInt('{{invoice.medium_group_id}}'), parseInt('{{invoice.id}}'), parseInt('{{invoice.medium_id}}'))
     {% else %}
-      set_mediums(parseInt('{{order.medium_orders[0].medium_group_id}}'), 0, 0)
     {% endif %}
 </script>
 {%- endmacro %}

@@ -239,7 +239,8 @@ class MediumInvoice(db.Model, BaseModelMixin):
     medium_group = db.relationship('MediumGroup', backref=db.backref('mediumgroupinvoices', lazy="dynamic"))
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
     medium = db.relationship('Medium', backref=db.backref('mediuminvoices', lazy="dynamic"))
-
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    media = db.relationship('Media', backref=db.backref('mediainvoices', lazy="dynamic"))
     company = db.Column(db.String(100))  # 公司名称
     tax_id = db.Column(db.String(100))  # 税号
     address = db.Column(db.String(120))  # 公司地址
@@ -263,13 +264,14 @@ class MediumInvoice(db.Model, BaseModelMixin):
     bool_invoice = db.Column(db.Boolean)  # 是否开具发票
     __mapper_args__ = {'order_by': create_time.desc()}
 
-    def __init__(self, client_order, medium, medium_group, company="", tax_id="",
+    def __init__(self, client_order, media, medium_group, company="", tax_id="",
                  address="", phone="", bank_id="", bank="",
                  detail="", invoice_num="", money=0.0, pay_money=0.0, invoice_type=INVOICE_TYPE_NORMAL,
                  invoice_status=MEDIUM_INVOICE_STATUS_NORMAL, creator=None, create_time=None,
                  add_time=None, pay_time=None, bool_pay=False, bool_invoice=True):
         self.client_order = client_order
-        self.medium = medium
+        self.media = media
+        self.medium_id = 1
         self.medium_group = medium_group
         self.company = company
         self.tax_id = tax_id

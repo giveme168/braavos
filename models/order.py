@@ -583,7 +583,20 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return self.medium.rebate_by_year(self.medium_start.year)
 
     def medium_rebate_by_year(self, date):
-        return self.medium.rebate_by_year(date.year)
+        rebate = 0
+        from models.medium import MediumGroupRebate, MediumGroupMediaRebate
+        date_d = datetime.datetime.strptime(str(self.start_date.year), '%Y').date()
+        medium_group_media_rebate = MediumGroupMediaRebate.query.filter_by(medium_group=self.medium_group,
+                                                                           year=date_d, media=self.media).first()
+        if medium_group_media_rebate:
+            rebate = medium_group_media_rebate.rebate
+        else:
+            medium_group_rebate = MediumGroupRebate.query.filter_by(medium_group=self.medium_group, year=date_d).first()
+            if medium_group_rebate:
+                rebate = medium_group_rebate.rebate
+            else:
+                rebate == 0
+        return rebate
 
     def rebate_medium_by_month(self, year, month):
         rebate = self.medium.rebate_by_year(year)
@@ -653,7 +666,19 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             return 0
 
     def get_medium_rebate_money(self):
-        rebate = self.medium.rebate_by_year(year=self.start_date.year)
+        rebate = 0
+        from models.medium import MediumGroupRebate, MediumGroupMediaRebate
+        date_d = datetime.datetime.strptime(str(self.start_date.year), '%Y').date()
+        medium_group_media_rebate = MediumGroupMediaRebate.query.filter_by(medium_group=self.medium_group,
+                                                                           year=date_d, media=self.media).first()
+        if medium_group_media_rebate:
+            rebate = medium_group_media_rebate.rebate
+        else:
+            medium_group_rebate = MediumGroupRebate.query.filter_by(medium_group=self.medium_group, year=date_d).first()
+            if medium_group_rebate:
+                rebate = medium_group_rebate.rebate
+            else:
+                rebate == 0
         return round(1.0 * rebate * self.medium_money2 / 100, 2)
 
     @property

@@ -11,7 +11,7 @@ from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_BOOL_
                             MEDIUM_INVOICE_STATUS_F_AGREE)
 
 from models.user import User
-from models.medium import Medium, MediumGroup
+from models.medium import MediumGroup, Media
 from forms.invoice import MediumInvoiceForm
 from libs.email_signals import medium_invoice_apply_signal
 
@@ -29,7 +29,7 @@ def index(order_id):
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     new_invoice_form = MediumInvoiceForm()
     new_invoice_form.client_order.choices = [(order.id, order.client.name)]
-    new_invoice_form.medium.choices = [(k.id, k.name)for k in order.mediums]
+    new_invoice_form.media.choices = [(k.id, k.name)for k in order.medias]
     new_invoice_form.add_time.data = datetime.date.today()
     return tpl('/saler/client_order/medium/index.html', order=order, reminder_emails=reminder_emails,
                new_invoice_form=new_invoice_form, invoices=invoices,
@@ -42,16 +42,15 @@ def new_invoice(order_id, redirect_endpoint='saler_client_order_medium_invoice.i
     if not order:
         abort(404)
     form = MediumInvoiceForm(request.form)
-    form.client_order.choices = [(order.id, order.client.name)]
-    form.medium.choices = [(order.id, order.client.name)
-                           for k in order.mediums]
+    form.medium_group.choices = [(k.id, k.name) for k in order.medium_groups]
+    form.media.choices = [(k.id, k.name) for k in order.medias]
     form.bool_invoice.choices = MEDIUM_INVOICE_BOOL_INVOICE_CN.items()
     # if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
     #     flash(u'新建打款发票失败，发票超过媒体总金额!', 'danger')
     #     return redirect(url_for(redirect_endpoint, order_id=order_id))
     if request.method == 'POST':
         invoice = MediumInvoice.add(client_order=order,
-                                    medium=Medium.get(request.values.get('medium')),
+                                    media=Media.get(request.values.get('media')),
                                     medium_group=MediumGroup.get(request.values.get('medium_group')),
                                     company=form.company.data,
                                     tax_id=form.tax_id.data,
@@ -150,10 +149,11 @@ def update_invoice_pay(invoice_id, invoice_pay_id):
 
 def get_invoice_from(invoice):
     invoice_form = MediumInvoiceForm()
-    invoice_form.client_order.choices = [
-        (invoice.client_order.id, invoice.client_order.client.name)]
+    print invoice.medium_group
+    invoice_form.medium_group.choices = [
+        (invoice.medium_group.id, invoice.medium_group.name)]
 
-    invoice_form.medium.choices = [(invoice.medium.id, invoice.medium.name)]
+    invoice_form.media.choices = [(invoice.media.id, invoice.media.name)]
     invoice_form.company.data = invoice.company
     invoice_form.bank.data = invoice.bank
     invoice_form.bank_id.data = invoice.bank_id
@@ -180,7 +180,7 @@ def update_invoice(invoice_id, redirect_endpoint='saler_client_order_medium_invo
     form = MediumInvoiceForm(request.form)
     form.client_order.choices = [
         (invoice.client_order.id, invoice.client_order.name)]
-    form.medium.choices = [(invoice.medium.id, invoice.medium.name)]
+    form.media.choices = [(invoice.media.id, invoice.media.name)]
     form.bool_invoice.bool_invoice = MEDIUM_INVOICE_BOOL_INVOICE_CN.items()
     # order = invoice.client_order
     # if order.mediums_money2 < order.mediums_invoice_sum + float(form.money.data):
@@ -342,5 +342,5 @@ def apply_invoice(invoice_id):
 
 @saler_client_order_medium_invoice_bp.route('/<medium_id>/tax_info', methods=['POST'])
 def tax_info(medium_id):
-    medium = Medium.get(medium_id)
+    medium = Media.get(medium_id)
     return jsonify(medium.tax_info)

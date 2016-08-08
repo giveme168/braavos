@@ -76,7 +76,7 @@
                     <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
                     <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{order.contract}}</a></td>
                     <td>{{order.mediums_money2}} 元</td>
-                    <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
+                    <td>{{order.medias | map(attribute='name') | join(', ')}}</td>
                     {% if order.apply_num %}
                     <td style="color:red;">{{order.apply_num}}</td>
                     {% else %}
