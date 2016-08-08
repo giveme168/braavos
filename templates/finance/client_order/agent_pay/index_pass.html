@@ -62,7 +62,7 @@
                     <td>{{order.agent_invoice.client_order.agents_invoice_sum}} 元</td>
                     <td>{{order.agent_invoice.client_order.agents_invoice_pass_sum}} 元</td>
                     <td>{{order.agent_invoice.client_order.agents_invoice_apply_sum}} 元</td>
-                    <td>{{order.agent_invoice.client_order.mediums | map(attribute='name') | join(', ')}}</td>
+                    <td>{{order.agent_invoice.client_order.medias | map(attribute='name') | join(', ')}}</td>
                     {% if order.apply_num %}
                     <td style="color:red;">{{order.apply_num}}</td>
                     {% else %}

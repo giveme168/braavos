@@ -388,6 +388,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return [x.medium for x in self.medium_orders]
 
     @property
+    def medias(self):
+        return [x.media for x in self.medium_orders]
+
+    @property
     def medium_groups(self):
         return [x.medium_group for x in self.medium_orders]
 
@@ -445,7 +449,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def mediums_rebate_money(self):
-        rebate_money = 0
+        rebate_money = 0.0
         for medium_order in self.medium_orders:
             try:
                 self_medium_rebate_data = medium_order.self_medium_rebate
@@ -454,10 +458,10 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             except:
                 self_medium_rebate = 0
                 self_medium_rebate_value = 0
-        if int(self_medium_rebate):
-            rebate_money += self_medium_rebate_value
-        else:
-            rebate_money += medium_order.get_medium_rebate_money()
+            if int(self_medium_rebate):
+                rebate_money += self_medium_rebate_value
+            else:
+                rebate_money += medium_order.get_medium_rebate_money()
         return rebate_money
 
     def get_medium_rebate_money(self, medium):

@@ -9,7 +9,7 @@ from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_STATU
                             MediumInvoicePay)
 from forms.invoice import MediumInvoiceForm
 from models.user import User
-from models.medium import Medium
+from models.medium import Media
 from libs.email_signals import medium_invoice_apply_signal
 from libs.paginator import Paginator
 from controllers.saler.client_order.medium_invoice import (new_invoice as _new_invoice,
@@ -25,7 +25,7 @@ ORDER_PAGE_NUM = 20
 def apply():
     if not g.user.is_finance():
         abort(404)
-    medium_id = int(request.args.get('medium_id', 0))
+    media_id = int(request.args.get('media_id', 0))
     search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
@@ -37,8 +37,8 @@ def apply():
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.medium_invoice.client_order.search_invoice_info.lower()]
-    if medium_id:
-        orders = [o for o in orders if medium_id == o.medium_invoice.medium_id]
+    if media_id:
+        orders = [o for o in orders if media_id == o.medium_invoice.media_id]
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     paginator = Paginator(orders, ORDER_PAGE_NUM)
@@ -56,9 +56,9 @@ def apply():
                locations=select_locations, location_id=location_id,
                now_date=datetime.date.today(),
                search_info=search_info, page=page,
-               mediums=[(k.id, k.name) for k in Medium.all()], medium_id=medium_id,
-               params='&searchinfo=%s&selected_location=%s&medium_id=%s' %
-                      (search_info, location_id, str(medium_id)))
+               medias=[(k.id, k.name) for k in Media.all()], media_id=media_id,
+               params='&searchinfo=%s&selected_location=%s&media_id=%s' %
+                      (search_info, location_id, str(media_id)))
 
 
 @finance_client_order_medium_pay_bp.route('/', methods=['GET'])
@@ -130,8 +130,8 @@ def info(order_id):
     invoices = MediumInvoice.query.filter_by(client_order=order)
     reminder_emails = [(u.id, u.name) for u in User.all_active()]
     new_invoice_form = MediumInvoiceForm()
-    new_invoice_form.client_order.choices = [(order.id, order.client.name)]
-    new_invoice_form.medium.choices = [(k.id, k.name)for k in order.mediums]
+    new_invoice_form.medium_group.choices = [(k.id, k.name)for k in order.medium_groups]
+    new_invoice_form.media.choices = [(k.id, k.name)for k in order.medias]
     new_invoice_form.add_time.data = datetime.date.today()
     return tpl('/finance/client_order/medium_pay/info.html', order=order, invoices=invoices,
                new_invoice_form=new_invoice_form, reminder_emails=reminder_emails,

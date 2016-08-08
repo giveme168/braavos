@@ -33,7 +33,7 @@ class InvoiceForm(Form):
 class MediumRebateInvoiceForm(Form):
     client_order = SelectField(u'客户', coerce=int, default=0)
     medium_group = SelectField(u'媒体供应商', coerce=int, default=0)
-    medium = SelectField(u'所属媒体', coerce=int, default=0)
+    media = SelectField(u'媒体', coerce=int, default=0)
     company = TextField(u'公司名称', [validators.Required(u"请输入公司名称.")])
     tax_id = TextField(u'税号', [validators.Required(u"请输入税号.")])
     address = TextField(u'公司地址', [validators.Required(u"请输入公司地址.")])
@@ -56,7 +56,8 @@ class MediumRebateInvoiceForm(Form):
 
 class MediumInvoiceForm(Form):
     client_order = SelectField(u'客户', coerce=int, default=0)
-    medium = SelectField(u'媒体', coerce=int, default=0)
+    medium_group = SelectField(u'媒体供应商', coerce=int, default=0)
+    media = SelectField(u'媒体', coerce=int, default=0)
     company = TextField(u'公司名称', [validators.Required(u"请输入公司名称.")])
     tax_id = TextField(u'税号', [validators.Required(u"请输入税号.")])
     address = TextField(u'公司地址', [validators.Required(u"请输入公司地址.")])
