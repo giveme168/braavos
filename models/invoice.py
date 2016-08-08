@@ -115,6 +115,9 @@ class MediumRebateInvoice(db.Model, BaseModelMixin):
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
     medium = db.relationship(
         'Medium', backref=db.backref('mediumrebateinvoices', lazy='dynamic'))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))
+    media = db.relationship(
+        'Media', backref=db.backref('mediarebateinvoices', lazy='dynamic'))
 
     # common part of *Invoice classes
     ###########################################################################
@@ -138,13 +141,14 @@ class MediumRebateInvoice(db.Model, BaseModelMixin):
     back_time = db.Column(db.DateTime)
     __mapper_args__ = {'order_by': create_time.desc()}
 
-    def __init__(self, client_order, medium, medium_group, company="", tax_id="", address="",
+    def __init__(self, client_order, media, medium_group, company="", tax_id="", address="",
                  phone="", bank_id="", bank="", detail="", invoice_num="",
                  money=0.0, invoice_type=INVOICE_STATUS_NORMAL,
                  invoice_status=INVOICE_STATUS_NORMAL, creator=None,
                  create_time=None, back_time=None):
         self.client_order = client_order
-        self.medium = medium
+        self.medium_id = 1
+        self.media = media
         self.medium_group = medium_group
         self.company = company
         self.tax_id = tax_id

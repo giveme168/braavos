@@ -354,11 +354,17 @@
         var sale_money_dom = $("input[name='sale_money']");
         var medium_start_dom = $("input[name='medium_start']");
         var medium_end_dom = $("input[name='medium_end']");
-
+        var medium_group_dom = $("select[name='medium_group']");
         for (var i=0; i<sale_money_dom.length-1; i++){
           var medium_start = new Date(medium_start_dom[i].value);
           var medium_end = new Date(medium_end_dom[i].value);
+          if (parseInt(medium_group_dom[i].value) == 1 && actionVal == '2'){
+            alert('请媒介分配媒体供应商')
+            e.preventDefault();
+            return false
+          }
           if (medium_start < client_start){
+           
             e.preventDefault();
             alert('媒体合同的执行时间必须在客户合同执行时间内，请确认后进行审批')
           }

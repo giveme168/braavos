@@ -3,7 +3,7 @@
 {% macro order_client_form(form, client_order, replace_saler_form) -%}
   {% if g.user.is_super_leader() or g.user.is_contract() %}
     {{ order_client_edited_form(form, mediums=None, replace_saler_form=replace_saler_form, client_order=client_order) }}
-  {% elif client_order.can_admin(g.user) and client_order.contract_status in [0, 1, 3, 6] %}
+  {% elif client_order.can_admin(g.user) and client_order.contract_status in [0, 3, 6] %}
     {{ order_client_edited_form(form, mediums=None, replace_saler_form=None, client_order=client_order) }}
   {% else %}
     {{ order_client_table(client_order) }}
@@ -207,20 +207,19 @@ $(document).ready(function(){
     $(".add-new-medium").click(function(e){
       e.preventDefault();
       var mid = mids.pop()
-      var medium_tpl = '<div class="input-row-box" id="medium_order_div_'+mid+'"><div class="input-group-menu"><div class="name">媒体供应商 : </div><select class="surname" style="width:300px;" name="medium_group" id="medium_group_'+mid+'">'
-      {% for m in mediums %}
-        medium_tpl += '<option value="{{m.id}}">{{m.name}}</option>'
+      var medium_tpl = '<div class="input-group-menu"><div class="name">投放媒体 : </div><select class="surname" style="width:300px;" name="media" id="media_'+mid+'">'
+      {% for k in mediums %}
+        medium_tpl += '<option value="{{k.id}}">{{k.name}}</option>'
       {% endfor %}
-      medium_tpl += '</select></div><div class="input-group-menu"><div class="name">投放媒体 : </div><select class="surname" style="width:300px;" name="medium" id="medium_'+mid+'"></select></div><div class="input-group-menu" ><div class="name">售卖金额(元) : </div><input class="surname" style="width:300px;" name="medium-money" type="text"  placeholder="售卖金额(元)" value="0" /></div><div class="state" style="margin-left: 600px;"><button class="medium-remove" id="medium-remove-'+mid+'"> 取消 </button> </div><hr/></div>'
+      medium_tpl += '</select></div><div class="input-group-menu" ><div class="name">售卖金额(元) : </div><input class="surname" style="width:300px;" name="medium-money" type="text"  placeholder="售卖金额(元)" value="0" /></div><div class="state" style="margin-left: 600px;"><button class="medium-remove" id="medium-remove-'+mid+'"> 取消 </button> </div><hr/></div>'
+      
       $(this).parents("form").find("#mediums").append(medium_tpl);
-      set_mediums('{{mediums[0].id}}', mid)
+      $('#media_'+mid).chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+      $('#media_'+mid).trigger("chosen:updated");
       $("#medium-remove-"+mid).click(function(e){
         e.preventDefault();
         $('#medium_order_div_'+mid).remove();
       });
-      $('#medium_group_'+mid).change(function(){
-          set_mediums(this.value, mid)
-       })
     });
     {% endif %}
     $("#client_end").change(function(e){

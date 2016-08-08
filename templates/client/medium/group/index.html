@@ -44,13 +44,13 @@
             <tbody>
                 {% for mg in mediums %}
                 <tr>
-                    <td rowspan="{{mg.mediums|length + 1}}"><a href="{{url_for('client.medium_group_detail', medium_group_id=mg.id)}}">{{mg.name}}</a></td>
-                    <td rowspan="{{mg.mediums|length + 1}}">{{mg.level_cn}}</td>
-                    <td rowspan="{{mg.mediums|length + 1}}">{{mg.rebate_2014}}</td>
-                    <td rowspan="{{mg.mediums|length + 1}}">{{mg.rebate_2015}}</td>
-                    <td rowspan="{{mg.mediums|length + 1}}">{{mg.rebate_2016}}</td>
+                    <td rowspan="{{mg.medias|length + 1}}"><a href="{{url_for('client.medium_group_detail', medium_group_id=mg.id)}}">{{mg.name}}</a></td>
+                    <td rowspan="{{mg.medias|length + 1}}">{{mg.level_cn}}</td>
+                    <td rowspan="{{mg.medias|length + 1}}">{{mg.rebate_2014}}</td>
+                    <td rowspan="{{mg.medias|length + 1}}">{{mg.rebate_2015}}</td>
+                    <td rowspan="{{mg.medias|length + 1}}">{{mg.rebate_2016}}</td>
                 </tr>
-                    {% for m in mg.mediums %}
+                    {% for m in mg.medias %}
                         <tr>
                             <td>{{m.name}}</td>
                             <td>{{m.rebate_2014}}</td>

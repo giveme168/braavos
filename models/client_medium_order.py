@@ -8,6 +8,7 @@ from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from models.invoice import ClientMediumInvoice
+from models.medium import Medium
 from consts import DATE_FORMAT
 
 
@@ -176,6 +177,9 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
     medium = db.relationship(
         'Medium', backref=db.backref('client_medium', lazy='dynamic'))
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 媒体
+    media = db.relationship(
+        'Media', backref=db.backref('client_media', lazy='dynamic'))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))  # 媒体
     medium_money = db.Column(db.Float())  # 媒体合同金额
     contract_generate = True
     media_apply = True
@@ -191,7 +195,7 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
                  operaters=None, designers=None, planers=None,
                  resource_type=RESOURCE_TYPE_AD, sale_type=SALE_TYPE_AGENT,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW,
-                 medium=None, medium_money=0):
+                 media=None, medium_money=0):
         self.agent = agent
         self.client = client
         self.campaign = campaign
@@ -228,7 +232,8 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
         self.back_money_status = back_money_status
         self.self_agent_rebate = self_agent_rebate
         self.medium_group = medium_group
-        self.medium = medium
+        self.medium = Medium.get(1)
+        self.media = media
         self.medium_money = medium_money or 0
 
     @property
