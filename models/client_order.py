@@ -157,6 +157,7 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
     agent = db.Column(db.String(100))     # 代理名称
     medium_group_id = db.Column(db.Integer)  # 代理公司id
     medium_id = db.Column(db.Integer)
+    media_id = db.Column(db.Integer)
     complete_percent = db.Column(db.Integer)
     money = db.Column(db.Float())         # 客户合同金额
     client = db.Column(db.String(100))    # 客户名称
@@ -175,7 +176,7 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
     create_time = db.Column(db.DateTime)
     order_id = db.Column(db.String(10))
 
-    def __init__(self, agent, client, campaign, medium_id,
+    def __init__(self, agent, client, campaign, media_id,
                  medium_group_id, complete_percent=1, money=0.0,
                  client_start=None, client_end=None,
                  direct_sales=None, agent_sales=None,
@@ -186,7 +187,8 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
         self.client = client
         self.campaign = campaign
         self.medium_group_id = medium_group_id
-        self.medium_id = medium_id
+        self.media_id = media_id
+        self.medium_id = 0
         self.complete_percent = complete_percent
         self.money = money
         self.client_start = client_start or datetime.date.today()
@@ -244,15 +246,15 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
         return COMPLETE_PERCENT_CN[self.complete_percent]
 
     @property
-    def medium_cn(self):
-        from medium import Medium
-        if self.medium_id == 0:
+    def media_cn(self):
+        from medium import Media
+        if self.media_id == 0:
             return u'豆瓣'
-        return Medium.get(self.medium_id).name
+        return Media.get(self.media_id).name
 
     @property
     def search_info(self):
-        return self.agent + self.client + self.campaign + self.medium_cn
+        return self.agent + self.client + self.campaign + self.media_cn
 
     def get_saler_leaders(self):
         leaders = []
@@ -750,7 +752,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return (self.client.name + self.agent.name +
                 self.campaign + self.contract +
                 "".join([k.name for k in self.direct_sales + self.agent_sales]) +
-                "".join([mo.medium.name + mo.medium_contract for mo in self.medium_orders]) +
+                "".join([mo.media.name + mo.medium_contract for mo in self.medium_orders]) +
                 "".join([ado.contract for ado in self.associated_douban_orders]))
 
     @property

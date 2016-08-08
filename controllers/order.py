@@ -13,7 +13,7 @@ from forms.order import (ClientOrderForm, MediumOrderForm,
                          ClientMediumOrderForm)
 
 from models.client import Client, Group, Agent, AgentRebate
-from models.medium import Medium, MediumGroup
+from models.medium import Medium, MediumGroup, Media
 from models.order import Order, MediumOrderExecutiveReport
 from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_APPLYPASS,
                                  CONTRACT_STATUS_APPLYREJECT, CONTRACT_STATUS_APPLYPRINT,
@@ -66,7 +66,7 @@ def index():
 @order_bp.route('/new_order', methods=['GET', 'POST'])
 def new_order():
     form = ClientOrderForm(request.form)
-    mediums = [{'id': m.id, 'name': m.name}for m in MediumGroup.all()]
+    mediums = [{'id': m.id, 'name': m.name}for m in Media.all()]
     if request.method == 'POST' and form.validate():
         if ClientOrder.query.filter_by(campaign=form.campaign.data).count() > 0:
             flash(u'campaign名称已存在，请更换其他名称!', 'danger')
@@ -96,16 +96,14 @@ def new_order():
                               order.client.name,
                               order.campaign
                           ))
-        medium_group_ids = request.values.getlist('medium_group')
-        medium_ids = request.values.getlist('medium')
+        medium_ids = request.values.getlist('media')
         medium_moneys = request.values.getlist('medium-money')
         if medium_ids and medium_moneys and len(medium_ids) == len(medium_moneys):
             for x in range(len(medium_ids)):
-                medium = Medium.get(medium_ids[x])
-                medium_group = MediumGroup.get(medium_group_ids[x])
+                media = Media.get(medium_ids[x])
                 mo = Order.add(campaign=order.campaign,
-                               medium=medium,
-                               medium_group=medium_group,
+                               media=media,
+                               medium_group=MediumGroup.get(1),
                                sale_money=float(medium_moneys[x] or 0),
                                medium_money=0,
                                medium_money2=0,
@@ -114,7 +112,7 @@ def new_order():
                                creator=g.user)
                 order.medium_orders = order.medium_orders + [mo]
                 order.add_comment(g.user, u"新建了媒体订单: %s %s元" %
-                                  (medium.name, mo.sale_money))
+                                  (media.name, mo.sale_money))
         order.save()
         if g.user.is_super_leader() or g.user.is_contract():
             contract_status_change(order, 3, [], '')
@@ -313,7 +311,6 @@ def get_medium_form(order, user=None):
             (medium.id, medium.name) for medium in Medium.all()]
     else:
         medium_form.medium.choices = [(order.medium.id, order.medium.name)]
-    medium_form.medium.data = order.medium.id
     medium_form.medium_money.data = order.medium_money
     medium_form.medium_money.hidden = True
     medium_form.medium_money2.data = order.medium_money2
@@ -432,7 +429,8 @@ def order_info(order_id, tab_id=1):
                'now_date': datetime.now(),
                'tab_id': tab_id or 1,
                'replace_saler_form': replace_saler_form,
-               'medium_groups': MediumGroup.all()}
+               'medium_groups': MediumGroup.all(),
+               'medias': Media.all()}
     return tpl('order_detail_info.html', **context)
 
 
@@ -444,10 +442,10 @@ def order_new_medium(order_id):
     form = MediumOrderForm(request.form)
     if request.method == 'POST':
         medium_group_id = request.values.get('medium_group', 0)
-        medium_id = request.values.get('medium', 0)
+        media_id = request.values.get('media', 0)
         mo = Order.add(campaign=co.campaign,
                        medium_group=MediumGroup.get(medium_group_id),
-                       medium=Medium.get(medium_id),
+                       media=Media.get(media_id),
                        medium_money=float(form.medium_money.data or 0),
                        medium_money2=float(form.medium_money2.data or 0),
                        sale_money=float(form.sale_money.data or 0),
@@ -463,7 +461,7 @@ def order_new_medium(order_id):
         co.medium_orders = co.medium_orders + [mo]
         co.save()
         co.add_comment(g.user, u"新建了媒体订单: %s %s %s" %
-                       (mo.medium.name, mo.sale_money, mo.medium_money2))
+                       (mo.media.name, mo.sale_money, mo.medium_money2))
         flash(u'[媒体订单]新建成功!', 'success')
         _insert_executive_report(mo, 'reload')
         return redirect(mo.info_path())
@@ -479,13 +477,13 @@ def medium_order(mo_id):
     last_status = mo.finish_status
     finish_status = int(request.values.get('finish_status', 1))
     medium_group_id = request.values.get('medium_group', 0)
-    medium_id = request.values.get('medium', 0)
+    media_id = request.values.get('media', 0)
     if g.user.is_super_leader() or g.user.is_media() or g.user.is_media_leader():
         mo.medium_group = MediumGroup.get(medium_group_id)
-        mo.medium = Medium.get(medium_id)
+        mo.media = Media.get(media_id)
     if mo.client_order.contract_status in [0, 1, 6]:
         mo.medium_group = MediumGroup.get(medium_group_id)
-        mo.medium = Medium.get(medium_id)
+        mo.media = Media.get(media_id)
     self_medium_rebate = int(request.values.get('self_medium_rebate', 0))
     self_medium_rabate_value = float(request.values.get('self_medium_rabate_value', 0))
     mo.medium_money = float(form.medium_money.data or 0)
@@ -505,9 +503,9 @@ def medium_order(mo_id):
     mo.self_medium_rebate = str(self_medium_rebate) + '-' + str(self_medium_rabate_value)
     mo.save()
     mo.client_order.add_comment(
-        g.user, u"更新了媒体订单: %s %s %s" % (mo.medium.name, mo.sale_money, mo.medium_money2))
+        g.user, u"更新了媒体订单: %s %s %s" % (mo.media.name, mo.sale_money, mo.medium_money2))
     if finish_status == 0 and last_status != 0:
-        mo.client_order.add_comment(g.user, u"%s 媒体订单已归档" % (mo.medium.name))
+        mo.client_order.add_comment(g.user, u"%s 媒体订单已归档" % (mo.media.name))
     flash(u'[媒体订单]%s 保存成功!' % mo.name, 'success')
     _insert_executive_report(mo, 'reload')
     return redirect(mo.info_path())
@@ -630,6 +628,11 @@ def contract_status_change(order, action, emails, msg):
         action_msg = u"申请利润分配"
         to_users = to_users + order.leaders + User.medias()
     elif action == 2:
+        if order.__tablename__ == 'bra_client_order':
+            medium_groups = [k.medium_group.id for k in order.medium_orders]
+            if 1 in medium_groups:
+                flash(u'请媒介分配媒体供应商!', 'danger')
+                return redirect(order.info_path())
         order.contract_status = CONTRACT_STATUS_APPLYCONTRACT
         action_msg = u"申请审批"
         to_users = to_users + order.leaders
@@ -1089,7 +1092,8 @@ def framework_order_contract(order_id):
 def new_medium_framework_order():
     form = MediumFrameworkOrderForm(request.form)
     if request.method == 'POST' and form.validate():
-        order = MediumFrameworkOrder.add(mediums=Medium.gets(form.mediums.data),
+        order = MediumFrameworkOrder.add(medium_groups=MediumGroup.gets(form.medium_groupss.data),
+                                         mediums=[],
                                          description=form.description.data,
                                          money=float(form.money.data or 0),
                                          client_start=form.client_start.data,
@@ -1130,7 +1134,7 @@ def medium_framework_recovery(order_id):
         abort(404)
     if not g.user.is_super_admin():
         abort(402)
-    flash(u"媒体框架订单: %s 已恢复" % (order.group.name), 'success')
+    flash(u"媒体框架订单: %s 已恢复" % (order.mediums_names), 'success')
     order.status = STATUS_ON
     order.save()
     return redirect(url_for("order.medium_framework_delete_orders"))
@@ -1138,7 +1142,7 @@ def medium_framework_recovery(order_id):
 
 def get_medium_framework_form(order):
     framework_form = MediumFrameworkOrderForm()
-    framework_form.mediums.data = [a.id for a in order.mediums]
+    framework_form.medium_groups.data = [a.id for a in order.medium_groups]
     framework_form.description.data = order.description
     framework_form.money.data = order.money
     framework_form.client_start.data = order.client_start
@@ -1226,9 +1230,9 @@ def medium_framework_order_info(order_id):
                 flash(u'您没有编辑权限! 请联系该媒体框架的创建者或者销售同事!', 'danger')
             else:
                 framework_form = MediumFrameworkOrderForm(request.form)
-                mediums = Medium.gets(framework_form.mediums.data)
+                medium_groups = MediumGroup.gets(framework_form.medium_groups.data)
                 if framework_form.validate():
-                    order.mediums = mediums
+                    order.medium_groups = medium_groups
                     order.description = framework_form.description.data
                     order.money = framework_form.money.data
                     order.client_start = framework_form.client_start.data
@@ -1710,7 +1714,7 @@ def intention_order():
         search_info, location_id, str(year), str(medium_id))
     return tpl('intention_index.html', orders=orders,
                locations=select_locations, location_id=location_id,
-               search_info=search_info, page=page, mediums=Medium.all(),
+               search_info=search_info, page=page, medias=Media.all(),
                now_date=datetime.now().date(), medium_id=medium_id,
                params=params, year=year)
 
@@ -1747,7 +1751,7 @@ def intention_order_create():
             month_cn = k['month'].strftime('%Y-%m')
             money = float(request.values.get(month_cn + '_money', 0))
             ex_money_data.append({'money': money, 'month_cn': month_cn})
-        medium_id = int(request.values.get('medium_id'))
+        media_id = int(request.values.get('media_id'))
         agent = request.values.get('agent', '')
         client = request.values.get('client', '')
         campaign = request.values.get('campaign', '')
@@ -1757,10 +1761,9 @@ def intention_order_create():
         client_end = end_time
         direct_sales = request.values.getlist('direct_sales')
         agent_sales = request.values.getlist('agent_sales')
-        medium_group_id = int(request.values.get('medium_group_id', 0))
         intention_order = IntentionOrder.add(
-            medium_group_id=medium_group_id,
-            medium_id=medium_id,
+            medium_group_id=1,
+            media_id=media_id,
             agent=agent,
             client=client,
             campaign=campaign,
@@ -1782,7 +1785,7 @@ def intention_order_create():
         return redirect(url_for('order.intention_order_update', intention_id=intention_order.id))
     return tpl('intention_create.html', direct_form=DirectForm(),
                agent_form=AgentForm(), agent=Agent.all(), client=Client.all(),
-               mediums=Medium.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN,
+               medias=Media.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN,
                medium_groups=MediumGroup.all())
 
 
@@ -1824,19 +1827,17 @@ def intention_order_update(intention_id):
             month_cn = k['month'].strftime('%Y-%m')
             money = float(request.values.get(month_cn + '_money', 0))
             ex_money_data.append({'money': money, 'month_cn': month_cn})
-        medium_id = int(request.values.get('medium_id'))
+        media_id = int(request.values.get('media_id'))
         agent = request.values.get('agent', '')
         client = request.values.get('client', '')
         campaign = request.values.get('campaign', '')
         complete_percent = int(request.values.get('complete_percent', 1))
-        medium_group_id = int(request.values.get('medium_group_id', 0))
         money = sum([k['money'] for k in ex_money_data])
         client_start = start_time
         client_end = end_time
         direct_sales = request.values.getlist('direct_sales')
         agent_sales = request.values.getlist('agent_sales')
-        intention_order.medium_group_id = medium_group_id
-        intention_order.medium_id = medium_id
+        intention_order.media_id = media_id
         intention_order.agent = agent
         intention_order.client = client
         intention_order.campaign = campaign
@@ -1867,7 +1868,7 @@ def intention_order_update(intention_id):
     return tpl('intention_update.html', direct_form=direct_form, intention_order=intention_order,
                agent_form=agent_form, agent=Agent.all(), client=Client.all(),
                is_data_agent=is_data_agent, is_data_client=is_data_client,
-               mediums=Medium.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN,
+               medias=Media.all(), COMPLETE_PERCENT_CN=COMPLETE_PERCENT_CN,
                medium_groups=MediumGroup.all())
 
 
@@ -1891,7 +1892,7 @@ def intention_order_in_real(iid):
     is_data_client = Client.query.filter_by(
         name=intention_order.client).first()
     reminde_date = intention_order.client_start + timedelta(days=90)
-    if intention_order.medium_id == 0:
+    if intention_order.media_id == 0:
         order = DoubanOrder.add(agent=is_data_agent,
                                 client=is_data_client,
                                 campaign=intention_order.campaign,
@@ -1940,7 +1941,7 @@ def intention_order_in_real(iid):
                           ))
         mo = Order.add(campaign=order.campaign,
                        medium_group=MediumGroup.get(intention_order.medium_group_id),
-                       medium=Medium.get(intention_order.medium_id),
+                       media=Media.get(intention_order.media_id),
                        sale_money=intention_order.money,
                        medium_money=0,
                        medium_money2=intention_order.money,

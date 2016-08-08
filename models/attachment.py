@@ -120,7 +120,7 @@ class Attachment(db.Model, BaseModelMixin):
         from .associated_douban_order import AssociatedDoubanOrder
         from .client import Agent
         from .user import User
-        from .medium import Medium, MediumGroup
+        from .medium import Medium, MediumGroup, Media
 
         # add for searchAd team
         from searchAd.models.order import searchAdOrder
@@ -139,6 +139,7 @@ class Attachment(db.Model, BaseModelMixin):
             'Agent': Agent,
             'User': User,
             'Medium': Medium,
+            'Media': Media,
             'MediumGroup': MediumGroup
         }
         return TARGET_DICT[self.target_type].get(self.target_id)

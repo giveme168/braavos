@@ -194,6 +194,20 @@ class Media(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def medium_path(self):
         return url_for('client.media_detail', media_id=self.id)
 
+    @property
+    def current_framework(self):
+        return framework_generator(self.id)
+
+    @property
+    def files_update_time(self):
+        all_files = list(self.get_medium_files())
+        if all_files:
+            update_time = all_files[
+                0].create_time.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            update_time = ''
+        return update_time
+
 
 class MediumGroupMediaRebate(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_group_media_rebate'
@@ -1216,6 +1230,14 @@ case_mediums = db.Table('case_mediums',
                         )
 
 
+case_medias = db.Table('case_medias',
+                       db.Column(
+                           'media_id', db.Integer, db.ForeignKey('media.id')),
+                       db.Column(
+                           'case_id', db.Integer, db.ForeignKey('bra_case.id'))
+                       )
+
+
 # 策划案例
 class Case(db.Model, BaseModelMixin, CommentMixin):
     __tablename__ = 'bra_case'
@@ -1223,10 +1245,11 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
     type = db.Column(db.Integer, default=1)
     name = db.Column(db.String(100))
     url = db.Column(db.String(300))  # 网盘链接
-    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))
+    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 这个字段已经废掉了
     medium = db.relationship(
         'Medium', backref=db.backref('case_medium', lazy='dynamic'))  # 这个字段已经废掉了
-    mediums = db.relationship('Medium', secondary=case_mediums)
+    mediums = db.relationship('Medium', secondary=case_mediums)  # 这个字段已经废掉了
+    medias = db.relationship('Media', secondary=case_medias)
     brand = db.Column(db.String(100))  # 品牌
     industry = db.Column(db.String(100))  # 行业
     create_time = db.Column(db.DateTime)
@@ -1239,12 +1262,13 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
     __mapper_args__ = {'order_by': create_time.desc()}
 
     def __init__(self, name, url, type, medium, brand, industry, creator,
-                 desc, mediums, pwd=None, create_time=None, is_win=0):
+                 desc, medias, pwd=None, create_time=None, is_win=0):
         self.name = name
         self.url = url
         self.type = type
         self.medium = medium
-        self.mediums = mediums or []
+        self.mediums = []
+        self.medias = medias
         self.brand = brand
         self.industry = industry
         self.creator = creator
@@ -1275,8 +1299,8 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def mediums_name(self):
-        return '<br/>'.join([k.name for k in self.mediums])
+        return '<br/>'.join([k.name for k in self.medias])
 
     @property
     def mediums_id(self):
-        return [k.id for k in self.mediums]
+        return [k.id for k in self.medias]

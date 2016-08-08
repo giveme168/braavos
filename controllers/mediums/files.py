@@ -3,7 +3,7 @@ import operator
 from flask import request, redirect, url_for, Blueprint, flash, g
 from flask import render_template as tpl
 
-from models.medium import Medium
+from models.medium import Media
 from models.user import User
 from models.attachment import (ATTACHMENT_TYPE_MEDIUM_INTRODUCE, ATTACHMENT_TYPE_MEDIUM_PRODUCT,
                                ATTACHMENT_TYPE_MEDIUM_DATA, ATTACHMENT_TYPE_MEDIUM_NEW_PRODUCT,
@@ -19,9 +19,10 @@ mediums_files_bp = Blueprint(
 def index():
     info = request.values.get('info', '')
     mediums = [{'files_update_time': k.files_update_time,
-                'level_cn': k.medium_group.level_cn,
-                'id': k.id, 'name': k.medium_group.name + "-" + k.name, 'level': k.medium_group.level or 100
-                }for k in Medium.all()]
+                'level_cn': k.level_cn,
+                'id': k.id, 'name': k.name,
+                'level': k.level or 100
+                }for k in Media.all()]
     if info:
         mediums = [m for m in mediums if info in m['name']]
     mediums = sorted(mediums, key=operator.itemgetter('level'), reverse=False)
@@ -30,7 +31,7 @@ def index():
 
 @mediums_files_bp.route('/<mid>/info', methods=['GET'])
 def info(mid):
-    medium = Medium.get(mid)
+    medium = Media.get(mid)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     return tpl('/mediums/files/info.html', medium=medium,
                ATTACHMENT_TYPE_MEDIUM_INTRODUCE=ATTACHMENT_TYPE_MEDIUM_INTRODUCE,
@@ -42,7 +43,7 @@ def info(mid):
 
 @mediums_files_bp.route('/<mid>/files_upload', methods=['POST'])
 def files_upload(mid):
-    medium = Medium.get(mid)
+    medium = Media.get(mid)
     type = int(request.values.get('type', 5))
     try:
         request.files['file'].filename.encode('gb2312')
@@ -57,7 +58,7 @@ def files_upload(mid):
 
 @mediums_files_bp.route('/<mid>/<type>/info_last', methods=['GET'])
 def info_last(mid, type):
-    medium = Medium.get(mid)
+    medium = Media.get(mid)
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     return tpl('/mediums/files/info_last.html', medium=medium, type=int(type),
                title=ATTACHMENT_TYPE[int(type)],

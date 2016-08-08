@@ -26,7 +26,7 @@
         <tbody>
             {% for o in orders %}
             <tr>
-                <td>{{o.medium_cn}}</td>
+                <td>{{o.media_cn}}</td>
                 <td>{{o.agent}}</td>
                 <td>{{o.client}}</td>
                 <td><a href="{{url_for('order.intention_order_update', intention_id=o.id)}}">{{o.campaign}}</a></td>

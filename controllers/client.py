@@ -427,25 +427,28 @@ def medium_groups():
             medium_data.append(dict_medium)
         dict_mg['mediums'] = medium_data
         media_data = []
+        media_name_set = []
         for rebate in medium_group.media_rebates:
-            dict_medium = {}
-            dict_medium['name'] = rebate.media.name
-            if str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2014' in media_rebate_data:
-                dict_medium['rebate_2014'] = media_rebate_data[
-                    str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2014']
-            else:
-                dict_medium['rebate_2014'] = u'无'
-            if str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2015' in media_rebate_data:
-                dict_medium['rebate_2015'] = media_rebate_data[
-                    str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2015']
-            else:
-                dict_medium['rebate_2015'] = u'无'
-            if str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2016' in media_rebate_data:
-                dict_medium['rebate_2016'] = media_rebate_data[
-                    str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2016']
-            else:
-                dict_medium['rebate_2016'] = u'无'
-            media_data.append(dict_medium)
+            if rebate.media.name not in media_name_set:
+                dict_medium = {}
+                dict_medium['name'] = rebate.media.name
+                if str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2014' in media_rebate_data:
+                    dict_medium['rebate_2014'] = media_rebate_data[
+                        str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2014']
+                else:
+                    dict_medium['rebate_2014'] = u'无'
+                if str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2015' in media_rebate_data:
+                    dict_medium['rebate_2015'] = media_rebate_data[
+                        str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2015']
+                else:
+                    dict_medium['rebate_2015'] = u'无'
+                if str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2016' in media_rebate_data:
+                    dict_medium['rebate_2016'] = media_rebate_data[
+                        str(rebate.medium_group.id) + '_' + str(rebate.media.id) + '_2016']
+                else:
+                    dict_medium['rebate_2016'] = u'无'
+                media_data.append(dict_medium)
+                media_name_set.append(rebate.media.name)
         dict_mg['medias'] = media_data
         medium_group_data.append(dict_mg)
     medium_group_data = sorted(medium_group_data, key=operator.itemgetter('level'), reverse=False)

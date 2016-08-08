@@ -112,7 +112,7 @@ class FrameworkOrderForm(Form):
 
 
 class MediumFrameworkOrderForm(Form):
-    mediums = SelectMultipleField(u'媒体', coerce=int)
+    medium_groups = SelectMultipleField(u'媒体', coerce=int)
     description = TextAreaField(u'备注', description=u"返点政策/配送政策等信息")
     money = FloatField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
@@ -123,7 +123,7 @@ class MediumFrameworkOrderForm(Form):
 
     def __init__(self, *args, **kwargs):
         super(MediumFrameworkOrderForm, self).__init__(*args, **kwargs)
-        self.mediums.choices = [(a.id, a.medium_group.name + '-' + a.name) for a in Medium.all()]
+        self.medium_groups.choices = [(a.id, a.name) for a in MediumGroup.all()]
         self.medium_users.choices = [(m.id, m.name) for m in User.medias()]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
 

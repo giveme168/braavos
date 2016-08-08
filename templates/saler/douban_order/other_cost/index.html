@@ -150,7 +150,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-sm btn-default contract-submit" data-dismiss="modal">取消</button>
-            {% if g.user.is_super_leader() %}
+            {% if g.user.is_super_leader() or g.user.is_operater_leader() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action">保存</button>
             {% endif %}
         </div>

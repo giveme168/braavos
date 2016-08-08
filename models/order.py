@@ -94,8 +94,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 投放媒体
     medium = db.relationship(
         'Medium', backref=db.backref('orders', lazy='dynamic'))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))  # 投放媒体
+    media = db.relationship('Media', backref=db.backref('media_orders', lazy='dynamic'))
     order_type = db.Column(db.Integer)  # 订单类型: CPM
-
     client_orders = db.relationship(
         'ClientOrder', secondary=table_medium_orders)
 
@@ -123,7 +124,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_generate = True
     kind = "medium-order"
 
-    def __init__(self, campaign, medium, medium_group, order_type=ORDER_TYPE_NORMAL,
+    def __init__(self, campaign, media, medium_group, order_type=ORDER_TYPE_NORMAL,
                  medium_contract="", medium_money=0, sale_money=0, medium_money2=0,
                  medium_CPM=0, sale_CPM=0, finish_status=1,
                  discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
@@ -131,7 +132,8 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                  creator=None, create_time=None, finish_time=None,
                  self_medium_rebate='0-0',):
         self.campaign = campaign
-        self.medium = medium
+        self.media = media
+        self.medium_id = 1
         self.medium_group = medium_group
         self.order_type = order_type
 
@@ -187,7 +189,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def name(self):
-        return self.medium.name
+        return self.media.name
 
     @property
     def client_order(self):
@@ -241,7 +243,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         执行结束时间: %s
         媒体合同号: %s
         执行: %s
-        """ % (self.medium.name, self.sale_money or 0, self.medium_money2 or 0,
+        """ % (self.media.name, self.sale_money or 0, self.medium_money2 or 0,
                self.sale_CPM or 0, self.sale_ECPM, self.start_date_cn, self.end_date_cn,
                self.medium_contract, self.operater_names)
 
@@ -300,7 +302,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return is_exist
 
     def get_default_contract(self):
-        return contract_generator(self.medium.current_framework, self.id)
+        return contract_generator(self.media.current_framework, self.id)
 
     @property
     def start_date(self):
