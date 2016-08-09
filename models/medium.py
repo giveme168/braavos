@@ -1287,7 +1287,8 @@ class Case(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def info(self):
-        return '%s%s%s' % (self.name, self.brand, self.desc)
+        media_names = ''.join([m.name for m in self.medias])
+        return '%s%s%s' % (self.name, self.brand, self.desc) + media_names
 
     @property
     def tag_ids(self):

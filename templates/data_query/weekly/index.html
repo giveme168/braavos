@@ -77,7 +77,7 @@
                     {% endif %}
                     <td> 
                         {% for mo in i.order.medium_orders %}  
-                        {{mo.name}}<br/></br/></br/>
+                        {{mo.name}}<br/>
                         {% endfor %}
                     </td>
                     <td> 
@@ -289,9 +289,9 @@
             </div>
             <div class="select_option">
                 <label for="sale_type" class="control-label">媒体</label>
-                <select class="form-control special_sale" name="medium_id" id="medium_id">
+                <select class="form-control special_sale" name="media_id" id="media_id">
                     <option value='0'>所有媒体</option>
-                    {% for medium in mediums %}
+                    {% for medium in medias %}
                         <option value="{{medium.id}}">{{medium.name}}</option>
                     {% endfor %}
                 </select>
@@ -338,8 +338,8 @@
         $("#year").val('{{now_year}}')
         $("#year").trigger("chosen:updated");
         //$("#medium_id option[value='{{medium_id}}']").attr("selected","selected");  
-        $("#medium_id").val('{{medium_id}}')
-        $("#medium_id").trigger("chosen:updated");
+        $("#media_id").val('{{media_id}}')
+        $("#media_id").trigger("chosen:updated");
         //$("#location_id option[value='{{location_id}}']").attr("selected","selected");  
         $("#location_id").val('{{location_id}}')
         $("#location_id").trigger("chosen:updated");
@@ -347,7 +347,7 @@
     function download(){
          window.location.href = window.location.pathname +
           '?year=' + $('#year').val() + '&Q=' + $('#Q').val() +
-          '&medium_id=' + $('#medium_id').val() +
+          '&media_id=' + $('#media_id').val() +
           '&location_id=' + $('#location_id').val()+ '&action=download';
     }
 </script>
