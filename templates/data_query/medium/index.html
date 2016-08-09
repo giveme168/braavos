@@ -16,9 +16,9 @@
             </div>
             <div class="select_option">
                 <label for="sale_type" class="control-label">媒体</label>
-                <select class="form-control special_sale" name="medium_id" id="medium_id">
+                <select class="form-control special_sale" name="media_id" id="media_id">
                     <option value='0'>所有媒体</option>
-                    {% for medium in s_mediums %}
+                    {% for medium in s_medias %}
                         <option value="{{medium.id}}">{{medium.name}}</option>
                     {% endfor %}
                 </select>
@@ -85,15 +85,15 @@
 <script>
     $(function(){
         $('select').chosen({disable_search: true});
-        $("#medium_id").val("{{medium_id}}")
-        $("#medium_id").trigger("chosen:updated");
+        $("#media_id").val("{{media_id}}")
+        $("#media_id").trigger("chosen:updated");
         $("#year").val("{{year}}")
         $("#year").trigger("chosen:updated");
     })
     function download(){
          window.location.href = window.location.pathname +
           '?year=' + $('#year').val() +
-          '&medium_id=' + $('#medium_id').val() + '&action=download';
+          '&media_id=' + $('#media_id').val() + '&action=download';
     }
 </script>
 {% endblock %}

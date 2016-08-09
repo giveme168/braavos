@@ -8,7 +8,7 @@ from models.user import TEAM_LOCATION_HUABEI, TEAM_LOCATION_HUADONG, TEAM_LOCATI
 from models.client_order import ClientOrderExecutiveReport, IntentionOrder
 from models.douban_order import DoubanOrder, DoubanOrderExecutiveReport
 from models.order import Order
-from models.medium import Medium
+from models.medium import Media
 from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q, get_monthes_pre_days,
                                get_last_year_month_by_Q, get_after_year_month_by_Q)
 from controllers.data_query.helpers.weekly_helpers import write_client_excel, write_medium_index_excel
@@ -281,7 +281,7 @@ def douban_index():
                huadong_agent_salers_orders=huadong_agent_salers_orders,
                huadong_direct_salers_orders=huadong_direct_salers_orders,
                Q=now_Q, now_year=now_year,
-               Q_monthes=Q_monthes, mediums=Medium.all(), location_id=location_id)
+               Q_monthes=Q_monthes, location_id=location_id)
 
 
 def _douban_order_to_dict(douban_order, now_year, Q_monthes):
@@ -341,7 +341,7 @@ def _client_order_to_dict(client_order, now_year, Q_monthes):
         'agent'), client_order.zhixing_medium_money2('direct')]
     dict_order['medium_orders'] = [{'name': k.medium.name,
                                     'contract': k.associated_douban_contract,
-                                    'medium_id': k.medium.id,
+                                    'media_id': k.media.id,
                                     'zhixing_medium_money2': [k.zhixing_medium_money2('agent'),
                                                               k.zhixing_medium_money2('direct')],
                                     'medium_money_by_month': [
@@ -373,7 +373,7 @@ def _client_order_to_dict(client_order, now_year, Q_monthes):
 def index():
     now_year = request.values.get('year', '')
     now_Q = request.values.get('Q', '')
-    medium_id = int(request.values.get('medium_id', 0))
+    media_id = int(request.values.get('media_id', 0))
     location_id = int(request.values.get('location_id', 0))
     if not now_year and not now_Q:
         now_date = datetime.date.today()
@@ -396,9 +396,9 @@ def index():
         _client_order_to_dict(k, now_year, Q_monthes) for k in client_orders if k.contract_status not in [7, 8, 81, 9]]
 
     # 根据媒体查询合同
-    if medium_id:
+    if media_id:
         client_orders = [
-            order for order in client_orders if medium_id in [o['medium_id'] for o in order['medium_orders']]]
+            order for order in client_orders if media_id in [o['media_id'] for o in order['medium_orders']]]
 
     # 个级别管理查看不同的合同
     if g.user.is_contract() or g.user.is_media() or g.user.is_super_leader() or \
@@ -489,8 +489,8 @@ def index():
                huanan_direct_salers_orders=huanan_direct_salers_orders,
                huadong_agent_salers_orders=huadong_agent_salers_orders,
                huadong_direct_salers_orders=huadong_direct_salers_orders,
-               medium_id=medium_id, Q=now_Q, now_year=now_year,
-               Q_monthes=Q_monthes, mediums=Medium.all(), location_id=location_id)
+               media_id=media_id, Q=now_Q, now_year=now_year,
+               Q_monthes=Q_monthes, medias=Media.all(), location_id=location_id)
 
 
 # 新版媒体周报开始
@@ -588,7 +588,7 @@ def _new_douban_order_to_dict(douban_order, last_Q_monthes, now_Q_monthes, after
 
 def _new_medium_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_monthes):
     dict_order = {}
-    dict_order['medium_id'] = order.medium.id
+    dict_order['media_id'] = order.media.id
     dict_order['client_name'] = order.client_order.client.name
     dict_order['agent_name'] = order.client_order.agent.name
     dict_order['campaign'] = order.client_order.campaign
@@ -666,7 +666,7 @@ def _new_medium_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_mont
 
 def _new_intention_order_to_dict(order, last_Q_monthes, now_Q_monthes, after_Q_monthes):
     dict_order = {}
-    dict_order['medium_id'] = order.medium_id
+    dict_order['media_id'] = order.media_id
     dict_order['client_name'] = order.client
     dict_order['agent_name'] = order.agent
     dict_order['campaign'] = order.campaign
@@ -820,7 +820,7 @@ def medium_index():
             o for o in douban_orders if (g.user.id in o['salers_ids']) or (g.user.id in o['get_saler_leaders'])]
     douban_data = {'Delivered': [],
                    'Confirmed': [],
-                   'Intention': [o for o in intention_orders if o['medium_id'] == 0]}
+                   'Intention': [o for o in intention_orders if o['media_id'] == 0]}
     for k in douban_orders:
         if k['contract'] and k['contract_status'] == 20:
             douban_data['Delivered'].append(k)
@@ -857,128 +857,116 @@ def medium_index():
             o for o in medium_orders if (g.user.id in o['salers_ids']) or (g.user.id in o['get_saler_leaders'])]
     youli_data = {'Delivered': [],
                   'Confirmed': [],
-                  'Intention': [o for o in intention_orders if o['medium_id'] == 3]}
+                  'Intention': [o for o in intention_orders if o['media_id'] == 306]}
     youli_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [3] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [306] and k['contract'] and k['contract_status'] == 20]
     youli_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [3]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [306] and k['contract'] and k['contract_status'] != 20]
 
     wuxian_data = {'Delivered': [],
                    'Confirmed': [],
-                   'Intention': [o for o in intention_orders if o['medium_id'] == 8]}
+                   'Intention': [o for o in intention_orders if o['media_id'] == 302]}
     wuxian_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [8] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [302] and k['contract'] and k['contract_status'] == 20]
     wuxian_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [8]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [302] and k['contract'] and k['contract_status'] != 20]
 
     zhihu_data = {'Delivered': [],
                   'Confirmed': [],
-                  'Intention': [o for o in intention_orders if o['medium_id'] == 5]}
+                  'Intention': [o for o in intention_orders if o['media_id'] in [304, 241]]}
     zhihu_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [5] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [304, 241] and k['contract'] and k['contract_status'] == 20]
     zhihu_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [5]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [304, 241] and k['contract'] and k['contract_status'] != 20]
     weipiao_data = {'Delivered': [],
                     'Confirmed': [],
-                    'Intention': [o for o in intention_orders if o['medium_id'] == 52]}
+                    'Intention': [o for o in intention_orders if o['media_id'] in [245, 272]]}
     weipiao_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [52] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [245, 272] and k['contract'] and k['contract_status'] == 20]
     weipiao_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [52]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [245, 272] and k['contract'] and k['contract_status'] != 20]
 
     one_data = {'Delivered': [],
                 'Confirmed': [],
-                'Intention': [o for o in intention_orders if o['medium_id'] in [51, 67]]}
+                'Intention': [o for o in intention_orders if o['media_id'] in [273, 262]]}
     one_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [51, 67] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [273, 262] and k['contract'] and k['contract_status'] == 20]
     one_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [51, 67]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [273, 262] and k['contract'] and k['contract_status'] != 20]
 
     xueqiu_data = {'Delivered': [],
                    'Confirmed': [],
-                   'Intention': [o for o in intention_orders if o['medium_id'] == 9]}
+                   'Intention': [o for o in intention_orders if o['media_id'] == 301]}
     xueqiu_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [9] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [301] and k['contract'] and k['contract_status'] == 20]
     xueqiu_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [9]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [301] and k['contract'] and k['contract_status'] != 20]
 
     huxiu_data = {'Delivered': [],
                   'Confirmed': [],
-                  'Intention': [o for o in intention_orders if o['medium_id'] in [14, 57]]}
+                  'Intention': [o for o in intention_orders if o['media_id'] in [215, 179]]}
     huxiu_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [14, 57] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [215, 179] and k['contract'] and k['contract_status'] == 20]
     huxiu_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [14, 57]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [215, 179] and k['contract'] and k['contract_status'] != 20]
 
     ledongli_data = {'Delivered': [],
                      'Confirmed': [],
-                     'Intention': [o for o in intention_orders if o['medium_id'] == 66]}
+                     'Intention': [o for o in intention_orders if o['media_id'] in [175, 247]]}
     ledongli_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [66] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [175, 247] and k['contract'] and k['contract_status'] == 20]
     ledongli_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [66]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [175, 247] and k['contract'] and k['contract_status'] != 20]
 
     kecheng_data = {'Delivered': [],
                     'Confirmed': [],
-                    'Intention': [o for o in intention_orders if o['medium_id'] == 4]}
+                    'Intention': [o for o in intention_orders if o['media_id'] in [305, 178, 176]]}
     kecheng_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [4] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [305, 178, 176] and k['contract'] and k['contract_status'] == 20]
     kecheng_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [4]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [305, 178, 176] and k['contract'] and k['contract_status'] != 20]
 
     xiecheng_data = {'Delivered': [],
                      'Confirmed': [],
-                     'Intention': [o for o in intention_orders if o['medium_id'] == 59]}
+                     'Intention': [o for o in intention_orders if o['media_id'] == 268]}
     xiecheng_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [59] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [268] and k['contract'] and k['contract_status'] == 20]
     xiecheng_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [59]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [268] and k['contract'] and k['contract_status'] != 20]
 
     momo_data = {'Delivered': [],
                  'Confirmed': [],
-                 'Intention': [o for o in intention_orders if o['medium_id'] == 7]}
+                 'Intention': [o for o in intention_orders if o['media_id'] in [192, 244]]}
     momo_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [7] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [192, 244] and k['contract'] and k['contract_status'] == 20]
     momo_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [7]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [192, 244] and k['contract'] and k['contract_status'] != 20]
 
     lama_data = {'Delivered': [],
                  'Confirmed': [],
-                 'Intention': [o for o in intention_orders if o['medium_id'] == 39]}
+                 'Intention': [o for o in intention_orders if o['media_id'] == 281]}
     lama_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [39] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [281] and k['contract'] and k['contract_status'] == 20]
     lama_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [39]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [281] and k['contract'] and k['contract_status'] != 20]
 
     nice_data = {'Delivered': [],
                  'Confirmed': [],
-                 'Intention': [o for o in intention_orders if o['medium_id'] == 12]}
+                 'Intention': [o for o in intention_orders if o['media_id'] == 217]}
     nice_data['Delivered'] = [
-        k for k in medium_orders if k['medium_id'] in [12] and k['contract'] and k['contract_status'] == 20]
+        k for k in medium_orders if k['media_id'] in [217] and k['contract'] and k['contract_status'] == 20]
     nice_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] in [12]
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if k['media_id'] in [217] and k['contract'] and k['contract_status'] != 20]
 
-    except_medium_ids = [0, 3, 8, 5, 52, 51, 67, 9, 14, 57, 66, 4, 59, 7, 39, 12]
+    except_medium_ids = [0, 306, 302, 304, 241, 245, 272, 273, 262, 301, 215,
+                         179, 175, 247, 305, 178, 176, 268, 192, 244, 281, 217]
     other_data = {'Delivered': [],
                   'Confirmed': [],
-                  'Intention': [o for o in intention_orders if o['medium_id'] not in except_medium_ids]}
+                  'Intention': [o for o in intention_orders if o['media_id'] not in except_medium_ids]}
     other_data['Delivered'] = [k for k in medium_orders if k[
-        'medium_id'] not in except_medium_ids and k['contract'] and k['contract_status'] == 20]
+        'media_id'] not in except_medium_ids and k['contract'] and k['contract_status'] == 20]
     other_data['Confirmed'] = [
-        k for k in medium_orders if k['medium_id'] not in except_medium_ids
+        k for k in medium_orders if k['media_id'] not in except_medium_ids
         and k['contract'] and k['contract_status'] != 20]
     meijie_data = {'Delivered': [],
                    'Confirmed': [],
@@ -986,8 +974,7 @@ def medium_index():
     meijie_data['Delivered'] = [k for k in medium_orders if k[
         'contract'] and 148 in k['salers_ids'] and k['contract_status'] == 20]
     meijie_data['Confirmed'] = [
-        k for k in medium_orders if 148 in k['salers_ids']
-        and k['contract'] and k['contract_status'] != 20]
+        k for k in medium_orders if 148 in k['salers_ids'] and k['contract'] and k['contract_status'] != 20]
 
     total_money = sum([k['money'] for k in douban_data['Delivered']]) + \
         sum([k['money'] for k in douban_data['Confirmed']]) + \

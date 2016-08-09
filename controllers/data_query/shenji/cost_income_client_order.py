@@ -106,8 +106,8 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate,
     dict_order['medium_medium_money2'] = 0
     for m in client_order.medium_orders:
         dict_medium = {}
-        dict_medium['medium_group_name'] = m.medium.medium_group.name
-        dict_medium['name'] = m.medium.name
+        dict_medium['medium_group_name'] = m.medium_group.name
+        dict_medium['name'] = m.media.name
         dict_medium['sale_money'] = m.sale_money
         dict_order['medium_sale_money'] += dict_medium['sale_money']
         dict_medium['medium_money2'] = m.medium_money2

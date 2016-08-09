@@ -5,7 +5,7 @@ import operator
 from flask import Blueprint, request, abort, g
 from flask import render_template as tpl
 
-from models.medium import Medium
+from models.medium import Media
 from libs.date_helpers import get_monthes_pre_days
 from models.order import Order
 from controllers.data_query.helpers.medium_helpers import write_client_excel
@@ -18,7 +18,7 @@ data_query_medium_bp = Blueprint(
 def _parse_dict_order(order):
     d_order = {}
     d_order['month_day'] = order.month_day
-    d_order['medium_id'] = order.order.medium.id
+    d_order['media_id'] = order.order.media.id
     d_order['money'] = order.client_order.money
     d_order['order_sale_money'] = order.order.sale_money
     d_order['contract_status'] = order.client_order.contract_status
@@ -75,7 +75,7 @@ def index():
     end_date_month = datetime.datetime.strptime(
         str(year) + '-12' + '-31', '%Y-%m-%d')
     pre_monthes = get_monthes_pre_days(start_date_month, end_date_month)
-    medium_id = int(request.values.get('medium_id', 0))
+    media_id = int(request.values.get('media_id', 0))
 
     ex_medium_orders = [o for o in Order.all(
     ) if o.medium_start.year == year or o.medium_end.year == year]
@@ -94,7 +94,7 @@ def index():
             self_agent_rebate_value = 0
         for p in range(len(pre_month_sale_money)):
             d_order = {}
-            d_order['medium_id'] = order.medium.id
+            d_order['media_id'] = order.media.id
             d_order['money'] = order.client_order.money
             d_order['contract_status'] = order.client_order.contract_status
             d_order['status'] = order.client_order.status
@@ -130,25 +130,25 @@ def index():
         'contract_status'] not in [0, 1, 3, 6, 7, 8, 81, 9] and k['status'] == 1]
 
     medium_data = []
-    if medium_id:
-        mediums = Medium.query.filter_by(id=medium_id)
+    if media_id:
+        medias = Media.query.filter_by(id=media_id)
     else:
-        mediums = Medium.all()
+        medias = Media.all()
     sum_sale_money = 0
-    for k in mediums:
+    for k in medias:
         sale_money_data = []
         medium_money2_data = []
         medium_rebate_data = []
         agent_rebate_data = []
         for i in pre_monthes:
             sale_money_data.append(sum([ex['sale_money'] for ex in ex_medium_orders if ex[
-                                   'medium_id'] == k.id and ex['month_day'].date() == i['month'].date()]))
+                                   'media_id'] == k.id and ex['month_day'].date() == i['month'].date()]))
             medium_money2_data.append(sum([ex['medium_money2'] for ex in ex_medium_orders if ex[
-                                      'medium_id'] == k.id and ex['month_day'].date() == i['month'].date()]))
+                                      'media_id'] == k.id and ex['month_day'].date() == i['month'].date()]))
             medium_rebate_data.append(sum([ex['medium_rebate_value'] for ex in ex_medium_orders if ex[
-                                      'medium_id'] == k.id and ex['month_day'].date() == i['month'].date()]))
+                                      'media_id'] == k.id and ex['month_day'].date() == i['month'].date()]))
             agent_rebate_data.append(sum([ex['agent_rebate_value'] for ex in ex_medium_orders if ex[
-                                     'medium_id'] == k.id and ex['month_day'].date() == i['month'].date()]))
+                                     'media_id'] == k.id and ex['month_day'].date() == i['month'].date()]))
         sum_sale_money += sum(sale_money_data)
         medium_data.append({'id': k.id, 'name': k.name,
                             'level': k.level or 100,
@@ -156,12 +156,10 @@ def index():
                             'medium_money2_data': medium_money2_data,
                             'medium_rebate_data': medium_rebate_data,
                             'agent_rebate_data': agent_rebate_data})
-    print sum_sale_money
     medium_data = sorted(
         medium_data, key=operator.itemgetter('level'), reverse=False)
     if request.values.get('action', '') == 'download':
         return write_client_excel(medium_data, year)
-    return tpl('/data_query/medium/index.html', medium_data=medium_data, medium_id=medium_id,
-               year=year, params="?medium_id=%s&year=%s" % (
-                   medium_id, str(year)),
-               s_mediums=Medium.all())
+    return tpl('/data_query/medium/index.html', medium_data=medium_data, media_id=media_id,
+               year=year, params="?media_id=%s&year=%s" % (media_id, str(year)),
+               s_medias=Media.all())

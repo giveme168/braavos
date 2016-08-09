@@ -195,7 +195,7 @@ def _medium_order_to_dict(order, all_back_moneys, pre_year_month, location):
     dict_order['client_order'] = order.client_order.id
     dict_order['locations_cn'] = order.client_order.locations_cn
     dict_order['client_name'] = order.client_order.client.name
-    dict_order['agent_name'] = order.medium.name
+    dict_order['agent_name'] = order.media.name
     dict_order['campaign'] = order.client_order.campaign
     dict_order['industry_cn'] = order.client_order.client.industry_cn
     dict_order['locations'] = order.client_order.locations
