@@ -3,7 +3,7 @@
 {% block content %}
 {% include "/data_query/shenji/shenji_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:4400px;">
-    {% if g.user.is_super_leader() %}
+    {% if g.user.is_super_leader() or g.user.is_finance() %}
     <div class="table-switch">
         <ul>
             <li id="_0_li" class="actives">

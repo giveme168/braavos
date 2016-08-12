@@ -222,6 +222,14 @@ class IntentionOrder(db.Model, BaseModelMixin, CommentMixin):
         return ",".join([u.name for u in self.agent_sales])
 
     @property
+    def direct_sales_ids(self):
+        return list(set([u.id for u in self.direct_sales]))
+
+    @property
+    def agent_sales_ids(self):
+        return list(set([u.id for u in self.agent_sales]))
+
+    @property
     def start_date(self):
         return self.client_start
 
@@ -658,12 +666,24 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.agent_sales])
 
     @property
+    def direct_sales_ids(self):
+        return list(set([u.id for u in self.direct_sales]))
+
+    @property
+    def agent_sales_ids(self):
+        return list(set([u.id for u in self.agent_sales]))
+
+    @property
     def replace_sales_names(self):
         return ",".join([u.name for u in self.replace_sales])
 
     @property
     def assistant_sales_names(self):
         return ",".join([u.name for u in self.assistant_sales])
+
+    @property
+    def assistant_sales_ids(self):
+        return list(set([u.id for u in self.assistant_sales]))
 
     @property
     def operater_names(self):
@@ -699,7 +719,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         for k in salers:
             leaders += k.team_leaders
         admin_users = salers + [self.creator] + list(set(leaders))
-        return user.is_leader() or user.is_contract() or user.is_media() or\
+        return user.is_leader() or user.is_contract() or user.is_media() or user.is_finance() or \
             user.is_media_leader() or user in admin_users
 
     def can_media_leader_action(self, user):
@@ -756,7 +776,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return (self.client.name + self.agent.name +
                 self.campaign + self.contract +
                 "".join([k.name for k in self.direct_sales + self.agent_sales]) +
-                "".join([mo.media.name + mo.medium_contract for mo in self.medium_orders]) +
+                "".join([mo.medium_group.name + mo.media.name + mo.medium_contract for mo in self.medium_orders]) +
                 "".join([ado.contract for ado in self.associated_douban_orders]))
 
     @property
@@ -1565,3 +1585,455 @@ class OtherCost(db.Model, BaseModelMixin):
     @property
     def type_cn(self):
         return TARGET_TYPE_CN[self.type]
+
+
+edit_direct_sales = db.Table('edit_client_order_direct_sales',
+                             db.Column(
+                                 'sale_id', db.Integer, db.ForeignKey('user.id')),
+                             db.Column(
+                                 'edit_client_order_id', db.Integer, db.ForeignKey('bra_edit_client_order.id'))
+                             )
+edit_agent_sales = db.Table('edit_client_order_agent_sales',
+                            db.Column(
+                                'agent_sale_id', db.Integer, db.ForeignKey('user.id')),
+                            db.Column(
+                                'edit_client_order_id', db.Integer, db.ForeignKey('bra_edit_client_order.id'))
+                            )
+edit_replace_sales = db.Table('edit_client_order_replace_sales',
+                              db.Column(
+                                  'replace_sale_id', db.Integer, db.ForeignKey('user.id')),
+                              db.Column(
+                                  'edit_client_order_id', db.Integer, db.ForeignKey('bra_edit_client_order.id'))
+                              )
+edit_assistant_sales = db.Table('edit_client_order_assistant_sales',
+                                db.Column(
+                                    'assistant_sale_id', db.Integer, db.ForeignKey('user.id')),
+                                db.Column(
+                                    'edit_client_order_id', db.Integer, db.ForeignKey('bra_edit_client_order.id'))
+                                )
+
+table_edit_medium_orders = db.Table('edit_client_order_medium_orders',
+                                    db.Column(
+                                        'order_id', db.Integer, db.ForeignKey('bra_edit_order.id')),
+                                    db.Column(
+                                        'edit_client_order_id', db.Integer, db.ForeignKey('bra_edit_client_order.id'))
+                                    )
+
+
+EDIT_CONTRACT_STATUS_BACK = 1
+EDIT_CONTRACT_STATUS_MEDIA = 2
+EDIT_CONTRACT_STATUS_LEADER = 3
+EDIT_CONTRACT_STATUS_CONTRACT = 4
+EDIT_CONTRACT_STATUS_FINANCE = 5
+EDIT_CONTRACT_STATUS_FINNAL = 10
+
+EDIT_CONTRACT_STATUS_CN = {
+    EDIT_CONTRACT_STATUS_BACK: u'打回，从新填写',
+    EDIT_CONTRACT_STATUS_MEDIA: u'媒介审批中',
+    EDIT_CONTRACT_STATUS_LEADER: u'区域总监审批中',
+    EDIT_CONTRACT_STATUS_CONTRACT: u'合同管理员审批中',
+    EDIT_CONTRACT_STATUS_FINANCE: u'财务审批中',
+    EDIT_CONTRACT_STATUS_FINNAL: u'改单完成'
+}
+
+
+# 改单客户订单表
+class EditClientOrder(db.Model, BaseModelMixin, CommentMixin):
+    __tablename__ = 'bra_edit_client_order'
+
+    id = db.Column(db.Integer, primary_key=True)
+    client_order = db.relationship('ClientOrder', backref=db.backref('client_order_edit_client_order', lazy='dynamic'))
+    client_order_id = db.Column(db.Integer, db.ForeignKey('bra_client_order.id'))  # 原始订单
+    agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))  # 客户合同甲方
+    agent = db.relationship('Agent', backref=db.backref('edit_client_order_agent', lazy='dynamic'))
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'))  # 客户
+    client = db.relationship('Client', backref=db.backref('edit_client_order_client', lazy='dynamic'))
+    campaign = db.Column(db.String(100))  # 活动名称
+    contract = db.Column(db.String(100))  # 客户合同号
+    money = db.Column(db.Float())  # 客户合同金额
+    contract_type = db.Column(db.Integer)  # 合同类型： 标准，非标准
+    client_start = db.Column(db.Date)
+    client_end = db.Column(db.Date)
+    reminde_date = db.Column(db.Date)  # 最迟回款日期
+    resource_type = db.Column(db.Integer)  # 资源形式
+    sale_type = db.Column(db.Integer)  # 资源形式
+
+    direct_sales = db.relationship('User', secondary=edit_direct_sales)
+    agent_sales = db.relationship('User', secondary=edit_agent_sales)
+    replace_sales = db.relationship('User', secondary=edit_replace_sales)
+    assistant_sales = db.relationship('User', secondary=edit_assistant_sales)
+
+    medium_orders = db.relationship('EditOrder', secondary=table_edit_medium_orders)
+    contract_status = db.Column(db.Integer)  # 合同审批状态
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship(
+        'User', backref=db.backref('created_edit_client_order', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+    finish_time = db.Column(db.DateTime)   # 合同归档时间
+    self_agent_rebate = db.Column(db.String(20))  # 单笔返点
+    prim_client_order_data = db.Column(db.Text(), default=json.dumps({}))
+    __mapper_args__ = {'order_by': id.desc()}
+
+    def __init__(self, agent, client, campaign, client_order, self_agent_rebate='0-0',
+                 contract="", money=0, client_start=None, client_end=None, reminde_date=None,
+                 direct_sales=None, agent_sales=None, assistant_sales=[], finish_time=None,
+                 creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW,
+                 contract_type=0, sale_type=0, resource_type=CONTRACT_TYPE_NORMAL):
+        self.agent = agent
+        self.client = client
+        self.campaign = campaign
+        self.medium_orders = []
+        self.client_order = client_order
+        self.contract = contract
+        self.money = money
+        self.contract_type = contract_type
+        self.sale_type = sale_type
+
+        self.client_start = client_start or datetime.date.today()
+        self.client_end = client_end or datetime.date.today()
+        self.reminde_date = reminde_date or datetime.date.today()
+        self.resource_type = resource_type
+
+        self.direct_sales = direct_sales or []
+        self.agent_sales = agent_sales or []
+        self.replace_sales = []
+        self.assistant_sales = assistant_sales
+
+        self.creator = creator
+        self.create_time = create_time or datetime.datetime.now()
+        self.finish_time = finish_time or datetime.datetime.now()
+        self.contract_status = contract_status
+        self.self_agent_rebate = self_agent_rebate
+
+        prim_client_order_data = {}
+        prim_client_order_data['agent_id'] = client_order.agent.id
+        prim_client_order_data['agent_name'] = client_order.agent.name
+        prim_client_order_data['client_id'] = client_order.client.id
+        prim_client_order_data['client_name'] = client_order.client.name
+        prim_client_order_data['campaign'] = client_order.campaign
+        prim_client_order_data['contract'] = client_order.contract
+        prim_client_order_data['money'] = client_order.money
+        prim_client_order_data['contract_type'] = client_order.contract_type
+        prim_client_order_data['contract_type_cn'] = client_order.contract_type_cn
+        prim_client_order_data['client_start'] = client_order.start_date_cn
+        prim_client_order_data['client_end'] = client_order.end_date_cn
+        prim_client_order_data['reminde_date'] = client_order.reminde_date_cn
+        prim_client_order_data['resource_type'] = client_order.resource_type
+        prim_client_order_data['resource_type_cn'] = client_order.resource_type_cn
+        prim_client_order_data['sale_type'] = client_order.sale_type
+        prim_client_order_data['sale_type_cn'] = client_order.sale_type_cn
+        prim_client_order_data['direct_sales'] = [u.id for u in client_order.direct_sales]
+        prim_client_order_data['agent_sales'] = [u.id for u in client_order.agent_sales]
+        prim_client_order_data['assistant_sales'] = [u.id for u in client_order.assistant_sales]
+        prim_client_order_data['self_agent_rebate'] = client_order.self_agent_rebate
+        self.prim_client_order_data = json.dumps(prim_client_order_data)
+
+    @property
+    def name(self):
+        return u"%s-%s" % (self.client.name, self.campaign)
+
+    @property
+    def contract_status_cn(self):
+        return EDIT_CONTRACT_STATUS_CN[self.contract_status]
+
+    def info_path(self):
+        return url_for("order.edit_client_order_info", edit_order_id=self.id)
+
+    @property
+    def locations(self):
+        return list(set([u.location for u in self.direct_sales + self.agent_sales]))
+
+    @property
+    def locations_cn(self):
+        return ",".join([TEAM_LOCATION_CN[l] for l in self.locations])
+
+    @property
+    def create_time_cn(self):
+        return self.create_time.strftime(DATE_FORMAT)
+
+    @property
+    def start_date_cn(self):
+        return self.client_start.strftime(DATE_FORMAT)
+
+    @property
+    def end_date_cn(self):
+        return self.client_end.strftime(DATE_FORMAT)
+
+    @property
+    def reminde_date_cn(self):
+        return self.reminde_date.strftime(DATE_FORMAT)
+
+    @property
+    def direct_sales_names(self):
+        return ",".join([u.name for u in self.direct_sales])
+
+    @property
+    def agent_sales_names(self):
+        return ",".join([u.name for u in self.agent_sales])
+
+    @property
+    def direct_sales_ids(self):
+        return list(set([u.id for u in self.direct_sales]))
+
+    @property
+    def agent_sales_ids(self):
+        return list(set([u.id for u in self.agent_sales]))
+
+    @property
+    def assistant_sales_names(self):
+        return ",".join([u.name for u in self.assistant_sales])
+
+    @property
+    def assistant_sales_ids(self):
+        return list(set([u.id for u in self.assistant_sales]))
+
+    def contract_path(self):
+        return url_for("order.edit_client_order_contract", edit_order_id=self.id)
+
+    @property
+    def contract_type_cn(self):
+        return CONTRACT_TYPE_CN[self.contract_type]
+
+    @property
+    def resource_type_cn(self):
+        return RESOURCE_TYPE_CN.get(self.resource_type)
+
+    @property
+    def sale_type_cn(self):
+        return SALE_TYPE_CN.get(self.sale_type)
+
+    @property
+    def leaders(self):
+        return list(set([l for u in self.direct_sales + self.agent_sales + self.replace_sales + self.assistant_sales
+                         for l in u.user_leaders]))
+
+    @property
+    def email_info(self):
+        return u"""
+    类型:新媒体订单
+    客户订单:
+        客户: %s
+        代理/直客: %s
+        Campaign: %s
+        金额: %s (元)
+        直客销售: %s
+        渠道销售: %s
+        执行开始时间: %s
+        执行结束时间: %s
+        客户合同号: %s
+
+    媒体订单:
+%s
+   """ % (self.client.name, self.agent.name, self.campaign, self.money,
+          self.direct_sales_names, self.agent_sales_names,
+          self.start_date_cn, self.end_date_cn, self.contract,
+          "\n".join([o.email_info for o in self.medium_orders]))
+
+    @property
+    def self_agent_rebate_value(self):
+        if self.self_agent_rebate:
+            p_self_agent_rebate = self.self_agent_rebate.split('-')
+        else:
+            p_self_agent_rebate = ['0', '0.0']
+        return {'status': p_self_agent_rebate[0],
+                'value': p_self_agent_rebate[1]}
+
+    @property
+    def search_info(self):
+        return (self.client.name + self.agent.name +
+                self.campaign + self.contract +
+                "".join([k.name for k in self.direct_sales + self.agent_sales]) +
+                "".join([mo.medium_group.name + mo.media.name + mo.medium_contract for mo in self.medium_orders]))
+
+    def have_owner(self, user):
+        """是否可以查看该订单"""
+        salers = self.direct_sales + self.agent_sales
+        leaders = []
+        for k in salers:
+            leaders += k.team_leaders
+        owner = salers + [self.creator] + list(set(leaders))
+        return user.is_admin() or user in owner
+
+    @classmethod
+    def get_order_by_user(cls, user):
+        """一个用户可以查看的所有订单"""
+        return [o for o in cls.all() if o.have_owner(user)]
+
+
+edit_operater_users = db.Table('edit_order_users_operater',
+                               db.Column(
+                                   'user_id', db.Integer, db.ForeignKey('user.id')),
+                               db.Column(
+                                   'edit_order_id', db.Integer, db.ForeignKey('bra_edit_order.id'))
+                               )
+edit_designer_users = db.Table('edit_order_users_designerer',
+                               db.Column(
+                                   'user_id', db.Integer, db.ForeignKey('user.id')),
+                               db.Column(
+                                   'edit_order_id', db.Integer, db.ForeignKey('bra_edit_order.id'))
+                               )
+edit_planer_users = db.Table('edit_order_users_planer',
+                             db.Column(
+                                 'user_id', db.Integer, db.ForeignKey('user.id')),
+                             db.Column(
+                                 'edit_order_id', db.Integer, db.ForeignKey('bra_edit_order.id'))
+                             )
+
+
+# 改单媒体订单表
+class EditOrder(db.Model, BaseModelMixin, CommentMixin):
+    __tablename__ = 'bra_edit_order'
+
+    id = db.Column(db.Integer, primary_key=True)
+    order = db.relationship('Order', backref=db.backref('order_edit_client_order', lazy='dynamic'))
+    order_id = db.Column(db.Integer, db.ForeignKey('bra_order.id'))  # 原始订单
+    campaign = db.Column(db.String(100))  # 活动名称
+    medium_group_id = db.Column(db.Integer, db.ForeignKey('medium_group.id'))  # 代理公司id
+    medium_group = db.relationship('MediumGroup', backref=db.backref('medium_group_edit_order', lazy='dynamic'))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))  # 投放媒体
+    media = db.relationship('Media', backref=db.backref('media_edit_orders', lazy='dynamic'))
+    client_orders = db.relationship('EditClientOrder', secondary=table_edit_medium_orders)
+
+    medium_contract = db.Column(db.String(100))  # 媒体合同号
+    medium_money2 = db.Column(db.Float())  # 媒体金额
+    sale_money = db.Column(db.Float())  # 售卖金额
+    medium_CPM = db.Column(db.Integer)  # 实际CPM
+    sale_CPM = db.Column(db.Integer)  # 下单CPM
+    medium_start = db.Column(db.Date)
+    medium_end = db.Column(db.Date)
+
+    operaters = db.relationship('User', secondary=edit_operater_users)
+    designers = db.relationship('User', secondary=edit_designer_users)
+    planers = db.relationship('User', secondary=edit_planer_users)
+
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship('User', backref=db.backref('created_edit_orders', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+    finish_time = db.Column(db.DateTime)
+    prim_order_data = db.Column(db.Text(), default=json.dumps({}))
+    self_medium_rebate = db.Column(db.String(20))  # 单笔返点
+
+    def __init__(self, campaign, media, medium_group, order,
+                 medium_contract="", sale_money=0, medium_money2=0,
+                 medium_CPM=0, sale_CPM=0, medium_start=None, medium_end=None,
+                 operaters=None, designers=None, planers=None,
+                 creator=None, create_time=None, finish_time=None,
+                 self_medium_rebate='0-0',):
+        self.order = order
+        self.campaign = campaign
+        self.media = media
+        self.medium_id = 1
+        self.medium_group = medium_group
+        self.medium_contract = medium_contract
+        self.medium_money2 = medium_money2
+        self.sale_money = sale_money
+        self.medium_CPM = medium_CPM
+        self.sale_CPM = sale_CPM
+        self.medium_start = medium_start or datetime.date.today()
+        self.medium_end = medium_end or datetime.date.today()
+
+        self.operaters = operaters or []
+        self.designers = designers or []
+        self.planers = planers or []
+
+        self.creator = creator
+        self.create_time = create_time or datetime.datetime.now()
+        self.finish_time = create_time or datetime.datetime.now()
+        self.self_medium_rebate = self_medium_rebate
+        prim_order_data = {}
+        prim_order_data['campaign'] = order.campaign
+        prim_order_data['medium_group_id'] = order.medium_group.id
+        prim_order_data['medium_group_cn'] = order.medium_group.name
+        prim_order_data['media_id'] = order.media.id
+        prim_order_data['media_name'] = order.media.name
+        prim_order_data['medium_contract'] = order.medium_contract
+        prim_order_data['medium_money2'] = order.medium_money2
+        prim_order_data['sale_money'] = order.sale_money
+        prim_order_data['medium_CPM'] = order.medium_CPM
+        prim_order_data['sale_CPM'] = order.sale_CPM
+        prim_order_data['medium_start'] = order.start_date_cn
+        prim_order_data['medium_end'] = order.end_date_cn
+        prim_order_data['operaters'] = [u.id for u in order.operaters]
+        prim_order_data['designers'] = [u.id for u in order.designers]
+        prim_order_data['planers'] = [u.id for u in order.planers]
+        prim_order_data['self_medium_rebate'] = order.self_medium_rebate
+        self.prim_order_data = json.dumps(prim_order_data)
+
+    @property
+    def start_date_cn(self):
+        return self.medium_start.strftime(DATE_FORMAT)
+
+    @property
+    def end_date_cn(self):
+        return self.medium_end.strftime(DATE_FORMAT)
+
+    @property
+    def sale_ECPM(self):
+        return (self.medium_money2 / float(self.sale_CPM)) if (self.medium_money2 and self.sale_CPM) else 0
+
+    @property
+    def operater_names(self):
+        return ",".join([u.name for u in self.operaters])
+
+    @property
+    def designers_names(self):
+        return ",".join([u.name for u in self.designers])
+
+    @property
+    def planers_names(self):
+        return ",".join([u.name for u in self.planers])
+
+    @property
+    def operaters_ids(self):
+        return list(set([u.id for u in self.operaters]))
+
+    @property
+    def designers_ids(self):
+        return list(set([u.id for u in self.designers]))
+
+    @property
+    def planers_ids(self):
+        return list(set([u.id for u in self.planers]))
+
+    @property
+    def email_info(self):
+        return u"""
+        投放媒体: %s
+        售卖金额: %s (元)
+        媒体金额: %s (元)
+        预估CPM: %s
+        预估ECPM: %.1f 媒体金额/预估CPM
+        执行开时间: %s
+        执行结束时间: %s
+        媒体合同号: %s
+        执行: %s
+        """ % (self.media.name, self.sale_money or 0, self.medium_money2 or 0,
+               self.sale_CPM or 0, self.sale_ECPM, self.start_date_cn, self.end_date_cn,
+               self.medium_contract, self.operater_names)
+
+    @property
+    def self_medium_rebate_value(self):
+        if self.self_medium_rebate:
+            p_self_medium_rebate = self.self_medium_rebate.split('-')
+        else:
+            p_self_medium_rebate = ['0', '0.0']
+        return {'status': p_self_medium_rebate[0],
+                'value': p_self_medium_rebate[1]}
+
+
+# 改单次数(用于统计销售出错率)
+class BackEditClientOrder(db.Model, BaseModelMixin):
+    __tablename__ = 'bra_back_edit_client_order'
+
+    id = db.Column(db.Integer, primary_key=True)
+    edit_client_order = db.relationship('EditClientOrder',
+                                        backref=db.backref('back_client_order_edit_client_order', lazy='dynamic'))
+    edit_client_order_id = db.Column(db.Integer, db.ForeignKey('bra_edit_client_order.id'))  # 原始订单
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref=db.backref('back_edit_order_user', lazy='dynamic'))
+    create_time = db.Column(db.DateTime)
+
+    def __init__(self, edit_client_order, user, create_time=None):
+        self.edit_client_order = edit_client_order
+        self.user = user
+        self.create_time = create_time or datetime.datetime.now()

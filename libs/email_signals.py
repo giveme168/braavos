@@ -13,6 +13,7 @@ braavos_signals = Namespace()
 password_changed_signal = braavos_signals.signal('password_changed')
 add_comment_signal = braavos_signals.signal('add_comment')
 zhiqu_contract_apply_signal = braavos_signals.signal('zhiqu_contract_apply')
+zhiqu_edit_contract_apply_signal = braavos_signals.signal('zhiqu_edit_contract_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
 agent_invoice_apply_signal = braavos_signals.signal('agent_invoice_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
@@ -83,7 +84,6 @@ def contract_apply_douban(sender, apply_context):
         file_paths.append(order.get_last_contract().real_path)
     if order.get_last_schedule():
         file_paths.append(order.get_last_schedule().real_path)
-    douban_contracts = User.douban_contracts()
     to_users = [k.email for k in User.douban_contracts()] + \
         _get_active_user_email(User.contracts()) + \
         _get_active_user_email(order.direct_sales + order.agent_sales + [order.creator])
@@ -92,6 +92,63 @@ def contract_apply_douban(sender, apply_context):
                      body=order.douban_contract_email_info(
                          title=u"请帮忙打印合同, 谢谢~"),
                      file_paths=file_paths)
+
+
+def zhiqu_edit_contract_apply(sender, context):
+    order = context['order']
+    to_users = context['to_users']
+    action_msg = context['action_msg']
+    info = context['info']
+    action = context['action']
+    to_other = context['to_other']
+    if action in [31, 41, 51, 101]:
+        action_info = order.creator.name + u', 您的改单申请被' + g.user.name + u'驳回了，请重新修改后申请。'
+    elif action == 2:
+        medium_users = [k for k in to_users if k.team.type in [12, 20]]
+        action_info = u'请' + ','.join(_get_active_user_name(medium_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 12:
+        medium_users = [k for k in to_users if k.team.type in [12, 20]]
+        action_info = u'请' + ','.join(_get_active_user_name(medium_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 3:
+        leader_users = [k for k in to_users if k.team.type in [9]]
+        action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 13:
+        leader_users = [k for k in to_users if k.team.type in [9]]
+        action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 4:
+        contract_users = [k for k in to_users if k.team.type in [10]]
+        action_info = u'请' + ','.join(_get_active_user_name(contract_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 14:
+        contract_users = [k for k in to_users if k.team.type in [10]]
+        action_info = u'请' + ','.join(_get_active_user_name(contract_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 5:
+        action_info = u'请财务, 确认以下订单的修改请求'
+    elif action == 15:
+        action_info = u'请财务, 确认以下订单的修改请求'
+    elif action == 10:
+        action_info = u'%s ，您的订单已修改完成' % (order.creator.name)
+    title = u"【新媒体订单-修改合同申请】- %s" % (order.name)
+    url = mail.app.config['DOMAIN'] + order.info_path()
+    body = u"""
+<h3 style="color:red;">流程状态: %s
+<br/>%s<br/>订单链接地址: %s</h3>
+<p><h4>留言信息:</h4>
+%s</p>
+<p><h4>订单信息:</h4>
+%s</p>
+
+<p>by %s</p>
+""" % (action_msg, action_info, url, info, order.email_info, g.user.name)
+    flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
+    _insert_person_notcie(to_users, title, body)
+    send_html_mail(title, recipients=_get_active_user_email(
+        to_users) + to_other + ['guoyu@inad.com'], body=body.replace('\n', '<br/>'))
 
 
 def zhiqu_contract_apply(sender, context, douban_type=False):
@@ -1237,6 +1294,7 @@ def email_init_signal(app):
     password_changed_signal.connect_via(app)(password_changed)
     add_comment_signal.connect_via(app)(add_comment)
     zhiqu_contract_apply_signal.connect_via(app)(zhiqu_contract_apply)
+    zhiqu_edit_contract_apply_signal.connect_via(app)(zhiqu_edit_contract_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
     agent_invoice_apply_signal.connect_via(app)(agent_invoice_apply)
     invoice_apply_signal.connect_via(app)(invoice_apply)

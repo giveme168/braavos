@@ -110,13 +110,14 @@ class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMix
     kind = "medium-framework-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
-    def __init__(self, medias=None, description=None, status=STATUS_ON,
+    def __init__(self, medium_groups=None, description=None, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, medium_users=None,
                  finish_time=None, creator=None, create_time=None,
                  contract_status=CONTRACT_STATUS_NEW,
                  inad_rebate=0.0):
-        self.medias = medias or []
+        self.medium_groups = medium_groups or []
+        self.medias = []
         self.mediums = []
         self.description = description or ""
         self.contract = contract
@@ -261,7 +262,7 @@ class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMix
         return is_exist
 
     def get_default_contract(self):
-        return contract_generator(self.mediums[0], self.id)
+        return contract_generator(self.medium_groups[0], self.id)
 
     def can_edit_contract_time(self, now_date=None):
         if not now_date:

@@ -176,7 +176,7 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
                                                                      lazy='dynamic'))
     medium = db.relationship(
         'Medium', backref=db.backref('client_medium', lazy='dynamic'))
-    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 媒体
+    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 废除此字段
     media = db.relationship(
         'Media', backref=db.backref('client_media', lazy='dynamic'))
     media_id = db.Column(db.Integer, db.ForeignKey('media.id'))  # 媒体
