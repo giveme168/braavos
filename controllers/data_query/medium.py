@@ -6,6 +6,7 @@ from flask import Blueprint, request, abort, g
 from flask import render_template as tpl
 
 from models.medium import Media
+from models.client import AgentMediaRebate
 from libs.date_helpers import get_monthes_pre_days
 from models.order import Order
 from controllers.data_query.helpers.medium_helpers import write_client_excel
@@ -25,7 +26,6 @@ def _parse_dict_order(order):
     d_order['sale_money'] = order.sale_money
     d_order['medium_money2'] = order.medium_money2
     medium_rebate = order.order.medium_rebate_by_year(d_order['month_day'])
-    agent_rebate = order.client_order.agent_rebate
     d_order['medium_rebate_value'] = d_order[
         'medium_money2'] * medium_rebate / 100
     # 单笔返点
@@ -44,8 +44,13 @@ def _parse_dict_order(order):
         else:
             d_order['agent_rebate_value'] = 0
     else:
-        d_order['agent_rebate_value'] = d_order[
-            'sale_money'] * agent_rebate / 100
+        # 是否有针对代理的特殊返点
+        agent_media_rebate = AgentMediaRebate.query.filter_by(agent=order.client_order.agent,
+                                                              media=order.order.media).first()
+        if agent_media_rebate:
+            d_order['agent_rebate_value'] = d_order['sale_money'] * agent_media_rebate.rebate / 100
+        else:
+            d_order['agent_rebate_value'] = 0
     d_order['status'] = order.client_order.status
     return d_order
 
@@ -124,7 +129,12 @@ def index():
                 else:
                     d_order['agent_rebate_value'] = 0
             else:
-                d_order['agent_rebate_value'] = d_order['sale_money'] * agent_rebate / 100
+                agent_media_rebate = AgentMediaRebate.query.filter_by(agent=order.client_order.agent,
+                                                                      media=order.media).first()
+                if agent_media_rebate:
+                    d_order['agent_rebate_value'] = d_order['sale_money'] * agent_media_rebate.rebate / 100
+                else:
+                    d_order['agent_rebate_value'] = d_order['sale_money'] * agent_rebate / 100
             obj_data.append(d_order)
     ex_medium_orders = [k for k in obj_data if k[
         'contract_status'] not in [0, 1, 3, 6, 7, 8, 81, 9] and k['status'] == 1]

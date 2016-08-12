@@ -91,8 +91,8 @@ def _douban_order_to_dict(douban_order, all_back_moneys, all_agent_rebate, pre_y
                                     start_datetime,
                                     end_datetime)
     # 获取所有外包信息
-    t_outsource_money = sum([o['money'] for o in all_outsource if o['order_id']
-                             == dict_order['order_id'] and o['type'] == 'douban'])
+    t_outsource_money = sum([o['money'] for o in all_outsource
+                             if o['order_id'] == dict_order['order_id'] and o['type'] == 'douban'])
     outsource_ex_data = pre_month_money(t_outsource_money,
                                         start_datetime,
                                         end_datetime)
@@ -159,7 +159,7 @@ def _medium_order_to_dict(order, all_back_moneys, all_agent_rebate, pre_year_mon
     dict_order['medium_order_id'] = order.id
     dict_order['locations_cn'] = order.client_order.locations_cn
     dict_order['client_name'] = order.client_order.client.name
-    dict_order['agent_name'] = order.media.name
+    dict_order['agent_name'] = order.medium_group.name
     dict_order['campaign'] = order.client_order.campaign
     dict_order['industry_cn'] = order.client_order.client.industry_cn
     dict_order['locations'] = order.client_order.locations
@@ -232,15 +232,15 @@ def _medium_order_to_dict(order, all_back_moneys, all_agent_rebate, pre_year_mon
                                            for k in dict_order['sale_money_data']]
     else:
         # 代理返点系数
-        if order.medium.id == 8:
+        if order.medium_group.id == 19:
             agent_id = 94
-        elif order.medium.id == 3:
+        elif order.medium_group.id == 8:
             agent_id = 105
-        elif order.medium.id == 44:
+        elif order.medium_group.id == 68:
             agent_id = 228
-        elif order.medium.id == 27:
+        elif order.medium_group.id == 9:
             agent_id = 93
-        elif order.medium.id == 37:
+        elif order.medium_group.id == 39:
             agent_id = 213
         else:
             agent_id = 0
@@ -303,9 +303,8 @@ def index():
     orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20]]
     # 获取关联豆瓣合同
     medium_orders = [_medium_order_to_dict(k, client_back_money_data, all_agent_rebate,
-                                           pre_year_month, all_outsource_data, shenji)
-                     for k in Order.all() if (k.medium_start.year == year or k.medium_end.year == year)
-                     and k.associated_douban_order]
+                                           pre_year_month, all_outsource_data, shenji) for k in Order.all()
+                     if (k.medium_start.year == year or k.medium_end.year == year) and k.associated_douban_order]
     orders += [k for k in medium_orders if k['contract_status']
                in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     # 获取关联豆瓣合同结束

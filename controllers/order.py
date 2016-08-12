@@ -21,20 +21,22 @@ from models.client_order import (CONTRACT_STATUS_APPLYCONTRACT, CONTRACT_STATUS_
                                  STATUS_DEL, STATUS_ON, CONTRACT_STATUS_NEW, CONTRACT_STATUS_DELETEAPPLY,
                                  CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEPASS,
                                  CONTRACT_STATUS_PRE_FINISH, CONTRACT_STATUS_FINISH, CONTRACT_STATUS_CHECKCONTRACT,
-                                 CONTRACT_STATUS_DELETEFINANCE)
+                                 CONTRACT_STATUS_DELETEFINANCE, EditClientOrder, EditOrder, BackEditClientOrder,
+                                 EDIT_CONTRACT_STATUS_CN)
 from models.client_order import ClientOrder, ClientOrderExecutiveReport, IntentionOrder, COMPLETE_PERCENT_CN
 from models.client_medium_order import ClientMediumOrder
 from models.framework_order import FrameworkOrder
 from models.medium_framework_order import MediumFrameworkOrder
 from models.douban_order import DoubanOrder, DoubanOrderExecutiveReport
 from models.associated_douban_order import AssociatedDoubanOrder
-from models.user import User, TEAM_LOCATION_CN
+from models.user import (User, TEAM_LOCATION_CN, TEAM_TYPE_DESIGNER,
+                         TEAM_TYPE_PLANNER, TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER)
 from models.excel import Excel
 from models.attachment import Attachment
 from models.download import (download_excel_table_by_doubanorders,
                              download_excel_table_by_frameworkorders)
 
-from libs.email_signals import zhiqu_contract_apply_signal
+from libs.email_signals import zhiqu_contract_apply_signal, zhiqu_edit_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
 from controllers.helpers.order_helpers import write_client_excel, write_frameworkorder_excel
@@ -395,9 +397,9 @@ def order_info(order_id, tab_id=1):
                 msg = u"新合同号如下:\n\n%s-致趣: %s\n\n" % (
                     order.agent.name, order.contract)
                 for mo in order.medium_orders:
-                    msg = msg + u"致趣-%s: %s\n\n" % (mo.medium.name, mo.medium_contract or "")
+                    msg = msg + u"致趣-%s: %s\n\n" % (mo.media.name, mo.medium_contract or "")
                 for o in order.associated_douban_orders:
-                    msg = msg + u"%s-豆瓣: %s\n\n" % (o.medium_order.medium.name, o.contract or "")
+                    msg = msg + u"%s-豆瓣: %s\n\n" % (o.medium_order.media.name, o.contract or "")
                 to_users = order.direct_sales + order.assistant_sales + order.agent_sales + [order.creator, g.user]
                 context = {'order': order,
                            'sender': g.user,
@@ -525,18 +527,18 @@ def order_medium_edit_cpm(medium_id):
         cpm = int(round(float(cpm)))
         if mo.medium_CPM != cpm:
             mo.client_order.add_comment(
-                g.user, u"更新了媒体订单: %s 的实际量%s CPM" % (mo.medium.name, cpm))
+                g.user, u"更新了媒体订单: %s 的实际量%s CPM" % (mo.media.name, cpm))
         mo.medium_CPM = cpm
     if sale_CPM != 0:
         if mo.sale_CPM != sale_CPM:
             mo.client_order.add_comment(
-                g.user, u"更新了媒体订单: %s 的预估量%s CPM" % (mo.medium.name, sale_CPM))
+                g.user, u"更新了媒体订单: %s 的预估量%s CPM" % (mo.media.name, sale_CPM))
         mo.sale_CPM = sale_CPM
     if medium_money != '':
         medium_money = float(medium_money)
         if mo.medium_money != medium_money:
             mo.client_order.add_comment(
-                g.user, u"更新了媒体订单: %s 的分成金额%s " % (mo.medium.name, medium_money))
+                g.user, u"更新了媒体订单: %s 的分成金额%s " % (mo.media.name, medium_money))
         mo.medium_money = medium_money
     mo.self_medium_rebate = str(self_medium_rebate) + '-' + str(self_medium_rabate_value)
     finish_status = int(request.values.get('finish_status', 1))
@@ -545,9 +547,9 @@ def order_medium_edit_cpm(medium_id):
     mo.finish_status = finish_status
     if finish_status == 0 and last_status != 0:
         mo.finish_time = datetime.now()
-        mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.medium.name))
+        mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.media.name))
     elif finish_status == 1 and last_status == 0:
-        mo.client_order.add_comment(g.user, u" %s 媒体订单取消归档" % (mo.medium.name))
+        mo.client_order.add_comment(g.user, u" %s 媒体订单取消归档" % (mo.media.name))
     mo.save()
     if medium_money != '':
         _insert_executive_report(mo, 'reload')
@@ -564,7 +566,7 @@ def new_associated_douban_order():
                                    creator=g.user)
     ao.medium_order.client_order.add_comment(g.user,
                                              u"新建了关联豆瓣订单: %s - %s - %s" % (
-                                                 ao.medium_order.medium.name,
+                                                 ao.medium_order.media.name,
                                                  ao.campaign, ao.money))
     flash(u'[关联豆瓣订单]新建成功!', 'success')
     return redirect(ao.info_path())
@@ -582,7 +584,7 @@ def associated_douban_order(order_id):
     ao.save()
     ao.medium_order.client_order.add_comment(g.user,
                                              u"更新了关联豆瓣订单: %s - %s - %s" % (
-                                                 ao.medium_order.medium.name,
+                                                 ao.medium_order.media.name,
                                                  ao.campaign, ao.money))
     flash(u'[关联豆瓣订单]%s 保存成功!' % ao.name, 'success')
     return redirect(ao.info_path())
@@ -631,6 +633,10 @@ def contract_status_change(order, action, emails, msg):
         if order.__tablename__ == 'bra_client_order':
             medium_groups = [k.medium_group.id for k in order.medium_orders]
             if 1 in medium_groups:
+                flash(u'请媒介分配媒体供应商!', 'danger')
+                return redirect(order.info_path())
+        elif order.__tablename__ == 'bra_client_medium_order':
+            if order.medium_group.id == 1:
                 flash(u'请媒介分配媒体供应商!', 'danger')
                 return redirect(order.info_path())
         order.contract_status = CONTRACT_STATUS_APPLYCONTRACT
@@ -1092,8 +1098,7 @@ def framework_order_contract(order_id):
 def new_medium_framework_order():
     form = MediumFrameworkOrderForm(request.form)
     if request.method == 'POST' and form.validate():
-        order = MediumFrameworkOrder.add(medium_groups=MediumGroup.gets(form.medium_groupss.data),
-                                         mediums=[],
+        order = MediumFrameworkOrder.add(medium_groups=MediumGroup.gets(form.medium_groups.data),
                                          description=form.description.data,
                                          money=float(form.money.data or 0),
                                          client_start=form.client_start.data,
@@ -1950,7 +1955,7 @@ def intention_order_in_real(iid):
                        creator=g.user)
         order.medium_orders = order.medium_orders + [mo]
         order.add_comment(g.user, u"新建了媒体订单: %s %s元" %
-                          (mo.medium.name, intention_order.money))
+                          (mo.media.name, intention_order.money))
         order.save()
         flash(u'新建客户订单成功, 请上传合同和排期!', 'success')
         intention_order.order_id = '1-' + str(order.id)
@@ -1966,7 +1971,7 @@ def intention_order_in_real(iid):
 @order_bp.route('/new_client_medium_order', methods=['GET', 'POST'])
 def new_client_medium_order():
     form = ClientMediumOrderForm(request.form)
-    if request.method == 'POST' and form.validate():
+    if request.method == 'POST':
         if ClientMediumOrder.query.filter_by(campaign=form.campaign.data).count() > 0:
             flash(u'campaign名称已存在，请更换其他名称!', 'danger')
             return redirect(url_for("order.new_client_medium_order"))
@@ -1993,8 +1998,8 @@ def new_client_medium_order():
                                       creator=g.user,
                                       create_time=datetime.now(),
                                       finish_time=datetime.now(),
-                                      medium_group=MediumGroup.get(form.medium_group.data),
-                                      medium=Medium.get(form.medium.data),
+                                      medium_group=MediumGroup.get(1),
+                                      media=Media.get(form.media.data),
                                       medium_money=form.medium_money.data,
                                       self_agent_rebate=str(self_rebate) + '-' + str(self_rabate_value))
         order.add_comment(g.user, u"新建了直签媒体订单")
@@ -2028,7 +2033,7 @@ def get_client_medium_order_form(order):
     form.resource_type.data = order.resource_type
     form.sale_type.data = order.sale_type
     form.medium_group.data = order.medium_group_id
-    form.medium.data = order.medium.id
+    form.media.data = order.media.id
     form.medium_money.data = order.medium_money
     return form
 
@@ -2071,7 +2076,8 @@ def client_medium_order_info(order_id):
                     order.contract_type = form.contract_type.data
                     order.resource_type = form.resource_type.data
                     order.sale_type = form.sale_type.data
-                    order.medium = Medium.get(form.medium.data)
+                    order.medium_group = MediumGroup.get(form.medium_group.data)
+                    order.media = Media.get(form.media.data)
                     order.medium_money = form.medium_money.data
                     order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
                     if g.user.is_super_admin() or g.user.is_contract():
@@ -2217,34 +2223,374 @@ def client_medium_attach_status(order_id, attachment_id, status):
     return redirect(order.info_path())
 
 
+#################
+# 自动改单
+#################
 @order_bp.route('/edit_client_order', methods=['GET'])
 def edit_client_order():
-    year = str(request.values.get('year', datetime.now().year))
+    year = int(request.values.get('year', datetime.now().year))
     search_info = request.args.get('searchinfo', '')
     location = int(request.args.get('location', 0))
     status = int(request.values.get('status', 0))
     page = int(request.args.get('p', 1))
-    orders = []
+    orders = list(EditClientOrder.all())
+
+    if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media() or \
+            g.user.is_media_leader() or g.user.is_finance():
+        orders = list(EditClientOrder.all())
+    elif g.user.is_leader():
+        orders = [o for o in EditClientOrder.all() if g.user.location in o.locations]
+    else:
+        orders = EditClientOrder.get_order_by_user(g.user)
+    orders = [order for order in orders if order.client_start.year == year or order.client_end.year == year]
+    if status:
+        orders = [order for order in orders if order.contract_status == status]
+    if location:
+        orders = [order for order in orders if location in order.locations]
+    if search_info:
+        orders = [order for order in orders if search_info.lower() in order.search_info.lower()]
+
     paginator = Paginator(orders, ORDER_PAGE_NUM)
     try:
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
+    print status
     params = '&searchinfo=%s&year=%s&location=%s&status=%s' % (search_info, str(year), location, status)
     return tpl('edit_client_orders.html', orders=orders, year=year, search_info=search_info, page=page, params=params,
-               location=location, status=status)
+               location=location, status=status, EDIT_CONTRACT_STATUS_CN=EDIT_CONTRACT_STATUS_CN.items())
 
 
-@order_bp.route('/edit_client_order/create', methods=['GET'])
-def edit_client_order_create():
-    return tpl('edit_client_order_create.html')
+@order_bp.route('/edit_client_order/<edit_order_id>/info', methods=['GET', 'POST'])
+def edit_client_order_info(edit_order_id):
+    edit_order = EditClientOrder.get(edit_order_id)
+    order = edit_order.client_order
+    if request.method == 'POST':
+        self_rebate = int(request.values.get('self_rebate', 0))
+        self_rabate_value = float(request.values.get('self_rabate_value', 0))
+        edit_order.agent = Agent.get(request.values.get('agent'))
+        edit_order.client = Client.get(request.values.get('client'))
+        edit_order.campaign = request.values.get('campaign')
+        edit_order.money = float(request.values.get('money', 0.0))
+        edit_order.client_start = request.values.get('client_start')
+        edit_order.client_end = request.values.get('client_end')
+        edit_order.reminde_date = request.values.get('reminde_date')
+        edit_order.direct_sales = User.gets(request.values.getlist('direct_sales'))
+        edit_order.agent_sales = User.gets(request.values.getlist('agent_sales'))
+        edit_order.assistant_sales = User.gets(request.values.getlist('assistant_sales'))
+        edit_order.contract_type = request.values.get('contract_type')
+        edit_order.resource_type = request.values.get('resource_type')
+        edit_order.sale_type = request.values.get('sale_type')
+        edit_order.creator = g.user
+        edit_order.finish_time = datetime.now()
+        edit_order.self_agent_rebate = str(self_rebate) + '-' + str(self_rabate_value)
+        edit_order.save()
+        for m in edit_order.medium_orders:
+            self_medium_rebate = int(request.values.get('self_medium_rebate_' + str(m.id), 0))
+            self_medium_rabate_value = float(request.values.get('self_medium_rabate_value_' + str(m.id), 0))
+            m.media = Media.get(request.values.get('media_' + str(m.id)))
+            m.medium_group = MediumGroup.get(request.values.get('medium_group_' + str(m.id)))
+            m.sale_money = float(request.values.get('sale_money_' + str(m.id), 0.0))
+            m.medium_money2 = float(request.values.get('medium_money2_' + str(m.id), 0.0))
+            m.medium_start = request.values.get('medium_start_' + str(m.id), datetime.today())
+            m.medium_end = request.values.get('medium_end_' + str(m.id), datetime.today())
+            m.creator = g.user
+            m.medium_CPM = request.values.get('medium_CPM_' + str(m.id), 0.0)
+            m.sale_CPM = request.values.get('sale_CPM_' + str(m.id), 0.0)
+            m.operaters = User.gets(request.values.getlist('operaters_' + str(m.id)))
+            m.designers = User.gets(request.values.getlist('designers_' + str(m.id)))
+            m.planers = User.gets(request.values.getlist('planers_' + str(m.id)))
+            m.self_medium_rebate = str(self_medium_rebate) + '-' + str(self_medium_rabate_value)
+            m.save()
+        edit_order.add_comment(g.user, u"修改了申请修改客户订单:%s - %s - %s" %
+                               (edit_order.agent.name,
+                                edit_order.client.name,
+                                edit_order.campaign),
+                               msg_channel=15)
+        return redirect(url_for('order.edit_client_order_info', edit_order_id=edit_order.id))
+    operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
+    designers = User.gets_by_team_type(TEAM_TYPE_DESIGNER)
+    planers = User.gets_by_team_type(TEAM_TYPE_PLANNER)
+    salers = User.sales()
+    return tpl('edit_client_order_info.html', order=order, edit_order=edit_order,
+               medium_groups=MediumGroup.all(), medias=Media.all(), salers=salers,
+               operaters=operaters, designers=designers, planers=planers,
+               agents=Agent.all(), clients=Client.all(), reminder_emails=User.all_active())
 
 
-@order_bp.route('/edit_client_order/search', methods=['GET'])
-def edit_client_order_search():
-    info = request.values.get('info', '')
-    if info:
-        orders = [order for order in ClientOrder.all() if info.lower().strip() in order.search_info.lower()]
-    else:
-        orders = []
-    return tpl('edit_client_order_search.html', info=info, orders=orders)
+@order_bp.route('/edit_client_order/<edit_order_id>/contract', methods=['POST'])
+def edit_client_order_contract(edit_order_id):
+    edit_order = EditClientOrder.get(edit_order_id)
+    if not edit_order:
+        abort(404)
+    action = int(request.values.get('action'))
+    emails = request.values.getlist('email')
+    msg = request.values.get('msg', '')
+    salers = edit_order.direct_sales + edit_order.agent_sales + edit_order.assistant_sales
+    leaders = []
+    for k in salers:
+        leaders += k.team_leaders
+    to_users = salers + [edit_order.creator, g.user]
+    emails += [k.email for k in list(set(leaders))]
+
+    if action in [2, 3]:
+        medium_orders = edit_order.medium_orders
+        if edit_order.money != sum([o.sale_money for o in medium_orders]):
+            flash(u'客户合同金额与媒体合同售卖金额总和不符，请确认后进行审批!', 'danger')
+            return redirect(edit_order.info_path())
+        for m in medium_orders:
+            if m.start_date_cn < edit_order.start_date_cn:
+                flash(u'媒体合同的执行时间必须在客户合同执行时间内，请确认后进行审批!', 'danger')
+                return redirect(edit_order.info_path())
+            if m.end_date_cn > edit_order.end_date_cn:
+                flash(u'媒体合同的执行时间必须在客户合同执行时间内，请确认后进行审批', 'danger')
+                return redirect(edit_order.info_path())
+    # 判断客户金额是否等于媒体售卖金额总和
+    if action == 2:
+        edit_order.contract_status = 2
+        action_msg = u"申请媒介审批"
+        to_users = to_users + edit_order.leaders + User.medias()
+    elif action == 12:
+        action_msg = u"提醒媒介确认"
+        to_users = to_users + edit_order.leaders + User.medias()
+    elif action == 3:
+        action_msg = u"申请区域总监审批"
+        edit_order.contract_status = 3
+        to_users = to_users + edit_order.leaders
+    elif action == 13:
+        action_msg = u"提醒区域总监是审批"
+        to_users = to_users + edit_order.leaders
+    elif action == 4:
+        edit_order.contract_status = 4
+        action_msg = u"申请合同管理员审批"
+        to_users = to_users + edit_order.leaders + User.contracts()
+    elif action == 14:
+        action_msg = u"提醒合同管理员审批"
+        to_users = to_users + edit_order.leaders + User.contracts()
+    elif action == 5:
+        edit_order.contract_status = 5
+        action_msg = u"申请财务审批"
+        to_users = to_users + edit_order.leaders + User.finances()
+    elif action == 15:
+        action_msg = u"提醒财务审批"
+        to_users = to_users + edit_order.leaders + User.finances()
+    elif action == 31:
+        edit_order.contract_status = 1
+        action_msg = u"媒介驳回了您的改单申请"
+        to_users = to_users + edit_order.leaders
+        BackEditClientOrder.add(edit_client_order=edit_order,
+                                user=edit_order.creator,
+                                create_time=datetime.today())
+    elif action == 41:
+        edit_order.contract_status = 1
+        action_msg = u"区域总监驳回了您的改单申请"
+        to_users = to_users + edit_order.leaders
+        BackEditClientOrder.add(edit_client_order=edit_order,
+                                user=edit_order.creator,
+                                create_time=datetime.today())
+    elif action == 51:
+        edit_order.contract_status = 1
+        action_msg = u"合同管理员驳回了您的改单申请"
+        to_users = to_users + edit_order.leaders
+        BackEditClientOrder.add(edit_client_order=edit_order,
+                                user=edit_order.creator,
+                                create_time=datetime.today())
+    elif action == 101:
+        edit_order.contract_status = 1
+        action_msg = u"财务驳回了您的改单申请"
+        to_users = to_users + edit_order.leaders
+        BackEditClientOrder.add(edit_client_order=edit_order,
+                                user=edit_order.creator,
+                                create_time=datetime.today())
+    elif action == 10:
+        action_msg = u"确认改单"
+        edit_order.contract_status = 10
+        to_users = to_users + edit_order.leaders + User.finances()
+        # 确认改单后修改原始订单
+        client_order = edit_order.client_order
+        comment_msg = u'自动改单：\n\r客户合同修改项: \n\r'
+        if client_order.agent != edit_order.agent:
+            comment_msg += u'    修改代理/直客：%s（原：%s）\n\r' % (edit_order.agent.name, client_order.agent.name)
+        if client_order.client != edit_order.client:
+            comment_msg += u'    修改客户名称：%s（原：%s）\n\r' % (edit_order.client.name, client_order.client.name)
+        if client_order.campaign != edit_order.campaign:
+            comment_msg += u'    修改Campaign名称：%s（原：%s）\n\r' % (edit_order.campaign, client_order.campaign)
+        if client_order.money != edit_order.money:
+            comment_msg += u'    修改合同金额：%s（原：%s）\n\r' % (edit_order.money, client_order.money)
+        if client_order.client_start != edit_order.client_start:
+            comment_msg += u'    修改执行开始：%s（原：%s）\n\r' % (edit_order.start_date_cn, client_order.start_date_cn)
+        if client_order.client_end != edit_order.client_end:
+            comment_msg += u'    修改执行结束：%s（原：%s）\n\r' % (edit_order.end_date_cn, client_order.end_date_cn)
+        if client_order.reminde_date != edit_order.reminde_date:
+            comment_msg += u'    修改回款日期：%s（原：%s）\n\r' % (edit_order.reminde_date_cn, client_order.reminde_date_cn)
+        if client_order.direct_sales != edit_order.direct_sales:
+            comment_msg += u'    修改直客销售：%s（原：%s）\n\r' % (edit_order.direct_sales_names, client_order.direct_sales_names)
+        if client_order.agent_sales != edit_order.agent_sales:
+            comment_msg += u'    修改渠道销售：%s（原：%s）\n\r' % (edit_order.agent_sales_names, client_order.agent_sales_names)
+        if client_order.assistant_sales != edit_order.assistant_sales:
+            comment_msg += u'    修改销售助理：%s（原：%s）\n\r' % \
+                (edit_order.assistant_sales_names,
+                 client_order.assistant_sales_names)
+        if client_order.contract_type != edit_order.contract_type:
+            comment_msg += u'    修改合同模板类型：%s（原：%s）\n\r' % (edit_order.contract_type_cn, client_order.contract_type_cn)
+        if client_order.resource_type != edit_order.resource_type:
+            comment_msg += u'    修改售卖类型：%s（原：%s）\n\r' % (edit_order.resource_type_cn, client_order.resource_type_cn)
+        if client_order.sale_type != edit_order.sale_type:
+            comment_msg += u'    修改代理/直客：%s（原：%s）\n\r' % (edit_order.sale_type_cn, client_order.sale_type_cn)
+        if client_order.self_agent_rebate != edit_order.self_agent_rebate:
+            if int(client_order.self_agent_rebate_value['status']):
+                o_msg = str(client_order.self_agent_rebate_value['value'])
+            else:
+                o_msg = u'无单笔返点'
+            if int(edit_order.self_agent_rebate_value['status']):
+                n_msg = str(edit_order.self_agent_rebate_value['value'])
+            else:
+                n_msg = u'无单笔返点'
+            comment_msg += u'    修改单笔返点：%s（原：%s）\n\r' % (n_msg, o_msg)
+        client_order.agent = edit_order.agent
+        client_order.client = edit_order.client
+        client_order.campaign = edit_order.campaign
+        client_order.money = edit_order.money
+        client_order.client_start = edit_order.client_start
+        client_order.client_end = edit_order.client_end
+        client_order.reminde_date = edit_order.reminde_date
+        client_order.direct_sales = edit_order.direct_sales
+        client_order.agent_sales = edit_order.agent_sales
+        client_order.assistant_sales = edit_order.assistant_sales
+        client_order.contract_type = edit_order.contract_type
+        client_order.resource_type = edit_order.resource_type
+        client_order.sale_type = edit_order.sale_type
+        client_order.self_agent_rebate = edit_order.self_agent_rebate
+        client_order.save()
+        for m in edit_order.medium_orders:
+            order = m.order
+            comment_msg += '%s-%s 媒体合同修改项：\n\r' % (m.medium_group.name, m.media.name)
+            if order.medium_group != m.medium_group:
+                comment_msg += u'    修改媒体供应商：%s（原：%s）\n\r' % (m.medium_group.name, order.medium_group.name)
+            if order.media != m.media:
+                comment_msg += u'    修改投放媒体：%s（原：%s）\n\r' % (m.media.name, order.media.name)
+            if order.sale_money != m.sale_money:
+                comment_msg += u'    修改售卖金额：%s（原：%s）\n\r' % (m.sale_money, order.sale_money)
+            if order.medium_money2 != m.medium_money2:
+                comment_msg += u'    修改媒体金额：%s（原：%s）\n\r' % (m.medium_money2, order.medium_money2)
+            if order.sale_CPM != m.sale_CPM:
+                comment_msg += u'    修改预估量：%s（原：%s）\n\r' % (m.sale_CPM, order.sale_CPM)
+            if order.medium_CPM != m.medium_CPM:
+                comment_msg += u'    修改实际量：%s（原：%s）\n\r' % (m.medium_CPM, order.medium_CPM)
+            if order.medium_start != m.medium_start:
+                comment_msg += u'    修改执行开始：%s（原：%s）\n\r' % (m.start_date_cn, order.start_date_cn)
+            if order.medium_end != m.medium_end:
+                comment_msg += u'    修改执行结束：%s（原：%s）\n\r' % (m.end_date_cn, order.end_date_cn)
+            if order.operaters != m.operaters:
+                comment_msg += u'    修改执行人员：%s（原：%s）\n\r' % (m.operater_names, order.operater_names)
+            if order.designers != m.designers:
+                comment_msg += u'    修改设计人员：%s（原：%s）\n\r' % (m.designers_names, order.designers_names)
+            if order.planers != m.planers:
+                comment_msg += u'    修改策划人员：%s（原：%s）\n\r' % (m.planers_names, order.planers_names)
+            if order.self_medium_rebate != m.self_medium_rebate:
+                if int(order.self_medium_rebate_value['status']):
+                    o_msg = str(order.self_medium_rebate_value['value'])
+                else:
+                    o_msg = u'无单笔返点'
+                if int(m.self_medium_rebate_value['status']):
+                    n_msg = str(m.self_medium_rebate_value['value'])
+                else:
+                    n_msg = u'无单笔返点'
+                comment_msg += u'    修改单笔返点：%s（原：%s）\n\r' % (n_msg, o_msg)
+            order.media = m.media
+            order.medium_group = m.medium_group
+            order.sale_money = m.sale_money
+            order.medium_money2 = m.medium_money2
+            order.medium_start = m.medium_start
+            order.medium_end = m.medium_end
+            order.medium_CPM = m.medium_CPM
+            order.sale_CPM = m.sale_CPM
+            order.operaters = m.operaters
+            order.designers = m.designers
+            order.planers = m.planers
+            order.self_medium_rebate = m.self_medium_rebate
+            order.save()
+        edit_order.add_comment(g.user, comment_msg, msg_channel=15)
+        client_order.add_comment(g.user, comment_msg)
+    edit_order.save()
+    flash(u'[%s] %s ' % (edit_order.name, action_msg), 'success')
+    context = {
+        "to_other": emails,
+        "sender": g.user,
+        "to_users": to_users,
+        "action_msg": action_msg,
+        "order": edit_order,
+        "info": msg,
+        "action": action
+    }
+    zhiqu_edit_contract_apply_signal.send(current_app._get_current_object(), context=context)
+    edit_order.add_comment(g.user, u"%s \n\r\n\r %s" % (action_msg, msg), msg_channel=15)
+    return redirect(url_for('order.edit_client_order_info', edit_order_id=edit_order_id))
+
+
+@order_bp.route('/edit_client_order/<order_id>/create', methods=['GET', 'POST'])
+def edit_client_order_create(order_id):
+    order = ClientOrder.get(order_id)
+    edit_order_count = EditClientOrder.query.filter(EditClientOrder.contract_status != 10 and
+                                                    EditClientOrder.client_order == order).count()
+    if edit_order_count > 0:
+        flash('对不起，该订单正在申请修改，请在订单修改完成后再进行修改申请', 'danger')
+        return redirect(url_for('order.order_info', order_id=order.id, tab_id=1))
+    if request.method == 'POST':
+        self_rebate = int(request.values.get('self_rebate', 0))
+        self_rabate_value = float(request.values.get('self_rabate_value', 0))
+        edit_order = EditClientOrder.add(client_order=order,
+                                         contract=order.contract,
+                                         agent=Agent.get(request.values.get('agent')),
+                                         client=Client.get(request.values.get('client')),
+                                         campaign=request.values.get('campaign'),
+                                         money=float(request.values.get('money', 0.0)),
+                                         client_start=request.values.get('client_start'),
+                                         client_end=request.values.get('client_end'),
+                                         reminde_date=request.values.get('reminde_date'),
+                                         direct_sales=User.gets(request.values.getlist('direct_sales')),
+                                         agent_sales=User.gets(request.values.getlist('agent_sales')),
+                                         assistant_sales=User.gets(request.values.getlist('assistant_sales')),
+                                         contract_type=request.values.get('contract_type'),
+                                         resource_type=request.values.get('resource_type'),
+                                         sale_type=request.values.get('sale_type'),
+                                         creator=g.user,
+                                         contract_status=1,
+                                         create_time=datetime.now(),
+                                         finish_time=datetime.now(),
+                                         self_agent_rebate=str(self_rebate) + '-' + str(self_rabate_value))
+        edit_medium_orders = []
+        for m in order.medium_orders:
+            self_medium_rebate = int(request.values.get('self_medium_rebate_' + str(m.id), 0))
+            self_medium_rabate_value = float(request.values.get('self_medium_rabate_value_' + str(m.id), 0))
+            mo = EditOrder.add(order=m,
+                               medium_contract=m.medium_contract,
+                               campaign=edit_order.campaign,
+                               media=Media.get(request.values.get('media_' + str(m.id))),
+                               medium_group=MediumGroup.get(request.values.get('medium_group_' + str(m.id))),
+                               sale_money=float(request.values.get('sale_money_' + str(m.id), 0.0)),
+                               medium_money2=float(request.values.get('medium_money2_' + str(m.id), 0.0)),
+                               medium_start=request.values.get('medium_start_' + str(m.id), datetime.today()),
+                               medium_end=request.values.get('medium_end_' + str(m.id), datetime.today()),
+                               creator=g.user,
+                               medium_CPM=request.values.get('medium_CPM_' + str(m.id), 0.0),
+                               sale_CPM=request.values.get('sale_CPM_' + str(m.id), 0.0),
+                               operaters=User.gets(request.values.getlist('operaters_' + str(m.id))),
+                               designers=User.gets(request.values.getlist('designers_' + str(m.id))),
+                               planers=User.gets(request.values.getlist('planers_' + str(m.id))),
+                               self_medium_rebate=str(self_medium_rebate) + '-' + str(self_medium_rabate_value))
+            edit_medium_orders.append(mo)
+        edit_order.medium_orders = edit_medium_orders
+        edit_order.save()
+        edit_order.add_comment(g.user, u"申请修改客户订单:%s - %s - %s" %
+                               (edit_order.agent.name, edit_order.client.name, edit_order.campaign),
+                               msg_channel=15)
+        return redirect(url_for('order.edit_client_order_info', edit_order_id=edit_order.id))
+    operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
+    designers = User.gets_by_team_type(TEAM_TYPE_DESIGNER)
+    planers = User.gets_by_team_type(TEAM_TYPE_PLANNER)
+    salers = User.sales()
+    return tpl('edit_client_order_create.html', order=order,
+               medium_groups=MediumGroup.all(), medias=Media.all(), salers=salers,
+               operaters=operaters, designers=designers, planers=planers,
+               agents=Agent.all(), clients=Client.all())

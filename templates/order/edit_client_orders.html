@@ -6,6 +6,7 @@
     <table border='1'>
         <thead>
             <tr>
+                <th>改单状态</th>
                 <th>区域</th>
                 <th>代理/直客</th>
                 <th>客户</th>
@@ -18,13 +19,12 @@
                 <th>渠道销售</th>
                 <th>投放媒体</th>
                 <th>媒体金额</th>
-                <th>合同号</th>
-                <th>合同状态</th>
             </tr>
         </thead>
         <tbody>
             {% for o in orders %}
                 <tr>
+                    <td><a href="{{o.info_path()}}">{{o.contract_status_cn}}</a></td>
                     <td>{{o.locations_cn}}</td>
                     <td>{{o.agent.name}}</td>
                     <td>{{o.client.name}}</td>
@@ -37,7 +37,7 @@
                     <td>{{o.agent_sales_names}}</td>
                     <td>
                         {% for mo in o.medium_orders %}    
-                        {{mo.medium.name}}
+                        {{mo.media.name}}
                         <br><br>
                         {% endfor %}
                     </td>
@@ -47,15 +47,6 @@
                         <br><br>
                         {% endfor %}
                     </td>
-                    <td>
-                        <a href="{{o.info_path()}}">
-                        {% for mo in o.medium_orders %}    
-                        {{mo.medium_contract or "无合同号"}}
-                        <br><br>
-                        {% endfor %}
-                        </a>
-                    </td>
-                    <td>{{o.contract_status_cn}}</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -93,15 +84,13 @@
                 <label for="sale_type" class="control-label">改单状态</label>
                 <select class="form-control special_sale" name="status" id="status" style="width:140px;">
                     <option value='0'>全部状态</option>
+                    {% for k, v in EDIT_CONTRACT_STATUS_CN %}
+                    <option value='{{k}}'>{{v}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="select_option screen">
-                <input type="button" value="筛选" onclick="javascript:search();">
-            </div>
-            <div class="select_option screen">
-                <a href="{{url_for('order.edit_client_order_search')}}">
-                    <input type="button" value="填写改单申请" style="width: 120px;">
-                </a>
+                <input type="submit" value="筛选"">
             </div>
         </form>
     </div>
@@ -110,14 +99,6 @@
     {% include "pagination.html" %}
 </div>
 <script>
-function search(){
-    var params = '?searchinfo=' + $('#search_info').val() +
-      '&selected_location=' + $('#search_location').val() +
-      '&selected_status=' + $('#search_status').val() +
-      '&year='+$('#year').val();
-    window.location.href = window.location.pathname + params;
-}
-
 function enter_search(){
     //按下‘Enter’键
     if(event.keyCode == 13){

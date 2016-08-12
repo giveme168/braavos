@@ -13,6 +13,9 @@
             <div class="panel-heading">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"> 客户订单 {{ order.name }}  </a>
+                    {% if order.can_admin(g.user) %}
+                    <a style="float: right; color: red;" href="{{url_for('order.edit_client_order_create', order_id=order.id)}}">申请改单</a>
+                    {% endif %}
                 </h4>
             </div>
             <div id="collapseOne" class="panel-collapse collapse in">

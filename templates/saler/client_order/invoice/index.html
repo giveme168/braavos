@@ -74,6 +74,8 @@
     </div>
     {% if order.contract_status == 20 %}
     <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 申请发票</button>
+    {% else %}
+    <span class="label label-info">合同归档后，才能开具客户发票; </span>&nbsp;<span class="label label-warning">特批流程：三区片总确认->黄亮确认->财务开具发票(抄送：finance@inad.com)。</span>
     {% endif %}
 </div>
 <script>

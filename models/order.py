@@ -216,6 +216,18 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return ",".join([u.name for u in self.planers])
 
     @property
+    def operaters_ids(self):
+        return list(set([u.id for u in self.operaters]))
+
+    @property
+    def designers_ids(self):
+        return list(set([u.id for u in self.designers]))
+
+    @property
+    def planers_ids(self):
+        return list(set([u.id for u in self.planers]))
+
+    @property
     def contract_status(self):
         return self.client_orders[0].contract_status
 

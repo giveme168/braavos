@@ -3,7 +3,7 @@ from wtforms import (TextField, validators, SelectField, SelectMultipleField,
                      IntegerField, TextAreaField, DateField, FloatField)
 from libs.wtf import Form
 from models.client import Client, Group, Agent
-from models.medium import Medium, MediumGroup
+from models.medium import Medium, MediumGroup, Media
 from models.order import DISCOUNT_SALE
 from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN, SALE_TYPE_CN
 from models.user import User
@@ -211,7 +211,7 @@ class ClientMediumOrderForm(Form):
     resource_type = SelectField(u'售卖类型', coerce=int)
     sale_type = SelectField(u'代理/直客', coerce=int)
     medium_group = SelectField(u'媒体供应商媒体', coerce=int)
-    medium = SelectField(u'投放媒体', coerce=int)
+    media = SelectField(u'投放媒体', coerce=int)
     medium_money = FloatField(u'媒体服务费(元)', default=0)
 
     def __init__(self, *args, **kwargs):
@@ -234,7 +234,7 @@ class ClientMediumOrderForm(Form):
         self.resource_type.choices = RESOURCE_TYPE_CN.items()
         self.sale_type.choices = SALE_TYPE_CN.items()
         self.medium_group.choices = [(m.id, m.name) for m in MediumGroup.all()]
-        self.medium.choices = [(m.id, m.name) for m in Medium.all()]
+        self.media.choices = [(m.id, m.name) for m in Media.all()]
 
     def validate(self):
         if Form.validate(self):

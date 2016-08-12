@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 from flask import Blueprint, jsonify
 
-from models.medium import Medium, MediumGroup
+from models.medium import Medium, MediumGroup, Media
 
 api_medium_bp = Blueprint('api_medium', __name__)
 
@@ -58,6 +58,23 @@ def mediums():
     mediums = []
     for medium in Medium.all():
         mediums.append(_medium_to_dict(medium))
+    return jsonify({'data': mediums})
+
+
+@api_medium_bp.route('/media', methods=['GET'])
+def medias():
+    mediums = []
+    for media in Media.all():
+        dict_media = {}
+        dict_media['id'] = media.id
+        try:
+            dict_media['old_id'] = Medium.query.filter_by(name=media.name).first().id
+        except:
+            dict_media['old_id'] = 0
+        dict_media['name'] = media.name
+        dict_media['level_cn'] = media.level_cn
+        dict_media['level'] = media.level
+        mediums.append(dict_media)
     return jsonify({'data': mediums})
 
 
