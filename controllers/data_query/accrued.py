@@ -189,7 +189,7 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate,
         # 客户返点系数
         if int(self_agent_rebate):
             if dict_medium['sale_money']:
-                dict_medium['sale_money_rebate_data'] = [k / dict_medium['sale_money'] * self_agent_rebate_value
+                dict_medium['sale_money_rebate_data'] = [k / dict_order['money'] * self_agent_rebate_value
                                                          for k in dict_medium['sale_money_data']]
             else:
                 dict_medium['sale_money_rebate_data'] = [0 for k in dict_medium['sale_money_data']]

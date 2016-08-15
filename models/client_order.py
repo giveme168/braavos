@@ -428,6 +428,9 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def agent_rebate(self):
         return self.agent.inad_rebate_by_year(self.client_start.year)
 
+    def agent_rebate_by_year(self, year):
+        return self.agent.inad_rebate_by_year(year)
+
     def rebate_agent_by_month(self, year, month):
         rebate = self.agent.inad_rebate_by_year(year)
         ex_money = self.executive_report(g.user, year, [month], 'normal')[0]

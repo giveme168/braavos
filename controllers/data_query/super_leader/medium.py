@@ -17,7 +17,7 @@ from controllers.data_query.helpers.super_leader_helpers import write_medium_mon
 
 data_query_super_leader_medium_bp = Blueprint(
     'data_query_super_leader_medium', __name__, template_folder='../../templates/data_query')
-except_medium_ids = [306, 302, 192, 244, 304, 241, 303, 301, 215, 179, 305, 178, 176, 294, 245, 272, 273, 262]
+except_medium_ids = [192, 244, 304, 241, 303, 301, 215, 179, 305, 178, 176, 294, 245, 272, 273, 262]
 
 
 def _all_agent_rebate():
@@ -291,7 +291,7 @@ def _client_order_to_dict(order, all_agent_rebate, all_medium_rebate, all_medium
                 medium_rebate = 0
         medium_money2_rebate_data = dict_order[
             'medium_money2'] * medium_rebate / 100
-
+    dict_order['medium_money2_rebate_data'] = medium_money2_rebate_data
     # 合同利润
     dict_order['m_ex_money'] = dict_order[
         'medium_money2'] - medium_money2_rebate_data
