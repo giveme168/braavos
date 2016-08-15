@@ -597,7 +597,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     def medium_rebate_by_year(self, date):
         rebate = 0
         from models.medium import MediumGroupRebate, MediumGroupMediaRebate
-        date_d = datetime.datetime.strptime(str(self.start_date.year), '%Y').date()
+        date_d = datetime.datetime.strptime(str(date), '%Y').date()
         medium_group_media_rebate = MediumGroupMediaRebate.query.filter_by(medium_group=self.medium_group,
                                                                            year=date_d, media=self.media).first()
         if medium_group_media_rebate:
