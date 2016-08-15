@@ -1,15 +1,15 @@
 {% extends "/base_v1_0_0.html" %}
 {% block title %}新媒体订单收入成本{% endblock %}
 {% block content %}
-{% include "/data_query/shenji/shenji_base_v1_0_0.html" %}
+{% include "/data_query/data_query_base_v1_0_0.html" %}
 <div class="container bra-box" style="width:6400px;">
     <div class="table-switch">
         <ul>
             <li id="_0_li" >
-                <a id="_0_" href="{{url_for('data_query_shenji_cost_income_client_order.index')}}" >外部</a>
+                <a id="_0_" href="{{url_for('data_query_accrued.client_order')}}" >外部</a>
             </li>
             <li id="_1_li" class="actives">
-                <a id="_1_" href="{{url_for('data_query_shenji_cost_income_client_order.index')}}?shenji=1" class="on">内部</a>
+                <a id="_1_" href="{{url_for('data_query_accrued.client_order')}}?shenji=1" class="on">内部</a>
             </li>
         </ul>
     </div>

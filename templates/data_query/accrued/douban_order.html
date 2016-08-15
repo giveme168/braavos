@@ -1,9 +1,20 @@
 {% extends "/base_v1_0_0.html" %}
-{% block title %}新媒体订单收入成本{% endblock %}
+{% block title %}直签豆瓣订单收入成本{% endblock %}
 {% block content %}
 {% include "/data_query/data_query_base_v1_0_0.html" %}
-<div class="container bra-box" style="width:3000px;">
-    <h3 {% if g.user.is_super_leader() %}style="margin-top: 50px;"{% endif %}>豆瓣订单收入计提</h3>
+<div class="container bra-box" style="width:4400px;">
+    {% if g.user.is_super_leader() or g.user.is_finance() %}
+    <div class="table-switch">
+        <ul>
+            <li id="_0_li" class="actives">
+                <a id="_0_" href="{{url_for('data_query_accrued.douban_order')}}" class="on">外部</a>
+            </li>
+            <li id="_1_li">
+                <a id="_1_" href="{{url_for('data_query_accrued.douban_order')}}?shenji=1">内部</a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
     <div class="search-bar">
         <form class="menu-btn-bar" style="float:left;">
             <div class="select_option">
@@ -12,15 +23,6 @@
                     {% for k in range(5) %}
                     <option value='{{2014+k}}'>{{2014+k}}年</option>
                     {% endfor %}
-                </select>
-            </div>
-            <div class="select_option">
-                <label for="sale_type" class="control-label">区域</label>
-                <select class="form-control special_sale" name="location" id="location" style="width:100px;">
-                    <option value='0'>全部</option>
-                    <option value='1'>华北</option>
-                    <option value='2'>华东</option>
-                    <option value='3'>华南</option>
                 </select>
             </div>
             <div class="select_option screen">
@@ -49,8 +51,18 @@
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">售卖类型</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">代理/直客</th>
                 <th colspan=13 style="vertical-align: middle;text-align: center;">客户执行金额</th>
+                <th colspan=13 style="vertical-align: middle;text-align: center;">客户返点</th>
+                <th colspan=13 style="vertical-align: middle;text-align: center;">合同利润</th>
             </tr>
             <tr>
+                {% for k in range(12) %}
+                <th>{{k+1}}月</th>
+                {% endfor %}
+                <th>总计</th>
+                {% for k in range(12) %}
+                <th>{{k+1}}月</th>
+                {% endfor %}
+                <th>总计</th>
                 {% for k in range(12) %}
                 <th>{{k+1}}月</th>
                 {% endfor %}
@@ -62,7 +74,15 @@
                 <tr>
                     <td>{{k.locations_cn}}</td>
                     <td>{{k.agent_name}}</td>
-                    <td>{{k.contract}}</td>
+                    <td>
+                        {% if k.type == 'douban_order' %}
+                        <a href="{{url_for('order.douban_order_info', order_id=k.order_id, tab_id=1)}}">
+                        {% else %}
+                        <a href="{{url_for('order.order_info', order_id=k.order_id, tab_id=1)}}">
+                        {% endif %}
+                        {{k.contract}}
+                        </a>
+                    </td>
                     <td>{{k.client_name}}</td>
                     <td>{{k.campaign}}</td>
                     <td>{{k.money|format_price}}</td>
@@ -77,6 +97,14 @@
                     <td>{{i|format_price}}</td>
                     {% endfor %}
                     <td>{{k.money_data|sum|format_price}}</td>
+                    {% for i in k.money_rebate_data %}
+                    <td>{{i|format_price}}</td>
+                    {% endfor %}
+                    <td>{{k.money_rebate_data|sum|format_price}}</td>
+                    {% for i in k.profit_data %}
+                    <td>{{i|format_price}}</td>
+                    {% endfor %}
+                    <td>{{k.profit_data|sum|format_price}}</td>
                 </tr>
             {% endfor %}
             <tr>
@@ -88,6 +116,10 @@
                 <td colspan=2 style="vertical-align: middle;text-align: center;"></td>
                 {% for i in total_money_data %}<td>{{i|format_price}}</td>{% endfor %}
                 <td>{{total_money_data|sum|format_price}}</td>
+                {% for i in total_money_rebate_data %}<td>{{i|format_price}}</td>{% endfor %}
+                <td>{{total_money_rebate_data|sum|format_price}}</td>
+                {% for i in total_profit_data %}<td>{{i|format_price}}</td>{% endfor %}
+                <td>{{total_profit_data|sum|format_price}}</td>
             </tr>
           </tbody>
         </table>
@@ -98,13 +130,10 @@
         $('select').chosen({disable_search: true});
         $('#year').val('{{year}}');
         $("#year").trigger("chosen:updated");
-        $('#location').val('{{location}}');
-        $("#location").trigger("chosen:updated");
     });
     function download(){
         var year = $('#year').val();
-        var location = $('#location').val();
-        params = '?action=excel&year='+year+'&location='+location;
+        params = '?action=excel&year='+year;
         window.location.href = window.location.pathname + params;
     }
 </script>

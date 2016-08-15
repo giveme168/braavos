@@ -207,11 +207,11 @@ $(document).ready(function(){
     $(".add-new-medium").click(function(e){
       e.preventDefault();
       var mid = mids.pop()
-      var medium_tpl = '<div class="input-group-menu"><div class="name">投放媒体 : </div><select class="surname" style="width:300px;" name="media" id="media_'+mid+'">'
+      var medium_tpl = '<div id="medium_order_div_'+mid+'"><div class="input-group-menu"><div class="name">投放媒体 : </div><select class="surname" style="width:300px;" name="media" id="media_'+mid+'">'
       {% for k in mediums %}
         medium_tpl += '<option value="{{k.id}}">{{k.name}}</option>'
       {% endfor %}
-      medium_tpl += '</select></div><div class="input-group-menu" ><div class="name">售卖金额(元) : </div><input class="surname" style="width:300px;" name="medium-money" type="text"  placeholder="售卖金额(元)" value="0" /></div><div class="state" style="margin-left: 600px;"><button class="medium-remove" id="medium-remove-'+mid+'"> 取消 </button> </div><hr/></div>'
+      medium_tpl += '</select></div><div class="input-group-menu" ><div class="name">售卖金额(元) : </div><input class="surname" style="width:300px;" name="medium-money" type="text"  placeholder="售卖金额(元)" value="0" /></div><div class="state" style="margin-left: 600px;"><button class="medium-remove" id="medium-remove-'+mid+'"> 取消 </button> </div><hr/></div></div>'
       
       $(this).parents("form").find("#mediums").append(medium_tpl);
       $('#media_'+mid).chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
