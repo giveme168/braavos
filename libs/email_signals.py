@@ -1246,6 +1246,7 @@ def back_money_apply(sender, apply_context):
             [order.creator, g.user] + order.leaders
     else:
         to_users = order.direct_sales + order.agent_sales + User.contracts() + \
+            order.assistant_sales + \
             [order.creator, g.user] + order.leaders + User.medias()
         if 3 in order.locations:
             to_users += [k for k in User.all()

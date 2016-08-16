@@ -149,7 +149,6 @@ def update_invoice_pay(invoice_id, invoice_pay_id):
 
 def get_invoice_from(invoice):
     invoice_form = MediumInvoiceForm()
-    print invoice.medium_group
     invoice_form.medium_group.choices = [
         (invoice.medium_group.id, invoice.medium_group.name)]
 

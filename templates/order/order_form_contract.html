@@ -14,9 +14,7 @@
     <div class="col-sm-8">
         <input class="form-control bra-form-control" name="base_contract" type="text" value="{{order.contract}}" style="width:280px;float:left;"/>
         {% if order.contract_generate %}
-          {% if g.user.is_super_admin() %}
-          <button class="btn btn-sm btn-default btn-generator" data-contract="{{order.get_default_contract()}}">生成</button>
-          {% elif order.contract_status == 10 %}
+          {% if g.user.is_contract() or g.user.is_super_leader() %}
           <button class="btn btn-sm btn-default btn-generator" data-contract="{{order.get_default_contract()}}">生成</button>
           {% endif %}
         {% endif %}
@@ -34,9 +32,7 @@
     <label for="name" class="col-sm-4 control-label">[致趣-{{mo.media.name}}] {{mo.start_date_cn}} 合同号 : </label>
     <div class="col-sm-8">
       <input class="form-control bra-form-control" name="medium_contract_{{mo.id}}"type="text" value="{{mo.medium_contract}}" style="width:280px;float:left;"/>
-      {% if g.user.is_super_admin() %}
-        <button class="btn btn-sm btn-default btn-generator" data-contract="{{mo.get_default_contract()}}">生成</button>
-      {% elif order.contract_status == 10 %}
+      {% if g.user.is_contract() or g.user.is_super_leader() %}
         <button class="btn btn-sm btn-default btn-generator" data-contract="{{mo.get_default_contract()}}">生成</button>
       {% endif %}
     </div>
@@ -65,9 +61,7 @@
   </div>
   {% endif %}
   <div class="state" style="margin-left:40%;">
-      {% if g.user.is_super_admin() %}
-        <input type="submit" value="保存">
-      {% elif order.contract_status == 10 %}
+      {% if g.user.is_contract() or g.user.is_super_leader() %}
         <input type="submit" value="保存">
       {% endif %}
   </div>
