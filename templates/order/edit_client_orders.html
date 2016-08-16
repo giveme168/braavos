@@ -63,6 +63,7 @@
                 <input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
                 <img src="/static/image/search.png" alt="#">
             </div>
+            <!--
             <div class="select_option">
                 <label for="sale_type" class="control-label">年度</label>
                 <select class="form-control special_sale" name="year" id="year" style="width:100px;">
@@ -70,7 +71,7 @@
                         <option value="{{2014+k}}">{{2014+k}}年度</option>
                     {% endfor %}
                 </select>
-            </div>
+            </div>-->
             <div class="select_option">
                 <label for="sale_type" class="control-label">区域</label>
                 <select class="form-control special_sale" name="location" id="location" style="width:100px;">
@@ -112,8 +113,8 @@ $(function(){
     $("#status").trigger("chosen:updated");
     $("#location").val(parseInt('{{location}}'))
     $("#location").trigger("chosen:updated");
-    $('#year').val('{{year}}');
-    $("#year").trigger("chosen:updated");
+    //$('#year').val('{{year}}');
+    //$("#year").trigger("chosen:updated");
 });
 </script>
 {% endblock %}

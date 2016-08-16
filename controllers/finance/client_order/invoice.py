@@ -238,6 +238,7 @@ def pass_invoice(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
+        invoice.client_order.assistant_sales + \
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
     if action != 10:

@@ -2228,7 +2228,6 @@ def client_medium_attach_status(order_id, attachment_id, status):
 #################
 @order_bp.route('/edit_client_order', methods=['GET'])
 def edit_client_order():
-    year = int(request.values.get('year', datetime.now().year))
     search_info = request.args.get('searchinfo', '')
     location = int(request.args.get('location', 0))
     status = int(request.values.get('status', 0))
@@ -2242,7 +2241,6 @@ def edit_client_order():
         orders = [o for o in EditClientOrder.all() if g.user.location in o.locations]
     else:
         orders = EditClientOrder.get_order_by_user(g.user)
-    orders = [order for order in orders if order.client_start.year == year or order.client_end.year == year]
     if status:
         orders = [order for order in orders if order.contract_status == status]
     if location:
@@ -2255,9 +2253,8 @@ def edit_client_order():
         orders = paginator.page(page)
     except:
         orders = paginator.page(paginator.num_pages)
-    print status
-    params = '&searchinfo=%s&year=%s&location=%s&status=%s' % (search_info, str(year), location, status)
-    return tpl('edit_client_orders.html', orders=orders, year=year, search_info=search_info, page=page, params=params,
+    params = '&searchinfo=%s&location=%s&status=%s' % (search_info, location, status)
+    return tpl('edit_client_orders.html', orders=orders, search_info=search_info, page=page, params=params,
                location=location, status=status, EDIT_CONTRACT_STATUS_CN=EDIT_CONTRACT_STATUS_CN.items())
 
 
@@ -2512,6 +2509,7 @@ def edit_client_order_contract(edit_order_id):
             order.save()
         edit_order.add_comment(g.user, comment_msg, msg_channel=15)
         client_order.add_comment(g.user, comment_msg)
+        _insert_executive_report(client_order, 'reload')
     edit_order.save()
     flash(u'[%s] %s ' % (edit_order.name, action_msg), 'success')
     context = {
