@@ -1348,8 +1348,7 @@ by %s\n
 
     @property
     def client_order_agent_rebate_invoice_pay(self):
-        invoices = AgentInvoice.query.filter_by(client_order_id=self.id)
-        return sum([k.money for k in AgentInvoicePay.all() if k.agent_invoice in invoices])
+        return sum([k.money for k in AgentInvoicePay.all() if k.agent_invoice in self.agentinvoices])
 
     @property
     def client_order_agent_rebate_ai(self):
