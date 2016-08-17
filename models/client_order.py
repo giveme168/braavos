@@ -1330,6 +1330,64 @@ by %s\n
         now_date = datetime.date.today()
         return (now_date - self.client_end).days + 1
 
+    @property
+    def client_order_invoice(self):
+        return sum([k.money for k in self.invoices])
+
+    @property
+    def client_order_back_money(self):
+        return sum([k.money for k in self.backmoneys])
+
+    @property
+    def client_order_back_rebate_invoice(self):
+        return sum([k.money for k in self.backinvoicerebates])
+
+    @property
+    def client_order_agent_rebate_invoice(self):
+        return sum([k.money for k in self.agentinvoices])
+
+    @property
+    def client_order_agent_rebate_invoice_pay(self):
+        invoices = AgentInvoice.query.filter_by(client_order_id=self.id)
+        return sum([k.money for k in AgentInvoicePay.all() if k.agent_invoice in invoices])
+
+    @property
+    def client_order_agent_rebate_ai(self):
+        try:
+            self_agent_rebate_data = self.self_agent_rebate
+            self_agent_rebate = self_agent_rebate_data.split('-')[0]
+            self_agent_rebate_value = float(self_agent_rebate_data.split('-')[1])
+        except:
+            self_agent_rebate = 0
+            self_agent_rebate_value = 0
+        sale_money_rebate_data = 0
+        for m in self.medium_orders:
+            # 客户返点系数
+            if int(self_agent_rebate):
+                if m.sale_money:
+                    sale_money_rebate_data += m.sale_money / self.money * self_agent_rebate_value
+                else:
+                    sale_money_rebate_data += 0
+            else:
+                # 是否有代理针对媒体的特殊返点
+                agent_media_rebate = [k.rebate for k in self.agent.agent_media_rebate
+                                      if self.client_start.year == k.year.year and
+                                      m.media.id == k.media_id]
+                if agent_media_rebate:
+                    agent_rebate = agent_media_rebate[0]
+                else:
+                    agent_rebate_data = [k.inad_rebate for k in self.agent.agentrebate
+                                         if self.client_start.year == k.year.year]
+                    if agent_rebate_data:
+                        agent_rebate = agent_rebate_data[0]
+                    else:
+                        agent_rebate = 0
+                if self.money:
+                    sale_money_rebate_data += m.sale_money / self.money * agent_rebate
+                else:
+                    sale_money_rebate_data += 0
+        return sale_money_rebate_data
+
 
 class BackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_back_money'

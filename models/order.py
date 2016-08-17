@@ -18,7 +18,7 @@ from models.excel import (
     ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
     EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
     EXCEL_DATA_TYPE_NUM, COLOUR_RED, COLOUR_LIGHT_GRAY)
-from models.invoice import MediumInvoice, MediumInvoicePay
+from models.invoice import MediumInvoice, MediumInvoicePay, MediumRebateInvoice
 from consts import DATE_FORMAT
 from libs.date_helpers import get_monthes_pre_days
 
@@ -791,6 +791,54 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             p_self_medium_rebate = ['0', '0.0']
         return {'status': p_self_medium_rebate[0],
                 'value': p_self_medium_rebate[1]}
+
+    @property
+    def order_media_invoice(self):
+        medium_invoices = MediumInvoice.query.filter_by(client_order=self.client_order, media_id=self.media_id)
+        return sum([k.money for k in medium_invoices])
+
+    @property
+    def order_media_invoice_pay(self):
+        medium_invoices = MediumInvoice.query.filter_by(client_order=self.client_order, media_id=self.media_id)
+        return sum([k.money for k in MediumInvoicePay.all() if k.medium_invoice in medium_invoices])
+
+    @property
+    def order_media_rebate_invoice(self):
+        medium_invoices = MediumRebateInvoice.query.filter_by(client_order=self.client_order, media_id=self.media_id)
+        return sum([k.money for k in medium_invoices])
+
+    @property
+    def order_media_rebate_back_money(self):
+        return sum([k.money for k in self.order_medium_back_moneys])
+
+    @property
+    def client_order_agent_rebate_ai(self):
+        try:
+            self_medium_rebate_data = self.self_medium_rebate
+            self_medium_rebate = self_medium_rebate_data.split('-')[0]
+            self_medium_rebate_value = float(self_medium_rebate_data.split('-')[1])
+        except:
+            self_medium_rebate = 0
+            self_medium_rebate_value = 0
+        if int(self_medium_rebate):
+            medium_money2_rebate_data = self_medium_rebate_value
+        else:
+            # 是否有媒体供应商针对媒体的特殊返点
+            medium_rebate_data = [k.rebate for k in self.media.medium_group_media_rebate_media
+                                  if self.medium_start.year == k.year.year and
+                                  self.medium_group.id == k.medium_group_id]
+            if medium_rebate_data:
+                medium_rebate = medium_rebate_data[0]
+            else:
+                # 是否有媒体供应商返点
+                medium_group_rebate = [k.rebate for k in self.medium_group.medium_group_rebate
+                                       if self.medium_start.year == k.year.year]
+                if medium_group_rebate:
+                    medium_rebate = medium_group_rebate[0]
+                else:
+                    medium_rebate = 0
+            medium_money2_rebate_data = medium_rebate / 100 * self.medium_money2
+        return medium_money2_rebate_data
 
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
