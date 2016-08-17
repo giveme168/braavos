@@ -18,7 +18,7 @@ from models.excel import (
     ExcelCellItem, StyleFactory, EXCEL_DATA_TYPE_MERGE,
     EXCEL_DATA_TYPE_STR, EXCEL_DATA_TYPE_FORMULA,
     EXCEL_DATA_TYPE_NUM, COLOUR_RED, COLOUR_LIGHT_GRAY)
-from models.invoice import MediumInvoice, MediumInvoicePay, MediumRebateInvoice
+from models.invoice import MediumInvoice, MediumInvoicePay
 from consts import DATE_FORMAT
 from libs.date_helpers import get_monthes_pre_days
 
@@ -794,17 +794,20 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def order_media_invoice(self):
-        medium_invoices = MediumInvoice.query.filter_by(client_order=self.client_order, media_id=self.media_id)
-        return sum([k.money for k in medium_invoices])
+        medium_invoices = [k for k in self.client_order.mediuminvoices if k.media_id == self.media_id]
+        r_type = False
+        if '88888888' in [k.invoice_num for k in medium_invoices]:
+            r_type = True
+        return (sum([k.money for k in medium_invoices]), r_type)
 
     @property
     def order_media_invoice_pay(self):
-        medium_invoices = MediumInvoice.query.filter_by(client_order=self.client_order, media_id=self.media_id)
+        medium_invoices = [k for k in self.client_order.mediuminvoices if k.media_id == self.media_id]
         return sum([k.money for k in MediumInvoicePay.all() if k.medium_invoice in medium_invoices])
 
     @property
     def order_media_rebate_invoice(self):
-        medium_invoices = MediumRebateInvoice.query.filter_by(client_order=self.client_order, media_id=self.media_id)
+        medium_invoices = [k for k in self.client_order.mediumrebateinvoices if k.media_id == self.media_id]
         return sum([k.money for k in medium_invoices])
 
     @property
