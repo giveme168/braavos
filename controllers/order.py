@@ -2346,10 +2346,10 @@ def edit_client_order_contract(edit_order_id):
     if action == 2:
         edit_order.contract_status = 2
         action_msg = u"申请媒介审批"
-        to_users = to_users + edit_order.leaders + User.medias()
+        to_users = to_users + edit_order.leaders + User.medias() + User.media_leaders()
     elif action == 12:
         action_msg = u"提醒媒介确认"
-        to_users = to_users + edit_order.leaders + User.medias()
+        to_users = to_users + edit_order.leaders + User.medias() + User.media_leaders()
     elif action == 3:
         action_msg = u"申请区域总监审批"
         edit_order.contract_status = 3

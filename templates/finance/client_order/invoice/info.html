@@ -5,24 +5,78 @@
 
 {% block content %}
 {% include "/finance/finance_base_v1_0_0.html" %}
-<div class="container bra-box">
+<div class="container bra-box" style="width:1400px;">
     <h3>客户订单发票情况</h3>
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>合同总金额</th>
-            <th>已开发票金额</th>
-            <th>未开发票金额</th>
-            <th>正在申请发票金额</th>
-            <th>申请通过个数</th>
-        </tr>
-        <tr>
-            <td>{{ order.money }} 元</td>
-            <td>{{ order.invoice_pass_sum }} 元</td>
-            <td>{{ order.money - order.invoice_pass_sum }} 元</td>
-            <td>{{ order.invoice_apply_sum }} 元</td>
-            <td>{{ order.get_invoice_by_status(0)|length }}</td>
-        </tr>
-    </table>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>项目名称</th>
+                    <th>客户金额</th>
+                    <th>已开客户发票</th>
+                    <th>客户回款金额</th>
+                    <th>系统推荐客户返点</th>
+                    <th>已收客户返点发票(抵扣)</th>
+                    <th>已收客户返点发票</th>
+                    <th>已打款客户返点金额</th>
+                    <th>媒体名称</th>
+                    <th>媒体金额</th>
+                    <th>已收媒体发票</th>
+                    <th>已打款媒体金额</th>
+                    <th>系统推荐媒体返点</th>
+                    <th>已开媒体返点发票</th>
+                    <th>媒体返点回款</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('order.order_info', order_id=order.id, tab_id=1)}}">
+                        {{order.campaign}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>{{order.money|format_price}}</td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_invoice.info', order_id=order.id)}}">
+                        {{order.client_order_invoice|format_price}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">
+                        {{order.client_order_back_money|format_price}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>{{order.client_order_agent_rebate_ai|format_price}}</td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">
+                        {{order.client_order_back_rebate_invoice|format_price}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">
+                        {{order.client_order_agent_rebate_invoice|format_price}}</td>
+                      </a>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">
+                        {{order.client_order_agent_rebate_invoice_pay|format_price}}
+                      </a>
+                    </td>
+                </tr>
+                {% for m in order.medium_orders %}
+                <tr>
+                    <td>{{m.media.name}}</td>
+                    <td>{{m.medium_money2|format_price}}</td>
+                    <td><a target="_blank" href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{m.order_media_invoice|format_price}}</a></td>
+                    <td><a target="_blank" href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{m.order_media_invoice_pay|format_price}}</a></td>
+                    <td>{{m.client_order_agent_rebate_ai|format_price}}</td>
+                    <td><a target="_blank"  href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=order.id)}}">{{m.order_media_rebate_invoice|format_price}}</a></td>
+                    <td><a target="_blank"  href="{{url_for('finance_client_order_medium_back_money.back_money',order_id=order.id)}}">{{m.order_media_rebate_back_money|format_price}}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <br/>
     {% if invoices_data.PASS|length > 0 %}
     <div class="panel panel-default" id="non-invoice">
         <div class="panel-heading">

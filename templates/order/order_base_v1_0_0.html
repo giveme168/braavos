@@ -35,12 +35,10 @@
               <span>|</span>
             </li>
             {% endif %}
-            {% if g.user.is_super_admin() %}
             <li id="_edit_client_order_">
               <a href="{{url_for('order.edit_client_order')}}">修改订单</a>
               <span>|</span>
             </li>
-            {% endif %}
             <li id="_intention_order_" class="nav-last">
               <a href="{{url_for('order.intention_order')}}">洽谈中的订单</a>
             </li>
