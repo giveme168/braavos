@@ -2315,6 +2315,13 @@ def edit_client_order_info(edit_order_id):
                agents=Agent.all(), clients=Client.all(), reminder_emails=User.all_active())
 
 
+@order_bp.route('/edit_client_order/<edit_order_id>/delete', methods=['GET'])
+def edit_client_order_delete(edit_order_id):
+    if g.user.is_super_leader():
+        EditClientOrder.get(edit_order_id).delete()
+    return redirect(url_for('order.edit_client_order'))
+
+
 @order_bp.route('/edit_client_order/<edit_order_id>/contract', methods=['POST'])
 def edit_client_order_contract(edit_order_id):
     edit_order = EditClientOrder.get(edit_order_id)
@@ -2583,6 +2590,7 @@ def edit_client_order_create(order_id):
         edit_order.add_comment(g.user, u"申请修改客户订单:%s - %s - %s" %
                                (edit_order.agent.name, edit_order.client.name, edit_order.campaign),
                                msg_channel=15)
+        flash('请尽快发出申请，以便完成改单', 'success')
         return redirect(url_for('order.edit_client_order_info', edit_order_id=edit_order.id))
     operaters = User.gets_by_team_type(TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
     designers = User.gets_by_team_type(TEAM_TYPE_DESIGNER)
