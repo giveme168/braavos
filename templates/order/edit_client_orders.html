@@ -19,6 +19,9 @@
                 <th>渠道销售</th>
                 <th>投放媒体</th>
                 <th>媒体金额</th>
+                {% if g.user.is_super_leader() %}
+                <th>操作</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -47,6 +50,9 @@
                         <br><br>
                         {% endfor %}
                     </td>
+                    {% if g.user.is_super_leader() %}
+                    <td><a href="javascript:delete_order('{{o.id}}', '{{o.campaign}}')">删除</a></td>
+                    {% endif %}
                 </tr>
             {% endfor %}
         </tbody>
@@ -106,7 +112,11 @@ function enter_search(){
         search();
     }
 }
-
+function delete_order(id, name){
+    if(confirm("确定要删除"+name+"这条修改记录吗？")){
+          window.location.href="/orders/edit_client_order/"+id+"/delete";
+    }
+}
 $(function(){
     $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
     $("#status").val(parseInt('{{status}}'))
