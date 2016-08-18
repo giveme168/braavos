@@ -1321,7 +1321,7 @@ by %s\n
         else:
             p_self_agent_rebate = ['0', '0.0']
         return {'status': p_self_agent_rebate[0],
-                'value': p_self_agent_rebate[1]}
+                'value': float(p_self_agent_rebate[1])}
 
     @property
     def payable_time(self):
@@ -1386,6 +1386,113 @@ by %s\n
                 else:
                     sale_money_rebate_data += 0
         return sale_money_rebate_data
+
+    # 所有现金、发票流向、单笔返点; 参数表示是否需要计算其值
+    def money_invoce_flow(self, agent_invoice=False, agent_back_money=False, agent_back_money_invoice=False,
+                          agent_back_invoice=False, agent_self_rebate=False, media_invoce=False,
+                          media_rebate_invoice=False, agent_rebate_data=False,
+                          medium_rebate_data=False):
+        dict_f = {}
+        dict_f['campaign'] = self.campaign
+        dict_f['money'] = self.money
+        # 计算客户发票
+        if agent_invoice:
+            dict_f['agent_invoice'] = sum([k.money for k in self.invoices])
+        # 计算客户回款
+        if agent_back_money:
+            dict_f['agent_back_money'] = sum([k.money for k in self.backmoneys])
+        # 计算客户返点发票（抵扣）
+        if agent_back_money_invoice:
+            dict_f['agent_back_money_invoice'] = sum([k.money for k in self.backinvoicerebates])
+        # 计算客户返点发票及打款
+        if agent_back_invoice:
+            agent_rebate_invoices = self.agentinvoices
+            dict_f['agent_back_invoice'] = sum([k.money for k in agent_rebate_invoices])
+            dict_f['agent_back_invoice_pay'] = sum([k.money for k in AgentInvoicePay.all()
+                                                    if k.agent_invoice in agent_rebate_invoices])
+        # 代理返点
+        try:
+            self_agent_rebate_data = self.self_agent_rebate
+            self_agent_rebate = self_agent_rebate_data.split('-')[0]
+            self_agent_rebate_value = float(self_agent_rebate_data.split('-')[1])
+        except:
+            self_agent_rebate = 0
+            self_agent_rebate_value = 0
+        dict_f['agent_rebate_data'] = 0
+        dict_f['media_order_data'] = []
+        for m in self.medium_orders:
+            dict_m = {}
+            dict_m['name'] = m.media.name
+            dict_m['medium_money2'] = m.medium_money2
+            # 计算媒体发票及打款
+            if media_invoce:
+                medium_invoices = [k for k in self.mediuminvoices if k.media_id == m.media_id]
+                r_type = False
+                if '88888888' in [k.invoice_num for k in medium_invoices]:
+                    r_type = True
+                dict_m['media_invoce'] = (sum([k.money for k in medium_invoices]), r_type)
+                dict_m['media_invoce_pay'] = sum([k.money for k in MediumInvoicePay.all()
+                                                  if k.medium_invoice in medium_invoices])
+            # 计算媒体返点发票及回款
+            if media_rebate_invoice:
+                medium_invoices = [k for k in self.mediumrebateinvoices if k.media_id == m.media_id]
+                dict_m['media_rebate_invoice'] = sum([k.money for k in medium_invoices])
+                dict_m['media_rebate_invoice_pay'] = sum([k.money for k in m.order_medium_back_moneys])
+            # 计算代理返点
+            if agent_rebate_data:
+                # 计算单笔返点
+                if int(self_agent_rebate):
+                    if m.sale_money:
+                        dict_f['agent_rebate_data'] += m.sale_money / self.money * self_agent_rebate_value
+                    else:
+                        dict_f['agent_rebate_data'] += 0
+                else:
+                    # 是否有代理针对媒体的特殊返点
+                    agent_media_rebate = [k.rebate for k in self.agent.agent_media_rebate
+                                          if self.client_start.year == k.year.year and
+                                          m.media.id == k.media_id]
+                    if agent_media_rebate:
+                        agent_rebate = agent_media_rebate[0]
+                    else:
+                        agent_rebate_data = [k.inad_rebate for k in self.agent.agentrebate
+                                             if self.client_start.year == k.year.year]
+                        if agent_rebate_data:
+                            agent_rebate = agent_rebate_data[0]
+                        else:
+                            agent_rebate = 0
+                    if self.money:
+                        dict_f['agent_rebate_data'] += m.sale_money / self.money * agent_rebate
+                    else:
+                        dict_f['agent_rebate_data'] += 0
+            # 计算媒体返点
+            if medium_rebate_data:
+                try:
+                    self_medium_rebate_data = m.self_medium_rebate
+                    self_medium_rebate = self_medium_rebate_data.split('-')[0]
+                    self_medium_rebate_value = float(self_medium_rebate_data.split('-')[1])
+                except:
+                    self_medium_rebate = 0
+                    self_medium_rebate_value = 0
+                if int(self_medium_rebate):
+                    dict_m['medium_rebate_data'] = self_medium_rebate_value
+                else:
+                    # 是否有媒体供应商针对媒体的特殊返点
+                    medium_rebate_data = [k.rebate for k in m.media.medium_group_media_rebate_media
+                                          if m.medium_start.year == k.year.year and
+                                          m.medium_group.id == k.medium_group_id]
+                    if medium_rebate_data:
+                        medium_rebate = medium_rebate_data[0]
+                    else:
+                        # 是否有媒体供应商返点
+                        medium_group_rebate = [k.rebate for k in m.medium_group.medium_group_rebate
+                                               if m.medium_start.year == k.year.year]
+                        if medium_group_rebate:
+                            medium_rebate = medium_group_rebate[0]
+                        else:
+                            medium_rebate = 0
+                    dict_m['medium_rebate_data'] = medium_rebate / 100 * m.medium_money2
+            dict_f['media_order_data'].append(dict_m)
+        return dict_f
 
 
 class BackMoney(db.Model, BaseModelMixin):
@@ -1896,7 +2003,7 @@ class EditClientOrder(db.Model, BaseModelMixin, CommentMixin):
         else:
             p_self_agent_rebate = ['0', '0.0']
         return {'status': p_self_agent_rebate[0],
-                'value': p_self_agent_rebate[1]}
+                'value': float(p_self_agent_rebate[1])}
 
     @property
     def search_info(self):
@@ -2078,7 +2185,7 @@ class EditOrder(db.Model, BaseModelMixin, CommentMixin):
         else:
             p_self_medium_rebate = ['0', '0.0']
         return {'status': p_self_medium_rebate[0],
-                'value': p_self_medium_rebate[1]}
+                'value': float(p_self_medium_rebate[1])}
 
 
 # 改单次数(用于统计销售出错率)

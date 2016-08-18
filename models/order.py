@@ -790,7 +790,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         else:
             p_self_medium_rebate = ['0', '0.0']
         return {'status': p_self_medium_rebate[0],
-                'value': p_self_medium_rebate[1]}
+                'value': float(p_self_medium_rebate[1])}
 
     @property
     def order_media_invoice(self):

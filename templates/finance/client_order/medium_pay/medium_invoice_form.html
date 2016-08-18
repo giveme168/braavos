@@ -164,12 +164,27 @@
     </div>
 {% endif %}
  <script>
-    
     function checkform(obj){
       if (obj.back_time.value == ""){
         alert('请选择回款时间')
         return false
       }
+    }
+    function check_medium(id){
+      $.ajax({
+        type: 'GET',
+        url: '/clients/medium_groups/'+ id +'/info',
+        dataType: 'json',
+        success:function(data) {
+            var data = data['data'];
+            $('#tax_id').val(data['tax_num'])
+            $('#address').val(data['address'])
+            $('#bank').val(data['bank'])
+            $('#bank_id').val(data['bank_num'])
+            $('#phone').val(data['phone_num'])
+            $('#company').val(data['name'])
+        }
+      });
     }
     $(function(){
         $('.datetimepicker').datetimepicker({
@@ -179,12 +194,16 @@
             minView: 2
           });
         $('#new_medium').trigger("change");
+        $('#medium_group_0').change(function(){
+            check_medium(this.value)
+        })
     })
     
     {% if invoice %}
       $('#medium_group_{{invoice.id}}').val('{{invoice.medium_group_id}}');
       $('#medium_group_{{invoice.id}}').trigger("chosen:updated");
     {% else %}
+      check_medium('{{order.medium_groups[0].id}}')
     {% endif %}
 </script>
 {%- endmacro %}

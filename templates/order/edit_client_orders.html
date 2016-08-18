@@ -6,6 +6,7 @@
     <table border='1'>
         <thead>
             <tr>
+                <th>所属年度</th>
                 <th>改单状态</th>
                 <th>区域</th>
                 <th>代理/直客</th>
@@ -19,7 +20,7 @@
                 <th>渠道销售</th>
                 <th>投放媒体</th>
                 <th>媒体金额</th>
-                {% if g.user.is_super_leader() %}
+                {% if g.user.is_super_admin() %}
                 <th>操作</th>
                 {% endif %}
             </tr>
@@ -27,6 +28,7 @@
         <tbody>
             {% for o in orders %}
                 <tr>
+                    <td>{{o.client_start.year}}</td>
                     <td><a href="{{o.info_path()}}">{{o.contract_status_cn}}</a></td>
                     <td>{{o.locations_cn}}</td>
                     <td>{{o.agent.name}}</td>
@@ -50,7 +52,7 @@
                         <br><br>
                         {% endfor %}
                     </td>
-                    {% if g.user.is_super_leader() %}
+                    {% if g.user.is_super_admin() %}
                     <td><a href="javascript:delete_order('{{o.id}}', '{{o.campaign}}')">删除</a></td>
                     {% endif %}
                 </tr>

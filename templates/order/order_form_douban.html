@@ -54,7 +54,7 @@
         <input type="submit" value="保存">
     </div>
 </form>
-{% elif g.user.is_super_leader() or g.user.is_contract() %}
+{% elif g.user.is_super_admin() or g.user.is_contract() %}
 <form class="input-row-box" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
@@ -293,7 +293,7 @@ $(document).ready(function(){
         autoclose: true,
         todayHighlight: true,
         language: 'zh-CN',
-        {% if not g.user.is_super_leader() %}
+        {% if not g.user.is_super_admin() %}
         startDate: now_month_data,
         {% endif %}
         minView: 2

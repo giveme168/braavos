@@ -2230,7 +2230,7 @@ def client_medium_attach_status(order_id, attachment_id, status):
 def edit_client_order():
     search_info = request.args.get('searchinfo', '')
     location = int(request.args.get('location', 0))
-    status = int(request.values.get('status', 0))
+    status = int(request.values.get('status', -1))
     page = int(request.args.get('p', 1))
     orders = list(EditClientOrder.all())
 
@@ -2241,7 +2241,25 @@ def edit_client_order():
         orders = [o for o in EditClientOrder.all() if g.user.location in o.locations]
     else:
         orders = EditClientOrder.get_order_by_user(g.user)
-    if status:
+    if status == -1:
+        if g.user.is_super_leader():
+            status = 0
+        elif g.user.is_media_leader() or g.user.is_media():
+            orders = [order for order in orders if order.contract_status == 2]
+            status = 2
+        elif g.user.is_leader() or g.user.is_media_leader():
+            orders = [order for order in orders if order.contract_status == 3]
+            status = 3
+        elif g.user.is_contract():
+            orders = [order for order in orders if order.contract_status == 4]
+            status = 4
+        elif g.user.is_finance():
+            orders = [order for order in orders if order.contract_status == 5]
+            status = 5
+        else:
+            orders = [order for order in orders if order.contract_status == 0]
+            status = 0
+    else:
         orders = [order for order in orders if order.contract_status == status]
     if location:
         orders = [order for order in orders if location in order.locations]
@@ -2514,6 +2532,7 @@ def edit_client_order_contract(edit_order_id):
             order.planers = m.planers
             order.self_medium_rebate = m.self_medium_rebate
             order.save()
+        comment_msg += u'by %s \n\r' % (edit_order.creator.name)
         edit_order.add_comment(g.user, comment_msg, msg_channel=15)
         client_order.add_comment(g.user, comment_msg)
         _insert_executive_report(client_order, 'reload')
