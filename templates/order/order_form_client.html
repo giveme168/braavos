@@ -1,7 +1,7 @@
 {% from 'form_v1_0_0.html' import form_field %}
 
 {% macro order_client_form(form, client_order, replace_saler_form) -%}
-  {% if g.user.is_super_leader() or g.user.is_contract() %}
+  {% if g.user.is_super_admin() or g.user.is_contract() %}
     {{ order_client_edited_form(form, mediums=None, replace_saler_form=replace_saler_form, client_order=client_order) }}
   {% elif client_order.can_admin(g.user) and client_order.contract_status in [0, 3, 6] %}
     {{ order_client_edited_form(form, mediums=None, replace_saler_form=None, client_order=client_order) }}
@@ -172,7 +172,7 @@ $(document).ready(function(){
         autoclose: true,
         todayHighlight: true,
         language: 'zh-CN',
-        {% if not g.user.is_super_leader() %}
+        {% if not g.user.is_super_admin() %}
         startDate: now_month_data,
         {% endif %}
         minView: 2

@@ -171,7 +171,7 @@
             <option value="1">直客</option>
         </select>
     </div>
-    {% if client_order.self_agent_rebate != edit_order.self_agent_rebate %}
+    {% if client_order.self_agent_rebate_value.status != edit_order.self_agent_rebate_value.status and client_order.self_agent_rebate_value.value != edit_order.self_agent_rebate_value.value%}
         <div class="input-group-menu input-red">
     {% else %}
         <div class="input-group-menu">
@@ -341,7 +341,7 @@
             {% endfor %}
         </select>
     </div>
-    {% if m.order.self_medium_rebate != m.self_medium_rebate %}
+    {% if m.order.self_medium_rebate_value.status != m.self_medium_rebate_value.status and m.order.self_medium_rebate_value.value != m.self_medium_rebate_value.value %}
         <div class="input-group-menu input-red">
     {% else %}
         <div class="input-group-menu">
@@ -996,7 +996,7 @@ function default_rebate(){
 
 {% macro order_show_client_form(client_order) -%}
 <h5>
-    客户订单
+    <a href="{{url_for('order.order_info', order_id=client_order.id, tab_id=1)}}" target="_blank" title="跳回到原始订单">客户订单</a>
 </h5>
 <hr/>
 <div class="input-row-box">

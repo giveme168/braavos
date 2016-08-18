@@ -112,11 +112,11 @@ def zhiqu_edit_contract_apply(sender, context):
         action_info = u'请' + ','.join(_get_active_user_name(medium_users)) + \
                       u', 确认以下订单的修改请求'
     elif action == 3:
-        leader_users = [k for k in to_users if k.team.type in [9]]
+        leader_users = [k for k in to_users if k.team.type in [9, 20]]
         action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
                       u', 确认以下订单的修改请求'
     elif action == 13:
-        leader_users = [k for k in to_users if k.team.type in [9]]
+        leader_users = [k for k in to_users if k.team.type in [9, 20]]
         action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
                       u', 确认以下订单的修改请求'
     elif action == 4:
