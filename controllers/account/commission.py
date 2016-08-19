@@ -296,6 +296,7 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
         dict_order['invoice_time'] = None
     dict_order['invoice_sum'] = sum([k['money'] for k in order_back_money_data if k[
                                     'type'] == 'invoice' and k['order'] == order])
+    # 按销售类型计算提成
     dict_order['direct_sales'] = []
     dict_order['total_commission_money'] = 0
     dict_order['client_start'] = order.client_start

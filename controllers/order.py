@@ -2345,6 +2345,9 @@ def edit_client_order_delete(edit_order_id):
 @order_bp.route('/edit_client_order/<edit_order_id>/contract', methods=['POST'])
 def edit_client_order_contract(edit_order_id):
     edit_order = EditClientOrder.get(edit_order_id)
+    if edit_order.contract_status == 10:
+        flash(u'已完成改单，请不要重复确认!', 'success')
+        return redirect(edit_order.info_path())
     if not edit_order:
         abort(404)
     action = int(request.values.get('action'))
