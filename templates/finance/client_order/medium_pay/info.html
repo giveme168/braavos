@@ -29,53 +29,54 @@
                 </tr>
             </thead>
             <tbody>
+                {% set money_invoce_flow = order.money_invoce_flow(agent_invoice=True, agent_back_money=True, agent_back_money_invoice=True, agent_back_invoice=True, agent_self_rebate=True, media_invoce=True, media_rebate_invoice=True, agent_rebate_data=True, medium_rebate_data=True) %}
                 <tr>
                     <td rowspan='{{order.medium_orders|length+1}}'>
                       <a target="_blank" href="{{url_for('order.order_info', order_id=order.id, tab_id=1)}}">
-                        {{order.campaign}}
+                        {{money_invoce_flow.campaign}}
                       </a>
                     </td>
-                    <td rowspan='{{order.medium_orders|length+1}}'>{{order.money|format_price}}</td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>{{money_invoce_flow.money|format_price}}</td>
                     <td rowspan='{{order.medium_orders|length+1}}'>
                       <a target="_blank" href="{{url_for('finance_client_order_invoice.info', order_id=order.id)}}">
-                        {{order.client_order_invoice|format_price}}
+                        {{money_invoce_flow.agent_invoice|format_price}}
                       </a>
                     </td>
                     <td rowspan='{{order.medium_orders|length+1}}'>
                       <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">
-                        {{order.client_order_back_money|format_price}}
+                        {{money_invoce_flow.agent_back_money|format_price}}
                       </a>
                     </td>
-                    <td rowspan='{{order.medium_orders|length+1}}'>{{order.client_order_agent_rebate_ai|format_price}}</td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>{{money_invoce_flow.agent_rebate_data|format_price}}</td>
                     <td rowspan='{{order.medium_orders|length+1}}'>
                       <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">
-                        {{order.client_order_back_rebate_invoice|format_price}}
+                        {{money_invoce_flow.agent_back_money_invoice|format_price}}
                       </a>
                     </td>
                     <td rowspan='{{order.medium_orders|length+1}}'>
                       <a target="_blank" href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">
-                        {{order.client_order_agent_rebate_invoice|format_price}}</td>
+                        {{money_invoce_flow.agent_back_invoice|format_price}}</td>
                       </a>
                     <td rowspan='{{order.medium_orders|length+1}}'>
                       <a target="_blank" href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">
-                        {{order.client_order_agent_rebate_invoice_pay|format_price}}
+                        {{money_invoce_flow.agent_back_invoice_pay|format_price}}
                       </a>
                     </td>
                 </tr>
-                {% for m in order.medium_orders %}
+                {% for m in money_invoce_flow.media_order_data %}
                 <tr>
-                    <td>{{m.media.name}}</td>
+                    <td>{{m.name}}</td>
                     <td>{{m.medium_money2|format_price}}</td>
                     <td>
                       <a target="_blank" href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">
-                        {{m.order_media_invoice[0]|format_price}}
-                        {% if m.order_media_invoice[1] %} <span class="label label-danger">有预付</span> {% endif %}
+                        {{m.media_invoce[0]|format_price}}
+                        {% if m.media_invoce[1] %} <span class="label label-danger">有预付</span> {% endif %}
                       </a>
                     </td>
-                    <td><a target="_blank" href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{m.order_media_invoice_pay|format_price}}</a></td>
-                    <td>{{m.client_order_agent_rebate_ai|format_price}}</td>
-                    <td><a target="_blank"  href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=order.id)}}">{{m.order_media_rebate_invoice|format_price}}</a></td>
-                    <td><a target="_blank"  href="{{url_for('finance_client_order_medium_back_money.back_money',order_id=order.id)}}">{{m.order_media_rebate_back_money|format_price}}</a></td>
+                    <td><a target="_blank" href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{m.media_invoce_pay|format_price}}</a></td>
+                    <td>{{m.medium_rebate_data|format_price}}</td>
+                    <td><a target="_blank"  href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=order.id)}}">{{m.media_rebate_invoice|format_price}}</a></td>
+                    <td><a target="_blank"  href="{{url_for('finance_client_order_medium_back_money.back_money',order_id=order.id)}}">{{m.media_rebate_invoice_pay|format_price}}</a></td>
                 </tr>
                 {% endfor %}
             </tbody>

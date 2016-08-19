@@ -186,6 +186,7 @@ def medias():
     for k in Media.all():
         m = {}
         m['name'] = k.name
+        m['b_type_cn'] = k.b_type_cn
         m['id'] = k.id
         m['level'] = k.level or 100
         m['level_cn'] = k.level_cn
@@ -201,6 +202,7 @@ def new_media():
     if request.method == 'POST':
         name = request.values.get('name')
         level = int(request.values.get('level', 100))
+        b_type = int(request.values.get('b_type', 0))
         count_name = Media.query.filter_by(name=name).count()
         if count_name:
             flash(u'已存在相同媒体，请重新添加', 'danger')
@@ -208,6 +210,7 @@ def new_media():
         media = Media.add(name=name,
                           level=level,
                           creator=g.user,
+                          b_type=b_type,
                           create_time=datetime.datetime.now())
         return redirect(url_for('client.media_detail', media_id=media.id))
     return tpl('/client/medium/media/create.html')
@@ -223,10 +226,12 @@ def media_detail(media_id):
     if request.method == 'POST':
         name = request.values.get('name', '')
         level = int(request.values.get('level', 100))
+        b_type = int(request.values.get('b_type', 0))
         count_name = Media.query.filter_by(name=name).count()
         if count_name and name != media.name:
             flash(u'已存在相同媒体，请重新添加', 'danger')
             return tpl('/client/medium/media/create.html')
+        media.b_type = b_type
         media.level = level
         media.name = name
         media.save()

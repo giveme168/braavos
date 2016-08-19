@@ -11,6 +11,13 @@
             <input type="text" name="name" id="name" value="{{media.name}}">
       </div>
       <div class="input-group-menu">
+            <div class="name">业务类别: </div>
+            <select name="b_type" id="b_type" class="surname" style="width:350px;">
+                <option value=0>自营</option>
+                <option value=1>增量</option>
+            </select>
+        </div>
+      <div class="input-group-menu">
           <div class="name">媒体级别 : </div>
             <select name="level" id="level" class="surname" style="width:350px;">
                 <option value="1">S级</option>
@@ -40,6 +47,8 @@
       $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
       $("#level").val(parseInt('{{media.level or 100}}'))
       $("#level").trigger("chosen:updated");
+      $("#b_type").val(parseInt('{{media.b_type or 0}}'))
+      $("#b_type").trigger("chosen:updated");
     })
 </script>
 {% endblock %}

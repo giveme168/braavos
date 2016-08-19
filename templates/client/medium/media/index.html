@@ -13,6 +13,7 @@
                 <tr>
                     <th>#id</th>
                     <th>名称</th>
+                    <th>业务类别</th>
                     <th>级别</th>
                     <th>创建人</th>
                     <th>创建时间</th>
@@ -23,6 +24,7 @@
                 <tr>
                     <td>{{m.id}}</td>
                     <td><a href="{{url_for('client.media_detail', media_id=m.id)}}">{{m.name}}</a></td>
+                    <td>{{m.b_type_cn}}</td>
                     <td>{{m.level_cn}}</td>
                     <td>{{m.creator_name}}</td>
                     <td>{{m.create_time_cn}}</td>
