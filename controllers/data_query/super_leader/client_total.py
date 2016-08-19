@@ -676,7 +676,7 @@ def _format_douban_order(order, year):
 
 
 def _fix_client_data(data, orders, location):
-    t_money = array([0 for k in range(17)])
+    t_money = array([float(0) for k in range(17)])
     for k in data:
         k['th_n'] = 0
         for c in k['clients']:
@@ -707,7 +707,7 @@ def _fix_client_data(data, orders, location):
             k['th_n'] += len(c['agents']) or 1
 
             # 合并客户下的代理信息用于画图
-            c['client_money'] = array([0 for i in range(17)])
+            c['client_money'] = array([float(0) for i in range(17)])
             for c_k, c_v in agents_obj.iteritems():
                 c['client_money'] += array(c_v)
     # 计算区域客户增值率

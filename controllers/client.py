@@ -234,6 +234,8 @@ def media_detail(media_id):
         media.b_type = b_type
         media.level = level
         media.name = name
+        media.creator = g.user
+        media.create_time = datetime.datetime.now()
         media.save()
         flash(u'保存成功!', 'success')
         return redirect(url_for('client.media_detail', media_id=media.id))

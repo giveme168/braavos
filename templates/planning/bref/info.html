@@ -224,13 +224,13 @@
                       {% if g.user == bref.creator or g.user.is_super_admin() %}
                       <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="10">取消</button>
                       {% endif %}
-                      {% if (g.user.location == bref.creator.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
+                      {% if (g.user.location == bref.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
                       <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="103">分配</button>
                       <button class="btn btn-sm btn-warning contract-submit" type="submit" name="action" value="10">取消</button>
                       <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="1">打回</button>
                       {% endif %}
                     {% elif bref.status == 3 %}
-                      {% if (g.user.location == bref.creator.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
+                      {% if (g.user.location == bref.location and g.user.is_planner() and g.user.is_team_admin()) or g.user.is_super_admin() %}
                         <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="103">再分配</button>
                       {% endif %}
                       {% if g.user.id == bref.to_id or g.user.is_super_admin() %}

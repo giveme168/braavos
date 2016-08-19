@@ -1009,7 +1009,7 @@ def planning_bref(sender, apply_context):
     bref = apply_context['bref']
     action = apply_context['status']
     # 获取某区域策划负责人
-    c_loction = bref.creator.location
+    c_loction = bref.location
     planning_team_admins = [k for k in User.all_active(
     ) if k.location == c_loction and k.team.type == 6][0].team.admins
     # 获取某区域销售负责人
