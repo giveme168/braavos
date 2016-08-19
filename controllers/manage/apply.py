@@ -47,7 +47,7 @@ def order():
 
 @manage_apply_bp.route('/order/finance/del', methods=['GET'])
 def order_finance_del():
-    if not (g.user.is_leader() or g.user.is_super_leader()):
+    if not (g.user.is_finance() or g.user.is_super_leader()):
         abort(403)
     orders = list(ClientOrder.query.filter_by(
         contract_status=CONTRACT_STATUS_DELETEAGREE))

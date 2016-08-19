@@ -20,9 +20,7 @@
                 <th>渠道销售</th>
                 <th>投放媒体</th>
                 <th>媒体金额</th>
-                {% if g.user.is_super_admin() %}
                 <th>操作</th>
-                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -52,9 +50,14 @@
                         <br><br>
                         {% endfor %}
                     </td>
-                    {% if g.user.is_super_admin() %}
-                    <td><a href="javascript:delete_order('{{o.id}}', '{{o.campaign}}')">删除</a></td>
-                    {% endif %}
+                    
+                    <td>
+                        {% if o.contract_status == 1 %}
+                            <a href="javascript:delete_order('{{o.id}}', '{{o.campaign}}')">删除</a>
+                        {% elif g.user.is_super_admin() %}
+                            <a href="javascript:delete_order('{{o.id}}', '{{o.campaign}}')">删除</a>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

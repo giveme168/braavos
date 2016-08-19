@@ -836,8 +836,7 @@ def display_orders(orders, title, status_id=-1):
             orders = paginator.page(page)
         except:
             orders = paginator.page(paginator.num_pages)
-        params = '&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s\
-        &year=%s' % (
+        params = '&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s&year=%s' % (
             orderby, search_info, location_id, status_id, str(year))
         return tpl('orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
@@ -2228,7 +2227,7 @@ def client_medium_attach_status(order_id, attachment_id, status):
 #################
 @order_bp.route('/edit_client_order', methods=['GET'])
 def edit_client_order():
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('search_info', '')
     location = int(request.args.get('location', 0))
     status = int(request.values.get('status', -1))
     page = int(request.args.get('p', 1))
@@ -2260,7 +2259,10 @@ def edit_client_order():
             orders = [order for order in orders if order.contract_status == 0]
             status = 0
     else:
-        orders = [order for order in orders if order.contract_status == status]
+        if status:
+            orders = [order for order in orders if order.contract_status == status]
+        else:
+            pass
     if location:
         orders = [order for order in orders if location in order.locations]
     if search_info:

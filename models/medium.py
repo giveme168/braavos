@@ -165,11 +165,20 @@ class MediumGroupRebate(db.Model, BaseModelMixin):
         return self.year.year
 
 
+B_TYPE_SELF = 0
+B_TYPE_INCREMENT = 1
+B_TYPE_CN = {
+    B_TYPE_SELF: u'自营',
+    B_TYPE_INCREMENT: u'增量'
+}
+
+
 # 二级媒体表
 class Media(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'media'
     id = db.Column(db.Integer, primary_key=True)
     level = db.Column(db.Integer)
+    b_type = db.Column(db.Integer)
     name = db.Column(db.String(100))
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
@@ -177,7 +186,7 @@ class Media(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     create_time = db.Column(db.DateTime)   # 添加时间
     __mapper_args__ = {'order_by': id.desc()}
 
-    def __init__(self, name, creator, create_time=None, level=100):
+    def __init__(self, name, creator, b_type=0, create_time=None, level=100):
         self.name = name
         self.creator = creator
         self.level = level
@@ -207,6 +216,10 @@ class Media(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         else:
             update_time = ''
         return update_time
+
+    @property
+    def b_type_cn(self):
+        return B_TYPE_CN[self.b_type or 0]
 
 
 class MediumGroupMediaRebate(db.Model, BaseModelMixin):
