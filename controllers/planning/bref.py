@@ -18,7 +18,7 @@ planning_bref_bp = Blueprint(
 def index():
     brefs = list(Bref.all())
     if g.user.is_leader() or g.user.is_operater_leader():
-        brefs = [k for k in brefs if k.creator.location == g.user.location and k.status != 1]
+        brefs = [k for k in brefs if k.location == g.user.location and k.status != 1]
     elif g.user.is_planner():
         brefs = [k for k in brefs if k.status != 1]
     else:
@@ -33,7 +33,7 @@ def index():
     info = request.values.get('info', '')
 
     if location != 0:
-        brefs = [b for b in brefs if b.creator.location == location]
+        brefs = [b for b in brefs if b.location == location]
     if status != 100:
         brefs = [b for b in brefs if b.status == status]
     if info:

@@ -213,7 +213,7 @@ class Bref(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def location(self):
-        if self.creator.location == 4:
+        if self.creator.location in [0, 4]:
             location = 1
         else:
             location = self.creator.location

@@ -86,6 +86,14 @@ BACK_MONEY_STATUS_CN = {
     BACK_MONEY_STATUS_BREAK: u'坏账'
 }
 
+SUBJECT_SH = 1
+SUBJECT_BJ = 2
+SUBJECT_CN = {
+    SUBJECT_SH: u'上海致趣',
+    SUBJECT_BJ: u'北京知趣'
+}
+
+
 ECPM_CONTRACT_STATUS_LIST = [2, 4, 5]
 
 direct_sales = db.Table('client_order_direct_sales',
@@ -301,6 +309,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'))  # 客户
     client = db.relationship(
         'Client', backref=db.backref('client_orders', lazy='dynamic'))
+    subject = db.Column(db.Integer)  # 我方签约主体
     campaign = db.Column(db.String(100))  # 活动名称
 
     contract = db.Column(db.String(100))  # 客户合同号
@@ -334,7 +343,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     kind = "client-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
-    def __init__(self, agent, client, campaign, medium_orders=None, status=STATUS_ON,
+    def __init__(self, agent, client, campaign, subject=1, medium_orders=None, status=STATUS_ON,
                  back_money_status=BACK_MONEY_STATUS_NOW, self_agent_rebate='0-0',
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL, sale_type=SALE_TYPE_AGENT,
                  client_start=None, client_end=None, reminde_date=None, resource_type=RESOURCE_TYPE_AD,
@@ -343,6 +352,7 @@ class ClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         self.agent = agent
         self.client = client
         self.campaign = campaign
+        self.subject = subject
         self.medium_orders = medium_orders or []
 
         self.contract = contract
@@ -1494,6 +1504,10 @@ by %s\n
             dict_f['media_order_data'].append(dict_m)
         return dict_f
 
+    @property
+    def subject_cn(self):
+        return SUBJECT_CN[self.subject or 1]
+
 
 class BackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_back_money'
@@ -1815,6 +1829,7 @@ class EditClientOrder(db.Model, BaseModelMixin, CommentMixin):
     agent = db.relationship('Agent', backref=db.backref('edit_client_order_agent', lazy='dynamic'))
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'))  # 客户
     client = db.relationship('Client', backref=db.backref('edit_client_order_client', lazy='dynamic'))
+    subject = db.Column(db.Integer)  # 我方签约主体
     campaign = db.Column(db.String(100))  # 活动名称
     contract = db.Column(db.String(100))  # 客户合同号
     money = db.Column(db.Float())  # 客户合同金额
@@ -1841,7 +1856,7 @@ class EditClientOrder(db.Model, BaseModelMixin, CommentMixin):
     prim_client_order_data = db.Column(db.Text(), default=json.dumps({}))
     __mapper_args__ = {'order_by': id.desc()}
 
-    def __init__(self, agent, client, campaign, client_order, self_agent_rebate='0-0',
+    def __init__(self, agent, client, campaign, client_order, subject=1, self_agent_rebate='0-0',
                  contract="", money=0, client_start=None, client_end=None, reminde_date=None,
                  direct_sales=None, agent_sales=None, assistant_sales=[], finish_time=None,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW,
@@ -1849,6 +1864,7 @@ class EditClientOrder(db.Model, BaseModelMixin, CommentMixin):
         self.agent = agent
         self.client = client
         self.campaign = campaign
+        self.subject = subject
         self.medium_orders = []
         self.client_order = client_order
         self.contract = contract
@@ -2025,6 +2041,10 @@ class EditClientOrder(db.Model, BaseModelMixin, CommentMixin):
     def get_order_by_user(cls, user):
         """一个用户可以查看的所有订单"""
         return [o for o in cls.all() if o.have_owner(user)]
+
+    @property
+    def subject_cn(self):
+        return SUBJECT_CN[self.subject or 1]
 
 
 edit_operater_users = db.Table('edit_order_users_operater',

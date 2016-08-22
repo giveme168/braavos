@@ -25,6 +25,7 @@
         <table border='1'>
           <thead>
             <tr>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">主体</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">区域</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">代理/直客</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">客户合同号</th>
@@ -75,6 +76,7 @@
           <tbody>
             {% for k in orders %}
                 <tr>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.subject_cn}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.locations_cn}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.agent_name}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.contract}}</td>

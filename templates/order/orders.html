@@ -6,6 +6,7 @@
     <table border='1'>
         <thead>
             <tr>
+                <th>签约主体</th>
                 <th>代理/直客</th>
                 <th>客户</th>
                 <th>Campaign</th>
@@ -44,6 +45,7 @@
             {% else %}
             <tr>
             {% endif %}
+                <td>{{o.subject_cn}}</td>
                 <td>{{o.agent.name}}</td>
                 <td>{{o.client.name}}</td>
                 <td><a href="{{o.info_path()}}">{{o.campaign}}</a></td>

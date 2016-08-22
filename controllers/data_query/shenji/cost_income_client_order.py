@@ -73,6 +73,7 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate,
                           pre_year_month, all_outsource, shenji=1):
     dict_order = {}
     dict_order['order_id'] = client_order.id
+    dict_order['subject_cn'] = client_order.subject_cn
     dict_order['locations_cn'] = client_order.locations_cn
     dict_order['client_name'] = client_order.client.name
     dict_order['agent_name'] = client_order.agent.name
