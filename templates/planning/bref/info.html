@@ -132,7 +132,7 @@
   </tr>
   <tr>
     <th>备注</th>
-    <td><pre style="width: 100%;">{{data.desc}}</pre></td>
+    <td><pre style="width: 1000px;">{{data.desc}}</pre></td>
   </tr>
   {% if data.status in [0, 3] %}
   <tr>
@@ -171,13 +171,11 @@
       <div id="collapseOne" class="panel-collapse collapse in">
         <div class="panel-body">
           <div class="col-md-12">
-            <div class="col-md-10" style="margin-left: 20px;">
               {% if bref.status in [10, 1] %}
                 {{edit_bref_form(form, bref)}}
               {% else %}
                 {{show_bref_form(bref)}}
               {% endif %}
-            </div>
           </div>
           <hr><div style="color:#999;">创建者: {{bref.creator.name}} 最后更新时间: {{bref.update_time_cn}}点</div>
         </div>

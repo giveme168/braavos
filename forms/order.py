@@ -5,13 +5,14 @@ from libs.wtf import Form
 from models.client import Client, Group, Agent
 from models.medium import Medium, MediumGroup, Media
 from models.order import DISCOUNT_SALE
-from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN, SALE_TYPE_CN
+from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN, SALE_TYPE_CN, SUBJECT_CN
 from models.user import User
 from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
                          TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER)
 
 
 class ClientOrderForm(Form):
+    subject = SelectField(u'我方签约主体', coerce=int)
     agent = SelectField(u'代理/直客(甲方全称)', coerce=int)
     client = SelectField(u'客户名称', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
@@ -28,6 +29,7 @@ class ClientOrderForm(Form):
 
     def __init__(self, *args, **kwargs):
         super(ClientOrderForm, self).__init__(*args, **kwargs)
+        self.subject.choices = SUBJECT_CN.items()
         self.agent.choices = [(m.id, m.name) for m in Agent.all()]
         self.client.choices = [(c.id, c.name) for c in Client.all()]
         self.direct_sales.choices = [(m.id, m.name) for m in User.sales()]

@@ -77,6 +77,7 @@ def new_order():
         self_rabate_value = float(request.values.get('self_rabate_value', 0))
         order = ClientOrder.add(agent=Agent.get(form.agent.data),
                                 client=Client.get(form.client.data),
+                                subject=form.subject.data,
                                 campaign=form.campaign.data,
                                 money=float(form.money.data or 0),
                                 client_start=form.client_start.data,
@@ -292,6 +293,7 @@ def get_client_form(order):
     client_form = ClientOrderForm()
     client_form.agent.data = order.agent.id
     client_form.client.data = order.client.id
+    client_form.subject.data = order.subject or 1
     client_form.campaign.data = order.campaign
     client_form.money.data = order.money
     client_form.client_start.data = order.client_start
@@ -354,6 +356,7 @@ def order_info(order_id, tab_id=1):
                 if client_form.validate():
                     order.agent = Agent.get(client_form.agent.data)
                     order.client = Client.get(client_form.client.data)
+                    order.subject = client_form.subject.data
                     order.campaign = client_form.campaign.data
                     order.money = float(client_form.money.data or 0)
                     order.client_start = client_form.client_start.data
@@ -2286,6 +2289,7 @@ def edit_client_order_info(edit_order_id):
         self_rebate = int(request.values.get('self_rebate', 0))
         self_rabate_value = float(request.values.get('self_rabate_value', 0))
         edit_order.agent = Agent.get(request.values.get('agent'))
+        edit_order.subject = int(request.values.get('subject', 1))
         edit_order.client = Client.get(request.values.get('client'))
         edit_order.campaign = request.values.get('campaign')
         edit_order.money = float(request.values.get('money', 0.0))
@@ -2440,6 +2444,8 @@ def edit_client_order_contract(edit_order_id):
             comment_msg += u'    修改代理/直客：%s（原：%s）\n\r' % (edit_order.agent.name, client_order.agent.name)
         if client_order.client != edit_order.client:
             comment_msg += u'    修改客户名称：%s（原：%s）\n\r' % (edit_order.client.name, client_order.client.name)
+        if client_order.subject != edit_order.subject:
+            comment_msg += u'    修改我方签约主体：%s（原：%s）\n\r' % (edit_order.subject_cn, client_order.subject_cn)
         if client_order.campaign != edit_order.campaign:
             comment_msg += u'    修改Campaign名称：%s（原：%s）\n\r' % (edit_order.campaign, client_order.campaign)
         if client_order.money != edit_order.money:
@@ -2475,6 +2481,7 @@ def edit_client_order_contract(edit_order_id):
                 n_msg = u'无单笔返点'
             comment_msg += u'    修改单笔返点：%s（原：%s）\n\r' % (n_msg, o_msg)
         client_order.agent = edit_order.agent
+        client_order.subject = edit_order.subject
         client_order.client = edit_order.client
         client_order.campaign = edit_order.campaign
         client_order.money = edit_order.money
@@ -2571,6 +2578,7 @@ def edit_client_order_create(order_id):
         edit_order = EditClientOrder.add(client_order=order,
                                          contract=order.contract,
                                          agent=Agent.get(request.values.get('agent')),
+                                         subject=int(request.values.get('subject', 1)),
                                          client=Client.get(request.values.get('client')),
                                          campaign=request.values.get('campaign'),
                                          money=float(request.values.get('money', 0.0)),

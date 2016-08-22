@@ -49,6 +49,19 @@
         </div>
         <input class="surname" style="width:300px;" type="text" id="campaign" name="campaign" value="{{edit_order.campaign}}"/>
     </div>
+    {% if client_order.subject != edit_order.subject %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            我方签约主体:
+        </div>
+        <select class="surname" id='subject' name="subject" style="width:300px;">
+            <option value="1">上海致趣</option>
+            <option value="2">北京知趣</option>
+        </select>
+    </div>
     {% if client_order.money != edit_order.money %}
         <div class="input-group-menu input-red">
     {% else %}
@@ -171,7 +184,7 @@
             <option value="1">直客</option>
         </select>
     </div>
-    {% if client_order.self_agent_rebate_value.status != edit_order.self_agent_rebate_value.status and client_order.self_agent_rebate_value.value != edit_order.self_agent_rebate_value.value%}
+    {% if client_order.self_agent_rebate_value.status != edit_order.self_agent_rebate_value.status or client_order.self_agent_rebate_value.value != edit_order.self_agent_rebate_value.value%}
         <div class="input-group-menu input-red">
     {% else %}
         <div class="input-group-menu">
@@ -341,7 +354,7 @@
             {% endfor %}
         </select>
     </div>
-    {% if m.order.self_medium_rebate_value.status != m.self_medium_rebate_value.status and m.order.self_medium_rebate_value.value != m.self_medium_rebate_value.value %}
+    {% if m.order.self_medium_rebate_value.status != m.self_medium_rebate_value.status or m.order.self_medium_rebate_value.value != m.self_medium_rebate_value.value %}
         <div class="input-group-menu input-red">
     {% else %}
         <div class="input-group-menu">
@@ -458,6 +471,8 @@ $(document).ready(function(){
     $('#resource_type').trigger("chosen:updated");
     $('#sale_type').val('{{edit_order.sale_type}}')
     $('#sale_type').trigger("chosen:updated");
+    $('#subject').val('{{edit_order.subject}}')
+    $('#subject').trigger("chosen:updated");
 
     // 初始化媒体单笔返点
     {% for m in edit_order.medium_orders %}
@@ -589,6 +604,15 @@ function default_rebate(){
             Campaign名称:
         </div>
         <input class="surname" style="width:300px;" type="text" id="campaign" name="campaign" value="{{client_order.campaign}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            我方签约主体:
+        </div>
+        <select class="surname" id='subject' name="subject" style="width:300px;">
+            <option value="1">上海致趣</option>
+            <option value="2">北京知趣</option>
+        </select>
     </div>
     <div class="input-group-menu">
         <div class="name">
@@ -871,6 +895,8 @@ $(document).ready(function(){
     $('#agent').trigger("chosen:updated");
     $('#client').val('{{client_order.client.id}}')
     $('#client').trigger("chosen:updated");
+    $('#subject').val('{{client_order.subject}}')
+    $('#subject').trigger("chosen:updated");
 
     var direct_sales = []
     {% for o in client_order.direct_sales %}
@@ -1017,6 +1043,12 @@ function default_rebate(){
             Campaign名称:
         </div>
         <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.campaign}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            我方签约主体:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.subject_cn}}"/>
     </div>
     <div class="input-group-menu">
         <div class="name">
