@@ -174,11 +174,9 @@ def _belong_time_by_back_money(money, start, end, back_money_obj):
         if now_Q_back_moneys <= 0:
             break
         if report_money[k]['money'] < now_Q_back_moneys:
-            report_times.append(
-                (report_money[k]['month_day'], report_money[k]['money']))
+            report_times.append((report_money[k]['month_day'], report_money[k]['money']))
         else:
-            report_times.append(
-                (report_money[k]['month_day'], now_Q_back_moneys))
+            report_times.append((report_money[k]['month_day'], now_Q_back_moneys))
         now_Q_back_moneys -= report_money[k]['money']
     # 确定回款属于哪个执行月
     if report_times:
