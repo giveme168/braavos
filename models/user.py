@@ -406,6 +406,14 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
             return completion.rate / 100
         return 0
 
+    def completion_increment(self, date):
+        year = str(date.year)
+        Q = check_month_get_Q(date.strftime('%m'))
+        completion = self.completion_increment_user.filter_by(time=year + Q).first()
+        if completion:
+            return completion.rate / 100
+        return 0
+
     def performance(self, year, Q):
         performance = self.performance_user.filter_by(
             year=int(year), q_month=Q).first()
@@ -460,6 +468,10 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     @property
     def lately_completion(self):
         return self.completion_user.first()
+
+    @property
+    def lately_completion_increment_user(self):
+        return self.completion_increment_user.first()
 
     @property
     def recruited_date_cn(self):

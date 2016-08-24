@@ -157,7 +157,7 @@ class searchAdFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentM
     def can_admin(self, user):
         """是否可以修改该订单"""
         admin_users = self.sales + [self.creator]
-        return user.is_searchad_leader() or user.is_admin() or user in admin_users
+        return user.is_searchad_leader() or user.is_contract() or user.is_admin() or user in admin_users
 
     def have_owner(self, user):
         """是否可以查看该订单"""

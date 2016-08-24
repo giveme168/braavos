@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from flask import Blueprint, request, redirect, abort, url_for, g, jsonify
 from flask import json, render_template as tpl, flash, current_app
-
+from sqlalchemy import and_
 from wtforms import SelectMultipleField
 from libs.wtf import Form
 from forms.order import (ClientOrderForm, MediumOrderForm,
@@ -2567,8 +2567,8 @@ def edit_client_order_contract(edit_order_id):
 @order_bp.route('/edit_client_order/<order_id>/create', methods=['GET', 'POST'])
 def edit_client_order_create(order_id):
     order = ClientOrder.get(order_id)
-    edit_order_count = EditClientOrder.query.filter(EditClientOrder.contract_status != 10 and
-                                                    EditClientOrder.client_order == order).count()
+    edit_order_count = EditClientOrder.query.filter(and_(EditClientOrder.contract_status != 10,
+                                                    EditClientOrder.client_order == order)).count()
     if edit_order_count > 0:
         flash('对不起，该订单正在申请修改，请在订单修改完成后再进行修改申请', 'danger')
         return redirect(url_for('order.order_info', order_id=order.id, tab_id=1))

@@ -12,7 +12,7 @@ from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
 
 
 class ClientOrderForm(Form):
-    subject = SelectField(u'我方签约主体', coerce=int)
+    subject = SelectField(u'我方签约主体', coerce=int, description=u"与客户签约主体")
     agent = SelectField(u'代理/直客(甲方全称)', coerce=int)
     client = SelectField(u'客户名称', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])

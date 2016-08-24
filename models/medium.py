@@ -178,7 +178,7 @@ class Media(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'media'
     id = db.Column(db.Integer, primary_key=True)
     level = db.Column(db.Integer)
-    b_type = db.Column(db.Integer)
+    b_type = db.Column(db.Integer)  # 业务类型
     name = db.Column(db.String(100))
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     creator = db.relationship(
