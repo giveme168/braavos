@@ -43,6 +43,7 @@
         <table border='1'>
             <thead>
                 <tr>
+                    <th>业务类型</th>
                     <th>代理公司</th>
                     <th>项目名称</th>
                     <th>类型</th>
@@ -55,16 +56,20 @@
                     <th>发票金额</th>
                     <th>回款时间</th>
                     <th>回款金额</th>
+                    <th>外包金额</th>
+                    <th>利润率</th>
+                    <th>媒介提成</th>
                     <th>区域</th>
                     <th>类型</th>
                     <th>销售</th>
-                    <th>计算公式（说明：完成率* 提成比例 * 回款金额 * 项目账期系数 = 提成）</th>
+                    <th>计算公式：</th>
                     <th>提成金额</th>
                 </tr>
             </thead>
             <tbody>
                 {% for k in orders %}
                 <tr>
+                    <td rowspan="{{k.salers_count + 1}}">{% if k.b_type %}增量{% else %}自营{% endif %}</td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.agent_name}}</td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.campaign}}</td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.industry_cn}}</td>
@@ -77,6 +82,9 @@
                     <td rowspan="{{k.salers_count + 1}}">{{k.invoice_sum|format_price}}</td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.money_time or '无'}}</td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.money_sum|format_price}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.outsource_money|format_price}}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.profit|float * 100}}%</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.media_money|format_price}}</td>
                 </tr>
                     {% for s in k.agent_sales+k.direct_sales %}
                     <tr>
@@ -89,12 +97,15 @@
                     {% endfor %}
                 {% endfor %}
                 <tr>
-                    <td colspan=5 style="text-align: center;">合计</td>
+                    <td colspan=6 style="text-align: center;">合计</td>
                     <td>{{orders|sum(attribute='money')|format_price}}</td>
                     <td colspan=3></td>
                     <td>{{orders|sum(attribute='invoice_sum')|format_price}}</td>
                     <td></td>
                     <td>{{orders|sum(attribute='money_sum')|format_price}}</td>
+                    <td>{{orders|sum(attribute='outsource_money')|format_price}}</td>
+                    <td></td>
+                    <td>{{orders|sum(attribute='media_money')|format_price}}</td>
                     <td colspan=4 style="text-align: center;"></td>
                     <td>{{orders|sum(attribute='total_commission_money')|format_price}}</td>
                 </tr>

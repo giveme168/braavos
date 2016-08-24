@@ -1471,7 +1471,7 @@ by %s\n
                         else:
                             agent_rebate = 0
                     if self.money:
-                        dict_f['agent_rebate_data'] += m.sale_money / self.money * agent_rebate
+                        dict_f['agent_rebate_data'] += m.sale_money * agent_rebate / 100
                     else:
                         dict_f['agent_rebate_data'] += 0
             # 计算媒体返点

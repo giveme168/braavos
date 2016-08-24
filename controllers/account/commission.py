@@ -11,6 +11,7 @@ from models.account.saler import Commission
 from models.client_order import BackMoney, BackInvoiceRebate
 from models.douban_order import BackMoney as DoubanBackMoney
 from models.douban_order import BackInvoiceRebate as DoubanBackInvoiceRebate
+from models.outsource import DoubanOutSource, OutSource
 from libs.date_helpers import (
     check_Q_get_monthes, check_month_get_Q, get_monthes_pre_days)
 from controllers.account.helpers.commission_helpers import write_report_excel
@@ -195,6 +196,14 @@ def _belong_time_by_back_money(money, start, end, back_money_obj):
     return {'back_moneys': [], 'belong_time': u'无'}
 
 
+def _all_outsource():
+    outsource = [{'order_id': o.douban_order.id, 'money': o.num, 'type': 'douban'}
+                 for o in DoubanOutSource.all() if o.status in [2, 3, 4]]
+    outsource += [{'order_id': o.medium_order.client_order.id, 'money': o.num, 'type': 'client'}
+                  for o in OutSource.all() if o.status in [2, 3, 4]]
+    return outsource
+
+
 def _order_back_money_data(order, start_Q_month, end_Q_month, back_moneys):
     order_back_moneys = [k for k in back_moneys if k['order_id'] == order.id]
     order_back_moneys = sorted(
@@ -262,7 +271,7 @@ def _order_back_money_data(order, start_Q_month, end_Q_month, back_moneys):
 
 
 # 格式化合同
-def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_moneys):
+def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_moneys, all_outsource):
     dict_order = {}
     dict_order['client_name'] = order.client.name
     dict_order['money'] = order.money
@@ -296,18 +305,56 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
         dict_order['invoice_time'] = None
     dict_order['invoice_sum'] = sum([k['money'] for k in order_back_money_data if k[
                                     'type'] == 'invoice' and k['order'] == order])
-    # 按销售类型计算提成
+    # 媒介提成
+    dict_order['media_money'] = 0
+    if order.__tablename__ == 'bra_douban_order':
+        dict_order['b_type'] = 0
+        dict_order['outsource_money'] = sum([o['money'] for o in all_outsource if o[
+                                            'order_id'] == order.id and o['type'] == 'douban'])
+        dict_order['profit'] = 0
+    else:
+        dict_order['outsource_money'] = sum([o['money'] for o in all_outsource if o[
+                                            'order_id'] == order.id and o['type'] == 'douban'])
+        # 获取代理返点
+        agent_rebate_value = order.client_order_agent_rebate_ai
+        # 媒体返点
+        media_rebate_value = 0
+        # 媒体金额总和
+        medium_money_total = 0
+        b_type = []
+        for m in order.medium_orders:
+            b_type.append(m.media.b_type or 0)
+            media_rebate_value += m.client_order_agent_rebate_ai
+            medium_money_total += m.medium_money2
+        # 分析订单业务类型：1，自营；2，增量；3，混搭（按增量计算）
+        b_type = list(set(b_type))
+        if len(b_type) > 1:
+            dict_order['b_type'] = 1
+        elif b_type == [1]:
+            dict_order['b_type'] = 1
+        else:
+            dict_order['b_type'] = 0
+        if order.money:
+            dict_order['profit'] = (order.money - medium_money_total - agent_rebate_value -
+                                    dict_order['outsource_money'] + media_rebate_value) / order.money
+        else:
+            dict_order['profit'] = 0
+    # 保留两位小数
+    dict_order['profit'] = float('%.2f' % (dict_order['profit']))
     dict_order['direct_sales'] = []
-    dict_order['total_commission_money'] = 0
+    dict_order['agent_sales'] = []
     dict_order['client_start'] = order.client_start
     dict_order['client_end'] = order.client_end
+    # 按销售类型计算提成
     for saler in order.direct_sales:
         d_saler = {}
         d_saler['id'] = saler.id
         d_saler['name'] = saler.name
         d_saler['type'] = u'直客'
         d_saler['location_cn'] = saler.location_cn
+        # 转正时间
         positive_date_cn = saler.positive_date_cn
+        # 离职时间
         quit_date_cn = saler.quit_date_cn
         if quit_date_cn:
             quit_date = datetime.datetime.strptime(
@@ -340,22 +387,36 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
             else:
                 belong_time = b_money_obj['belong_time']
             commission = saler.commission(belong_time.year)
-            completion = saler.completion(belong_time)
             if int(dict_order['client_start'].strftime('%Y')) <= 2015:
                 day_rate = 1
             else:
                 day_rate = _back_day_rate(
                     (back_time.date() - dict_order['client_end']).days + 1)
-            c_money = completion * commission * b_money * day_rate
+            if dict_order['b_type'] == 1:
+                dict_order['media_money'] += b_money * dict_order['profit'] * 0.05
+                completion = saler.completion_increment(belong_time)
+                if dict_order['profit'] < 0.15:
+                    c_money = b_money * dict_order['profit'] * commission * 5
+                    d_saler['str_formula'] += u"%s(回款金额) * %s(利润率) * %s(提成比例) * 5 = %s(%s月 提成信息)<br/>" % (
+                        '%.2f' % (b_money), str(dict_order['profit']), str(commission), str(c_money),
+                        belong_time.strftime('%Y-%m'))
+                else:
+                    c_money = completion * commission * b_money * day_rate
+                    # 计算公式
+                    d_saler['str_formula'] += u"%s(增量完成率) * %s(提成比例) * %s(回款金额) * %s(账期系数) = %s(%s月 提成信息)<br/>" % (
+                        str(completion), str(commission), '%.2f' % (b_money),
+                        str(day_rate), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
+            else:
+                completion = saler.completion(belong_time)
+                c_money = completion * commission * b_money * day_rate
+                # 计算公式
+                d_saler['str_formula'] += u"%s(自营完成率) * %s(提成比例) * %s(回款金额) * %s(账期系数) = %s(%s月 提成信息)<br/>" % (
+                    str(completion), str(commission), '%.2f' % (b_money),
+                    str(day_rate), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
             commission_money += c_money
-            # 计算公式
-            d_saler['str_formula'] += u"%s * %s * %s * %s = %s &nbsp;&nbsp;(%s月 提成信息)<br/>" % (
-                str(completion), str(commission), '%.2f' % (b_money),
-                str(day_rate), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
         d_saler['commission_money'] = commission_money
         dict_order['direct_sales'].append(d_saler)
-        dict_order['total_commission_money'] += commission_money
-    dict_order['agent_sales'] = []
+        # dict_order['total_commission_money'] += commission_money
     for saler in order.agent_sales:
         d_saler = {}
         d_saler['id'] = saler.id
@@ -395,23 +456,38 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
             else:
                 belong_time = b_money_obj['belong_time']
             commission = saler.commission(belong_time.year)
-            completion = saler.completion(belong_time)
             if int(dict_order['client_start'].strftime('%Y')) <= 2015:
                 day_rate = 1
             else:
                 day_rate = _back_day_rate(
                     (back_time.date() - dict_order['client_end']).days + 1)
-            c_money = completion * commission * b_money * day_rate
+            if dict_order['b_type'] == 1:
+                dict_order['media_money'] += b_money * dict_order['profit'] * 0.05
+                completion = saler.completion_increment(belong_time)
+                if dict_order['profit'] < 0.15:
+                    c_money = b_money * dict_order['profit'] * commission * 5
+                    d_saler['str_formula'] += u"%s(回款金额) * %s(利润率) * %s(提成比例) * 5 = %s(%s月 提成信息)<br/>" % (
+                        '%.2f' % (b_money), str(dict_order['profit']), str(commission), str(c_money),
+                        belong_time.strftime('%Y-%m'))
+                else:
+                    c_money = completion * commission * b_money * day_rate
+                    # 计算公式
+                    d_saler['str_formula'] += u"%s(增量完成率) * %s(提成比例) * %s(回款金额) * %s(账期系数) = %s(%s月 提成信息)<br/>" % (
+                        str(completion), str(commission), '%.2f' % (b_money),
+                        str(day_rate), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
+            else:
+                completion = saler.completion(belong_time)
+                c_money = completion * commission * b_money * day_rate
+                # 计算公式
+                d_saler['str_formula'] += u"%s(自营完成率) * %s(提成比例) * %s(回款金额) * %s(账期系数) = %s(%s月 提成信息)<br/>" % (
+                    str(completion), str(commission), '%.2f' % (b_money),
+                    str(day_rate), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
             commission_money += c_money
-            # 计算公式
-            d_saler['str_formula'] += u"%s * %s * %s * %s = %s &nbsp;&nbsp;(%s月 提成信息)<br/>" % (
-                str(completion), str(commission), '%.2f' % (b_money),
-                str(day_rate), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
         d_saler['commission_money'] = commission_money
         dict_order['agent_sales'].append(d_saler)
-        dict_order['total_commission_money'] += commission_money
-    dict_order['salers_count'] = len(
-        dict_order['direct_sales'] + dict_order['agent_sales'])
+    dict_order['salers_count'] = len(dict_order['direct_sales'] + dict_order['agent_sales'])
+    dict_order['total_commission_money'] = sum([u['commission_money']
+                                                for u in dict_order['direct_sales'] + dict_order['agent_sales']])
     return dict_order
 
 
@@ -464,10 +540,14 @@ def saler():
     # 获取当季度回款的所有合同
     client_orders = list(set([k['order'] for k in now_Q_client_back_moneys]))
     douban_orders = list(set([k['order'] for k in now_Q_douban_back_moneys]))
-    orders = [_order_to_dict(k, start_Q_month, end_Q_month, client_back_moneys, now_Q_client_back_moneys)
-              for k in client_orders if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
-    orders += [_order_to_dict(k, start_Q_month, end_Q_month, douban_back_moneys, now_Q_douban_back_moneys)
-               for k in douban_orders if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
+    # 获取所有外包数据
+    all_outsource = _all_outsource()
+    orders = [_order_to_dict(k, start_Q_month, end_Q_month, client_back_moneys,
+                             now_Q_client_back_moneys, all_outsource) for k in client_orders
+              if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
+    orders += [_order_to_dict(k, start_Q_month, end_Q_month, douban_back_moneys,
+                              now_Q_douban_back_moneys, all_outsource) for k in douban_orders
+               if k.contract_status not in [7, 8, 9] and k.status == 1 and k.contract]
     if location_id:
         orders = [k for k in orders if location_id in k['locations']]
     orders = sorted(orders, key=operator.itemgetter('client_start'), reverse=False)
