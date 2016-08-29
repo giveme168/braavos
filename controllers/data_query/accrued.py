@@ -7,10 +7,11 @@ from flask import request, g, abort
 from flask import render_template as tpl
 
 from models.douban_order import DoubanOrder, BackMoney as DoubanBackMoney, BackInvoiceRebate as DoubanBackInvoiceRebate
-from models.client_order import ClientOrder, BackMoney, BackInvoiceRebate
+from models.client_order import ClientOrder, BackMoney, BackInvoiceRebate, MediumBackMoney
 from models.client import AgentRebate, AgentMediaRebate
 from models.medium import MediumGroupRebate, MediumGroupMediaRebate
 from models.outsource import DoubanOutSource, OutSource
+from models.invoice import Invoice, AgentInvoice, AgentInvoicePay, MediumInvoice, MediumInvoicePay, MediumRebateInvoice
 from searchAd.models.client_order import (searchAdClientOrder, searchAdBackMoney,
                                           searchAdConfirmMoney, searchAdBackInvoiceRebate)
 from models.order import Order
@@ -22,6 +23,37 @@ from flask import Blueprint
 data_query_accrued_bp = Blueprint(
     'data_query_accrued', __name__,
     template_folder='../../templates/data_query')
+
+
+def _all_invoice():
+    return [{'order_id': i.client_order.id, 'money': i.money} for i in Invoice.all()]
+
+
+def _all_agent_invoice():
+    return [{'invoice_id': i.id, 'order_id': i.client_order.id, 'money': i.money} for i in AgentInvoice.all()]
+
+
+def _all_agent_invoice_pay():
+    return [{'invoice_id': i.agent_invoice_id, 'money': i.money} for i in AgentInvoicePay.all()]
+
+
+def _all_medium_invoice():
+    return [{'invoice_id': i.id, 'order_id': i.client_order.id, 'media_id': i.media_id, 'money': i.money}
+            for i in MediumInvoice.all()]
+
+
+def _all_medium_invoice_pay():
+    return [{'invoice_id': i.medium_invoice_id, 'money': i.money} for i in MediumInvoicePay.all()]
+
+
+def _all_medium_rebate_invoice():
+    return [{'order_id': i.client_order.id, 'media_id': i.media_id, 'money': i.money}
+            for i in MediumRebateInvoice.all()]
+
+
+def _all_medium_order_back_money():
+    return [{'money': k.money, 'order_id': k.client_order_id, 'back_time': k.back_time, 'medium_order_id': k.order_id}
+            for k in MediumBackMoney.all()]
 
 
 def _all_client_order_outsource():
@@ -75,7 +107,10 @@ def pre_month_money(money, start, end):
 
 def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate,
                           all_medium_rebate, all_medium_group_rebate, all_agent_media_rebate,
-                          pre_year_month, all_outsource, shenji=1):
+                          pre_year_month, all_outsource, all_invoice, all_agent_invoice,
+                          all_agent_invoice_pay, all_medium_invoice,
+                          all_medium_invoice_pay, all_medium_rebate_invoice,
+                          all_medium_order_back_money, shenji=1):
     dict_order = {}
     dict_order['order_id'] = client_order.id
     dict_order['subject_cn'] = client_order.subject_cn
@@ -93,6 +128,13 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate,
     dict_order['reminde_date_cn'] = client_order.reminde_date_cn
     dict_order['sale_type'] = client_order.sale_type_cn
     dict_order['money'] = client_order.money
+    dict_order['invoice'] = sum([k['money'] for k in all_invoice if k['order_id'] == client_order.id])
+    dict_order['agent_invoice'] = sum([k['money'] for k in all_agent_invoice if k['order_id'] == client_order.id])
+    # 已收客户返点发票号
+    agent_invoice_ids = [k['invoice_id'] for k in all_agent_invoice if k['order_id'] == client_order.id]
+    dict_order['agent_invoice_pay'] = sum([k['money'] for k in all_agent_invoice_pay
+                                           if k['invoice_id'] in agent_invoice_ids])
+    # 已付客户返点
     dict_order['back_moneys'] = sum(
         [k['money'] for k in all_back_moneys if k['order_id'] == client_order.id])
     dt_format = "%d%m%Y"
@@ -122,6 +164,14 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate,
     total_medium_money2_rebate_data = [0 for k in range(12)]
     dict_order['medium_sale_money'] = 0
     dict_order['medium_medium_money2'] = 0
+    # 媒体发票总金额
+    dict_order['medium_invoice'] = 0
+    # 媒体付款总金额
+    dict_order['medium_invoice_pay'] = 0
+    # 已开媒体返点发票总金额
+    dict_order['medium_rebate_invoice'] = 0
+    # 媒体回款总金额
+    dict_order['medium_order_back_money'] = 0
     # 单笔返点
     try:
         self_agent_rebate_data = client_order.self_agent_rebate
@@ -160,6 +210,21 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate,
         dict_medium['medium_money2'] = m.medium_money2
         dict_order['medium_medium_money2'] += dict_medium['medium_money2']
         dict_medium['medium_contract'] = m.medium_contract
+        dict_medium['medium_invoice'] = sum([k['money'] for k in all_medium_invoice
+                                             if k['order_id'] == client_order.id and k['media_id'] == m.media_id])
+        dict_order['medium_invoice'] += dict_medium['medium_invoice']
+        medium_invoice_ids = [k['invoice_id'] for k in all_medium_invoice
+                              if k['order_id'] == client_order.id and k['media_id'] == m.media_id]
+        dict_medium['medium_invoice_pay'] = sum([k['money'] for k in all_medium_invoice_pay
+                                                 if k['invoice_id'] in medium_invoice_ids])
+        dict_order['medium_invoice_pay'] += dict_medium['medium_invoice_pay']
+        dict_medium['medium_rebate_invoice'] = sum([k['money'] for k in all_medium_rebate_invoice if k[
+                                                   'order_id'] == client_order.id and k['media_id'] == m.media_id])
+        dict_order['medium_rebate_invoice'] += dict_medium['medium_rebate_invoice']
+        dict_medium['medium_order_back_money'] = sum([k['money'] for k in all_medium_order_back_money
+                                                      if k['medium_order_id'] == m.id])
+        dict_order['medium_order_back_money'] += dict_medium['medium_order_back_money']
+
         start_datetime = datetime.datetime.strptime(
             m.medium_start.strftime(dt_format), dt_format)
         end_datetime = datetime.datetime.strptime(
@@ -288,6 +353,20 @@ def client_order():
     all_agent_media_rebate = _all_agent_media_rebate()
     # 获取所有外包信息
     all_outsource = _all_client_order_outsource()
+    # 所有客户发票
+    all_invoice = _all_invoice()
+    # 所有客户返点发票
+    all_agent_invoice = _all_agent_invoice()
+    # 所有客户返点付款
+    all_agent_invoice_pay = _all_agent_invoice_pay()
+    # 所有媒体发票
+    all_medium_invoice = _all_medium_invoice()
+    # 所有媒体付款
+    all_medium_invoice_pay = _all_medium_invoice_pay()
+    # 所有媒体返点发票
+    all_medium_rebate_invoice = _all_medium_rebate_invoice()
+    # 所有媒体返点回款
+    all_medium_order_back_money = _all_medium_order_back_money()
     # 获取当年合同
     orders = ClientOrder.query.filter(ClientOrder.status == 1,
                                       ClientOrder.contract != '')
@@ -298,7 +377,10 @@ def client_order():
     orders = [_client_order_to_dict(k, back_money_data, all_agent_rebate,
                                     all_medium_rebate, all_medium_group_rebate,
                                     all_agent_media_rebate, pre_year_month,
-                                    all_outsource, shenji) for k in orders]
+                                    all_outsource, all_invoice, all_agent_invoice,
+                                    all_agent_invoice_pay, all_medium_invoice,
+                                    all_medium_invoice_pay, all_medium_rebate_invoice,
+                                    all_medium_order_back_money, shenji) for k in orders]
     # 去掉撤单、申请中的合同
     orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20]]
     orders = sorted(

@@ -312,7 +312,7 @@ def client_outsources(order_id):
         abort(404)
     new_outsource_form = OutsourceForm()
     new_outsource_form.medium_order.choices = [
-        (mo.id, mo.medium.name) for mo in order.medium_orders]
+        (mo.id, mo.media.name) for mo in order.medium_orders]
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     context = {'new_outsource_form': new_outsource_form,
                'reminder_emails': reminder_emails,
