@@ -2,7 +2,7 @@
 {% block title %}新媒体订单收入成本{% endblock %}
 {% block content %}
 {% include "/data_query/data_query_base_v1_0_0.html" %}
-<div class="container bra-box" style="width:6400px;">
+<div class="container bra-box" style="width:7000px;">
     <div class="table-switch">
         <ul>
             <li id="_0_li" >
@@ -48,6 +48,9 @@
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">回款日期</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">回款总金额</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">欠款总金额</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">客户发票</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">客户返点发票</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">已打款客户返点</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">售卖类型</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">代理/直客</th>
                 <th colspan=13 style="vertical-align: middle;text-align: center;">客户执行金额</th>
@@ -59,6 +62,10 @@
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体合同号</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体售卖金额</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体金额</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体发票</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体付款总金额</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体返点发票</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体返点回款</th>
                 <th colspan=13 style="vertical-align: middle;text-align: center;">媒体执行金额</th>
                 <th colspan=13 style="vertical-align: middle;text-align: center;">媒体返点</th>
             </tr>
@@ -104,6 +111,9 @@
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.reminde_date_cn}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.back_moneys|format_price}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{(k.money-k.back_moneys)|format_price}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{(k.invoice)|format_price}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{(k.agent_invoice)|format_price}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{(k.agent_invoice_pay)|format_price}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.resource_type_cn}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.sale_type}}</td>
                     {% for i in k.money_data %}
@@ -130,6 +140,10 @@
                     <td>{{m.medium_contract}}</td>
                     <td>{{m.sale_money|format_price}}</td>
                     <td>{{m.medium_money2|format_price}}</td>
+                    <td>{{m.medium_invoice|format_price}}</td>
+                    <td>{{m.medium_invoice_pay|format_price}}</td>
+                    <td>{{m.medium_rebate_invoice|format_price}}</td>
+                    <td>{{m.medium_order_back_money|format_price}}</td>
                     {% for i in m.medium_money2_data %}
                     <td>{{i|format_price}}</td>
                     {% endfor %}
@@ -147,6 +161,9 @@
                 <td colspan=3 style="vertical-align: middle;text-align: center;"></td>
                 <td>{{orders|sum('back_moneys')|format_price}}</td>
                 <td>{{(orders|sum('money') - orders|sum('back_moneys'))|format_price}}</td>
+                <td>{{orders|sum('invoice')|format_price}}</td>
+                <td>{{orders|sum('agent_invoice')|format_price}}</td>
+                <td>{{orders|sum('agent_invoice_pay')|format_price}}</td>
                 <td colspan=2 style="vertical-align: middle;text-align: center;"></td>
                 {% for i in total_money_data %}<td>{{i|format_price}}</td>{% endfor %}
                 <td>{{total_money_data|sum|format_price}}</td>
@@ -159,6 +176,10 @@
                 <td colspan=3 style="vertical-align: middle;text-align: center;"></td>
                 <td>{{orders|sum('medium_sale_money')|format_price}}</td>
                 <td>{{orders|sum('medium_medium_money2')|format_price}}</td>
+                <td>{{orders|sum('medium_invoice')|format_price}}</td>
+                <td>{{orders|sum('medium_invoice_pay')|format_price}}</td>
+                <td>{{orders|sum('medium_rebate_invoice')|format_price}}</td>
+                <td>{{orders|sum('medium_order_back_money')|format_price}}</td>
                 {% for i in total_medium_money2_data %}<td>{{i|format_price}}</td>{% endfor %}
                 <td>{{total_medium_money2_data|sum|format_price}}</td>
                 {% for i in total_medium_money2_rebate_data %}<td>{{i|format_price}}</td>{% endfor %}
