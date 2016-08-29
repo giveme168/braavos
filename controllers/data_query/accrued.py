@@ -125,6 +125,7 @@ def _client_order_to_dict(client_order, all_back_moneys, all_agent_rebate,
     dict_order['resource_type_cn'] = client_order.resource_type_cn
     dict_order['start_date_cn'] = client_order.start_date_cn
     dict_order['end_date_cn'] = client_order.end_date_cn
+    dict_order['payable_time'] = client_order.payable_time
     dict_order['reminde_date_cn'] = client_order.reminde_date_cn
     dict_order['sale_type'] = client_order.sale_type_cn
     dict_order['money'] = client_order.money

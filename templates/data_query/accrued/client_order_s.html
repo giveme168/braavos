@@ -46,6 +46,7 @@
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">执行开始</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">执行结束</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">回款日期</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">账期</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">回款总金额</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">欠款总金额</th>
                 <th rowspan=2 style="vertical-align: middle;text-align: center;">客户发票</th>
@@ -109,6 +110,7 @@
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.start_date_cn}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.end_date_cn}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.reminde_date_cn}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.payable_time}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{k.back_moneys|format_price}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{(k.money-k.back_moneys)|format_price}}</td>
                     <td rowspan='{{k.medium_data|length+1}}'>{{(k.invoice)|format_price}}</td>
@@ -156,7 +158,7 @@
                 {% endfor %}
             {% endfor %}
             <tr>
-                <td colspan=6 style="vertical-align: middle;text-align: center;">总计</td>
+                <td colspan=7 style="vertical-align: middle;text-align: center;">总计</td>
                 <td>{{orders|sum('money')|format_price}}</td>
                 <td colspan=3 style="vertical-align: middle;text-align: center;"></td>
                 <td>{{orders|sum('back_moneys')|format_price}}</td>
