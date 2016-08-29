@@ -67,8 +67,12 @@ def get_invoice_from(client_order, invoice=None):
             if invoice.back_time else datetime.date.today()
     else:
         invoice_form.client_order.choices = [(client_order.id, client_order.client.name)]
-        invoice_form.media.choices = [(medium.id, medium.name) for medium in client_order.medias]
-        invoice_form.medium_group.choices = [(medium.id, medium.name) for medium in client_order.medium_groups]
+        invoice_form.media.choices = [(order.media.id, order.media.name)
+                                      for order in client_order.medium_orders
+                                      if not order.medium_finish_contract_status]
+        invoice_form.medium_group.choices = [(order.medium_group.id, order.medium_group.name)
+                                             for order in client_order.medium_orders
+                                             if not order.medium_finish_contract_status]
         invoice_form.back_time.data = datetime.date.today()
     return invoice_form
 

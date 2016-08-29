@@ -1276,6 +1276,17 @@ by %s\n
         else:
             return 0
 
+    # 所有媒体合同归档状态
+    @property
+    def medium_finish_contract_statuses(self):
+        status = []
+        for k in self.medium_orders:
+            if k.get_last_finish():
+                status.append(0)
+            else:
+                status.append(1)
+        return status
+
     # 合同归档状态
     @property
     def medium_finish_contract_status(self):

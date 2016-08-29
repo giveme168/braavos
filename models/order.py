@@ -843,6 +843,12 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             medium_money2_rebate_data = medium_rebate / 100 * self.medium_money2
         return medium_money2_rebate_data
 
+    @property
+    def medium_finish_contract_status(self):
+        if self.get_last_finish():
+            return 0
+        return 1
+
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):
     __tablename__ = 'bra_medium_order_executive_report'
