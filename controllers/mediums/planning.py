@@ -33,7 +33,7 @@ def index(type):
     info = request.values.get('info', '')
     cases = list(Case.query.filter_by(type=type))
     if medium:
-        cases = [case for case in cases if medium in case.medias_id]
+        cases = [case for case in cases if medium in case.mediums_id]
     if info:
         cases = [case for case in cases if info in case.info]
     if industry:

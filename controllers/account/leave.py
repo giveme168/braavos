@@ -17,7 +17,7 @@ account_leave_bp = Blueprint(
 @account_leave_bp.route('/leaves')
 def leaves():
     if not (g.user.is_HR_leader() or g.user.is_OPS() or g.user.is_super_leader()
-            or g.user.email in ['huhui@inad.com']):
+            or g.user.is_HR() or g.user.email in ['huhui@inad.com']):
         flash(u'对不起您没有权限', 'danger')
         return redirect(url_for('account_leave.index', user_id=g.user.id))
     user_id = int(request.values.get('user_id', 0))
