@@ -26,7 +26,7 @@ saler = User.add(name="saler", email="test2@inad.com", password=DEFAULT_PASSWORD
 
 medium_group = MediumGroup.add(name='测试媒体供应商', tax_num="", address="",
                                phone_num="", bank="", bank_num="", level=100)
-medium = Medium.add(medium_group, u"测试媒体", owner=medium_team)
+medium = Medium.add(medium_group, u"测试媒体")
 
 client = Client.add(u"测试客户", 0)
 
