@@ -82,3 +82,5 @@
 - 2. 如果其他人修改了数据库字段
  - 更新代码到最新版本
  - python manage.py db upgrade
+
+1111
