@@ -337,10 +337,10 @@ def index():
     douban_orders = list(set([k['order'] for k in now_Q_douban_back_moneys]))
 
     orders = [_order_to_dict(k, start_Q_month, client_back_moneys, now_Q_client_back_moneys, client_report)
-              for k in client_orders if k.contract_status not in [7, 8, 81, 9] and k.status == 1 and k.contract]
+              for k in client_orders if k.contract_status not in [7, 8, 81, 9] and k.status == 1]
 
     orders += [_order_to_dict(k, start_Q_month, douban_back_moneys, now_Q_douban_back_moneys, douban_report)
-               for k in douban_orders if k.contract_status not in [7, 8, 81, 9] and k.status == 1 and k.contract]
+               for k in douban_orders if k.contract_status not in [7, 8, 81, 9] and k.status == 1]
 
     if g.user.is_super_leader() or g.user.is_finance():
         orders = orders

@@ -102,7 +102,7 @@ def client_orders_distribute():
                 current_app._get_current_object(), context=context)
         return redirect(url_for('outsource.client_orders_distribute'))
 
-    orders = [k for k in ClientOrder.query.all() if k.medium_orders and k.contract != '']
+    orders = [k for k in ClientOrder.query.all() if k.medium_orders]
     operaters = User.gets_by_team_type(
         TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
     return display_orders(orders, 'client_orders_distribute.html', title=u"客户订单分配", operaters=operaters)
@@ -132,7 +132,7 @@ def douban_orders_distribute():
                 current_app._get_current_object(), context=context)
         return redirect(url_for('outsource.douban_orders_distribute'))
 
-    orders = [k for k in DoubanOrder.query.all() if k.contract != '']
+    orders = [k for k in DoubanOrder.query.all()]
     operaters = User.gets_by_team_type(
         TEAM_TYPE_OPERATER) + User.gets_by_team_type(TEAM_TYPE_OPERATER_LEADER)
     return display_orders(orders, 'douban_orders_distribute.html', title=u"直签豆瓣订单分配", operaters=operaters)
@@ -274,10 +274,10 @@ def client_orders():
             g.user.is_operater_leader(),
             g.user.is_contract(),
             g.user.is_media()]):
-        orders = [k for k in ClientOrder.query.all() if k.medium_orders and k.contract != '']
+        orders = [k for k in ClientOrder.query.all() if k.medium_orders]
     elif g.user.is_leader():
         orders = [o for o in ClientOrder.query.all(
-        ) if g.user.location in o.locations and o.medium_orders and o.contract != '']
+        ) if g.user.location in o.locations and o.medium_orders]
     else:
         orders = [
             k for k in ClientOrder.get_order_by_user(g.user) if k.medium_orders]
@@ -290,10 +290,10 @@ def douban_orders():
             g.user.is_operater_leader(),
             g.user.is_contract(),
             g.user.is_media()]):
-        orders = list([k for k in DoubanOrder.query.all() if k.contract != ''])
+        orders = list([k for k in DoubanOrder.query.all()])
     elif g.user.is_leader():
         orders = [
-            o for o in DoubanOrder.query.all() if g.user.location in o.locations and o.contract != '']
+            o for o in DoubanOrder.query.all() if g.user.location in o.locations]
     else:
         orders = DoubanOrder.get_order_by_user(g.user)
     return display_orders(orders, 'o_douban_orders.html', title=u"我的直签豆瓣外包", operaters=[])

@@ -291,8 +291,7 @@ def index():
     all_outsource_data = _all_douban_order_outsource()
 
     # 获取当年豆瓣合同
-    orders = DoubanOrder.query.filter(DoubanOrder.status == 1,
-                                      DoubanOrder.contract != '')
+    orders = DoubanOrder.query.filter(DoubanOrder.status == 1)
     # 去重合同
     orders = [k for k in orders if k.client_start.year ==
               year or k.client_end.year == year]

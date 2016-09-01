@@ -98,71 +98,61 @@ def write_outsource_excel(monthes, data):
 
     for k in range(len(monthes)):
         if k == 0:
-            start_td, end_td = 2, 4
+            start_td, end_td = 2, 5
         worksheet.merge_range(
             0, start_td, 0, end_td, monthes[k] + u'月', align_left)
-        start_td += 3
-        end_td += 3
-    locations = [u'华东', u'华北', u'华南'] * len(monthes)
+        start_td += 4
+        end_td += 4
+    locations = [u'华东', u'华北', u'华南', u'媒介'] * len(monthes)
     for k in range(len(locations)):
         worksheet.write(1, 2 + k, locations[k], align_left)
-    worksheet.merge_range(2, 0, 12, 0, u'外包项目', align_left)
-    keys = [u'奖品', u'Flash', u'劳务(KOL、线下活动等)', u'效果优化',
-            u'其他(视频等)', u'flash&H5开发', u'H5开发', u'网络公关运营',
-            u'设计', u'区域总计', u'总计']
+    worksheet.merge_range(2, 0, 8, 0, u'外包项目', align_left)
+    keys = [u'Flash&H5开发', u'网络公关运营', u'设计', u'视频制作',
+            u'技术服务', u'区域总计', u'总计']
     for k in range(len(keys)):
         worksheet.write(2 + k, 1, keys[k], align_left)
     for k in range(len(data['1'])):
-        worksheet.write(2, 2 + k * 3, data['1'][k]['huadong'], align_left)
-        worksheet.write(2, 3 + k * 3, data['1'][k]['huabei'], align_left)
-        worksheet.write(2, 4 + k * 3, data['1'][k]['huanan'], align_left)
+        worksheet.write(2, 2 + k * 4, data['1'][k]['huadong'], align_left)
+        worksheet.write(2, 3 + k * 4, data['1'][k]['huabei'], align_left)
+        worksheet.write(2, 4 + k * 4, data['1'][k]['huanan'], align_left)
+        worksheet.write(2, 5 + k * 4, data['1'][k]['meijie'], align_left)
     for k in range(len(data['2'])):
-        worksheet.write(3, 2 + k * 3, data['2'][k]['huadong'], align_left)
-        worksheet.write(3, 3 + k * 3, data['2'][k]['huabei'], align_left)
-        worksheet.write(3, 4 + k * 3, data['2'][k]['huanan'], align_left)
+        worksheet.write(3, 2 + k * 4, data['2'][k]['huadong'], align_left)
+        worksheet.write(3, 3 + k * 4, data['2'][k]['huabei'], align_left)
+        worksheet.write(3, 4 + k * 4, data['2'][k]['huanan'], align_left)
+        worksheet.write(3, 5 + k * 4, data['2'][k]['meijie'], align_left)
     for k in range(len(data['3'])):
-        worksheet.write(4, 2 + k * 3, data['3'][k]['huadong'], align_left)
-        worksheet.write(4, 3 + k * 3, data['3'][k]['huabei'], align_left)
-        worksheet.write(4, 4 + k * 3, data['3'][k]['huanan'], align_left)
+        worksheet.write(4, 2 + k * 4, data['3'][k]['huadong'], align_left)
+        worksheet.write(4, 3 + k * 4, data['3'][k]['huabei'], align_left)
+        worksheet.write(4, 4 + k * 4, data['3'][k]['huanan'], align_left)
+        worksheet.write(4, 5 + k * 4, data['3'][k]['meijie'], align_left)
     for k in range(len(data['4'])):
-        worksheet.write(5, 2 + k * 3, data['4'][k]['huadong'], align_left)
-        worksheet.write(5, 3 + k * 3, data['4'][k]['huabei'], align_left)
-        worksheet.write(5, 4 + k * 3, data['4'][k]['huanan'], align_left)
+        worksheet.write(5, 2 + k * 4, data['4'][k]['huadong'], align_left)
+        worksheet.write(5, 3 + k * 4, data['4'][k]['huabei'], align_left)
+        worksheet.write(5, 4 + k * 4, data['4'][k]['huanan'], align_left)
+        worksheet.write(5, 5 + k * 4, data['4'][k]['meijie'], align_left)
     for k in range(len(data['5'])):
-        worksheet.write(6, 2 + k * 3, data['5'][k]['huadong'], align_left)
-        worksheet.write(6, 3 + k * 3, data['5'][k]['huabei'], align_left)
-        worksheet.write(6, 4 + k * 3, data['5'][k]['huanan'], align_left)
-    for k in range(len(data['6'])):
-        worksheet.write(7, 2 + k * 3, data['6'][k]['huadong'], align_left)
-        worksheet.write(7, 3 + k * 3, data['6'][k]['huabei'], align_left)
-        worksheet.write(7, 4 + k * 3, data['6'][k]['huanan'], align_left)
-    for k in range(len(data['7'])):
-        worksheet.write(8, 2 + k * 3, data['7'][k]['huadong'], align_left)
-        worksheet.write(8, 3 + k * 3, data['7'][k]['huabei'], align_left)
-        worksheet.write(8, 4 + k * 3, data['7'][k]['huanan'], align_left)
-    for k in range(len(data['8'])):
-        worksheet.write(9, 2 + k * 3, data['8'][k]['huadong'], align_left)
-        worksheet.write(9, 3 + k * 3, data['8'][k]['huabei'], align_left)
-        worksheet.write(9, 4 + k * 3, data['8'][k]['huanan'], align_left)
-    for k in range(len(data['9'])):
-        worksheet.write(10, 2 + k * 3, data['9'][k]['huadong'], align_left)
-        worksheet.write(10, 3 + k * 3, data['9'][k]['huabei'], align_left)
-        worksheet.write(10, 4 + k * 3, data['9'][k]['huanan'], align_left)
+        worksheet.write(6, 2 + k * 4, data['5'][k]['huadong'], align_left)
+        worksheet.write(6, 3 + k * 4, data['5'][k]['huabei'], align_left)
+        worksheet.write(6, 4 + k * 4, data['5'][k]['huanan'], align_left)
+        worksheet.write(6, 5 + k * 4, data['5'][k]['meijie'], align_left)
     for k in range(len(data['t_locataion'])):
         worksheet.write(
-            11, 2 + k * 3, data['t_locataion'][k]['huadong'], align_left)
+            7, 2 + k * 4, data['t_locataion'][k]['huadong'], align_left)
         worksheet.write(
-            11, 3 + k * 3, data['t_locataion'][k]['huabei'], align_left)
+            7, 3 + k * 4, data['t_locataion'][k]['huabei'], align_left)
         worksheet.write(
-            11, 4 + k * 3, data['t_locataion'][k]['huanan'], align_left)
-    start, end = 2, 4
+            7, 4 + k * 4, data['t_locataion'][k]['huanan'], align_left)
+        worksheet.write(
+            7, 5 + k * 4, data['t_locataion'][k]['meijie'], align_left)
+    start, end = 2, 5
     for k in range(len(monthes)):
-        worksheet.merge_range(12, start, 12, end, data[
+        worksheet.merge_range(8, start, 8, end, data[
                               't_month'][k], align_left)
         start = end + 1
-        end = start + 2
-    worksheet.merge_range(13, 0, 13, 1, u'总计', align_left)
-    worksheet.merge_range(13, 2, 13, 3 * len(monthes) + 1,
+        end = start + 3
+    worksheet.merge_range(9, 0, 9, 1, u'总计', align_left)
+    worksheet.merge_range(9, 2, 9, 4 * len(monthes) + 1,
                           sum(data['t_month']), align_left)
     workbook.close()
     response.data = output.getvalue()
@@ -196,12 +186,12 @@ def write_cost_outsource_excel(monthes, data):
 
     for k in range(len(monthes)):
         if k == 0:
-            start_td, end_td = 2, 4
+            start_td, end_td = 2, 5
         worksheet.merge_range(
             0, start_td, 0, end_td, monthes[k] + u'月', align_left)
-        start_td += 3
-        end_td += 3
-    locations = [u'华东', u'华北', u'华南'] * len(monthes)
+        start_td += 4
+        end_td += 4
+    locations = [u'华东', u'华北', u'华南', u'媒介'] * len(monthes)
     for k in range(len(locations)):
         worksheet.write(1, 2 + k, locations[k], align_left)
     worksheet.merge_range(2, 0, 8, 0, u'外包项目', align_left)
@@ -210,40 +200,47 @@ def write_cost_outsource_excel(monthes, data):
     for k in range(len(keys)):
         worksheet.write(2 + k, 1, keys[k], align_left)
     for k in range(len(data['1'])):
-        worksheet.write(2, 2 + k * 3, data['1'][k]['huadong'], align_left)
-        worksheet.write(2, 3 + k * 3, data['1'][k]['huabei'], align_left)
-        worksheet.write(2, 4 + k * 3, data['1'][k]['huanan'], align_left)
+        worksheet.write(2, 2 + k * 4, data['1'][k]['huadong'], align_left)
+        worksheet.write(2, 3 + k * 4, data['1'][k]['huabei'], align_left)
+        worksheet.write(2, 4 + k * 4, data['1'][k]['huanan'], align_left)
+        worksheet.write(2, 5 + k * 4, data['1'][k]['meijie'], align_left)
     for k in range(len(data['2'])):
-        worksheet.write(3, 2 + k * 3, data['2'][k]['huadong'], align_left)
-        worksheet.write(3, 3 + k * 3, data['2'][k]['huabei'], align_left)
-        worksheet.write(3, 4 + k * 3, data['2'][k]['huanan'], align_left)
+        worksheet.write(3, 2 + k * 4, data['2'][k]['huadong'], align_left)
+        worksheet.write(3, 3 + k * 4, data['2'][k]['huabei'], align_left)
+        worksheet.write(3, 4 + k * 4, data['2'][k]['huanan'], align_left)
+        worksheet.write(3, 5 + k * 4, data['2'][k]['meijie'], align_left)
     for k in range(len(data['3'])):
-        worksheet.write(4, 2 + k * 3, data['3'][k]['huadong'], align_left)
-        worksheet.write(4, 3 + k * 3, data['3'][k]['huabei'], align_left)
-        worksheet.write(4, 4 + k * 3, data['3'][k]['huanan'], align_left)
+        worksheet.write(4, 2 + k * 4, data['3'][k]['huadong'], align_left)
+        worksheet.write(4, 3 + k * 4, data['3'][k]['huabei'], align_left)
+        worksheet.write(4, 4 + k * 4, data['3'][k]['huanan'], align_left)
+        worksheet.write(4, 5 + k * 4, data['3'][k]['meijie'], align_left)
     for k in range(len(data['4'])):
-        worksheet.write(5, 2 + k * 3, data['4'][k]['huadong'], align_left)
-        worksheet.write(5, 3 + k * 3, data['4'][k]['huabei'], align_left)
-        worksheet.write(5, 4 + k * 3, data['4'][k]['huanan'], align_left)
+        worksheet.write(5, 2 + k * 4, data['4'][k]['huadong'], align_left)
+        worksheet.write(5, 3 + k * 4, data['4'][k]['huabei'], align_left)
+        worksheet.write(5, 4 + k * 4, data['4'][k]['huanan'], align_left)
+        worksheet.write(5, 5 + k * 4, data['4'][k]['meijie'], align_left)
     for k in range(len(data['5'])):
-        worksheet.write(6, 2 + k * 3, data['5'][k]['huadong'], align_left)
-        worksheet.write(6, 3 + k * 3, data['5'][k]['huabei'], align_left)
-        worksheet.write(6, 4 + k * 3, data['5'][k]['huanan'], align_left)
+        worksheet.write(6, 2 + k * 4, data['5'][k]['huadong'], align_left)
+        worksheet.write(6, 3 + k * 4, data['5'][k]['huabei'], align_left)
+        worksheet.write(6, 4 + k * 4, data['5'][k]['huanan'], align_left)
+        worksheet.write(6, 5 + k * 4, data['5'][k]['meijie'], align_left)
     for k in range(len(data['t_locataion'])):
         worksheet.write(
-            7, 2 + k * 3, data['t_locataion'][k]['huadong'], align_left)
+            7, 2 + k * 4, data['t_locataion'][k]['huadong'], align_left)
         worksheet.write(
-            7, 3 + k * 3, data['t_locataion'][k]['huabei'], align_left)
+            7, 3 + k * 4, data['t_locataion'][k]['huabei'], align_left)
         worksheet.write(
-            7, 4 + k * 3, data['t_locataion'][k]['huanan'], align_left)
-    start, end = 2, 4
+            7, 4 + k * 4, data['t_locataion'][k]['huanan'], align_left)
+        worksheet.write(
+            7, 5 + k * 4, data['t_locataion'][k]['meijie'], align_left)
+    start, end = 2, 5
     for k in range(len(monthes)):
         worksheet.merge_range(8, start, 8, end, data[
                               't_month'][k], align_left)
         start = end + 1
-        end = start + 2
+        end = start + 3
     worksheet.merge_range(9, 0, 9, 1, u'总计', align_left)
-    worksheet.merge_range(9, 2, 9, 3 * len(monthes) + 1,
+    worksheet.merge_range(9, 2, 9, 4 * len(monthes) + 1,
                           sum(data['t_month']), align_left)
     workbook.close()
     response.data = output.getvalue()

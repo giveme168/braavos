@@ -285,8 +285,7 @@ def index():
     # 获取所有外包信息
     all_outsource = _all_client_order_outsource()
     # 获取当年合同
-    orders = ClientOrder.query.filter(ClientOrder.status == 1,
-                                      ClientOrder.contract != '')
+    orders = ClientOrder.query.filter(ClientOrder.status == 1)
     # 去重合同
     orders = [k for k in orders if k.client_start.year ==
               year or k.client_end.year == year]

@@ -22,7 +22,7 @@ def outsource_to_dict(outsource):
     try:
         dict_outsource['otype'] = outsource.otype
         dict_outsource['order'] = outsource.order
-        dict_outsource['order_status'] = dict_outsource['order'].status
+        dict_outsource['order_status'] = 1
         dict_outsource['month_day'] = outsource.month_day
         dict_outsource['type'] = outsource.type
         dict_outsource['locations'] = list(
@@ -78,6 +78,7 @@ def index():
         t_huabei_num = 0
         t_huadong_num = 0
         t_huanan_num = 0
+        t_meijie_num = 0
         for i in types:
             num_data = {}
             num_data['huabei'] = sum([j['l_pre_pay_num'] for j in outsources
@@ -86,14 +87,17 @@ def index():
                                        if j['month_day'] == month_day and j['type'] == i and 2 in j['locations']])
             num_data['huanan'] = sum([j['l_pre_pay_num'] for j in outsources
                                       if j['month_day'] == month_day and j['type'] == i and 3 in j['locations']])
+            num_data['meijie'] = sum([j['l_pre_pay_num'] for j in outsources
+                                      if j['month_day'] == month_day and j['type'] == i and 4 in j['locations']])
             t_huabei_num += num_data['huabei']
             t_huadong_num += num_data['huadong']
             t_huanan_num += num_data['huanan']
+            t_meijie_num += num_data['meijie']
             monthes_data[str(i)].append(num_data)
         monthes_data['t_locataion'].append(
-            {'huabei': t_huabei_num, 'huadong': t_huadong_num, 'huanan': t_huanan_num})
+            {'huabei': t_huabei_num, 'huadong': t_huadong_num, 'huanan': t_huanan_num, 'meijie': t_meijie_num})
         monthes_data['t_month'].append(
-            t_huabei_num + t_huadong_num + t_huanan_num)
+            t_huabei_num + t_huadong_num + t_huanan_num + t_meijie_num)
     if request.values.get('action', '') == 'download':
         return write_outsource_excel(Q_monthes, monthes_data)
     return tpl('/data_query/outsource/index.html', Q=now_Q, now_year=now_year,
