@@ -369,8 +369,7 @@ def client_order():
     # 所有媒体返点回款
     all_medium_order_back_money = _all_medium_order_back_money()
     # 获取当年合同
-    orders = ClientOrder.query.filter(ClientOrder.status == 1,
-                                      ClientOrder.contract != '')
+    orders = ClientOrder.query.filter(ClientOrder.status == 1)
     # 去重合同
     orders = [k for k in orders if k.client_start.year ==
               year or k.client_end.year == year]
@@ -669,8 +668,7 @@ def douban_order():
     all_outsource_data = _all_douban_order_outsource()
 
     # 获取当年豆瓣合同
-    orders = DoubanOrder.query.filter(DoubanOrder.status == 1,
-                                      DoubanOrder.contract != '')
+    orders = DoubanOrder.query.filter(DoubanOrder.status == 1)
     # 去重合同
     orders = [k for k in orders if k.client_start.year ==
               year or k.client_end.year == year]

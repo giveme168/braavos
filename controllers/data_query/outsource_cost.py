@@ -6,7 +6,7 @@ from flask import render_template as tpl
 
 from models.client_order import OtherCost as ClientOtherCost
 from models.douban_order import OtherCost as DoubanOtherCost
-from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q)
+from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q, get_monthes_pre_days)
 from controllers.data_query.helpers.outsource_helpers import (write_cost_outsource_excel,
                                                               write_cost_outsource_info_excel,
                                                               write_cost_outsource_order_info_excel)
@@ -264,8 +264,58 @@ def _cost_outsource_to_dict(outsource):
     return dict_outsource
 
 
+def pre_month_money(money, start, end):
+    if money:
+        pre_money = float(money) / ((end - start).days + 1)
+    else:
+        pre_money = 0
+    pre_month_days = get_monthes_pre_days(start, end)
+    pre_month_money_data = {}
+    for k in pre_month_days:
+        pre_month_money_data[k['month']] = pre_money * k['days']
+    return pre_month_money_data
+
+
+# 获取全部外包项，并按照合同执行月则算金额
+def _all_outsource_cost():
+    dt_format = "%d%m%Y"
+    outsources = []
+    client_order_outsource = list(ClientOtherCost.all())
+    douban_order_outsource = list(DoubanOtherCost.all())
+    for co in client_order_outsource + douban_order_outsource:
+        dict_outsource = {}
+        dict_outsource['company'] = co.company
+        if co.__tablename__ == 'bra_client_order_other_cost':
+            order = co.client_order
+            dict_outsource['order'] = order
+            dict_outsource['order_type'] = 'client_order'
+        else:
+            order = co.douban_order
+            dict_outsource['order'] = order
+            dict_outsource['order_type'] = 'client_order'
+        dict_outsource['order_id'] = order.id
+        dict_outsource['type'] = co.type
+        dict_outsource['invoice'] = co.invoice
+        dict_outsource['locations'] = order.locations
+        dict_outsource['type_cn'] = co.type_cn
+        start_datetime = datetime.datetime.strptime(order.client_start.strftime(dt_format), dt_format)
+        end_datetime = datetime.datetime.strptime(order.client_end.strftime(dt_format), dt_format)
+        money_ex_data = pre_month_money(co.money,
+                                        start_datetime,
+                                        end_datetime)
+        for k, v in money_ex_data.items():
+            dict_outsource['on_time'] = k
+            dict_outsource['on_time_cn'] = k.strftime('%Y-%m-%d')
+            dict_outsource['month_day'] = k
+            dict_outsource['money'] = v
+            dict_outsource['l_pre_pay_num'] = dict_outsource['money'] / len(dict_outsource['locations'])
+            outsources.append(dict_outsource)
+    return outsources
+
+
 @data_query_outsource_cost_bp.route('/', methods=['GET'])
 def index():
+    all_outsource = _all_outsource_cost()
     now_year = request.values.get('year', '')
     now_Q = request.values.get('Q', '')
     if not now_year and not now_Q:
@@ -279,13 +329,9 @@ def index():
     end_month_day = datetime.datetime.strptime(
         now_year + '-' + str(Q_monthes[-1]), '%Y-%m')
     if now_Q == '00':
-        outsources = [_cost_outsource_to_dict(k) for k in ClientOtherCost.all()]
-        outsources += [_cost_outsource_to_dict(k) for k in DoubanOtherCost.all()]
-        outsources = [k for k in outsources if int(k['month_day'].year) == int(now_year)]
+        outsources = [k for k in all_outsource if int(k['month_day'].year) == int(now_year)]
     else:
-        outsources = [_cost_outsource_to_dict(k) for k in ClientOtherCost.all()]
-        outsources += [_cost_outsource_to_dict(k) for k in DoubanOtherCost.all()]
-        outsources = [k for k in outsources if k['month_day'] >= start_month_day and k['month_day'] <= end_month_day]
+        outsources = [k for k in all_outsource if k['month_day'] >= start_month_day and k['month_day'] <= end_month_day]
     # 所有外包分类
     types = [1, 2, 3, 4, 5]
 
@@ -300,6 +346,7 @@ def index():
         t_huabei_num = 0
         t_huadong_num = 0
         t_huanan_num = 0
+        t_meijie_num = 0
         for i in types:
             num_data = {}
             num_data['huabei'] = sum([j['l_pre_pay_num'] for j in outsources
@@ -308,14 +355,17 @@ def index():
                                        if j['month_day'] == month_day and j['type'] == i and 2 in j['locations']])
             num_data['huanan'] = sum([j['l_pre_pay_num'] for j in outsources
                                       if j['month_day'] == month_day and j['type'] == i and 3 in j['locations']])
+            num_data['meijie'] = sum([j['l_pre_pay_num'] for j in outsources
+                                      if j['month_day'] == month_day and j['type'] == i and 4 in j['locations']])
             t_huabei_num += num_data['huabei']
             t_huadong_num += num_data['huadong']
             t_huanan_num += num_data['huanan']
+            t_meijie_num += num_data['meijie']
             monthes_data[str(i)].append(num_data)
         monthes_data['t_locataion'].append(
-            {'huabei': t_huabei_num, 'huadong': t_huadong_num, 'huanan': t_huanan_num})
+            {'huabei': t_huabei_num, 'huadong': t_huadong_num, 'huanan': t_huanan_num, 'meijie': t_meijie_num})
         monthes_data['t_month'].append(
-            t_huabei_num + t_huadong_num + t_huanan_num)
+            t_huabei_num + t_huadong_num + t_huanan_num + t_meijie_num)
     if request.values.get('action', '') == 'download':
         return write_cost_outsource_excel(Q_monthes, monthes_data)
     return tpl('/data_query/outsource/cost.html', Q=now_Q, now_year=now_year,
