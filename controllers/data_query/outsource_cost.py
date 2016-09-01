@@ -375,9 +375,8 @@ def index():
 @data_query_outsource_cost_bp.route('/info', methods=['GET'])
 def info():
     now_year = int(request.values.get('year', datetime.datetime.now().year))
-    outsources = [_cost_outsource_to_dict(k) for k in ClientOtherCost.all()]
-    outsources += [_cost_outsource_to_dict(k) for k in DoubanOtherCost.all()]
-    outsources = [k for k in outsources if int(k['month_day'].year) == int(now_year)]
+    all_outsource = _all_outsource_cost()
+    outsources = [k for k in all_outsource if int(k['month_day'].year) == int(now_year)]
     r_outsource_pay = sum([k['money'] for k in outsources])
     # 每季度月份数
     Q1_monthes = [datetime.datetime.strptime(
@@ -413,16 +412,16 @@ def order_info():
     now_year = int(request.values.get('year', datetime.datetime.now().year))
     outsources = [_cost_outsource_to_dict(k) for k in ClientOtherCost.all()]
     outsources += [_cost_outsource_to_dict(k) for k in DoubanOtherCost.all()]
-    orders = list(set([s['order'] for s in outsources if s['on_time'].year == now_year]))
+    orders = list(set([s['order'] for s in outsources if s['order'].client_start.year == now_year]))
     order_obj = []
     for k in orders:
         order_dict = {}
         if k.__tablename__ == 'bra_client_order':
             order_dict['outsource_obj'] = [o for o in outsources if o[
-                'order_type'] == 'client_order' and o['order_id'] == k.id and o['on_time'].year == now_year]
+                'order_type'] == 'client_order' and o['order_id'] == k.id and s['order'].client_start.year == now_year]
         else:
             order_dict['outsource_obj'] = [o for o in outsources if o[
-                'order_type'] == 'douban_order' and o['order_id'] == k.id and o['on_time'].year == now_year]
+                'order_type'] == 'douban_order' and o['order_id'] == k.id and s['order'].client_start.year == now_year]
         order_dict['contract'] = k.contract
         order_dict['campaign'] = k.campaign
         order_dict['money'] = k.money
