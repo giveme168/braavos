@@ -4,10 +4,8 @@ import datetime
 from flask import Blueprint, request
 from flask import render_template as tpl
 
-from models.client_order import ClientOrder
-from models.douban_order import DoubanOrder
-from models.outsource import OutSourceExecutiveReport, OutSource, DoubanOutSource
-from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q)
+from models.outsource import OutSource, DoubanOutSource
+from libs.date_helpers import (check_Q_get_monthes, check_month_get_Q, get_monthes_pre_days)
 from controllers.data_query.helpers.outsource_helpers import (write_outsource_excel,
                                                               write_outsource_info_excel,
                                                               write_outsource_order_info_excel)
@@ -39,6 +37,56 @@ def outsource_to_dict(outsource):
     return dict_outsource
 
 
+def _all_outsource():
+    dt_format = "%d%m%Y"
+    outsources = []
+    client_order_outsources = list(OutSource.all())
+    douban_order_outsources = list(DoubanOutSource.all())
+    for o in client_order_outsources + douban_order_outsources:
+        if o.__tablename__ == 'out_source':
+            order = o.client_order
+            order_type = 'client_order'
+        else:
+            order = o.douban_order
+            order_type = 'douban_order'
+        start_datetime = datetime.datetime.strptime(order.client_start.strftime(dt_format), dt_format)
+        end_datetime = datetime.datetime.strptime(order.client_end.strftime(dt_format), dt_format)
+        money_ex_data = pre_month_money(o.pay_num,
+                                        start_datetime,
+                                        end_datetime)
+        for k, v in money_ex_data.items():
+            dict_outsource = {}
+            dict_outsource['order_type'] = order_type
+            dict_outsource['order'] = order
+            dict_outsource['order_id'] = order.id
+            dict_outsource['type'] = o.type
+            dict_outsource['money'] = v
+            dict_outsource['pay_num'] = v
+            dict_outsource['month_day'] = k
+            dict_outsource['status'] = int(o.status)
+            dict_outsource['target_id'] = o.target.id
+            dict_outsource['target_name'] = o.target.name
+            dict_outsource['target_bank'] = o.target.bank
+            dict_outsource['target_card'] = o.target.card
+            dict_outsource['target_alipay'] = o.target.alipay
+            dict_outsource['target_otype'] = o.target.otype
+            dict_outsource['target_otype_cn'] = o.target.otype_cn
+            dict_outsource['locations'] = list(set(order.locations))
+            dict_outsource['l_pre_pay_num'] = dict_outsource['money'] / len(dict_outsource['locations'])
+            dict_outsource['type_cn'] = o.type_cn
+            if o.status == 4:
+                dict_outsource['pay_status_cn'] = u'已付款'
+                dict_outsource['pay_time_cn'] = o.create_time.strftime('%Y-%m-%d')
+            else:
+                dict_outsource['pay_status_cn'] = u'未付款'
+                dict_outsource['pay_time_cn'] = u'无'
+            if dict_outsource['target_id'] == 271 or dict_outsource['status'] not in [2, 3, 4]:
+                dict_outsource = {}
+            if dict_outsource:
+                outsources.append(dict_outsource)
+    return outsources
+
+
 @data_query_outsource_bp.route('/', methods=['GET'])
 def index():
     now_year = request.values.get('year', '')
@@ -53,17 +101,11 @@ def index():
         now_year + '-' + str(Q_monthes[0]), '%Y-%m')
     end_month_day = datetime.datetime.strptime(
         now_year + '-' + str(Q_monthes[-1]), '%Y-%m')
-    outsources = OutSourceExecutiveReport.all()
+    outsources = _all_outsource()
     if now_Q == '00':
-        outsources = [k for k in outsources if int(
-            k.month_day.year) == int(now_year)]
+        outsources = [k for k in outsources if int(k['month_day'].year) == int(now_year)]
     else:
-        outsources = [k for k in outsources if k.month_day >=
-                      start_month_day and k.month_day <= end_month_day]
-    # 踢掉删除的合同
-    outsources = [outsource_to_dict(k) for k in outsources]
-    outsources = [k for k in outsources if k['order_status'] == 1]
-
+        outsources = [k for k in outsources if k['month_day'] >= start_month_day and k['month_day'] <= end_month_day]
     # 所有外包分类
     types = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -107,11 +149,7 @@ def index():
 @data_query_outsource_bp.route('/info', methods=['GET'])
 def info():
     now_year = int(request.values.get('year', datetime.datetime.now().year))
-    outsources = OutSourceExecutiveReport.all()
-    outsources = [outsource_to_dict(k) for k in outsources if int(
-        k.month_day.year) == int(now_year)]
-    # 踢掉删除的合同
-    outsources = [k for k in outsources if k['order_status'] == 1]
+    outsources = _all_outsource()
     r_outsource_pay = sum([k['pay_num'] for k in outsources])
     # pre_monthes = get_monthes_pre_days(start_date, end_date)
 
@@ -126,7 +164,7 @@ def info():
         str(now_year) + '-' + k, '%Y-%m') for k in check_Q_get_monthes('Q4')]
 
     total = 0
-    orders = list(set([s['order'] for s in outsources]))
+    orders = list(set([s['order'] for s in outsources if s['month_day'].year == now_year]))
     for i in orders:
         o_money = []
         o_money += [float(sum([o['pay_num'] for o in outsources if o['month_day'] >= Q1_monthes[0] and o[
@@ -145,19 +183,37 @@ def info():
                total=total, r_outsource_pay=r_outsource_pay)
 
 
-def _target_outsource_to_dict(outsource, type):
+def pre_month_money(money, start, end):
+    if money:
+        pre_money = float(money) / ((end - start).days + 1)
+    else:
+        pre_money = 0
+    pre_month_days = get_monthes_pre_days(start, end)
+    pre_month_money_data = {}
+    for k in pre_month_days:
+        pre_month_money_data[k['month']] = pre_money * k['days']
+    return pre_month_money_data
+
+
+def _target_outsource_to_dict(outsource, type, now_year):
     dict_outsource = {}
+    dt_format = "%d%m%Y"
     if type == 'douban_order':
+        order = outsource.douban_order
         dict_outsource['order_type'] = 'douban_order'
-        dict_outsource['order_status'] = outsource.douban_order.status
         dict_outsource['order_id'] = outsource.douban_order.id
     else:
+        order = outsource.client_order
         dict_outsource['order_type'] = 'client_order'
-        dict_outsource[
-            'order_status'] = outsource.medium_order.client_order.status
         dict_outsource['order_id'] = outsource.medium_order.client_order.id
+    dict_outsource['order'] = order
     dict_outsource['type'] = outsource.type
-    dict_outsource['money'] = outsource.num
+    start_datetime = datetime.datetime.strptime(order.client_start.strftime(dt_format), dt_format)
+    end_datetime = datetime.datetime.strptime(order.client_end.strftime(dt_format), dt_format)
+    money_ex_data = pre_month_money(outsource.pay_num,
+                                    start_datetime,
+                                    end_datetime)
+    dict_outsource['money'] = sum([v for k, v in money_ex_data.items() if k.year == now_year])
     dict_outsource['status'] = int(outsource.status)
     dict_outsource['target_id'] = outsource.target.id
     dict_outsource['target_name'] = outsource.target.name
@@ -173,8 +229,8 @@ def _target_outsource_to_dict(outsource, type):
     else:
         dict_outsource['pay_status_cn'] = u'未付款'
         dict_outsource['pay_time_cn'] = u'无'
-    if dict_outsource['target_id'] == 271 or dict_outsource['status'] not in [2, 3, 4] or \
-            dict_outsource['order_status'] == 0:
+    dict_outsource['order_year'] = list(set([order.client_start.year, order.client_end.year]))
+    if dict_outsource['target_id'] == 271 or dict_outsource['status'] not in [2, 3, 4]:
         dict_outsource = {}
     return dict_outsource
 
@@ -182,15 +238,10 @@ def _target_outsource_to_dict(outsource, type):
 @data_query_outsource_bp.route('/order_info', methods=['GET'])
 def order_info():
     now_year = int(request.values.get('year', datetime.datetime.now().year))
-    outsources = [_target_outsource_to_dict(
-        k, 'client_order') for k in OutSource.all()]
-    outsources += [_target_outsource_to_dict(k, 'douban_order')
-                   for k in DoubanOutSource.all()]
-    outsources = [k for k in outsources if k]
-    orders = [k for k in ClientOrder.all() if (k.client_start.year ==
-                                               now_year or k.client_end.year == now_year) and k.status == 1]
-    orders += [k for k in DoubanOrder.all() if (k.client_start.year ==
-                                                now_year or k.client_end.year == now_year) and k.status == 1]
+    outsources = [_target_outsource_to_dict(k, 'client_order', now_year) for k in OutSource.all()]
+    outsources += [_target_outsource_to_dict(k, 'douban_order', now_year) for k in DoubanOutSource.all()]
+    outsources = [o for o in outsources if o]
+    orders = list(set([s['order'] for s in outsources if now_year in s['order_year']]))
     order_obj = []
     for k in orders:
         order_dict = {}

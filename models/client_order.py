@@ -1907,6 +1907,7 @@ class EditClientOrder(db.Model, BaseModelMixin, CommentMixin):
         prim_client_order_data['campaign'] = client_order.campaign
         prim_client_order_data['contract'] = client_order.contract
         prim_client_order_data['money'] = client_order.money
+        prim_client_order_data['subject'] = client_order.subject
         prim_client_order_data['contract_type'] = client_order.contract_type
         prim_client_order_data['contract_type_cn'] = client_order.contract_type_cn
         prim_client_order_data['client_start'] = client_order.start_date_cn

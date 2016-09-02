@@ -65,7 +65,7 @@
                             <td>{{o.type_cn}}</td>
                             <td>{{o.on_time_cn}}</td>
                             <td>{{o.invoice}}</td>
-                            <td>{{o.money}}</td>
+                            <td>{{o.money|format_price}}</td>
                         </tr>
                     {% endfor %}
                 {% endfor %}
