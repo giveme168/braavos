@@ -1,0 +1,100 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}改单清单{% endblock %}
+
+{% block content %}
+{% include "/finance/finance_base_v1_0_0.html" %}
+
+<div class="container bra-box">
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input" style="display:none;">
+                <input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">年度</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                        <option value="{{2014+k}}">{{2014+k}}年度</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">月度</label>
+                <select class="form-control special_sale" name="month" id="month" style="width:100px;">
+                    {% for k in range(1, 13) %}
+                        <option value="{{k}}">{{k}}月</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+        </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th rowspan=2>代理/直客</th>
+                    <th rowspan=2>客户名称</th>
+                    <th rowspan=2>Campaign</th>
+                    <th rowspan=2>合同号</th>
+                    <th rowspan=2>合同金额</th>
+                    <th rowspan=2>开始时间</th>
+                    <th rowspan=2>结束时间</th>
+                    <th rowspan=2>改单人</th>
+                    <th rowspan=2>改单时间</th>
+                    <th colspan=2 style="text-align: center;">改单内容</th>
+                </tr>
+                <tr>
+                    <th>改前内容</th>
+                    <th>改后内容</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td rowspan='{{order.edit_objs|length+1}}'>{{order.agent.name}}</td>
+                        <td rowspan='{{order.edit_objs|length+1}}'>{{order.client.name}}</td>
+                        <td rowspan='{{order.edit_objs|length+1}}'><a target="_blank" href="{{url_for('order.order_info', order_id=order.client_order_id, tab_id=1)}}">{{order.campaign}}</a></td>
+                        <td rowspan='{{order.edit_objs|length+1}}'>{{order.contract or '无'}} </td>
+                        <td rowspan='{{order.edit_objs|length+1}}'>{{order.money|format_price}}元</td>
+                        <td rowspan='{{order.edit_objs|length+1}}'>{{order.start_date_cn}}</td>
+                        <td rowspan='{{order.edit_objs|length+1}}'>{{order.end_date_cn}}</td>
+                        <td rowspan='{{order.edit_objs|length+1}}'>{{order.creator.name}}</td>
+                        <td rowspan='{{order.edit_objs|length+1}}'>{{order.create_time_cn}}</td>
+                    </tr>
+                    {% for e in order.edit_objs %}
+                    <tr>
+                        {% if e[2] %}
+                            <td colspan=2>{{e[0]}}</td>
+                        {% else %}
+                            <td>{{e[0]}}</td>
+                            <td>{{e[1]}}</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% set pages = orders %}
+    {% include "pagination.html" %}
+</div>
+<script>
+    function search() {
+        window.location.href = window.location.pathname +
+            '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&month=' + $('#month').val() +
+            '&year='+$('#year').val();
+    }
+    $(function() {
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 20, search_contains: false}); 
+        $('#year').val('{{year}}');
+        $("#year").trigger("chosen:updated");
+        $('#month').val('{{month}}');
+        $("#month").trigger("chosen:updated");
+    });
+</script>
+{% endblock %}

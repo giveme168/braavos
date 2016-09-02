@@ -220,6 +220,10 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return list(set([u.id for u in self.operaters]))
 
     @property
+    def operaters_names(self):
+        return ",".join([u.name for u in self.operaters])
+
+    @property
     def designers_ids(self):
         return list(set([u.id for u in self.designers]))
 

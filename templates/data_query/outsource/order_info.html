@@ -59,7 +59,7 @@
                             <td>{{o.target_bank}}</td>
                             <td>{{o.pay_status_cn}}</td>
                             <td>{{o.pay_time_cn}}</td>
-                            <td>{{o.money}}</td>
+                            <td>{{o.money|format_price}}</td>
                         </tr>
                     {% endfor %}
                 {% endfor %}

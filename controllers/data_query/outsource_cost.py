@@ -240,18 +240,20 @@ def order_info():
 '''
 
 
-def _cost_outsource_to_dict(outsource):
+def _cost_outsource_to_dict(outsource, now_year):
+    dt_format = "%d%m%Y"
     dict_outsource = {}
     dict_outsource['company'] = outsource.company
     if outsource.__tablename__ == 'bra_client_order_other_cost':
-        dict_outsource['order'] = outsource.client_order
+        order = outsource.client_order
         dict_outsource['order_type'] = 'client_order'
+        dict_outsource['order'] = order
         dict_outsource['order_id'] = dict_outsource['order'].id
     else:
-        dict_outsource['order'] = outsource.douban_order
+        order = outsource.douban_order
         dict_outsource['order_type'] = 'douban_order'
+        dict_outsource['order'] = order
         dict_outsource['order_id'] = dict_outsource['order'].id
-    dict_outsource['money'] = outsource.money
     dict_outsource['type'] = outsource.type
     dict_outsource['invoice'] = outsource.invoice
     dict_outsource['on_time'] = outsource.on_time
@@ -259,8 +261,15 @@ def _cost_outsource_to_dict(outsource):
     dict_outsource['locations'] = dict_outsource['order'].locations
     dict_outsource['month_day'] = datetime.datetime.strptime(
         str(outsource.on_time.year) + '-' + str(outsource.on_time.month), '%Y-%m')
+    start_datetime = datetime.datetime.strptime(order.client_start.strftime(dt_format), dt_format)
+    end_datetime = datetime.datetime.strptime(order.client_end.strftime(dt_format), dt_format)
+    money_ex_data = pre_month_money(outsource.money,
+                                    start_datetime,
+                                    end_datetime)
+    dict_outsource['money'] = sum([v for k, v in money_ex_data.items() if k.year == now_year])
     dict_outsource['l_pre_pay_num'] = dict_outsource['money'] / len(dict_outsource['locations'])
     dict_outsource['type_cn'] = outsource.type_cn
+    dict_outsource['order_year'] = list(set([order.client_start.year, order.client_end.year]))
     return dict_outsource
 
 
@@ -283,27 +292,27 @@ def _all_outsource_cost():
     client_order_outsource = list(ClientOtherCost.all())
     douban_order_outsource = list(DoubanOtherCost.all())
     for co in client_order_outsource + douban_order_outsource:
-        dict_outsource = {}
-        dict_outsource['company'] = co.company
         if co.__tablename__ == 'bra_client_order_other_cost':
             order = co.client_order
-            dict_outsource['order'] = order
-            dict_outsource['order_type'] = 'client_order'
+            order_type = 'client_order'
         else:
             order = co.douban_order
-            dict_outsource['order'] = order
-            dict_outsource['order_type'] = 'client_order'
-        dict_outsource['order_id'] = order.id
-        dict_outsource['type'] = co.type
-        dict_outsource['invoice'] = co.invoice
-        dict_outsource['locations'] = order.locations
-        dict_outsource['type_cn'] = co.type_cn
+            order_type = 'douban_order'
         start_datetime = datetime.datetime.strptime(order.client_start.strftime(dt_format), dt_format)
         end_datetime = datetime.datetime.strptime(order.client_end.strftime(dt_format), dt_format)
         money_ex_data = pre_month_money(co.money,
                                         start_datetime,
                                         end_datetime)
         for k, v in money_ex_data.items():
+            dict_outsource = {}
+            dict_outsource['company'] = co.company
+            dict_outsource['order'] = order
+            dict_outsource['order_type'] = order_type
+            dict_outsource['order_id'] = order.id
+            dict_outsource['type'] = co.type
+            dict_outsource['invoice'] = co.invoice
+            dict_outsource['locations'] = order.locations
+            dict_outsource['type_cn'] = co.type_cn
             dict_outsource['on_time'] = k
             dict_outsource['on_time_cn'] = k.strftime('%Y-%m-%d')
             dict_outsource['month_day'] = k
@@ -410,18 +419,18 @@ def info():
 @data_query_outsource_cost_bp.route('/order_info', methods=['GET'])
 def order_info():
     now_year = int(request.values.get('year', datetime.datetime.now().year))
-    outsources = [_cost_outsource_to_dict(k) for k in ClientOtherCost.all()]
-    outsources += [_cost_outsource_to_dict(k) for k in DoubanOtherCost.all()]
-    orders = list(set([s['order'] for s in outsources if s['order'].client_start.year == now_year]))
+    outsources = [_cost_outsource_to_dict(k, now_year) for k in ClientOtherCost.all()]
+    outsources += [_cost_outsource_to_dict(k, now_year) for k in DoubanOtherCost.all()]
+    orders = list(set([s['order'] for s in outsources if now_year in s['order_year']]))
     order_obj = []
     for k in orders:
         order_dict = {}
         if k.__tablename__ == 'bra_client_order':
             order_dict['outsource_obj'] = [o for o in outsources if o[
-                'order_type'] == 'client_order' and o['order_id'] == k.id and s['order'].client_start.year == now_year]
+                'order_type'] == 'client_order' and o['order_id'] == k.id]
         else:
             order_dict['outsource_obj'] = [o for o in outsources if o[
-                'order_type'] == 'douban_order' and o['order_id'] == k.id and s['order'].client_start.year == now_year]
+                'order_type'] == 'douban_order' and o['order_id'] == k.id]
         order_dict['contract'] = k.contract
         order_dict['campaign'] = k.campaign
         order_dict['money'] = k.money
