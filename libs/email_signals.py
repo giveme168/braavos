@@ -883,9 +883,12 @@ by %s
 
 def account_okr_apply(sender, okr):
     status = okr.status
-    if status in [0, 2, 8]:
+    if status in [0, 2, 6, 8]:
         if status == 0:
             to_name = u''
+        elif status == 6:
+            to_name = ','.join(
+                [k.name for k in okr.creator.team_leaders]) + u'下属的OKR中期评价完成'
         else:
             to_name = ','.join(
                 [k.name for k in okr.creator.team_leaders]) + u'请审批您下属的OKR审核申请'
