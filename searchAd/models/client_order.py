@@ -1107,3 +1107,8 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
     @property
     def resource_type_cn(self):
         return BILL_RESOURCE_TYPE_CN.get(self.resource_type)
+
+    @property
+    def company_cn(self):
+        from .client import searchAdAgent
+        return searchAdAgent.get(self.company).name

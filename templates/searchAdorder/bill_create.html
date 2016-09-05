@@ -7,10 +7,14 @@
     <form class="input-row-box" method="POST" onsubmit="return check_form(this)">
     	<div class="input-group-menu">
 	      <div class="name">媒体供应商 : </div>
-	      <input type="text" id="company" name="company" class="surname" style="width:300px;">
+          <select class="surname" id="company" name="company" style="width:300px;">
+            {% for k in agents %}
+            <option value="{{k.id}}">{{k.name}}<option>
+            {% endfor %}
+          </select>
 	    </div>
 	    <div class="input-group-menu">
-	      <div class="name">广告组 : </div>
+	      <div class="name">广告主 : </div>
 	      <select class="surname" id="client" name="client" style="width:300px;">
 	      	{% for k in clients %}
 	      	<option value="{{k.id}}">{{k.name}}<option>
@@ -18,7 +22,7 @@
 	      </select>
 	    </div>
 	    <div class="input-group-menu">
-	      <div class="name">推广渠道 : </div>
+	      <div class="name">投放媒体 : </div>
 	      <select class="surname" id="medium" name="medium" style="width:300px;">
 	      	{% for k in mediums %}
 	      	<option value="{{k.id}}">{{k.name}}<option>
@@ -60,11 +64,7 @@
 </div>
 <script>
     function check_form(obj){
-    	if (obj.company.value == ''){
-    		alert('请输入所属公司');
-    		obj.company.focus();
-    		return false
-    	}else if (obj.start.value == ''){
+    	if (obj.start.value == ''){
     		alert('请输入结算开始时间');
     		obj.start.focus();
     		return false

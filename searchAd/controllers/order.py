@@ -1297,7 +1297,7 @@ def bill_index():
     if medium_id:
         bills = [b for b in bills if b.medium.id == medium_id]
     if search_info:
-        bills = [b for b in bills if search_info in b.company + b.client.name + b.medium.name]
+        bills = [b for b in bills if search_info in b.company_cn + b.client.name + b.medium.name]
     paginator = Paginator(bills, ORDER_PAGE_NUM)
     try:
         bills = paginator.page(page)
@@ -1316,6 +1316,7 @@ def bill_create():
         abort(403)
     clients = searchAdClient.all()
     mediums = searchAdMedium.all()
+    agents = searchAdAgent.all()
     if request.method == 'POST':
         company = request.values.get('company', '')
         client_id = request.values.get('client')
@@ -1349,7 +1350,7 @@ def bill_create():
         bill.add_comment(g.user, u"添加对账单 所属公司：%s  实际消耗金额：%s 对应返点：%s 开始时间：%s 结束时间：%s" %
                          (company, money, rebate_money, start, end), msg_channel=12)
         return redirect(url_for('searchAd_order.bill_update', bid=bill.id))
-    return tpl('/searchAdorder/bill_create.html', clients=clients, mediums=mediums)
+    return tpl('/searchAdorder/bill_create.html', clients=clients, mediums=mediums, agents=agents)
 
 
 @searchAd_order_bp.route('/bill/<bid>/update', methods=['GET', 'POST'])
@@ -1358,6 +1359,7 @@ def bill_update(bid):
         abort(403)
     clients = searchAdClient.all()
     mediums = searchAdMedium.all()
+    agents = searchAdAgent.all()
     bill = searchAdClientOrderBill.get(bid)
     if request.method == 'POST':
         company = request.values.get('company', '')
@@ -1391,7 +1393,7 @@ def bill_update(bid):
         bill.add_comment(g.user, u"修改对账单 所属公司：%s  实际消耗金额：%s 对应返点：%s 开始时间：%s 结束时间：%s" %
                          (company, money, rebate_money, start, end), msg_channel=12)
         return redirect(url_for('searchAd_order.bill_update', bid=bill.id))
-    return tpl('/searchAdorder/bill_update.html', clients=clients, mediums=mediums, bill=bill)
+    return tpl('/searchAdorder/bill_update.html', clients=clients, mediums=mediums, bill=bill, agents=agents)
 
 
 @searchAd_order_bp.route('/bill/<bid>/delete', methods=['GET', 'POST'])
