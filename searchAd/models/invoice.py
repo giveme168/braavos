@@ -525,3 +525,75 @@ class searchAdAgentInvoicePay(db.Model, BaseModelMixin):
     @property
     def client_order(self):
         return self.agent_invoice.client_order
+
+
+class searchAdBillInvoice(db.Model, BaseModelMixin):
+        __tablename__ = 'searchAd_bra_bill_invoice'
+        id = db.Column(db.Integer, primary_key=True)
+        client_order_bill_id = db.Column(
+            db.Integer, db.ForeignKey('searchad_bra_client_order_bill.id'))  # 客户合同
+        client_order_bill = db.relationship(
+            'searchAdClientOrderBill', backref=db.backref('client_order_bill_invoice', lazy='dynamic'))
+        company = db.Column(db.String(100))  # 公司名称
+        tax_id = db.Column(db.String(100))  # 税号
+        address = db.Column(db.String(120))  # 公司地址
+        phone = db.Column(db.String(80))  # 联系电话
+        bank_id = db.Column(db.String(50))  # 银行账号
+        bank = db.Column(db.String(100))  # 开户行
+        detail = db.Column(db.String(200))  # 发票内容
+        money = db.Column(db.Float)  # 发票金额
+        invoice_type = db.Column(db.Integer)  # 发票类型
+        invoice_status = db.Column(db.Integer)  # 发表状态
+        invoice_num = db.Column(db.String(200), default='')  # 发票号
+        creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+        creator = db.relationship(
+            'User', backref=db.backref('created_client_order_bill_invoice', lazy='dynamic'))
+        back_time = db.Column(db.DateTime)
+        create_time = db.Column(db.DateTime)
+        __mapper_args__ = {'order_by': create_time.desc()}
+
+        def __init__(self, client_medium_order, company="", tax_id="",
+                     address="", phone="", bank_id="", bank="",
+                     detail="", invoice_num="", money=0.0, invoice_type=INVOICE_TYPE_NORMAL,
+                     invoice_status=INVOICE_STATUS_NORMAL, creator=None, create_time=None, back_time=None):
+            self.client_medium_order = client_medium_order
+            self.company = company
+            self.tax_id = tax_id
+            self.address = address
+            self.phone = phone
+            self.bank_id = bank_id
+            self.bank = bank
+            self.detail = detail
+            self.money = money
+            self.invoice_type = invoice_type
+            self.invoice_status = invoice_status
+            self.creator = creator
+            self.create_time = create_time or datetime.date.today()
+            self.back_time = back_time or datetime.date.today()
+            self.invoice_num = invoice_num
+
+        def __repr__(self):
+            return '<Invoice %s>' % (self.id)
+
+        @property
+        def create_time_cn(self):
+            return self.create_time.strftime("%Y-%m-%d")
+
+        @property
+        def back_time_cn(self):
+            if self.back_time:
+                return self.back_time.strftime("%Y-%m-%d")
+            else:
+                return ""
+
+        @property
+        def invoice_type_cn(self):
+            return INVOICE_TYPE_CN[self.invoice_type]
+
+        @property
+        def invoice_status_cn(self):
+            return INVOICE_STATUS_CN[self.invoice_status]
+
+        @classmethod
+        def get_invoices_status(cls, status):
+            return cls.query.filter_by(invoice_status=status)
