@@ -4,7 +4,17 @@
 {% block content %}
 {% include "/account/account_performance_base_v1_0_0.html" %}
 <div class="container bra-box">
-    <h3>销售人员完成率</h3>
+    <div class="table-switch">
+        <ul>
+            <li>
+                <a href="{{url_for('account_completion.index')}}" >自营业务</a>
+            </li>
+            <li class="actives">
+                <a href="#" class="on">增量业务</a>
+            </li>
+        </ul>
+    </div>
+    <br/>
     <div class='tabulation'>
         <table border='1'>
             <thead>
@@ -24,9 +34,9 @@
                 <td width="10%">{{k.location_cn}}</td>
                 <td width="20%">{{k.name}}</td>
                 <td width="20%">{{k.team_leaders_cn}}</td>
-                <th width="20%">{% if k.lately_completion %}{{k.lately_completion.time}}{% else %}无{% endif %}</th>
-                <th width="10%">{% if k.lately_completion %}{{k.lately_completion.rate}}%{% else %}无{% endif %}</th>
-                <td width="20%"><a href="{{url_for('account_completion.info', user_id=k.id)}}">设置完成率</a></td>
+                <th width="20%">{% if k.lately_completion_increment_user %}{{k.lately_completion_increment_user.time}}{% else %}无{% endif %}</th>
+                <th width="10%">{% if k.lately_completion_increment_user %}{{k.lately_completion_increment_user.rate}}%{% else %}无{% endif %}</th>
+                <td width="20%"><a href="{{url_for('account_completion.increment_info', user_id=k.id)}}">设置完成率</a></td>
             </tr>
             {% endfor %}
         </table>
@@ -36,9 +46,9 @@
                 <td width="10%">{{k.location_cn}}</td>
                 <td width="20%">{{k.name}}</td>
                 <td width="20%">{{k.team_leaders_cn}}</td>
-                <th width="20%">{% if k.lately_completion %}{{k.lately_completion.time}}{% else %}无{% endif %}</th>
-                <th width="10%">{% if k.lately_completion %}{{k.lately_completion.rate}}%{% else %}无{% endif %}</th>
-                <td width="20%"><a href="{{url_for('account_completion.info', user_id=k.id)}}">设置完成率</a></td>
+                <th width="20%">{% if k.lately_completion_increment_user %}{{k.lately_completion_increment_user.time}}{% else %}无{% endif %}</th>
+                <th width="10%">{% if k.lately_completion_increment_user %}{{k.lately_completion_increment_user.rate}}%{% else %}无{% endif %}</th>
+                <td width="20%"><a href="{{url_for('account_completion.increment_info', user_id=k.id)}}">设置完成率</a></td>
             </tr>
             {% endfor %}
         </table>
@@ -48,9 +58,9 @@
                 <td width="10%">{{k.location_cn}}</td>
                 <td width="20%">{{k.name}}</td>
                 <td width="20%">{{k.team_leaders_cn}}</td>
-                <th width="20%">{% if k.lately_completion %}{{k.lately_completion.time}}{% else %}无{% endif %}</th>
-                <th width="10%">{% if k.lately_completion %}{{k.lately_completion.rate}}%{% else %}无{% endif %}</th>
-                <td width="20%"><a href="{{url_for('account_completion.info', user_id=k.id)}}">设置完成率</a></td>
+                <th width="20%">{% if k.lately_completion_increment_user %}{{k.lately_completion_increment_user.time}}{% else %}无{% endif %}</th>
+                <th width="10%">{% if k.lately_completion_increment_user %}{{k.lately_completion_increment_user.rate}}%{% else %}无{% endif %}</th>
+                <td width="20%"><a href="{{url_for('account_completion.increment_info', user_id=k.id)}}">设置完成率</a></td>
             </tr>
             {% endfor %}
         </table>

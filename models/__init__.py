@@ -19,16 +19,20 @@ class BaseModelMixin(object):
             db.session.add(_instance)
             db.session.commit()
             return _instance
-        except Exception, e:
-            print e
-            return None
+        except:
+            db.session.rollback()
+            raise
 
     def delete(self):
         db.session.delete(self)
         db.session.commit()
 
     def save(self):
-        db.session.commit()
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
 
     @classmethod
     def get(cls, model_id):

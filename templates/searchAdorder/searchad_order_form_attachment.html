@@ -7,11 +7,7 @@
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file">
   <button class="file-widget-btn btn btn-sm btn-primary" style="border-radius: 20px;">
-  {% if order.__tablename__ == 'bra_framework_order'%}
-    <span>上传致趣合同</span style="border-radius: 20px;">
-  {% else %}
     <span>上传合同</span style="border-radius: 20px;">
-  {% endif %}
   </button>
   {% set contract = order.get_last_contract() %}
   {% if contract %}
@@ -29,28 +25,29 @@
 <form method="POST" action="{{schedule_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
   <input class="file-widget-input hide" type="file" name="file" style="border-radius: 20px;">
-  {% if order.__tablename__ == 'bra_framework_order' %}
-  <button class="file-widget-btn btn btn-sm btn-primary" style="border-radius: 20px;">
-    <span>上传豆瓣合同</span>
-  </button>
-  {% else %}
   <button class="file-widget-btn btn btn-sm btn-info" style="border-radius: 20px;">
     <span>上传排期</span>
   </button>
-  {% endif %}
-  {% set schedule = order.get_last_schedule() %}
-  {% if schedule %}
-  <a href="{{schedule.path}}">
-    {{schedule.filename}}
-    {{schedule.status_cn}}
-  </a>
-    <a href="{{schedule.path}}" class="btn btn-sm btn-default">下载</a>
-    {% if g.user.is_contract() %}
-    <a href="{{order.attach_status_confirm_path(schedule)}}" class="btn btn-sm btn-default">通过</a>
-    <a href="{{order.attach_status_reject_path(schedule)}}" class="btn btn-sm btn-default">不通过</a>
-    {% endif %}
-  {% endif %}
 </form>
+ <table class="table table-bordered table-striped">
+    <tr>
+        <th>排期文件名</th>
+        <th>上传日期</th>
+        <th>操作</th>
+    </tr>
+    {% for attachment in order.get_schedule_attachments()  %}
+    <tr>
+        <td>{{attachment.filename}}</td>
+        <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+        <td>
+            <a href="{{attachment.path}}">下载</a>&nbsp;&nbsp;
+            {% if g.user.is_super_admin() or g.user.is_contract() or g.user.is_leader() %}
+                <a href="{{url_for('files.attachment_delete', order_id=order.id, aid=attachment.id)}}">删除</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 {% if order.__tablename__ == 'bra_framework_order' %}
 <form method="POST" action="{{others_path}}" enctype="multipart/form-data">
   <input class="hide" type="text" name="order" value="{{order.id}}">
@@ -81,9 +78,9 @@
   </button>
   {% set schedule = order.get_last_finish() %}
   {% if schedule %}
-  <a href="{{schedule.path}}">
-    {{schedule.filename}}
-  </a>
+    <a href="{{schedule.path}}">
+      {{schedule.filename}}
+    </a>
     <a href="{{schedule.path}}" class="btn btn-sm btn-default">下载</a>
   {% endif %}
 </form>
@@ -114,6 +111,44 @@ $(function(){
 </script>
 {%- endmacro %}
 
+{% macro bill_attachment(order, bill_contract_path) -%}
+<hr>
+<form method="POST" action="{{bill_contract_path}}" enctype="multipart/form-data">
+  <input class="hide" type="text" name="order" value="{{order.id}}">
+  <input class="file-widget-input hide" type="file" name="file" style="border-radius: 20px;">
+  <button class="file-widget-btn btn btn-sm btn-primary">
+    <span>上传结算单</span>
+  </button>
+  {% set schedule = order.get_last_finish() %}
+  {% if schedule %}
+  <a href="{{schedule.path}}">
+    {{schedule.filename}}
+  </a>
+    <a href="{{schedule.path}}" class="btn btn-sm btn-default">下载</a>&nbsp;&nbsp;
+    {% if g.user.is_super_admin() or g.user.is_contract() or g.user.is_leader() %}
+        <a href="{{url_for('files.attachment_delete', order_id=order.id, aid=schedule.id)}}" class="btn btn-sm btn-default">删除</a>
+    {% endif %}
+  {% endif %}
+</form>
+{%- endmacro  %}
+{% macro base_attachment_script() -%}
+<style>
+  .file-widget-btn{margin: 10px;}
+</style>
+<script>
+$(function(){
+  $('.file-widget-btn').click(function(e){
+    e.preventDefault();
+    $(this).parents("form").find('.file-widget-input').click();
+  });
+  $('.file-widget-input').change(function(e){
+      $(this).parents("form").submit();
+  });
+});
+</script>
+{%- endmacro %}
+
+
 {% macro client_order_attachment(order) -%}
     {{ base_order_attachment(order, url_for('files.searchAd_client_contract_upload'), url_for('files.searchAd_client_schedule_upload')) }}
     {{ base_attachment_script() }}
@@ -135,6 +170,10 @@ $(function(){
 
 {% macro finish_client_order_attachment(order) %}
     {{ finish_attachment(order, url_for('files.finish_searchAd_client_order_upload')) }}
+{%- endmacro %}
+
+{% macro bill_client_order_attachment(order) %}
+    {{ bill_attachment(order, url_for('files.bill_searchAd_client_order_upload')) }}
 {%- endmacro %}
 
 {% macro finish_medium_order_attachment(order) %}

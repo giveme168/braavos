@@ -9,7 +9,7 @@ from models.invoice import (MediumInvoice, INVOICE_TYPE_CN, MEDIUM_INVOICE_STATU
                             MediumInvoicePay)
 from forms.invoice import MediumInvoiceForm
 from models.user import User
-from models.medium import Medium
+from models.medium import Media
 from libs.email_signals import medium_invoice_apply_signal
 from libs.paginator import Paginator
 from controllers.saler.client_order.medium_invoice import (new_invoice as _new_invoice,
@@ -25,8 +25,8 @@ ORDER_PAGE_NUM = 20
 def apply():
     if not g.user.is_finance():
         abort(404)
-    medium_id = int(request.args.get('medium_id', 0))
-    search_info = request.args.get('searchinfo', '')
+    media_id = int(request.args.get('media_id', 0))
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
 
@@ -37,8 +37,8 @@ def apply():
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.medium_invoice.client_order.search_invoice_info.lower()]
-    if medium_id:
-        orders = [o for o in orders if medium_id == o.medium_invoice.medium_id]
+    if media_id:
+        orders = [o for o in orders if media_id == o.medium_invoice.media_id]
     select_locations = TEAM_LOCATION_CN.items()
     select_locations.insert(0, (-1, u'全部区域'))
     paginator = Paginator(orders, ORDER_PAGE_NUM)
@@ -50,15 +50,15 @@ def apply():
         client_order = i.medium_invoice.client_order
         medium_invoices = [k.id for k in MediumInvoice.query.filter_by(client_order=client_order)]
         pays = [k for k in MediumInvoicePay.all() if k.medium_invoice_id in medium_invoices]
-        i.apply_num = len([k for k in pays if k.pay_status == 3])
+        i.apply_num = len([k for k in pays if k.pay_status == 4])
         i.pay_num = len([k for k in pays if k.pay_status == 0])
     return tpl('/finance/client_order/medium_pay/index.html', orders=orders, title=u'申请中的媒体付款',
                locations=select_locations, location_id=location_id,
                now_date=datetime.date.today(),
                search_info=search_info, page=page,
-               mediums=[(k.id, k.name) for k in Medium.all()], medium_id=medium_id,
-               params='&searchinfo=%s&selected_location=%s&medium_id=%s' %
-                      (search_info, location_id, str(medium_id)))
+               medias=[(k.id, k.name) for k in Media.all()], media_id=media_id,
+               params='&searchinfo=%s&selected_location=%s&media_id=%s' %
+                      (search_info, location_id, str(media_id)))
 
 
 @finance_client_order_medium_pay_bp.route('/', methods=['GET'])
@@ -72,7 +72,7 @@ def index():
         status_id = -1
 
     orderby = request.args.get('orderby', '')
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
     year = int(request.values.get('year', datetime.datetime.now().year))
@@ -99,7 +99,7 @@ def index():
         client_order = i
         medium_invoices = [k.id for k in MediumInvoice.query.filter_by(client_order=client_order)]
         pays = [k for k in MediumInvoicePay.all() if k.medium_invoice_id in medium_invoices]
-        i.apply_num = len([k for k in pays if k.pay_status == 3])
+        i.apply_num = len([k for k in pays if k.pay_status == 4])
         i.pay_num = len([k for k in pays if k.pay_status == 0])
     return tpl('/finance/client_order/medium_pay/index_pass.html', orders=orders, title=u'申请中的媒体付款',
                locations=select_locations, location_id=location_id,
@@ -130,8 +130,8 @@ def info(order_id):
     invoices = MediumInvoice.query.filter_by(client_order=order)
     reminder_emails = [(u.id, u.name) for u in User.all_active()]
     new_invoice_form = MediumInvoiceForm()
-    new_invoice_form.client_order.choices = [(order.id, order.client.name)]
-    new_invoice_form.medium.choices = [(k.id, k.name)for k in order.mediums]
+    new_invoice_form.medium_group.choices = [(k.id, k.name)for k in order.medium_groups]
+    new_invoice_form.media.choices = [(k.id, k.name)for k in order.medias]
     new_invoice_form.add_time.data = datetime.date.today()
     return tpl('/finance/client_order/medium_pay/info.html', order=order, invoices=invoices,
                new_invoice_form=new_invoice_form, reminder_emails=reminder_emails,
@@ -176,8 +176,10 @@ def invoice_pay_time_update(invoice_id):
     invoice.pay_time = pay_time
     invoice.save()
     flash(u'保存成功!', 'success')
-    invoice.client_order.add_comment(g.user,
-                                     u"更新了付款时间:\n\r%s" % pay_time,
+    invoice.client_order.add_comment(g.user, u"财务更新了打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                        打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                     (invoice.medium_invoice.invoice_num, str(invoice.money),
+                                      invoice.pay_time, invoice.company, invoice.bank, invoice.bank_num),
                                      msg_channel=3)
     return jsonify({'ret': True})
 
@@ -209,16 +211,25 @@ def new_invoice_pay(invoice_id):
     money = float(request.values.get('money', 0))
     pay_time = request.values.get('pay_time', '')
     detail = request.values.get('detail', '')
+    bank = request.values.get('bank', '')
+    bank_num = request.values.get('bank_num', '')
+    company = request.values.get('company', '')
     pay = MediumInvoicePay.add(money=money,
                                pay_status=0,
                                medium_invoice=invoice,
                                pay_time=pay_time,
-                               detail=detail)
+                               detail=detail,
+                               bank=bank,
+                               bank_num=bank_num,
+                               company=company)
     pay.save()
     flash(u'新建付款信息成功!', 'success')
-    invoice.client_order.add_comment(g.user, u"添加已付款信息  发票号：%s  付款金额：%s元  付款时间：%s" % (
-        invoice.invoice_num, str(money), pay_time), msg_channel=3)
-    return redirect(url_for("finance_client_order_medium_pay.info", order_id=invoice.client_order.id))
+    invoice.client_order.add_comment(g.user, u"财务添加打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                        打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                     (invoice.invoice_num, str(money),
+                                      pay_time, company, bank, bank_num),
+                                     msg_channel=3)
+    return redirect(url_for("finance_client_order_medium_pay.pay_info", invoice_id=invoice.id))
 
 
 @finance_client_order_medium_pay_bp.route('/<invoice_id>/pass', methods=['POST'])
@@ -279,8 +290,12 @@ def invoice_pay_delete(invoice_id, pid):
     invoice = MediumInvoice.get(invoice_id)
     invoice_pay = MediumInvoicePay.get(pid)
     flash(u'删除成功', 'success')
-    invoice.client_order.add_comment(g.user, u"删除了付款信息  发票号：%s  付款金额：%s元  付款时间：%s" % (
-        invoice.invoice_num, str(invoice_pay.money), invoice_pay.pay_time_cn), msg_channel=3)
+    invoice.client_order.add_comment(g.user, u"财务删除打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                        打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                     (invoice.invoice_num, str(invoice_pay.money),
+                                      invoice_pay.pay_time, invoice_pay.company,
+                                      invoice_pay.bank, invoice_pay.bank_num),
+                                     msg_channel=3)
     invoice_pay.delete()
     return redirect(url_for("finance_client_order_medium_pay.pay_info", invoice_id=invoice_id))
 

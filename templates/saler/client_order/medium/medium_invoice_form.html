@@ -5,12 +5,12 @@
     <div class="well">
         <h4>
             <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
-            {{invoice.client_order.name}}-{{ invoice.medium.name }}-{{ invoice.money }}元
+            {{invoice.medium_group.name}}-{{ invoice.media.name }}-{{ invoice.money }}元
         </h4>
         <form class="form form-horizontal" method="POST" action="{{url_for('saler_client_order_medium_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
-        {{ form_field(form.client_order)}}
-        {{ form_field(form.medium)}}
+        {{ form_field(form.medium_group)}}
+        {{ form_field(form.media)}}
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}
@@ -116,7 +116,7 @@
           <label for="name" class="col-sm-2 control-label">媒体 : </label>
           <div class="col-sm-10">
             <select class="form-control bra-form-control" id="new_medium" name="medium">
-              {% for medium in order.mediums %}
+              {% for medium in order.medias %}
               <option value="{{medium.id}}">{{medium.name}}</option>
               {% endfor %}
             </select>
@@ -124,7 +124,6 @@
             <span class="tips"></span>
           </div>
         </div>
-        <!--{{ form_field(form.medium)}}-->
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}

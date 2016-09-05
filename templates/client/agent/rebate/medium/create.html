@@ -6,15 +6,16 @@
 <div class="container bra-box">
     <h3>新建 {{agent.name}} 的媒体返点信息</h3>
     <form class="input-row-box" method="POST" action="{{url_for('client.agent_medium_rebate_create', agent_id=agent.id)}}" onsubmit="return check_form(this);">
-        <div class="input-group-menu">
+        
+        <div class="input-group-menu" style="width: 700px;">
           <div class="name">所属媒体 : </div>
-            <select name="medium" id="medium" class="usrname" style="width:300px;">
-                {% for k in mediums %}
-                <option value="{{k.id}}">{{k.name}}</option>
+            <select name="media_id" id="media_id" class="usrname" style="width:300px;">
+                {% for m in medias %}
+                <option value="{{m.id}}">{{m.name}}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="input-group-menu">
+        <div class="input-group-menu" style="width: 700px;">
           <div class="name">执行年 : </div>
             <select name="year" id="year" class="usrname" style="width:300px;">
                 {% for k in range(0, 5) %}
@@ -22,7 +23,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="input-group-menu">
+        <div class="input-group-menu" style="width: 700px;">
           <div class="name">返点信息 : </div>
             <input type="number" name="rebate" id="rebate" class="usrname" style="width:300px;" placeholder="请输入数字" />
             <span style="color:red;" class="tips">%</span>
@@ -42,6 +43,7 @@ function check_form(obj){
     }
     return true;
 }
+
 $(function(){
   $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
 })

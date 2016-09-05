@@ -5,12 +5,26 @@
     <div class="well">
         <h4>
             <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
-            {{invoice.client_order.name}}-{{ invoice.medium.name }}-{{ invoice.money }}元
+            {{invoice.medium_group.name}}-{{ invoice.medium.name }}-{{ invoice.money }}元
         </h4>
         <form class="input-row-box" method="POST" action="{{url_for('finance_client_order_medium_pay.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
-        {{ form_field(form.client_order)}}
-        {{ form_field(form.medium)}}
+        <div class="input-group-menu">
+          <div class="name">媒体供应商：</div>
+          <select class="surname" style="width:300px;" name="medium_group" id="medium_group_{{invoice.id or 0}}">
+              {% for g in order.medium_groups %}
+              <option value="{{g.id}}">{{g.name}}</option>
+              {% endfor %}
+          </select>
+        </div>
+        <div class="input-group-menu">
+          <div class="name">投放媒体：</div>
+          <select class="surname" style="width:300px;" name="media" id="media_{{invoice.id or 0}}">
+              {% for g in order.medias %}
+              <option value="{{g.id}}">{{g.name}}</option>
+              {% endfor %}
+          </select>
+        </div>
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}
@@ -111,18 +125,22 @@
     <div class="well">
         <form class="input-row-box" method="POST" action="{{url_for('finance_client_order_medium_pay.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
-        {{ form_field(form.client_order)}}
         <div class="input-group-menu">
-          <div class="name">媒体 : </div>
-            <select class="surname" style="width:300px;" id="new_medium" name="medium" onchange="check_medium(this)">
-              {% for medium in order.mediums %}
-              <option value="{{medium.id}}">{{medium.name}}</option>
+          <div class="name">媒体供应商：</div>
+          <select class="surname" style="width:300px;" name="medium_group" id="medium_group_{{invoice.id or 0}}">
+              {% for g in order.medium_groups %}
+              <option value="{{g.id}}">{{g.name}}</option>
               {% endfor %}
-            </select>
-            <span class="errors"></span>
-            <span class="tips"></span>
+          </select>
         </div>
-        <!--{{ form_field(form.medium)}}-->
+        <div class="input-group-menu">
+          <div class="name">投放媒体：</div>
+          <select class="surname" style="width:300px;" name="media" id="media_{{invoice.id or 0}}">
+              {% for g in order.medias %}
+              <option value="{{g.id}}">{{g.name}}</option>
+              {% endfor %}
+          </select>
+        </div>
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}
         {{ form_field(form.address) }}
@@ -144,40 +162,48 @@
         </div>
         </form>
     </div>
-    <script>
+{% endif %}
+ <script>
     function checkform(obj){
       if (obj.back_time.value == ""){
         alert('请选择回款时间')
         return false
       }
     }
-    function check_medium(e){
+    function check_medium(id){
       $.ajax({
-        type: 'POST',
-        url: "/saler/client_order/medium_invoice/"+e.value+"/tax_info",
-        data: {'id':e.value} ,
+        type: 'GET',
+        url: '/clients/medium_groups/'+ id +'/info',
         dataType: 'json',
         success:function(data) {
-            $(e).closest("form").find('#tax_id').val(data['tax_num'])
-            $(e).closest("form").find('#address').val(data['address'])
-            $(e).closest("form").find('#bank').val(data['bank'])
-            $(e).closest("form").find('#bank_id').val(data['bank_num'])
-            $(e).closest("form").find('#phone').val(data['phone_num'])
-            $(e).closest("form").find('#company').val(data['abbreviation'])
-
+            var data = data['data'];
+            $('#tax_id').val(data['tax_num'])
+            $('#address').val(data['address'])
+            $('#bank').val(data['bank'])
+            $('#bank_id').val(data['bank_num'])
+            $('#phone').val(data['phone_num'])
+            $('#company').val(data['name'])
         }
       });
     }
-
-    $(document).ready(function(){
+    $(function(){
         $('.datetimepicker').datetimepicker({
             autoclose: true,
             todayHighlight: true,
             language: 'zh-CN',
             minView: 2
-        });
+          });
         $('#new_medium').trigger("change");
+        $('#medium_group_0').change(function(){
+            check_medium(this.value)
+        })
     })
+    
+    {% if invoice %}
+      $('#medium_group_{{invoice.id}}').val('{{invoice.medium_group_id}}');
+      $('#medium_group_{{invoice.id}}').trigger("chosen:updated");
+    {% else %}
+      check_medium('{{order.medium_groups[0].id}}')
+    {% endif %}
 </script>
-{% endif %}
 {%- endmacro %}

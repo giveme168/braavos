@@ -37,7 +37,7 @@
                 <tr>
                     <th rowspan=2 colspan=2 width="15%">收支项目</th>
                     {% for k in Q_monthes %}
-                    <th colspan=3>{{k}}月</th>
+                    <th colspan=4>{{k}}月</th>
                     {% endfor %}
                 </tr>
                 <tr>
@@ -45,6 +45,7 @@
                     <th>华东</th>
                     <th>华北</th>
                     <th>华南</th>
+                    <th>媒介</th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -58,6 +59,7 @@
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
                     <th>{{k.huanan|format_price}}</th>
+                    <th>{{k.meijie|format_price}}</th>
                     {% endfor %}
                 </tr>
                 <tr>
@@ -66,6 +68,7 @@
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
                     <th>{{k.huanan|format_price}}</th>
+                    <th>{{k.meijie|format_price}}</th>
                     {% endfor %}
                 </tr>
                 <tr>
@@ -74,6 +77,7 @@
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
                     <th>{{k.huanan|format_price}}</th>
+                    <th>{{k.meijie|format_price}}</th>
                     {% endfor %}
                 </tr>
                 <tr>
@@ -82,6 +86,7 @@
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
                     <th>{{k.huanan|format_price}}</th>
+                    <th>{{k.meijie|format_price}}</th>
                     {% endfor %}
                 </tr>
                 <tr>
@@ -90,6 +95,7 @@
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
                     <th>{{k.huanan|format_price}}</th>
+                    <th>{{k.meijie|format_price}}</th>
                     {% endfor %}
                 </tr>
                 <tr>
@@ -98,12 +104,13 @@
                     <th>{{k.huadong|format_price}}</th>
                     <th>{{k.huabei|format_price}}</th>
                     <th>{{k.huanan|format_price}}</th>
+                    <th>{{k.meijie|format_price}}</th>
                     {% endfor %}
                 </tr>
                 <tr>
                     <th>总计</th>
                     {% for k in monthes_data['t_month'] %}
-                    <th colspan=3>{{k|format_price}}</th>
+                    <th colspan=4>{{k|format_price}}</th>
                     {% endfor %}
                 </tr>
                 <tr>

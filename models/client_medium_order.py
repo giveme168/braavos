@@ -8,6 +8,7 @@ from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
 from models.invoice import ClientMediumInvoice
+from models.medium import Medium
 from consts import DATE_FORMAT
 
 
@@ -170,16 +171,22 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
     self_agent_rebate = db.Column(db.String(20))  # 单笔返点
 
     # 媒体合同信息
+    medium_group_id = db.Column(db.Integer, db.ForeignKey('medium_group.id'))  # 代理公司id
+    medium_group = db.relationship('MediumGroup', backref=db.backref('medium_group_client_medium_order',
+                                                                     lazy='dynamic'))
     medium = db.relationship(
         'Medium', backref=db.backref('client_medium', lazy='dynamic'))
-    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 媒体
+    medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 废除此字段
+    media = db.relationship(
+        'Media', backref=db.backref('client_media', lazy='dynamic'))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))  # 媒体
     medium_money = db.Column(db.Float())  # 媒体合同金额
     contract_generate = True
     media_apply = True
     kind = "client-medium-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
-    def __init__(self, agent, client, campaign, status=STATUS_ON,
+    def __init__(self, agent, client, campaign, medium_group, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  medium_CPM=0, sale_CPM=0, finish_time=None,
                  back_money_status=BACK_MONEY_STATUS_NOW, self_agent_rebate='0-0',
@@ -188,7 +195,7 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
                  operaters=None, designers=None, planers=None,
                  resource_type=RESOURCE_TYPE_AD, sale_type=SALE_TYPE_AGENT,
                  creator=None, create_time=None, contract_status=CONTRACT_STATUS_NEW,
-                 medium=None, medium_money=0):
+                 media=None, medium_money=0):
         self.agent = agent
         self.client = client
         self.campaign = campaign
@@ -224,7 +231,9 @@ class ClientMediumOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin)
         self.status = status
         self.back_money_status = back_money_status
         self.self_agent_rebate = self_agent_rebate
-        self.medium = medium
+        self.medium_group = medium_group
+        self.medium = Medium.get(1)
+        self.media = media
         self.medium_money = medium_money or 0
 
     @property

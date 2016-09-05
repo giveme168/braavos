@@ -13,6 +13,7 @@ from controllers.finance.douban_order.outsource_invoice import finance_douban_or
 from controllers.finance.client_order.medium_back_money import finance_client_order_medium_back_money_bp
 from controllers.finance.client_medium_order.invoice import finance_client_medium_order_invoice_bp
 from controllers.finance.client_medium_order.back_money import finance_client_medium_order_back_money_bp
+from controllers.finance.client_order.edit_order import finance_client_order_edit_order_bp
 
 
 def finance_register_blueprint(app):
@@ -31,3 +32,4 @@ def finance_register_blueprint(app):
     app.register_blueprint(finance_client_order_medium_back_money_bp, url_prefix='/finance/client_order/medium_back_money')
     app.register_blueprint(finance_client_medium_order_invoice_bp, url_prefix='/finance/client_medium_order/invoice')
     app.register_blueprint(finance_client_medium_order_back_money_bp, url_prefix='/finance/client_medium_order/back_money')
+    app.register_blueprint(finance_client_order_edit_order_bp, url_prefix='/finance/client_order/edit_order')

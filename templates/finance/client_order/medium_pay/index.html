@@ -22,7 +22,7 @@
             </div>
             <div class="select_option">
                 <label for="sale_type" class="control-label">媒体</label>
-                <select class="form-control special_sale" name="medium_id" id="medium_id" style="width:150px;">
+                <select class="form-control special_sale" name="media_id" id="media_id" style="width:150px;">
                     <option value='0'>全部</option>
                     {% for v, m in mediums %}
                         {% if v == medium_id|int %}
@@ -70,7 +70,7 @@
                     <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">{{order.medium_invoice.client_order.name}}</a></td>
                     <td><a href="{{url_for('finance_client_order_medium_pay.info', order_id=order.medium_invoice.client_order.id)}}">{{order.medium_invoice.client_order.contract}}</a></td>
                     <td>{{order.money|format_price}} 元</td>
-                    <td>{{order.medium_invoice.medium.name}}</td>
+                    <td>{{order.medium_invoice.media.name}}</td>
                     {% if order.apply_num %}
                     <td style="color:red;">{{order.apply_num}}</td>
                     {% else %}

@@ -89,11 +89,14 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     campaign = db.Column(db.String(100))  # 活动名称
+    medium_group_id = db.Column(db.Integer, db.ForeignKey('medium_group.id'))  # 代理公司id
+    medium_group = db.relationship('MediumGroup', backref=db.backref('medium_group_order', lazy='dynamic'))
     medium_id = db.Column(db.Integer, db.ForeignKey('medium.id'))  # 投放媒体
     medium = db.relationship(
         'Medium', backref=db.backref('orders', lazy='dynamic'))
+    media_id = db.Column(db.Integer, db.ForeignKey('media.id'))  # 投放媒体
+    media = db.relationship('Media', backref=db.backref('media_orders', lazy='dynamic'))
     order_type = db.Column(db.Integer)  # 订单类型: CPM
-
     client_orders = db.relationship(
         'ClientOrder', secondary=table_medium_orders)
 
@@ -121,7 +124,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     contract_generate = True
     kind = "medium-order"
 
-    def __init__(self, campaign, medium, order_type=ORDER_TYPE_NORMAL,
+    def __init__(self, campaign, media, medium_group, order_type=ORDER_TYPE_NORMAL,
                  medium_contract="", medium_money=0, sale_money=0, medium_money2=0,
                  medium_CPM=0, sale_CPM=0, finish_status=1,
                  discount=DISCOUNT_ADD, medium_start=None, medium_end=None,
@@ -129,7 +132,9 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
                  creator=None, create_time=None, finish_time=None,
                  self_medium_rebate='0-0',):
         self.campaign = campaign
-        self.medium = medium
+        self.media = media
+        self.medium_id = 1
+        self.medium_group = medium_group
         self.order_type = order_type
 
         self.medium_contract = medium_contract
@@ -184,7 +189,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def name(self):
-        return self.medium.name
+        return self.media.name
 
     @property
     def client_order(self):
@@ -209,6 +214,22 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     @property
     def planers_names(self):
         return ",".join([u.name for u in self.planers])
+
+    @property
+    def operaters_ids(self):
+        return list(set([u.id for u in self.operaters]))
+
+    @property
+    def operaters_names(self):
+        return ",".join([u.name for u in self.operaters])
+
+    @property
+    def designers_ids(self):
+        return list(set([u.id for u in self.designers]))
+
+    @property
+    def planers_ids(self):
+        return list(set([u.id for u in self.planers]))
 
     @property
     def contract_status(self):
@@ -238,7 +259,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         执行结束时间: %s
         媒体合同号: %s
         执行: %s
-        """ % (self.medium.name, self.sale_money or 0, self.medium_money2 or 0,
+        """ % (self.media.name, self.sale_money or 0, self.medium_money2 or 0,
                self.sale_CPM or 0, self.sale_ECPM, self.start_date_cn, self.end_date_cn,
                self.medium_contract, self.operater_names)
 
@@ -297,7 +318,7 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return is_exist
 
     def get_default_contract(self):
-        return contract_generator(self.medium.current_framework, self.id)
+        return contract_generator(self.media.current_framework, self.id)
 
     @property
     def start_date(self):
@@ -578,7 +599,20 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         return self.medium.rebate_by_year(self.medium_start.year)
 
     def medium_rebate_by_year(self, date):
-        return self.medium.rebate_by_year(date.year)
+        rebate = 0
+        from models.medium import MediumGroupRebate, MediumGroupMediaRebate
+        date_d = datetime.datetime.strptime(str(date), '%Y').date()
+        medium_group_media_rebate = MediumGroupMediaRebate.query.filter_by(medium_group=self.medium_group,
+                                                                           year=date_d, media=self.media).first()
+        if medium_group_media_rebate:
+            rebate = medium_group_media_rebate.rebate
+        else:
+            medium_group_rebate = MediumGroupRebate.query.filter_by(medium_group=self.medium_group, year=date_d).first()
+            if medium_group_rebate:
+                rebate = medium_group_rebate.rebate
+            else:
+                rebate == 0
+        return rebate
 
     def rebate_medium_by_month(self, year, month):
         rebate = self.medium.rebate_by_year(year)
@@ -648,7 +682,19 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
             return 0
 
     def get_medium_rebate_money(self):
-        rebate = self.medium.rebate_by_year(year=self.start_date.year)
+        rebate = 0
+        from models.medium import MediumGroupRebate, MediumGroupMediaRebate
+        date_d = datetime.datetime.strptime(str(self.start_date.year), '%Y').date()
+        medium_group_media_rebate = MediumGroupMediaRebate.query.filter_by(medium_group=self.medium_group,
+                                                                           year=date_d, media=self.media).first()
+        if medium_group_media_rebate:
+            rebate = medium_group_media_rebate.rebate
+        else:
+            medium_group_rebate = MediumGroupRebate.query.filter_by(medium_group=self.medium_group, year=date_d).first()
+            if medium_group_rebate:
+                rebate = medium_group_rebate.rebate
+            else:
+                rebate == 0
         return round(1.0 * rebate * self.medium_money2 / 100, 2)
 
     @property
@@ -748,7 +794,64 @@ class Order(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
         else:
             p_self_medium_rebate = ['0', '0.0']
         return {'status': p_self_medium_rebate[0],
-                'value': p_self_medium_rebate[1]}
+                'value': float(p_self_medium_rebate[1])}
+
+    @property
+    def order_media_invoice(self):
+        medium_invoices = [k for k in self.client_order.mediuminvoices if k.media_id == self.media_id]
+        r_type = False
+        if '88888888' in [k.invoice_num for k in medium_invoices]:
+            r_type = True
+        return (sum([k.money for k in medium_invoices]), r_type)
+
+    @property
+    def order_media_invoice_pay(self):
+        medium_invoices = [k for k in self.client_order.mediuminvoices if k.media_id == self.media_id]
+        return sum([k.money for k in MediumInvoicePay.all() if k.medium_invoice in medium_invoices])
+
+    @property
+    def order_media_rebate_invoice(self):
+        medium_invoices = [k for k in self.client_order.mediumrebateinvoices if k.media_id == self.media_id]
+        return sum([k.money for k in medium_invoices])
+
+    @property
+    def order_media_rebate_back_money(self):
+        return sum([k.money for k in self.order_medium_back_moneys])
+
+    @property
+    def client_order_agent_rebate_ai(self):
+        try:
+            self_medium_rebate_data = self.self_medium_rebate
+            self_medium_rebate = self_medium_rebate_data.split('-')[0]
+            self_medium_rebate_value = float(self_medium_rebate_data.split('-')[1])
+        except:
+            self_medium_rebate = 0
+            self_medium_rebate_value = 0
+        if int(self_medium_rebate):
+            medium_money2_rebate_data = self_medium_rebate_value
+        else:
+            # 是否有媒体供应商针对媒体的特殊返点
+            medium_rebate_data = [k.rebate for k in self.media.medium_group_media_rebate_media
+                                  if self.medium_start.year == k.year.year and
+                                  self.medium_group.id == k.medium_group_id]
+            if medium_rebate_data:
+                medium_rebate = medium_rebate_data[0]
+            else:
+                # 是否有媒体供应商返点
+                medium_group_rebate = [k.rebate for k in self.medium_group.medium_group_rebate
+                                       if self.medium_start.year == k.year.year]
+                if medium_group_rebate:
+                    medium_rebate = medium_group_rebate[0]
+                else:
+                    medium_rebate = 0
+            medium_money2_rebate_data = medium_rebate / 100 * self.medium_money2
+        return medium_money2_rebate_data
+
+    @property
+    def medium_finish_contract_status(self):
+        if self.get_last_finish():
+            return 0
+        return 1
 
 
 class MediumOrderExecutiveReport(db.Model, BaseModelMixin):

@@ -531,12 +531,12 @@
                     <!--搜索部门-->
                     <ul class="bussess">
                         <li class="order-management">
-                            <a href="{{ url_for('searchAd_data_query_profit.client_order') }}" target="_blank">
+                            <a href="{{url_for('searchAd_data_query_accrued.search_client_order')}}" target="_blank">
                                 <img src="/static/image/homepage_icon/icon16.png" alt="#">
                             </a>
                         </li>
                         <li class="manage">
-                            <a href="{{ url_for('searchAd_data_query_profit.client_order') }}" target="_blank">
+                            <a href="{{url_for('searchAd_data_query_accrued.search_client_order')}}" target="_blank">
                                 <h5>数据管理</h5>
                             </a>
                         </li>
@@ -615,17 +615,29 @@
                         </ul>
                     {% endif %}
                 {% endif %}
-                {% if g.user.is_leader() or g.user.is_super_leader() %}
+                {% if g.user.is_leader() or g.user.is_super_leader() or g.user.is_finance() %}
                     <ul class="bussess">
                         <li>
+                            {% if g.user.is_finance() %}
+                            <a href="{{ url_for('manage_apply.order_finance_del') }}" target="_blank">
+                                <img src="/static/image/homepage_icon/icon19.png" alt="">
+                            </a>
+                            {% else %}
                             <a href="{{ url_for('manage_apply.order') }}" target="_blank">
                                 <img src="/static/image/homepage_icon/icon19.png" alt="">
                             </a>
+                            {% endif %}
                         </li>
                         <li class="manage">
-                            <a href="{{ url_for('manage_apply.order') }}" target="_blank">
-                                <h5>审批管理</h5>
-                            </a>
+                            {% if g.user.is_finance() %}
+                                <a href="{{ url_for('manage_apply.order_finance_del') }}" target="_blank">
+                                    <h5>审批管理</h5>
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('manage_apply.order') }}" target="_blank">
+                                    <h5>审批管理</h5>
+                                </a>
+                            {% endif %}
                         </li>
                     </ul>
                 {% endif %}

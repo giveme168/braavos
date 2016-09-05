@@ -1,0 +1,158 @@
+{% extends "base_v1_0_0.html" %}
+{% from 'comments.html' import comments_box %}
+{% from 'order_form_edit_client.html' import order_edit_client_edit_form %}
+{% from 'order_form_edit_client.html' import order_show_client_form %} 
+{% block title %}订单修改列表{% endblock %}
+{% block content %}
+{% include "order_base_v1_0_0.html" %}
+<div class="container bra-box" style="min-height: 700px; width: 1400px;">
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        原始订单
+                    </h4>
+                </div>
+                <div class="panel-collapse collapse in" id="collapseOne">
+                    <div class="panel-body">
+                    {{ order_show_client_form(order) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        修改后的订单
+                    </h4>
+                </div>
+                <div class="panel-collapse collapse in" id="collapseOne">
+                    <div class="panel-body">
+                        {{ order_edit_client_edit_form(order, edit_order, medium_groups, medias, salers, operaters, designers, planers, agents, clients) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse3"> 审批流程 </a>
+                </h4>
+            </div>
+            <div class="panel-body">
+                <form class="input-row-box" method="POST" action="{{edit_order.contract_path()}}">
+                    <div class="input-group-menu">
+                        <div class="name">邮箱 : </div>
+                        <select class="surname" id="contract-email" multiple="" name="email" placeholder="请输入需要通知人员的邮箱" style="width:400px;">
+                            {% for u in reminder_emails %}
+                                <option value="{{u.id}}">{{u.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="input-group-menu" style="height: 100px;">
+                        <div class="name">留言 : </div>
+                        <textarea class="surname" id="msg" name="msg" rows="4" placeholder="请输入需要附加在邮件中的留言..." style="width:400px;"></textarea>
+                    </div>
+                    <div class="input-group-menu">
+                        <div class="name"> 操作 : </div>
+                        <div class="state">
+                            {% if order.can_admin(g.user)%}
+                                {% if edit_order.contract_status == 1 %}
+                                    <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="2">申请媒介审批</button>
+                                {% elif edit_order.contract_status == 2 %}
+                                    {% if g.user.is_media() %}
+                                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="3">媒介确认</button>
+                                        <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="31">驳回</button>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="12">提醒媒介审批</button>
+                                    {% endif %}
+                                {% elif edit_order.contract_status == 3 %}
+                                    {% if g.user.is_leader() or order.can_media_leader_action(g.user) %}
+                                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="4">区域总监确认</button>
+                                        <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="41">驳回</button>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="13">提醒区域总监审批</button>
+                                    {% endif %}
+                                {% elif edit_order.contract_status == 4 %}
+                                    {% if g.user.is_contract() %}
+                                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="5">合同管理员确认</button>
+                                        <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="51">驳回</button>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="14">提醒合同管理员审批</button>
+                                    {% endif %}
+                                {% elif edit_order.contract_status == 5 %}
+                                    {% if g.user.is_finance() %}
+                                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="10">确认改单</button>
+                                        <button class="btn btn-sm btn-danger contract-submit" type="submit" name="action" value="101">驳回</button>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action" value="15">提醒财务审批</button>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div>{{ comments_box(edit_order, msg_channel=15) }}</div>
+</div>
+<script type="text/javascript">
+    $(function(){
+        $(".contract-submit").click(function(e){
+            var actionVal = $(this).val();
+            var msg = $('#msg').val();
+            if(actionVal == '31' || actionVal == '41' || actionVal == '51' || actionVal == '101'){
+                if(confirm("确定要驳回这次修改吗？")){
+                    if (msg == ''){
+                        e.preventDefault();
+                        alert('请填写驳回原因。')
+                        return false
+                    }else{
+                        return true
+                    }
+                }else{
+                    e.preventDefault();
+                    return false
+                }
+            }
+            if (actionVal == '2' || actionVal == '3'){
+                var money = parseFloat($('#money').val());
+                var client_start = new Date($('#client_start').val());
+                var client_end = new Date($('#client_end').val());
+                var medium_order_ids = []
+                {% for m in edit_order.medium_orders %}
+                    medium_order_ids.push('{{m.id}}')
+                {% endfor %}
+                var sale_money = 0
+                for (var i=0; i<medium_order_ids.length; i++){
+                    var medium_start = new Date($('#medium_start_' + medium_order_ids[i]).val());
+                    var medium_end = new Date($('#medium_end_' + medium_order_ids[i]).val());
+                    var medium_sale_money = parseFloat($('#sale_money_' + medium_order_ids[i]).val());
+                    sale_money += parseFloat(medium_sale_money);
+                    if (medium_start < client_start){
+                        e.preventDefault();
+                        alert('媒体合同的执行时间必须在客户合同执行时间内，请确认后进行审批');
+                        return false
+                    }
+                    if (medium_end > client_end){
+                        e.preventDefault();
+                        alert('媒体合同的执行时间必须在客户合同执行时间内，请确认后进行审批');
+                        return false
+                    }
+                }
+                if (money != sale_money){
+                    e.preventDefault();
+                    alert('客户合同金额与媒体合同售卖金额总和不符，请确认后进行审批!');
+                    return false
+                }
+                
+            }
+        })
+    })
+</script>>
+{% endblock %}

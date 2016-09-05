@@ -69,12 +69,22 @@ mediums = db.Table('medium_framework_order_mediums',
                        'medium_framework_order_id', db.Integer, db.ForeignKey('bra_medium_framework_order.id')),
                    )
 
+medium_groups = db.Table('medium_framework_order_medium_groups',
+                         db.Column('medium_group_id', db.Integer,
+                                   db.ForeignKey('medium_group.id')),
+                         db.Column(
+                             'medium_group_framework_order_id',
+                             db.Integer,
+                             db.ForeignKey('bra_medium_framework_order.id')),
+                         )
+
 
 class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
     __tablename__ = 'bra_medium_framework_order'
 
     id = db.Column(db.Integer, primary_key=True)
     mediums = db.relationship('Medium', secondary=mediums)
+    medium_groups = db.relationship('MediumGroup', secondary=medium_groups)
     description = db.Column(db.String(500))  # 描述
 
     contract = db.Column(db.String(100))  # 客户合同号
@@ -100,13 +110,15 @@ class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMix
     kind = "medium-framework-order"
     __mapper_args__ = {'order_by': contract.desc()}
 
-    def __init__(self, mediums=None, description=None, status=STATUS_ON,
+    def __init__(self, medium_groups=None, description=None, status=STATUS_ON,
                  contract="", money=0, contract_type=CONTRACT_TYPE_NORMAL,
                  client_start=None, client_end=None, medium_users=None,
                  finish_time=None, creator=None, create_time=None,
                  contract_status=CONTRACT_STATUS_NEW,
                  inad_rebate=0.0):
-        self.mediums = mediums or []
+        self.medium_groups = medium_groups or []
+        self.medias = []
+        self.mediums = []
         self.description = description or ""
         self.contract = contract
         self.money = money
@@ -139,7 +151,7 @@ class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMix
     @property
     def name(self):
         if self.mediums:
-            return u"框架-%s" % (self.mediums[0].name)
+            return u"框架-%s" % (self.medium_groups[0].name)
         return u"框架-%s" % ('')
 
     @property
@@ -152,7 +164,7 @@ class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMix
 
     @property
     def mediums_names(self):
-        return ",".join([k.name for k in self.mediums])
+        return ",".join([k.name for k in self.medium_groups])
 
     @property
     def email_info(self):
@@ -250,7 +262,7 @@ class MediumFrameworkOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMix
         return is_exist
 
     def get_default_contract(self):
-        return contract_generator(self.mediums[0], self.id)
+        return contract_generator(self.medium_groups[0], self.id)
 
     def can_edit_contract_time(self, now_date=None):
         if not now_date:

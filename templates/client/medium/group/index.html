@@ -4,26 +4,89 @@
 {% block content %}
 {% include "/client/client_base_v1_0_0.html" %}
 <div class="container bra-box">
-    <h3> 供应商列表
-        {% if g.user.is_contract() or g.user.is_super_leader() %}<a class="btn btn-default btn-sm" href="{{url_for('client.new_medium_group')}}">新建</a>{% endif %}
-    </h3>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input">
+                <input type="text" placeholder="媒体供应商名称" value="{{info}}" name="info" id="info">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            {% if g.user.is_contract() or g.user.is_super_leader() %}
+            <div class="select_option return">
+                <a href="{{url_for('client.new_medium_group')}}"><input type="button" value="添加"></a>
+            </div>
+            {% endif %}
+            {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_finance() %}
+          <div class="select_option return">
+              <a href="?action=excel"><input type="button" value="导出"></a>
+          </div>
+          {% endif %}
+        </form>
+    </div>
+    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_contract() %}
     <div class='tabulation'>
         <table border='1'>
             <thead>
                 <tr>
-                    <th>供应商公司名称</th>
+                    <th>媒体供应商</th>
                     <th>级别</th>
+                    <th>2014年返点</th>
+                    <th>2015年返点</th>
+                    <th>2016年返点</th>
+                    <th>媒体名称</th>
+                    <th>2014年返点</th>
+                    <th>2015年返点</th>
+                    <th>2016年返点</th>
                 </tr>
             </thead>
             <tbody>
-                {% for m in mediums %}
+                {% for mg in mediums %}
                 <tr>
-                    <td><a href="{{url_for('client.medium_group_detail', medium_group_id=m.id)}}">{{m.name}}</a></td>
-                    <td>{{m.level_cn}}</td>
+                    <td rowspan="{{mg.medias|length + 1}}"><a href="{{url_for('client.medium_group_detail', medium_group_id=mg.id)}}">{{mg.name}}</a></td>
+                    <td rowspan="{{mg.medias|length + 1}}">{{mg.level_cn}}</td>
+                    <td rowspan="{{mg.medias|length + 1}}">{{mg.rebate_2014}}</td>
+                    <td rowspan="{{mg.medias|length + 1}}">{{mg.rebate_2015}}</td>
+                    <td rowspan="{{mg.medias|length + 1}}">{{mg.rebate_2016}}</td>
                 </tr>
+                    {% for m in mg.medias %}
+                        <tr>
+                            <td>{{m.name}}</td>
+                            <td>{{m.rebate_2014}}</td>
+                            <td>{{m.rebate_2015}}</td>
+                            <td>{{m.rebate_2016}}</td>
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    {% else %}
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>媒体供应商</th>
+                    <th>级别</th>
+                    <th>媒体名称</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mg in mediums %}
+                <tr>
+                    <td rowspan="{{mg.mediums|length + 1}}"><a href="{{url_for('client.medium_group_detail', medium_group_id=mg.id)}}">{{mg.name}}</a></td>
+                    <td rowspan="{{mg.mediums|length + 1}}">{{mg.level_cn}}</td>
+                </tr>
+                    {% for m in mg.mediums %}
+                        <tr>
+                            <td>{{m.name}}</td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

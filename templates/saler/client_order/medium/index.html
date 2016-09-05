@@ -57,7 +57,7 @@
                 {% else %}
                   <tr>
                 {% endif %}
-                  <td>{{invoice.medium.name}}{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
+                  <td>{{invoice.media.name}}{% if invoice.invoice_num == '88888888' %}<span class="label label-danger">先付款-发票未开</span>{% endif %}</td>
                   <td>{{invoice.company}}</td>
                   <td>{{invoice.tax_id}}</td>
                   <td>{{invoice.money}}元</td>

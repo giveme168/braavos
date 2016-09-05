@@ -1,0 +1,130 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}效果订单收入成本{% endblock %}
+{% block content %}
+{% include "/searchAd/data_query/data_query_base_v1_0_0.html" %}
+<div class="container bra-box" style="width:4000px;">
+    <h3 {% if g.user.is_super_leader() %}style="margin-top: 50px;"{% endif %}>效果订单计提</h3>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">查询时间：</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                    <option value='{{2014+k}}'>{{2014+k}}年</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
+        </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+          <thead>
+            <tr>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">代理/直客</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">客户合同号</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">客户</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">Campaign</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">客户合同金额</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">执行开始</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">执行结束</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">回款日期</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">回款总金额</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">欠款总金额</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">售卖类型</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">代理/直客</th>
+                <th colspan=13 style="vertical-align: middle;text-align: center;">客户执行金额</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">客户确认收入</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体返点</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">投放媒体</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体合同号</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体售卖金额</th>
+                <th rowspan=2 style="vertical-align: middle;text-align: center;">媒体金额</th>
+                <th colspan=13 style="vertical-align: middle;text-align: center;">媒体执行金额</th>
+                
+            </tr>
+            <tr>
+                {% for k in range(12) %}
+                <th>{{k+1}}月</th>
+                {% endfor %}
+                <th>总计</th>
+                {% for k in range(12) %}
+                <th>{{k+1}}月</th>
+                {% endfor %}
+                <th>总计</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for k in orders %}
+                <tr>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.agent_name}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.contract}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.client_name}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.campaign}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.money|format_price}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.start_date_cn}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.end_date_cn}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.reminde_date_cn}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.back_moneys|format_price}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{(k.money-k.back_moneys)|format_price}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.resource_type_cn}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.sale_type}}</td>
+                    {% for i in k.money_data %}
+                    <td rowspan='{{k.medium_data|length+1}}'>{{i|format_price}}</td>
+                    {% endfor %}
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.money_data|sum|format_price}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.client_firm_money|format_price}}</td>
+                    <td rowspan='{{k.medium_data|length+1}}'>{{k.medium_rebate_money|format_price}}</td>
+                </tr>
+                {% for m in k.medium_data %}
+                <tr>
+                    <td>{{m.name}}</td>
+                    <td>{{m.medium_contract}}</td>
+                    <td>{{m.sale_money|format_price}}</td>
+                    <td>{{m.medium_money2|format_price}}</td>
+                    {% for i in m.medium_money2_data %}
+                    <td>{{i|format_price}}</td>
+                    {% endfor %}
+                    <td>{{m.medium_money2_data|sum|format_price}}</td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+            <tr>
+                <td colspan=4 style="vertical-align: middle;text-align: center;">总计</td>
+                <td>{{orders|sum('money')|format_price}}</td>
+                <td colspan=3 style="vertical-align: middle;text-align: center;"></td>
+                <td>{{orders|sum('back_moneys')|format_price}}</td>
+                <td>{{(orders|sum('money') - orders|sum('back_moneys'))|format_price}}</td>
+                <td colspan=2 style="vertical-align: middle;text-align: center;"></td>
+                {% for i in total_money_data %}<td>{{i|format_price}}</td>{% endfor %}
+                <td>{{total_money_data|sum|format_price}}</td>
+                <td>{{orders|sum('client_firm_money')|format_price}}</td>
+                <td>{{orders|sum('medium_rebate_money')|format_price}}</td>
+                <td colspan=2></td>
+                <td>{{orders|sum('medium_sale_money')}}</td>
+                <td>{{orders|sum('medium_medium_money2')}}</td>
+                {% for i in medium_medium_money2_data %}<td>{{i|format_price}}</td>{% endfor %}
+                <td>{{medium_medium_money2_data|sum|format_price}}</td>
+            </tr>        
+          </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $(function(){
+        $('select').chosen({disable_search: true});
+        $('#year').val('{{year}}');
+        $("#year").trigger("chosen:updated");
+    });
+    function download(){
+        var year = $('#year').val();
+        params = '?action=excel&year='+year;
+        window.location.href = window.location.pathname + params;
+    }
+</script>
+{% endblock %}

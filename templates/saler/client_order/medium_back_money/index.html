@@ -47,7 +47,7 @@
                           <tbody>
                               {% for back in back_moneys %}
                               <tr>
-                                <td>{{back.order.medium.name}}</td>
+                                <td>{{back.order.medium_group.name}}-{{back.order.medium.name}}</td>
                                 <td>{{back.back_time_cn}}</td>
                                 <td>{{back.money}}</td>
                               </tr>

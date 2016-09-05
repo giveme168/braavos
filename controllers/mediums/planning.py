@@ -3,7 +3,7 @@ import datetime
 from flask import request, redirect, url_for, Blueprint, flash, g, abort
 from flask import render_template as tpl
 
-from models.medium import Medium, Tag, Case, TagCase, CASE_TYPE_CN
+from models.medium import Medium, Tag, Case, TagCase, CASE_TYPE_CN, Media
 
 from libs.paginator import Paginator
 from wtforms import SelectMultipleField
@@ -17,12 +17,12 @@ INDUSTRY = [u'汽车', u'时尚', u'酒精', u'化妆品', u'奢侈品',
             u'旅游', u'IT', u'家电', u'移动', u'快消', u'金融', u'其他']
 
 
-class MediumsForm(Form):
-    mediums = SelectMultipleField(u'所属媒体', coerce=int)
+class MediasForm(Form):
+    medias = SelectMultipleField(u'所属媒体', coerce=int)
 
     def __init__(self, *args, **kwargs):
-        super(MediumsForm, self).__init__(*args, **kwargs)
-        self.mediums.choices = [(m.id, m.name) for m in Medium.all()]
+        super(MediasForm, self).__init__(*args, **kwargs)
+        self.medias.choices = [(m.id, m.name) for m in Media.all()]
 
 
 @mediums_planning_bp.route('/<type>/index', methods=['GET'])
@@ -44,7 +44,7 @@ def index(type):
     except:
         cases = paginator.page(paginator.num_pages)
     return tpl('/mediums/planning/index.html', title=CASE_TYPE_CN[int(type)],
-               mediums=Medium.all(), medium=medium, cases=cases, type=type,
+               mediums=Media.all(), medium=medium, cases=cases, type=type,
                info=info, params="&info=%s&medium=%s&industry=%s" % (
                    info, str(medium), industry), INDUSTRY=INDUSTRY,
                page=page, tags=Tag.all(), industry=industry)
@@ -54,7 +54,7 @@ def index(type):
 def create(type):
     if not (g.user.is_planner() or g.user.is_operater()):
         abort(403)
-    mediums_form = MediumsForm(request.form)
+    medias_form = MediasForm(request.form)
     if request.method == 'POST':
         name = request.values.get('name', '')
         url = request.values.get('url', '')
@@ -68,7 +68,7 @@ def create(type):
             flash(u'名称已存在', 'danger')
             return redirect(url_for('mediums_planning.create', type=type))
         case = Case.add(name=name, url=url, medium=Medium.get(1),
-                        mediums=Medium.gets(request.values.getlist('mediums')),
+                        medias=Media.gets(request.values.getlist('medias')),
                         brand=brand, industry=industry, desc=desc,
                         creator=g.user, type=type, is_win=is_win,
                         pwd=pwd)
@@ -85,7 +85,7 @@ def create(type):
         flash(u'添加成功', 'success')
         return redirect(url_for('mediums_planning.index', type=type))
     return tpl('/mediums/planning/create.html', title=CASE_TYPE_CN[int(type)],
-               mediums=Medium.all(), type=type, mediums_form=mediums_form,
+               mediums=Media.all(), type=type, medias_form=medias_form,
                INDUSTRY=INDUSTRY)
 
 
@@ -94,8 +94,8 @@ def update(type, cid):
     if not (g.user.is_planner() or g.user.is_operater()):
         abort(403)
     case = Case.get(cid)
-    mediums_form = MediumsForm(request.form)
-    mediums_form.mediums.data = [u.id for u in case.mediums]
+    medias_form = MediasForm(request.form)
+    medias_form.medias.data = [u.id for u in case.medias]
     if request.method == 'POST':
         name = request.values.get('name', '')
         url = request.values.get('url', '')
@@ -108,7 +108,7 @@ def update(type, cid):
         case.name = name
         case.url = url
         case.medium = Medium.get(1)
-        case.mediums = Medium.gets(request.values.getlist('mediums'))
+        case.medias = Media.gets(request.values.getlist('medias'))
         case.brand = brand
         case.industry = industry
         case.desc = desc
@@ -130,7 +130,7 @@ def update(type, cid):
         flash(u'修改成功', 'success')
         return redirect(url_for('mediums_planning.update', type=type, cid=cid))
     return tpl('/mediums/planning/update.html', title=CASE_TYPE_CN[int(type)],
-               mediums=Medium.all(), type=type, case=case, mediums_form=mediums_form,
+               medias=Media.all(), type=type, case=case, medias_form=medias_form,
                INDUSTRY=INDUSTRY)
 
 

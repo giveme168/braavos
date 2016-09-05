@@ -305,5 +305,5 @@ def allokrs():
         okrs = [o for o in okrs if o.quarter == quarter]
     return tpl('all_okrs.html', okrs=okrs, status=status, users=User.all_active(),
                params="&status=%s&user_id=%s$year=%s&quarter=%s" % (str(status), str(user_id), str(year), str(quarter)),
-               user_id=user_id
+               user_id=user_id, year=year, quarter=quarter
                )

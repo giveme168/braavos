@@ -32,13 +32,32 @@
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}
     <hr/>
-    {{ form_field(form.medium) }}
+    {{ form_field(form.media) }}
     {{ form_field(form.medium_money)}}
+    <div class="input-group-menu" >
+      <div class="name" style="color:red;">单笔返点 : </div>
+      <div id="self_rebate_status">
+        <select name="self_rebate" id="self_rebate"  class="surname" style="width:300px;">
+          <option value="0">无单笔返点</option>
+          <option value="1">有单笔返点</option>
+        </select>
+      </div>
+      <div id="self_rebate_value" style="display:none;">
+        <input type="text" id="self_rabate_value" name="self_rabate_value" class=" surname" style="width:300px;" value='0'>
+        <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
+      </div>
+    </div>
+    <div class="input-group-menu" >
+      <div class="name" style="color:red;">单笔返点的说明 : </div>
+      <div class="name" style="color:red; width:400px;">
+        项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
+      </div>
+    </div>
     <div class="state" style="margin-left:40%;">
         <input type="submit" value="保存">
     </div>
 </form>
-{% elif g.user.is_super_leader() or g.user.is_contract() %}
+{% elif g.user.is_super_admin() or g.user.is_contract() %}
 <form class="input-row-box" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
@@ -71,10 +90,11 @@
     {{ form_field(form.sale_type) }}
     {{ form_field(replace_saler_form.replace_salers) }}
     <hr/>
-    {{ form_field(form.medium) }}
+    {{ form_field(form.medium_group) }}
+    {{ form_field(form.media) }}
     {{ form_field(form.medium_money) }}
     {% if order %}
-    <div class="input-group-menu" {% if g.user.is_super_leader() or g.user.is_leader() or order.can_media_leader_action(g.user) or g.user.is_contract()%}{% else %} style="display:none;"{% endif %}>
+    <div class="input-group-menu" >
       <div class="name" style="color:red;">单笔返点 : </div>
       <div id="self_rebate_status">
         <select name="self_rebate" id="self_rebate"  class="surname" style="width:300px;">
@@ -85,6 +105,12 @@
       <div id="self_rebate_value" style="display:none;">
         <input type="text" id="self_rabate_value" name="self_rabate_value" class=" surname" style="width:300px;" value='0'>
         <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
+      </div>
+    </div>
+    <div class="input-group-menu" >
+      <div class="name" style="color:red;">单笔返点的说明 : </div>
+      <div class="name" style="color:red; width:400px;">
+        项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
       </div>
     </div>
     {% endif %}
@@ -123,8 +149,29 @@
     {{ form_field(form.contract_type) }}
     {{ form_field(form.resource_type) }}
     {{ form_field(form.sale_type) }}
-    {{ form_field(form.medium) }}
+    <hr/>
+    {{ form_field(form.medium_group) }}
+    {{ form_field(form.media) }}
     {{ form_field(form.medium_money)}}
+    <div class="input-group-menu" >
+      <div class="name" style="color:red;">单笔返点 : </div>
+      <div id="self_rebate_status">
+        <select name="self_rebate" id="self_rebate"  class="surname" style="width:300px;">
+          <option value="0">无单笔返点</option>
+          <option value="1">有单笔返点</option>
+        </select>
+      </div>
+      <div id="self_rebate_value" style="display:none;">
+        <input type="text" id="self_rabate_value" name="self_rabate_value" class=" surname" style="width:300px;" value='0'>
+        <a class="btn btn-sm btn-default" onclick="default_rebate()">取消返点</a>
+      </div>
+    </div>
+    <div class="input-group-menu" >
+      <div class="name" style="color:red;">单笔返点的说明 : </div>
+      <div class="name" style="color:red; width:400px;">
+        项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
+      </div>
+    </div>
     <div class="state" style="margin-left:40%;">
         <input type="submit" value="保存">
     </div>
@@ -208,14 +255,18 @@
             <td>{{order.replace_sales_names}}</td>
           </tr>
           <tr>
+            <th>媒体供应商</th>
+            <td>{{order.medium.medium_group.name}}</td>
+          </tr>
+          <tr>
             <th>所属媒体</th>
-            <td>{{order.medium.name}}</td>
+            <td>{{order.media.name}}</td>
           </tr>
           <tr>
             <th>媒体金额(元)</th>
             <td>{{order.medium_money}}</td>
           </tr>
-          {% if (g.user.is_super_leader() or g.user.is_leader() or order.can_media_leader_action(g.user)) and order %}
+          {% if order.can_admin(g.user) %}
           <tr>
             <th style="color:red;">单笔返点</th>
             <td>{% if order.self_agent_rebate_value.status == '0' %}
@@ -245,7 +296,7 @@ Date.prototype.Format = function (fmt) { //author: meizz
     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
-$(document).ready(function(){
+$(function(){
     $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     var now_data = new Date()
     var now_month_data = new Date(now_data.getFullYear(), now_data.getMonth(), 1)
@@ -253,7 +304,7 @@ $(document).ready(function(){
         autoclose: true,
         todayHighlight: true,
         language: 'zh-CN',
-        {% if not g.user.is_super_leader() %}
+        {% if not g.user.is_super_admin() %}
         startDate: now_month_data,
         {% endif %}
         minView: 2
@@ -263,7 +314,6 @@ $(document).ready(function(){
       endDate.setDate(endDate.getDate() + 90); 
       $('#reminde_date').val(endDate.Format("yyyy-MM-dd"))
     });
-    {% if order %}
     $("#self_rebate").change(function(e){
       var self_rebate = $('#self_rebate').val()
       if(self_rebate==1){
@@ -274,6 +324,7 @@ $(document).ready(function(){
         $('#self_rebate_status').css('display', 'block');
       }
     })
+    {% if order %}
     var self_agent_rebate = "{{order.self_agent_rebate}}";
     var p_self_agent_rebate = self_agent_rebate.split('-')
     $('#self_rebate').val(p_self_agent_rebate[0]);

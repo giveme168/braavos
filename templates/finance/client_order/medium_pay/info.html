@@ -8,26 +8,79 @@
 <div class="container bra-box" style="width:1400px;">
     <h4>{{ order.agent.name }}-{{order.name}} 媒体订单发票及打款情况 <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">客户订单收款详情</a></h4>
     <div class='tabulation'>
-      <table border='1'>
-        <thead>
-          <tr>
-            <th>媒体总金额</th>
-            <th>发票总金额</th>
-            <th>已打款金额</th>
-            <th>媒体返点(系统计算)</th>
-            <th>已开返点发票金额</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{order.mediums_money2}}元</td>
-            <td>{{order.mediums_invoice_sum}}元</td>
-            <td>{{order.mediums_invoice_pass_sum}}元</td>
-            <td>{{order.mediums_rebate_money}}元</td>
-            <td>{{order.get_medium_rebate_invoice_pass_money()}}元</td>
-          </tr>
-        </tbody>
-      </table>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>项目名称</th>
+                    <th>客户金额</th>
+                    <th>已开客户发票</th>
+                    <th>客户回款金额</th>
+                    <th>系统推荐客户返点</th>
+                    <th>已收客户返点发票(抵扣)</th>
+                    <th>已收客户返点发票</th>
+                    <th>已打款客户返点金额</th>
+                    <th>媒体名称</th>
+                    <th>媒体金额</th>
+                    <th>已收媒体发票</th>
+                    <th>已打款媒体金额</th>
+                    <th>系统推荐媒体返点</th>
+                    <th>已开媒体返点发票</th>
+                    <th>媒体返点回款</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set money_invoce_flow = order.money_invoce_flow(agent_invoice=True, agent_back_money=True, agent_back_money_invoice=True, agent_back_invoice=True, agent_self_rebate=True, media_invoce=True, media_rebate_invoice=True, agent_rebate_data=True, medium_rebate_data=True) %}
+                <tr>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('order.order_info', order_id=order.id, tab_id=1)}}">
+                        {{money_invoce_flow.campaign}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>{{money_invoce_flow.money|format_price}}</td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_invoice.info', order_id=order.id)}}">
+                        {{money_invoce_flow.agent_invoice|format_price}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">
+                        {{money_invoce_flow.agent_back_money|format_price}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>{{money_invoce_flow.agent_rebate_data|format_price}}</td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">
+                        {{money_invoce_flow.agent_back_money_invoice|format_price}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">
+                        {{money_invoce_flow.agent_back_invoice|format_price}}</td>
+                      </a>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">
+                        {{money_invoce_flow.agent_back_invoice_pay|format_price}}
+                      </a>
+                    </td>
+                </tr>
+                {% for m in money_invoce_flow.media_order_data %}
+                <tr>
+                    <td>{{m.name}}</td>
+                    <td>{{m.medium_money2|format_price}}</td>
+                    <td>
+                      <a target="_blank" href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">
+                        {{m.media_invoce[0]|format_price}}
+                        {% if m.media_invoce[1] %} <span class="label label-danger">有预付</span> {% endif %}
+                      </a>
+                    </td>
+                    <td><a target="_blank" href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{m.media_invoce_pay|format_price}}</a></td>
+                    <td>{{m.medium_rebate_data|format_price}}</td>
+                    <td><a target="_blank"  href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=order.id)}}">{{m.media_rebate_invoice|format_price}}</a></td>
+                    <td><a target="_blank"  href="{{url_for('finance_client_order_medium_back_money.back_money',order_id=order.id)}}">{{m.media_rebate_invoice_pay|format_price}}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
     <br/>
     <div class="panel panel-default" id="non-invoice">
@@ -43,10 +96,10 @@
               <thead>
                 <tr>
                   <th>发票金额</th>
+                  <th>返点发票总金额</th>
                   <th>已打款金额</th>
                   <th>申请中打款金额</th>
                   <th>未打款金额</th>
-                  <th>返点发票总金额</th>
                   <th>开票时间</th>
                   <th>发票类型</th>
                   <th>发票号</th>
@@ -64,10 +117,11 @@
                   <td>{{invoice.money}}元 
                     {% if invoice.invoice_num == '88888888' %}
                       <span class="label label-danger">先付款-发票未开</span>
-                    {% elif invoice.company != invoice.medium.abbreviation %}
+                    {% elif invoice.company != invoice.medium_group.name %}
                       <span class="label label-danger">付款其他媒体</span>
                     {% endif %}
                   </td>
+                  <td>{{invoice.rebate_invoice}}元</td>
                   <td>{{invoice.get_pay_money}}元</td>
                   {% if invoice.get_apply_pay_money > 0 %}
                     <td style="color:red;">{{invoice.get_apply_pay_money}}元</td>
@@ -75,7 +129,7 @@
                     <td>{{invoice.get_apply_pay_money}}元</td>
                   {% endif %}
                   <td>{{invoice.get_unpay_money}}元</td>
-                  <td>{{invoice.rebate_invoice}}元</td>
+                  
                   <td>{{invoice.add_time_cn}}</td>
                   <td>{{invoice.invoice_type_cn}}</td>
                   <td>{{invoice.invoice_num}}</td>

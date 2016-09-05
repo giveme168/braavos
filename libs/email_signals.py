@@ -13,6 +13,7 @@ braavos_signals = Namespace()
 password_changed_signal = braavos_signals.signal('password_changed')
 add_comment_signal = braavos_signals.signal('add_comment')
 zhiqu_contract_apply_signal = braavos_signals.signal('zhiqu_contract_apply')
+zhiqu_edit_contract_apply_signal = braavos_signals.signal('zhiqu_edit_contract_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
 agent_invoice_apply_signal = braavos_signals.signal('agent_invoice_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
@@ -67,12 +68,12 @@ def password_changed(sender, user):
                      body=u'您的InAd帐号密码已经被重新设置, 如果不是您的操作, 请联系广告平台管理员')
 
 
-def add_comment(sender, comment, msg_channel=0):
+def add_comment(sender, comment, msg_channel=0, url=''):
     send_simple_mail(u'InAd留言提醒[%s]' % comment.target.name,
                      recipients=[
                          u.email for u in
                          comment.target.get_mention_users(except_user=comment.creator, msg_channel=msg_channel)],
-                     body=(u'%s的新留言:\n\n %s' % (comment.creator.name, comment.msg)))
+                     body=(u'%s的新留言:\n\n %s \n\n留言地址：%s' % (comment.creator.name, comment.msg, url)))
 
 
 def contract_apply_douban(sender, apply_context):
@@ -83,7 +84,6 @@ def contract_apply_douban(sender, apply_context):
         file_paths.append(order.get_last_contract().real_path)
     if order.get_last_schedule():
         file_paths.append(order.get_last_schedule().real_path)
-    douban_contracts = User.douban_contracts()
     to_users = [k.email for k in User.douban_contracts()] + \
         _get_active_user_email(User.contracts()) + \
         _get_active_user_email(order.direct_sales + order.agent_sales + [order.creator])
@@ -92,6 +92,63 @@ def contract_apply_douban(sender, apply_context):
                      body=order.douban_contract_email_info(
                          title=u"请帮忙打印合同, 谢谢~"),
                      file_paths=file_paths)
+
+
+def zhiqu_edit_contract_apply(sender, context):
+    order = context['order']
+    to_users = context['to_users']
+    action_msg = context['action_msg']
+    info = context['info']
+    action = context['action']
+    to_other = context['to_other']
+    if action in [31, 41, 51, 101]:
+        action_info = order.creator.name + u', 您的改单申请被' + g.user.name + u'驳回了，请重新修改后申请。'
+    elif action == 2:
+        medium_users = [k for k in to_users if k.team.type in [12, 20]]
+        action_info = u'请' + ','.join(_get_active_user_name(medium_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 12:
+        medium_users = [k for k in to_users if k.team.type in [12, 20]]
+        action_info = u'请' + ','.join(_get_active_user_name(medium_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 3:
+        leader_users = [k for k in to_users if k.team.type in [9, 20]]
+        action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 13:
+        leader_users = [k for k in to_users if k.team.type in [9, 20]]
+        action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 4:
+        contract_users = [k for k in to_users if k.team.type in [10]]
+        action_info = u'请' + ','.join(_get_active_user_name(contract_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 14:
+        contract_users = [k for k in to_users if k.team.type in [10]]
+        action_info = u'请' + ','.join(_get_active_user_name(contract_users)) + \
+                      u', 确认以下订单的修改请求'
+    elif action == 5:
+        action_info = u'请财务, 确认以下订单的修改请求'
+    elif action == 15:
+        action_info = u'请财务, 确认以下订单的修改请求'
+    elif action == 10:
+        action_info = u'%s ，您的订单已修改完成' % (order.creator.name)
+    title = u"【新媒体订单-修改合同申请】- %s" % (order.name)
+    url = mail.app.config['DOMAIN'] + order.info_path()
+    body = u"""
+<h3 style="color:red;">流程状态: %s
+<br/>%s<br/>订单链接地址: %s</h3>
+<p><h4>留言信息:</h4>
+%s</p>
+<p><h4>订单信息:</h4>
+%s</p>
+
+<p>by %s</p>
+""" % (action_msg, action_info, url, info, order.email_info, g.user.name)
+    flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
+    _insert_person_notcie(to_users, title, body)
+    send_html_mail(title, recipients=_get_active_user_email(
+        to_users) + to_other + ['guoyu@inad.com'], body=body.replace('\n', '<br/>'))
 
 
 def zhiqu_contract_apply(sender, context, douban_type=False):
@@ -108,7 +165,9 @@ def zhiqu_contract_apply(sender, context, douban_type=False):
         action = None
     if order.__tablename__ == 'bra_douban_order' and order.contract_status == 4 and douban_type:
         contract_apply_douban(sender, context)
-    if action and int(action) == 1:
+    if action is not None and int(action) == 0:
+        action_info = order.creator.name + u'新建了合同，请申请利润分配'
+    elif action and int(action) == 1:
         if order.__tablename__ == 'bra_medium_framework_order':
             leader_users = [k for k in to_users if k.team.type in [20]]
         if order.__tablename__ == 'searchAd_bra_client_order':
@@ -949,7 +1008,7 @@ def planning_bref(sender, apply_context):
     bref = apply_context['bref']
     action = apply_context['status']
     # 获取某区域策划负责人
-    c_loction = bref.creator.location
+    c_loction = bref.location
     planning_team_admins = [k for k in User.all_active(
     ) if k.location == c_loction and k.team.type == 6][0].team.admins
     # 获取某区域销售负责人
@@ -1038,7 +1097,7 @@ by:
     _insert_person_notcie(to_users, title, body)
     flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
     send_html_mail(title, _get_active_user_email(to_users) +
-                   to_emails + ['planning@inad.com'], body=body.replace('\n', '<br/>'))
+                   to_emails + ['planning@inad.com', 'yangzhuo@inad.com'], body=body.replace('\n', '<br/>'))
 
 
 def account_kpi_apply(sender, apply_context):
@@ -1186,6 +1245,7 @@ def back_money_apply(sender, apply_context):
             [order.creator, g.user] + order.leaders
     else:
         to_users = order.direct_sales + order.agent_sales + User.contracts() + \
+            order.assistant_sales + \
             [order.creator, g.user] + order.leaders + User.medias()
         if 3 in order.locations:
             to_users += [k for k in User.all()
@@ -1234,6 +1294,7 @@ def email_init_signal(app):
     password_changed_signal.connect_via(app)(password_changed)
     add_comment_signal.connect_via(app)(add_comment)
     zhiqu_contract_apply_signal.connect_via(app)(zhiqu_contract_apply)
+    zhiqu_edit_contract_apply_signal.connect_via(app)(zhiqu_edit_contract_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
     agent_invoice_apply_signal.connect_via(app)(agent_invoice_apply)
     invoice_apply_signal.connect_via(app)(invoice_apply)

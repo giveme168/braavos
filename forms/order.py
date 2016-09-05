@@ -1,17 +1,18 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 from wtforms import (TextField, validators, SelectField, SelectMultipleField,
                      IntegerField, TextAreaField, DateField, FloatField)
 from libs.wtf import Form
 from models.client import Client, Group, Agent
-from models.medium import Medium
+from models.medium import Medium, MediumGroup, Media
 from models.order import DISCOUNT_SALE
-from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN, SALE_TYPE_CN
+from models.client_order import CONTRACT_TYPE_CN, RESOURCE_TYPE_CN, SALE_TYPE_CN, SUBJECT_CN
 from models.user import User
 from models.user import (TEAM_TYPE_DESIGNER, TEAM_TYPE_PLANNER,
                          TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER)
 
 
 class ClientOrderForm(Form):
+    subject = SelectField(u'我方签约主体', coerce=int, description=u"与客户签约主体")
     agent = SelectField(u'代理/直客(甲方全称)', coerce=int)
     client = SelectField(u'客户名称', coerce=int)
     campaign = TextField(u'Campaign名称', [validators.Required(u"请输入活动名字.")])
@@ -28,6 +29,7 @@ class ClientOrderForm(Form):
 
     def __init__(self, *args, **kwargs):
         super(ClientOrderForm, self).__init__(*args, **kwargs)
+        self.subject.choices = SUBJECT_CN.items()
         self.agent.choices = [(m.id, m.name) for m in Agent.all()]
         self.client.choices = [(c.id, c.name) for c in Client.all()]
         self.direct_sales.choices = [(m.id, m.name) for m in User.sales()]
@@ -112,7 +114,7 @@ class FrameworkOrderForm(Form):
 
 
 class MediumFrameworkOrderForm(Form):
-    mediums = SelectMultipleField(u'媒体', coerce=int)
+    medium_groups = SelectMultipleField(u'媒体', coerce=int)
     description = TextAreaField(u'备注', description=u"返点政策/配送政策等信息")
     money = FloatField(u'合同金额(元)', default=0)
     client_start = DateField(u'执行开始')
@@ -123,7 +125,7 @@ class MediumFrameworkOrderForm(Form):
 
     def __init__(self, *args, **kwargs):
         super(MediumFrameworkOrderForm, self).__init__(*args, **kwargs)
-        self.mediums.choices = [(a.id, a.name) for a in Medium.all()]
+        self.medium_groups.choices = [(a.id, a.name) for a in MediumGroup.all()]
         self.medium_users.choices = [(m.id, m.name) for m in User.medias()]
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
 
@@ -132,7 +134,7 @@ class MediumFrameworkOrderForm(Form):
             if any(self.medium_users.data):
                 return True
             else:
-                self.direct_sales.errors.append(u"直接销售和渠道销售不能全为空")
+                self.medium_users.errors.append(u"直接销售和渠道销售不能全为空")
                 return False
         return False
 
@@ -210,7 +212,8 @@ class ClientMediumOrderForm(Form):
     contract_type = SelectField(u'合同模板类型', coerce=int)
     resource_type = SelectField(u'售卖类型', coerce=int)
     sale_type = SelectField(u'代理/直客', coerce=int)
-    medium = SelectField(u'投放媒体', coerce=int)
+    medium_group = SelectField(u'媒体供应商媒体', coerce=int)
+    media = SelectField(u'投放媒体', coerce=int)
     medium_money = FloatField(u'媒体服务费(元)', default=0)
 
     def __init__(self, *args, **kwargs):
@@ -232,7 +235,8 @@ class ClientMediumOrderForm(Form):
         self.contract_type.choices = CONTRACT_TYPE_CN.items()
         self.resource_type.choices = RESOURCE_TYPE_CN.items()
         self.sale_type.choices = SALE_TYPE_CN.items()
-        self.medium.choices = [(m.id, m.name) for m in Medium.all()]
+        self.medium_group.choices = [(m.id, m.name) for m in MediumGroup.all()]
+        self.media.choices = [(m.id, m.name) for m in Media.all()]
 
     def validate(self):
         if Form.validate(self):

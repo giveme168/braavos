@@ -21,14 +21,6 @@
                 <img src="/static/image/search.png" alt="#">
             </div>
             <div class="select_option">
-                <label for="sale_type" class="control-label">年度</label>
-                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
-                    {% for k in range(5) %}
-                        <option value="{{2014+k}}">{{2014+k}}年度</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="select_option">
                 <label for="sale_type" class="control-label">区域</label>
                 <select class="form-control special_sale" name="location" id="search_location" style="width:100px;">
                     {% for v, m in locations %}
@@ -64,16 +56,20 @@
             <tbody>
                 {% for order in orders %}
                 <tr>
-                    <td><a href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">{{order.name}}</a></td>
-                    <td>{{order.contract or "无合同号"}}</td>
-                    <td>{{order.money}} 元</td>
-                    <td>{{order.agents_invoice_sum}} 元</td>
-                    <td>{{order.agents_invoice_pass_sum}} 元</td>
-                    <td>{{order.agents_invoice_apply_sum}} 元</td>
-                    <td>{{order.mediums | map(attribute='name') | join(', ')}}</td>
-                    <td>{{order.get_agent_invoice_pay_by_status(3) | length}}</td>
-                    <td>{{order.get_agent_invoice_pay_by_status(0) | length}}</td>
-                    <td><a href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">查看</a></td>
+                    <td><a href="{{url_for('finance_client_order_agent_pay.info', order_id=order.agent_invoice.client_order.id)}}">{{order.agent_invoice.client_order.name}}</a></td>
+                    <td>{{order.agent_invoice.client_order.contract or "无合同号"}}</td>
+                    <td>{{order.agent_invoice.client_order.money}} 元</td>
+                    <td>{{order.agent_invoice.client_order.agents_invoice_sum}} 元</td>
+                    <td>{{order.agent_invoice.client_order.agents_invoice_pass_sum}} 元</td>
+                    <td>{{order.agent_invoice.client_order.agents_invoice_apply_sum}} 元</td>
+                    <td>{{order.agent_invoice.client_order.medias | map(attribute='name') | join(', ')}}</td>
+                    {% if order.apply_num %}
+                    <td style="color:red;">{{order.apply_num}}</td>
+                    {% else %}
+                    <td>0</td>
+                    {% endif %}
+                    <td>{{order.pay_num}}</td>
+                    <td><a href="{{url_for('finance_client_order_agent_pay.info', order_id=order.agent_invoice.client_order.id)}}">查看</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -89,8 +85,6 @@
     }
     $(function() {
         $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
-        $('#year').val('{{year}}');
-        $("#year").trigger("chosen:updated");
     });
 </script>
 {% endblock %}

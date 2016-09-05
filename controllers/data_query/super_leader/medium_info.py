@@ -6,7 +6,7 @@ from flask import render_template as tpl
 
 from models.douban_order import DoubanOrderExecutiveReport
 from models.order import MediumOrderExecutiveReport
-from models.medium import Medium
+from models.medium import Media
 
 from searchAd.models.order import searchAdMediumOrderExecutiveReport
 from searchAd.models.medium import searchAdMedium
@@ -48,7 +48,7 @@ def _format_order(order, type='client'):
     if type == 'client':
         params['money'] = order.medium_money2
         params['medium_id'] = order.order.medium_id
-        params['medium_name'] = order.order.medium.name
+        params['medium_name'] = order.order.media.name
         params['direct_sales'] = order.client_order.direct_sales
         params['agent_sales'] = order.client_order.agent_sales
         params['locations'] = order.client_order.locations
@@ -204,7 +204,7 @@ def index_excle_data():
 
     medium_info_params = {}
     medium_info_params[u'豆瓣'] = 0
-    for k in Medium.all():
+    for k in Media.all():
         medium_info_params[k.name] = 0
 
     for k in medium_date + douban_date:
@@ -258,7 +258,7 @@ def index_json():
 
     medium_info_params = {}
     medium_info_params[u'豆瓣'] = 0
-    for k in Medium.all():
+    for k in Media.all():
         medium_info_params[k.name] = 0
 
     for k in medium_date + douban_date:

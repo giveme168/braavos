@@ -4,6 +4,7 @@ import datetime
 from models import db, BaseModelMixin
 
 
+# 提成比例表
 class Commission(db.Model, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -48,6 +49,7 @@ PER_STATUS_CN = {
 }
 
 
+# 区域销售目标
 class Performance(db.Model, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -77,6 +79,7 @@ class Performance(db.Model, BaseModelMixin):
         return TEAM_LOCATION_CN[self.location]
 
 
+# 个人销售目标
 class PerformanceUser(db.Model, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -104,6 +107,7 @@ class PerformanceUser(db.Model, BaseModelMixin):
         return self.performance.status
 
 
+# 自营业务完成率
 class Completion(db.Model, BaseModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -116,6 +120,28 @@ class Completion(db.Model, BaseModelMixin):
     creator = db.relationship(
         'User', backref=db.backref('completion_creator', lazy='dynamic'),
         foreign_keys=[creator_id])
+    create_time = db.Column(db.DateTime)
+    __mapper_args__ = {'order_by': time.desc()}
+
+    def __init__(self, user, time, rate=None, creator=None, create_time=None):
+        self.user = user
+        self.creator = creator
+        self.time = time
+        self.rate = rate or 0.0
+        self.create_time = datetime.date.today()
+
+
+# 增量业务完成率
+class CompletionIncrement(db.Model, BaseModelMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref=db.backref('completion_increment_user', lazy='dynamic'),
+                           foreign_keys=[user_id])
+    time = db.Column(db.String(7))
+    rate = db.Column(db.Float)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    creator = db.relationship('User', backref=db.backref('completion_increment_creator', lazy='dynamic'),
+                              foreign_keys=[creator_id])
     create_time = db.Column(db.DateTime)
     __mapper_args__ = {'order_by': time.desc()}
 

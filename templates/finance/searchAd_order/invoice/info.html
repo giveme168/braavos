@@ -258,7 +258,7 @@
           </tr>
           <tr>
             <th>公司名称</th>
-            <td>{{invoice.company}}</td>
+            <td><a href="{{url_for('searchAd_client.agent_detail', agent_id=invoice.client_order.agent.id)}}" target="_blank">{{invoice.company}}</a></td>
           </tr>
           <tr>
             <th>税号</th>

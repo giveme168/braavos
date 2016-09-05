@@ -10,10 +10,10 @@
     <form class="input-row-box" method="POST" onsubmit="return checkform(this)">
         <div class="input-group-menu">
           <div class="name">投放媒体 : </div>
-            <select id="medium_id" name="medium_id" class="surname" style="width:300px;">
+            <select id="media_id" name="media_id" class="surname" style="width:300px;">
                 <option value="0">豆瓣</option>
-                {% for k in mediums %}
-                <option value='{{k.id}}'>{{k.name}}</option>
+                {% for k in medias %}
+                <option value="{{k.id}}">{{k.name}}</option>
                 {% endfor %}
             </select>
         </div>
@@ -178,6 +178,7 @@ $(function(){
             get_ex_time()
         }
     })
+
     {% if is_data_agent %}
       $('#agent').val('{{intention_order.agent}}');
       $("#agent").trigger("chosen:updated");
@@ -192,10 +193,12 @@ $(function(){
         $('#client_div').empty()
         $('#client_div').html('<input type="text" id="client" name="client" value="{{intention_order.client}}" class="form-control bra-form-control">')
     {% endif %}
-    $('#medium_id').val('{{intention_order.medium_id}}');
-    $("#medium_id").trigger("chosen:updated");
     $('#complete_percent').val('{{intention_order.complete_percent}}');
     $("#complete_percent").trigger("chosen:updated");
+    $('#medium_group_id').val("{{intention_order.medium_group_id}}");
+    $("#medium_group_id").trigger("chosen:updated");
+    $('#media_id').val("{{intention_order.media_id}}");
+    $("#media_id").trigger("chosen:updated");
 })
 </script>
 {% endblock %}

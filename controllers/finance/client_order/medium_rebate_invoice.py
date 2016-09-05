@@ -9,7 +9,7 @@ from models.client_order import ClientOrder, CONTRACT_STATUS_CN
 from models.invoice import (MediumRebateInvoice, INVOICE_STATUS_CN,
                             INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
                             INVOICE_STATUS_APPLYPASS)
-from models.medium import Medium
+from models.medium import Media, MediumGroup
 from forms.invoice import MediumRebateInvoiceForm
 from libs.email_signals import medium_rebate_invoice_apply_signal
 from libs.paginator import Paginator
@@ -27,7 +27,7 @@ ORDER_PAGE_NUM = 50
 def index():
     if not g.user.is_finance():
         abort(404)
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     year = int(request.values.get('year', datetime.datetime.now().year))
     orders = set([
@@ -59,7 +59,7 @@ def index_pass():
         abort(404)
     orders = list(ClientOrder.all())
     orderby = request.args.get('orderby', '')
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     page = int(request.args.get('p', 1))
     year = int(request.values.get('year', datetime.datetime.now().year))
@@ -125,18 +125,19 @@ def new_invoice(order_id, redirect_epoint='finance_client_order_medium_rebate_in
     if not order:
         abort(404)
     form = MediumRebateInvoiceForm(request.form)
-    form.client_order.choices = [(order.id, order.client.name)]
-    form.medium.choices = [(medium.id, medium.name)
-                           for medium in order.mediums]
-    if request.method == 'POST' and form.validate():
-        medium = Medium.get(form.medium.data)
+    form.medium_group.choices = [(medium.id, medium.name) for medium in order.medium_groups]
+    form.media.choices = [(medium.id, medium.name) for medium in order.medias]
+    if request.method == 'POST':
+        media = Media.get(request.values.get('media'))
+        medium_group = MediumGroup.get(request.values.get('medium_group'))
         # if float(form.money.data) > float(order.get_medium_rebate_money(medium) -
         #                                   order.get_medium_rebate_invoice_apply_sum(medium) -
         #                                   order.get_medium_rebate_invoice_pass_sum(medium)):
         #     flash(u"新建发票失败，您申请的发票超过了媒体:%s 返点金额: %s" % (medium.name, order.get_medium_rebate_money(medium)), 'danger')
         #     return redirect(url_for(redirect_epoint, order_id=order_id))
         invoice = MediumRebateInvoice.add(client_order=order,
-                                          medium=Medium.get(form.medium.data),
+                                          media=media,
+                                          medium_group=medium_group,
                                           company=form.company.data,
                                           tax_id=form.tax_id.data,
                                           address=form.address.data,

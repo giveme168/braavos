@@ -9,10 +9,10 @@
     <form class="input-row-box" method="POST" onsubmit="return checkform(this)">
         <div class="input-group-menu">
           <div class="name">投放媒体 : </div>
-            <select id="medium_id" name="medium_id" class="surname" style="width:300px;">
+            <select id="media_id" name="media_id" class="surname" style="width:300px;">
                 <option value="0">豆瓣</option>
-                {% for k in mediums %}
-                <option value='{{k.id}}'>{{k.name}}</option>
+                {% for k in medias %}
+                <option value="{{k.id}}">{{k.name}}</option>
                 {% endfor %}
             </select>
         </div>

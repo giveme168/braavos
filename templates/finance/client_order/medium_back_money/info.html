@@ -3,23 +3,80 @@
 
 {% block content %}
 {% include "/finance/finance_base_v1_0_0.html" %}
-<div class="container bra-box">
+<div class="container bra-box" style="width:1400px;">
     <h3>{{order.agent.name}}-{{order.name}}客户订单回款情况</h3>
     <div class='tabulation'>
         <table border='1'>
             <thead>
                 <tr>
-                    <th>媒体总金额</th>
-                    <th>已开发票总金额</th>
-                    <th>媒体返点回款总金额</th>
+                    <th>项目名称</th>
+                    <th>客户金额</th>
+                    <th>已开客户发票</th>
+                    <th>客户回款金额</th>
+                    <th>系统推荐客户返点</th>
+                    <th>已收客户返点发票(抵扣)</th>
+                    <th>已收客户返点发票</th>
+                    <th>已打款客户返点金额</th>
+                    <th>媒体名称</th>
+                    <th>媒体金额</th>
+                    <th>已收媒体发票</th>
+                    <th>已打款媒体金额</th>
+                    <th>系统推荐媒体返点</th>
+                    <th>已开媒体返点发票</th>
+                    <th>媒体返点回款</th>
                 </tr>
             </thead>
             <tbody>
+                {% set money_invoce_flow = order.money_invoce_flow(agent_invoice=True, agent_back_money=True, agent_back_money_invoice=True, agent_back_invoice=True, agent_self_rebate=True, media_invoce=True, media_rebate_invoice=True, agent_rebate_data=True, medium_rebate_data=True) %}
                 <tr>
-                    <td>{{order.mediums_money2|format_price}} 元</td>
-                    <td>{{order.get_medium_rebate_invoice_pass_money()|format_price}} 元</td>
-                    <td>{{order.medium_back_moneys|format_price}} 元</td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('order.order_info', order_id=order.id, tab_id=1)}}">
+                        {{money_invoce_flow.campaign}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>{{money_invoce_flow.money|format_price}}</td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_invoice.info', order_id=order.id)}}">
+                        {{money_invoce_flow.agent_invoice|format_price}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">
+                        {{money_invoce_flow.agent_back_money|format_price}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>{{money_invoce_flow.agent_rebate_data|format_price}}</td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_back_money.back_money',order_id=order.id)}}">
+                        {{money_invoce_flow.agent_back_money_invoice|format_price}}
+                      </a>
+                    </td>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">
+                        {{money_invoce_flow.agent_back_invoice|format_price}}</td>
+                      </a>
+                    <td rowspan='{{order.medium_orders|length+1}}'>
+                      <a target="_blank" href="{{url_for('finance_client_order_agent_pay.info', order_id=order.id)}}">
+                        {{money_invoce_flow.agent_back_invoice_pay|format_price}}
+                      </a>
+                    </td>
                 </tr>
+                {% for m in money_invoce_flow.media_order_data %}
+                <tr>
+                    <td>{{m.name}}</td>
+                    <td>{{m.medium_money2|format_price}}</td>
+                    <td>
+                      <a target="_blank" href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">
+                        {{m.media_invoce[0]|format_price}}
+                        {% if m.media_invoce[1] %} <span class="label label-danger">有预付</span> {% endif %}
+                      </a>
+                    </td>
+                    <td><a target="_blank" href="{{url_for('finance_client_order_medium_pay.info', order_id=order.id)}}">{{m.media_invoce_pay|format_price}}</a></td>
+                    <td>{{m.medium_rebate_data|format_price}}</td>
+                    <td><a target="_blank"  href="{{url_for('finance_client_order_medium_rebate_invoice.info', order_id=order.id)}}">{{m.media_rebate_invoice|format_price}}</a></td>
+                    <td><a target="_blank"  href="{{url_for('finance_client_order_medium_back_money.back_money',order_id=order.id)}}">{{m.media_rebate_invoice_pay|format_price}}</a></td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
@@ -45,7 +102,7 @@
                         <tbody>
                             {% for back in back_moneys %}
                             <tr>
-                                <td>{{back.order.medium.name}}</td>
+                                <td>{{back.order.medium_group.name}}-{{back.order.medium.name}}</td>
                                 <td>{{back.back_time_cn}}</td>
                                 <td>{{back.money}}</td>
                                 <td><a href="{{url_for('finance_client_order_medium_back_money.delete',order_id=order.id, bid=back.id)}}">删除</a></td>
@@ -110,7 +167,7 @@
                             <div class="col-sm-4">
                                 <select type="text" id="medium" name="medium" class="form-control bra-form-control">
                                     {% for k in order.medium_orders %}
-                                    <option value="{{k.id}}">{{k.medium.name}}</option>
+                                    <option value="{{k.id}}">{{k.medium_group.name}}-{{k.medium.name}}</option>
                                     {% endfor %}
                                 </select>
                             </div>

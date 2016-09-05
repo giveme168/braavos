@@ -35,7 +35,7 @@
                         <td>
                             <a href="{{url_for('client.agent_rebate_update', agent_id=agent.id, rebate_id=r.id)}}">修改</a>&nbsp;&nbsp;
                             {% if g.user.is_admin() %}
-                            <a href="{{url_for('client.agent_rebate_delete', agent_id=agent.id, rebate_id=r.id)}}">删除</a>
+                            <a href="javascript:delete_rebate('{{agent.id}}', '{{r.id}}')">删除</a>
                             {% endif %}
                         </td>
                     {% endif %}
@@ -66,7 +66,7 @@
             <tbody>
                 {% for r in medium_rebates %}
                 <tr>
-                    <td>{{r.medium.name}}</td>
+                    <td>{{r.media.name}}</td>
                     <td>{{r.year.year}}</td>
                     <td>{{r.rebate}}%</td>
                     <td>{{r.creator.name}}</td>
@@ -75,7 +75,7 @@
                         <td>
                             <a href="{{url_for('client.agent_medium_rebate_update', agent_id=agent.id, rebate_id=r.id)}}">修改</a>&nbsp;&nbsp;
                             {% if g.user.is_admin() %}
-                            <a href="{{url_for('client.agent_medium_rebate_delete', agent_id=agent.id, rebate_id=r.id)}}">删除</a>
+                            <a href="javascript:delete_media_rebate('{{agent.id}}', '{{r.id}}')">删除</a>
                             {% endif %}
                         </td>
                     {% endif %}
@@ -87,4 +87,18 @@
     <br/><br/>
     <div>{{ comments_box(agent, msg_channel=9, text=False) }}</div>
 </div>
+<script>
+    function delete_rebate(agent_id, rid){
+        if(confirm("确定要清除这条返点记录吗？"))
+        {
+            window.location.href = "/clients/agent/"+agent_id+"/rebate/"+rid+"/delete"
+        }
+    }
+    function delete_media_rebate(agent_id, rid){
+        if(confirm("确定要清除这条返点记录吗？"))
+        {
+            window.location.href = "/clients/agent/"+agent_id+"/medium_rebate/"+rid+"/delete"
+        }
+    }
+</script>
 {% endblock %}

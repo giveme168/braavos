@@ -75,14 +75,30 @@ def send_attach_mail(subject, recipients, body='', file_paths=None):
         mail.send(msg)
 
 
+import poplib
+
+
 def check_auth_by_mail(username, password):
-    host = "smtp.exmail.qq.com"
-    smtp = smtplib.SMTP(host)
+    host = 'pop.exmail.qq.com'
+    pop = poplib.POP3_SSL(host)
     try:
+        pop.user(username)
+        ret = pop.pass_(password)
+        if ret == "+OK":
+            return (True, '')
+        return (False, '用户名或者密码错误')
+    except:
+        return (False, u'用户名或者密码错误')
+    '''
+    host = "smtp.exmail.qq.com"
+    try:
+        smtp = smtplib.SMTP(host, timeout=5)
         ret = smtp.login(username, password)
         smtp.close()
         if ret[0] == 235:
-            return True
-    except:
-        pass
-    return False
+            return (True, '')
+    except Exception, e:
+        print e
+        return (False, u'腾讯企业邮箱异常，我们正在联系')
+    return (False, u'用户名或者密码错误')
+    '''

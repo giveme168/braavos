@@ -1,0 +1,39 @@
+{% extends "base_v1_0_0.html" %}
+{% from 'order_form_edit_client.html' import order_edit_client_create_form %}
+{% from 'order_form_edit_client.html' import order_show_client_form %} 
+{% block title %}订单修改列表{% endblock %}
+{% block content %}
+{% include "order_base_v1_0_0.html" %}
+<div class="container bra-box" style="min-height: 700px; width: 1400px;">
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        原始订单
+                    </h4>
+                </div>
+                <div class="panel-collapse collapse in" id="collapseOne">
+                    <div class="panel-body">
+                    {{ order_show_client_form(order) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        修改后的订单
+                    </h4>
+                </div>
+                <div class="panel-collapse collapse in" id="collapseOne">
+                    <div class="panel-body">
+                        {{ order_edit_client_create_form(order, medium_groups, medias, salers, operaters, designers, planers, agents, clients) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -296,9 +296,9 @@ input#end-date.form-control.form_datetime,input#start-date.form-control.form_dat
             height: 100%;
             }
 
-.input-row-box .input-group-menu{width: 650px;
+.input-row-box .input-group-menu{width: 630px;
                                 margin: 0 auto;
-                                height: 30px;
+                                height: 35px;
                                 margin-bottom: 15px;}
 
 .input-row-box .input-group-menu .name{float: left;

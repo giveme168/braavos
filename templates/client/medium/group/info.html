@@ -1,4 +1,5 @@
 {% extends "/base_v1_0_0.html" %}
+{% from 'comments.html' import comments_box %}
 {% from 'form_v1_0_0.html' import form_field %}
 
 {% block content %}
@@ -9,7 +10,7 @@
     <td>{{FILE_TYPE_CN[type]}}</td>
     <td>{% set medium_group_file = medium_group.get_last_client_file(type) %}
         {% if medium_group_file %}
-            {% if g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_super_leader() %}
+            {% if g.user.is_contract() or g.user.is_media() or g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_finance() %}
             <a href="{{medium_group_file.client_path}}">{{medium_group_file.filename}}</a>
             {% else %}
             {{medium_group_file.filename}}
@@ -18,8 +19,10 @@
             暂无
         {% endif %}
     </td>
+    <td>{% if medium_group_file %}{{medium_group_file.create_time.strftime('%Y-%m-%d %H:%M:%S')}}{% else %} 暂无 {% endif %}</td>
+    <td>{% if medium_group_file %}{{medium_group_file.creator.name}}{% else %} 暂无 {% endif %}</td>
     <td>
-        {% if g.user.is_contract() or  g.user.is_super_leader() %}
+        {% if g.user.is_contract() or  g.user.is_super_leader() or g.user.is_media_leader() %}
             {% if medium_group_file %}
                 <button class="btn btn-sm btn-danger" onclick="delete_file('{{medium_group.id}}', '{{medium_group_file.id or 0}}', '{{FILE_TYPE_CN[type]}}', '{{type}}')" style="float:left;">删除</button>
             {% else %}
@@ -32,30 +35,10 @@
         {% endif %}
     </td>
 </tr>
-
-{#
-<div>
-    <form method="POST" action="{{path}}" enctype="multipart/form-data">
-        {% set medium_group_file = medium_group.get_last_client_file(type) %}
-        {% if medium_group_file %}
-            <a href="{{medium_group_file.client_path}}">{{medium_group_file.filename}}</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        {% else %}
-            暂无
-        {% endif %}
-        <input class="hide" type="text" name="type" value="{{type}}">
-        <input class="file-widget-input hide" type="file" name="file">
-        {% if g.user.is_contract() %}
-        <button class="file-widget-btn btn btn-sm btn-info" style="float: right;">
-            <span>上传附件</span>
-        </button>
-        {% endif %}
-    </form>
-</div>
-#}
 {%- endmacro %}
 
 <div class="container bra-box">
-    {% if g.user.is_contract() or g.user.is_super_leader() %}
+    {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_media_leader() %}
     <form class="input-row-box" method="POST">
         <div class="input-group-menu">
             <div class="name">媒体级别: </div>
@@ -95,35 +78,6 @@
             <input type="submit" value="保存">
         </div>
     </form>
-    
-    <h3>媒体供应商返点列表
-        {% if g.user.is_media_leader() or g.user.is_super_leader() %}<a class="btn btn-default btn-sm" href="{{url_for('client.medium_group_rebate_create', medium_group_id=medium_group.id)}}">新建</a>{% endif %}
-    </h3>
-    <div class='tabulation'>
-        <table border='1'>
-            <thead>
-                <tr>
-                    <th>时间</th>
-                    <th>返点比例</th>
-                    <th>最后修改人</th>
-                    <th>休后修改时间</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in medium_group.rebates %}
-                <tr>
-                    <td>{{r.year_cn}}</td>
-                    <td>{{r.rebate}}%</td>
-                    <td>{{r.creator.name}}</td>
-                    <td>{{r.create_time_cn}}</td>
-                    <td><a href="javascript:delete_rebate('{{medium_group.id}}', '{{r.id}}')">删除</a>&nbsp;
-                        <a href="{{url_for('client.medium_group_rebate_update', medium_group_id=medium_group.id, rid=r.id)}}">修改</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
     {% else %}
         <div class='tabulation'>
             <table border='1'>
@@ -151,24 +105,69 @@
         </div>
     {% endif %}
     <br/>
-    <h3>媒体供应商资质</h3>
+    {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_finance() or g.user.is_contract() %}
+    <h3>供应商返点列表
+        <a class="btn btn-default btn-sm" href="{{url_for('client.medium_group_rebate_create', medium_group_id=medium_group.id)}}">新建</a>
+    </h3>
     <div class='tabulation'>
         <table border='1'>
             <thead>
                 <tr>
-                    <th>附件类型</th>
-                    <th>附件名称</th>
+                    <th>时间</th>
+                    <th>返点比例</th>
+                    <th>最后修改人</th>
+                    <th>最后修改时间</th>
                     <th>操作</th>
                 </tr>
             </thead>
             <tbody>
-                {% for k in [100, 101, 102, 103, 104] %}
-                {{ file_upload(medium_group, url_for('client.files_upload', f_type='medium_group' ,id=medium_group.id), k)}}
+                {% for r in medium_group.rebates %}
+                <tr>
+                    <td>{{r.year_cn}}</td>
+                    <td>{{r.rebate}}%</td>
+                    <td>{{r.creator.name}}</td>
+                    <td>{{r.create_time_cn}}</td>
+                    <td><a href="javascript:delete_rebate('{{medium_group.id}}', '{{r.id}}')">删除</a>&nbsp;
+                        <a href="{{url_for('client.medium_group_rebate_update', medium_group_id=medium_group.id, rid=r.id)}}">修改</a></td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    <br/>
+    <br>
+    <h3>供应商针对媒体返点列表
+        <a class="btn btn-default btn-sm" href="{{url_for('client.medium_group_media_rebate_create', medium_group_id=medium_group.id)}}">新建</a>
+    </h3>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>针对媒体</th>
+                    <th>时间</th>
+                    <th>返点比例</th>
+                    <th>最后修改人</th>
+                    <th>最后修改时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in medium_group.media_rebates %}
+                <tr>
+                    <td>{{r.media.name}}</td>
+                    <td>{{r.year_cn}}</td>
+                    <td>{{r.rebate}}%</td>
+                    <td>{{r.creator.name}}</td>
+                    <td>{{r.create_time_cn}}</td>
+                    <td><a href="javascript:delete_media_rebate('{{medium_group.id}}', '{{r.id}}')">删除</a>&nbsp;
+                        <a href="{{url_for('client.medium_group_media_rebate_update', medium_group_id=medium_group.id, rid=r.id)}}">修改</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <br>
+    {% endif %}
+    <div style="display: none;">
     <h3>媒体列表
         {% if g.user.is_media_leader() or g.user.is_super_leader() %}<a class="btn btn-default btn-sm" href="{{url_for('client.new_medium', medium_group_id=medium_group.id)}}">新建</a>{% endif %}
     </h3>
@@ -178,11 +177,11 @@
                 <tr>
                     <th>#id</th>
                     <th>名称</th>
-                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() %}
+                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_contract() %}
                     <th>2014年返点</th>
                     <th>2015年返点</th>
                     <th>2016年返点</th>
-                        {% if g.user.is_media_leader() or g.user.is_super_leader() %}
+                        {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_contract()%}
                         <th>操作</th>
                         {% endif %}
                     {% endif %}
@@ -192,12 +191,18 @@
                 {% for m in medium_data %}
                 <tr>
                     <td>{{m.id}}</td>
-                    <td><a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a></td>
-                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() %}
+                    <td>
+                        {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_media() or g.user.is_finance() %}
+                        <a href="{{url_for('client.medium_detail', medium_id=m.id)}}">{{m.name}}</a>
+                        {% else %}
+                        {{m.name}}
+                        {% endif %}
+                    </td>
+                    {% if g.user.is_super_leader() or g.user.is_media_leader() or g.user.is_finance() or g.user.is_contract() %}
                         <td>{{m.rebate_2014}}</td>
                         <td>{{m.rebate_2015}}</td>
                         <td>{{m.rebate_2016}}</td>
-                        {% if g.user.is_media_leader() or g.user.is_super_leader() %}
+                        {% if g.user.is_media_leader() or g.user.is_super_leader() or g.user.is_contract()%}
                             <td><a href="{{url_for('client.medium_rebate', medium_id=m.id)}}">设置返点</a></td>
                         {% endif %}
                     {% endif %}
@@ -206,8 +211,82 @@
             </tbody>
         </table>
     </div>
+    <br/>
+    </div>
+    <h3>媒体供应商资质</h3>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>附件类型</th>
+                    <th>附件名称</th>
+                    <th>上传日期</th>
+                    <th>上传人</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in [100, 101, 102, 103, 104, 105] %}
+                {{ file_upload(medium_group, url_for('client.files_upload', f_type='medium_group' ,id=medium_group.id), k)}}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if g.user.is_contract() or  g.user.is_super_leader() or g.user.is_media_leader() %}
+    <h3 style="float:left;">其他附件</h3>
+    <div class="form form-horizontal" style="float:left; margin-top: 20px;margin-bottom: 10px;">
+        <div class="form-group">
+            <div class="col-sm-10">
+                <form method="POST" action="{{url_for('files.client_medium_group_upload')}}" enctype="multipart/form-data">
+                <input class="hide" type="text" name="medium" value="{{medium_group.id}}">
+                <input class="file-widget-input hide" type="file" name="file">
+                <button class="file-widget-btn btn btn-sm btn-primary">
+                  <span>其他资料上传</span>
+                </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if medium_group.get_medium_group_attachments().count() > 0 %}
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>资料名称</th>
+                    <th>上传日期</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attachment in medium_group.get_medium_group_attachments() %}
+                <tr>
+                    <td>{{attachment.filename}}</td>
+                    <td>{{attachment.create_time.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                    <td>
+                        <a href="{{attachment.agent_path}}">下载</a>&nbsp;&nbsp;
+                        {% if g.user.is_contract() or  g.user.is_super_leader() or g.user.is_media_leader() %}
+                            <a href="{{url_for('client.medium_group_files_delete', medium_group_id=medium_group.id, aid=attachment.id)}}">删除</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    {% if g.user.is_super_leader() or g.user.is_contract() or g.user.is_finance() or g.user.is_media_leader() %}
+    <hr style="margin-top: 100px;">
+    <div>{{ comments_box(medium_group, msg_channel=14, text=False) }}</div>
+    {% endif %}
 </div>
 <script>
+    function delete_media_rebate(medium_group_id, rid){
+        if(confirm("确定要清除这条返点记录吗？"))
+        {
+            window.location.href = "/clients/medium_groups/"+medium_group_id+"/media/rebate/"+rid+"/delete"
+        }
+    }
     function delete_rebate(medium_group_id, rid){
         if(confirm("确定要清除这条返点记录吗？"))
         {

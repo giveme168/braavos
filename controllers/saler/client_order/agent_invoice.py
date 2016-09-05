@@ -91,6 +91,9 @@ def new_invoice_pay(invoice_id):
     money = float(request.values.get('money', 0))
     pay_time = request.values.get('pay_time', '')
     detail = request.values.get('detail', '')
+    bank = request.values.get('bank', '')
+    bank_num = request.values.get('bank_num', '')
+    company = request.values.get('company', '')
     mi = AgentInvoice.get(invoice_id)
     # if mi.pay_invoice_money + money > mi.money:
     #     flash(u'付款金额大于发票金额，请重新填写!', 'danger')
@@ -98,8 +101,16 @@ def new_invoice_pay(invoice_id):
     pay = AgentInvoicePay.add(money=money,
                               agent_invoice=mi,
                               pay_time=pay_time,
-                              detail=detail)
+                              detail=detail,
+                              bank=bank,
+                              bank_num=bank_num,
+                              company=company)
     pay.save()
+    mi.client_order.add_comment(g.user, u"新建打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                        打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                (pay.agent_invoice.invoice_num, str(money),
+                                 pay_time, company, bank, bank_num),
+                                msg_channel=5)
     flash(u'新建打款信息成功!', 'success')
     return redirect(url_for('saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
 
@@ -109,6 +120,9 @@ def update_invoice_pay(invoice_id, invoice_pay_id):
     money = float(request.values.get('money', 0))
     pay_time = request.values.get('pay_time', '')
     detail = request.values.get('detail', '')
+    bank = request.values.get('bank', '')
+    bank_num = request.values.get('bank_num', '')
+    company = request.values.get('company', '')
     pay = AgentInvoicePay.get(invoice_pay_id)
     # mi = AgentInvoice.get(invoice_id)
     # if mi.pay_invoice_money - pay.money + money > mi.money:
@@ -117,7 +131,15 @@ def update_invoice_pay(invoice_id, invoice_pay_id):
     pay.money = money
     pay.pay_time = pay_time
     pay.detail = detail
+    pay.bank = bank
+    pay.bank_num = bank_num
+    pay.company = company
     pay.save()
+    pay.agent_invoice.client_order.add_comment(g.user, u"更新打款信息\n\n发票号：%s\n\n打款金额：%s元\n\n\
+                                                打款时间：%s\n\n公司名称：%s\n\n开户行：%s\n\n银行账号：%s" %
+                                               (pay.agent_invoice.invoice_num, str(money),
+                                                pay_time, company, bank, bank_num),
+                                               msg_channel=5)
     return redirect(url_for('saler_client_order_agent_invoice.invoice', invoice_id=invoice_id))
 
 
@@ -208,6 +230,7 @@ def apply_pay(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
     to_users = agent_invoice.client_order.direct_sales + agent_invoice.client_order.agent_sales + \
+        agent_invoice.client_order.assistant_sales + \
         [agent_invoice.client_order.creator, g.user] + \
         agent_invoice.client_order.leaders
     if action == 2:
@@ -283,6 +306,7 @@ def apply_invoice(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
+        invoice.client_order.assistant_sales + \
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
     to_emails = list(set(emails + [x.email for x in to_users]))

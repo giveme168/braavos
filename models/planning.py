@@ -210,3 +210,11 @@ class Bref(db.Model, BaseModelMixin, CommentMixin):
     @property
     def name(self):
         return self.title
+
+    @property
+    def location(self):
+        if self.creator.location in [0, 4]:
+            location = 1
+        else:
+            location = self.creator.location
+        return location

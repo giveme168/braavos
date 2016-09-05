@@ -27,7 +27,7 @@ ORDER_PAGE_NUM = 50
 def index():
     if not g.user.is_finance():
         abort(404)
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     year = int(request.values.get('year', datetime.datetime.now().year))
     orders = set([
@@ -56,7 +56,7 @@ def index_pass():
     if not g.user.is_finance():
         abort(404)
     orders = list(ClientOrder.all())
-    search_info = request.args.get('searchinfo', '')
+    search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     year = int(request.values.get('year', datetime.datetime.now().year))
     page = int(request.args.get('p', 1))
@@ -238,6 +238,7 @@ def pass_invoice(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
+        invoice.client_order.assistant_sales + \
         [invoice.client_order.creator, g.user] + \
         invoice.client_order.leaders
     if action != 10:

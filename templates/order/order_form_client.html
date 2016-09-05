@@ -1,9 +1,9 @@
 {% from 'form_v1_0_0.html' import form_field %}
 
 {% macro order_client_form(form, client_order, replace_saler_form) -%}
-  {% if g.user.is_super_leader() or g.user.is_contract() %}
+  {% if g.user.is_super_admin() or g.user.is_contract() %}
     {{ order_client_edited_form(form, mediums=None, replace_saler_form=replace_saler_form, client_order=client_order) }}
-  {% elif client_order.can_admin(g.user) and client_order.contract_status in [0, 1, 3, 6] %}
+  {% elif client_order.can_admin(g.user) and client_order.contract_status in [0, 3, 6] %}
     {{ order_client_edited_form(form, mediums=None, replace_saler_form=None, client_order=client_order) }}
   {% else %}
     {{ order_client_table(client_order) }}
@@ -14,6 +14,10 @@
 <div class="col-md-12">
     <div class="col-md-6" style="margin-left: 20px;">
         <table class="table table-bordered">
+          <tr>
+            <th>我方签约主体 </th>
+            <td>{{client_order.subject_cn}}</td>
+          </tr>
           <tr>
             <th>代理/直客(甲方全称) </th>
             <td>{{client_order.agent.name}}</td>
@@ -70,7 +74,7 @@
             <th>替代销售</th>
             <td>{{client_order.replace_sales_names}}</td>
           </tr>
-          {% if (g.user.is_super_leader() or g.user.is_leader() or client_order.can_media_leader_action(g.user)) or g.user.is_contract() and client_order %}
+          {% if client_order.can_admin(g.user) %}
           <tr>
             <th style="color:red;">单笔返点</th>
             <td>{% if client_order.self_agent_rebate_value.status == '0' %}
@@ -96,6 +100,7 @@
     {{ form_field(form.agent) }}
     {{ form_field(form.client) }}
     {{ form_field(form.campaign) }}
+    {{ form_field(form.subject) }}
     {{ form_field(form.money) }}
     <div class="input-group-menu">
       <div class="name">执行开始 : </div>
@@ -138,7 +143,7 @@
       </div>
     </div>
     {% if mediums %}
-    <hr/>
+    <hr style="margin-top: 50px;" />
     <div id="mediums">
     </div>
     <button class="btn btn-sm btn-default add-new-medium"><span class="glyphicon glyphicon-plus"></span>  投放媒体 </button>
@@ -172,7 +177,7 @@ $(document).ready(function(){
         autoclose: true,
         todayHighlight: true,
         language: 'zh-CN',
-        {% if not g.user.is_super_leader() %}
+        {% if not g.user.is_super_admin() %}
         startDate: now_month_data,
         {% endif %}
         minView: 2
@@ -191,9 +196,15 @@ $(document).ready(function(){
           success: function(data){
               $('#medium_'+html_mid).empty();   //清空resText里面的所有内容
               var data = data['data'];
+              html_inner = ""
               for(var i=0; i<data.length; i++){
-                  $('#medium_'+html_mid).append("<option value='"+data[i]['mid']+"'>"+data[i]['name']+"</option>");
+                  html_inner += "<option value='"+data[i]['mid']+"'>"+data[i]['name']+"</option>"
               }
+              $('#medium_'+html_mid).html(html_inner);
+              $('#medium_'+html_mid).chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+              $('#medium_group_'+html_mid).chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+              $('#medium_'+html_mid).trigger("chosen:updated");
+              $('#medium_group_'+html_mid).trigger("chosen:updated");
           }
       })
     }
@@ -201,20 +212,19 @@ $(document).ready(function(){
     $(".add-new-medium").click(function(e){
       e.preventDefault();
       var mid = mids.pop()
-      var medium_tpl = '<div class="input-row-box" id="medium_order_div_'+mid+'"><div class="input-group-menu"><div class="name">媒体供应商 : </div><select class="surname" style="width:300px;" name="medium_group" id="medium_group_'+mid+'">'
-      {% for m in mediums %}
-        medium_tpl += '<option value="{{m.id}}">{{m.name}}</option>'
+      var medium_tpl = '<div id="medium_order_div_'+mid+'"><div class="input-group-menu"><div class="name">投放媒体 : </div><select class="surname" style="width:300px;" name="media" id="media_'+mid+'">'
+      {% for k in mediums %}
+        medium_tpl += '<option value="{{k.id}}">{{k.name}}</option>'
       {% endfor %}
-      medium_tpl += '</select></div><div class="input-group-menu"><div class="name">投放媒体 : </div><select class="surname" style="width:300px;" name="medium" id="medium_'+mid+'"></select></div><div class="input-group-menu" ><div class="name">售卖金额(元) : </div><input class="surname" style="width:300px;" name="medium-money" type="text"  placeholder="售卖金额(元)" value="0" /></div><div class="state" style="margin-left: 600px;"><button class="medium-remove" id="medium-remove-'+mid+'"> 取消 </button> </div></div>'
+      medium_tpl += '</select></div><div class="input-group-menu" ><div class="name">售卖金额(元) : </div><input class="surname" style="width:300px;" name="medium-money" type="text"  placeholder="售卖金额(元)" value="0" /></div><div class="state" style="margin-left: 600px;"><button class="medium-remove" id="medium-remove-'+mid+'"> 取消 </button> </div><hr/></div></div>'
+      
       $(this).parents("form").find("#mediums").append(medium_tpl);
-      set_mediums('{{mediums[0].id}}', mid)
+      $('#media_'+mid).chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+      $('#media_'+mid).trigger("chosen:updated");
       $("#medium-remove-"+mid).click(function(e){
         e.preventDefault();
         $('#medium_order_div_'+mid).remove();
       });
-      $('#medium_group_'+mid).change(function(){
-          set_mediums(this.value, mid)
-       })
     });
     {% endif %}
     $("#client_end").change(function(e){

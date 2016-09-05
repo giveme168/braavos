@@ -1,0 +1,1211 @@
+{% from 'form_v1_0_0.html' import form_field %}
+{% macro order_edit_client_edit_form(client_order, edit_order, medium_groups, medias, salers, operaters, designers, planers, agents, clients) -%}
+<style type="text/css">
+    .input-red {
+        border: 1px solid red;
+        border-radius: 5px;
+    }
+</style>
+<h5>
+    客户订单
+</h5>
+<hr/>
+<form class="input-row-box" method="POST">
+    {% if client_order.agent.id != edit_order.agent.id %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            代理/直客(甲方全称):
+        </div>
+        <select class="surname" id='agent' name="agent" style="width:300px;">
+            {% for a in agents %}
+                <option value="{{a.id}}">{{a.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if client_order.client.id != edit_order.client.id %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            客户名称:
+        </div>
+        <select class="surname" id='client' name="client" style="width:300px;">
+            {% for a in clients %}
+                <option value="{{a.id}}">{{a.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if client_order.campaign != edit_order.campaign %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            Campaign名称:
+        </div>
+        <input class="surname" style="width:300px;" type="text" id="campaign" name="campaign" value="{{edit_order.campaign}}"/>
+    </div>
+    {% if client_order.subject != edit_order.subject %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            我方签约主体:
+        </div>
+        <select class="surname" id='subject' name="subject" style="width:300px;">
+            <option value="1">上海致趣</option>
+            <option value="2">北京知趣</option>
+        </select>
+    </div>
+    {% if client_order.money != edit_order.money %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            合同金额(元):
+        </div>
+        <input class="surname" style="width:300px;" type="text" id="money" name="money" value="{{edit_order.money}}"/>
+    </div>
+    {% if client_order.client_start != edit_order.client_start %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            执行开始 :
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" id="client_start" name="client_start" style="width:300px;" type="text" value="{{edit_order.start_date_cn}}"/>
+    </div>
+    {% if client_order.client_end != edit_order.client_end %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            执行结束 :
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" id="client_end" name="client_end" style="width:300px;" type="text" value="{{edit_order.end_date_cn}}"/>
+    </div>
+    {% if client_order.reminde_date != edit_order.reminde_date %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            回款日期 :
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" id="reminde_date" name="reminde_date" style="width:300px;" type="text" value="{{edit_order.reminde_date_cn}}"/>
+    </div>
+    {% if client_order.direct_sales_ids != edit_order.direct_sales_ids %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            直客销售:
+        </div>
+        <select class="surname" id='direct_sales' name="direct_sales" style="width:300px;" multiple>
+            {% for u in salers %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if client_order.agent_sales_ids != edit_order.agent_sales_ids %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            渠道销售:
+        </div>
+        <select class="surname" id='agent_sales' name="agent_sales" style="width:300px;" multiple>
+            {% for u in salers %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if client_order.assistant_sales_ids != edit_order.assistant_sales_ids %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            销售助理:
+        </div>
+        <select class="surname" id='assistant_sales' name="assistant_sales" style="width:300px;" multiple>
+            {% for u in salers %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if client_order.contract_type != edit_order.contract_type %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            合同模板类型:
+        </div>
+        <select class="surname" id="contract_type" name="contract_type" placeholder="合同模板类型" style="width: 300px; display: none;">
+            <option selected="" value="0">标准</option>
+            <option value="1">非标</option>
+        </select>
+    </div>
+    {% if client_order.resource_type != edit_order.resource_type %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            售卖类型:
+        </div>
+        <select class="surname" id="resource_type" name="resource_type" placeholder="售卖类型" style="width: 300px; display: none;">
+            <option selected="" value="0">硬广</option>
+            <option value="1">互动</option>
+            <option value="4">其他</option>
+        </select>
+    </div>
+    {% if client_order.sale_type != edit_order.sale_type %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            代理/直客:
+        </div>
+        <select class="surname" id="sale_type" name="sale_type" placeholder="代理/直客" style="width: 300px; display: none;">
+            <option value="0">代理</option>
+            <option value="1">直客</option>
+        </select>
+    </div>
+    {% if client_order.self_agent_rebate_value.status != edit_order.self_agent_rebate_value.status or client_order.self_agent_rebate_value.value != edit_order.self_agent_rebate_value.value%}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name" style="color:red;">
+            单笔返点 :
+        </div>
+        <div id="self_rebate_status">
+            <select class="surname" id="self_rebate" name="self_rebate" style="width:300px;">
+                <option value="0">
+                    无单笔返点
+                </option>
+                <option value="1">
+                    有单笔返点
+                </option>
+            </select>
+        </div>
+        <div id="self_rebate_value" style="display:none;">
+            <input class="surname" id="self_rabate_value" name="self_rabate_value" style="width:300px;" type="text" value="0">
+                <a class="btn btn-sm btn-default" onclick="default_rebate()">
+                    取消返点
+                </a>
+            </input>
+        </div>
+    </div>
+    <div class="input-group-menu">
+        <div class="name" style="color:red;">
+            单笔返点的说明 :
+        </div>
+        <div class="name" style="color:red; width:400px;">
+            项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
+        </div>
+    </div>
+    <hr style="margin-top: 60px;"/>
+    {% for m in edit_order.medium_orders %}
+    <h5>
+        媒体订单-{{m.medium_group.name}}-{{m.media.name}}
+    </h5>
+    <hr/>
+    {% if m.order.medium_group.id != m.medium_group.id %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            媒体供应商:
+        </div>
+        <select class="surname" id='medium_group_{{m.id}}' name="medium_group_{{m.id}}" style="width:300px;">
+            {% for mg in medium_groups %}
+                <option value="{{mg.id}}">{{mg.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if m.order.media.id != m.media.id %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            投放媒体:
+        </div>
+        <select class="surname" id='media_{{m.id}}' name="media_{{m.id}}" style="width:300px;">
+            {% for mg in medias %}
+                <option value="{{mg.id}}">{{mg.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if m.order.sale_money != m.sale_money %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            售卖金额:
+        </div>
+        <input class="surname" style="width:300px;" type="text" value="{{m.sale_money}}" id='sale_money_{{m.id}}' name="sale_money_{{m.id}}"/>
+    </div>
+    {% if m.order.medium_money2 != m.medium_money2 %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            媒体金额:
+        </div>
+        <input class="surname" style="width:300px;" type="text" value="{{m.medium_money2}}" id='medium_money2_{{m.id}}' name="medium_money2_{{m.id}}"/>
+    </div>
+    {% if m.order.sale_CPM != m.sale_CPM %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            预估量（CPM）:
+        </div>
+        <input class="surname" style="width:300px;" type="text" value="{{m.sale_CPM}}" id='sale_CPM_{{m.id}}' name="sale_CPM_{{m.id}}"/>
+    </div>
+    {% if m.order.medium_CPM != m.medium_CPM %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            实际量（CPM）:
+        </div>
+        <input class="surname" style="width:300px;" type="text" value="{{m.medium_CPM}}" id='medium_CPM_{{m.id}}' name="medium_CPM_{{m.id}}"/>
+    </div>
+    {% if m.order.medium_start != m.medium_start %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            执行开始:
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" style="width:300px;" type="text" value="{{m.start_date_cn}}" id='medium_start_{{m.id}}' name="medium_start_{{m.id}}"/>
+    </div>
+    {% if m.order.medium_end != m.medium_end %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            执行结束:
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" style="width:300px;" type="text" value="{{m.end_date_cn}}" id='medium_end_{{m.id}}' name="medium_end_{{m.id}}"/>
+    </div>
+    {% if m.order.operaters_ids != m.operaters_ids %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            执行人员:
+        </div>
+        <select class="surname" id='operaters_{{m.id}}' name="operaters_{{m.id}}" style="width:300px;" multiple>
+            {% for u in operaters %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if m.order.designers_ids != m.designers_ids %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            设计人员:
+        </div>
+        <select class="surname" id='designers_{{m.id}}' name="designers_{{m.id}}" style="width:300px;" multiple>
+            {% for u in designers %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if m.order.planers_ids != m.planers_ids %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+        <div class="name">
+            策划人员:
+        </div>
+        <select class="surname" id='planers_{{m.id}}' name="planers_{{m.id}}" style="width:300px;" multiple>
+            {% for u in planers %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% if m.order.self_medium_rebate_value.status != m.self_medium_rebate_value.status or m.order.self_medium_rebate_value.value != m.self_medium_rebate_value.value %}
+        <div class="input-group-menu input-red">
+    {% else %}
+        <div class="input-group-menu">
+    {% endif %}
+      <div class="name" style="color:red;">单笔返点 : </div>
+      <div id="self_medium_rebate_status_{{m.id}}">
+        <select name="self_medium_rebate_{{m.id}}" id="self_medium_rebate_{{m.id}}" class="surname" style="width:300px;" onchange="self_medium_rabate_change('{{m.id}}')">
+          <option value="0">无单笔返点</option>
+          <option value="1">有单笔返点</option>
+        </select>
+      </div>
+      <div id="self_medium_rebate_value_{{m.id}}" style="display:none;">
+        <input type="text" id="self_medium_rabate_value_{{m.id}}" name="self_medium_rabate_value_{{m.id}}" class="surname" style="width:300px;" value='0'>
+        <a class="btn btn-sm btn-default" onclick="default_medium_rebate('{{m.id}}')">取消返点</a>
+      </div>
+    </div>
+    <br/>
+    <br/>
+    {% endfor %}
+    <div class="state" style="margin-left:40%;">
+        {% if edit_order.contract_status in [1, 2] and client_order.can_admin(g.user) %}
+        <input type="submit" value="保存修改"></input>
+        {% endif %}
+    </div>
+</form>
+<script type="text/javascript">
+    Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+$(document).ready(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    var now_data = new Date()
+    var now_month_data = new Date(now_data.getFullYear(), now_data.getMonth(), 1)
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+      });
+    $("#client_end").change(function(e){
+      var endDate = new Date($('#client_end').val());
+      endDate.setDate(endDate.getDate() + 90); 
+      $('#reminde_date').val(endDate.Format("yyyy-MM-dd"))
+    });
+    $("#self_rebate").change(function(e){
+      var self_rebate = $('#self_rebate').val()
+      if(self_rebate==1){
+        $('#self_rebate_status').css('display', 'none');
+        $('#self_rebate_value').css('display', 'block');
+      }else{
+        $('#self_rebate_value').css('display', 'none');
+        $('#self_rebate_status').css('display', 'block');
+      }
+      set_default_rebate()
+    })
+    // 初始化代理单笔返点
+    {% if edit_order %}
+        var self_agent_rebate = "{{edit_order.self_agent_rebate}}";
+    {% else %}
+        var self_agent_rebate = "0-0"
+    {% endif %}
+    var p_self_agent_rebate = self_agent_rebate.split('-')
+    $('#self_rebate').val(p_self_agent_rebate[0]);
+    $('#self_rabate_value').val(p_self_agent_rebate[1]);
+    $("#self_rebate").trigger("chosen:updated");
+    if (p_self_agent_rebate[0] == '0'){
+      $('#self_rebate_value').css('display', 'none');
+      $('#self_rebate_status').css('display', 'block');
+    }else{
+      $('#self_rebate_value').css('display', 'block');
+      $('#self_rebate_status').css('display', 'none');
+    }
+    $('#agent').val('{{edit_order.agent.id}}')
+    $('#agent').trigger("chosen:updated");
+    $('#client').val('{{edit_order.client.id}}')
+    $('#client').trigger("chosen:updated");
+
+    var direct_sales = []
+    {% for o in edit_order.direct_sales %}
+         direct_sales.push(parseInt('{{o.id}}'))
+    {% endfor %}
+    $('#direct_sales').val(direct_sales)
+    $('#direct_sales').trigger("chosen:updated");
+
+    var agent_sales = []
+    {% for o in edit_order.agent_sales %}
+         agent_sales.push(parseInt('{{o.id}}'))
+    {% endfor %}
+    $('#agent_sales').val(agent_sales)
+    $('#agent_sales').trigger("chosen:updated");
+
+    var assistant_sales = []
+    {% for o in edit_order.assistant_sales %}
+         assistant_sales.push(parseInt('{{o.id}}'))
+    {% endfor %}
+    $('#assistant_sales').val(assistant_sales)
+    $('#assistant_sales').trigger("chosen:updated");
+
+    $('#contract_type').val('{{edit_order.contract_type}}')
+    $('#contract_type').trigger("chosen:updated");
+    $('#resource_type').val('{{edit_order.resource_type}}')
+    $('#resource_type').trigger("chosen:updated");
+    $('#sale_type').val('{{edit_order.sale_type}}')
+    $('#sale_type').trigger("chosen:updated");
+    $('#subject').val('{{edit_order.subject}}')
+    $('#subject').trigger("chosen:updated");
+
+    // 初始化媒体单笔返点
+    {% for m in edit_order.medium_orders %}
+       $('#medium_group_{{m.id}}').val("{{m.medium_group.id}}");
+       $('#medium_group_{{m.id}}').trigger("chosen:updated");
+       $('#media_{{m.id}}').val(parseInt('{{m.media.id}}'))
+       $('#media_{{m.id}}').trigger("chosen:updated");
+       var operaters = []
+       {% for o in m.operaters %}
+            operaters.push(parseInt('{{o.id}}'))
+       {% endfor %}
+       $('#operaters_{{m.id}}').val(operaters)
+       $('#operaters_{{m.id}}').trigger("chosen:updated");
+
+       var designers = []
+       {% for o in m.designers %}
+            designers.push(parseInt('{{o.id}}'))
+       {% endfor %}
+       $('#designers_{{m.id}}').val(designers)
+       $('#designers_{{m.id}}').trigger("chosen:updated");
+
+       var planers = []
+       {% for o in m.planers %}
+            planers.push(parseInt('{{o.id}}'))
+       {% endfor %}
+       $('#planers_{{m.id}}').val(planers)
+       $('#planers_{{m.id}}').trigger("chosen:updated");
+
+       var self_medium_rebate = "{{m.self_medium_rebate or '0-0'}}";
+       var p_self_medium_rebate = self_medium_rebate.split('-')
+       $('#self_medium_rebate_{{m.id}}').val(p_self_medium_rebate[0]);
+       $('#self_medium_rabate_value_{{m.id}}').val(p_self_medium_rebate[1]);
+       $('#self_medium_rebate_{{m.id}}').trigger("chosen:updated");
+       if (p_self_medium_rebate[0] == '0'){
+         $('#self_medium_rebate_value_{{m.id}}').css('display', 'none');
+         $('#self_medium_rebate_status_{{m.id}}').css('display', 'block');
+       }else{
+         $('#self_medium_rebate_value_{{m.id}}').css('display', 'block');
+         $('#self_medium_rebate_status_{{m.id}}').css('display', 'none');
+       }
+    {% endfor %}
+});
+function self_medium_rabate_change(id){
+      var self_rebate = $('#self_medium_rebate_'+id).val()
+      if(self_rebate==1){
+        $('#self_medium_rebate_status_'+id).css('display', 'none');
+        $('#self_medium_rebate_value_'+id).css('display', 'block');
+        set_default_medium_rebate(id)
+      }else{
+        $('#self_medium_rebate_value_'+id).css('display', 'none');
+        $('#self_medium_rebate_status_'+id).css('display', 'block');
+      }
+  }
+function default_medium_rebate(id){
+    $('#self_medium_rebate_'+id).val(0);
+    $('#self_medium_rabate_value_'+id).val('0.0');
+    $('#self_medium_rebate_'+id).trigger("chosen:updated");
+    $('#self_medium_rebate_value_'+id).css('display', 'none');
+    $('#self_medium_rebate_status_'+id).css('display', 'block');
+ }
+function set_default_rebate(){
+  $.ajax({
+    type: 'POST',
+    url: "/clients/agent/get_rebate_json",
+    data: {'agent_id':$('#agent').val(), 'year': $('#client_start').val()},
+    dataType: 'json',
+    success:function(data) {
+        var rebate = data['rebate'];
+        var money = $('#money').val();
+        var rebate_money = parseFloat(rebate / 100) * parseFloat(money)
+        $('#self_rabate_value').val(parseInt(rebate_money))
+    }
+  });
+}
+function set_default_medium_rebate(id){
+    $.ajax({
+      type: 'POST',
+      url: "/clients/medium/get_rebate_json",
+      data: {'medium_order_id':id},
+      dataType: 'json',
+      success:function(data) {
+          $('#self_medium_rabate_value_'+id).val(data['rebate']);
+      }
+    });
+  }
+function default_rebate(){
+    $('#self_rebate').val(0);
+    $('#self_rabate_value').val('0');
+    $("#self_rebate").trigger("chosen:updated");
+    $('#self_rebate_value').css('display', 'none');
+    $('#self_rebate_status').css('display', 'block');
+}
+</script>
+{%- endmacro %}
+{% macro order_edit_client_create_form(client_order, medium_groups, medias, salers, operaters, designers, planers, agents, clients) -%}
+<style type="text/css">
+    .input-red {
+        border: 2px solid red;
+        border-radius: 5px;
+    }
+</style>
+<h5>
+    客户订单
+</h5>
+<hr/>
+<form class="input-row-box" method="POST">
+    <div class="input-group-menu">
+        <div class="name">
+            代理/直客(甲方全称):
+        </div>
+        <select class="surname" id='agent' name="agent" style="width:300px;">
+            {% for a in agents %}
+                <option value="{{a.id}}">{{a.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            客户名称:
+        </div>
+        <select class="surname" id='client' name="client" style="width:300px;">
+            {% for a in clients %}
+                <option value="{{a.id}}">{{a.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            Campaign名称:
+        </div>
+        <input class="surname" style="width:300px;" type="text" id="campaign" name="campaign" value="{{client_order.campaign}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            我方签约主体:
+        </div>
+        <select class="surname" id='subject' name="subject" style="width:300px;">
+            <option value="1">上海致趣</option>
+            <option value="2">北京知趣</option>
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            合同金额(元):
+        </div>
+        <input class="surname" style="width:300px;" type="text" id="money" name="money" value="{{client_order.money}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            执行开始 :
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" id="client_start" name="client_start" style="width:300px;" type="text" value="{{client_order.start_date_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            执行结束 :
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" id="client_end" name="client_end" style="width:300px;" type="text" value="{{client_order.end_date_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            回款日期 :
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" id="reminde_date" name="reminde_date" style="width:300px;" type="text" value="{{client_order.reminde_date_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            直客销售:
+        </div>
+        <select class="surname" id='direct_sales' name="direct_sales" style="width:300px;" multiple>
+            {% for u in salers %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            渠道销售:
+        </div>
+        <select class="surname" id='agent_sales' name="agent_sales" style="width:300px;" multiple>
+            {% for u in salers %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            销售助理:
+        </div>
+        <select class="surname" id='assistant_sales' name="assistant_sales" style="width:300px;" multiple>
+            {% for u in salers %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            合同模板类型:
+        </div>
+        <select class="surname" id="contract_type" name="contract_type" placeholder="合同模板类型" style="width: 300px; display: none;">
+            <option selected="" value="0">标准</option>
+            <option value="1">非标</option>
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            售卖类型:
+        </div>
+        <select class="surname" id="resource_type" name="resource_type" placeholder="售卖类型" style="width: 300px; display: none;"><option selected="" value="0">硬广</option><option value="1">互动</option><option value="4">其他</option></select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            代理/直客:
+        </div>
+        <select class="surname" id="sale_type" name="sale_type" placeholder="代理/直客" style="width: 300px; display: none;"><option selected="" value="0">代理</option><option value="1">直客</option></select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name" style="color:red;">
+            单笔返点 :
+        </div>
+        <div id="self_rebate_status">
+            <select class="surname" id="self_rebate" name="self_rebate" style="width:300px;">
+                <option value="0">
+                    无单笔返点
+                </option>
+                <option value="1">
+                    有单笔返点
+                </option>
+            </select>
+        </div>
+        <div id="self_rebate_value" style="display:none;">
+            <input class="surname" id="self_rabate_value" name="self_rabate_value" style="width:300px;" type="text" value="0">
+                <a class="btn btn-sm btn-default" onclick="default_rebate()">
+                    取消返点
+                </a>
+            </input>
+        </div>
+    </div>
+    <div class="input-group-menu">
+        <div class="name" style="color:red;">
+            单笔返点的说明 :
+        </div>
+        <div class="name" style="color:red; width:400px;">
+            项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
+        </div>
+    </div>
+    <hr style="margin-top: 60px;"/>
+    {% for m in client_order.medium_orders %}
+    <h5>
+        媒体订单-{{m.medium_group.name}}-{{m.media.name}}
+    </h5>
+    <hr/>
+    <div class="input-group-menu">
+        <div class="name">
+            媒体供应商:
+        </div>
+        <select class="surname" id='medium_group_{{m.id}}' name="medium_group_{{m.id}}" style="width:300px;">
+            {% for mg in medium_groups %}
+                <option value="{{mg.id}}">{{mg.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            投放媒体:
+        </div>
+        <select class="surname" id='media_{{m.id}}' name="media_{{m.id}}" style="width:300px;">
+            {% for mg in medias %}
+                <option value="{{mg.id}}">{{mg.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            售卖金额:
+        </div>
+        <input class="surname" style="width:300px;" type="text" value="{{m.sale_money}}" id='sale_money_{{m.id}}' name="sale_money_{{m.id}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            媒体金额:
+        </div>
+        <input class="surname" style="width:300px;" type="text" value="{{m.medium_money2}}" id='medium_money2_{{m.id}}' name="medium_money2_{{m.id}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            预估量（CPM）:
+        </div>
+        <input class="surname" style="width:300px;" type="text" value="{{m.sale_CPM}}" id='sale_CPM_{{m.id}}' name="sale_CPM_{{m.id}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            实际量（CPM）:
+        </div>
+        <input class="surname" style="width:300px;" type="text" value="{{m.medium_CPM}}" id='medium_CPM_{{m.id}}' name="medium_CPM_{{m.id}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            执行开始:
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" style="width:300px;" type="text" value="{{m.start_date_cn}}" id='medium_start_{{m.id}}' name="medium_start_{{m.id}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            执行结束:
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" style="width:300px;" type="text" value="{{m.end_date_cn}}" id='medium_end_{{m.id}}' name="medium_end_{{m.id}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            执行人员:
+        </div>
+        <select class="surname" id='operaters_{{m.id}}' name="operaters_{{m.id}}" style="width:300px;" multiple>
+            {% for u in operaters %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            设计人员:
+        </div>
+        <select class="surname" id='designers_{{m.id}}' name="designers_{{m.id}}" style="width:300px;" multiple>
+            {% for u in designers %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            策划人员:
+        </div>
+        <select class="surname" id='planers_{{m.id}}' name="planers_{{m.id}}" style="width:300px;" multiple>
+            {% for u in planers %}
+                <option value="{{u.id}}">{{u.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group-menu">
+      <div class="name" style="color:red;">单笔返点 : </div>
+      <div id="self_medium_rebate_status_{{m.id}}">
+        <select name="self_medium_rebate_{{m.id}}" id="self_medium_rebate_{{m.id}}" class="surname" style="width:300px;" onchange="self_medium_rabate_change('{{m.id}}')">
+          <option value="0">无单笔返点</option>
+          <option value="1">有单笔返点</option>
+        </select>
+      </div>
+      <div id="self_medium_rebate_value_{{m.id}}" style="display:none;">
+        <input type="text" id="self_medium_rabate_value_{{m.id}}" name="self_medium_rabate_value_{{m.id}}" class="surname" style="width:300px;" value='0'>
+        <a class="btn btn-sm btn-default" onclick="default_medium_rebate('{{m.id}}')">取消返点</a>
+      </div>
+    </div>
+    <br/>
+    <br/>
+    {% endfor %}
+    <div class="state" style="margin-left:40%;">
+        <input type="submit" value="确认修改">
+        </input>
+    </div>
+</form>
+<script type="text/javascript">
+    Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+$(document).ready(function(){
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    var now_data = new Date()
+    var now_month_data = new Date(now_data.getFullYear(), now_data.getMonth(), 1)
+    $('.datetimepicker').datetimepicker({
+        autoclose: true,
+        todayHighlight: true,
+        language: 'zh-CN',
+        minView: 2
+      });
+    $("#client_end").change(function(e){
+      var endDate = new Date($('#client_end').val());
+      endDate.setDate(endDate.getDate() + 90); 
+      $('#reminde_date').val(endDate.Format("yyyy-MM-dd"))
+    });
+    $("#self_rebate").change(function(e){
+      var self_rebate = $('#self_rebate').val()
+      if(self_rebate==1){
+        $('#self_rebate_status').css('display', 'none');
+        $('#self_rebate_value').css('display', 'block');
+      }else{
+        $('#self_rebate_value').css('display', 'none');
+        $('#self_rebate_status').css('display', 'block');
+      }
+      set_default_rebate()
+    })
+    // 初始化代理单笔返点
+    {% if client_order %}
+        var self_agent_rebate = "{{client_order.self_agent_rebate}}";
+    {% else %}
+        var self_agent_rebate = "0-0"
+    {% endif %}
+    var p_self_agent_rebate = self_agent_rebate.split('-')
+    $('#self_rebate').val(p_self_agent_rebate[0]);
+    $('#self_rabate_value').val(p_self_agent_rebate[1]);
+    $("#self_rebate").trigger("chosen:updated");
+    if (p_self_agent_rebate[0] == '0'){
+      $('#self_rebate_value').css('display', 'none');
+      $('#self_rebate_status').css('display', 'block');
+    }else{
+      $('#self_rebate_value').css('display', 'block');
+      $('#self_rebate_status').css('display', 'none');
+    }
+    $('#agent').val('{{client_order.agent.id}}')
+    $('#agent').trigger("chosen:updated");
+    $('#client').val('{{client_order.client.id}}')
+    $('#client').trigger("chosen:updated");
+    $('#subject').val('{{client_order.subject}}')
+    $('#subject').trigger("chosen:updated");
+
+    var direct_sales = []
+    {% for o in client_order.direct_sales %}
+         direct_sales.push(parseInt('{{o.id}}'))
+    {% endfor %}
+    $('#direct_sales').val(direct_sales)
+    $('#direct_sales').trigger("chosen:updated");
+
+    var agent_sales = []
+    {% for o in client_order.agent_sales %}
+         agent_sales.push(parseInt('{{o.id}}'))
+    {% endfor %}
+    $('#agent_sales').val(agent_sales)
+    $('#agent_sales').trigger("chosen:updated");
+
+    var assistant_sales = []
+    {% for o in client_order.assistant_sales %}
+         assistant_sales.push(parseInt('{{o.id}}'))
+    {% endfor %}
+    $('#assistant_sales').val(assistant_sales)
+    $('#assistant_sales').trigger("chosen:updated");
+
+    $('#contract_type').val('{{client_order.contract_type}}')
+    $('#contract_type').trigger("chosen:updated");
+    $('#resource_type').val('{{client_order.resource_type}}')
+    $('#resource_type').trigger("chosen:updated");
+    $('#sale_type').val('{{client_order.sale_type}}')
+    $('#sale_type').trigger("chosen:updated");
+
+    // 初始化媒体单笔返点
+    {% for m in client_order.medium_orders %}
+       $('#medium_group_{{m.id}}').val("{{m.medium_group.id}}");
+       $('#medium_group_{{m.id}}').trigger("chosen:updated");
+       $('#media_{{m.id}}').val(parseInt('{{m.media.id}}'))
+       $('#media_{{m.id}}').trigger("chosen:updated");
+       var operaters = []
+       {% for o in m.operaters %}
+            operaters.push(parseInt('{{o.id}}'))
+       {% endfor %}
+       $('#operaters_{{m.id}}').val(operaters)
+       $('#operaters_{{m.id}}').trigger("chosen:updated");
+
+       var designers = []
+       {% for o in m.designers %}
+            designers.push(parseInt('{{o.id}}'))
+       {% endfor %}
+       $('#designers_{{m.id}}').val(designers)
+       $('#designers_{{m.id}}').trigger("chosen:updated");
+
+       var planers = []
+       {% for o in m.planers %}
+            planers.push(parseInt('{{o.id}}'))
+       {% endfor %}
+       $('#planers_{{m.id}}').val(planers)
+       $('#planers_{{m.id}}').trigger("chosen:updated");
+
+       var self_medium_rebate = "{{m.self_medium_rebate or '0-0'}}";
+       var p_self_medium_rebate = self_medium_rebate.split('-')
+       $('#self_medium_rebate_{{m.id}}').val(p_self_medium_rebate[0]);
+       $('#self_medium_rabate_value_{{m.id}}').val(p_self_medium_rebate[1]);
+       $('#self_medium_rebate_{{m.id}}').trigger("chosen:updated");
+       if (p_self_medium_rebate[0] == '0'){
+         $('#self_medium_rebate_value_{{m.id}}').css('display', 'none');
+         $('#self_medium_rebate_status_{{m.id}}').css('display', 'block');
+       }else{
+         $('#self_medium_rebate_value_{{m.id}}').css('display', 'block');
+         $('#self_medium_rebate_status_{{m.id}}').css('display', 'none');
+       }
+    {% endfor %}
+});
+function self_medium_rabate_change(id){
+      var self_rebate = $('#self_medium_rebate_'+id).val()
+      if(self_rebate==1){
+        $('#self_medium_rebate_status_'+id).css('display', 'none');
+        $('#self_medium_rebate_value_'+id).css('display', 'block');
+        set_default_medium_rebate(id)
+      }else{
+        $('#self_medium_rebate_value_'+id).css('display', 'none');
+        $('#self_medium_rebate_status_'+id).css('display', 'block');
+      }
+  }
+function default_medium_rebate(id){
+    $('#self_medium_rebate_'+id).val(0);
+    $('#self_medium_rabate_value_'+id).val('0.0');
+    $('#self_medium_rebate_'+id).trigger("chosen:updated");
+    $('#self_medium_rebate_value_'+id).css('display', 'none');
+    $('#self_medium_rebate_status_'+id).css('display', 'block');
+ }
+function set_default_rebate(){
+  $.ajax({
+    type: 'POST',
+    url: "/clients/agent/get_rebate_json",
+    data: {'agent_id':$('#agent').val(), 'year': $('#client_start').val()},
+    dataType: 'json',
+    success:function(data) {
+        var rebate = data['rebate'];
+        var money = $('#money').val();
+        var rebate_money = parseFloat(rebate / 100) * parseFloat(money)
+        $('#self_rabate_value').val(parseInt(rebate_money))
+    }
+  });
+}
+function set_default_medium_rebate(id){
+    $.ajax({
+      type: 'POST',
+      url: "/clients/medium/get_rebate_json",
+      data: {'medium_order_id':id},
+      dataType: 'json',
+      success:function(data) {
+          $('#self_medium_rabate_value_'+id).val(data['rebate']);
+      }
+    });
+  }
+function default_rebate(){
+    $('#self_rebate').val(0);
+    $('#self_rabate_value').val('0');
+    $("#self_rebate").trigger("chosen:updated");
+    $('#self_rebate_value').css('display', 'none');
+    $('#self_rebate_status').css('display', 'block');
+}
+</script>
+{%- endmacro %}
+
+{% macro order_show_client_form(client_order) -%}
+<h5>
+    <a href="{{url_for('order.order_info', order_id=client_order.id, tab_id=1)}}" target="_blank" title="跳回到原始订单">客户订单</a>
+</h5>
+<hr/>
+<div class="input-row-box">
+    <div class="input-group-menu">
+        <div class="name">
+            代理/直客(甲方全称):
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.agent.name}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            客户名称:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.client.name}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            Campaign名称:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.campaign}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            我方签约主体:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.subject_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            合同金额(元):
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.money}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            执行开始 :
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" style="width:300px;" type="text" value="{{client_order.start_date_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            执行结束 :
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" style="width:300px;" type="text" value="{{client_order.end_date_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            回款日期 :
+        </div>
+        <input class="datetimepicker surname" data-date-format="yyyy-mm-dd" style="width:300px;" type="text" value="{{client_order.reminde_date_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            直客销售:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.direct_sales|map(attribute='name')|join(',')}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            渠道销售:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.agent_sales|map(attribute='name')|join(',')}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            销售助理:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.assistant_sales|map(attribute='name')|join(',')}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            合同模板类型:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.contract_type_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            售卖类型::
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.resource_type_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            代理/直客
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{client_order.sale_type_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name" style="color:red;">
+            单笔返点
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{% if client_order.self_agent_rebate_value.status|int %} {{client_order.self_agent_rebate_value.value}} {% else %} 无单笔返点 {% endif %}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name" style="color:red;">
+            单笔返点的说明 :
+        </div>
+        <div class="name" style="color:red; width:400px;">
+            项目返点金额与代理框架约定不一致，或者与代理无返点框架，单笔商定返点的在此处填写返点金额（不是百分比）。
+        </div>
+    </div>
+    <hr style="margin-top: 60px;"/>
+    {% for m in client_order.medium_orders %}
+    <h5>
+        媒体订单-{{m.medium_group.name}}-{{m.media.name}}
+    </h5>
+    <hr/>
+    <div class="input-group-menu">
+        <div class="name">
+            媒体供应商:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.medium_group.name}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            投放媒体:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.media.name}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            售卖金额:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.sale_money}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            媒体金额:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.medium_money2}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            预估量（CPM）:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.sale_CPM}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            实际量（CPM）:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.medium_CPM}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            执行开始:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.start_date_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            执行结束:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.end_date_cn}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            执行人员:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.operaters|map(attribute='name')|join(',')}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            设计人员:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.designers|map(attribute='name')|join(',')}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name">
+            策划人员:
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{{m.planers|map(attribute='name')|join(',')}}"/>
+    </div>
+    <div class="input-group-menu">
+        <div class="name" style="color:red;">
+            单笔返点
+        </div>
+        <input class="surname" readonly="readonly" style="width:300px;" type="text" value="{% if m.self_medium_rebate_value.status|int %} {{m.self_medium_rebate_value.value}} {% else %} 无单笔返点 {% endif %}"/>
+    </div>
+    <br/>
+    <br/>
+    {% endfor %}
+    <div class="state" style="margin-left:40%;">
+    </div>
+</div>
+{%- endmacro %}

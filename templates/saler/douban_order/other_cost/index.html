@@ -7,7 +7,7 @@
     <div class="tab-content">
       <div class="tab-pane active" id="tab-2">
         <div class="container" style="width:100%;">
-          <h4>尚典外包详情</h4>
+          <h4>外包详情</h4>
           <div class='tabulation'>
             <table border='1'>
               <thead>
@@ -150,7 +150,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-sm btn-default contract-submit" data-dismiss="modal">取消</button>
-            {% if g.user.is_super_leader() %}
+            {% if g.user.is_super_leader() or g.user.is_operater_leader() %}
             <button class="btn btn-sm btn-primary contract-submit" type="submit" name="action">保存</button>
             {% endif %}
         </div>

@@ -36,28 +36,50 @@
                     <th>2014年返点</th>
                     <th>2015年返点</th>
                     <th>2016年返点</th>
-                      {% if not g.user.is_finance() %}
-                      <th>操作</th>
-                      {% endif %}
+                    <th>操作</th>
+                    <th>所属媒体</th>
+                    <th>2014年返点</th>
+                    <th>2015年返点</th>
+                    <th>2016年返点</th>
                     {% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% for a in agents %}
-                <tr>
-                    <td>{{a.id}}</td>
-                    <td><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
-                    <td><a href="{{url_for("client.group_detail", group_id=a.group_id)}}">{{a.group_name}}</a></td>
-                    {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_finance() %}
-                        <td>{{a.rebate_2014}}</td>
-                        <td>{{a.rebate_2015}}</td>
-                        <td>{{a.rebate_2016}}</td>
-                        {% if not g.user.is_finance() %}
-                        <td><a href="{{url_for('client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
-                        {% endif %}
-                    {% endif %}
-                </tr>
-                {% endfor %}
+                {% if g.user.is_contract() or g.user.is_super_leader() or g.user.is_finance() %}
+                    {% for a in agents %}
+                    <tr>
+                        <td rowspan="{{a.mediums_rebate|length + 1}}">{{a.id}}</td>
+                        <td rowspan="{{a.mediums_rebate|length + 1}}"><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
+                        <td rowspan="{{a.mediums_rebate|length + 1}}"><a href="{{url_for("client.group_detail", group_id=a.group_id)}}">{{a.group_name}}</a></td>
+                            <td rowspan="{{a.mediums_rebate|length + 1}}">{{a.rebate_2014}}</td>
+                            <td rowspan="{{a.mediums_rebate|length + 1}}">{{a.rebate_2015}}</td>
+                            <td rowspan="{{a.mediums_rebate|length + 1}}">{{a.rebate_2016}}</td>
+                            <td rowspan="{{a.mediums_rebate|length + 1}}"><a href="{{url_for('client.agent_rebate', agent_id=a.id)}}">设置返点</a></td>
+                            {% if not a.mediums_rebate %}
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                              <td></td>
+                            {% endif %}
+                    </tr>
+                      {% for m in a.mediums_rebate %}
+                        <tr>
+                          <td>{{m.name}}</td>
+                          <td>{{m.rebate_2014}}</td>
+                          <td>{{m.rebate_2015}}</td>
+                          <td>{{m.rebate_2016}}</td>
+                        </tr>
+                      {% endfor %}
+                    {% endfor %}
+                {% else %}
+                    {% for a in agents %}
+                        <tr>
+                            <td>{{a.id}}</td>
+                            <td><a href="{{url_for("client.agent_detail", agent_id=a.id)}}">{{a.name}}</a></td>
+                            <td><a href="{{url_for("client.group_detail", group_id=a.group_id)}}">{{a.group_name}}</a></td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
             </tbody>
         </table>
     </div>
