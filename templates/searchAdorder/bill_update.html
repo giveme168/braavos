@@ -82,7 +82,11 @@
     		obj.rebate_money.focus();
     		return false
     	}else{
-    		return true
+    		var flag=confirm("确定要修改这条对账单吗?");
+            if(flag){
+                return true
+            }
+            return false
     	}
     }
     $(function(){
