@@ -106,7 +106,7 @@ def index():
             edit_objs.append([last, now])
         for m in order.medium_orders:
             prim_order_data = json.loads(m.prim_order_data)
-            edit_objs.append(['%s-%s合同修改项:' % (m.medium_group.name, m.media.name), '', 'col'])
+            edit_objs.append(['%s-%s媒体合同修改项:' % (m.medium_group.name, m.media.name), '', 'col'])
             if m.medium_group.id != prim_order_data['medium_group_id']:
                 last = u'媒体供应商：' + prim_order_data['medium_group_cn']
                 now = u'媒体供应商：' + m.medium_group.name

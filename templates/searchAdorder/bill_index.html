@@ -20,7 +20,7 @@
         <tbody>
             {% for k in data %}
             <tr>
-                <td><a href="{{url_for('searchAd_order.bill_update', bid=k.id)}}">{{k.company}}</a></td>
+                <td><a href="{{url_for('searchAd_order.bill_update', bid=k.id)}}">{{k.company_cn}}</a></td>
                 <td>{{k.client.name}}</td>
                 <td>{{k.medium.name}}</td>
                 <td>{{k.resource_type_cn}}</td>

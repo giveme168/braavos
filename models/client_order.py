@@ -1488,9 +1488,9 @@ by %s\n
             # 计算媒体返点
             if medium_rebate_data:
                 try:
-                    self_medium_rebate_data = m.self_medium_rebate
-                    self_medium_rebate = self_medium_rebate_data.split('-')[0]
-                    self_medium_rebate_value = float(self_medium_rebate_data.split('-')[1])
+                    self_medium_rebate_rate = m.self_medium_rebate
+                    self_medium_rebate = self_medium_rebate_rate.split('-')[0]
+                    self_medium_rebate_value = float(self_medium_rebate_rate.split('-')[1])
                 except:
                     self_medium_rebate = 0
                     self_medium_rebate_value = 0
@@ -1498,11 +1498,11 @@ by %s\n
                     dict_m['medium_rebate_data'] = self_medium_rebate_value
                 else:
                     # 是否有媒体供应商针对媒体的特殊返点
-                    medium_rebate_data = [k.rebate for k in m.media.medium_group_media_rebate_media
-                                          if m.medium_start.year == k.year.year and
-                                          m.medium_group.id == k.medium_group_id]
-                    if medium_rebate_data:
-                        medium_rebate = medium_rebate_data[0]
+                    self_medium_rebate_rate = [k.rebate for k in m.media.medium_group_media_rebate_media
+                                               if m.medium_start.year == k.year.year and
+                                               m.medium_group.id == k.medium_group_id]
+                    if self_medium_rebate_rate:
+                        medium_rebate = self_medium_rebate_rate[0]
                     else:
                         # 是否有媒体供应商返点
                         medium_group_rebate = [k.rebate for k in m.medium_group.medium_group_rebate
