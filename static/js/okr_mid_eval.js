@@ -21,14 +21,12 @@ $(document).ready(function(){
             for (var i = 0; i < okrs.length; i++){
                 okr = okrs[i],
                 okrData = {};
-
-                okrData['objective']=$('.okr_item').find('.edit_objective_area').val();
-                okrData['priority'] = $('.okr_item').find('.target').html();
-                okrData['mid_eval_o'] = $('.okr_item').find('#mid_eval').val();
+                okrData['objective']=$(okr).find('.edit_objective_area').val();
+                okrData['priority'] = $(okr).find('.target').html();
+                okrData['mid_eval_o'] = $(okr).find('#mid_eval').val();
                 okrData['kr_items'] = [];
                 var items=$(okr).find($('.okr_item')),
                     len = items.length;
-                console.log(okrData)
                 if(len>0){
                     for(var k=0; k<len; k++){
                         item = items[k],

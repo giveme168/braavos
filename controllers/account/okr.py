@@ -224,6 +224,7 @@ def mid_evaluate(user_id, lid):
         o_kr = json.loads(okr_json)
         status = int(o_kr['status'])
         okrtext = json.dumps(o_kr['okrs'])
+        print okrtext
         okr_update = Okr.query.get(lid)
         okr_update.status = status
         okr_update.o_kr = okrtext

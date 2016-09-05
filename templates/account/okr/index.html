@@ -49,7 +49,6 @@
                                 <a href="{{ url_for('account_okr.mid_evaluate', user_id=g.user.id, lid=l.id) }}">中期评价</a><br/>
                              {% elif l.status == 5 %}
                                 <a href="{{ url_for('account_okr.mid_evaluate', user_id=g.user.id, lid=l.id) }}">修改</a><br/>
-                                <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=6">发送申请</a>
                                 <br>
                              {% elif l.status == 6 %}
                                 <a href="{{ url_for('account_okr.final_evaluate', user_id=g.user.id, lid=l.id) }}">季度评价</a><br/>
