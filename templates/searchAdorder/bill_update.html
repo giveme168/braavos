@@ -57,8 +57,10 @@
 	      <div class="name">对应返点金额 : </div>
 	      <input type="text" id="rebate_money" name="rebate_money" class="surname" style="width:300px;" value="{{bill.rebate_money}}">
 	    </div>
-	    <div class="state" style="margin-left:40%;">
-	        <input type="submit" value="保存">
+	    <div class="state" style="margin-left:30%;">
+            <a href="{{url_for('searchAd_order.bill_index')}}"><input type="button" value="返回"></a>
+	        <input type="submit" value="保存" style="margin-left:100px;">
+            
 	    </div>
 	</form>
 	<div>{{ comments_box(bill, msg_channel=12, text=False) }}</div>
