@@ -1112,3 +1112,11 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
     def company_cn(self):
         from .client import searchAdAgent
         return searchAdAgent.get(self.company).name
+
+    @property
+    def start_cn(self):
+        return self.start.strftime('%Y-%m-%d')
+
+    @property
+    def end_cn(self):
+        return self.end.strftime('%Y-%m-%d')

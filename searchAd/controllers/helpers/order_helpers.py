@@ -29,8 +29,8 @@ def write_searchAd_client_bill_excel(data):
         worksheet.write(th, 1, data[k].client.name, align_left)
         worksheet.write(th, 2, data[k].medium.name, align_left)
         worksheet.write(th, 3, data[k].resource_type_cn, align_left)
-        worksheet.write(th, 4, data[k].start, align_left)
-        worksheet.write(th, 5, data[k].end, align_left)
+        worksheet.write(th, 4, data[k].start_cn, align_left)
+        worksheet.write(th, 5, data[k].end_cn, align_left)
         worksheet.write(th, 6, data[k].money, money_align_left)
         worksheet.write(th, 7, data[k].rebate_money, money_align_left)
         th += 1
