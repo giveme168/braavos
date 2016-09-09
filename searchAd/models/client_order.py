@@ -2,6 +2,7 @@
 import datetime
 from flask import url_for, g, json
 from models import db, BaseModelMixin
+from models.invoice import ClientMediumInvoice
 from models.mixin.comment import CommentMixin
 from models.mixin.attachment import AttachmentMixin
 from models.attachment import ATTACHMENT_STATUS_PASSED, ATTACHMENT_STATUS_REJECT
@@ -14,8 +15,7 @@ from libs.mail import mail
 from libs.date_helpers import get_monthes_pre_days
 
 from .invoice import searchAdInvoice, searchAdMediumInvoice, searchAdMediumInvoicePay, searchAdAgentInvoice, \
-    searchAdAgentInvoicePay, searchAdMediumRebateInvoice
-
+    searchAdAgentInvoicePay, searchAdMediumRebateInvoice, searchAdBillInvoice
 
 CONTRACT_TYPE_NORMAL = 0
 CONTRACT_TYPE_SPECIAL = 1
@@ -348,7 +348,7 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     def get_medium_rebate_invoice_pass_money(self):
         return sum([invoice.money for invoice in searchAdMediumRebateInvoice.query.filter_by(client_order_id=self.id,
                                                                                      invoice_status=0)])
-        
+
     @property
     def medium_ids(self):
         return [x.medium.id for x in self.medium_orders]
@@ -1093,6 +1093,8 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
     rebate_money = db.Column(db.Float(), default=0.0)
     start = db.Column(db.Date)
     end = db.Column(db.Date)
+    invoice_pass_sum = db.Column(db.Float(), default=0.0)
+    invoice_apply_sum = db.Column(db.Float(), default=0.0)
 
     def __init__(self, company, client, medium, resource_type, money, rebate_money, start=None, end=None):
         self.company = company
@@ -1112,3 +1114,51 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
     def company_cn(self):
         from .client import searchAdAgent
         return searchAdAgent.get(self.company).name
+
+    @property
+    def name(self):
+        return u"%s-%s" % (self.client.name, self.medium.name)
+
+    @property
+    def email_info(self):
+        return u"""
+            类型: 效果业务-对账单
+            媒体供应商: %s
+            广告主: %s
+            投放媒体: %s
+            推广类型: %s
+            结算开始时间:%s
+            结算截止时间: %s
+            实际消耗金额: %s
+            对应返点金额: %s
+            """ % (self.company, self.client.name, self.medium.name, self.resource_type_cn,str(self.start),str(self.end),self.money,self.rebate_money)
+
+    def get_invoice_by_status(self, type):
+        return [invoice for invoice in self.client_order_bill_invoice if invoice.invoice_status == type]
+
+    @property
+    def invoice_pass_sum(self):
+        return sum([k.money for k in searchAdBillInvoice.query.filter_by(client_order_bill_id=self.id)
+                    if k.invoice_status == 0])
+
+    @property
+    def invoice_apply_sum(self):
+        return sum([k.money for k in searchAdBillInvoice.query.filter_by(client_order_bill_id=self.id)
+                    if k.invoice_status == 3])
+
+
+    def can_admin(self, user):
+        return True
+        """是否可以修改该订单"""
+        # todo:权限待修改
+        # salers = []self + self.agent_sales + self.replace_sales + self.assistant_sales
+        # salers = []
+        # leaders = []
+        # for k in salers:
+        #     leaders += k.team_leaders
+        # admin_users = salers + [self.creator] + list(set(leaders))
+        return user.is_leader() or user.is_contract() or user.is_media() or\
+            user.is_media_leader() \
+                or user.is_searchad_member()
+               # or user in admin_users
+

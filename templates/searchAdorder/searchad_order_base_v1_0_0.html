@@ -32,29 +32,33 @@
     </div>
 </div>
 <script>
-    $(function(){
+    $(function() {
         var pathname = window.location.pathname;
         var p_pathname = pathname.split('/')
-        if (p_pathname[3] == 'data_query'){
-            if (p_pathname[2] == 'searchAd_rebate_order'){
+        if (p_pathname[3] == 'data_query') {
+            if (p_pathname[2] == 'searchAd_rebate_order') {
                 $('#_searchAd_rebate_order_data_query_').addClass("active");
-            }else{
-                $('#_'+p_pathname[3]+'_').addClass("active");
-            }
-            
-        }else{
-            $('#_'+p_pathname[2]+'_').addClass("active");
-            if(['order', 'searchAd_order', 'new_order'].indexOf(p_pathname[2]) >= 0 ){
-                $('#_my_orders_').addClass("active");
-            }
-            if(['searchAd_rebate_order', 'rebate_order'].indexOf(p_pathname[2]) >= 0 ){
-                $('#_my_rebate_orders_').addClass("active");
-            }
-            if(['framework_order', 'new_framework_order'].indexOf(p_pathname[2]) >= 0 ){
-                $('#_my_framework_orders_').addClass("active");
+            } else {
+                $('#_' + p_pathname[3] + '_').addClass("active");
             }
         }
-        
+        else {
+            $('#_' + p_pathname[2] + '_').addClass("active");
+            if (['order', 'searchAd_order', 'new_order'].indexOf(p_pathname[2]) >= 0) {
+                $('#_my_orders_').addClass("active");
+            }
+            if (['searchAd_rebate_order', 'rebate_order'].indexOf(p_pathname[2]) >= 0) {
+                $('#_my_rebate_orders_').addClass("active");
+            }
+            if (['framework_order', 'new_framework_order'].indexOf(p_pathname[2]) >= 0) {
+                $('#_my_framework_orders_').addClass("active");
+            }
+{#            todo:待修改#}
+            if('bill_invoice' == p_pathname[3] )
+            {
+                $('#_bill_').addClass("active");
+            }
+        }
     })
 
 </script>

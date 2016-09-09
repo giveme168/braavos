@@ -308,6 +308,10 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
                 cls.gets_by_team_type(TEAM_TYPE_SEARCH_AD_LEADER))
 
     @classmethod
+    def searchAd_leaders(cls):
+        return (cls.gets_by_team_type(TEAM_TYPE_SEARCH_AD_LEADER))
+
+    @classmethod
     def contracts(cls):
         return cls.gets_by_team_type(TEAM_TYPE_CONTRACT)
 
