@@ -6,10 +6,10 @@
     <table border='1'>
         <thead>
             <tr>
-                <th>所属公司</th>
-                <th>所属客户</th>
-                <th>所属媒体</th>
-                <th>资源形式</th>
+                <th>媒体供应商</th>
+                <th>广告主</th>
+                <th>投放媒体</th>
+                <th>推广类型</th>
                 <th>结算开始时间</th>
                 <th>结算截止时间</th>
                 <th>实际消耗金额</th>
@@ -24,8 +24,8 @@
                 <td>{{k.client.name}}</td>
                 <td>{{k.medium.name}}</td>
                 <td>{{k.resource_type_cn}}</td>
-                <td>{{k.start}}</td>
-                <td>{{k.end}}</td>
+                <td>{{k.start_cn}}</td>
+                <td>{{k.end_cn}}</td>
                 <td>{{k.money|format_price}}</td>
                 <td>{{k.rebate_money|format_price}}</td>
                 <td>
@@ -47,6 +47,14 @@
             <div class="search-input">
                 <input type="text" placeholder="所属公司" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
                 <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">年度</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                        <option value="{{k + 2014}}">{{k + 2014}}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div class="select_option">
                 <label for="sale_type" class="control-label">客户</label>
@@ -75,6 +83,9 @@
                     <input type="button" value="添加">
                 </a>
             </div>
+            <div class="select_option return">
+                <input type="button" value="下载" onclick="javascript:download();">
+            </div>
         </form>
     </div>
     {{ all_items(bills.object_list) }}
@@ -83,7 +94,12 @@
 </div>
 <script>
 function search(){
-    var params = '?client=' + $('#client').val() + '&medium=' + $('#medium').val() + '&search_info='+ $('#search_info').val();
+    var params = '?client=' + $('#client').val() + '&medium=' + $('#medium').val() + '&search_info='+ $('#search_info').val() + '&year=' + $('#year').val();
+    window.location.href = window.location.pathname + params;
+}
+
+function download(){
+    var params = '?client=' + $('#client').val() + '&medium=' + $('#medium').val() + '&search_info='+ $('#search_info').val() + '&year=' + $('#year').val()+'&action=excel';
     window.location.href = window.location.pathname + params;
 }
 
@@ -105,6 +121,8 @@ $(function(){
     $("#client").trigger("chosen:updated");
     $('#medium').val('{{medium}}');
     $("#medium").trigger("chosen:updated");
+    $('#year').val('{{year}}');
+    $("#year").trigger("chosen:updated");
     $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
 });
 </script>

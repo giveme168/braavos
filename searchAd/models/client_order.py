@@ -1116,6 +1116,7 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
         return searchAdAgent.get(self.company).name
 
     @property
+<<<<<<< HEAD
     def name(self):
         return u"%s-%s" % (self.client.name, self.medium.name)
 
@@ -1146,7 +1147,6 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
         return sum([k.money for k in searchAdBillInvoice.query.filter_by(client_order_bill_id=self.id)
                     if k.invoice_status == 3])
 
-
     def can_admin(self, user):
         return True
         """是否可以修改该订单"""
@@ -1161,4 +1161,11 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
             user.is_media_leader() \
                 or user.is_searchad_member()
                # or user in admin_users
+
+    def start_cn(self):
+        return self.start.strftime('%Y-%m-%d')
+
+    @property
+    def end_cn(self):
+        return self.end.strftime('%Y-%m-%d')
 
