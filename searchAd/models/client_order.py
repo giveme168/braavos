@@ -1116,7 +1116,6 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
         return searchAdAgent.get(self.company).name
 
     @property
-<<<<<<< HEAD
     def name(self):
         return u"%s-%s" % (self.client.name, self.medium.name)
 
