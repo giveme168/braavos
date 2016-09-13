@@ -48,8 +48,8 @@
                         <tr class="okr_item">
                             {% if loop.index == 1 %}
                                 <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
-                                    <textarea class="edit_objective_area" rows="8" name="comment"
-                                              readonly>{{ okr_tem['objective'] }}</textarea>
+                                    <p class="edit_objective_area" rows="8" name="comment"
+                                              readonly>{{ okr_tem['objective'] }}</p>
                                 </td>
                                 <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
                                     <span>{{ okr_tem['priority'] }}</span>
@@ -69,7 +69,7 @@
                                 {% endif %}
                             {% endif %}
                             <td class="remove_row">
-                                <textarea class="edit_kr_area" rows="2" readonly>{{ kr['results'] }}</textarea>
+                                <p class="edit_kr_area" rows="2" readonly>{{ kr['results'] }}</p>
                             </td>
                             <td class="remove_row">
                                 <span>{{ kr['results_PKR'] }}</span>
@@ -98,8 +98,8 @@
             <div style="width:96%;margin-left:2%;height: 160px;">
                 <td class="remove_row">
                     <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">季度个人小结</span>
-                    <textarea class="summary" rows="8" style="border:1px solid #ccc; width: 60% ; float:left" readonly
-                    >{{ okr.summary }}</textarea>
+                    <p class="summary" rows="8" style="border:1px solid #ccc; width: 60% ; float:left" readonly
+                    >{{ okr.summary }}</p>
                 </td>
             </div>
         {% endif %}
