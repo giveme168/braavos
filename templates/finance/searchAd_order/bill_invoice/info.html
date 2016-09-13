@@ -6,19 +6,19 @@
 {% block content %}
 {% include "/finance/searchAd_finance_base_v1_0_0.html" %}
 <div class="container bra-box">
-    <h3 style="margin-top: 50px;">对账单发票情况</h3>
+    <h3 style="margin-top: 50px;">对账单返点发票情况</h3>
     <table class="table table-bordered table-striped">
         <tr>
-            <th>合同总金额</th>
+            <th>对账单返点总金额</th>
             <th>已开发票金额</th>
             <th>未开发票金额</th>
             <th>正在申请发票金额</th>
             <th>申请通过个数</th>
         </tr>
         <tr>
-            <td>{{ order.medium_money }} 元</td>
+            <td>{{ order.rebate_money }} 元</td>
             <td>{{ order.invoice_pass_sum }} 元</td>
-            <td>{{ order.money - order.invoice_pass_sum }} 元</td>
+            <td>{{ order.rebate_money - order.invoice_pass_sum }} 元</td>
             <td>{{ order.invoice_apply_sum }} 元</td>
             <td>{{ order.get_invoice_by_status(0)|length }}</td>
         </tr>
@@ -73,7 +73,6 @@
                 <div class="well">
                   <form class="input-row-box" method="POST" action="{{url_for('searchAd_finance_bill_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
                   {{ new_invoice_form.csrf_token }}
-{#                      todo:待查为什么没有对账单数据#}
                   {{ form_field(new_invoice_form.client_medium_order) }}
                   {{ form_field(new_invoice_form.company) }}
                   {{ form_field(new_invoice_form.tax_id) }}

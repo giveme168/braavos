@@ -7,7 +7,7 @@
 
 {% macro contract_box(bill) -%}
 <div class="container" style="width:100%;">
-    <h4>发票情况</h4>
+    <h4>返点发票情况</h4>
     <div class='tabulation'>
       <table border='1'>
         <thead>
@@ -20,10 +20,10 @@
         </thead>
         <tbody>
           <tr>
-              <td>{{bill.money}} 元</td>
+              <td>{{bill.rebate_money}} 元</td>
               <td>{{bill.invoice_pass_sum}} 元</td>
               <td>{{bill.invoice_apply_sum}} 元</td>
-              <td>{{bill.money - bill.invoice_pass_sum}} 元</td>
+              <td>{{bill.rebate_money - bill.invoice_pass_sum}} 元</td>
           </tr>
         </tbody>
       </table>

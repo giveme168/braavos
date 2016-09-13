@@ -8,17 +8,17 @@
     <div class="table-switch" style="margin-top: 50px;">
         <ul>
             <li style="width:150px;">
-                <a href="{{url_for('searchAd_finance_bill_invoice.index')}}">申请中的对账单发票</a>
+                <a href="{{url_for('searchAd_finance_bill_invoice.index')}}">申请中的返点发票</a>
             </li>
             <li class="actives" style="width:150px;">
-                <a class="on" href="{{url_for('searchAd_finance_bill_invoice.index_pass')}}">所有对账单发票</a>
+                <a class="on" href="{{url_for('searchAd_finance_bill_invoice.index_pass')}}">所有返点发票</a>
             </li>
         </ul>
     </div>
     <div class="search-bar">
         <form class="menu-btn-bar" style="float:left;">
             <div class="search-input">
-                <input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                <input type="text" placeholder="媒体供应商/广告主/投放媒体" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
                 <img src="/static/image/search.png" alt="#">
             </div>
             <div class="select_option">
@@ -54,11 +54,10 @@
         <table border='1'>
             <thead>
                 <tr>
-                    <th>代理/直客</th>
-                    <th>客户名称</th>
-                    <th>合同号</th>
-                    <th>合同总金额</th>
-                    <th>预计回款时间</th>
+                    <th>媒体供应商</th>
+                    <th>广告主</th>
+                    <th>投放媒体</th>
+                    <th>推广类型</th>
                     <th>已开发票金额</th>
                     <th>未开发票金额</th>
                     <th>申请通过个数</th>
@@ -69,13 +68,12 @@
             <tbody>
                 {% for order in orders %}
                     <tr>
-                        <td>{{order.company.name}}</td>
-                        <td><a href="{{url_for('searchAd_finance_bill_invoice.info', order_id=order.id)}}">{{order.name}}</a></td>
-                        <td>{{order.contract}} </td>
-                        <td>{{order.money}}元</td>
-                        <td>{{order.reminde_date_cn}}</td>
+                        <td><a href="{{url_for('searchAd_finance_bill_invoice.info', order_id=order.id)}}">{{order.company_cn}}</a></td>
+                        <td>{{order.client.name}}</td>
+                        <td>{{order.medium.name}} </td>
+                        <td>{{ order.resource_type_cn }}</td>
                         <td>{{order.invoice_pass_sum}}元</td>
-                        <td>{{order.money - order.invoice_pass_sum}}</td>
+                        <td>{{order.rebate_money - order.invoice_pass_sum}}元</td>
                         <td>{{order.get_invoice_by_status(0)|length }}</td>
                         <td>{{order.locations_cn}}</td>
                         <td><a href="{{url_for('searchAd_finance_bill_invoice.info', order_id=order.id)}}">查看</a></td>

@@ -72,8 +72,8 @@ def new_invoice(bill_id):
         abort(404)
     form = BillInvoiceForm(request.form)
     if request.method == 'POST' and form.validate():
-        if int(form.money.data) > (int(bill.money) - int(bill.invoice_apply_sum) - int(bill.invoice_pass_sum)):
-            flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
+        if int(form.money.data) > (int(bill.rebate_money) - int(bill.invoice_apply_sum) - int(bill.invoice_pass_sum)):
+            flash(u"新建发票失败，您申请的发票超过了返点总额", 'danger')
             return redirect(url_for("searchAd_saler_client_order_bill_invoice.index",bill_id=bill.id))
         invoice = searchAdBillInvoice.add(client_order_bill=bill,
                                           company=form.company.data,
@@ -156,11 +156,11 @@ def apply_invoice(invoice_id):
         # TODO:待确认发送邮件给谁
         to_users = User.searchAd_leaders()
         invoice_status = INVOICE_STATUS_APPLY
-        action_msg = u'客户发票开具申请'
+        action_msg = u'对账单返点发票开具申请'
     elif action == 3:
         to_users = User.finances()
         invoice_status = INVOICE_STATUS_APPLYPASS
-        action_msg = u'同意客户发票开具申请'
+        action_msg = u'同意对账单返点发票开具申请'
         send_type = "finance"
     elif action == 4:
         invoice_status = INVOICE_STATUS_FAIL

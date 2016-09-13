@@ -1161,10 +1161,20 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
                 or user.is_searchad_member()
                # or user in admin_users
 
+    @property
     def start_cn(self):
         return self.start.strftime('%Y-%m-%d')
 
     @property
     def end_cn(self):
         return self.end.strftime('%Y-%m-%d')
+
+    @property
+    def search_info(self):
+        return (self.company_cn + self.client.name +
+                self.medium.name + self.resource_type_cn)
+
+    @property
+    def search_invoice_info(self):
+        return self.search_info
 

@@ -28,6 +28,7 @@ def index():
     if not g.user.is_finance():
         abort(404)
     search_info = request.args.get('searchinfo', '')
+    # todo:待确认是否需要分区域
     location_id = int(request.args.get('selected_location', '-1'))
     year = int(request.values.get('year', datetime.datetime.now().year))
     orders = set([
@@ -109,7 +110,7 @@ def info(order_id):
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     # todo:新发票字段待确认
     new_invoice_form = BillInvoiceForm()
-    new_invoice_form.client_order_bill = order
+    new_invoice_form.client_order_bill = order.name
     # new_invoice_form.tax_id = order.tax_id.data,
     # new_invoice_form.address = order.address.data,
     # new_invoice_form.phone = order.phone.data,
@@ -154,8 +155,8 @@ def new_invoice(order_id):
     form = BillInvoiceForm(request.form)
     form.client_medium_order.choices = [(order.id, order.medium.name)]
     if request.method == 'POST' and form.validate():
-        if int(form.money.data) > (int(order.money) - int(order.invoice_apply_sum) - int(order.invoice_pass_sum)):
-            flash(u"新建发票失败，您申请的发票超过了合同总额", 'danger')
+        if int(form.money.data) > (int(order.rebate_money) - int(order.invoice_apply_sum) - int(order.invoice_pass_sum)):
+            flash(u"新建发票失败，您申请的发票超过了返点总额", 'danger')
             return redirect(url_for("searchAd_finance_bill_invoice.info", order_id=order_id))
         invoice = searchAdBillInvoice.add(client_order_bill=order,
                                           company=form.company.data,
@@ -202,6 +203,7 @@ def update_invoice(invoice_id):
     invoice = searchAdBillInvoice.get(invoice_id)
     if not invoice:
         abort(404)
+        # //todo:待确认 这个没有金额校验 可以吗?
     if request.method == 'POST':
         company = request.values.get('edit_company', '')
         tax_id = request.values.get('edit_tax_id', '')
@@ -268,7 +270,7 @@ def pass_invoice(invoice_id):
     to_users = User.searchAd_leaders()
     if action != 10:
         invoice_status = INVOICE_STATUS_PASS
-        action_msg = u'客户发票已开'
+        action_msg = u'对账单返点发票已开'
         for invoice in invoices:
             invoice.invoice_status = invoice_status
             invoice.create_time = datetime.date.today()

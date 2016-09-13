@@ -409,7 +409,7 @@ def invoice_apply(sender, context):
     elif order.__tablename__ == 'searchad_bra_rebate_order':
         title = u"【效果业务返点订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchad_bra_client_order_bill':
-        title = u"【效果业务对账单-对账单发票】- %s" % (order.name)
+        title = u"【效果业务对账单-对账单返点发票】- %s" % (order.name)
     else:
         title = u"【合同流程】- %s" % (order.name)
 
@@ -461,9 +461,10 @@ def invoice_apply(sender, context):
         # todo:待确认对账单的saler
         if order.__tablename__ == 'searchad_bra_client_order_bill':
             salers = []
+            action_info = ','.join(_get_active_user_name(salers)) + u'您的对账单返点发票已开'
         else:
             salers = order.direct_sales + order.agent_sales + [order.creator]
-        action_info = ','.join(_get_active_user_name(salers)) + u'您的客户发票已开'
+            action_info = ','.join(_get_active_user_name(salers)) + u'您的客户发票已开'
         invoice_info = "\n".join(
             [u'发票内容: ' + o.detail + u'; 发票号: ' + o.invoice_num + u'; 发票金额' + str(o.money) for o in invoices])
     else:
@@ -484,7 +485,12 @@ def invoice_apply(sender, context):
                       'DOMAIN']+'/finance/searchAd_orders/bill_invoice/%s/info' %(order.id)
 
         finance_users = [k for k in to_users if k.team.type in [13]]
-        action_info = u'区域总监已同意客户发票申请，请' + \
+        # todo:待确认
+        if  order.__tablename__ == 'searchad_bra_client_order_bill':
+            action_info = u'区域总监已同意返点发票申请，请' + \
+                      ', '.join(_get_active_user_name(finance_users)) + u'开具返点发票'
+        else:
+            action_info = u'区域总监已同意客户发票申请，请' + \
                       ', '.join(_get_active_user_name(finance_users)) + u'开具客户发票'
 
     body = u"""
