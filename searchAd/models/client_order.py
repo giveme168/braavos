@@ -1095,6 +1095,7 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
     end = db.Column(db.Date)
     invoice_pass_sum = db.Column(db.Float(), default=0.0)
     invoice_apply_sum = db.Column(db.Float(), default=0.0)
+    is_delete = db.Column(db.Boolean(), default=False)
 
     def __init__(self, company, client, medium, resource_type, money, rebate_money, start=None, end=None):
         self.company = company
@@ -1147,7 +1148,6 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
                     if k.invoice_status == 3])
 
     def can_admin(self, user):
-        return True
         return user.is_admin()
 
     @property

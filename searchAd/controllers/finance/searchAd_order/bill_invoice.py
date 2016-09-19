@@ -4,7 +4,7 @@ import datetime
 from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app
 from flask import render_template as tpl
 
-from models.user import User, TEAM_LOCATION_CN
+from models.user import User
 from searchAd.models.client_order import  CONTRACT_STATUS_CN, searchAdClientOrderBill
 from searchAd.models.invoice import (searchAdBillInvoice, INVOICE_STATUS_CN,
                                      INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
@@ -31,7 +31,7 @@ def index():
     year = int(request.values.get('year', datetime.datetime.now().year))
     orders = set([
         invoice.client_order_bill for invoice in searchAdBillInvoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
-    orders = [k for k in orders if k.start.year == year or k.end.year == year]
+    orders = [k for k in orders if (k.start.year == year or k.end.year == year) and k.is_delete == False]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
@@ -51,17 +51,12 @@ def index_pass():
         abort(404)
     orders = list(searchAdClientOrderBill.all())
     search_info = request.args.get('searchinfo', '')
-    location_id = int(request.args.get('selected_location', '-1'))
     year = int(request.values.get('year', datetime.datetime.now().year))
     page = int(request.args.get('p', 1))
-    if location_id >= 0:
-        orders = [o for o in orders if location_id in o.locations]
-    orders = [k for k in orders if k.start.year == year or k.end.year == year]
+    orders = [k for k in orders if (k.start.year == year or k.end.year == year) and k.is_delete == False]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
-    select_locations = TEAM_LOCATION_CN.items()
-    select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
     paginator = Paginator(orders, ORDER_PAGE_NUM)
@@ -77,11 +72,10 @@ def index_pass():
         response = get_download_response(
             xls, ("%s-%s.xls" % (u"申请过的发票信息", datetime.datetime.now().strftime('%Y%m%d%H%M%S'))).encode('utf-8'))
         return response
-    return tpl('/finance/searchAd_order/bill_invoice/index_pass.html', orders=orders, locations=select_locations,
-               location_id=location_id, statuses=select_statuses,
+    return tpl('/finance/searchAd_order/bill_invoice/index_pass.html', orders=orders, statuses=select_statuses,
                now_date=datetime.date.today(), search_info=search_info, page=page, year=year,
-               params='&searchinfo=%s&selected_location=%s&year=%s' %
-                      (search_info, location_id, str(year)))
+               params='&searchinfo=%s&&year=%s' %
+                      (search_info, str(year)))
 
 
 @searchAd_finance_bill_invoice_bp.route('/<order_id>/info', methods=['GET'])
@@ -102,7 +96,6 @@ def info(order_id):
     }
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
     new_invoice_form = BillInvoiceForm()
-    #TODO: 投放媒体字段为什么显示不出来
     new_invoice_form.client_order_bill = order.name
     new_invoice_form.invoice_status = INVOICE_STATUS_NORMAL,
     new_invoice_form.creator = g.user,
