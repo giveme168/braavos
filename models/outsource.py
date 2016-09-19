@@ -266,7 +266,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
     def form(self):
         from forms.outsource import OutsourceForm
         form = OutsourceForm()
-        form.medium_order.choices = [(mo.id, mo.medium.name)
+        form.medium_order.choices = [(mo.id, mo.media.name)
                                      for mo in self.client_order.medium_orders]
         form.medium_order.data = self.medium_order.id
         form.target.data = self.target.id
@@ -279,7 +279,7 @@ class OutSource(db.Model, BaseModelMixin, CommentMixin):
 
     @property
     def outsource_info(self):
-        medium_name = self.medium_order.medium.name
+        medium_name = self.medium_order.media.name
         contract = self.medium_order.medium_contract
         return u"""
         投放媒体: %s
