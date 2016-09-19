@@ -126,6 +126,8 @@ def get_invoice_from(invoice):
 
 @searchAd_finance_bill_invoice_bp.route('/<order_id>/order/new', methods=['POST'])
 def new_invoice(order_id):
+    if not g.user.is_finance():
+        abort(404)
     order = searchAdClientOrderBill.get(order_id)
     if not order:
         abort(404)
@@ -177,6 +179,8 @@ def delete_invoice(invoice_id):
 
 @searchAd_finance_bill_invoice_bp.route('/<invoice_id>/update', methods=['POST'])
 def update_invoice(invoice_id):
+    if not g.user.is_finance():
+        abort(404)
     invoice = searchAdBillInvoice.get(invoice_id)
     if not invoice:
         abort(404)
