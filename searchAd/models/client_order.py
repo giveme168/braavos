@@ -1148,18 +1148,7 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
 
     def can_admin(self, user):
         return True
-        """是否可以修改该订单"""
-        # todo:权限待修改
-        # salers = []self + self.agent_sales + self.replace_sales + self.assistant_sales
-        # salers = []
-        # leaders = []
-        # for k in salers:
-        #     leaders += k.team_leaders
-        # admin_users = salers + [self.creator] + list(set(leaders))
-        return user.is_leader() or user.is_contract() or user.is_media() or\
-            user.is_media_leader() \
-                or user.is_searchad_member()
-               # or user in admin_users
+        return user.is_admin()
 
     @property
     def start_cn(self):

@@ -16,6 +16,7 @@ zhiqu_contract_apply_signal = braavos_signals.signal('zhiqu_contract_apply')
 zhiqu_edit_contract_apply_signal = braavos_signals.signal('zhiqu_edit_contract_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
 agent_invoice_apply_signal = braavos_signals.signal('agent_invoice_apply')
+bill_invoice_apply_signal = braavos_signals.signal('bill_invoice_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
 medium_rebate_invoice_apply_signal = braavos_signals.signal(
     'medium_rebate_invoice_apply')
@@ -388,6 +389,64 @@ def agent_invoice_apply(sender, context):
         to_users) + to_other, body=body.replace('\n', '<br/>'))
 
 
+def bill_invoice_apply(sender, context):
+    to_users = context['to_users']
+    order = context['order']
+    action = context['action']
+    action_msg = context['action_msg']
+    info = context['info']
+    invoices = context['invoices']
+    to_other = []
+    if context.has_key('to_other'):
+        to_other = context['to_other']
+    invoice_info = "\n".join(
+        [u'发票内容: ' + o.detail + u'; 发票金额' + str(o.money) for o in invoices])
+    if order.__tablename__ == 'searchad_bra_client_order_bill':
+        title = u"【效果业务对账单-对账单返点发票】- %s" % (order.name)
+
+    if context['send_type'] == "saler":
+        url = mail.app.config[
+                  'DOMAIN'] + '/saler/searchAd_orders/bill_invoice/%s/bill' % (order.id)
+        if action == 2:
+            leader_users = [k for k in to_users if k.team.type in [9]]
+            if 148 in [k.id for k in to_users]:
+                leader_users += [k for k in User.all() if k.team.type == 20]
+            action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
+                          u'进行对账单返点发票审批'
+        else:
+            action_info =  u'您的客户发票被拒绝'
+    elif context['send_type'] == 'end':
+        url = mail.app.config[
+                  'DOMAIN'] + '/saler/searchAd_orders/bill_invoice/%s/bill' % (order.id)
+        action_info =  u'您的对账单返点发票已开'
+        invoice_info = "\n".join(
+            [u'发票内容: ' + o.detail + u'; 发票号: ' + o.invoice_num + u'; 发票金额' + str(o.money) for o in invoices])
+    else:
+        finance_users = [k for k in to_users if k.team.type in [13]]
+        url =  mail.app.config[
+                   'DOMAIN'] + '/finance/searchAd_orders/bill_invoice/%s/info' % (order.id)
+        action_info = u'区域总监已同意返点发票申请，请' + \
+                          ', '.join(_get_active_user_name(finance_users)) + u'开具返点发票'
+
+    body = u"""
+    <h3 style="color:red;">流程状态: %s
+    <br/>%s<br/>订单链接地址: %s</h3>
+    <p><h4>状态信息:</h4>
+    发票信息:%s</p>
+    <p><h4>订单信息:</h4>
+    %s</p>
+
+    <p><h4>留言如下:</h4>
+        <br/>%s</p>
+
+    <p>by %s</p>
+    """ % (action_msg, action_info, url, invoice_info, order.email_info, info, g.user.name)
+    flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
+    _insert_person_notcie(to_users, title, body)
+    send_html_mail(title, recipients=_get_active_user_email(
+        to_users) + to_other, body=body.replace('\n', '<br/>'))
+
+
 def invoice_apply(sender, context):
     to_users = context['to_users']
     order = context['order']
@@ -408,8 +467,6 @@ def invoice_apply(sender, context):
         title = u"【直签媒体订单-合同流程】- %s" % (order.name)
     elif order.__tablename__ == 'searchad_bra_rebate_order':
         title = u"【效果业务返点订单-合同流程】- %s" % (order.name)
-    elif order.__tablename__ == 'searchad_bra_client_order_bill':
-        title = u"【效果业务对账单-对账单返点发票】- %s" % (order.name)
     else:
         title = u"【合同流程】- %s" % (order.name)
 
@@ -426,10 +483,6 @@ def invoice_apply(sender, context):
         elif order.__tablename__ == 'bra_client_medium_order':
             url = mail.app.config[
                       'DOMAIN'] + '/saler/client_medium_order/invoice/%s/order' % (order.id)
-        elif order.__tablename__ == 'searchad_bra_client_order_bill':
-            url = mail.app.config[
-                      'DOMAIN'] + '/saler/searchAd_orders/bill_invoice/%s/bill' % (order.id)
-            print "************"+url
         if action == 2:
             leader_users = [k for k in to_users if k.team.type in [9]]
             if 148 in [k.id for k in to_users]:
@@ -456,15 +509,9 @@ def invoice_apply(sender, context):
         elif order.__tablename__ == 'bra_client_medium_order':
             url = mail.app.config[
                       'DOMAIN'] + '/saler/client_medium_order/invoice/%s/order' % (order.id)
-        elif order.__tablename__ == 'searchad_bra_client_order_bill':
             url = mail.app.config['DOMAIN']+'/saler/searchAd_orders/bill_invoice/%s/bill' % (order.id)
-        # todo:待确认对账单的saler
-        if order.__tablename__ == 'searchad_bra_client_order_bill':
-            salers = []
-            action_info = ','.join(_get_active_user_name(salers)) + u'您的对账单返点发票已开'
-        else:
-            salers = order.direct_sales + order.agent_sales + [order.creator]
-            action_info = ','.join(_get_active_user_name(salers)) + u'您的客户发票已开'
+        salers = order.direct_sales + order.agent_sales + [order.creator]
+        action_info = ','.join(_get_active_user_name(salers)) + u'您的客户发票已开'
         invoice_info = "\n".join(
             [u'发票内容: ' + o.detail + u'; 发票号: ' + o.invoice_num + u'; 发票金额' + str(o.money) for o in invoices])
     else:
@@ -480,17 +527,9 @@ def invoice_apply(sender, context):
         elif order.__tablename__ == 'bra_client_medium_order':
             url = mail.app.config[
                       'DOMAIN'] + '/finance/client_medium_order/invoice/%s/order' % (order.id)
-        elif order.__tablename__ == 'searchad_bra_client_order_bill':
-            url = mail.app.config[
-                      'DOMAIN']+'/finance/searchAd_orders/bill_invoice/%s/info' %(order.id)
 
         finance_users = [k for k in to_users if k.team.type in [13]]
-        # todo:待确认
-        if  order.__tablename__ == 'searchad_bra_client_order_bill':
-            action_info = u'区域总监已同意返点发票申请，请' + \
-                      ', '.join(_get_active_user_name(finance_users)) + u'开具返点发票'
-        else:
-            action_info = u'区域总监已同意客户发票申请，请' + \
+        action_info = u'区域总监已同意客户发票申请，请' + \
                       ', '.join(_get_active_user_name(finance_users)) + u'开具客户发票'
 
     body = u"""
@@ -1325,6 +1364,7 @@ def email_init_signal(app):
     zhiqu_edit_contract_apply_signal.connect_via(app)(zhiqu_edit_contract_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
     agent_invoice_apply_signal.connect_via(app)(agent_invoice_apply)
+    bill_invoice_apply_signal.connect_via(app)(bill_invoice_apply)
     invoice_apply_signal.connect_via(app)(invoice_apply)
     medium_rebate_invoice_apply_signal.connect_via(
         app)(medium_rebate_invoice_apply)

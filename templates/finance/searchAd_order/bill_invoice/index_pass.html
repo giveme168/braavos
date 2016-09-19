@@ -29,19 +29,6 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="select_option">
-                <label for="sale_type" class="control-label">区域</label>
-                <select class="form-control special_sale" name="location" id="search_location" style="width:100px;">
-                    {% for v, m in locations %}
-                        {% if v == location_id|int %}
-                        <option selected="" value="{{v}}">{{m}}</option>
-                        {% else %}
-                        <option value="{{v}}">{{m}}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-
             <div class="select_option screen">
                 <input type="button" value="筛选" onclick="javascript:search();">
             </div>

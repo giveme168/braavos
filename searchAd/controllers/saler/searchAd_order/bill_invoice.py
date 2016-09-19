@@ -4,7 +4,7 @@ import datetime
 from flask import request, redirect, Blueprint, url_for, flash, g, abort, current_app, jsonify
 from flask import render_template as tpl
 
-from libs.email_signals import invoice_apply_signal
+from libs.email_signals import bill_invoice_apply_signal
 from searchAd.forms.invoice import BillInvoiceForm
 from searchAd.models.client_order import searchAdClientOrderBill
 from searchAd.models.invoice import (INVOICE_TYPE_CN, searchAdBillInvoice,
@@ -149,12 +149,9 @@ def apply_invoice(invoice_id):
     emails = request.values.getlist('email')
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
-    # todo:待确认
-    to_users = []
     send_type = "saler"
     if action == 2:
-        # TODO:待确认发送邮件给谁
-        to_users = User.searchAd_leaders()
+        to_users = User.searchAd_leaders() + list(set([i.creator for i in invoices]))
         invoice_status = INVOICE_STATUS_APPLY
         action_msg = u'对账单返点发票开具申请'
     elif action == 3:
@@ -163,9 +160,11 @@ def apply_invoice(invoice_id):
         action_msg = u'同意对账单返点发票开具申请'
         send_type = "finance"
     elif action == 4:
+        to_users = User.searchAd_leaders() + list(set([i.creator for i in invoices]))
         invoice_status = INVOICE_STATUS_FAIL
         action_msg = u'客户发票开具申请未通过'
     if action != 10:
+        to_users = User.searchAd_leaders() + list(set([i.creator for i in invoices]))
         for invoice in invoices:
             invoice.invoice_status = invoice_status
             invoice.create_time = datetime.date.today()
@@ -186,7 +185,7 @@ def apply_invoice(invoice_id):
                "invoices": invoices,
                "to_other": emails
                }
-    invoice_apply_signal.send(
+    bill_invoice_apply_signal.send(
         current_app._get_current_object(), context=context)
     return redirect(url_for("searchAd_saler_client_order_bill_invoice.index", bill_id=invoice.client_order_bill.id))
 

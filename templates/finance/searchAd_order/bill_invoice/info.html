@@ -73,7 +73,10 @@
                 <div class="well">
                   <form class="input-row-box" method="POST" action="{{url_for('searchAd_finance_bill_invoice.new_invoice', order_id=order.id)}}" onsubmit="return checkform(this)">
                   {{ new_invoice_form.csrf_token }}
-                  {{ form_field(new_invoice_form.client_medium_order) }}
+                  <div class="input-group-menu">
+                    <div class="name">所属媒体 : </div>
+                      <div class="name">{{order.name}}</div>
+                  </div>
                   {{ form_field(new_invoice_form.company) }}
                   {{ form_field(new_invoice_form.tax_id) }}
                   {{ form_field(new_invoice_form.address) }}

@@ -9,7 +9,7 @@ from searchAd.models.client_order import  CONTRACT_STATUS_CN, searchAdClientOrde
 from searchAd.models.invoice import (searchAdBillInvoice, INVOICE_STATUS_CN,
                                      INVOICE_TYPE_CN, INVOICE_STATUS_PASS,
                                      INVOICE_STATUS_APPLYPASS, INVOICE_STATUS_NORMAL)
-from libs.email_signals import invoice_apply_signal
+from libs.email_signals import bill_invoice_apply_signal
 from libs.paginator import Paginator
 from searchAd.forms.invoice import BillInvoiceForm
 from controllers.finance.helpers.invoice_helpers import write_excel
@@ -28,28 +28,21 @@ def index():
     if not g.user.is_finance():
         abort(404)
     search_info = request.args.get('searchinfo', '')
-    # todo:待确认是否需要分区域
-    location_id = int(request.args.get('selected_location', '-1'))
     year = int(request.values.get('year', datetime.datetime.now().year))
     orders = set([
         invoice.client_order_bill for invoice in searchAdBillInvoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
-    if location_id >= 0:
-        orders = [o for o in orders if location_id in o.locations]
     orders = [k for k in orders if k.start.year == year or k.end.year == year]
     if search_info != '':
         orders = [
             o for o in orders if search_info.lower() in o.search_invoice_info.lower()]
-    select_locations = TEAM_LOCATION_CN.items()
-    select_locations.insert(0, (-1, u'全部区域'))
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
     for k in orders:
         k.apply_count = len(k.get_invoice_by_status(3))
-    return tpl('/finance/searchAd_order/bill_invoice/index.html', orders=orders, locations=select_locations,
-               location_id=location_id, statuses=select_statuses,
+    return tpl('/finance/searchAd_order/bill_invoice/index.html', orders=orders,statuses=select_statuses,
                now_date=datetime.date.today(), search_info=search_info, year=year,
-               params='?&searchinfo=%s&selected_location=%s&year=%s' %
-                      (search_info, location_id, str(year)))
+               params='?&searchinfo=%s&year=%s' %
+                      (search_info,  str(year)))
 
 
 @searchAd_finance_bill_invoice_bp.route('/pass', methods=['GET'])
@@ -108,20 +101,11 @@ def info(order_id):
                       if x.invoice_status == INVOICE_STATUS_APPLYPASS],
     }
     reminder_emails = [(u.name, u.email) for u in User.all_active()]
-    # todo:新发票字段待确认
     new_invoice_form = BillInvoiceForm()
+    #TODO: 投放媒体字段为什么显示不出来
     new_invoice_form.client_order_bill = order.name
-    # new_invoice_form.tax_id = order.tax_id.data,
-    # new_invoice_form.address = order.address.data,
-    # new_invoice_form.phone = order.phone.data,
-    # new_invoice_form.bank_id = order.bank_id.data,
-    # new_invoice_form.bank = order.bank.data,
-    # new_invoice_form.detail = order.detail.data,
-    # # new_invoice_form.money = order.money.data,
-    # # new_invoice_form.invoice_type = order.invoice_type.data,
     new_invoice_form.invoice_status = INVOICE_STATUS_NORMAL,
     new_invoice_form.creator = g.user,
-    # new_invoice_form.invoice_num = " ",
     new_invoice_form.back_time.data = datetime.date.today()
     return tpl('/finance/searchAd_order/bill_invoice/info.html', order=order,
                invoices_data=invoices_data, INVOICE_STATUS_CN=INVOICE_STATUS_CN,
@@ -203,7 +187,9 @@ def update_invoice(invoice_id):
     invoice = searchAdBillInvoice.get(invoice_id)
     if not invoice:
         abort(404)
-        # //todo:待确认 这个没有金额校验 可以吗?
+    bill = searchAdClientOrderBill.get(invoice.client_order_bill.id)
+    if not bill:
+        abort(404)
     if request.method == 'POST':
         company = request.values.get('edit_company', '')
         tax_id = request.values.get('edit_tax_id', '')
@@ -221,6 +207,9 @@ def update_invoice(invoice_id):
             flash(u"修改发票失败，发票金额不能为空", 'danger')
         elif not invoice_num:
             flash(u"修改发票失败，发票号不能为空", 'danger')
+        elif int(money) > (int(bill.rebate_money) - int(bill.invoice_apply_sum) - int(bill.invoice_pass_sum)):
+            flash(u"新建发票失败，您申请的发票超过了返点总额", 'danger')
+            return redirect(url_for("searchAd_finance_bill_invoice.info",order_id=invoice.client_order_bill.id))
         else:
             invoice.company = company
             invoice.tax_id = tax_id
@@ -254,9 +243,8 @@ def invoice_num(invoice_id):
 
 @searchAd_finance_bill_invoice_bp.route('/<invoice_id>/pass', methods=['POST'])
 def pass_invoice(invoice_id):
-    # todo:待恢复
-    # if not g.user.is_finance():
-    #     abort(404)
+    if not g.user.is_finance():
+        abort(404)
     invoice = searchAdBillInvoice.get(invoice_id)
     if not invoice:
         abort(404)
@@ -291,6 +279,6 @@ def pass_invoice(invoice_id):
                "send_type": 'end',
                "invoices": invoices
                }
-    invoice_apply_signal.send(
+    bill_invoice_apply_signal.send(
         current_app._get_current_object(), context=context)
     return redirect(url_for("searchAd_finance_bill_invoice.info", order_id=invoice.client_order_bill.id))
