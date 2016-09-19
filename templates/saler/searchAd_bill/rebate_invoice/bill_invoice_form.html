@@ -2,7 +2,7 @@
 {% macro invoice_form(order, form, INVOICE_TYPE_CN, invoice=None) -%}
 {% if invoice %}
 {% if order.can_admin(g.user) and invoice.invoice_status in [1, 2, 4] %}
-    <h4>
+    <h4 xmlns="http://www.w3.org/1999/html">
         <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
         {{ invoice.company }}-{{ invoice.money }}元
     </h4>
@@ -89,6 +89,7 @@
 {% else %}
     <form class="input-row-box" method="POST" action="{{url_for('searchAd_saler_client_order_bill_invoice.new_invoice', bill_id=order.id)}}" onsubmit="return checkform(this)">
         {{form.csrf_token}}
+        {{form.invoice_status}}
         {{ form_field(form.client_medium_order)}}
         {{ form_field(form.company) }}
         {{ form_field(form.tax_id) }}

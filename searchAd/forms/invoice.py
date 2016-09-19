@@ -1,5 +1,5 @@
 #-*- coding: UTF-8 -*-
-from wtforms import TextField, IntegerField, FloatField, TextAreaField, SelectField, validators, DateField
+from wtforms import TextField, IntegerField, FloatField, TextAreaField, SelectField, validators, DateField,HiddenField
 
 from libs.wtf import Form
 from searchAd.models.invoice import INVOICE_TYPE_CN,MEDIUM_INVOICE_BOOL_PAY_CN,MEDIUM_INVOICE_BOOL_INVOICE_CN, \
@@ -161,6 +161,7 @@ class BillInvoiceForm(Form):
     invoice_type = SelectField(u'发票类型', coerce=int, default=0)
     invoice_num = TextField(u'发票号', default='')
     back_time = DateField(u'回款时间')
+    invoice_status = HiddenField()
 
     def __init__(self, *args, **kwargs):
         super(BillInvoiceForm, self).__init__(*args, **kwargs)

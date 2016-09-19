@@ -75,12 +75,31 @@
             </div>
         </div>
     </div>
+    <div class="panel panel-default" id="new-apply-invoice" style="display:none;">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion-invoice" href="#collapse-invoice-apply-new"> 补录发票信息 </a>
+            </h4>
+        </div>
+        <div id="collapse-invoice-apply-new" class="panel-collapse collapse in">
+            <div class="panel-body">
+              <div class="well">
+                {{ invoice_form(bill, new_apply_invoice_form, INVOICE_TYPE_CN) }}
+              </div>
+            </div>
+        </div>
+    </div>
     <button onclick="showInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 申请发票</button>
+    <button onclick="showApplyInvoice(this);" class="btn btn-sm btn-default"><span class="glyphicon glyphicon-plus"></span> 补录发票</button>
 </div>
 <script>
   showInvoice = function(ele){
       $(ele).hide();
       $("#new-invoice").show();
+    };
+  showApplyInvoice = function(ele){
+      $(ele).hide();
+      $("#new-apply-invoice").show();
     };
   function check_all(e){
     $(e).parent().find(".invoice-id").prop("checked", $(e).prop("checked"));

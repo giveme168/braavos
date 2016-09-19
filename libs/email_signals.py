@@ -490,10 +490,7 @@ def invoice_apply(sender, context):
             action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
                           u'进行客户发票审批'
         else:
-            if order.__tablename__ == 'searchad_bra_client_order_bill':
-                salers = []
-            else:
-                salers = order.direct_sales + order.agent_sales + [order.creator]
+            salers = order.direct_sales + order.agent_sales + [order.creator]
             action_info = ','.join(
                 _get_active_user_name(salers)) + u'您的客户发票被拒绝'
     elif context['send_type'] == 'end':
@@ -509,7 +506,6 @@ def invoice_apply(sender, context):
         elif order.__tablename__ == 'bra_client_medium_order':
             url = mail.app.config[
                       'DOMAIN'] + '/saler/client_medium_order/invoice/%s/order' % (order.id)
-            url = mail.app.config['DOMAIN']+'/saler/searchAd_orders/bill_invoice/%s/bill' % (order.id)
         salers = order.direct_sales + order.agent_sales + [order.creator]
         action_info = ','.join(_get_active_user_name(salers)) + u'您的客户发票已开'
         invoice_info = "\n".join(
@@ -915,7 +911,7 @@ def account_leave_apply(sender, leave):
         else:
             to_name = leave.creator.name + u'您的请假申请被拒绝'
         url = mail.app.config['DOMAIN'] + \
-              url_for('account_leave.index', user_id=leave.creator.id)
+            url_for('account_leave.index', user_id=leave.creator.id)
     to_users = leave.senders + leave.creator.team_leaders + \
                [leave.creator] + [g.user]
     to_emails = list(set([k.email for k in to_users])) + ['admin@inad.com']

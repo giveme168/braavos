@@ -40,8 +40,11 @@ def index(bill_id):
     new_invoice_form = BillInvoiceForm()
     new_invoice_form.client_medium_order.data = bill.medium.name
     new_invoice_form.back_time.data = datetime.date.today()
+    new_apply_invoice_form = BillInvoiceForm(invoice_status='invoice_pass')
+    new_apply_invoice_form.client_medium_order.data = bill.medium.name
+    new_apply_invoice_form.back_time.data = datetime.date.today()
     return tpl('/saler/searchAd_bill/rebate_invoice/index.html', bill=bill,
-               invoices_data=invoices_data, new_invoice_form=new_invoice_form,
+               invoices_data=invoices_data, new_invoice_form=new_invoice_form,new_apply_invoice_form = new_apply_invoice_form,
                INVOICE_STATUS_CN=INVOICE_STATUS_CN, reminder_emails=reminder_emails,
                INVOICE_TYPE_CN=INVOICE_TYPE_CN)
 
@@ -85,7 +88,7 @@ def new_invoice(bill_id):
                                           detail=form.detail.data,
                                           money=form.money.data,
                                           invoice_type=form.invoice_type.data,
-                                          invoice_status=INVOICE_STATUS_NORMAL,
+                                          invoice_status=INVOICE_STATUS_PASS if form.invoice_status.data == 'invoice_pass' else INVOICE_STATUS_NORMAL,
                                           creator=g.user,
                                           invoice_num=" ",
                                           back_time=form.back_time.data)
