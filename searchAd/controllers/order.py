@@ -1294,7 +1294,7 @@ def bill_index():
     medium_id = int(request.values.get('medium', 0))
     search_info = request.values.get('search_info', '')
     year = int(request.values.get('year', now_date.year))
-    bills = [b for b in searchAdClientOrderBill.all() if b.start.year == year]
+    bills = [b for b in searchAdClientOrderBill.all() if b.start.year == year and b.is_delete == False]
     if client_id:
         bills = [b for b in bills if b.client.id == client_id]
     if medium_id:
@@ -1405,5 +1405,7 @@ def bill_update(bid):
 def bill_delete(bid):
     if not g.user.is_searchad_leader():
         abort(403)
-    searchAdClientOrderBill.get(bid).delete()
+    bill = searchAdClientOrderBill.get(bid)
+    bill.is_delete = True
+    bill.save()
     return redirect(url_for('searchAd_order.bill_index'))

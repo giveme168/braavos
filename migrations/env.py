@@ -38,7 +38,7 @@ from searchAd.models.medium import searchAdMedium, searchAdMediumRebate
 from searchAd.models.client_order import searchAdClientOrder
 from searchAd.models.order import searchAdOrder
 from searchAd.models.invoice import searchAdInvoice, searchAdAgentInvoice, searchAdAgentInvoicePay, \
-    searchAdMediumInvoice, searchAdMediumInvoicePay, searchAdMediumRebateInvoice
+    searchAdMediumInvoice, searchAdMediumInvoicePay, searchAdMediumRebateInvoice,searchAdBillInvoice
 from searchAd.models.framework_order import *
 from models.account.data import *
 from models.other import *

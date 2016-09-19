@@ -23,9 +23,12 @@
               <a href="{{url_for('searchAd_finance_client_order_medium_rebate_invoice.index')}}">普通订单媒体返点发票</a>
               <span>|</span>
             </li>
-            <li id="_searchAd_orderdata_query_" class="nav-last">
+            <li id="_searchAd_orderdata_query_">
               <a href="{{url_for('searchAd_finance_client_order_data_query.agent_invoice')}}">普通订单数据查询</a>
               <span>|</span>
+            </li>
+            <li id="_searchAd_orderbill_invoice_" class="nav-last">
+              <a href="{{url_for('searchAd_finance_bill_invoice.index')}}">对账单返点发票</a>
             </li>
         </ul>
         {% elif g.user.is_aduit() %}
@@ -41,7 +44,7 @@
 <script>
     $(function(){
         var pathname = window.location.pathname;
-        var p_pathname = pathname.split('/')
+        var p_pathname = pathname.split('/');
         $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass('active')
         if (p_pathname[3] == 'data_query'){
             $('#_'+p_pathname[2]+p_pathname[3]+'_').addClass('active')

@@ -552,11 +552,11 @@ class searchAdBillInvoice(db.Model, BaseModelMixin):
         create_time = db.Column(db.DateTime)
         __mapper_args__ = {'order_by': create_time.desc()}
 
-        def __init__(self, client_medium_order, company="", tax_id="",
+        def __init__(self, client_order_bill, company="", tax_id="",
                      address="", phone="", bank_id="", bank="",
                      detail="", invoice_num="", money=0.0, invoice_type=INVOICE_TYPE_NORMAL,
                      invoice_status=INVOICE_STATUS_NORMAL, creator=None, create_time=None, back_time=None):
-            self.client_medium_order = client_medium_order
+            self.client_order_bill = client_order_bill
             self.company = company
             self.tax_id = tax_id
             self.address = address
