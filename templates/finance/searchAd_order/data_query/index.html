@@ -149,9 +149,8 @@
                 </tr>
                 {% endfor %}
                 <tr>
-                    <td colspan=9 style="text-align: center;">总计</td>
-                    <td>{{orders|sum(attribute='money')|format_price}}</td>
-{#                    <td {% if t_type == 'back_money' %} colspan=3 {% else %} colspan=2 {% endif %}style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>#}
+                    <td colspan=8 style="text-align: center;">总计</td>
+                    <td colspan=2 style="text-align: left;">{{orders|sum(attribute='money')|format_price}}</td>
                 </tr>
             </tbody>
         </table>
@@ -259,7 +258,7 @@
                 <input type="submit" value="筛选">
             </div>
             <div class="select_option return">
-                <input type="button" value="导出" onclick="javascript:download();">
+                <input type="button" value="导出" onclick="javascript:bill_download();">
             </div>
         </form>
         {% endif %}
@@ -276,6 +275,14 @@
   function download(){
     var params = '?info=' + encodeURIComponent($('#info').val()) +
                  '&location=' + ($('#location').val()) +
+                 '&action=download';
+    params += '&year='+$('#year').val()+
+              '&month='+$('#month').val()
+    window.location.href = window.location.pathname + params;
+
+  }
+  function bill_download(){
+    var params = '?info=' + encodeURIComponent($('#info').val()) +
                  '&action=download';
     params += '&year='+$('#year').val()+
               '&month='+$('#month').val()
