@@ -43,6 +43,7 @@ def index(bill_id):
     new_apply_invoice_form = BillInvoiceForm(invoice_status='invoice_pass')
     new_apply_invoice_form.client_medium_order.data = bill.medium.name
     new_apply_invoice_form.back_time.data = datetime.date.today()
+    new_apply_invoice_form.create_time.data = datetime.date.today()
     return tpl('/saler/searchAd_bill/rebate_invoice/index.html', bill=bill,
                invoices_data=invoices_data, new_invoice_form=new_invoice_form,new_apply_invoice_form = new_apply_invoice_form,
                INVOICE_STATUS_CN=INVOICE_STATUS_CN, reminder_emails=reminder_emails,
@@ -90,7 +91,8 @@ def new_invoice(bill_id):
                                           invoice_type=form.invoice_type.data,
                                           invoice_status=INVOICE_STATUS_PASS if form.invoice_status.data == 'invoice_pass' else INVOICE_STATUS_NORMAL,
                                           creator=g.user,
-                                          invoice_num=" ",
+                                          invoice_num=form.invoice_num.data if form.invoice_status.data == 'invoice_pass' else ' ',
+                                          create_time=form.create_time.data if form.invoice_status.data == 'invoice_pass' else datetime.date.today(),
                                           back_time=form.back_time.data)
         invoice.save()
         flash(u'新建发票(%s)成功!' % form.company.data, 'success')
