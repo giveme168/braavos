@@ -36,7 +36,7 @@
         <table class="table table-bordered">
           <tr>
             <th>开票时间</th>
-            <td>{{invoice.create_time}}</td>
+            <td>{{invoice.create_time_cn}}</td>
           </tr>
           <tr>
             <th>公司名称</th>
@@ -100,6 +100,13 @@
         {{ form_field(form.detail) }}
         {{ form_field(form.money) }}
         {{ form_field(form.invoice_type) }}
+        {% if form.invoice_status.data == 'invoice_pass' %}
+            {{ form_field(form.invoice_num) }}
+            <div class="input-group-menu">
+            <div class="name">开票时间 : </div>
+                <input type="text" id="create_time" name="create_time" value="{{form.create_time.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+            </div>
+        {% endif %}
         <div class="input-group-menu">
             <div class="name">回款时间 : </div>
             <input type="text" id="back_time" name="back_time" value="{{form.back_time.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">

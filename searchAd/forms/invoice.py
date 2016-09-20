@@ -162,6 +162,7 @@ class BillInvoiceForm(Form):
     invoice_num = TextField(u'发票号', default='')
     back_time = DateField(u'回款时间')
     invoice_status = HiddenField()
+    create_time = DateField(u'开票时间')
 
     def __init__(self, *args, **kwargs):
         super(BillInvoiceForm, self).__init__(*args, **kwargs)
