@@ -273,7 +273,7 @@ def bill_rebate_invoice():
         orders = [k for k in searchAdBillInvoice.all() if k.create_time.year == int(
             year) and k.invoice_status == 0]
     if info:
-        orders = [k for k in orders if info in k.client_order.search_invoice_info]
+        orders = [k for k in orders if info in k.client_order_bill.search_invoice_info]
     orders = sorted(list(orders), key=lambda x: x.create_time, reverse=False)
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'bill_rebate_invoice')

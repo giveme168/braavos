@@ -194,6 +194,7 @@
         </ul>
     </div>
     <div class="search-bar">
+    {% if not t_type == 'bill_rebate_invoice' %}
         <form class="menu-btn-bar" style="float:left;">
             <div class="search-input">
                 <input type="text" placeholder="客户/代理/媒体/合同号/Campaign" value="{{info}}" name="info" id="info">
@@ -227,6 +228,41 @@
                 <input type="button" value="导出" onclick="javascript:download();">
             </div>
         </form>
+        {% else %}
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input">
+                <input type="text" placeholder="媒体供应商/广告主/投放媒体/推广类型" value="{{info}}" name="info" id="info">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">年度</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                        <option value="{{2014+k}}">{{2014+k}}年度</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">月份</label>
+                <select class="form-control special_sale" name="month" id="month" style="width:150px;">
+                    <option value="00">全部</option>
+                    {% for k in range(1, 13) %}
+                        {% if k|string|length == 1 %}
+                            <option value="0{{k}}">0{{k}}月</option>
+                        {% else %}
+                            <option value="{{k}}">{{k}}月</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="submit" value="筛选">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="导出" onclick="javascript:download();">
+            </div>
+        </form>
+        {% endif %}
     </div>
     <div class='tabulation'>
         {% if not t_type == 'bill_rebate_invoice' %}
