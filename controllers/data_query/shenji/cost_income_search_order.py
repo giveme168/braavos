@@ -157,8 +157,7 @@ def _search_order_to_dict(search_order):
     dict_order = {}
     dict_order['client_name'] = search_client_order.client.name
     dict_order['client_id'] = search_client_order.client.id
-    dict_order['medium_name'] = search_order.medium.name
-    dict_order['medium_id'] = search_order.medium.id
+    dict_order['medium_name'] = search_order.medium.abbreviation
     dict_order['contract_status'] = search_client_order.contract_status
     dict_order['contract'] = search_client_order.contract
     dict_order['status'] = search_client_order.status
@@ -195,8 +194,7 @@ def _bill_to_dict(bill):
     dict_bill = {}
     dict_bill['client_name'] = bill.client.name
     dict_bill['client_id'] = bill.client.id
-    dict_bill['medium_name'] = bill.medium.name
-    dict_bill['medium_id'] = bill.medium.id
+    dict_bill['medium_name'] = bill.company_cn
     start_datetime = datetime.datetime.strptime(bill.start.strftime('%d%m%Y'), '%d%m%Y')
     end_datetime = datetime.datetime.strptime(bill.end.strftime('%d%m%Y'), '%d%m%Y')
     dict_bill['money_pre_month'] = pre_month_money(bill.money,
@@ -229,18 +227,18 @@ def index():
                   k['status'] == 1]
     bills = [_bill_to_dict(k) for k in searchAdClientOrderBill.all()]
     # 根据合同获取所有媒体
-    medium_ids = []
+    medium_names = []
     medium_info = []
     for o in orders:
-        if o['medium_id'] not in medium_ids:
-            medium_info.append({'medium_name': o['medium_name'], 'medium_id': o['medium_id'], 'client_obj': []})
-            medium_ids.append(o['medium_id'])
+        if o['medium_name'] not in medium_names:
+            medium_info.append({'medium_name': o['medium_name'], 'client_obj': []})
+            medium_names.append(o['medium_name'])
     # 根据媒体，获取投放该媒体的所有客户
     for m in medium_info:
         order_client_ids = []
         order_client_info = []
         for o in orders:
-            if o['client_id'] not in order_client_ids and o['medium_id'] == m['medium_id']:
+            if o['client_id'] not in order_client_ids and o['medium_name'] == m['medium_name']:
                 order_client_info.append({'client_name': o['client_name'], 'client_id': o['client_id'], 'sale_money': 0,
                                           'medium_money2': 0, 'pre_session_last_money': 0,
                                           'real_money': 0, 'rebate_money': 0, 'agent_rebate': 0, 'profit': 0,
@@ -253,20 +251,22 @@ def index():
         for p in range(len(o['sale_money_pre_month'])):
             dict_order = {}
             dict_order['client_id'] = o['client_id']
-            dict_order['medium_id'] = o['medium_id']
+            dict_order['medium_name'] = o['medium_name']
             dict_order['channel_type'] = o['channel_type']
             dict_order['sale_money'] = o['sale_money_pre_month'][p]['money']
             dict_order['medium_money2'] = o['medium_money2_pre_month'][p]['money']
             dict_order['month'] = o['medium_money2_pre_month'][p]['month']
             dict_order['agent_rebate'] = o['agent_rebate_pre_month'][p]['money']
             pro_month_orders.append(dict_order)
+    if channel != -1:
+        orders = [k for k in orders if k['channel_type'] == channel]
     # 根据时间打散所有对账单
     pro_month_bills = []
     for b in bills:
         for p in range(len(b['money_pre_month'])):
             dict_bill = {}
             dict_bill['client_id'] = b['client_id']
-            dict_bill['medium_id'] = b['medium_id']
+            dict_bill['medium_name'] = b['medium_name']
             dict_bill['money'] = b['money_pre_month'][p]['money']
             dict_bill['rebate_money'] = b['rebate_money_pre_month'][p]['money']
             dict_bill['month'] = b['rebate_money_pre_month'][p]['month']
@@ -275,46 +275,43 @@ def index():
     for m in medium_info:
         del_m_index = []
         for c in m['client_info']:
-            # 获取上个季度媒体执行额
+            # 获取截止上个季度媒体执行额
             c['last_session_medium_money2'] = sum([k['medium_money2'] for k in pro_month_orders if
                                                    k['client_id'] == c['client_id'] and
-                                                   k['medium_id'] == m['medium_id'] and
-                                                   k['channel_type'] == channel and
-                                                   k['month'] <= last_Q_monthes[-1] and
-                                                   k['month'] >= last_Q_monthes[0]])
-            # 获取上个季度消耗金额
+                                                   k['medium_name'] == m['medium_name'] and
+                                                   k['month'] <= last_Q_monthes[-1]])
+            # 获取截止上个季度消耗金额
             c['last_session_real_money'] = sum([k['money'] for k in pro_month_bills if
                                                 k['client_id'] == c['client_id'] and
-                                                k['medium_id'] == m['medium_id'] and
-                                                k['month'] <= last_Q_monthes[-1] and
-                                                k['month'] >= last_Q_monthes[0]])
-            # 计算上个季度剩余量
+                                                k['medium_name'] == m['medium_name'] and
+                                                k['month'] <= last_Q_monthes[-1]])
+            # 计算截止上个季度剩余金额
             c['pre_session_last_money'] = c['last_session_medium_money2'] - c['last_session_real_money']
             # 本季度客户金额
             c['sale_money'] = sum([k['sale_money'] for k in pro_month_orders if k['client_id'] == c['client_id'] and
-                                   k['medium_id'] == m['medium_id'] and
+                                   k['medium_name'] == m['medium_name'] and
                                    k['month'] <= now_Q_monthes[-1] and
                                    k['month'] >= now_Q_monthes[0]])
             # 本季度媒体金额
             c['medium_money2'] = sum([k['medium_money2'] for k in pro_month_orders if
                                       k['client_id'] == c['client_id'] and
-                                      k['medium_id'] == m['medium_id'] and
+                                      k['medium_name'] == m['medium_name'] and
                                       k['month'] <= now_Q_monthes[-1] and
                                       k['month'] >= now_Q_monthes[0]])
             # 本季度代理返点
             c['agent_rebate'] = sum([k['agent_rebate'] for k in pro_month_orders if
                                      k['client_id'] == c['client_id'] and
-                                     k['medium_id'] == m['medium_id'] and
+                                     k['medium_name'] == m['medium_name'] and
                                      k['month'] <= now_Q_monthes[-1] and
                                      k['month'] >= now_Q_monthes[0]])
             # 本季度消耗金额
             c['real_money'] = sum([k['money'] for k in pro_month_bills if k['client_id'] == c['client_id'] and
-                                   k['medium_id'] == m['medium_id'] and
+                                   k['medium_name'] == m['medium_name'] and
                                    k['month'] <= now_Q_monthes[-1] and
                                    k['month'] >= now_Q_monthes[0]])
             # 本季度媒体返点
             c['rebate_money'] = sum([k['rebate_money'] for k in pro_month_bills if k['client_id'] == c['client_id'] and
-                                     k['medium_id'] == m['medium_id'] and
+                                     k['medium_name'] == m['medium_name'] and
                                      k['month'] <= now_Q_monthes[-1] and
                                      k['month'] >= now_Q_monthes[0]])
             # 本季度利润
