@@ -83,7 +83,6 @@ def info(order_id):
     if not g.user.is_finance():
         abort(404)
     order = searchAdClientOrderBill.get(order_id)
-    print order.name
     if not order:
         abort(404)
     invoices_data = {
