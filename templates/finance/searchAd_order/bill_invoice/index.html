@@ -17,7 +17,7 @@
     <div class="search-bar">
         <form class="menu-btn-bar" style="float:left;">
             <div class="search-input">
-                <input type="text" placeholder="媒体供应商/广告主/投放媒体" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                <input type="text" placeholder="媒体供应商/广告主/投放媒体/推广类型" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
                 <img src="/static/image/search.png" alt="#">
             </div>
             <div class="select_option">
@@ -44,7 +44,6 @@
                     <th>已开发票金额</th>
                     <th>未开发票金额</th>
                     <th>申请通过个数</th>
-{#                    <th>区域</th>#}
                     <th>操作</th>
                 </tr>
             </thead>
@@ -58,7 +57,6 @@
                         <td>{{order.invoice_pass_sum}}元</td>
                         <td>{{order.rebate_money - order.invoice_pass_sum}}元</td>
                         <td>{{order.get_invoice_by_status(0)|length }}</td>
-{#                        <td>{{order.locations_cn}}</td>#}
                         <td><a href="{{url_for('searchAd_finance_bill_invoice.info', order_id=order.id)}}">查看</a></td>
                 </tr>
                 {% endfor %}
