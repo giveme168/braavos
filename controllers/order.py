@@ -1163,7 +1163,7 @@ def get_medium_framework_form(order):
 @order_bp.route('/my_medium_framework_orders', methods=['GET'])
 def my_medium_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media_leader() or\
-            g.user.is_finance() or g.user.is_aduit():
+            g.user.is_finance() or g.user.is_aduit() or g.user.is_media_assistant():
         orders = MediumFrameworkOrder.all()
         if g.user.is_admin() or g.user.is_contract() or g.user.is_finance():
             pass

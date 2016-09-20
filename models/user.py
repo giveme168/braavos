@@ -15,6 +15,7 @@ USER_STATUS_CN = {
     USER_STATUS_OFF: u"停用",
     USER_STATUS_ON: u"有效"
 }
+TEAN_TYPE_MEDIA_ASSISTANT = 26 # 内部-媒介助理
 TEAM_TYPE_AUDIT = 24  # 审计
 TEAM_TYPE_OUT_INAD = 23  # 外部其他
 TEAM_TYPE_SEARCH_AD_LEADER = 22  # 效果业务销售Leader
@@ -64,6 +65,7 @@ TEAM_TYPE_CN = {
     TEAM_TYPE_OPS: u'内部行政',
     TEAM_TYPE_OPS_LEADER: u'内部行政-Leader',
     TEAM_TYPE_MEDIA_LEADER: u'内部-媒介Leader',
+    TEAN_TYPE_MEDIA_ASSISTANT: u'内部-媒介助理',
     TEAM_TYPE_SEARCH_AD_SELLER: u'效果业务销售',
     TEAM_TYPE_SEARCH_AD_LEADER: u'效果业务销售Leader',
     TEAM_TYPE_SEARCH_AD_MEDIUM: u'效果业务媒介',
@@ -230,7 +232,7 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         return self.is_admin() or self.team.type in [TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER]
 
     def is_media(self):
-        return self.is_admin() or self.is_media_leader() or self.team.type == TEAM_TYPE_MEDIA
+        return self.is_admin() or self.is_media_leader() or self.team.type == TEAM_TYPE_MEDIA or self.team.type == TEAN_TYPE_MEDIA_ASSISTANT
 
     def is_searchad_media(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_SEARCH_AD_MEDIUM
@@ -268,6 +270,9 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
     def is_searchad_member(self):
         return self.is_searchad_saler() or self.is_searchad_leader() or self.is_super_leader() or self.is_contract() \
             or self.is_searchad_medium()
+
+    def is_media_assistant(self):
+        return self.team.type == TEAN_TYPE_MEDIA_ASSISTANT
 
     @classmethod
     def gets_by_team_type(cls, team_type):
