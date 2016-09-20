@@ -296,7 +296,7 @@ def bill_rebate_invoice():
     if request.values.get('action', '') == 'download':
         response = write_order_excel(list(orders), 'bill_rebate_invoice')
         return response
-    return tpl('/finance/searchAd_order/data_query/index.html',
+    return tpl('/saler/searchAd_order/data_query/index.html',
                orders=orders,
                year=year, month=month, info=info,
                title=u"已开对账单返点发票", t_type='bill_rebate_invoice')
