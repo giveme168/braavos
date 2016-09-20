@@ -270,6 +270,13 @@
     window.location.href = window.location.pathname + params;
 
   }
+  function bill_download(){
+    var params = '?info=' + encodeURIComponent($('#info').val()) +
+                 '&action=download';
+    params += '&year='+$('#year').val()+
+              '&month='+$('#month').val()
+    window.location.href = window.location.pathname + params;
+  }
   $(function(){
     $('#year').val('{{year}}')
     $("#year").trigger("chosen:updated");
