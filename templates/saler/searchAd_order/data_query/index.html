@@ -114,7 +114,7 @@
     </table>
 {% endmacro %}
 {% macro bill_invoice_form(t_type,orders) %}
-    <table border='1'>
+    <table class="table table-bordered" border='1'>
             <thead>
                 <tr>
                     <th>媒体供应商</th>
@@ -269,6 +269,13 @@
               '&month='+$('#month').val()
     window.location.href = window.location.pathname + params;
 
+  }
+  function bill_download(){
+    var params = '?info=' + encodeURIComponent($('#info').val()) +
+                 '&action=download';
+    params += '&year='+$('#year').val()+
+              '&month='+$('#month').val()
+    window.location.href = window.location.pathname + params;
   }
   $(function(){
     $('#year').val('{{year}}')
