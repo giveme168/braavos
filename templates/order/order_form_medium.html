@@ -77,7 +77,7 @@
             <th>策划人员 </th>
             <td>{{order.planers_names}}</td>
           </tr>
-          {% if g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %} 
+          {% if g.user.is_contract() %}
           <tr>
             <th>合同是否归档</th>
             <td>
@@ -87,6 +87,8 @@
               </select>
             </td>
           </tr>
+          {% endif %}
+          {% if g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %} 
           <tr>
             <th style="color:red;">单笔返点</th>
             <td>
