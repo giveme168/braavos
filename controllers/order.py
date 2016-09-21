@@ -39,7 +39,7 @@ from models.download import (download_excel_table_by_doubanorders,
 from libs.email_signals import zhiqu_contract_apply_signal, zhiqu_edit_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
-from controllers.helpers.order_helpers import write_client_excel, write_frameworkorder_excel
+from controllers.helpers.order_helpers import write_client_excel, write_frameworkorder_excel, write_client_medium_excel
 from libs.date_helpers import get_monthes_pre_days
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
@@ -2187,7 +2187,7 @@ def client_medium_display_orders(orders, title, status_id=-1):
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
     if 'download' == request.args.get('action', ''):
-        return write_client_excel(orders)
+        return write_client_medium_excel(orders)
     else:
         paginator = Paginator(orders, ORDER_PAGE_NUM)
         try:
