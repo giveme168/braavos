@@ -55,7 +55,9 @@
                         {% endif %}
 
 {#                        {% if mf[1].finish_status == 0 %}#}
+                        {% if g.user.is_media() %}
                             {{ finish_medium_order_attachment(mf[1]) }}
+                        {% endif %}
 {#                        {% endif %}#}
                         <hr>
                     {% endfor %}
