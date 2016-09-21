@@ -118,7 +118,7 @@
         <input type="submit" value="保存">
     </div>
 </form>
-{% elif order and order.can_admin(g.user) and order.contract_status in [0, 1]%}
+{% elif order and order.can_admin(g.user) and order.contract_status in [0, 1, 6]%}
 <form class="input-row-box" method="POST">
     <input class="hide" name="info_type" value="0"/>
     {{form.csrf_token}}
