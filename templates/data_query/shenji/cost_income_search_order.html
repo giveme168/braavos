@@ -2,9 +2,27 @@
 {% block title %}效果订单收入成本{% endblock %}
 {% block content %}
 {% include "/data_query/shenji/shenji_base_v1_0_0.html" %}
-<div class="container bra-box" style="width:1200px;">
+<div class="container bra-box" style="width:1400px;">
     <div class="search-bar">
         <form class="menu-btn-bar" style="float:left;">
+            <div class="select_option">
+                <label for="sale_type" class="control-label">媒体供应商：</label>
+                <select class="form-control special_sale" name="medium" id="medium" style="width:160px;">
+                    <option value="">全部</option>>
+                    {% for k in mediums %}
+                    <option value='{{k.abbreviation}}'>{{k.abbreviation}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">广告主：</label>
+                <select class="form-control special_sale" name="client" id="client" style="width:160px;">
+                    <option value="0">全部</option>>
+                    {% for k in clients %}
+                    <option value='{{k.id}}'>{{k.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <div class="select_option">
                 <label for="sale_type" class="control-label">查询时间：</label>
                 <select class="form-control special_sale" name="year" id="year" style="width:100px;">
@@ -20,6 +38,7 @@
                     <option value='Q2'>Q2</option>
                     <option value='Q3'>Q3</option>
                     <option value='Q4'>Q4</option>
+                    <option value='0'>全部</option>
                 </select>
             </div>
             <div class="select_option">
@@ -44,16 +63,25 @@
         <table>
             <thead>
                 <tr>
-                    <th>代理/媒体</th>
-                    <th>客户</th>
+                    <th>媒体供应商</th>
+                    <th>广告主</th>
                     <th>客户下单金额</th>
                     <th>媒体下单金额</th>
-                    <th>上季剩余金额</th>
-                    <th>本季消耗金额</th>
-                    <th>本季返点金额</th>
-                    <th>本季客户返点</th>
-                    <th>本季利润</th>
-                    <th>当季未消耗金额</th>
+                    {% if Q == '0' %}
+                        <th>上年剩余金额</th>
+                        <th>本年消耗金额</th>
+                        <th>本年返点金额</th>
+                        <th>本年客户返点</th>
+                        <th>本年利润</th>
+                        <th>当年未消耗金额</th>
+                    {% else %}
+                        <th>上季剩余金额</th>
+                        <th>本季消耗金额</th>
+                        <th>本季返点金额</th>
+                        <th>本季客户返点</th>
+                        <th>本季利润</th>
+                        <th>当季未消耗金额</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -180,6 +208,10 @@
         $("#Q").trigger("chosen:updated");
         $('#channel').val('{{channel}}');
         $("#channel").trigger("chosen:updated");
+        $('#client').val('{{client}}');
+        $("#client").trigger("chosen:updated");
+        $('#medium').val('{{medium}}');
+        $("#medium").trigger("chosen:updated");
     });
     function download(){
         var year = $('#year').val();

@@ -6,6 +6,8 @@ from flask import render_template as tpl
 
 from searchAd.models.client_order import searchAdClientOrderBill
 from searchAd.models.order import searchAdOrder
+from searchAd.models.client import searchAdClient
+from searchAd.models.medium import searchAdMedium
 from libs.date_helpers import get_monthes_pre_days, check_year_Q_get_monthes, get_last_year_month_by_Q
 from controllers.data_query.helpers.shenji_helpers import write_search_order_excel
 
@@ -213,19 +215,28 @@ def index():
         abort(403)
     now_date = datetime.datetime.now()
     year = int(request.values.get('year', now_date.year))
+    medium = request.values.get('medium', '')
+    client = int(request.values.get('client', 0))
     Q = request.values.get('Q', 'Q1')
-    now_Q_monthes = check_year_Q_get_monthes(year, Q)
-    last_Q_year, last_Q_month = get_last_year_month_by_Q(year, Q)
-    last_Q_monthes = [datetime.datetime.strptime(str(last_Q_year) + k, '%Y%m') for k in last_Q_month]
+    if Q != '0':
+        now_Q_monthes = check_year_Q_get_monthes(year, Q)
+        last_Q_year, last_Q_month = get_last_year_month_by_Q(year, Q)
+        last_Q_monthes = [datetime.datetime.strptime(str(last_Q_year) + k, '%Y%m') for k in last_Q_month]
+    else:
+        now_Q_monthes = [datetime.datetime.strptime(str(year) + str(k), '%Y%m') for k in range(1, 13)]
+        last_Q_monthes = [datetime.datetime.strptime(str(year - 1) + str(k), '%Y%m') for k in range(1, 13)]
     channel = int(request.values.get('channel', -1))
     orders = [_search_order_to_dict(k) for k in searchAdOrder.all()]
+    orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     if channel != -1:
-        orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and
-                  k['status'] == 1 and k['channel_type'] == channel]
-    else:
-        orders = [k for k in orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and
-                  k['status'] == 1]
+        orders = [k for k in orders if k['channel_type'] == channel]
     bills = [_bill_to_dict(k) for k in searchAdClientOrderBill.all()]
+    if medium:
+        orders = [k for k in orders if k['medium_name'] == medium]
+        bills = [k for k in bills if k['medium_name'] == medium]
+    if client:
+        orders = [k for k in orders if k['client_id'] == client]
+        bills = [k for k in bills if k['client_id'] == client]
     # 根据合同获取所有媒体
     medium_names = []
     medium_info = []
@@ -328,4 +339,5 @@ def index():
     medium_info = [k for k in medium_info if k['client_info']]
     if request.values.get('action') == 'excel':
         return write_search_order_excel(year=year, Q=Q, channel=channel, medium_info=medium_info)
-    return tpl('/shenji/cost_income_search_order.html', year=year, Q=Q, channel=channel, medium_info=medium_info)
+    return tpl('/shenji/cost_income_search_order.html', year=year, Q=Q, channel=channel, medium_info=medium_info,
+               clients=searchAdClient.all(), mediums=searchAdMedium.all(), client=client, medium=medium)

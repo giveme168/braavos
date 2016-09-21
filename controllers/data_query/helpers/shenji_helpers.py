@@ -687,7 +687,10 @@ def write_search_order_excel(year, Q, channel, medium_info):
     worksheet.write(0, 1, '%s%s' % (str(year), Q), align_left)
     worksheet.write(1, 0, '投放平台', align_left)
     worksheet.write(1, 1, CHANNEL_TYPE_CN[channel], align_left)
-    keys = [u'代理/媒体', u'客户', u'客户下单金额', u'媒体下单金额', u'上季剩余金额', u'本季消耗金额', u'本季返点金额', u'本季客户返点', u'本季利润', u'当季未消耗金额']
+    if Q == '0':
+        keys = [u'代理/媒体', u'客户', u'客户下单金额', u'媒体下单金额', u'上年剩余金额', u'本年消耗金额', u'本年返点金额', u'本年客户返点', u'本年利润', u'当年未消耗金额']
+    else:
+        keys = [u'代理/媒体', u'客户', u'客户下单金额', u'媒体下单金额', u'上季剩余金额', u'本季消耗金额', u'本季返点金额', u'本季客户返点', u'本季利润', u'当季未消耗金额']
     for k in range(len(keys)):
         worksheet.write(2, k, keys[k], align_center)
     # 设置宽度为30
