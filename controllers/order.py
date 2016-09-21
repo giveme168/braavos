@@ -544,15 +544,16 @@ def order_medium_edit_cpm(medium_id):
                 g.user, u"更新了媒体订单: %s 的分成金额%s " % (mo.media.name, medium_money))
         mo.medium_money = medium_money
     mo.self_medium_rebate = str(self_medium_rebate) + '-' + str(self_medium_rabate_value)
-    finish_status = int(request.values.get('finish_status', 1))
-    # 归档前合同状态
-    last_status = mo.finish_status
-    mo.finish_status = finish_status
-    if finish_status == 0 and last_status != 0:
-        mo.finish_time = datetime.now()
-        mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.media.name))
-    elif finish_status == 1 and last_status == 0:
-        mo.client_order.add_comment(g.user, u" %s 媒体订单取消归档" % (mo.media.name))
+    if g.user.is_contract():
+        # 归档前合同状态
+        finish_status = int(request.values.get('finish_status', 1))
+        last_status = mo.finish_status
+        mo.finish_status = finish_status
+        if finish_status == 0 and last_status != 0:
+            mo.finish_time = datetime.now()
+            mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.media.name))
+        elif finish_status == 1 and last_status == 0:
+            mo.client_order.add_comment(g.user, u" %s 媒体订单取消归档" % (mo.media.name))
     mo.save()
     if medium_money != '':
         _insert_executive_report(mo, 'reload')
