@@ -13,7 +13,7 @@
         {% set mediums = medium.get_last_medium(type) %}
         {% if mediums %}
             <a href="{{mediums.medium_path}}">{{mediums.filename}}</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <a class="btn btn-sm btn-default" href="{{url_for('mediums_files.info_last', mid=medium.id, type=type)}}">查看历史版本</a>
+            <a class="btn btn-sm btn-default" href="{{url_for('mediums_files.info_last', mid=medium.id, type=type)}}">查看所有</a>
         {% else %}
             暂无
         {% endif %}
@@ -35,7 +35,7 @@
         {% set mediums = medium.get_last_medium(type) %}
         {% if mediums %}
             <a href="{{mediums.medium_path}}">{{mediums.filename}}</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <a class="btn btn-sm btn-default" href="{{url_for('mediums_files.info_last', mid=medium.id, type=type)}}">查看历史版本</a>
+            <a class="btn btn-sm btn-default" href="{{url_for('mediums_files.info_last', mid=medium.id, type=type)}}">查看所有</a>
         {% else %}
             暂无
         {% endif %}

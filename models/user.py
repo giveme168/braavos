@@ -15,7 +15,7 @@ USER_STATUS_CN = {
     USER_STATUS_OFF: u"停用",
     USER_STATUS_ON: u"有效"
 }
-TEAN_TYPE_MEDIA_ASSISTANT = 26 # 内部-媒介助理
+TEAN_TYPE_MEDIA_ASSISTANT = 26  # 内部-媒介助理
 TEAM_TYPE_AUDIT = 24  # 审计
 TEAM_TYPE_OUT_INAD = 23  # 外部其他
 TEAM_TYPE_SEARCH_AD_LEADER = 22  # 效果业务销售Leader
@@ -232,7 +232,8 @@ class User(db.Model, BaseModelMixin, AttachmentMixin):
         return self.is_admin() or self.team.type in [TEAM_TYPE_OPERATER, TEAM_TYPE_OPERATER_LEADER]
 
     def is_media(self):
-        return self.is_admin() or self.is_media_leader() or self.team.type == TEAM_TYPE_MEDIA or self.team.type == TEAN_TYPE_MEDIA_ASSISTANT
+        return self.is_admin() or self.is_media_leader() or self.team.type == TEAM_TYPE_MEDIA or\
+            self.team.type == TEAN_TYPE_MEDIA_ASSISTANT
 
     def is_searchad_media(self):
         return self.is_admin() or self.team.type == TEAM_TYPE_SEARCH_AD_MEDIUM
