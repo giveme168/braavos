@@ -87,6 +87,11 @@
               </select>
             </td>
           </tr>
+          {% else %}
+          <tr>
+            <th>合同是否归档</th>
+            <td>{% if order.finish_status == 1 %}未归档{% else %}已归档{% endif %}</td>
+          </tr>
           {% endif %}
           {% if g.user.is_media() or g.user.is_media_leader() or g.user.is_contract() %} 
           <tr>
