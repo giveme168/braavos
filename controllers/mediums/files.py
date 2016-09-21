@@ -7,7 +7,7 @@ from models.medium import Media
 from models.user import User
 from models.attachment import (ATTACHMENT_TYPE_MEDIUM_INTRODUCE, ATTACHMENT_TYPE_MEDIUM_PRODUCT,
                                ATTACHMENT_TYPE_MEDIUM_DATA, ATTACHMENT_TYPE_MEDIUM_NEW_PRODUCT,
-                               ATTACHMENT_TYPE, Attachment)
+                               ATTACHMENT_TYPE, ATTACHMENT_TYPE_MEDIUM_MR, Attachment)
 from libs.files import all_files_set
 
 
@@ -38,6 +38,7 @@ def info(mid):
                ATTACHMENT_TYPE_MEDIUM_PRODUCT=ATTACHMENT_TYPE_MEDIUM_PRODUCT,
                ATTACHMENT_TYPE_MEDIUM_DATA=ATTACHMENT_TYPE_MEDIUM_DATA,
                ATTACHMENT_TYPE_MEDIUM_NEW_PRODUCT=ATTACHMENT_TYPE_MEDIUM_NEW_PRODUCT,
+               ATTACHMENT_TYPE_MEDIUM_MR=ATTACHMENT_TYPE_MEDIUM_MR,
                reminder_emails=reminder_emails)
 
 
