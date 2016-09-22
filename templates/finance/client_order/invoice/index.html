@@ -40,9 +40,12 @@
                     {% endfor %}
                 </select>
             </div>
-            
+
             <div class="select_option screen">
                 <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+            <div class="select_option return">
+                <input type="button" value="下载" onclick="javascript:invoice_download();">
             </div>
         </form>
     </div>
@@ -90,8 +93,14 @@
             '&selected_location=' + ($('#search_location').val()) +
             '&year='+$('#year').val();
     }
+    function invoice_download(){
+        window.location.href = window.location.pathname +
+    '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&selected_location=' + ($('#search_location').val()) +
+            '&year='+$('#year').val()+'&action=download';
+    }
     $(function() {
-        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
         $('#year').val('{{year}}');
         $("#year").trigger("chosen:updated");
     });

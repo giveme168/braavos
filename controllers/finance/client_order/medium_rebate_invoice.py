@@ -13,7 +13,8 @@ from models.medium import Media, MediumGroup
 from forms.invoice import MediumRebateInvoiceForm
 from libs.email_signals import medium_rebate_invoice_apply_signal
 from libs.paginator import Paginator
-from controllers.finance.helpers.invoice_helpers import write_medium_rebate_invoice_excel
+from controllers.finance.helpers.invoice_helpers import write_medium_rebate_invoice_excel, \
+    write_apply_pass_invoice_excel
 from controllers.tools import get_download_response
 from controllers.saler.client_order.medium_rebate_invoice import get_invoice_from
 
@@ -45,12 +46,27 @@ def index():
     select_statuses.insert(0, (-1, u'全部合同状态'))
     for k in orders:
         k.apply_count = len(k.get_medium_rebate_invoice_by_status(3))
+    if request.args.get('action', '').strip() == 'download':
+        response = write_apply_pass_invoice_excel(list(get_invoices_by(search_info, location_id, year)),
+                                                  'medium_rebate_invoice')
+        return response
     return tpl('/finance/client_order/medium_rebate_invoice/index.html', orders=orders,
                locations=select_locations,
                location_id=location_id, statuses=select_statuses,
                now_date=datetime.date.today(), search_info=search_info, year=year,
                params='?&searchinfo=%s&selected_location=%s&year=%s' %
                       (search_info, location_id, str(year)))
+
+
+def get_invoices_by(search_info, location_id, year):
+    invoices = MediumRebateInvoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)
+    if location_id >= 0:
+        invoices = [i for i in invoices if location_id in i.client_order.locations]
+    if search_info != '':
+        invoices = [i for i in invoices if search_info.lower() in i.client_order.search_invoice_info.lower()]
+    invoices = [i for i in invoices if
+                i.client_order.client_start.year == year or i.client_order.client_end.year == year]
+    return invoices
 
 
 @finance_client_order_medium_rebate_invoice_bp.route('/pass', methods=['GET'])
