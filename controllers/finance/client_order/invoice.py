@@ -12,13 +12,11 @@ from models.invoice import (Invoice, INVOICE_STATUS_CN,
 from libs.email_signals import invoice_apply_signal
 from libs.paginator import Paginator
 from forms.invoice import InvoiceForm
-from controllers.finance.helpers.invoice_helpers import write_excel
+from controllers.finance.helpers.invoice_helpers import write_excel, write_apply_pass_invoice_excel
 from controllers.tools import get_download_response
-
 
 finance_client_order_invoice_bp = Blueprint(
     'finance_client_order_invoice', __name__, template_folder='../../templates/finance/client_order')
-
 
 ORDER_PAGE_NUM = 50
 
@@ -31,7 +29,7 @@ def index():
     location_id = int(request.args.get('selected_location', '-1'))
     year = int(request.values.get('year', datetime.datetime.now().year))
     orders = set([
-        invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
+                     invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
@@ -44,11 +42,26 @@ def index():
     select_statuses.insert(0, (-1, u'全部合同状态'))
     for k in orders:
         k.apply_count = len(k.get_invoice_by_status(3))
+    if request.args.get('action', '').strip() == 'download':
+        response = write_apply_pass_invoice_excel(list(get_invoices_by(search_info, location_id, year)),
+                                                  'client_order_invoice')
+        return response
     return tpl('/finance/client_order/invoice/index.html', orders=orders, locations=select_locations,
                location_id=location_id, statuses=select_statuses,
                now_date=datetime.date.today(), search_info=search_info, year=year,
                params='?&searchinfo=%s&selected_location=%s&year=%s' %
                       (search_info, location_id, str(year)))
+
+
+def get_invoices_by(search_info, location_id, year):
+    invoices = Invoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)
+    if location_id >= 0:
+        invoices = [i for i in invoices if location_id in i.client_order.locations]
+    if search_info != '':
+        invoices = [i for i in invoices if search_info.lower() in i.client_order.search_invoice_info.lower()]
+    invoices = [i for i in invoices if
+                i.client_order.client_start.year == year or i.client_order.client_end.year == year]
+    return invoices
 
 
 @finance_client_order_invoice_bp.route('/pass', methods=['GET'])
@@ -238,9 +251,9 @@ def pass_invoice(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
-        invoice.client_order.assistant_sales + \
-        [invoice.client_order.creator, g.user] + \
-        invoice.client_order.leaders
+               invoice.client_order.assistant_sales + \
+               [invoice.client_order.creator, g.user] + \
+               invoice.client_order.leaders
     if action != 10:
         invoice_status = INVOICE_STATUS_PASS
         action_msg = u'客户发票已开'
