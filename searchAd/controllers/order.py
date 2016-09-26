@@ -595,9 +595,15 @@ def display_orders(orders, title, status_id=-1):
     orderby = request.args.get('orderby', 'create_time')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
+    resource_type = int(request.args.get('resource_type', '-1'))
+    channel_type = int(request.args.get('channel_type', '-1'))
     page = int(request.args.get('p', 1))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
+    if resource_type >= 0:
+        orders = [o for o in orders if resource_type == o.resource_type]
+    if channel_type >= 0:
+        orders = [o for o in orders if channel_type in o.channel_types]
     if status_id >= 0:
         if status_id == 28:
             orders = [o for o in orders if o.contract_status != 20]
@@ -636,14 +642,14 @@ def display_orders(orders, title, status_id=-1):
         except:
             orders = paginator.page(paginator.num_pages)
         params = '&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s\
-        &year=%s' % (
-            orderby, search_info, location_id, status_id, str(year))
+        &year=%s&resource_type=%s&channel_type=%s' % (
+            orderby, search_info, location_id, status_id, str(year), resource_type, channel_type)
         return tpl('searchad_orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
                    search_info=search_info, page=page,
                    orderby=orderby, now_date=datetime.now().date(),
-                   params=params, year=year)
+                   params=params, year=year, resource_type=resource_type, channel_type=channel_type)
 
 
 @searchAd_order_bp.route('/order/<order_id>/recovery', methods=['GET'])

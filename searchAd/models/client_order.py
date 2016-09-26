@@ -431,6 +431,10 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
         return AD_PROMOTION_TYPE_CN.get(self.resource_type)
 
     @property
+    def channel_types(self):
+        return list(set([mo.channel_type for mo in self.medium_orders]))
+
+    @property
     def sale_type_cn(self):
         return SALE_TYPE_CN.get(self.sale_type)
 
@@ -511,8 +515,8 @@ class searchAdClientOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixi
     @property
     def search_info(self):
         return (self.client.name + self.agent.name +
-                self.campaign + self.contract +
-                "".join([mo.medium.name + mo.medium_contract for mo in self.medium_orders]))
+                self.campaign + self.contract + self.resource_type_cn +
+                "".join([mo.medium.name + mo.medium_contract + mo.channel_type_cn for mo in self.medium_orders]))
 
     @property
     def search_invoice_info(self):
