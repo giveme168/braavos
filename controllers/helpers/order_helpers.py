@@ -412,7 +412,7 @@ def write_searchAd_client_excel(orders):
 
     keys = [u'代理/直客(甲方全称)', u'客户合同号', u'客户名称', u'Campaign名称', u'合同金额(元)',
             u'执行开始', u'执行结束', u'回款日期', u'回款金额', u'销售', u'区域', u'合同模板类型',
-            u'推广类型', u'代理/直客', u'投放媒体', u'媒体合同号', u'客户下单金额(元)', u'给媒体/供应商下单金额(元)',
+            u'推广类型', u'代理/直客', u'投放媒体', u'最终推广渠道', u'媒体合同号', u'客户下单金额(元)', u'给媒体/供应商下单金额(元)',
             u'是否给媒体打款', u'是否收到媒体发票',
             u'预估量(CPM)', u'实际量(CPM)', u'执行开始', u'执行结束', u'执行人员']
     for k in range(len(keys)):
@@ -452,16 +452,17 @@ def write_searchAd_client_excel(orders):
                 th, 13, th + len(orders[k].medium_orders) - 1, 13, orders[k].sale_type_cn, align_left)
             for i in range(len(mediums)):
                 worksheet.write(th, 14, mediums[i].name, align_left)
-                worksheet.write(th, 15, mediums[i].medium_contract, align_left)
-                worksheet.write(th, 16, mediums[i].sale_money, align_left)
-                worksheet.write(th, 17, mediums[i].medium_money2, align_left)
-                worksheet.write(th, 18, '', align_left)
+                worksheet.write(th, 15, mediums[i].channel_type_cn, align_left)
+                worksheet.write(th, 16, mediums[i].medium_contract, align_left)
+                worksheet.write(th, 17, mediums[i].sale_money, align_left)
+                worksheet.write(th, 18, mediums[i].medium_money2, align_left)
                 worksheet.write(th, 19, '', align_left)
-                worksheet.write(th, 20, mediums[i].sale_CPM, align_left)
-                worksheet.write(th, 21, mediums[i].medium_CPM, align_left)
-                worksheet.write(th, 22, mediums[i].start_date_cn, align_left)
-                worksheet.write(th, 23, mediums[i].end_date_cn, align_left)
-                worksheet.write(th, 24, mediums[i].operater_names, align_left)
+                worksheet.write(th, 20, '', align_left)
+                worksheet.write(th, 21, mediums[i].sale_CPM, align_left)
+                worksheet.write(th, 22, mediums[i].medium_CPM, align_left)
+                worksheet.write(th, 23, mediums[i].start_date_cn, align_left)
+                worksheet.write(th, 24, mediums[i].end_date_cn, align_left)
+                worksheet.write(th, 25, mediums[i].operater_names, align_left)
                 th += 1
         else:
             worksheet.write(th, 0, orders[k].agent.name, align_left)
@@ -482,25 +483,27 @@ def write_searchAd_client_excel(orders):
                 worksheet.write(
                     th, 14, orders[k].medium_orders[0].name, align_left)
                 worksheet.write(
-                    th, 15, orders[k].medium_orders[0].medium_contract, align_left)
+                    th, 15, orders[k].medium_orders[0].channel_type_cn, align_left)
                 worksheet.write(
-                    th, 16, orders[k].medium_orders[0].sale_money, align_left)
+                    th, 16, orders[k].medium_orders[0].medium_contract, align_left)
                 worksheet.write(
-                    th, 17, orders[k].medium_orders[0].medium_money2, align_left)
+                    th, 17, orders[k].medium_orders[0].sale_money, align_left)
                 worksheet.write(
-                    th, 18, '', align_left)
+                    th, 18, orders[k].medium_orders[0].medium_money2, align_left)
                 worksheet.write(
                     th, 19, '', align_left)
                 worksheet.write(
-                    th, 20, orders[k].medium_orders[0].sale_CPM, align_left)
+                    th, 20, '', align_left)
                 worksheet.write(
-                    th, 21, orders[k].medium_orders[0].medium_CPM, align_left)
+                    th, 21, orders[k].medium_orders[0].sale_CPM, align_left)
                 worksheet.write(
-                    th, 22, orders[k].medium_orders[0].start_date_cn, align_left)
+                    th, 22, orders[k].medium_orders[0].medium_CPM, align_left)
                 worksheet.write(
-                    th, 23, orders[k].medium_orders[0].end_date_cn, align_left)
+                    th, 23, orders[k].medium_orders[0].start_date_cn, align_left)
                 worksheet.write(
-                    th, 24, orders[k].medium_orders[0].operater_names, align_left)
+                    th, 24, orders[k].medium_orders[0].end_date_cn, align_left)
+                worksheet.write(
+                    th, 25, orders[k].medium_orders[0].operater_names, align_left)
             th += 1
 
     workbook.close()
