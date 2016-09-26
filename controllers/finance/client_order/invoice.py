@@ -28,8 +28,7 @@ def index():
     search_info = request.args.get('searchinfo', '').strip()
     location_id = int(request.args.get('selected_location', '-1'))
     year = int(request.values.get('year', datetime.datetime.now().year))
-    orders = set([
-                     invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
+    orders = set([invoice.client_order for invoice in Invoice.get_invoices_status(INVOICE_STATUS_APPLYPASS)])
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
     orders = [k for k in orders if k.client_start.year == year or k.client_end.year == year]
@@ -251,9 +250,9 @@ def pass_invoice(invoice_id):
     msg = request.values.get('msg', '')
     action = int(request.values.get('action', 0))
     to_users = invoice.client_order.direct_sales + invoice.client_order.agent_sales + \
-               invoice.client_order.assistant_sales + \
-               [invoice.client_order.creator, g.user] + \
-               invoice.client_order.leaders
+        invoice.client_order.assistant_sales + \
+        [invoice.client_order.creator, g.user] + \
+        invoice.client_order.leaders
     if action != 10:
         invoice_status = INVOICE_STATUS_PASS
         action_msg = u'客户发票已开'

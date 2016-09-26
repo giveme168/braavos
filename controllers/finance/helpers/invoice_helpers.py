@@ -133,7 +133,7 @@ def write_medium_rebate_invoice_excel(orders):
     return xls
 
 
-def write_apply_pass_invoice_excel(orders,type):
+def write_apply_pass_invoice_excel(orders, type):
     response = Response()
     response.status_code = 200
     output = StringIO.StringIO()
@@ -147,8 +147,8 @@ def write_apply_pass_invoice_excel(orders,type):
     keys = [u'代理/直客', u'客户名称', u'Campaign', u'合同号', u'开票时间', u'公司名称', u'税号',
             u'公司地址', u'联系电话', u'银行账号', u'开户行', u'发票内容', u'发票金额', u'发票类型',
             u'申请人']
-    if type == 'medium_rebate_invoice' :
-        keys.insert(4,u'所属媒体')
+    if type == 'medium_rebate_invoice':
+        keys.insert(4, u'所属媒体')
     for k in range(len(keys)):
         worksheet.write(0, 0 + k, keys[k], align_center)
     # 设置宽度为30
