@@ -47,8 +47,12 @@ def _format_order(order, type='client'):
     params['month_day'] = order.month_day
     if type == 'client':
         params['money'] = order.medium_money2
-        params['medium_id'] = order.order.medium_id
-        params['medium_name'] = order.order.media.name
+        if order.__tablename__ == 'searchAd_bra_medium_order_executive_report':
+            params['medium_id'] = order.order.medium_id
+            params['medium_name'] = order.order.medium.name
+        else:
+            params['medium_id'] = order.order.media_id
+            params['medium_name'] = order.order.media.name
         params['direct_sales'] = order.client_order.direct_sales
         params['agent_sales'] = order.client_order.agent_sales
         params['locations'] = order.client_order.locations
