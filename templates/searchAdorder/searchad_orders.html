@@ -11,6 +11,8 @@
                 <th>Campaign</th>
                 <th>合同金额</th>
                 <th>合同号</th>
+                <th>推广类型</th>
+                <th>最终推广渠道</th>
                 <th>回款比例</th>
                 <th>回款日期</th>
                 <th>销售</th>
@@ -53,6 +55,13 @@
                 <td><a href="{{o.info_path()}}">{{o.campaign}}</a></td>
                 <td>{{o.money}}</td>
                 <td><a href="{{o.info_path()}}">{{o.contract or "无合同号"}}</a></td>
+                <td>{{ o.resource_type_cn }}</td>
+                <td>
+                    {% for mo in o.medium_orders %}
+                    {{ mo.channel_type_cn }}
+                    <br><br>
+                    {% endfor %}
+                </td>
                 <td>{{o.back_money_percent}}%</td>
                 <td>{{o.reminde_date_cn}}</td>
                 <td>{{o.direct_sales_names}}</td>
@@ -62,60 +71,60 @@
                 <td>{{o.locations_cn}}</td>
                 <td>{{o.sale_type_cn}}</td>
                 <td>
-                    {% for mo in o.medium_orders %}    
+                    {% for mo in o.medium_orders %}
                     {{mo.medium.name}}
                     <br><br>
                     {% endfor %}
                 </td>
                 <td>
-                    {% for mo in o.medium_orders %}    
+                    {% for mo in o.medium_orders %}
                     {{mo.sale_money}}
                     <br><br>
                     {% endfor %}
                 </td>
                 <td>
-                    {% for mo in o.medium_orders %}    
+                    {% for mo in o.medium_orders %}
                     {{mo.medium_money2}}
                     <br><br>
                     {% endfor %}
                 </td>
                 <td>
                     <a href="{{o.info_path()}}">
-                    {% for mo in o.medium_orders %}    
+                    {% for mo in o.medium_orders %}
                     {{mo.medium_contract or "无合同号"}}
                     <br><br>
                     {% endfor %}
                     </a>
                 </td>
                 <td>
-                    {% for mo in o.medium_orders %}    
+                    {% for mo in o.medium_orders %}
                     {{"%.1f" % (mo.medium_money / mo.sale_CPM) if (mo.medium_money and mo.sale_CPM) else "无预估"}}
                     <br><br>
                     {% endfor %}
                 </td>
                 <td>{{o.create_time_cn}}</td>
                 <td>
-                    {% for mo in o.medium_orders %}    
+                    {% for mo in o.medium_orders %}
                     {{mo.start_date_cn}}
                     <br><br>
                     {% endfor %}
                 </td>
                 <td>
-                    {% for mo in o.medium_orders %}    
-                    {{mo.end_date_cn}} 
+                    {% for mo in o.medium_orders %}
+                    {{mo.end_date_cn}}
                     <br><br>
                     {% endfor %}
                 </td>
                 <td>
-                    {% for mo in o.medium_orders %}    
-                    {{mo.operater_names}} 
+                    {% for mo in o.medium_orders %}
+                    {{mo.operater_names}}
                     <br><br>
                     {% endfor %}
                 </td>
                 {#
                 {% if g.user.is_super_admin() %}
                 <td>
-                    {% for mo in o.medium_orders %}    
+                    {% for mo in o.medium_orders %}
                     <a href="{{mo.path()}}">排期设置</a>
                     <br><br>
                     {% endfor %}
@@ -124,13 +133,13 @@
                 #}
                 {#
                 <td>
-                    {% for ao in o.associated_douban_orders %}    
+                    {% for ao in o.associated_douban_orders %}
                     {{ao.money}}
                     <br><br>
                     {% endfor %}
                 </td>
                  <td>
-                    {% for ao in o.associated_douban_orders %}    
+                    {% for ao in o.associated_douban_orders %}
                     {{ao.contract}}
                     <br><br>
                     {% endfor %}
@@ -213,6 +222,34 @@
                 </select>
             </div>
             <div class="select_option">
+                <label for="resource_type" class="control-label">推广类型</label>
+                <select class="form-control" name="resource_type" id="resource_type" style="width:120px;">
+                    <option value="-1">全部</option>
+                    <option value="0">无线助手CPT</option>
+                    <option value="1">无线助手CPC</option>
+                    <option value="2">360搜索CPC</option>
+                    <option value="3">360导航猜你喜欢</option>
+                    <option value="4">360导航CPT</option>
+                    <option value="5">CPA</option>
+                    <option value="6">CPT</option>
+                    <option value="7">CPC</option>
+                    <option value="8">CPD</option>
+                    <option value="9">CPM</option>
+                    <option value="10">CPS</option>
+                    <option value="99">其他</option>
+                </select>
+            </div>
+            <div class="select_option">
+                <label for="channel_type" class="control-label">最终推广渠道</label>
+                <select class="form-control" name="channel_type" id="channel_type" style="width:120px;">
+                    <option value="-1">全部</option>
+                    <option value="0">其他</option>
+                    <option value="1">360</option>
+                    <option value="2">百度</option>
+                    <option value="3">小米</option>
+                </select>
+            </div>
+            <div class="select_option">
                 <label for="sale_type" class="control-label">排序方式</label>
                 <select class="form-control special_sale" name="orderby" id="orderby" style="width:120px;">
                     <option value="create_time">按添加时间</option>
@@ -244,21 +281,25 @@ function search(){
     var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
       '&selected_location=' + $('#search_location').val() +
       '&selected_status=' + $('#search_status').val()+
+      '&resource_type=' + $('#resource_type').val()+
+      '&channel_type=' + $('#channel_type').val()+
       '&orderby=' + $('#orderby').val();
       params += '&year='+$('#year').val();
     window.location.href = window.location.pathname + params;
-      
+
 }
 
 function download(){
     var params = '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
       '&selected_location=' + $('#search_location').val() +
       '&selected_status=' + $('#search_status').val() +
+      '&resource_type=' + $('#resource_type').val()+
+      '&channel_type=' + $('#channel_type').val()+
       '&orderby=' + $('#orderby').val()+
       '&action=download';
       params += '&year='+$('#year').val();
     window.location.href = window.location.pathname + params;
-      
+
 }
 
 function enter_search(){
@@ -268,16 +309,20 @@ function enter_search(){
     }
 }
 $(function(){
-    $("#orderby").val("{{orderby}}");  
+    $("#orderby").val("{{orderby}}");
     $("#orderby").trigger("chosen:updated");
     $("#search_status").val(parseInt('{{status_id}}'))
     $("#search_status").trigger("chosen:updated");
     $('#year').val('{{year}}');
     $("#year").trigger("chosen:updated");
+    $('#resource_type').val('{{resource_type}}');
+    $("#resource_type").trigger("chosen:updated");
+    $('#channel_type').val('{{channel_type}}');
+    $("#channel_type").trigger("chosen:updated");
 });
 
 $(document).ready(function(){
-    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+    $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
 })
 </script>
 {% endblock %}
