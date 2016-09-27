@@ -1,0 +1,86 @@
+{% extends "/base_v1_0_0.html" %}
+{% block title %}对账单返点发票{% endblock %}
+
+{% block content %}
+{% include "/finance/searchAd_finance_base_v1_0_0.html" %}
+<div class="container bra-box">
+    <div class="table-switch" style="margin-top: 50px;">
+        <ul>
+            <li class="actives" style="width:150px;">
+                <a class="on" href="{{url_for('searchAd_finance_bill_invoice.index')}}">申请中的返点发票</a>
+            </li>
+            <li style="width:150px;">
+                <a href="{{url_for('searchAd_finance_bill_invoice.index_pass')}}">所有返点发票</a>
+            </li>
+        </ul>
+    </div>
+    <div class="search-bar">
+        <form class="menu-btn-bar" style="float:left;">
+            <div class="search-input">
+                <input type="text" placeholder="媒体供应商/广告主/投放媒体/推广类型" value="{{search_info}}" name="search_info" id="search_info" onkeypress="javascript:enter_search();">
+                <img src="/static/image/search.png" alt="#">
+            </div>
+            <div class="select_option">
+                <label for="sale_type" class="control-label">年度</label>
+                <select class="form-control special_sale" name="year" id="year" style="width:100px;">
+                    {% for k in range(5) %}
+                        <option value="{{2014+k}}">{{2014+k}}年度</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="select_option screen">
+                <input type="button" value="筛选" onclick="javascript:search();">
+            </div>
+        </form>
+    </div>
+    <div class='tabulation'>
+        <table border='1'>
+            <thead>
+                <tr>
+                    <th>媒体供应商</th>
+                    <th>广告主</th>
+                    <th>投放媒体</th>
+                    <th>推广类型</th>
+                    <th>已开发票金额</th>
+                    <th>未开发票金额</th>
+                    <th>申请通过个数</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><a href="{{url_for('searchAd_finance_bill_invoice.info', order_id=order.id)}}">{{order.company_cn}}</a></td>
+                        <td>{{order.client.name}}</td>
+                        <td>{{order.medium.name}} </td>
+                        <td>{{ order.resource_type_cn }}</td>
+                        <td>{{order.invoice_pass_sum}}元</td>
+                        <td>{{order.rebate_money - order.invoice_pass_sum}}元</td>
+                        <td>{{order.get_invoice_by_status(0)|length }}</td>
+                        <td><a href="{{url_for('searchAd_finance_bill_invoice.info', order_id=order.id)}}">查看</a></td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan=5 style="text-align:center">总计</td>
+                    <td>{{orders|sum(attribute='invoice_apply_sum')|format_price}} 元</td>
+                    <td>{{orders|sum(attribute='apply_count')}}</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function search() {
+        window.location.href = window.location.pathname +
+            '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&selected_location=' + ($('#search_location').val()) +
+            '&year='+$('#year').val();
+    }
+    $(function() {
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
+        $('#year').val('{{year}}');
+        $("#year").trigger("chosen:updated");
+    });
+</script>
+{% endblock %}

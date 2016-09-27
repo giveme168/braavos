@@ -193,7 +193,7 @@ class searchAdOrder(db.Model, BaseModelMixin, CommentMixin, AttachmentMixin):
 
     @property
     def channel_type_cn(self):
-        return CHANNEL_TYPE_CN[self.channel_type]
+        return CHANNEL_TYPE_CN[self.channel_type or 0]
 
     @property
     def email_info(self):

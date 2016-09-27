@@ -1,0 +1,145 @@
+{% from '/form_v1_0_0.html' import form_field %}
+{% macro invoice_form(order, form, INVOICE_TYPE_CN, invoice=None) -%}
+{% if invoice %}
+{% if order.can_admin(g.user) and invoice.invoice_status in [1, 2, 4] %}
+    <h4 xmlns="http://www.w3.org/1999/html">
+        <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
+        {{ invoice.company }}-{{ invoice.money }}元
+    </h4>
+    <form class="input-row-box" method="POST" action="{{url_for('searchAd_saler_client_order_bill_invoice.update_invoice', invoice_id=invoice.id)}}" onsubmit="return checkform(this)">
+        {{ form.csrf_token }}
+        {{ form_field(form.client_medium_order)}}
+        {{ form_field(form.company) }}
+        {{ form_field(form.tax_id) }}
+        {{ form_field(form.address) }}
+        {{ form_field(form.phone) }}
+        {{ form_field(form.bank_id) }}
+        {{ form_field(form.bank) }}
+        {{ form_field(form.detail) }}
+        {{ form_field(form.money) }}
+        {{ form_field(form.invoice_type) }}
+        <div class="input-group-menu">
+          <div class="name">回款时间 : </div>
+            <input type="text" id="back_time" name="back_time" value="{{form.back_time.data}}" class="datetimepicker usrnmae" style="width:300px;" data-date-format="yyyy-mm-dd">
+        </div>
+        <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+        </div>
+    </form>
+{% else %}
+<div class="col-md-12">
+    <h4>
+        <input type="checkbox" name="invoice-id" class="invoice-id" value="{{invoice.id}}"/>
+            {{ invoice.company }}-{{ invoice.money }}元
+    </h4>
+    <div class="col-md-6" style="margin-left: 20px;">
+        <table class="table table-bordered">
+          <tr>
+            <th>开票时间</th>
+            <td>{{invoice.create_time_cn}}</td>
+          </tr>
+          <tr>
+            <th>公司名称</th>
+            <td>{{invoice.company}}</td>
+          </tr>
+          <tr>
+            <th>税号</th>
+            <td>{{invoice.tax_id}}</td>
+          </tr>
+          <tr>
+            <th>公司地址</th>
+            <td>{{invoice.address}}</td>
+          </tr>
+          <tr>
+            <th>联系电话</th>
+            <td>{{invoice.phone}}</td>
+          </tr>
+          <tr>
+            <th>银行账号</th>
+            <td>{{invoice.bank_id}}</td>
+          </tr>
+          <tr>
+            <th>开户行</th>
+            <td>{{invoice.bank}}</td>
+          </tr>
+          <tr>
+            <th>发票内容</th>
+            <td>{{invoice.detail}}</td>
+          </tr>
+          <tr>
+            <th>发票金额</th>
+            <td>{{invoice.money}}元</td>
+          </tr>
+          <tr>
+            <th>发票类型</th>
+            <td>{{INVOICE_TYPE_CN[invoice.invoice_type]}}</td>
+          </tr>
+          <tr>
+            <th>发票号</th>
+            <td>{{invoice.invoice_num}}</td>
+          </tr>
+          <tr>
+            <th>回款时间</th>
+            <td>{{invoice.back_time_cn}}</td>
+          </tr>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% else %}
+    <form class="input-row-box" method="POST" action="{{url_for('searchAd_saler_client_order_bill_invoice.new_invoice', bill_id=order.id)}}" onsubmit="return checkform(this)">
+        {{form.csrf_token}}
+        {{form.invoice_status}}
+        {{ form_field(form.client_medium_order)}}
+        {{ form_field(form.company) }}
+        {{ form_field(form.tax_id) }}
+        {{ form_field(form.address) }}
+        {{ form_field(form.phone) }}
+        {{ form_field(form.bank_id) }}
+        {{ form_field(form.bank) }}
+        {{ form_field(form.detail) }}
+        {{ form_field(form.money) }}
+        {{ form_field(form.invoice_type) }}
+        {% if form.invoice_status.data == 'invoice_pass' %}
+            {{ form_field(form.invoice_num) }}
+            <div class="input-group-menu">
+            <div class="name">开票时间 : </div>
+                <input type="text" id="create_time" name="create_time" value="{{form.create_time.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+            </div>
+        {% endif %}
+        <div class="input-group-menu">
+            <div class="name">回款时间 : </div>
+            <input type="text" id="back_time" name="back_time" value="{{form.back_time.data}}" class="datetimepicker surname" style="width:300px;" data-date-format="yyyy-mm-dd">
+        </div>
+        <div class="state" style="margin-left:40%;">
+            <input type="submit" value="保存">
+        </div>
+    </form>
+    <script>
+    function checkform(obj){
+      if (obj.back_time.value == ""){
+        alert('请选择回款时间')
+        return false
+      }
+      var now_date = new Date()
+      now_date.setMonth(now_date.getMonth() + 1)
+      var back_time = new Date(obj.back_time.value)
+      if (back_time > now_date){
+        alert('申请发票的回款时间超过了一个月')
+        return false
+      }else{
+        return true
+      }
+    }
+
+    $(document).ready(function(){
+        $('.datetimepicker').datetimepicker({
+            autoclose: true,
+            todayHighlight: true,
+            language: 'zh-CN',
+            minView: 2
+          });
+    })
+</script>
+{% endif %}
+{%- endmacro %}

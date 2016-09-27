@@ -4,7 +4,8 @@ from flask import Blueprint, request, g, abort
 from flask import render_template as tpl
 
 from searchAd.models.invoice import (searchAdInvoice, searchAdAgentInvoice, searchAdAgentInvoicePay,
-                                     searchAdMediumInvoice, searchAdMediumInvoicePay, searchAdMediumRebateInvoice)
+                                     searchAdMediumInvoice, searchAdMediumInvoicePay, searchAdMediumRebateInvoice,
+                                     searchAdBillInvoice)
 from searchAd.models.client_order import searchAdBackMoney, searchAdBackInvoiceRebate
 
 from controllers.finance.helpers.data_query_helpers import write_order_excel
@@ -268,3 +269,34 @@ def medium_rebate_invoice():
                orders=orders,
                year=year, month=month, info=info,
                title=u"已开媒体返点发票", t_type='medium_rebate_invoice')
+
+
+
+@searchAd_saler_client_order_data_query_bp.route('/bill_rebate_invoice', methods=['GET'])
+def bill_rebate_invoice():
+    now_date = datetime.datetime.now()
+    info = request.values.get('info', '').strip()
+    year = request.values.get('year', now_date.strftime('%Y'))
+    month = request.values.get('month', now_date.strftime('%m'))
+
+    if month != '00':
+        search_date = datetime.datetime.strptime(
+            str(year) + '-' + str(month), '%Y-%m')
+        end_search_date = (
+            search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+        orders = [k for k in searchAdBillInvoice.query.filter(searchAdBillInvoice.create_time >= search_date,
+                                                              searchAdBillInvoice.create_time < end_search_date,
+                                                              searchAdBillInvoice.invoice_status == 0)]
+    else:
+        orders = [k for k in searchAdBillInvoice.all() if k.create_time.year == int(
+            year) and k.invoice_status == 0]
+    if info:
+        orders = [k for k in orders if info in k.client_order_bill.search_invoice_info]
+    orders = sorted(list(orders), key=lambda x: x.create_time, reverse=False)
+    if request.values.get('action', '') == 'download':
+        response = write_order_excel(list(orders), 'bill_rebate_invoice')
+        return response
+    return tpl('/saler/searchAd_order/data_query/index.html',
+               orders=orders,
+               year=year, month=month, info=info,
+               title=u"已开对账单返点发票", t_type='bill_rebate_invoice')

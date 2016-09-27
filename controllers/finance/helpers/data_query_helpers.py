@@ -129,6 +129,32 @@ def write_order_excel(orders, t_type):
         else:
             worksheet.merge_range(th, 11, th, 13, sum(
                 [k.money for k in orders]), align_left)
+    elif t_type == 'bill_rebate_invoice':
+        keys = [u'媒体供应商', u'广告主', u'投放媒体', u'推广类型', u'结算开始时间', u'结算截止时间',
+                u'实际消耗金额', u'对应返点金额', u'返点发票金额', u'返点发票时间']
+        for k in range(len(keys)):
+            worksheet.write(0, 0 + k, keys[k], align_center)
+        # 设置宽度为30
+        worksheet.set_column(len(keys), 0, 20)
+        # 设置高度
+        for k in range(len(orders) + 2):
+            worksheet.set_row(k, 30)
+        th = 1
+        for k in range(len(orders)):
+            worksheet.write(th, 0, orders[k].client_order_bill.company_cn, align_left)
+            worksheet.write(th, 1, orders[k].client_order_bill.client.name, align_left)
+            worksheet.write(th, 2, orders[k].client_order_bill.medium.name, align_left)
+            worksheet.write(th, 3, orders[k].client_order_bill.resource_type_cn, align_left)
+            worksheet.write(th, 4, orders[k].client_order_bill.start_cn, align_left)
+            worksheet.write(th, 5, orders[k].client_order_bill.end_cn, align_left)
+            worksheet.write(th, 6, orders[k].client_order_bill.money, align_left)
+            worksheet.write(th, 7, orders[k].client_order_bill.rebate_money, align_left)
+            worksheet.write(th, 8, orders[k].money, align_left)
+            worksheet.write(th, 9, orders[k].create_time_cn, align_left)
+            th += 1
+        worksheet.merge_range(th, 0, th, 7, u'总计', align_center)
+        worksheet.merge_range(th, 8, th, 9, sum(
+            [k.money for k in orders]), align_left)
     else:
         keys = [u'代理/直客', u'客户', u'Campaign', u'直客销售', u'渠道销售', u'区域', u'合同号',
                 u'媒体名称', u'执行开始时间', u'执行结束时间', u'合同回款时间', u'客户合同金额']

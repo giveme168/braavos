@@ -16,6 +16,7 @@ zhiqu_contract_apply_signal = braavos_signals.signal('zhiqu_contract_apply')
 zhiqu_edit_contract_apply_signal = braavos_signals.signal('zhiqu_edit_contract_apply')
 medium_invoice_apply_signal = braavos_signals.signal('medium_invoice_apply')
 agent_invoice_apply_signal = braavos_signals.signal('agent_invoice_apply')
+bill_invoice_apply_signal = braavos_signals.signal('bill_invoice_apply')
 invoice_apply_signal = braavos_signals.signal('invoice_apply')
 medium_rebate_invoice_apply_signal = braavos_signals.signal(
     'medium_rebate_invoice_apply')
@@ -85,8 +86,8 @@ def contract_apply_douban(sender, apply_context):
     if order.get_last_schedule():
         file_paths.append(order.get_last_schedule().real_path)
     to_users = [k.email for k in User.douban_contracts()] + \
-        _get_active_user_email(User.contracts()) + \
-        _get_active_user_email(order.direct_sales + order.agent_sales + [order.creator])
+               _get_active_user_email(User.contracts()) + \
+               _get_active_user_email(order.direct_sales + order.agent_sales + [order.creator])
     send_attach_mail(u'【合同流程】%s-%s' % (order.name, apply_context['action_msg']),
                      recipients=to_users,
                      body=order.douban_contract_email_info(
@@ -290,18 +291,18 @@ def medium_invoice_apply(sender, context):
 
     if context['send_type'] == "saler":
         url = mail.app.config[
-            'DOMAIN'] + '/saler/client_order/medium_invoice/%s/invoice' % (invoice.id)
+                  'DOMAIN'] + '/saler/client_order/medium_invoice/%s/invoice' % (invoice.id)
         if action == 2:
             action_info = u'媒体打款申请, 请杨卓审批'
         elif action == 3:
             action_info = u'杨卓已同意媒体打款, 请黄亮审批'
     elif context['send_type'] == 'end':
         url = mail.app.config[
-            'DOMAIN'] + '/saler/client_order/medium_invoice/%s/invoice' % (invoice.id)
+                  'DOMAIN'] + '/saler/client_order/medium_invoice/%s/invoice' % (invoice.id)
         action_info = u'媒体款项已打款'
     else:
         url = mail.app.config[
-            'DOMAIN'] + '/finance/client_order/medium_pay/%s/info' % (invoice.client_order_id)
+                  'DOMAIN'] + '/finance/client_order/medium_pay/%s/info' % (invoice.client_order_id)
         finance_users = [k for k in to_users if k.team.type in [13]]
         action_info = u'黄亮已同意媒体打款，请' + \
                       ', '.join(_get_active_user_name(finance_users)) + u'打款'
@@ -349,18 +350,18 @@ def agent_invoice_apply(sender, context):
         [u'打款金额: ' + str(o.money) + u'; 打款时间: ' + o.pay_time_cn + u'; 留言信息: ' + o.detail for o in invoice_pays])
     if context['send_type'] == "saler":
         url = mail.app.config[
-            'DOMAIN'] + '/saler/client_order/agent_invoice/%s/invoice' % (invoice.id)
+                  'DOMAIN'] + '/saler/client_order/agent_invoice/%s/invoice' % (invoice.id)
         if action == 2:
             action_info = u'代理返点打款申请, 请杨卓审批'
         elif action == 3:
             action_info = u'杨卓已同意代理返点打款, 请黄亮审批'
     elif context['send_type'] == 'end':
         url = mail.app.config[
-            'DOMAIN'] + '/saler/client_order/agent_invoice/%s/invoice' % (invoice.id)
+                  'DOMAIN'] + '/saler/client_order/agent_invoice/%s/invoice' % (invoice.id)
         action_info = u'代理返点已打款'
     else:
         url = mail.app.config[
-            'DOMAIN'] + '/finance/client_order/agent_pay/%s/info' % (invoice.client_order_id)
+                  'DOMAIN'] + '/finance/client_order/agent_pay/%s/info' % (invoice.client_order_id)
         finance_users = [k for k in to_users if k.team.type in [13]]
         action_info = u'黄亮已同意代理返点打款，请' + \
                       ', '.join(_get_active_user_name(finance_users)) + u'打款'
@@ -382,6 +383,64 @@ def agent_invoice_apply(sender, context):
 
 <p>by %s</p>
 """ % (action_msg, action_info, url, invoice_info, invoice_pay_info, order.email_info, info, g.user.name)
+    flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
+    _insert_person_notcie(to_users, title, body)
+    send_html_mail(title, recipients=_get_active_user_email(
+        to_users) + to_other, body=body.replace('\n', '<br/>'))
+
+
+def bill_invoice_apply(sender, context):
+    to_users = context['to_users']
+    order = context['order']
+    action = context['action']
+    action_msg = context['action_msg']
+    info = context['info']
+    invoices = context['invoices']
+    to_other = []
+    if context.has_key('to_other'):
+        to_other = context['to_other']
+    invoice_info = "\n".join(
+        [u'发票内容: ' + o.detail + u'; 发票金额' + str(o.money) for o in invoices])
+    if order.__tablename__ == 'searchad_bra_client_order_bill':
+        title = u"【效果业务对账单-对账单返点发票】- %s" % (order.name)
+
+    if context['send_type'] == "saler":
+        url = mail.app.config[
+                  'DOMAIN'] + '/saler/searchAd_orders/bill_invoice/%s/bill' % (order.id)
+        if action == 2:
+            leader_users = [k for k in to_users if k.team.type in [9]]
+            if 148 in [k.id for k in to_users]:
+                leader_users += [k for k in User.all() if k.team.type == 20]
+            action_info = u'请' + ','.join(_get_active_user_name(leader_users)) + \
+                          u'进行对账单返点发票审批'
+        else:
+            action_info =  u'您的客户发票被拒绝'
+    elif context['send_type'] == 'end':
+        url = mail.app.config[
+                  'DOMAIN'] + '/saler/searchAd_orders/bill_invoice/%s/bill' % (order.id)
+        action_info =  u'您的对账单返点发票已开'
+        invoice_info = "\n".join(
+            [u'发票内容: ' + o.detail + u'; 发票号: ' + o.invoice_num + u'; 发票金额' + str(o.money) for o in invoices])
+    else:
+        finance_users = [k for k in to_users if k.team.type in [13]]
+        url =  mail.app.config[
+                   'DOMAIN'] + '/finance/searchAd_orders/bill_invoice/%s/info' % (order.id)
+        action_info = u'区域总监已同意返点发票申请，请' + \
+                          ', '.join(_get_active_user_name(finance_users)) + u'开具返点发票'
+
+    body = u"""
+    <h3 style="color:red;">流程状态: %s
+    <br/>%s<br/>订单链接地址: %s</h3>
+    <p><h4>状态信息:</h4>
+    发票信息:%s</p>
+    <p><h4>订单信息:</h4>
+    %s</p>
+
+    <p><h4>留言如下:</h4>
+        <br/>%s</p>
+
+    <p>by %s</p>
+    """ % (action_msg, action_info, url, invoice_info, order.email_info, info, g.user.name)
     flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')
     _insert_person_notcie(to_users, title, body)
     send_html_mail(title, recipients=_get_active_user_email(
@@ -414,16 +473,16 @@ def invoice_apply(sender, context):
     if context['send_type'] == "saler":
         if order.__tablename__ == 'bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/client_order/invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/client_order/invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'searchAd_bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/searchAd_order/invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/searchAd_order/invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'searchad_bra_rebate_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/searchAd_rebate_order/invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/searchAd_rebate_order/invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'bra_client_medium_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/client_medium_order/invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/client_medium_order/invoice/%s/order' % (order.id)
         if action == 2:
             leader_users = [k for k in to_users if k.team.type in [9]]
             if 148 in [k.id for k in to_users]:
@@ -437,16 +496,16 @@ def invoice_apply(sender, context):
     elif context['send_type'] == 'end':
         if order.__tablename__ == 'bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/client_order/invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/client_order/invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'searchAd_bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/searchAd_order/invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/searchAd_order/invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'searchad_bra_rebate_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/searchAd_rebate_order/invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/searchAd_rebate_order/invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'bra_client_medium_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/client_medium_order/invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/client_medium_order/invoice/%s/order' % (order.id)
         salers = order.direct_sales + order.agent_sales + [order.creator]
         action_info = ','.join(_get_active_user_name(salers)) + u'您的客户发票已开'
         invoice_info = "\n".join(
@@ -454,16 +513,17 @@ def invoice_apply(sender, context):
     else:
         if order.__tablename__ == 'bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/finance/client_order/invoice/%s/info' % (order.id)
+                      'DOMAIN'] + '/finance/client_order/invoice/%s/info' % (order.id)
         elif order.__tablename__ == 'searchAd_bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/finance/searchAd_order/invoice/%s/info' % (order.id)
+                      'DOMAIN'] + '/finance/searchAd_order/invoice/%s/info' % (order.id)
         elif order.__tablename__ == 'searchad_bra_rebate_order':
             url = mail.app.config[
-                'DOMAIN'] + '/finance/searchAd_rebate_order/invoice/%s/info' % (order.id)
+                      'DOMAIN'] + '/finance/searchAd_rebate_order/invoice/%s/info' % (order.id)
         elif order.__tablename__ == 'bra_client_medium_order':
             url = mail.app.config[
-                'DOMAIN'] + '/finance/client_medium_order/invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/finance/client_medium_order/invoice/%s/order' % (order.id)
+
         finance_users = [k for k in to_users if k.team.type in [13]]
         action_info = u'区域总监已同意客户发票申请，请' + \
                       ', '.join(_get_active_user_name(finance_users)) + u'开具客户发票'
@@ -510,10 +570,10 @@ def medium_rebate_invoice_apply(sender, context):
     if context['send_type'] == "saler":
         if order.__tablename__ == 'bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/client_order/medium_rebate_invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/client_order/medium_rebate_invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'searchAd_bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/searchAd_order/medium_rebate_invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/searchAd_order/medium_rebate_invoice/%s/order' % (order.id)
         if action == 2:
             action_info = u'请黄亮进行媒体返点发票审批'
         else:
@@ -521,20 +581,20 @@ def medium_rebate_invoice_apply(sender, context):
     elif context['send_type'] == 'end':
         if order.__tablename__ == 'bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/client_order/medium_rebate_invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/client_order/medium_rebate_invoice/%s/order' % (order.id)
         elif order.__tablename__ == 'searchAd_bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/saler/searchAd_order/medium_rebate_invoice/%s/order' % (order.id)
+                      'DOMAIN'] + '/saler/searchAd_order/medium_rebate_invoice/%s/order' % (order.id)
         action_info = u'您的媒体返点发票已开'
         invoice_info = "\n".join(
             [u'发票内容: ' + o.detail + u'; 发票号: ' + o.invoice_num + u'; 发票金额' + str(o.money) for o in invoices])
     else:
         if order.__tablename__ == 'bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/finance/client_order/medium_rebate_invoice/%s/info' % (order.id)
+                      'DOMAIN'] + '/finance/client_order/medium_rebate_invoice/%s/info' % (order.id)
         elif order.__tablename__ == 'searchAd_bra_client_order':
             url = mail.app.config[
-                'DOMAIN'] + '/finance/searchAd_order/medium_rebate_invoice/%s/info' % (order.id)
+                      'DOMAIN'] + '/finance/searchAd_order/medium_rebate_invoice/%s/info' % (order.id)
         finance_users = [k for k in to_users if k.team.type in [13]]
         action_info = u'黄亮已同意客户发票申请，请' + \
                       ', '.join(_get_active_user_name(finance_users)) + u'开具媒体返点发票'
@@ -643,11 +703,11 @@ def outsource_distribute(sender, context):
     if order.__tablename__ == 'bra_client_order':
         title = u"【新媒体订单-合同流程】- %s" % (order.name)
         url = mail.app.config[
-            'DOMAIN'] + url_for("outsource.client_outsources", order_id=order.id)
+                  'DOMAIN'] + url_for("outsource.client_outsources", order_id=order.id)
     elif order.__tablename__ == 'bra_douban_order':
         title = u"【直签豆瓣订单-合同流程】- %s" % (order.name)
         url = mail.app.config[
-            'DOMAIN'] + url_for("outsource.douban_outsources", order_id=order.id)
+                  'DOMAIN'] + url_for("outsource.douban_outsources", order_id=order.id)
     else:
         title = u"【合同流程】- %s" % (order.name)
         url = ''
@@ -749,32 +809,32 @@ def merger_outsource_apply(sender, apply_context):
                     >= 0 or k.email.find('fenghaiyan') >= 0] + [k for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
+                      'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
         elif merger_outsource.__tablename__ == 'merger_personal_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_client_target_personal_info')
+                      'DOMAIN'] + url_for('outsource.merget_client_target_personal_info')
         elif merger_outsource.__tablename__ == 'merger_douban_personal_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_douban_target_personal_info')
+                      'DOMAIN'] + url_for('outsource.merget_douban_target_personal_info')
         else:
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
+                      'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
     elif action == -1:
         to_user_name = u'丰海艳您的外包合并付款信息被拒绝，请核查后重新申请'
         to_user += [k for k in User.all() if k.email.find('huangliang')
                     >= 0 or k.email.find('fenghaiyan') >= 0] + [k for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
+                      'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
         elif merger_outsource.__tablename__ == 'merger_personal_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_client_target_personal_info')
+                      'DOMAIN'] + url_for('outsource.merget_client_target_personal_info')
         elif merger_outsource.__tablename__ == 'merger_douban_personal_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_douban_target_personal_info')
+                      'DOMAIN'] + url_for('outsource.merget_douban_target_personal_info')
         else:
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
+                      'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
     elif action == 2:
         to_user_name = u'外包合并付款信息已同意付款，请' + \
                        ','.join([k.name for k in User.finances()]) + u'付款'
@@ -782,32 +842,32 @@ def merger_outsource_apply(sender, apply_context):
                     >= 0 or k.email.find('fenghaiyan') >= 0] + [k for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('finance_outsource_pay.info', target_id=merger_outsource.target.id)
+                      'DOMAIN'] + url_for('finance_outsource_pay.info', target_id=merger_outsource.target.id)
         elif merger_outsource.__tablename__ == 'merger_personal_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('finance_outsource_pay.info', target_id=0)
+                      'DOMAIN'] + url_for('finance_outsource_pay.info', target_id=0)
         elif merger_outsource.__tablename__ == 'merger_douban_personal_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('finance_outsource_pay.douban_info', target_id=0)
+                      'DOMAIN'] + url_for('finance_outsource_pay.douban_info', target_id=0)
         else:
             url = mail.app.config[
-                'DOMAIN'] + url_for('finance_outsource_pay.douban_info', target_id=merger_outsource.target.id)
+                      'DOMAIN'] + url_for('finance_outsource_pay.douban_info', target_id=merger_outsource.target.id)
     elif action == 0:
         to_user_name = u'丰海艳您的外包合并付款信息已打款'
         to_user += [k for k in User.all() if k.email.find('huangliang')
                     >= 0 or k.email.find('fenghaiyan') >= 0] + [k for k in User.finances()]
         if merger_outsource.__tablename__ == 'merger_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
+                      'DOMAIN'] + url_for('outsource.merget_client_target_info', target_id=merger_outsource.target.id)
         elif merger_outsource.__tablename__ == 'merger_personal_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_client_target_personal_info')
+                      'DOMAIN'] + url_for('outsource.merget_client_target_personal_info')
         elif merger_outsource.__tablename__ == 'merger_douban_personal_out_source':
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_douban_target_personal_info')
+                      'DOMAIN'] + url_for('outsource.merget_douban_target_personal_info')
         else:
             url = mail.app.config[
-                'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
+                      'DOMAIN'] + url_for('outsource.merget_douban_target_info', target_id=merger_outsource.target.id)
     body = u"""<h3 style="color:red;">
 %s
 
@@ -844,7 +904,7 @@ def account_leave_apply(sender, leave):
                 to_name = ','.join(
                     [k.name for k in leave.creator.team_leaders]) + u'请审批您下属的请假申请'
         url = mail.app.config['DOMAIN'] + \
-            url_for('account_leave.info', lid=leave.id)
+              url_for('account_leave.info', lid=leave.id)
     elif status in [3, 4]:
         if status == 3:
             to_name = leave.creator.name + u'您的请假申请已批准'
@@ -853,7 +913,7 @@ def account_leave_apply(sender, leave):
         url = mail.app.config['DOMAIN'] + \
             url_for('account_leave.index', user_id=leave.creator.id)
     to_users = leave.senders + leave.creator.team_leaders + \
-        [leave.creator] + [g.user]
+               [leave.creator] + [g.user]
     to_emails = list(set([k.email for k in to_users])) + ['admin@inad.com']
     if leave.is_long_leave():
         to_emails += ['huangliang@inad.com']
@@ -896,7 +956,7 @@ def account_okr_apply(sender, okr):
             to_name = ','.join(
                 [k.name for k in okr.creator.team_leaders]) + u'请审批您下属的OKR审核申请'
         url = mail.app.config['DOMAIN'] + \
-            url_for('account_okr.info', lid=okr.id)
+              url_for('account_okr.info', lid=okr.id)
     elif status in [3, 4, 9, 10]:
         if status in [3, 9]:
             to_name = okr.creator.name + u'您的OKR审核已批准'
@@ -904,10 +964,10 @@ def account_okr_apply(sender, okr):
             to_name = okr.creator.name + u'您的OKR审核申请被拒绝'
 
         url = mail.app.config['DOMAIN'] + \
-            url_for('account_okr.index', user_id=okr.creator.id)
+              url_for('account_okr.index', user_id=okr.creator.id)
 
     to_users = okr.creator.team_leaders + \
-        [okr.creator] + [g.user]
+               [okr.creator] + [g.user]
     to_emails = list(set([k.email for k in to_users])) + ['admin@inad.com']
     body = u"""
     <h3 style="color:red;">%s
@@ -1043,7 +1103,7 @@ def planning_bref(sender, apply_context):
         status_cn = u'已完成'
         to_name = bref.creator.name
     url = mail.app.config['DOMAIN'] + \
-        url_for('planning_bref.info', bid=bref.id)
+          url_for('planning_bref.info', bid=bref.id)
     # 邮件发送人
     to_emails = apply_context['to_other']
     to_users = operater_admins + planning_team_admins + [bref.creator] + sale_admins
@@ -1111,10 +1171,10 @@ def account_kpi_apply(sender, apply_context):
     if report.status == 2:
         if report.version == 1:
             url = mail.app.config['DOMAIN'] + \
-                url_for('account_kpi.check_apply', r_id=report.id)
+                  url_for('account_kpi.check_apply', r_id=report.id)
         else:
             url = mail.app.config['DOMAIN'] + \
-                url_for('account_kpi.check_apply_v2', r_id=report.id)
+                  url_for('account_kpi.check_apply_v2', r_id=report.id)
         to_names = ','.join([k.name for k in report.creator.team_leaders])
         user_name = report.creator.name
         to_users = [k.email for k in report.creator.team_leaders] + \
@@ -1132,10 +1192,10 @@ Dear %s:
     elif report.status == 1:
         if report.version == 1:
             url = mail.app.config['DOMAIN'] + \
-                url_for('account_kpi.update', r_id=report.id)
+                  url_for('account_kpi.update', r_id=report.id)
         elif report.version == 2:
             url = mail.app.config['DOMAIN'] + \
-                url_for('account_kpi.update_v2', r_id=report.id)
+                  url_for('account_kpi.update_v2', r_id=report.id)
         to_names = report.creator.name
         user_name = report.creator.name
         to_users = [k.email for k in report.creator.team_leaders] + \
@@ -1153,10 +1213,10 @@ Dear %s:
     elif report.status == 4:
         if report.version == 1:
             url = mail.app.config['DOMAIN'] + \
-                url_for('account_kpi.info', r_id=report.id)
+                  url_for('account_kpi.info', r_id=report.id)
         else:
             url = mail.app.config['DOMAIN'] + \
-                url_for('account_kpi.info_v2', r_id=report.id)
+                  url_for('account_kpi.info_v2', r_id=report.id)
         to_names = ','.join([k.name for k in User.HR_leaders()])
         user_name = report.creator.name
         to_users = [k.email for k in User.HR_leaders(
@@ -1174,10 +1234,10 @@ Dear %s:
     elif report.status == 5:
         if report.version == 1:
             url = mail.app.config['DOMAIN'] + \
-                url_for('account_kpi.info', r_id=report.id)
+                  url_for('account_kpi.info', r_id=report.id)
         else:
             url = mail.app.config['DOMAIN'] + \
-                url_for('account_kpi.info_v2', r_id=report.id)
+                  url_for('account_kpi.info_v2', r_id=report.id)
         to_names = report.creator.name
         user_name = report.creator.name
         to_users = [k.email for k in User.HR_leaders(
@@ -1194,7 +1254,7 @@ Dear %s:
     """ % (to_names, url)
     elif report.status == 6:
         url = mail.app.config['DOMAIN'] + \
-            url_for('account_kpi.personnal')
+              url_for('account_kpi.personnal')
         to_names = apply_context['user'].name
         to_users = [apply_context['user'].email, g.user.email]
         title = u'绩效考核-请您为同事打分'
@@ -1248,11 +1308,11 @@ def back_money_apply(sender, apply_context):
         s_title = u'坏账项目'
     if order.__tablename__ in ['searchAd_bra_client_order', 'searchAd_bra_rebate_order']:
         to_users = order.direct_sales + order.agent_sales + \
-            [order.creator, g.user] + order.leaders
+                   [order.creator, g.user] + order.leaders
     else:
         to_users = order.direct_sales + order.agent_sales + User.contracts() + \
-            order.assistant_sales + \
-            [order.creator, g.user] + order.leaders + User.medias()
+                   order.assistant_sales + \
+                   [order.creator, g.user] + order.leaders + User.medias()
         if 3 in order.locations:
             to_users += [k for k in User.all()
                          if k.email.find('chenjingjing') >= 0]
@@ -1303,6 +1363,7 @@ def email_init_signal(app):
     zhiqu_edit_contract_apply_signal.connect_via(app)(zhiqu_edit_contract_apply)
     medium_invoice_apply_signal.connect_via(app)(medium_invoice_apply)
     agent_invoice_apply_signal.connect_via(app)(agent_invoice_apply)
+    bill_invoice_apply_signal.connect_via(app)(bill_invoice_apply)
     invoice_apply_signal.connect_via(app)(invoice_apply)
     medium_rebate_invoice_apply_signal.connect_via(
         app)(medium_rebate_invoice_apply)

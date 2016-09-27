@@ -34,6 +34,7 @@ from libs.email_signals import zhiqu_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
 from controllers.helpers.order_helpers import write_searchAd_client_excel
+from helpers.order_helpers import write_searchAd_client_bill_excel
 
 searchAd_order_bp = Blueprint(
     'searchAd_order', __name__, template_folder='../../templates/searchAdorder')
@@ -594,9 +595,15 @@ def display_orders(orders, title, status_id=-1):
     orderby = request.args.get('orderby', 'create_time')
     search_info = request.args.get('searchinfo', '')
     location_id = int(request.args.get('selected_location', '-1'))
+    resource_type = int(request.args.get('resource_type', '-1'))
+    channel_type = int(request.args.get('channel_type', '-1'))
     page = int(request.args.get('p', 1))
     if location_id >= 0:
         orders = [o for o in orders if location_id in o.locations]
+    if resource_type >= 0:
+        orders = [o for o in orders if resource_type == o.resource_type]
+    if channel_type >= 0:
+        orders = [o for o in orders if channel_type in o.channel_types]
     if status_id >= 0:
         if status_id == 28:
             orders = [o for o in orders if o.contract_status != 20]
@@ -635,14 +642,14 @@ def display_orders(orders, title, status_id=-1):
         except:
             orders = paginator.page(paginator.num_pages)
         params = '&orderby=%s&searchinfo=%s&selected_location=%s&selected_status=%s\
-        &year=%s' % (
-            orderby, search_info, location_id, status_id, str(year))
+        &year=%s&resource_type=%s&channel_type=%s' % (
+            orderby, search_info, location_id, status_id, str(year), resource_type, channel_type)
         return tpl('searchad_orders.html', title=title, orders=orders,
                    locations=select_locations, location_id=location_id,
                    statuses=select_statuses, status_id=status_id,
                    search_info=search_info, page=page,
                    orderby=orderby, now_date=datetime.now().date(),
-                   params=params, year=year)
+                   params=params, year=year, resource_type=resource_type, channel_type=channel_type)
 
 
 @searchAd_order_bp.route('/order/<order_id>/recovery', methods=['GET'])
@@ -1287,17 +1294,21 @@ def rebate_order_contract(order_id):
 def bill_index():
     if not g.user.is_searchad_leader():
         abort(403)
+    now_date = datetime.now()
     page = int(request.args.get('p', 1))
     client_id = int(request.values.get('client', 0))
     medium_id = int(request.values.get('medium', 0))
     search_info = request.values.get('search_info', '')
-    bills = searchAdClientOrderBill.all()
+    year = int(request.values.get('year', now_date.year))
+    bills = [b for b in searchAdClientOrderBill.all() if b.start.year == year and b.is_delete == False]
     if client_id:
         bills = [b for b in bills if b.client.id == client_id]
     if medium_id:
         bills = [b for b in bills if b.medium.id == medium_id]
     if search_info:
         bills = [b for b in bills if search_info in b.company_cn + b.client.name + b.medium.name]
+    if request.values.get('action') == 'excel':
+        return write_searchAd_client_bill_excel(bills)
     paginator = Paginator(bills, ORDER_PAGE_NUM)
     try:
         bills = paginator.page(page)
@@ -1306,8 +1317,8 @@ def bill_index():
     clients = searchAdClient.all()
     mediums = searchAdMedium.all()
     return tpl('/searchAdorder/bill_index.html', bills=bills, clients=clients, mediums=mediums,
-               client=client_id, medium=medium_id, search_info=search_info,
-               params="&client=%s&medium=%s&search_info=%s" % (client_id, medium_id, search_info))
+               client=client_id, medium=medium_id, search_info=search_info, year=year,
+               params="&client=%s&medium=%s&search_info=%s&year=%s" % (client_id, medium_id, search_info, year))
 
 
 @searchAd_order_bp.route('/bill/create', methods=['GET', 'POST'])
@@ -1400,5 +1411,7 @@ def bill_update(bid):
 def bill_delete(bid):
     if not g.user.is_searchad_leader():
         abort(403)
-    searchAdClientOrderBill.get(bid).delete()
+    bill = searchAdClientOrderBill.get(bid)
+    bill.is_delete = True
+    bill.save()
     return redirect(url_for('searchAd_order.bill_index'))

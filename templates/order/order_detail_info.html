@@ -45,6 +45,9 @@
                     {% for mf in medium_forms %}
                         {{ order_medium_form(mf[0], mf[1], medium_groups=medium_groups, medias=medias) }}
                         {{ medium_order_attachment(mf[1]) }}
+                        {% if g.user.is_media() or g.user.is_contract() %}
+                            {{ finish_medium_order_attachment(mf[1]) }}
+                        {% endif %}
                         {% if not g.user.is_aduit() %}
                             <div style="color:#999; margin-top:20px;">创建者: {{mf[1].creator.name}} 创建时间: {{mf[1].create_time.date()}}</div>
                         {% endif %}
@@ -52,10 +55,6 @@
                             {% if not g.user.is_aduit() %}
                                 <div style="color:#999; margin-top:20px;">合同归档时间: {{mf[1].finish_time_cn}}</div>
                             {% endif %}
-                        {% endif %}
-                        
-                        {% if mf[1].finish_status == 0 %}
-                            {{ finish_medium_order_attachment(mf[1]) }}
                         {% endif %}
                         <hr>
                     {% endfor %}
@@ -146,7 +145,7 @@
 </div>
 <script>
     $(function(){
-        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true}); 
+        $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 10, search_contains: true});
     })
 </script>
 {% endblock %}

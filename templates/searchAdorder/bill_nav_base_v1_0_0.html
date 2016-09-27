@@ -1,0 +1,26 @@
+<div class="table-switch">
+    <ul>
+        <li id="_order_li">
+            <a id="_order_" href='{{url_for('searchAd_order.bill_update', bid=bill.id)}}'>对账单</a>
+        </li>
+{#        {% if order.can_admin(g.user) %}#}
+        <li id="_bill_invoice_li" style="width:120px;">
+            <a id="_bill_invoice_" href='{{url_for("searchAd_saler_client_order_bill_invoice.index",bill_id=bill.id)}}'>返点发票申请</a>
+        </li>
+{#        {% endif %}#}
+    </ul>
+</div>
+</br>
+<script>
+    $(document).ready(function(){
+    var pathname = window.location.pathname;
+    var path_name = pathname.split("/")
+    if (path_name[2] == 'bill'){
+        $("#_order_li").addClass("actives");
+        $("#_order_").addClass("on");
+    }else{
+        $("#_" + path_name[3]+'_li').addClass("actives");
+        $("#_" + path_name[3]+'_').addClass("on");
+    }
+  })
+</script>

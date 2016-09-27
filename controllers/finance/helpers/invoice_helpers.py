@@ -1,6 +1,14 @@
 # -*- coding: UTF-8 -*-
 import xlwt
 
+import StringIO
+import mimetypes
+import datetime
+
+from flask import Response
+from werkzeug.datastructures import Headers
+import xlsxwriter
+
 from models.invoice import Invoice, MediumRebateInvoice, INVOICE_TYPE_CN, INVOICE_STATUS_PASS
 
 
@@ -123,3 +131,90 @@ def write_medium_rebate_invoice_excel(orders):
             sheet.write(h, 22, str(invoice.back_time_cn))
             h += 1
     return xls
+
+
+def write_apply_pass_invoice_excel(orders, type):
+    response = Response()
+    response.status_code = 200
+    output = StringIO.StringIO()
+    workbook = xlsxwriter.Workbook(output)
+    worksheet = workbook.add_worksheet()
+    align_left = workbook.add_format(
+        {'align': 'left', 'valign': 'vcenter', 'border': 1})
+    align_center = workbook.add_format(
+        {'align': 'center', 'valign': 'vcenter', 'border': 1})
+
+    keys = [u'代理/直客', u'客户名称', u'Campaign', u'合同号', u'开票时间', u'公司名称', u'税号',
+            u'公司地址', u'联系电话', u'银行账号', u'开户行', u'发票内容', u'发票金额', u'发票类型',
+            u'申请人']
+    if type == 'medium_rebate_invoice':
+        keys.insert(4, u'所属媒体')
+    for k in range(len(keys)):
+        worksheet.write(0, 0 + k, keys[k], align_center)
+    # 设置宽度为30
+    worksheet.set_column(len(keys), 0, 20)
+    # 设置高度
+    for k in range(len(orders) + 2):
+        worksheet.set_row(k, 30)
+    th = 1
+    if type == 'client_order_invoice':
+        for k in range(len(orders)):
+            worksheet.write(th, 0, orders[k].client_order.agent.name, align_left)
+            worksheet.write(th, 1, orders[k].client_order.client.name, align_left)
+            worksheet.write(th, 2, orders[k].client_order.campaign, align_left)
+            worksheet.write(th, 3, orders[k].client_order.contract, align_left)
+            worksheet.write(th, 4, orders[k].create_time_cn, align_left)
+            worksheet.write(th, 5, orders[k].company, align_left)
+            worksheet.write(th, 6, orders[k].tax_id, align_left)
+            worksheet.write(th, 7, orders[k].address, align_left)
+            worksheet.write(th, 8, orders[k].phone, align_left)
+            worksheet.write(th, 9, orders[k].bank_id, align_left)
+            worksheet.write(th, 10, orders[k].bank, align_left)
+            worksheet.write(th, 11, orders[k].detail, align_left)
+            worksheet.write(th, 12, orders[k].money, align_left)
+            worksheet.write(th, 13, orders[k].invoice_type_cn, align_left)
+            worksheet.write(th, 14, orders[k].creator.name, align_left)
+            th += 1
+        worksheet.merge_range(th, 0, th, 11, u'总计', align_center)
+        worksheet.merge_range(th, 12, th, 14, sum(
+            [k.money for k in orders]), align_left)
+    elif type == 'medium_rebate_invoice':
+        for k in range(len(orders)):
+            worksheet.write(th, 0, orders[k].client_order.agent.name, align_left)
+            worksheet.write(th, 1, orders[k].client_order.client.name, align_left)
+            worksheet.write(th, 2, orders[k].client_order.campaign, align_left)
+            worksheet.write(th, 3, orders[k].client_order.contract, align_left)
+            worksheet.write(th, 4, orders[k].media.name, align_left)
+            worksheet.write(th, 5, orders[k].create_time_cn, align_left)
+            worksheet.write(th, 6, orders[k].company, align_left)
+            worksheet.write(th, 7, orders[k].tax_id, align_left)
+            worksheet.write(th, 8, orders[k].address, align_left)
+            worksheet.write(th, 9, orders[k].phone, align_left)
+            worksheet.write(th, 10, orders[k].bank_id, align_left)
+            worksheet.write(th, 11, orders[k].bank, align_left)
+            worksheet.write(th, 12, orders[k].detail, align_left)
+            worksheet.write(th, 13, orders[k].money, align_left)
+            worksheet.write(th, 14, orders[k].invoice_type_cn, align_left)
+            worksheet.write(th, 15, orders[k].creator.name, align_left)
+            th += 1
+        worksheet.merge_range(th, 0, th, 12, u'总计', align_center)
+        worksheet.merge_range(th, 13, th, 15, sum(
+            [k.money for k in orders]), align_left)
+    workbook.close()
+    response.data = output.getvalue()
+    filename = ("%s-%s.xls" %
+                (type, datetime.datetime.now().strftime('%Y%m%d%H%M%S')))
+    mimetype_tuple = mimetypes.guess_type(filename)
+    response_headers = Headers({
+        'Pragma': "public",
+        'Expires': '0',
+        'Cache-Control': 'must-revalidate, post-check=0, pre-check=0',
+        'Cache-Control': 'private',
+        'Content-Type': mimetype_tuple[0],
+        'Content-Disposition': 'attachment; filename=\"%s\";' % filename,
+        'Content-Transfer-Encoding': 'binary',
+        'Content-Length': len(response.data)
+    })
+    response.headers = response_headers
+    response.set_cookie('fileDownload', 'true', path='/')
+    return response

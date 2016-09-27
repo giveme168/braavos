@@ -39,7 +39,7 @@ from models.download import (download_excel_table_by_doubanorders,
 from libs.email_signals import zhiqu_contract_apply_signal, zhiqu_edit_contract_apply_signal
 from libs.paginator import Paginator
 from controllers.tools import get_download_response
-from controllers.helpers.order_helpers import write_client_excel, write_frameworkorder_excel
+from controllers.helpers.order_helpers import write_client_excel, write_frameworkorder_excel, write_client_medium_excel
 from libs.date_helpers import get_monthes_pre_days
 
 order_bp = Blueprint('order', __name__, template_folder='../templates/order')
@@ -544,15 +544,16 @@ def order_medium_edit_cpm(medium_id):
                 g.user, u"更新了媒体订单: %s 的分成金额%s " % (mo.media.name, medium_money))
         mo.medium_money = medium_money
     mo.self_medium_rebate = str(self_medium_rebate) + '-' + str(self_medium_rabate_value)
-    finish_status = int(request.values.get('finish_status', 1))
-    # 归档前合同状态
-    last_status = mo.finish_status
-    mo.finish_status = finish_status
-    if finish_status == 0 and last_status != 0:
-        mo.finish_time = datetime.now()
-        mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.media.name))
-    elif finish_status == 1 and last_status == 0:
-        mo.client_order.add_comment(g.user, u" %s 媒体订单取消归档" % (mo.media.name))
+    if g.user.is_contract():
+        # 归档前合同状态
+        finish_status = int(request.values.get('finish_status', 1))
+        last_status = mo.finish_status
+        mo.finish_status = finish_status
+        if finish_status == 0 and last_status != 0:
+            mo.finish_time = datetime.now()
+            mo.client_order.add_comment(g.user, u" %s 媒体订单已归档" % (mo.media.name))
+        elif finish_status == 1 and last_status == 0:
+            mo.client_order.add_comment(g.user, u" %s 媒体订单取消归档" % (mo.media.name))
     mo.save()
     if medium_money != '':
         _insert_executive_report(mo, 'reload')
@@ -1163,7 +1164,7 @@ def get_medium_framework_form(order):
 @order_bp.route('/my_medium_framework_orders', methods=['GET'])
 def my_medium_framework_orders():
     if g.user.is_super_leader() or g.user.is_contract() or g.user.is_media_leader() or\
-            g.user.is_finance() or g.user.is_aduit():
+            g.user.is_finance() or g.user.is_aduit() or g.user.is_media_assistant():
         orders = MediumFrameworkOrder.all()
         if g.user.is_admin() or g.user.is_contract() or g.user.is_finance():
             pass
@@ -2186,7 +2187,7 @@ def client_medium_display_orders(orders, title, status_id=-1):
     select_statuses = CONTRACT_STATUS_CN.items()
     select_statuses.insert(0, (-1, u'全部合同状态'))
     if 'download' == request.args.get('action', ''):
-        return write_client_excel(orders)
+        return write_client_medium_excel(orders)
     else:
         paginator = Paginator(orders, ORDER_PAGE_NUM)
         try:
