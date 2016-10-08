@@ -192,7 +192,7 @@ def _reload_status_executive_report(order):
 
 
 def _insert_executive_report(order, rtype):
-    if order.contract == '' or order.contract_status not in [2, 4, 5, 10, 19, 20]:
+    if order.contract_status not in [2, 4, 5, 10, 19, 20]:
         return False
     if order.__tablename__ == 'bra_douban_order':
         if rtype:
