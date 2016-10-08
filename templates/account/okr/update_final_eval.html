@@ -8,7 +8,7 @@
     {% include "/account/account_okr_base.html" %}
     <div class="container bra-box" style="min-width: 950px;">
         <h3>{{ okr.creator.name }}的OKR</h3>
-        <form method="POST">
+        <form method="POST" id="okr_form">
             <input type="hidden" name="okr_json" id="okr_json">
 
 
@@ -26,11 +26,11 @@
                     <thead>
                     <tr>
                         <th>季度目标(O)</th>
-                        <th style="width:150px;">目标优先级 P(O)</th>
+                        <th style="width:25px;">目标优先级 P(O)</th>
                         <th style="width:25px;">中期评价</th>
                         <th style="width:25px;">季末评价</th>
-                        <th>主要成绩</th>
-                        <th style="width:200px;">成绩优先级 P(KR)</th>
+                        <th style="width:500px;">主要成绩</th>
+                        <th style="width:25px;">成绩优先级 P(KR)</th>
                         <th style="width:25px;">中期评价</th>
                         <th style="width:25px;">季末评价</th>
                     </tr>
@@ -42,8 +42,8 @@
                             <tr class="okr_item">
                                 {% if loop.index == 1 %}
                                     <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
-                                    <textarea class="edit_objective_area" rows="8" name="comment"
-                                              readonly>{{ okr_tem['objective'] }}</textarea>
+                                    <p class="edit_objective_area" rows="8" name="comment"
+                                              readonly>{{ okr_tem['objective'] }}</p>
                                     </td>
                                     <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
                                         <span class="target">{{ okr_tem['priority'] }}</span>
@@ -66,7 +66,7 @@
                                     </td>
                                 {% endif %}
                                 <td class="remove_row">
-                                    <textarea class="edit_kr_area" rows="2" readonly>{{ kr['results'] }}</textarea>
+                                    <p class="edit_kr_area" rows="8" >{{ kr['results'] }}</p>
                                 </td>
                                 <td class="remove_row">
                                     <span class="achievement_priority">{{ kr['results_PKR'] }}</span>
@@ -103,9 +103,9 @@
 
             <div class="state" style="margin-left:25%;margin-top:50px;">
                 <a href="{{ url_for('account_okr.index', user_id=g.user.id) }}"><input type="button" value="返回"></a>
-                <button type="submit" name="status" value='7' class="btn commit save_send"/>
+                <button type="button" name="status" value='7' class="btn commit save_send"/>
                 保存不发申请</button>
-                <button type="submit" name="status" value='8' class="btn commit save_no_send"/>
+                <button type="button" name="status" value='8' class="btn commit save_no_send"/>
                 保存并发送报备邮件</button>
             </div>
 

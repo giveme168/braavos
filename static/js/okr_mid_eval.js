@@ -21,7 +21,7 @@ $(document).ready(function(){
             for (var i = 0; i < okrs.length; i++){
                 okr = okrs[i],
                 okrData = {};
-                okrData['objective']=$(okr).find('.edit_objective_area').val();
+                okrData['objective']=$(okr).find('.edit_objective_area').html();
                 okrData['priority'] = $(okr).find('.target').html();
                 okrData['mid_eval_o'] = $(okr).find('#mid_eval').val();
                 okrData['kr_items'] = [];
@@ -31,7 +31,7 @@ $(document).ready(function(){
                     for(var k=0; k<len; k++){
                         item = items[k],
                         krData = {};
-                        krData['results'] = $(item).find('.edit_kr_area').val();
+                        krData['results'] = $(item).find('.edit_kr_area').html();
                         krData['results_PKR'] = $(item).find('.achievement_priority').html();
                         krData['mid_eval_kr'] = $(item).find('#mid_term_evaluation').val();
                         okrData['kr_items'] .push(krData);
@@ -44,8 +44,8 @@ $(document).ready(function(){
 
         }
 
-        console.log(ret);
         $('#okr_json').val($.toJSON(ret))
+        $('#okr_form').submit();
     }
 
 })

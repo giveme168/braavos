@@ -219,9 +219,11 @@ def status(user_id, lid):
 def mid_evaluate(user_id, lid):
     okr = Okr.query.get(lid)
     okrlist = json.loads(okr.o_kr)
+
     if request.method == 'POST':
         okr_json = request.values.get('okr_json')
         o_kr = json.loads(okr_json)
+
         status = int(o_kr['status'])
         okrtext = json.dumps(o_kr['okrs'])
         okr_update = Okr.query.get(lid)
@@ -257,6 +259,7 @@ def final_evaluate(user_id, lid):
         # 拿到评价的数据以及insert的查询字段
         okr_json = request.values.get('okr_json')
         o_kr = json.loads(okr_json)
+        print o_kr
         status = int(o_kr['status'])
         summary = o_kr['summary']
         okrtext = json.dumps(o_kr['okrs'])

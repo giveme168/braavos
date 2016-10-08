@@ -8,7 +8,7 @@
     {% include "/account/account_okr_base.html" %}
     <div class="container bra-box" style="min-width: 950px;">
         <h3>OKR {{ year }}-Q{{ quarter }} 中期评价</h3>
-        <form method="POST">
+        <form method="POST" id="okr_form">
             <input type="hidden" name="okr_json" id="okr_json">
             <div class="wrapper">
                 <div class="year" id="year">
@@ -24,11 +24,11 @@
                     <thead>
                     <tr>
                         <th>季度目标(O)</th>
-                        <th style="width:150px;">目标优先级 P(O)</th>
+                        <th style="width:25px;">目标优先级 P(O)</th>
                         <th style="width:25px;">中期评价</th>
-                        <th style="width:25px;">季末评价</th>
+                        <th style="width:25px;">季中评价</th>
                         <th style="width:200px;">主要成绩</th>
-                        <th style="width:200px;">成绩优先级 P(KR)</th>
+                        <th style="width:25px;">成绩优先级 P(KR)</th>
                         <th style="width:25px;">中期评价</th>
                         <th style="width:25px;">季末评价</th>
 
@@ -64,7 +64,7 @@
                                     </td>
                                 {% endif %}
                                 <td class="remove_row">
-                                    <p class="edit_kr_area" rows="2">{{ kr['results'] }}</p>
+                                    <p class="edit_kr_area" rows="4">{{ kr['results'] }}</p>
                                 </td>
                                 <td class="remove_row">
                                     <span class="achievement_priority">{{ kr['results_PKR'] }}</span>
@@ -91,14 +91,14 @@
                 <td class="remove_row">
                     <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">季度个人小结</span>
                     <textarea class="summary" rows="8" style="border:1px solid #ccc; width: 60% ; float:left"
-                    readonly>{{ okr.summary }}</textarea>
+                    >{{ okr.summary }}</textarea>
                 </td>
             </div>
             <div class="state" style="margin-left:25%;margin-top:50px;">
                 <a href="{{ url_for('account_okr.index', user_id=g.user.id) }}"><input type="button" value="返回"></a>
-                <button type="submit" name="status" value='7' class="btn commit save_send"/>
+                <button type="button" name="status" value='7' class="btn commit save_send"/>
                 保存不发申请</button>
-                <button type="submit" name="status" value='8' class="btn commit save_no_send"/>
+                <button type="button" name="status" value='8' class="btn commit save_no_send"/>
                 保存并发送报备邮件</button>
             </div>
 
