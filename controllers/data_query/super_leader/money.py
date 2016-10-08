@@ -264,6 +264,7 @@ def client_order_excle_data():
         MediumOrderExecutiveReport.month_day >= before_last_year_start,
         MediumOrderExecutiveReport.month_day <= now_year_end)
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_orders = [k for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
     last_monthes = get_monthes_pre_days(last_year_start, last_year_end)
     before_monthes = get_monthes_pre_days(
@@ -330,6 +331,7 @@ def client_order_json():
         MediumOrderExecutiveReport.month_day >= before_last_year_start,
         MediumOrderExecutiveReport.month_day <= now_year_end)
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_orders = [k for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
     last_monthes = get_monthes_pre_days(last_year_start, last_year_end)
     before_monthes = get_monthes_pre_days(
@@ -417,10 +419,12 @@ def douban_order_excle_data():
         MediumOrderExecutiveReport.month_day <= now_year_end)
     douban_date = [_format_order(k, 'douban')
                    for k in douban_orders if k.status == 1]
+    douban_date = [k for k in douban_date if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_orders = [k for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     douban_date += [{'month_day': k['month_day'], 'money':k['money'],
                      'locations':k['locations']}
-                    for k in medium_orders if k['medium_id'] in [3, 8]]
+                    for k in medium_orders if k['medium_id'] in [306, 302, 282, 278]]
 
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
     last_monthes = get_monthes_pre_days(last_year_start, last_year_end)
@@ -492,10 +496,12 @@ def douban_order_json():
         MediumOrderExecutiveReport.month_day <= now_year_end)
     douban_date = [_format_order(k, 'douban')
                    for k in douban_orders if k.status == 1]
+    douban_date = [k for k in douban_date if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_orders = [k for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     douban_date += [{'month_day': k['month_day'], 'money':k['money'],
                      'locations':k['locations']}
-                    for k in medium_orders if k['medium_id'] in [3, 8]]
+                    for k in medium_orders if k['medium_id'] in [306, 302, 282, 278]]
 
     now_monthes = get_monthes_pre_days(now_year_start, now_year_end)
     last_monthes = get_monthes_pre_days(last_year_start, last_year_end)
