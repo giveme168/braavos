@@ -204,8 +204,9 @@ def index_excle_data():
         DoubanOrderExecutiveReport.month_day <= end_date_month)
 
     medium_date = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_date = [k for k in medium_date if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     douban_date = [_format_order(k, 'douban') for k in douban_orders]
-
+    douban_date = [k for k in douban_date if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     medium_info_params = {}
     medium_info_params[u'豆瓣'] = 0
     for k in Media.all():
@@ -258,7 +259,9 @@ def index_json():
         DoubanOrderExecutiveReport.month_day <= end_date_month)
 
     medium_date = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_date = [k for k in medium_date if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     douban_date = [_format_order(k, 'douban') for k in douban_orders]
+    douban_date = [k for k in douban_date if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
 
     medium_info_params = {}
     medium_info_params[u'豆瓣'] = 0

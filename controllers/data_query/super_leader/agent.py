@@ -71,7 +71,7 @@ def _format_order(order, type='client'):
         params['direct_sales'] = order.douban_order.direct_sales
         params['agent_sales'] = order.douban_order.agent_sales
         params['contract_status'] = order.douban_order.contract_status
-        params['status'] = order.client_order.status
+        params['status'] = order.douban_order.status
     params['locations'] = [k.team.location for k in params['direct_sales'] + params['agent_sales']]
 
     return params
@@ -208,6 +208,7 @@ def client_order_excle_data():
         MediumOrderExecutiveReport.month_day >= start_date_month,
         MediumOrderExecutiveReport.month_day <= end_date_month)
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_orders = [k for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     medium_date = [{'agent_name': k['agent'].name,
                     'money':_get_money_by_location(k, location)}
                    for k in medium_orders]
@@ -257,6 +258,7 @@ def client_order_json():
         MediumOrderExecutiveReport.month_day >= start_date_month,
         MediumOrderExecutiveReport.month_day <= end_date_month)
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_orders = [k for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     medium_date = [{'agent_name': k['agent'].name,
                     'money':_get_money_by_location(k, location)}
                    for k in medium_orders]
@@ -307,12 +309,14 @@ def douban_order_excle_data():
         MediumOrderExecutiveReport.month_day <= end_date_month)
 
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_orders = [k for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     medium_date = [{'agent_name': k['agent'].name,
                     'medium_id': k['medium_id'],
                     'money':_get_money_by_location(k, location)}
                    for k in medium_orders if k['medium_id'] in [3, 8]]
     douban_orders = [_format_order(k, 'douban')
                      for k in douban_orders if k.status == 1]
+    douban_orders = [k for k in douban_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     douban_date = [{'agent_name': k['agent'].name,
                     'money':_get_money_by_location(k, location)}
                    for k in douban_orders]
@@ -366,12 +370,14 @@ def douban_order_json():
         MediumOrderExecutiveReport.month_day <= end_date_month)
 
     medium_orders = [_format_order(k) for k in medium_orders if k.status == 1]
+    medium_orders = [k for k in medium_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     medium_date = [{'agent_name': k['agent'].name,
                     'medium_id': k['medium_id'],
                     'money':_get_money_by_location(k, location)}
                    for k in medium_orders if k['medium_id'] in [3, 8]]
     douban_orders = [_format_order(k, 'douban')
                      for k in douban_orders if k.status == 1]
+    douban_orders = [k for k in douban_orders if k['contract_status'] in [2, 4, 5, 10, 19, 20] and k['status'] == 1]
     douban_date = [{'agent_name': k['agent'].name,
                     'money':_get_money_by_location(k, location)}
                    for k in douban_orders]
