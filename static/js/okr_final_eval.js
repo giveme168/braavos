@@ -10,6 +10,7 @@ $(document).ready(function () {
         var year = $('#year').find('span').html(),
             quarter = $('#quarter').find('span').html(),
             summary = $('.summary').val(),
+            score = $('.score').val(),
             ret = {}, okrs, okrData, krData;
 
         ret['year'] = year;
@@ -17,6 +18,7 @@ $(document).ready(function () {
         ret['okrs'] = [];
         ret['status'] = status;
         ret['summary'] = summary;
+        ret['score'] = score;
         okrs = $(".OKR");
 
         if (okrs.length > 0) {

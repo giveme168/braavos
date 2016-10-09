@@ -648,10 +648,11 @@ class Okr(db.Model, BaseModelMixin):
     __mapper_args__ = {'order_by': id.desc()}
     summary = db.Column(db.Text(), nullable=True)
     comment = db.Column(db.Text(), nullable=True)
+    score = db.Column(db.Integer)
 
     def __init__(self, o_kr, quarter,
                  # senders=None,
-                 creator, year, status=1, summary=None, comment=None):
+                 creator, year, status=1, summary=None, comment=None, score=None):
         self.o_kr = o_kr
         self.quarter = quarter
         self.year = year
@@ -660,6 +661,7 @@ class Okr(db.Model, BaseModelMixin):
         self.status = status
         self.summary = summary
         self.comment = comment
+        self.score = score
 
     @property
     def quarter_cn(self):

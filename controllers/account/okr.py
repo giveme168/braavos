@@ -193,25 +193,19 @@ def info(lid):
         mark = False
     else:
         mark = True
-    if not (g.user.is_super_leader() or g.user.is_HR_leader() or mark):
+    if not (g.user.is_super_leader() or g.user.is_HR_leader() or mark or g.user == okr.creator):
         okr.summary = u'您无权查看okr小结'
 
     return tpl('/account/okr/info.html', okrlist=okrlist, okr=okr)
 
 
-@account_okr_bp.route('/<user_id>/<lid>/status')
+@account_okr_bp.route('/<user_id>/<lid>/status', methods=['GET', 'POST'])
 def status(user_id, lid):
-    okr_status = int(request.values.get('status', 1))
+    okr_status = int(request.values.get('status', 100))
+    comment = request.values.get('comment', '')
     okr = Okr.query.get(lid)
-    # 拿到comment的值
-    # if okr_status == 9 or okr_status == 10:
-    #     okr_json = request.values.get('okr_json')
-    #     print okr_json
-    #     o_kr = json.loads(okr_json)
-    #     comment = o_kr['comment']
-    #     okr.comment = comment
-    ###
     okr.status = okr_status
+    okr.comment = comment
     okr.save()
     flash(okr.status_cn, 'success')
     account_okr_apply_signal.send(
@@ -269,10 +263,13 @@ def final_evaluate(user_id, lid):
         o_kr = json.loads(okr_json)
         status = int(o_kr['status'])
         summary = o_kr['summary']
+        print o_kr
+        score = o_kr['score']
         okrtext = json.dumps(o_kr['okrs'])
         okr_update = Okr.query.get(lid)
         okr_update.status = status
         okr_update.summary = summary
+        okr_update.score = score
         okr_update.o_kr = okrtext
         okr_update.save()
 

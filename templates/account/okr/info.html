@@ -99,17 +99,24 @@
         </div>
         {% if okr.status > 6 %}
             <div style="width:96%;margin-left:2%;height: 160px;">
-                <td class="remove_row">
-                    <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">季度个人小结</span>
-                    <p class="summary" rows="8" style="border:1px solid #ccc; width: 60% ; float:left" readonly
-                    >{{ okr.summary }}</p>
-                </td>
-                {% if okr.status > 8 %}
+                {% if g.user == okr.creator or g.user in okr.creator.team_leaders or g.user.is_super_admin() %}
                     <td class="remove_row">
-                        <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">部门负责人评语</span>
-                        <p style="border:1px solid #ccc; width: 60% ; float:left" readonly
-                        >{{ okr.comment }}</p>
+                        <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">季度个人自评分(1~100)</span>
+                        <p>{{ okr.score }}</p>
                     </td>
+                    <td class="remove_row">
+                        <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">季度个人小结</span>
+                        <textarea rows="6" style="border:1px solid #ccc; width: 60% ; float:left" readonly
+                        >{{ okr.summary }}</textarea>
+                    </td>
+                    {% if okr.status > 8 %}
+                        <td class="remove_row">
+                            <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">部门负责人评语</span>
+                            <textarea rows="4" style="border:1px solid #ccc; width: 60% ; float:left" readonly
+                            >{{ okr.comment }}
+                        </textarea>
+                        </td>
+                    {% endif %}
                 {% endif %}
             </div>
         {% endif %}
@@ -127,25 +134,21 @@
                 </div>
             {% endif %}
             {% if okr.status == 8 %}
-                <div class="state" style="width:96%;margin-left:2%;height: 160px;">
-                    <div style="width:96%;margin-left:2%;height: 160px;">
-                        <td class="remove_row">
-                            <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">部门领导评价</span>
-                            <textarea class="leader_comment" rows="8"
-                                      style="border:1px solid #ccc; width: 60% ; float:left"></textarea>
-                        </td>
+                <form method="post" action="{{ url_for('account_okr.status', user_id=g.user.id, lid=okr.id) }}">
+                    <div class="state" style="width:96%;margin-left:2%;height: 160px;">
+                        <div style="width:96%;margin-left:2%;height: 160px;">
+                            <td class="remove_row">
+                                <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">部门领导评价</span>
+                                <textarea class="leader_comment" rows="8" name="comment"
+                                          style="border:1px solid #ccc; width: 60% ; float:left"></textarea>
+                            </td>
+                        </div>
                     </div>
-                </div>
-                <div class="state" style="margin-left:25%;margin-top:50px;">
-                    <a style="width: 100px; margin-left: 100px;"
-                       href="{{ url_for('account_okr.status', user_id=g.user.id, lid=okr.id) }}?status=9">
-                        <button type="button" style="margin-left: 100px;">通过</button>
-                    </a>
-                    <a style="width:100px; margin-left: 100px;"
-                       href="{{ url_for('account_okr.status', user_id=g.user.id, lid=okr.id) }}?status=10">
-                        <button type="button" style="margin-left: 100px;">不通过</button>
-                    </a>
-                </div>
+                    <div class="state" style="margin-left:25%;margin-top:50px;">
+                        <button type="submit" style="margin-left: 100px;" name="status" value="9">通过</button>
+                        <button type="submit" style="margin-left: 100px;" name="status" value="10">不通过</button>
+                    </div>
+                </form>
             {% endif %}
         {% endif %}
         <div class="state" style="margin-left:25%;margin-top:50px;">
@@ -153,7 +156,7 @@
         </div>
     </div>
 
-    <script src="/static/js/okr.js" type="text/javascript"></script>
+    {#    <script src="/static/js/okr_comment.js" type="text/javascript"></script>#}
 {% endblock %}
 
 

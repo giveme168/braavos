@@ -42,9 +42,9 @@
                             <tr class="okr_item">
                                 {% if loop.index == 1 %}
                                     <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
-                                    <p class="edit_objective_area" style="word-wrap:break-word; width: 150px">
-                                        {{ okr_tem['objective'] }}
-                                    </p>
+                                        <p class="edit_objective_area" style="word-wrap:break-word; width: 150px">
+                                            {{ okr_tem['objective'] }}
+                                        </p>
                                     </td>
                                     <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
                                         <span class="target">{{ okr_tem['priority'] }}</span>
@@ -67,7 +67,8 @@
                                     </td>
                                 {% endif %}
                                 <td class="remove_row">
-                                    <p class="edit_kr_area" style="word-wrap:break-word; width: 350px">{{ kr['results'] }}</p>
+                                    <p class="edit_kr_area"
+                                       style="word-wrap:break-word; width: 350px">{{ kr['results'] }}</p>
                                 </td>
                                 <td class="remove_row">
                                     <span class="achievement_priority">{{ kr['results_PKR'] }}</span>
@@ -95,14 +96,20 @@
                 </table>
             </div>
             <div style="width:96%;margin-left:2%;height: 160px;">
+                <div style="width:96%;margin-left:2%;height: 160px;">
+                    <td class="remove_row">
+                        <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">季度个人自评分(1~100)</span>
+                        <input name="score" id="score" class="score" value="{{ okr.score }}">
+                    </td>
+                </div>
                 <td class="remove_row">
                     <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">季度个人小结</span>
                     <textarea class="summary" rows="8" style="border:1px solid #ccc; width: 60% ; float:left"
-                              >{{ okr.summary }}</textarea>
+                    >{{ okr.summary }}</textarea>
                 </td>
             </div>
 
-            <div class="state" style="margin-left:25%;margin-top:50px;">
+            <div class="state" style="margin-left:10%;margin-top:50px;">
                 <a href="{{ url_for('account_okr.index', user_id=g.user.id) }}"><input type="button" value="返回"></a>
                 <button type="button" name="status" value='7' class="btn commit save_send"/>
                 保存不发申请</button>
