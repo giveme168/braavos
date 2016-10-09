@@ -49,7 +49,6 @@ $(document).ready(function () {
 
         }
 
-        // console.log(ret);
         $('#okr_json').val($.toJSON(ret))
         $('#okr_form').submit();
     }

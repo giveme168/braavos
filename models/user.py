@@ -647,10 +647,11 @@ class Okr(db.Model, BaseModelMixin):
         'User', backref=db.backref('creator_okr', lazy='dynamic'))
     __mapper_args__ = {'order_by': id.desc()}
     summary = db.Column(db.Text(), nullable=True)
+    comment = db.Column(db.Text(), nullable=True)
 
     def __init__(self, o_kr, quarter,
                  # senders=None,
-                 creator, year, status=1, summary=None):
+                 creator, year, status=1, summary=None, comment=None):
         self.o_kr = o_kr
         self.quarter = quarter
         self.year = year
@@ -658,6 +659,7 @@ class Okr(db.Model, BaseModelMixin):
         self.creator = creator
         self.status = status
         self.summary = summary
+        self.comment = comment
 
     @property
     def quarter_cn(self):

@@ -203,6 +203,14 @@ def info(lid):
 def status(user_id, lid):
     okr_status = int(request.values.get('status', 1))
     okr = Okr.query.get(lid)
+    # 拿到comment的值
+    # if okr_status == 9 or okr_status == 10:
+    #     okr_json = request.values.get('okr_json')
+    #     print okr_json
+    #     o_kr = json.loads(okr_json)
+    #     comment = o_kr['comment']
+    #     okr.comment = comment
+    ###
     okr.status = okr_status
     okr.save()
     flash(okr.status_cn, 'success')
@@ -259,7 +267,6 @@ def final_evaluate(user_id, lid):
         # 拿到评价的数据以及insert的查询字段
         okr_json = request.values.get('okr_json')
         o_kr = json.loads(okr_json)
-        print o_kr
         status = int(o_kr['status'])
         summary = o_kr['summary']
         okrtext = json.dumps(o_kr['okrs'])
