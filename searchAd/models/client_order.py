@@ -1097,8 +1097,6 @@ class searchAdClientOrderBill(db.Model, BaseModelMixin, CommentMixin):
     rebate_money = db.Column(db.Float(), default=0.0)
     start = db.Column(db.Date)
     end = db.Column(db.Date)
-    invoice_pass_sum = db.Column(db.Float(), default=0.0)
-    invoice_apply_sum = db.Column(db.Float(), default=0.0)
     is_delete = db.Column(db.Boolean(), default=False)
 
     def __init__(self, company, client, medium, resource_type, money, rebate_money, start=None, end=None):
