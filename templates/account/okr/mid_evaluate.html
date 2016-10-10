@@ -38,7 +38,7 @@
                             <tr class="okr_item">
                                 {% if loop.index == 1 %}
                                     <td rowspan="{{ okr['kr_items']|length }}" class="merge_row">
-                                        <p class="edit_objective_area" name="comment" readonly
+                                        <p class="edit_objective_area" style="word-wrap:break-word; width: 250px;margin: 0 auto;"
                                                   >{{ okr['objective'] }}</p>
                                     </td>
                                     <td rowspan="{{ okr['kr_items']|length }}" class="merge_row">
@@ -54,7 +54,7 @@
                                     </td>
                                 {% endif %}
                                 <td class="remove_row">
-                                    <p class="edit_kr_area">{{ kr['results'] }}</p>
+                                    <p class="edit_kr_area" style="word-wrap:break-word; width: 500px;margin: 0 auto;">{{ kr['results'] }}</p>
                                 </td>
                                 <td class="remove_row">
                                     <span class="achievement_priority">{{ kr['results_PKR'] }}</span>

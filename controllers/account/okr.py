@@ -263,7 +263,6 @@ def final_evaluate(user_id, lid):
         o_kr = json.loads(okr_json)
         status = int(o_kr['status'])
         summary = o_kr['summary']
-        print o_kr
         score = o_kr['score']
         okrtext = json.dumps(o_kr['okrs'])
         okr_update = Okr.query.get(lid)
