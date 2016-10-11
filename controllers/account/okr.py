@@ -162,9 +162,16 @@ def subordinates():
         under_users = [{'uid': k.id, 'name': k.name} for k in User.all()]
     else:
         under_users = _get_all_under_users(g.user.id)
-        okr = [k for k in Okr.all() if k.status in [OKR_STATUS_APPLY, OKR_STATUS_PASS,
-                                                    OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_MID_EVALUATION_APPLY,
-                                                    OKR_STATUS_EVALUATION_APPROVED]]
+        sub = []
+        for under in under_users:
+            sub.append(User.query.get(under['uid']))
+        okr = [k for k in Okr.all() if k.status in [
+            OKR_STATUS_APPLY,
+            OKR_STATUS_PASS,
+            OKR_STATUS_EVALUATION_APPLY,
+            OKR_STATUS_MID_EVALUATION_APPLY,
+            OKR_STATUS_EVALUATION_APPROVED
+        ] and k.creator in sub]
 
     if user_id:
         okr = [k for k in okr if k.creator.id == int(user_id)]
@@ -203,9 +210,11 @@ def info(lid):
 def status(user_id, lid):
     okr_status = int(request.values.get('status', 100))
     comment = request.values.get('comment', '')
+    score = request.values.get('score', None)
     okr = Okr.query.get(lid)
     okr.status = okr_status
     okr.comment = comment
+    okr.score = score
     okr.save()
     flash(okr.status_cn, 'success')
     account_okr_apply_signal.send(
@@ -263,12 +272,10 @@ def final_evaluate(user_id, lid):
         o_kr = json.loads(okr_json)
         status = int(o_kr['status'])
         summary = o_kr['summary']
-        score = o_kr['score']
         okrtext = json.dumps(o_kr['okrs'])
         okr_update = Okr.query.get(lid)
         okr_update.status = status
         okr_update.summary = summary
-        okr_update.score = score
         okr_update.o_kr = okrtext
         okr_update.save()
 

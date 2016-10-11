@@ -71,7 +71,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 
 .okr_summary span {
     float: left;
-    width: 110px;
+    width: 130px;
     text-align: left;
     margin-right: 10px;
 }
@@ -90,7 +90,7 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 .okr_comment span {
     float: left;
     text-align: left;
-    width: 110px;
+    width: 130px;
     margin-right: 10px;
 }
 
@@ -99,17 +99,33 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
     width: 50%;
 }
 
-.okr_leader_comment {
+.okr_leader_comment{
     width: 100%;
 }
 
-.okr_leader_comment span {
-    float: left;
-    text-align: left;
-    width: 110px;
-    margin-right: 10px;
+.okr_leader_count {
+    height: 60px;
+    clear: both;
+    margin-top: 20px;
+    width: 100%;
 }
 
+.okr_leader_count span  {
+    float: left;
+    text-align: left;
+    width: 130px;
+    margin-right: 10px;
+}
+.okr_leader_comment span{
+    float: left;
+    text-align: left;
+    width: 130px;
+    margin-right: 10px;
+}
+.okr_leader_count input {
+    width: 10%;
+    border: 1px solid #5e5e5e;
+}
 .okr_leader_comment textarea {
     width: 50%;
 }
