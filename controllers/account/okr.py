@@ -162,7 +162,6 @@ def subordinates():
         under_users = [{'uid': k.id, 'name': k.name} for k in User.all()]
     else:
         under_users = _get_all_under_users(g.user.id)
-        print under_users[0]['name']
         sub = []
         for under in under_users:
             sub.append(User.query.get(under['uid']))
@@ -273,12 +272,10 @@ def final_evaluate(user_id, lid):
         o_kr = json.loads(okr_json)
         status = int(o_kr['status'])
         summary = o_kr['summary']
-        # score = o_kr['score']
         okrtext = json.dumps(o_kr['okrs'])
         okr_update = Okr.query.get(lid)
         okr_update.status = status
         okr_update.summary = summary
-        # okr_update.score = score
         okr_update.o_kr = okrtext
         okr_update.save()
 
