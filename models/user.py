@@ -618,6 +618,9 @@ OKR_STATUS_EVALUATION = 7
 OKR_STATUS_EVALUATION_APPLY = 8
 OKR_STATUS_EVALUATION_APPROVED = 9
 OKR_STATUS_EVALUATION_DENIED = 10
+OKR_STATUS_COLLEAGUE_EVALUATION = 11
+OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED = 12
+
 
 OKR_STATUS_CN = {
     OKR_STATUS_BACK: u'撤销申请',
@@ -631,6 +634,8 @@ OKR_STATUS_CN = {
     OKR_STATUS_EVALUATION_APPLY: u'季末评价申请中',
     OKR_STATUS_EVALUATION_APPROVED: u'季末评价通过',
     OKR_STATUS_EVALUATION_DENIED: u'季末评价驳回',
+    OKR_STATUS_COLLEAGUE_EVALUATION: u'同事互评中',
+    OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED: u'互评完成',
 }
 
 
@@ -648,11 +653,12 @@ class Okr(db.Model, BaseModelMixin):
     __mapper_args__ = {'order_by': id.desc()}
     summary = db.Column(db.Text(), nullable=True)
     comment = db.Column(db.Text(), nullable=True)
-    score = db.Column(db.Integer)
+    score = db.Column(db.Integer, nullable=True)
+    c_score = db.Column(db.Text(), nullable=True)  # 互评人员id记忆对应分数
 
     def __init__(self, o_kr, quarter,
                  # senders=None,
-                 creator, year, status=1, summary=None, comment=None, score=None):
+                 creator, year, status=1, summary=None, comment=None, score=None, c_score=None):
         self.o_kr = o_kr
         self.quarter = quarter
         self.year = year
@@ -662,6 +668,7 @@ class Okr(db.Model, BaseModelMixin):
         self.summary = summary
         self.comment = comment
         self.score = score
+        self.c_score = c_score
 
     @property
     def quarter_cn(self):

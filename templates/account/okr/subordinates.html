@@ -96,6 +96,11 @@
                                         <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=10">不通过</a>
                                         <br/>
                                     {% endif %}
+{#                                {% elif l.status == 9 and (l.quarter == 2 or l.quarter == 4) %}#}
+{#                                    {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}#}
+{#                                        <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=11">互评人员分配</a>#}
+{#                                        <br/>#}
+{#                                    {% endif %}#}
                                 {% endif %}
                             {% endif %}
                         </td>

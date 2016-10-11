@@ -48,7 +48,8 @@
                         <tr class="okr_item">
                             {% if loop.index == 1 %}
                                 <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
-                                    <p class="edit_objective_area" style="word-wrap:break-word; width: 250px;margin: 0 auto;">
+                                    <p class="edit_objective_area"
+                                       style="word-wrap:break-word; width: 250px;margin: 0 auto;">
                                         {{ okr_tem['objective'] }}
                                     </p>
                                 </td>
@@ -101,10 +102,6 @@
             <div class="evaluation">
                 {% if g.user == okr.creator or g.user in okr.creator.team_leaders or g.user.is_super_admin() %}
                     <div class="okr_list">
-                        <div class="okr_score">
-                            <span>季度个人自评分(1~100):</span>
-                            <p>{{ okr.score }}</p>
-                        </div>
                         <div class="okr_summary">
                             <span>季度个人小结</span>
                             <textarea rows="6" readonly>{{ okr.summary }}
@@ -113,6 +110,10 @@
                     </div>
 
                     {% if okr.status > 8 %}
+                        <div class="okr_score">
+                            <span>部门领导评分:</span>
+                            <p>{{ okr.score }}</p>
+                        </div>
                         <div class="okr_comment">
                             <span>部门负责人评语</span>
                             <textarea rows="4" readonly>{{ okr.comment }}
@@ -131,11 +132,19 @@
                     <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=okr.id) }}?status=4">
                         <button type="button">不通过</button>
                     </a>
-                    <a href="javascript:history.go(-1);"><button type="button" value="返回">返回</button></a>
+                    <a href="javascript:history.go(-1);">
+                        <button type="button" value="返回">返回</button>
+                    </a>
                 </div>
             {% endif %}
             {% if okr.status == 8 %}
                 <form method="post" action="{{ url_for('account_okr.status', user_id=g.user.id, lid=okr.id) }}">
+                    <div>
+                        <div class="okr_leader_count">
+                            <span >部门领导评分(2~5)</span>
+                            <input name="score" id="score" class="score">
+                        </div>
+                    </div>
                     <div class="">
                         <div>
                             <div class="okr_leader_comment">
@@ -147,13 +156,17 @@
                     <div class="chosen_status">
                         <button type="submit" name="status" value="9">通过</button>
                         <button type="submit" name="status" value="10">不通过</button>
-                        <a href="javascript:history.go(-1);"><button type="button" value="返回">返回</button></a>
+                        <a href="javascript:history.go(-1);">
+                            <button type="button" value="返回">返回</button>
+                        </a>
                     </div>
                 </form>
             {% endif %}
         {% else %}
             <div class="chosen_status">
-                <a href="javascript:history.go(-1);"><button type="button" value="返回">返回</button></a>
+                <a href="javascript:history.go(-1);">
+                    <button type="button" value="返回">返回</button>
+                </a>
             </div>
         {% endif %}
 
