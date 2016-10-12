@@ -5,6 +5,7 @@ from flask import render_template as tpl
 
 from models.douban_order import BackMoney, BackInvoiceRebate
 from models.outsource import (MergerDoubanOutSource, MergerDoubanPersonalOutSource)
+from libs.date_helpers import check_year_Q_get_monthes
 from controllers.finance.helpers.data_query_helpers import write_order_excel
 finance_douban_order_data_query_bp = Blueprint(
     'finance_douban_order_data_query', __name__, template_folder='../../templates/financd/data_query')
@@ -19,10 +20,16 @@ def back_money():
     month = request.values.get('month', now_date.strftime('%m'))
 
     if month != '00':
-        search_date = datetime.datetime.strptime(
-            str(year) + '-' + str(month), '%Y-%m')
-        end_search_date = (
-            search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+        if 'Q' in month:
+            Q_monthes = check_year_Q_get_monthes(year, month)
+            search_date = Q_monthes[0]
+            end_search_date = (
+                Q_monthes[2] + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+        else:
+            search_date = datetime.datetime.strptime(
+                str(year) + '-' + str(month), '%Y-%m')
+            end_search_date = (
+                search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
         orders = [k for k in BackMoney.query.filter(BackMoney.back_time >= search_date,
                                                     BackMoney.back_time < end_search_date)
                   if k.douban_order.status == 1]
@@ -52,10 +59,16 @@ def back_invoice():
     month = request.values.get('month', now_date.strftime('%m'))
 
     if month != '00':
-        search_date = datetime.datetime.strptime(
-            str(year) + '-' + str(month), '%Y-%m')
-        end_search_date = (
-            search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+        if 'Q' in month:
+            Q_monthes = check_year_Q_get_monthes(year, month)
+            search_date = Q_monthes[0]
+            end_search_date = (
+                Q_monthes[2] + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+        else:
+            search_date = datetime.datetime.strptime(
+                str(year) + '-' + str(month), '%Y-%m')
+            end_search_date = (
+                search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
         orders = [k for k in BackInvoiceRebate.query.filter(BackInvoiceRebate.back_time >= search_date,
                                                             BackInvoiceRebate.back_time < end_search_date)
                   if k.douban_order.status == 1]
@@ -85,10 +98,16 @@ def personal_outsource():
     month = request.values.get('month', now_date.strftime('%m'))
 
     if month != '00':
-        search_date = datetime.datetime.strptime(
-            str(year) + '-' + str(month), '%Y-%m')
-        end_search_date = (
-            search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+        if 'Q' in month:
+            Q_monthes = check_year_Q_get_monthes(year, month)
+            search_date = Q_monthes[0]
+            end_search_date = (
+                Q_monthes[2] + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+        else:
+            search_date = datetime.datetime.strptime(
+                str(year) + '-' + str(month), '%Y-%m')
+            end_search_date = (
+                search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
 
         '''orders = [k for k in MergerPersonalOutSource.query.filter(
             MergerPersonalOutSource.create_time >= search_date,
@@ -125,10 +144,16 @@ def outsource():
     year = request.values.get('year', now_date.strftime('%Y'))
     month = request.values.get('month', now_date.strftime('%m'))
     if month != '00':
-        search_date = datetime.datetime.strptime(
-            str(year) + '-' + str(month), '%Y-%m')
-        end_search_date = (
-            search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+        if 'Q' in month:
+            Q_monthes = check_year_Q_get_monthes(year, month)
+            search_date = Q_monthes[0]
+            end_search_date = (
+                Q_monthes[2] + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
+        else:
+            search_date = datetime.datetime.strptime(
+                str(year) + '-' + str(month), '%Y-%m')
+            end_search_date = (
+                search_date + datetime.timedelta(days=(search_date.max.day - search_date.day) + 1)).replace(day=1)
 
         '''orders = [k for k in MergerOutSource.query.filter(MergerOutSource.create_time >= search_date,
                                                           MergerOutSource.create_time < end_search_date,

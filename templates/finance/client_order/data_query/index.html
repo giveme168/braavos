@@ -73,6 +73,9 @@
                             <option value="{{k}}">{{k}}月</option>
                         {% endif %}
                     {% endfor %}
+                    {% for k in range(1, 5) %}
+                        <option value="Q{{k}}">Q{{k}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="select_option screen">
