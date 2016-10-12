@@ -53,6 +53,10 @@ $(document).ready(function () {
 
         $('#okr_json').val($.toJSON(ret))
         $('#okr_form').submit();
-    }
+    };
+    $("select").chosen({
+        placeholder_text: "请选择...",
+        disable_search_threshold: 10
+    });
 
 })

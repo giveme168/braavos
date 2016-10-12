@@ -74,7 +74,11 @@
                         <td><a href="{{ url_for('account_okr.info', lid=l.id) }}">{{ l.creator.name }}</a></td>
                         <td>{{ l.year }}</td>
                         <td>{{ l.quarter_cn }}</td>
+                    {% if l.status == 8 %}
+                        <td><font color="red">{{ l.status_cn }}</font></td>
+                    {% else %}
                         <td>{{ l.status_cn }}</td>
+                    {% endif %}
                         <td>
                             {% if title == '所有OKR列表' %}
                                 {% if g.user.is_OPS() %}
@@ -89,18 +93,18 @@
                                         <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=4">不通过</a>
                                         <br/>
                                     {% endif %}
-                                {% elif l.status == 8 %}
-                                    {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}
-                                        <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=9">通过</a>
-                                        <br/>
-                                        <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=10">不通过</a>
-                                        <br/>
-                                    {% endif %}
-{#                                {% elif l.status == 9 and (l.quarter == 2 or l.quarter == 4) %}#}
+{#                                {% elif l.status == 8 %}#}
 {#                                    {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}#}
-{#                                        <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=11">互评人员分配</a>#}
+{#                                        <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=9">通过</a>#}
+{#                                        <br/>#}
+{#                                        <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=10">不通过</a>#}
 {#                                        <br/>#}
 {#                                    {% endif %}#}
+                                {% elif l.status == 9 and (l.quarter == 2 or l.quarter == 4) %}
+                                    {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}
+                                        <a href="{{ url_for('account_okr.info', lid=l.id) }}">互评人员分配</a>
+                                        <br/>
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                         </td>

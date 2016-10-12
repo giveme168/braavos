@@ -156,14 +156,11 @@ font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;}
 }
 
 
+#personnals {
+    width: 600px;
+}
 
-
-
-
-
-
-
-
-
-
+.chosen_pople {
+    height: 60px;
+}
 
