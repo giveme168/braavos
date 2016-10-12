@@ -213,7 +213,8 @@ def info(lid):
         okr.summary = u'您无权查看okr小结'
     users = []
     for u in under_user:
-        users.append(User.query.get(u['uid']))
+        if u['uid'] != okr.creator_id:
+            users.append(User.query.get(u['uid']))
     return tpl('/account/okr/info.html', okrlist=okrlist, okr=okr, users=users)
 
 
@@ -333,7 +334,28 @@ def allokrs():
         okrs = [o for o in okrs if o.year == year]
     if quarter:
         okrs = [o for o in okrs if o.quarter == quarter]
+    for k in okrs:
+        if k.c_score:
+            k.colleague_ids = json.loads(k.c_score).keys()
     return tpl('all_okrs.html', okrs=okrs, status=status, users=User.all_active(),
                params="&status=%s&user_id=%s$year=%s&quarter=%s" % (str(status), str(user_id), str(year), str(quarter)),
                user_id=user_id, year=year, quarter=quarter
                )
+
+
+@account_okr_bp.route('/<lid>/qualification_score', methods=['GET', 'POST'])
+def qualification(lid):
+    okr = Okr.query.get(lid)
+    okrlist = json.loads(okr.o_kr)
+    under_user = _get_all_under_users(g.user.id)
+    if okr.creator_id not in [u['uid'] for u in under_user]:
+        mark = False
+    else:
+        mark = True
+    if not (g.user.is_super_leader() or g.user.is_HR_leader() or mark or g.user == okr.creator):
+        okr.summary = u'您无权查看okr小结'
+    users = []
+    for u in under_user:
+        if u['uid'] != okr.creator_id:
+            users.append(User.query.get(u['uid']))
+    return tpl('/account/okr/qualification_score.html', okrlist=okrlist, okr=okr, users=users)

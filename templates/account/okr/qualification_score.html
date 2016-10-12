@@ -1,0 +1,147 @@
+{% extends "/base_v1_0_0.html" %}
+{% from 'form.html' import form_tpl, form_tpl_ex_form %}
+
+{% block title %}填写OKR列表{% endblock %}
+<link rel="stylesheet" href="/static/css/okr_info.css"/>
+
+{% block content %}
+    {% include "/account/account_okr_base.html" %}
+    <div class="container bra-box" style="min-width: 950px;">
+    <h3>{{ okr.creator.name }}的行政评分</h3>
+    <div class="wrapper">
+        <div class="year" id="year">
+            <label for="disabledSelect">年份：</label>
+            <span>{{ okr.year }}</span>
+        </div>
+        <div class="quarter" id="quarter">
+            <label for="disabledSelect">季度：</label>
+            <span>{{ okr.quarter_cn }}</span>
+        </div>
+    </div>
+    <form method="post" action="{{ url_for('account_okr.status', user_id=g.user.id, lid=okr.id) }}"
+          onsubmit="return check_form(this);">
+        <div>
+            <table border='1' class="table table-bordered">
+                <thread>
+                    <tr>
+                        <th colspan=5>胜任能力</th>
+                        <th colspan=6>能力说明</th>
+                        <th>权重</th>
+                        <th>实际行为表现</th>
+                        <th>上级评分</th>
+                    </tr>
+                    <tr>
+                        <th colspan=5>知识技能</th>
+                        <th colspan=6>具备胜任目前工作所需要的各项知识技能和技巧。</th>
+                        <th>4%</th>
+                        <th><textarea id="knowledge_res" name="knowledge_res"
+                                      class="form-control bra-form-control"
+                                      style="resize:none; width:95%;"></textarea></th>
+                        <th>
+                            <select id="knowledge_s" name="knowledge_s" style="width:60px;"
+                                    onchange="calculate_data(this)">
+                                {#                                {% for k in scores %}#}
+                                {#                                    <option value="{{ k }}">{{ k }}</option>#}
+                                {#                                {% endfor %}#}
+                            </select>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan=5>积极主动</th>
+                        <th colspan=6>工作积极主动，不计较个人得失。</th>
+                        <th>4%</th>
+                        <th><textarea id="positive_res" name="positive_res" class="form-control bra-form-control"
+                                      style="resize:none; width:95%;"></textarea></th>
+                        <th>
+                            <select id="positive_s" name="positive_s" style="width:60px;"
+                                    onchange="calculate_data(this)">
+                                {#                                {% for k in scores %}#}
+                                {#                                    <option value="{{ k }}">{{ k }}</option>#}
+                                {#                                {% endfor %}#}
+                            </select>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan=5>团队合作</th>
+                        <th colspan=6>团队合作意识强，包括部门内部及跨部门合作。</th>
+                        <th>4%</th>
+                        <th><textarea id="team_res" name="team_res" class="form-control bra-form-control"
+                                      style="resize:none; width:95%;"></textarea></th>
+                        <th>
+                            <select id="team_s" name="team_s" style="width:60px;" onchange="calculate_data(this)">
+                                {#                                {% for k in scores %}#}
+                                {#                                    <option value="{{ k }}">{{ k }}</option>#}
+                                {#                                {% endfor %}#}
+                            </select>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan=5>学习能力</th>
+                        <th colspan=6>开放心态，具备自我学习和成长的能力和意识。</th>
+                        <th>4%</th>
+                        <th><textarea id="teach_res" name="teach_res" class="form-control bra-form-control"
+                                      style="resize:none; width:95%;"></textarea></th>
+                        <th>
+                            <select id="teach_s" name="teach_s" style="width:60px;" onchange="calculate_data(this)">
+{#                                {% for k in scores %}#}
+{#                                    <option value="{{ k }}">{{ k }}</option>#}
+{#                                {% endfor %}#}
+                            </select>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan=5>遵规守纪</th>
+                        <th colspan=6>遵守部门工作纪律，遵循公司各项规章制度。</th>
+                        <th>4%</th>
+                        <th><textarea id="abide_res" name="abide_res" class="form-control bra-form-control"
+                                      style="resize:none; width:95%;"></textarea></th>
+                        <th>
+                            <select id="abide_s" name="abide_s" style="width:60px;" onchange="calculate_data(this)">
+{#                                {% for k in scores %}#}
+{#                                    <option value="{{ k }}">{{ k }}</option>#}
+{#                                {% endfor %}#}
+                            </select>
+                        </th>
+                    </tr>
+                </thread>
+            </table>
+        </div>
+
+        <div class="chosen_pople">
+            <span>选择评分员工:</span>
+            <select class="form-control bra-form-control" id="personnals" multiple="" name="personnals"
+                    placeholder="选择评分员工">
+                {% for k in users %}
+                    <option value="{{ k.id }}">{{ k.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="chosen_status">
+            <button type="submit" name="status" value="11">保存</button>
+        </div>
+    </form>
+
+    <script>
+        function is_null(data) {
+            if (!data && typeof(data) != "undefined" && data != 0) {
+                return true;
+            }
+        }
+
+        function check_form(obj) {
+            var personnals = $('#personnals').val()
+            if (is_null(personnals) || personnals.length != 2) {
+                alert('请选择2个员工为他评分')
+                return false
+            }
+            return true
+        }
+
+        $("select").chosen({
+            placeholder_text: "请选择...",
+            disable_search_threshold: 10
+        });
+
+    </script>
+
+{% endblock %}

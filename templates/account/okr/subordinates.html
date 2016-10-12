@@ -102,7 +102,7 @@
 {#                                    {% endif %}#}
                                 {% elif l.status == 9 and (l.quarter == 2 or l.quarter == 4) %}
                                     {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}
-                                        <a href="{{ url_for('account_okr.info', lid=l.id) }}">互评人员分配</a>
+                                        <a href="{{ url_for('account_okr.qualification', lid=l.id) }}">行政评分&互评分配</a>
                                         <br/>
                                     {% endif %}
                                 {% endif %}
