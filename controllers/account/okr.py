@@ -4,7 +4,8 @@ from flask import render_template as tpl
 
 from models.user import (User, Okr, OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_BACK, OKR_STATUS_NORMAL,
                          OKR_QUARTER_CN, OKR_STATUS_MID_EVALUATION_APPLY,
-                         OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED)
+                         OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED,
+                         OKR_STATUS_COLLEAGUE_EVALUATION, OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED)
 from libs.email_signals import account_okr_apply_signal
 
 account_okr_bp = Blueprint('account_okr', __name__, template_folder='../../templates/account/okr/')
@@ -142,8 +143,8 @@ def _get_all_under_users(self_user_id):
         d_user = [user for user in all_user if self_user_id in user['leaders']]
         for k in d_user:
             under_users.append(k)
-            if k['is_kpi_leader'] and self_user_id != k['uid']:
-                under_users += get_under(under_users, all_user, k['uid'])
+            # if k['is_kpi_leader'] and self_user_id != k['uid']:
+            #     under_users += get_under(under_users, all_user, k['uid'])
         return under_users
 
     return get_under(under_users, all_user, self_user_id)
@@ -157,8 +158,14 @@ def subordinates():
     year = int(request.values.get('year', 0))
     if g.user.is_super_leader() or g.user.is_HR_leader():
         okr = [k for k in Okr.all() if k.status in [
-            OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_MID_EVALUATION_APPLY,
-            OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED]]
+            OKR_STATUS_APPLY,
+            OKR_STATUS_PASS,
+            OKR_STATUS_MID_EVALUATION_APPLY,
+            OKR_STATUS_EVALUATION_APPLY,
+            OKR_STATUS_EVALUATION_APPROVED,
+            OKR_STATUS_COLLEAGUE_EVALUATION,
+            OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED,
+        ]]
         under_users = [{'uid': k.id, 'name': k.name} for k in User.all()]
     else:
         under_users = _get_all_under_users(g.user.id)
@@ -170,7 +177,9 @@ def subordinates():
             OKR_STATUS_PASS,
             OKR_STATUS_EVALUATION_APPLY,
             OKR_STATUS_MID_EVALUATION_APPLY,
-            OKR_STATUS_EVALUATION_APPROVED
+            OKR_STATUS_EVALUATION_APPROVED,
+            OKR_STATUS_COLLEAGUE_EVALUATION,
+            OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED,
         ] and k.creator in sub]
 
     if user_id:
@@ -202,25 +211,33 @@ def info(lid):
         mark = True
     if not (g.user.is_super_leader() or g.user.is_HR_leader() or mark or g.user == okr.creator):
         okr.summary = u'您无权查看okr小结'
-
-    return tpl('/account/okr/info.html', okrlist=okrlist, okr=okr)
+    users = []
+    for u in under_user:
+        users.append(User.query.get(u['uid']))
+    return tpl('/account/okr/info.html', okrlist=okrlist, okr=okr, users=users)
 
 
 @account_okr_bp.route('/<user_id>/<lid>/status', methods=['GET', 'POST'])
 def status(user_id, lid):
     okr_status = int(request.values.get('status', 100))
-    comment = request.values.get('comment', '')
-    score = request.values.get('score', None)
     okr = Okr.query.get(lid)
+    if okr_status == 9 or okr_status == 10:
+        comment = request.values.get('comment', '')
+        score = request.values.get('score', None)
+        okr.comment = comment
+        okr.score = score
+    if okr_status == 11:
+        personnals = request.form.getlist('personnals')
+        okr.c_score = json.dumps(dict((p, None) for p in personnals))
     okr.status = okr_status
-    okr.comment = comment
-    okr.score = score
     okr.save()
     flash(okr.status_cn, 'success')
-    account_okr_apply_signal.send(
-        current_app._get_current_object(), okr=okr)
-    if status in [OKR_STATUS_APPLY, OKR_STATUS_BACK]:
+    # account_okr_apply_signal.send(
+    #     current_app._get_current_object(), okr=okr)
+    if okr_status in [OKR_STATUS_APPLY, OKR_STATUS_BACK]:
         return redirect(url_for('account_okr.index', user_id=user_id))
+    # elif okr_status == OKR_STATUS_EVALUATION_APPROVED:
+    #     return redirect(url_for('account_okr.info', lid=lid))
     else:
         return redirect(url_for('account_okr.subordinates'))
 
@@ -306,7 +323,7 @@ def allokrs():
     year = int(request.values.get('year', 0))
     quarter = int(request.values.get('quarter', 0))
 
-    status_list = [3, 6, 9]
+    status_list = [3, 6, 9, 11, 12]
     okrs = [o for o in Okr.query.filter(Okr.creator_id != g.user.id) if o.status in status_list]
     if status != 100:
         okrs = [o for o in okrs if o.status == status]

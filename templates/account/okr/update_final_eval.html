@@ -1,9 +1,8 @@
-<link rel="stylesheet" href="/static/css/okr.css"/>
 {% extends "/base_v1_0_0.html" %}
 {% from 'form.html' import form_tpl, form_tpl_ex_form %}
 
 {% block title %}填写OKR列表{% endblock %}
-
+<link rel="stylesheet" href="/static/css/okr.css"/>
 {% block content %}
     {% include "/account/account_okr_base.html" %}
     <div class="container bra-box" style="min-width: 950px;">
@@ -26,13 +25,13 @@
                     <thead>
                     <tr>
                         <th>季度目标(O)</th>
-                        <th style="width:25px;">目标优先级 P(O)</th>
-                        <th style="width:25px;">中期评价</th>
-                        <th style="width:25px;">季末评价</th>
+                        <th>目标优先级 P(O)</th>
+                        <th>中期评价</th>
+                        <th>季末评价</th>
                         <th>主要成绩</th>
-                        <th style="width:25px;">成绩优先级 P(KR)</th>
-                        <th style="width:25px;">中期评价</th>
-                        <th style="width:25px;">季末评价</th>
+                        <th>成绩优先级 P(KR)</th>
+                        <th>中期评价</th>
+                        <th>季末评价</th>
                     </tr>
                     </thead>
                     {% for okr_tem in okrlist %}
@@ -95,21 +94,15 @@
 
                 </table>
             </div>
-            <div style="width:96%;margin-left:2%;height: 160px;">
-                <div style="width:96%;margin-left:2%;height: 160px;">
-                    <td class="remove_row">
-                        <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">季度个人自评分(1~100)</span>
-                        <input name="score" id="score" class="score" value="{{ okr.score }}">
-                    </td>
-                </div>
-                <td class="remove_row">
-                    <span style="margin-bottom: 10px; float:left; height:20px ; width:100%">季度个人小结</span>
+            <div>
+                <td class="remove_row" style="width: 100%;">
+                    <span style="float: left;margin-right: 10px;">季度个人小结</span>
                     <textarea class="summary" rows="8" style="border:1px solid #ccc; width: 60% ; float:left"
                     >{{ okr.summary }}</textarea>
                 </td>
             </div>
 
-            <div class="state" style="margin-left:10%;margin-top:50px;">
+            <div class="state" style="width: 100%;clear:both;margin-top: 20px;">
                 <a href="{{ url_for('account_okr.index', user_id=g.user.id) }}"><input type="button" value="返回"></a>
                 <button type="button" name="status" value='7' class="btn commit save_send"/>
                 保存不发申请</button>

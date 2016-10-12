@@ -1,8 +1,8 @@
-<link rel="stylesheet" href="/static/css/okr_info.css"/>
 {% extends "/base_v1_0_0.html" %}
 {% from 'form.html' import form_tpl, form_tpl_ex_form %}
 
 {% block title %}填写OKR列表{% endblock %}
+<link rel="stylesheet" href="/static/css/okr_info.css"/>
 
 {% block content %}
     {% include "/account/account_okr_base.html" %}
@@ -21,23 +21,23 @@
             <table border='1' class="table table-bordered">
                 <thead>
                 <tr>
-                    <th>季度目标(O)</th>
-                    <th>目标优先级 P(O)</th>
+                    <th style="width: 10%">季度目标(O)</th>
+                    <th style="width: 10%">目标优先级 P(O)</th>
                     {% if okr.status in [5,6] %}
-                        <th>中期评价</th>
+                        <th style="width: 10%">中期评价</th>
                     {% endif %}
                     {% if okr.status in [7,8,9,10] %}
-                        <th>中期评价</th>
-                        <th>季末评价</th>
+                        <th style="width: 10%">中期评价</th>
+                        <th style="width: 10%">季末评价</th>
                     {% endif %}
-                    <th>主要成绩</th>
-                    <th>成绩优先级 P(KR)</th>
+                    <th style="width: 10%">主要成绩</th>
+                    <th style="width: 10%">成绩优先级 P(KR)</th>
                     {% if okr.status in [5,6] %}
-                        <th>中期评价</th>
+                        <th style="width: 10%">中期评价</th>
                     {% endif %}
                     {% if okr.status in [7,8,9,10] %}
-                        <th>中期评价</th>
-                        <th>季末评价</th>
+                        <th style="width: 10%">中期评价</th>
+                        <th style="width: 10%">季末评价</th>
                     {% endif %}
                 </tr>
                 </thead>
@@ -54,7 +54,7 @@
                                     </p>
                                 </td>
                                 <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
-                                    <span>{{ okr_tem['priority'] }}</span>
+                                    <span tyle="word-wrap:break-word; width: 200px;margin: 0 auto;">{{ okr_tem['priority'] }}</span>
                                 </td>
                                 {% if okr.status in [5,6] %}
                                     <td rowspan="{{ okr_tem['kr_items']|length }}" class="merge_row">
@@ -71,7 +71,7 @@
                                 {% endif %}
                             {% endif %}
                             <td class="remove_row">
-                                <p class="edit_kr_area" style="word-wrap:break-word; width: 500px;margin: 0 auto;">
+                                <p class="edit_kr_area" style="word-wrap:break-word; width: 300px;margin: 0 auto;">
                                     {{ kr['results'] }}
                                 </p>
                             </td>
@@ -137,31 +137,49 @@
                     </a>
                 </div>
             {% endif %}
-            {% if okr.status == 8 %}
-                <form method="post" action="{{ url_for('account_okr.status', user_id=g.user.id, lid=okr.id) }}">
-                    <div>
-                        <div class="okr_leader_count">
-                            <span >部门领导评分(2~5)</span>
-                            <input name="score" id="score" class="score">
-                        </div>
-                    </div>
-                    <div class="">
+            {% if okr.status == 8 or okr.status == 9 %}
+                <form method="post" action="{{ url_for('account_okr.status', user_id=g.user.id, lid=okr.id) }}"
+                      onsubmit="return check_form(this);">
+                    {% if okr.status == 8 %}
                         <div>
-                            <div class="okr_leader_comment">
-                                <span>部门领导评价</span>
-                                <textarea class="leader_comment" rows="8" name="comment"></textarea>
+                            <div class="okr_leader_count">
+                                <span>部门领导评分(2~5)</span>
+                                <input name="score" id="score" class="score">
                             </div>
                         </div>
-                    </div>
-                    <div class="chosen_status">
-                        <button type="submit" name="status" value="9">通过</button>
-                        <button type="submit" name="status" value="10">不通过</button>
-                        <a href="javascript:history.go(-1);">
-                            <button type="button" value="返回">返回</button>
-                        </a>
-                    </div>
+                        <div class="">
+                            <div>
+                                <div class="okr_leader_comment">
+                                    <span>部门领导评价</span>
+                                    <textarea class="leader_comment" rows="8" name="comment"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chosen_status">
+                            <button type="submit" name="status" value="9">通过</button>
+                            <button type="submit" name="status" value="10">不通过</button>
+                            <a href="javascript:history.go(-1);">
+                                <button type="button" value="返回">返回</button>
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="chosen_pople">
+                            <span>选择评分员工:</span>
+                            <select class="form-control bra-form-control" id="personnals" multiple="" name="personnals"
+                                    placeholder="选择评分员工">
+                                {% for k in users %}
+                                    <option value="{{ k.id }}">{{ k.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="chosen_status">
+                            <button type="submit" name="status" value="11">保存</button>
+                        </div>
+                    {% endif %}
+
                 </form>
             {% endif %}
+
         {% else %}
             <div class="chosen_status">
                 <a href="javascript:history.go(-1);">
@@ -173,6 +191,29 @@
     </div>
 
     {#    <script src="/static/js/okr_comment.js" type="text/javascript"></script>#}
+    <script>
+        function is_null(data) {
+            if (!data && typeof(data) != "undefined" && data != 0) {
+                return true;
+            }
+        }
+
+        function check_form(obj) {
+            var personnals = $('#personnals').val()
+            if (is_null(personnals) || personnals.length != 2) {
+                alert('请选择2个员工为他评分')
+                return false
+            }
+            return true
+        }
+
+        $("select").chosen({
+            placeholder_text: "请选择...",
+            disable_search_threshold: 10
+        });
+
+    </script>
+
 {% endblock %}
 
 
