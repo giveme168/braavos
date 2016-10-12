@@ -75,7 +75,7 @@
                         <td>{{ l.quarter_cn }}</td>
                         <td>{{ l.status_cn }}</td>
                         <td>
-                            {% if l.c_score %}
+                            {% if l.score_colleague %}
                                 {% if g.user.id|string in l.colleague_ids %}
                                     <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=3">请评分</a>
                                 {% endif %}

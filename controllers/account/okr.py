@@ -222,19 +222,17 @@ def info(lid):
 def status(user_id, lid):
     okr_status = int(request.values.get('status', 100))
     okr = Okr.query.get(lid)
-    if okr_status == 9 or okr_status == 10:
-        comment = request.values.get('comment', '')
-        score = request.values.get('score', None)
-        okr.comment = comment
-        okr.score = score
-    if okr_status == 11:
-        personnals = request.form.getlist('personnals')
-        okr.c_score = json.dumps(dict((p, None) for p in personnals))
-    okr.status = okr_status
-    okr.save()
-    flash(okr.status_cn, 'success')
-    # account_okr_apply_signal.send(
-    #     current_app._get_current_object(), okr=okr)
+    if request.method == 'POST':
+        if okr_status == 9 or okr_status == 10:
+            comment = request.values.get('comment', '')
+            score_okr = request.values.get('score', None)
+            okr.comment = comment
+            okr.score_okr = score_okr
+        okr.status = okr_status
+        okr.save()
+        flash(okr.status_cn, 'success')
+        # account_okr_apply_signal.send(
+        #     current_app._get_current_object(), okr=okr)
     if okr_status in [OKR_STATUS_APPLY, OKR_STATUS_BACK]:
         return redirect(url_for('account_okr.index', user_id=user_id))
     # elif okr_status == OKR_STATUS_EVALUATION_APPROVED:
@@ -335,8 +333,8 @@ def allokrs():
     if quarter:
         okrs = [o for o in okrs if o.quarter == quarter]
     for k in okrs:
-        if k.c_score:
-            k.colleague_ids = json.loads(k.c_score).keys()
+        if k.score_colleague:
+            k.colleague_ids = json.loads(k.score_colleague).keys()
     return tpl('all_okrs.html', okrs=okrs, status=status, users=User.all_active(),
                params="&status=%s&user_id=%s$year=%s&quarter=%s" % (str(status), str(user_id), str(year), str(quarter)),
                user_id=user_id, year=year, quarter=quarter
@@ -345,17 +343,38 @@ def allokrs():
 
 @account_okr_bp.route('/<lid>/qualification_score', methods=['GET', 'POST'])
 def qualification(lid):
+    if not (g.user.is_kpi_leader or g.user.is_super_leader()):
+        okrs = [k for k in Okr.all() if k.creator == g.user]
+        return tpl('/account/okr/index.html', okrs=okrs)
     okr = Okr.query.get(lid)
-    okrlist = json.loads(okr.o_kr)
+    okr_status = int(request.values.get('status', 100))
     under_user = _get_all_under_users(g.user.id)
-    if okr.creator_id not in [u['uid'] for u in under_user]:
-        mark = False
-    else:
-        mark = True
-    if not (g.user.is_super_leader() or g.user.is_HR_leader() or mark or g.user == okr.creator):
-        okr.summary = u'您无权查看okr小结'
     users = []
     for u in under_user:
         if u['uid'] != okr.creator_id:
             users.append(User.query.get(u['uid']))
-    return tpl('/account/okr/qualification_score.html', okrlist=okrlist, okr=okr, users=users)
+    if request.method == 'POST':
+        personnals = request.form.getlist('personnals')
+        okr.score_colleague = json.dumps(dict((p, None) for p in personnals))
+
+        score_leader = {}
+        score_leader['knowledge_res'] = request.values.get('knowledge_res', '')
+        score_leader['positive_res'] = request.values.get('positive_res', '')
+        score_leader['team_res'] = request.values.get('team_res', '')
+        score_leader['teach_res'] = request.values.get('teach_res', '')
+        score_leader['abide_res'] = request.values.get('abide_res', '')
+        score_leader['knowledge_s'] = float(
+            request.values.get('knowledge_s', 0.00))
+        score_leader['positive_s'] = float(
+            request.values.get('positive_s', 0.00))
+        score_leader['team_s'] = float(request.values.get('team_s', 0.00))
+        score_leader['teach_s'] = float(request.values.get('teach_s', 0.00))
+        score_leader['abide_s'] = float(request.values.get('abide_s', 0.00))
+        okr.score_leader = json.dumps(score_leader)
+        okr.status = okr_status
+        okr.save()
+        return tpl('/account/okr/index.html', okrs=okrs)
+    scores = [float(k) / 10 for k in range(1, 51)]
+    scores.append(0.00)
+    scores.reverse()
+    return tpl('/account/okr/qualification_score.html', okr=okr, scores=scores, users=users)

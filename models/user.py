@@ -653,12 +653,12 @@ class Okr(db.Model, BaseModelMixin):
     __mapper_args__ = {'order_by': id.desc()}
     summary = db.Column(db.Text(), nullable=True)
     comment = db.Column(db.Text(), nullable=True)
-    score = db.Column(db.Integer, nullable=True)
-    c_score = db.Column(db.Text(), nullable=True)  # 互评人员id记忆对应分数
+    score_okr = db.Column(db.Integer, nullable=True)
+    score_colleague = db.Column(db.Text(), nullable=True)  # 互评人员id记忆对应分数
+    score_leader = db.Column(db.Text(), nullable=True)  # 负责人按照行政标准的打分
 
-    def __init__(self, o_kr, quarter,
-                 # senders=None,
-                 creator, year, status=1, summary=None, comment=None, score=None, c_score=None):
+    def __init__(self, o_kr, quarter, creator, year, status=1,
+                 summary=None, comment=None, score_okr=None, score_colleague=None, score_leader=None):
         self.o_kr = o_kr
         self.quarter = quarter
         self.year = year
@@ -667,8 +667,9 @@ class Okr(db.Model, BaseModelMixin):
         self.status = status
         self.summary = summary
         self.comment = comment
-        self.score = score
-        self.c_score = c_score
+        self.score_okr = score_okr
+        self.score_colleague = score_colleague
+        self.score_leader = score_leader
 
     @property
     def quarter_cn(self):
