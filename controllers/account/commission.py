@@ -323,8 +323,9 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
             media_rebate_value += m.client_order_agent_rebate_ai
             medium_money_total += m.medium_money2
         # 分析订单业务类型：1，自营；2，增量；3，混搭（按增量计算）
-        ex_date = datetime.datetime.strptine('2016-07-01', '%Y-%m-%d')
+        ex_date = datetime.datetime.strptime('2016-07-01', '%Y-%m-%d').date()
         if order.client_start < ex_date:
+            dict_order['b_type'] = 0
             dict_order['profit'] = 0
         else:
             b_type = list(set(b_type))
@@ -346,7 +347,7 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
     dict_order['client_start'] = order.client_start
     dict_order['client_end'] = order.client_end
     # 媒介提成
-    if dict_order['profit']:
+    if dict_order['b_type']:
         dict_order['media_money'] = sum([k['money'] for k in order_back_money_data]) * dict_order['profit'] * 0.05
     else:
         dict_order['media_money'] = 0
