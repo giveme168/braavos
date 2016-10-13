@@ -208,7 +208,7 @@ def info(lid):
 def status(user_id, lid):
     okr = Okr.query.get(lid)
     if okr.creator != g.user and not \
-        (
+            (
             g.user.is_kpi_leader or
             g.user.is_HR_leader() or
             g.user.is_super_leader() or
