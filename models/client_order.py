@@ -1519,6 +1519,19 @@ by %s\n
     def subject_cn(self):
         return SUBJECT_CN[self.subject or 1]
 
+    @property
+    def b_type(self):
+        b_type = []
+        for m in self.medium_orders:
+            b_type.append(m.media.b_type or 0)
+        # 分析订单业务类型：1，自营；2，增量；3，混搭（按增量计算）
+        b_type = list(set(b_type))
+        if len(b_type) > 1:
+            return 1
+        elif b_type == [1]:
+            return 1
+        return 0
+
 
 class BackMoney(db.Model, BaseModelMixin):
     __tablename__ = 'bra_client_order_back_money'
