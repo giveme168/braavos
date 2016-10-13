@@ -68,7 +68,9 @@ def create():
 @account_okr_bp.route('/<user_id>/<lid>/update', methods=['GET', 'POST'])
 def update(user_id, lid):
     okr_old = Okr.query.get(lid)
-
+    if okr_old.creator != g.user:
+        flash(u'没事改别人东西干嘛,有时间多写写代码!', 'danger')
+        return redirect(url_for('account_okr.index'))
     if request.method == 'POST':
         okr_json = request.values.get('okr_json')
         o_kr = json.loads(okr_json)
@@ -129,9 +131,13 @@ def update(user_id, lid):
 # delete the log in database
 @account_okr_bp.route('/<user_id>/<lid>/delete')
 def delete(user_id, lid):
-    Okr.query.get(lid).delete()
+    okr = Okr.get(lid)
+    if okr.creator != g.user:
+        flash(u'没事删别人东西干嘛,有时间多写写代码!', 'danger')
+        return redirect(url_for('account_okr.index'))
+    okr.delete()
     flash(u'删除成功', 'success')
-    return redirect(url_for('account_okr.index', user_id=user_id))
+    return redirect(url_for('account_okr.index'))
 
 
 # find the logs for subordinates
@@ -142,8 +148,8 @@ def _get_all_under_users(self_user_id):
 
     def get_under(under_users, all_user, self_user_id):
         d_user = [user for user in all_user if self_user_id in user['leaders']]
-        for k in d_user:
-            under_users.append(k)
+        for d in d_user:
+            under_users.append(d)
             # if k['is_kpi_leader'] and self_user_id != k['uid']:
             #     under_users += get_under(under_users, all_user, k['uid'])
         return under_users
@@ -189,6 +195,10 @@ def subordinates():
 @account_okr_bp.route('/<lid>/info', methods=['GET', 'POST'])
 def info(lid):
     okr = Okr.query.get(lid)
+    status_list = [1, 3, 6, 9, 11, 12, 13]
+    if okr.status in status_list or okr.creator != g.user:
+        flash(u'您无权查阅', 'danger')
+        return redirect(url_for('account_okr.index'))
     okrlist = json.loads(okr.o_kr)
     under_user = _get_all_under_users(g.user.id)
     if okr.creator_id not in [u['uid'] for u in under_user]:
