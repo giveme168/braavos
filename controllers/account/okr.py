@@ -2,10 +2,9 @@
 from flask import request, redirect, url_for, Blueprint, flash, json, g, current_app
 from flask import render_template as tpl
 
-from models.user import (User, Okr, OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_BACK, OKR_STATUS_NORMAL,
+from models.user import (User, Okr, OKR_STATUS_APPLY, OKR_STATUS_BACK, OKR_STATUS_NORMAL,
                          OKR_QUARTER_CN, OKR_STATUS_MID_EVALUATION_APPLY,
-                         OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED,
-                         OKR_STATUS_COLLEAGUE_EVALUATION, OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED,
+                         OKR_STATUS_EVALUATION_APPLY,
                          )
 from libs.email_signals import account_okr_apply_signal
 
@@ -158,31 +157,16 @@ def subordinates():
     quarter = int(request.values.get('quarter', 0))
     status = int(request.values.get('status', 100))
     year = int(request.values.get('year', 0))
-    if g.user.is_super_leader() or g.user.is_HR_leader():
-        okr = [k for k in Okr.all() if k.status in [
-            OKR_STATUS_APPLY,
-            OKR_STATUS_PASS,
-            OKR_STATUS_MID_EVALUATION_APPLY,
-            OKR_STATUS_EVALUATION_APPLY,
-            OKR_STATUS_EVALUATION_APPROVED,
-            OKR_STATUS_COLLEAGUE_EVALUATION,
-            OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED,
-        ]]
+    status_list = [2, 3, 6, 8, 9, 11, 12, 13]
+    if g.user.is_super_leader():
+        okr = [k for k in Okr.all() if k.status in status_list]
         under_users = [{'uid': k.id, 'name': k.name} for k in User.all()]
     else:
         under_users = _get_all_under_users(g.user.id)
         sub = []
         for under in under_users:
             sub.append(User.query.get(under['uid']))
-        okr = [k for k in Okr.all() if k.status in [
-            OKR_STATUS_APPLY,
-            OKR_STATUS_PASS,
-            OKR_STATUS_EVALUATION_APPLY,
-            OKR_STATUS_MID_EVALUATION_APPLY,
-            OKR_STATUS_EVALUATION_APPROVED,
-            OKR_STATUS_COLLEAGUE_EVALUATION,
-            OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED,
-        ] and k.creator in sub]
+        okr = [k for k in Okr.all() if k.status in status_list and k.creator in sub]
 
     if user_id:
         okr = [k for k in okr if k.creator.id == int(user_id)]
@@ -222,8 +206,17 @@ def info(lid):
 
 @account_okr_bp.route('/<user_id>/<lid>/status', methods=['GET', 'POST'])
 def status(user_id, lid):
-    okr_status = int(request.values.get('status', 100))
     okr = Okr.query.get(lid)
+    if okr.creator != g.user and not \
+        (
+            g.user.is_kpi_leader or
+            g.user.is_HR_leader() or
+            g.user.is_super_leader() or
+            g.user.is_super_admin()
+            ):
+        flash(u'您无权操作', 'danger')
+        return redirect(url_for('account_okr.index'))
+    okr_status = int(request.values.get('status', okr.status))
     if okr_status == 9 or okr_status == 10:
         comment = request.values.get('comment', '')
         score_okr = request.values.get('score', None)
@@ -246,6 +239,9 @@ def status(user_id, lid):
 @account_okr_bp.route('/<user_id>/<lid>/mid_evaluate', methods=['GET', 'POST'])
 def mid_evaluate(user_id, lid):
     okr = Okr.query.get(lid)
+    if okr.creator != g.user:
+        flash(u'对不起,限本人操作', 'danger')
+        return redirect(url_for('account_okr.index'))
     okrlist = json.loads(okr.o_kr)
 
     if request.method == 'POST':
@@ -281,7 +277,13 @@ def mid_evaluate(user_id, lid):
 
 @account_okr_bp.route('/<user_id>/<lid>/final_evaluate', methods=['GET', 'POST'])
 def final_evaluate(user_id, lid):
+    if not (g.user.is_kpi_leader or g.user.is_super_leader()):
+        flash(u'对不起，您没有权给别人的绩效考核评分!', 'danger')
+        return redirect(url_for('account_okr.index'))
     okr = Okr.query.get(lid)
+    if okr.status != 8:
+        flash(u'对不起，不是有效评分时间!', 'danger')
+        return redirect(url_for('account_okr.index'))
     okrlist = json.loads(okr.o_kr)
     if request.method == 'POST':
         # 拿到评价的数据以及insert的查询字段
@@ -323,7 +325,7 @@ def allokrs():
     year = int(request.values.get('year', 0))
     quarter = int(request.values.get('quarter', 0))
 
-    status_list = [3, 6, 9, 11, 12]
+    status_list = [3, 6, 9, 11, 12, 13]
     okrs = [o for o in Okr.query.filter(Okr.creator_id != g.user.id) if o.status in status_list]
     if status != 100:
         okrs = [o for o in okrs if o.status == status]
@@ -345,9 +347,12 @@ def allokrs():
 @account_okr_bp.route('/<lid>/qualification_score', methods=['GET', 'POST'])
 def qualification(lid):
     if not (g.user.is_kpi_leader or g.user.is_super_leader()):
-        okrs = [k for k in Okr.all() if k.creator == g.user]
-        return tpl('/account/okr/index.html', okrs=okrs)
+        flash(u'对不起，您没有权给别人的绩效考核评分!', 'danger')
+        return redirect(url_for('account_okr.index'))
     okr = Okr.query.get(lid)
+    if okr.status != 9:
+        flash(u'对不起，不是有效评分时间!', 'danger')
+        return redirect(url_for('account_okr.index'))
     okr_status = int(request.values.get('status', 100))
     under_user = _get_all_under_users(g.user.id)
     users = []
@@ -385,12 +390,13 @@ def qualification(lid):
 @account_okr_bp.route('/<uid>/<lid>/mutual_evaluate', methods=['GET', 'POST'])
 def mutual_evaluate(lid, uid):
     okr = Okr.get(lid)
-    # if personnal_obj.user != g.user:
-    #     if g.user.is_super_leader():
-    #         pass
-    #     else:
-    #         flash(u'对不起，您没有权限查看别人的绩效考核!', 'danger')
-    #         return redirect(url_for('account_kpi.personnal'))
+    score_colleague = json.loads(okr.score_colleague)
+    if str(uid) not in score_colleague.keys():
+        flash(u'对不起，您没有权给别人的绩效考核评分!', 'danger')
+        return redirect(url_for('account_okr.index'))
+    if okr.status == 13:
+        flash(u'考核已经归档,无法重新评分!', 'danger')
+        return redirect(url_for('account_okr.index'))
     if request.method == 'POST':
         total_score = 0.0
         attitude_param = {}
@@ -450,8 +456,7 @@ def mutual_evaluate(lid, uid):
         #     #     current_app._get_current_object(), apply_context=apply_context)
         # flash(u'您已经为同事打分完成!', 'success')
         # return redirect(url_for('account_kpi.personnal'))
-    tem = json.loads(okr.score_colleague)
-    body_obj = tem[str(uid)]
+    body_obj = score_colleague[str(uid)]
     attitude_param = {}
     ability_param = {}
     if 'attitude_param' in body_obj:
@@ -463,3 +468,8 @@ def mutual_evaluate(lid, uid):
     scores.reverse()
     return tpl('/account/okr/mutual_evaluate.html', okr=okr,
                scores=scores, attitude_param=attitude_param, ability_param=ability_param)
+
+
+@account_okr_bp.route('/<lid>/to_excel', methods=['GET'])
+def to_excel(lid):
+    return redirect(url_for('account_okr.index'))
