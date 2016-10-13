@@ -634,7 +634,7 @@ OKR_STATUS_CN = {
     OKR_STATUS_EVALUATION_APPLY: u'季末评价申请中',
     OKR_STATUS_EVALUATION_APPROVED: u'季末评价通过',
     OKR_STATUS_EVALUATION_DENIED: u'季末评价驳回',
-    OKR_STATUS_COLLEAGUE_EVALUATION: u'同事互评中',
+    OKR_STATUS_COLLEAGUE_EVALUATION: u'互评中',
     OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED: u'互评完成',
 }
 
@@ -678,6 +678,25 @@ class Okr(db.Model, BaseModelMixin):
     @property
     def status_cn(self):
         return OKR_STATUS_CN[self.status]
+
+    def mutual_evaluation_result(self):
+        score_colleague = json.loads(self.score_colleague)
+        user_ids = score_colleague.keys()
+        result = ''
+        for user_id in user_ids:
+            if score_colleague[user_id]:
+                result = result + User.query.get(int(user_id)).name + u' 完成\n,'
+            else:
+                result = result + User.query.get(int(user_id)).name + u' 未完成\n,'
+        return result
+
+    def is_mutual_evaluation_done(self):
+        score_colleague = json.loads(self.score_colleague)
+        for n in score_colleague.values():
+            if len(n):
+                return True
+            else:
+                return False
 
 
 class Leave(db.Model, BaseModelMixin):

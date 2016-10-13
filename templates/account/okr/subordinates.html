@@ -76,6 +76,8 @@
                         <td>{{ l.quarter_cn }}</td>
                     {% if l.status == 8 %}
                         <td><font color="red">{{ l.status_cn }}</font></td>
+                    {% elif l.status == 11 or l.status == 12 %}
+                        <td>{{ l.status_cn }}---{{ l.mutual_evaluation_result() }}</td>
                     {% else %}
                         <td>{{ l.status_cn }}</td>
                     {% endif %}

@@ -5,10 +5,12 @@ from flask import render_template as tpl
 from models.user import (User, Okr, OKR_STATUS_APPLY, OKR_STATUS_PASS, OKR_STATUS_BACK, OKR_STATUS_NORMAL,
                          OKR_QUARTER_CN, OKR_STATUS_MID_EVALUATION_APPLY,
                          OKR_STATUS_EVALUATION_APPLY, OKR_STATUS_EVALUATION_APPROVED,
-                         OKR_STATUS_COLLEAGUE_EVALUATION, OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED)
+                         OKR_STATUS_COLLEAGUE_EVALUATION, OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED,
+                         )
 from libs.email_signals import account_okr_apply_signal
 
-account_okr_bp = Blueprint('account_okr', __name__, template_folder='../../templates/account/okr/')
+account_okr_bp = Blueprint(
+    'account_okr', __name__, template_folder='../../templates/account/okr/')
 
 YEAR_LIST = ['2016', '2017', '2018', '2019', '2020']
 PRIORITY_LIST = ['P0', 'P1', 'P2', 'P3']
@@ -222,17 +224,16 @@ def info(lid):
 def status(user_id, lid):
     okr_status = int(request.values.get('status', 100))
     okr = Okr.query.get(lid)
-    if request.method == 'POST':
-        if okr_status == 9 or okr_status == 10:
-            comment = request.values.get('comment', '')
-            score_okr = request.values.get('score', None)
-            okr.comment = comment
-            okr.score_okr = score_okr
-        okr.status = okr_status
-        okr.save()
-        flash(okr.status_cn, 'success')
-        # account_okr_apply_signal.send(
-        #     current_app._get_current_object(), okr=okr)
+    if okr_status == 9 or okr_status == 10:
+        comment = request.values.get('comment', '')
+        score_okr = request.values.get('score', None)
+        okr.comment = comment
+        okr.score_okr = score_okr
+    okr.status = okr_status
+    okr.save()
+    flash(okr.status_cn, 'success')
+    # account_okr_apply_signal.send(
+    # current_app._get_current_object(), okr=okr)
     if okr_status in [OKR_STATUS_APPLY, OKR_STATUS_BACK]:
         return redirect(url_for('account_okr.index', user_id=user_id))
     # elif okr_status == OKR_STATUS_EVALUATION_APPROVED:
@@ -355,7 +356,7 @@ def qualification(lid):
             users.append(User.query.get(u['uid']))
     if request.method == 'POST':
         personnals = request.form.getlist('personnals')
-        okr.score_colleague = json.dumps(dict((p, None) for p in personnals))
+        okr.score_colleague = json.dumps(dict((p, {}) for p in personnals))
 
         score_leader = {}
         score_leader['knowledge_res'] = request.values.get('knowledge_res', '')
@@ -373,8 +374,92 @@ def qualification(lid):
         okr.score_leader = json.dumps(score_leader)
         okr.status = okr_status
         okr.save()
+        okrs = [k for k in Okr.all() if k.creator == g.user]
         return tpl('/account/okr/index.html', okrs=okrs)
     scores = [float(k) / 10 for k in range(1, 51)]
     scores.append(0.00)
     scores.reverse()
     return tpl('/account/okr/qualification_score.html', okr=okr, scores=scores, users=users)
+
+
+@account_okr_bp.route('/<uid>/<lid>/mutual_evaluate', methods=['GET', 'POST'])
+def mutual_evaluate(lid, uid):
+    okr = Okr.get(lid)
+    # if personnal_obj.user != g.user:
+    #     if g.user.is_super_leader():
+    #         pass
+    #     else:
+    #         flash(u'对不起，您没有权限查看别人的绩效考核!', 'danger')
+    #         return redirect(url_for('account_kpi.personnal'))
+    if request.method == 'POST':
+        total_score = 0.0
+        attitude_param = {}
+        ability_param = {}
+        for k in range(6):
+            key = 'work_attitude_' + str(k) + '_s'
+            attitude_param[key] = float(request.values.get(key, 0))
+            if k == 0:
+                total_score += attitude_param[key] * 0.05
+            elif k == 1:
+                total_score += attitude_param[key] * 0.1
+            elif k == 2:
+                total_score += attitude_param[key] * 0.1
+            elif k == 3:
+                total_score += attitude_param[key] * 0.05
+            elif k == 4:
+                total_score += attitude_param[key] * 0.05
+            elif k == 5:
+                total_score += attitude_param[key] * 0.05
+        for k in range(9):
+            key = 'work_ability_' + str(k) + '_s'
+            ability_param[key] = float(request.values.get(key, 0))
+            if k == 0:
+                total_score += ability_param[key] * 0.1
+            elif k == 1:
+                total_score += ability_param[key] * 0.05
+            elif k == 2:
+                total_score += ability_param[key] * 0.1
+            elif k == 3:
+                total_score += ability_param[key] * 0.05
+            elif k == 4:
+                total_score += ability_param[key] * 0.05
+            elif k == 5:
+                total_score += ability_param[key] * 0.05
+            elif k == 6:
+                total_score += ability_param[key] * 0.05
+            elif k == 7:
+                total_score += ability_param[key] * 0.1
+            elif k == 8:
+                total_score += ability_param[key] * 0.05
+        okr.total_score = total_score * 0.2
+        score_colleague = json.loads(okr.score_colleague)
+        score_colleague[str(uid)] = {'attitude_param': attitude_param, 'ability_param': ability_param}
+        okr.score_colleague = json.dumps(score_colleague)
+        if okr.is_mutual_evaluation_done():
+            okr.status = 12
+        okr.save()
+        return redirect(url_for('account_okr.index'))
+        # 同事全部打分完成，自动发送HR归档
+        # performance = personnal_obj.performance
+        # if not PerformanceEvaluationPersonnal.query.filter_by(performance=performance, status=1).first():
+        #     performance.status = 4
+        #     performance.save()
+        #     apply_context = {}
+        #     apply_context['report'] = performance
+        #     # account_kpi_apply_signal.send(
+        #     #     current_app._get_current_object(), apply_context=apply_context)
+        # flash(u'您已经为同事打分完成!', 'success')
+        # return redirect(url_for('account_kpi.personnal'))
+    tem = json.loads(okr.score_colleague)
+    body_obj = tem[str(uid)]
+    attitude_param = {}
+    ability_param = {}
+    if 'attitude_param' in body_obj:
+        attitude_param = body_obj['attitude_param']
+    if 'ability_param' in body_obj:
+        ability_param = body_obj['ability_param']
+    scores = [float(k) / 10 for k in range(1, 51)]
+    scores.append(0.00)
+    scores.reverse()
+    return tpl('/account/okr/mutual_evaluate.html', okr=okr,
+               scores=scores, attitude_param=attitude_param, ability_param=ability_param)
