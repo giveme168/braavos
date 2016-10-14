@@ -954,35 +954,29 @@ def account_okr_apply(sender, okr):
             to_name = ','.join(
                 [k.name for k in okr.creator.team_leaders]) + u'请审批您下属的OKR审核申请'
         print mail.app.config['DOMAIN'], url_for('account_okr.info', lid=okr.id)
-        url = mail.app.config['DOMAIN'] + \
-              url_for('account_okr.info', lid=okr.id)
         to_users = okr.creator.team_leaders
     elif status in [3, 4, 9, 10]:
         if status in [3, 9]:
             to_name = okr.creator.name + u'您的OKR审核已批准'
         else:
             to_name = okr.creator.name + u'您的OKR审核申请被拒绝'
-
-        url = mail.app.config['DOMAIN'] + \
-              url_for('account_okr.index', user_id=okr.creator.id)
         to_users = [okr.creator]
     elif status == 11:
         to_name = u'请为' + okr.creator.name + u'的OKR打分'
         # url = mail.app.config['DOMAIN'] + url_for('account_okr.mutual_evaluate', lid=okr.id, uid=g.user.id)
-        url = u'请登录OKR评分!'
         to_users = [User.get(int(uid)) for uid in json.loads(okr.score_colleague).keys()]
     to_emails = list(set([k.email for k in to_users])) + ['admin@inad.com']
     body = u"""
     <h3 style="color:red;">%s
 
     申请状态: %s
-    OKR审核申请链接地址: %s</h3>
+
     申请人: %s
 
     请批准，谢谢
 
     by %s
-    """ % (to_name, okr.status_cn, url, okr.creator.name, g.user.name)
+    """ % (to_name, okr.status_cn, okr.creator.name, g.user.name)
     title = u'【OKR审核申请】- %s' % (okr.creator.name)
     _insert_person_notcie(to_users, title, body)
     flash(u'已发送邮件给%s' % (','.join(_get_active_user_name(to_users))), 'info')

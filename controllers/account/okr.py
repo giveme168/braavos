@@ -140,17 +140,16 @@ def delete(user_id, lid):
 # find the logs for subordinates
 def _get_all_under_users(self_user_id):
     under_users = []
-    all_user = [{'uid': user.id, 'name': user.name, 'is_kpi_leader': user.is_kpi_leader, 'leaders': [
+    all_user = [{'uid': user.id, 'is_kpi_leader': user.is_kpi_leader, 'leaders': [
         k.id for k in user.team_leaders]} for user in User.all() if user.is_active()]
 
     def get_under(under_users, all_user, self_user_id):
         d_user = [user for user in all_user if self_user_id in user['leaders']]
-        for d in d_user:
-            under_users.append(d)
-            # if k['is_kpi_leader'] and self_user_id != k['uid']:
-            #     under_users += get_under(under_users, all_user, k['uid'])
+        for k in d_user:
+            under_users.append(k)
+            if k['is_kpi_leader'] and self_user_id != k['uid']:
+                under_users += get_under(under_users, all_user, k['uid'])
         return under_users
-
     return get_under(under_users, all_user, self_user_id)
 
 
@@ -192,12 +191,21 @@ def subordinates():
 @account_okr_bp.route('/<lid>/info', methods=['GET', 'POST'])
 def info(lid):
     okr = Okr.query.get(lid)
-    status_list = [1, 2, 3, 4, 6, 8, 9, 11, 12, 13]
+    status_list_leader = [2, 3, 4, 6, 8, 9, 11, 12, 13]
+    status_list_normal = [3, 6, 9, 10, 11, 12, 13]
+    team_leaders = User.get(okr.creator.id).team_leaders
     if g.user == okr.creator:
         pass
-    elif okr.status not in status_list or not (g.user.is_super_leader() or g.user.is_HR_leader()):
-        flash(u'您无权查阅', 'danger')
-        return redirect(url_for('account_okr.index'))
+    elif g.user in team_leaders or g.user.is_super_leader():
+        if okr.status in status_list_leader:
+            pass
+        else:
+            flash(u'您无权查阅', 'danger')
+            return redirect(url_for('account_okr.index'))
+    else:
+        if okr.status not in status_list_normal:
+            flash(u'您无权查阅', 'danger')
+            return redirect(url_for('account_okr.index'))
     okrlist = json.loads(okr.o_kr)
     under_user = _get_all_under_users(g.user.id)
     if okr.creator_id not in [u['uid'] for u in under_user]:
@@ -355,7 +363,7 @@ def qualification(lid):
     under_user = _get_all_under_users(g.user.id)
     users = []
     for u in under_user:
-        if u['uid'] != okr.creator_id:
+        if u['uid'] != okr.creator_id and User.get(u['uid']) not in users:
             users.append(User.query.get(u['uid']))
     if request.method == 'POST':
         personnals = request.form.getlist('personnals')

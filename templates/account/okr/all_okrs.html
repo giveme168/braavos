@@ -73,11 +73,12 @@
                 <tbody>
                 {% for l in okrs %}
                     <tr>
-                        <td><a href="{{ url_for('account_okr.info', lid=l.id, uid=g.user.id) }}">{{ l.creator.name }}</a></td>
+                        <td><a href="{{ url_for('account_okr.info', lid=l.id) }}">{{ l.creator.name }}</a></td>
                         <td>{{ l.year }}</td>
                         <td>{{ l.quarter_cn }}</td>
                         <td>{{ l.status_cn }}</td>
                         <td>
+                        {% if g.user.id | string in l.colleague_ids %}
                             {% if l.status == 11 %}
                                 {% if g.user.id|string in l.colleague_ids and not l.is_personal_evaluation_done(g.user.id) %}
                                     <a href="{{url_for('account_okr.mutual_evaluate', lid=l.id, uid=g.user.id)}}">请评分</a>
@@ -94,6 +95,7 @@
                                 <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=12">取消归档</a><br/>
                                 <a href="{{url_for('account_okr.to_excel', lid=l.id)}}?action=excel">下载</a><br/>
                             {% endif %}
+                        {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
