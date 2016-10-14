@@ -2,10 +2,7 @@
 from flask import request, redirect, url_for, Blueprint, flash, json, g, current_app
 from flask import render_template as tpl
 
-from models.user import (User, Okr, OKR_STATUS_APPLY, OKR_STATUS_BACK, OKR_STATUS_NORMAL,
-                         OKR_QUARTER_CN, OKR_STATUS_MID_EVALUATION_APPLY,
-                         OKR_STATUS_EVALUATION_APPLY,
-                         )
+from models.user import (User, Okr, OKR_STATUS_APPLY, OKR_STATUS_NORMAL, OKR_QUARTER_CN, OKR_STATUS_EVALUATION_APPLY)
 from libs.email_signals import account_okr_apply_signal
 
 account_okr_bp = Blueprint(
@@ -195,8 +192,10 @@ def subordinates():
 @account_okr_bp.route('/<lid>/info', methods=['GET', 'POST'])
 def info(lid):
     okr = Okr.query.get(lid)
-    status_list = [1, 3, 6, 9, 11, 12, 13]
-    if okr.status in status_list or okr.creator != g.user:
+    status_list = [1, 2, 3, 4, 6, 8, 9, 11, 12, 13]
+    if g.user == okr.creator:
+        pass
+    elif okr.status not in status_list or not (g.user.is_super_leader() or g.user.is_HR_leader()):
         flash(u'您无权查阅', 'danger')
         return redirect(url_for('account_okr.index'))
     okrlist = json.loads(okr.o_kr)
@@ -235,14 +234,9 @@ def status(user_id, lid):
     okr.status = okr_status
     okr.save()
     flash(okr.status_cn, 'success')
-    # account_okr_apply_signal.send(
-    # current_app._get_current_object(), okr=okr)
-    if okr_status in [OKR_STATUS_APPLY, OKR_STATUS_BACK]:
-        return redirect(url_for('account_okr.index', user_id=user_id))
-    # elif okr_status == OKR_STATUS_EVALUATION_APPROVED:
-    #     return redirect(url_for('account_okr.info', lid=lid))
-    else:
-        return redirect(url_for('account_okr.subordinates'))
+    if okr_status in [0, 2, 3, 4, 7, 8, 9, 10]:
+        account_okr_apply_signal.send(current_app._get_current_object(), okr=okr)
+    return redirect(url_for('account_okr.index'))
 
 
 # evaluate okr in the mid of a quarter
@@ -264,13 +258,7 @@ def mid_evaluate(user_id, lid):
         okr_update.status = status
         okr_update.o_kr = okrtext
         okr_update.save()
-
-        if int(status) == OKR_STATUS_MID_EVALUATION_APPLY:
-            flash(u'已发送申请', 'success')
-            account_okr_apply_signal.send(
-                current_app._get_current_object(), okr=okr_update)
-        else:
-            flash(u'修改成功', 'success')
+        flash(u'修改成功', 'success')
         return redirect(url_for('account_okr.index'))
 
     if okr.status == 3:
@@ -287,11 +275,11 @@ def mid_evaluate(user_id, lid):
 
 @account_okr_bp.route('/<user_id>/<lid>/final_evaluate', methods=['GET', 'POST'])
 def final_evaluate(user_id, lid):
-    if not (g.user.is_kpi_leader or g.user.is_super_leader()):
+    okr = Okr.query.get(lid)
+    if g.user != okr.creator:
         flash(u'对不起，您没有权给别人的绩效考核评分!', 'danger')
         return redirect(url_for('account_okr.index'))
-    okr = Okr.query.get(lid)
-    if okr.status != 8:
+    if okr.status not in [6, 7, 10]:
         flash(u'对不起，不是有效评分时间!', 'danger')
         return redirect(url_for('account_okr.index'))
     okrlist = json.loads(okr.o_kr)
@@ -389,6 +377,9 @@ def qualification(lid):
         okr.score_leader = json.dumps(score_leader)
         okr.status = okr_status
         okr.save()
+        flash(u'已发送申请', 'success')
+        account_okr_apply_signal.send(
+            current_app._get_current_object(), okr=okr)
         okrs = [k for k in Okr.all() if k.creator == g.user]
         return tpl('/account/okr/index.html', okrs=okrs)
     scores = [float(k) / 10 for k in range(1, 51)]
@@ -455,17 +446,6 @@ def mutual_evaluate(lid, uid):
             okr.status = 12
         okr.save()
         return redirect(url_for('account_okr.index'))
-        # 同事全部打分完成，自动发送HR归档
-        # performance = personnal_obj.performance
-        # if not PerformanceEvaluationPersonnal.query.filter_by(performance=performance, status=1).first():
-        #     performance.status = 4
-        #     performance.save()
-        #     apply_context = {}
-        #     apply_context['report'] = performance
-        #     # account_kpi_apply_signal.send(
-        #     #     current_app._get_current_object(), apply_context=apply_context)
-        # flash(u'您已经为同事打分完成!', 'success')
-        # return redirect(url_for('account_kpi.personnal'))
     body_obj = score_colleague[str(uid)]
     attitude_param = {}
     ability_param = {}
