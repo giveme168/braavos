@@ -657,9 +657,11 @@ class Okr(db.Model, BaseModelMixin):
     score_okr = db.Column(db.Integer, nullable=True)
     score_colleague = db.Column(db.Text(), nullable=True)  # 互评人员id记忆对应分数
     score_leader = db.Column(db.Text(), nullable=True)  # 负责人按照行政标准的打分
+    score_kpi = db.Column(db.Integer, nullable=True)    # 每半年的kpi得分,行政下载是计算出,归入偶数季度okr
 
     def __init__(self, o_kr, quarter, creator, year, status=1,
-                 summary=None, comment=None, score_okr=None, score_colleague=None, score_leader=None):
+                 summary=None, comment=None, score_okr=None, score_colleague=None, score_leader=None,
+                 score_kpi=score_kpi):
         self.o_kr = o_kr
         self.quarter = quarter
         self.year = year
@@ -671,6 +673,7 @@ class Okr(db.Model, BaseModelMixin):
         self.score_okr = score_okr
         self.score_colleague = score_colleague
         self.score_leader = score_leader
+        self.score_kpi = score_kpi
 
     @property
     def quarter_cn(self):

@@ -88,13 +88,13 @@
                             {% elif l.status == 12 %}
                                 {% if g.user.id|string in l.colleague_ids %}
                                     <a href="{{url_for('account_okr.mutual_evaluate', lid=l.id, uid=g.user.id)}}">修改评分</a>
-                                {% elif g.user.is_HR_leader() %}
-                                    <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=13">归档</a>
                                 {% endif %}
-                            {% elif l.status == 13 and g.user.is_HR_leader() %}
-                                <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=12">取消归档</a><br/>
-                                <a href="{{url_for('account_okr.to_excel', lid=l.id)}}?action=excel">下载</a><br/>
                             {% endif %}
+                        {% elif l.status == 12 and g.user.is_HR_leader() %}
+                            <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=13">归档</a>
+                        {% elif l.status == 13 and g.user.is_HR_leader() %}
+                            <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=12">取消归档</a><br/>
+{#                            <a href="{{url_for('account_okr.to_excel', lid=l.id)}}?action=excel">下载</a><br/>#}
                         {% endif %}
                         </td>
                     </tr>

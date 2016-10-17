@@ -356,10 +356,10 @@ def qualification(lid):
         flash(u'对不起，您没有权给别人的绩效考核评分!', 'danger')
         return redirect(url_for('account_okr.index'))
     okr = Okr.query.get(lid)
-    if okr.status != 9:
+    if okr.status not in [9, 11, 12]:
         flash(u'对不起，不是有效评分时间!', 'danger')
         return redirect(url_for('account_okr.index'))
-    okr_status = int(request.values.get('status', 100))
+    okr_status = int(request.values.get('status', okr.status))
     under_user = _get_all_under_users(g.user.id)
     users = []
     for u in under_user:
@@ -393,7 +393,8 @@ def qualification(lid):
     scores = [float(k) / 10 for k in range(1, 51)]
     scores.append(0.00)
     scores.reverse()
-    return tpl('/account/okr/qualification_score.html', okr=okr, scores=scores, users=users)
+    score_leader = json.loads(okr.score_leader)
+    return tpl('/account/okr/qualification_score.html', okr=okr, scores=scores, users=users, score_leader=score_leader)
 
 
 @account_okr_bp.route('/<uid>/<lid>/mutual_evaluate', methods=['GET', 'POST'])
