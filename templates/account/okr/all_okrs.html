@@ -19,6 +19,9 @@
                         <option value="3">通过申请</option>
                         <option value="7">完成季中评价</option>
                         <option value="9">季末评价通过</option>
+                        <option value="11">互评中</option>
+                        <option value="12">互评完成</option>
+                        <option value="13">归档</option>
                     </select>
                 </div>
                 <div class="select_option">
@@ -74,6 +77,26 @@
                         <td>{{ l.year }}</td>
                         <td>{{ l.quarter_cn }}</td>
                         <td>{{ l.status_cn }}</td>
+                        <td>
+                        {% if g.user.id | string in l.colleague_ids %}
+                            {% if l.status == 11 %}
+                                {% if g.user.id|string in l.colleague_ids and not l.is_personal_evaluation_done(g.user.id) %}
+                                    <a href="{{url_for('account_okr.mutual_evaluate', lid=l.id, uid=g.user.id)}}">请评分</a>
+                                {% elif l.is_personal_evaluation_done(g.user.id ) %}
+                                    <a href="{{url_for('account_okr.mutual_evaluate', lid=l.id, uid=g.user.id)}}">修改评分</a>
+                                {% endif %}
+                            {% elif l.status == 12 %}
+                                {% if g.user.id|string in l.colleague_ids %}
+                                    <a href="{{url_for('account_okr.mutual_evaluate', lid=l.id, uid=g.user.id)}}">修改评分</a>
+                                {% endif %}
+                            {% endif %}
+                        {% elif l.status == 12 and g.user.is_HR_leader() %}
+                            <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=13">归档</a>
+                        {% elif l.status == 13 and g.user.is_HR_leader() %}
+                            <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=12">取消归档</a><br/>
+                            <a href="{{url_for('account_okr.to_excel', lid=l.id)}}?action=excel">下载</a><br/>
+                        {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>

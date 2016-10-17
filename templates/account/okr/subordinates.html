@@ -74,11 +74,16 @@
                         <td><a href="{{ url_for('account_okr.info', lid=l.id) }}">{{ l.creator.name }}</a></td>
                         <td>{{ l.year }}</td>
                         <td>{{ l.quarter_cn }}</td>
-                    {% if l.status == 8 %}
-                        <td><font color="red">{{ l.status_cn }}</font></td>
-                    {% else %}
-                        <td>{{ l.status_cn }}</td>
-                    {% endif %}
+                        {% if l.status == 8 %}
+                            <td><font color="red">{{ l.status_cn }}</font></td>
+                        {% elif l.status == 11 %}
+                            <td>{{ l.status_cn }}{{ l.mutual_evaluation_result|safe }}</td>
+                        {% elif l.status == 12 %}
+                            <td><font color="#8b0000">{{ l.status_cn }}</font></td>
+
+                        {% else %}
+                            <td>{{ l.status_cn }}</td>
+                        {% endif %}
                         <td>
                             {% if title == '所有OKR列表' %}
                                 {% if g.user.is_OPS() %}
@@ -93,18 +98,23 @@
                                         <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=4">不通过</a>
                                         <br/>
                                     {% endif %}
-{#                                {% elif l.status == 8 %}#}
-{#                                    {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}#}
-{#                                        <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=9">通过</a>#}
-{#                                        <br/>#}
-{#                                        <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=10">不通过</a>#}
-{#                                        <br/>#}
-{#                                    {% endif %}#}
+                                    {#                                {% elif l.status == 8 %}#}
+                                    {#                                    {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}#}
+                                    {#                                        <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=9">通过</a>#}
+                                    {#                                        <br/>#}
+                                    {#                                        <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=10">不通过</a>#}
+                                    {#                                        <br/>#}
+                                    {#                                    {% endif %}#}
                                 {% elif l.status == 9 and (l.quarter == 2 or l.quarter == 4) %}
                                     {% if g.user in l.creator.team_leaders or g.user.is_super_leader() %}
-                                        <a href="{{ url_for('account_okr.info', lid=l.id) }}">互评人员分配</a>
+                                        <a href="{{ url_for('account_okr.qualification', lid=l.id) }}">行政评分&互评分配</a>
                                         <br/>
                                     {% endif %}
+                                {% elif l.status == 12 and g.user.is_super_leader() %}
+                                    <a href="{{ url_for('account_okr.status', user_id=g.user.id, lid=l.id) }}?status=13">归档</a>
+                                {% elif l.status == 13 and g.user.is_super_leader() %}
+                                    <a href="{{url_for('account_okr.status', user_id=g.user.id, lid=l.id)}}?status=12">取消归档</a><br/>
+                                    <a href="{{url_for('account_okr.to_excel', lid=l.id)}}?action=excel">下载</a><br/>
                                 {% endif %}
                             {% endif %}
                         </td>

@@ -620,7 +620,7 @@ OKR_STATUS_EVALUATION_APPROVED = 9
 OKR_STATUS_EVALUATION_DENIED = 10
 OKR_STATUS_COLLEAGUE_EVALUATION = 11
 OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED = 12
-
+OKR_STATUS_ARCHIVING = 13
 
 OKR_STATUS_CN = {
     OKR_STATUS_BACK: u'撤销申请',
@@ -634,8 +634,9 @@ OKR_STATUS_CN = {
     OKR_STATUS_EVALUATION_APPLY: u'季末评价申请中',
     OKR_STATUS_EVALUATION_APPROVED: u'季末评价通过',
     OKR_STATUS_EVALUATION_DENIED: u'季末评价驳回',
-    OKR_STATUS_COLLEAGUE_EVALUATION: u'同事互评中',
+    OKR_STATUS_COLLEAGUE_EVALUATION: u'互评中',
     OKR_STATUS_COLLEAGUE_EVALUATION_FINISHED: u'互评完成',
+    OKR_STATUS_ARCHIVING: u'归档',
 }
 
 
@@ -653,12 +654,13 @@ class Okr(db.Model, BaseModelMixin):
     __mapper_args__ = {'order_by': id.desc()}
     summary = db.Column(db.Text(), nullable=True)
     comment = db.Column(db.Text(), nullable=True)
-    score = db.Column(db.Integer, nullable=True)
-    c_score = db.Column(db.Text(), nullable=True)  # 互评人员id记忆对应分数
+    score_okr = db.Column(db.Float, nullable=True)
+    score_colleague = db.Column(db.Text(), nullable=True)  # 互评人员id记忆对应分数
+    score_leader = db.Column(db.Text(), nullable=True)  # 负责人按照行政标准的打分
+    score_kpi = db.Column(db.Float, nullable=True)    # 每半年的kpi得分,行政下载是计算出,归入偶数季度okr
 
-    def __init__(self, o_kr, quarter,
-                 # senders=None,
-                 creator, year, status=1, summary=None, comment=None, score=None, c_score=None):
+    def __init__(self, o_kr, quarter, creator, year, status=1,
+                 summary=None, comment=None, score_okr=None, score_colleague=None, score_leader=None, score_kpi=None):
         self.o_kr = o_kr
         self.quarter = quarter
         self.year = year
@@ -667,8 +669,10 @@ class Okr(db.Model, BaseModelMixin):
         self.status = status
         self.summary = summary
         self.comment = comment
-        self.score = score
-        self.c_score = c_score
+        self.score_okr = score_okr
+        self.score_colleague = score_colleague
+        self.score_leader = score_leader
+        self.score_kpi = score_kpi
 
     @property
     def quarter_cn(self):
@@ -677,6 +681,31 @@ class Okr(db.Model, BaseModelMixin):
     @property
     def status_cn(self):
         return OKR_STATUS_CN[self.status]
+
+    @property
+    def mutual_evaluation_result(self):
+        score_colleague = json.loads(self.score_colleague)
+        user_ids = score_colleague.keys()
+        result = u'</br>'
+        for user_id in user_ids:
+            if score_colleague[user_id]:
+                result = result + User.query.get(int(user_id)).name + u' 完成' + u'<br/>'
+            else:
+                result = result + User.query.get(int(user_id)).name + u' 未完成' + u'<br/>'
+        return result
+
+    def is_mutual_evaluation_done(self):
+        score_colleague = json.loads(self.score_colleague)
+        for n in score_colleague.values():
+            if not len(n):
+                return False
+        return True
+
+    def is_personal_evaluation_done(self, uid):
+        score_colleague = json.loads(self.score_colleague)
+        if score_colleague[str(uid)] == {}:
+            return False
+        return True
 
 
 class Leave(db.Model, BaseModelMixin):
