@@ -1521,16 +1521,20 @@ by %s\n
 
     @property
     def b_type(self):
-        b_type = []
-        for m in self.medium_orders:
-            b_type.append(m.media.b_type or 0)
-        # 分析订单业务类型：1，自营；2，增量；3，混搭（按增量计算）
-        b_type = list(set(b_type))
-        if len(b_type) > 1:
-            return 1
-        elif b_type == [1]:
-            return 1
-        return 0
+        ex_date = datetime.strptime('2016-07-01', '%Y-%m-%d').date()
+        if self.client_start < ex_date:
+            return 0
+        else:
+            b_type = []
+            for m in self.medium_orders:
+                b_type.append(m.media.b_type or 0)
+            # 分析订单业务类型：1，自营；2，增量；3，混搭（按增量计算）
+            b_type = list(set(b_type))
+            if len(b_type) > 1:
+                return 1
+            elif b_type == [1]:
+                return 1
+            return 0
 
 
 class BackMoney(db.Model, BaseModelMixin):

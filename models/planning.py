@@ -98,7 +98,7 @@ class Bref(db.Model, BaseModelMixin, CommentMixin):
 
     # 补充说明
     intent_medium = db.Column(db.String(100))   # 品牌意向媒体
-    suggest = db.Column(db.String(200))     # 建议
+    suggest = db.Column(db.String(400))     # 建议
     desc = db.Column(db.Text())   # 备注
 
     url = db.Column(db.String(300))  # 网盘链接
