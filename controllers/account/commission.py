@@ -396,9 +396,10 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                 commission = saler.commission(belong_time.year)
                 if int(dict_order['client_start'].strftime('%Y')) <= 2015:
                     day_rate = 1
+                    back_days = 0
                 else:
-                    day_rate = _back_day_rate(
-                        (back_time.date() - dict_order['client_end']).days + 1)
+                    back_days = (back_time.date() - dict_order['client_end']).days + 1
+                    day_rate = _back_day_rate(back_days)
                 if dict_order['b_type'] == 1:
                     completion = saler.completion_increment(belong_time)
                     if dict_order['profit'] < 0.15:
@@ -409,16 +410,17 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                     else:
                         c_money = completion * commission * b_money * day_rate
                         # 计算公式
-                        d_saler['str_formula'] += u"%s(增量完成率) * %s(提成比例) * %s(回款金额) * %s(账期系数) = %s(%s月 提成信息)<br/>" % (
+                        d_saler['str_formula'] += u"%s(增量完成率) * %s(提成比例) * %s(回款金额)\
+                                                    * %s(账期系数,%s天) = %s(%s月 提成信息)<br/>" % (
                             str(completion), str(commission), '%.2f' % (b_money),
-                            str(day_rate), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
+                            str(day_rate), str(back_days), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
                 else:
                     completion = saler.completion(belong_time)
                     c_money = completion * commission * b_money * day_rate
                     # 计算公式
-                    d_saler['str_formula'] += u"%s(自营完成率) * %s(提成比例) * %s(回款金额) * %s(账期系数) = %s(%s月 提成信息)<br/>" % (
+                    d_saler['str_formula'] += u"%s(自营完成率) * %s(提成比例) * %s(回款金额) * %s(账期系数,%s天) = %s(%s月 提成信息)<br/>" % (
                         str(completion), str(commission), '%.2f' % (b_money),
-                        str(day_rate), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
+                        str(day_rate), str(back_days), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
                 commission_money += c_money
         d_saler['commission_money'] = commission_money
         dict_order['direct_sales'].append(d_saler)
@@ -465,9 +467,10 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                 commission = saler.commission(belong_time.year)
                 if int(dict_order['client_start'].strftime('%Y')) <= 2015:
                     day_rate = 1
+                    back_days = 0
                 else:
-                    day_rate = _back_day_rate(
-                        (back_time.date() - dict_order['client_end']).days + 1)
+                    back_days = (back_time.date() - dict_order['client_end']).days + 1
+                    day_rate = _back_day_rate(back_days)
                 if dict_order['b_type'] == 1:
                     completion = saler.completion_increment(belong_time)
                     if dict_order['profit'] < 0.15:
@@ -478,16 +481,17 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                     else:
                         c_money = completion * commission * b_money * day_rate
                         # 计算公式
-                        d_saler['str_formula'] += u"%s(增量完成率) * %s(提成比例) * %s(回款金额) * %s(账期系数) = %s(%s月 提成信息)<br/>" % (
+                        d_saler['str_formula'] += u"%s(增量完成率) * %s(提成比例) * %s(回款金额)\
+                                                    * %s(账期系数,%s天) = %s(%s月 提成信息)<br/>" % (
                             str(completion), str(commission), '%.2f' % (b_money),
-                            str(day_rate), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
+                            str(day_rate), str(back_days), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
                 else:
                     completion = saler.completion(belong_time)
                     c_money = completion * commission * b_money * day_rate
                     # 计算公式
-                    d_saler['str_formula'] += u"%s(自营完成率) * %s(提成比例) * %s(回款金额) * %s(账期系数) = %s(%s月 提成信息)<br/>" % (
+                    d_saler['str_formula'] += u"%s(自营完成率) * %s(提成比例) * %s(回款金额) * %s(账期系数,%s天) = %s(%s月 提成信息)<br/>" % (
                         str(completion), str(commission), '%.2f' % (b_money),
-                        str(day_rate), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
+                        str(day_rate), str(back_days), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
                 commission_money += c_money
         d_saler['commission_money'] = commission_money
         dict_order['agent_sales'].append(d_saler)
