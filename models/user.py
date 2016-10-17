@@ -654,14 +654,13 @@ class Okr(db.Model, BaseModelMixin):
     __mapper_args__ = {'order_by': id.desc()}
     summary = db.Column(db.Text(), nullable=True)
     comment = db.Column(db.Text(), nullable=True)
-    score_okr = db.Column(db.Integer, nullable=True)
+    score_okr = db.Column(db.Float, nullable=True)
     score_colleague = db.Column(db.Text(), nullable=True)  # 互评人员id记忆对应分数
     score_leader = db.Column(db.Text(), nullable=True)  # 负责人按照行政标准的打分
-    score_kpi = db.Column(db.Integer, nullable=True)    # 每半年的kpi得分,行政下载是计算出,归入偶数季度okr
+    score_kpi = db.Column(db.Float, nullable=True)    # 每半年的kpi得分,行政下载是计算出,归入偶数季度okr
 
     def __init__(self, o_kr, quarter, creator, year, status=1,
-                 summary=None, comment=None, score_okr=None, score_colleague=None, score_leader=None,
-                 score_kpi=score_kpi):
+                 summary=None, comment=None, score_okr=None, score_colleague=None, score_leader=None, score_kpi=None):
         self.o_kr = o_kr
         self.quarter = quarter
         self.year = year

@@ -162,21 +162,7 @@
                                 <button type="button" value="返回">返回</button>
                             </a>
                         </div>
-{#                    {% else %}#}
-{#                        <div class="chosen_pople">#}
-{#                            <span>选择评分员工:</span>#}
-{#                            <select class="form-control bra-form-control" id="personnals" multiple="" name="personnals"#}
-{#                                    placeholder="选择评分员工">#}
-{#                                {% for k in users %}#}
-{#                                    <option value="{{ k.id }}">{{ k.name }}</option>#}
-{#                                {% endfor %}#}
-{#                            </select>#}
-{#                        </div>#}
-{#                        <div class="chosen_status">#}
-{#                            <button type="submit" name="status" value="11">保存</button>#}
-{#                        </div>#}
                     {% endif %}
-
                 </form>
             {% endif %}
         {% else %}
@@ -188,31 +174,16 @@
         {% endif %}
 
     </div>
-
-    {#    <script src="/static/js/okr_comment.js" type="text/javascript"></script>#}
-{#    <script>#}
-{#        function is_null(data) {#}
-{#            if (!data && typeof(data) != "undefined" && data != 0) {#}
-{#                return true;#}
-{#            }#}
-{#        }#}
-{##}
-{#        function check_form(obj) {#}
-{#            var personnals = $('#personnals').val()#}
-{#            if (is_null(personnals) || personnals.length != 2) {#}
-{#                alert('请选择2个员工为他评分')#}
-{#                return false#}
-{#            }#}
-{#            return true#}
-{#        }#}
-{##}
-{#        $("select").chosen({#}
-{#            placeholder_text: "请选择...",#}
-{#            disable_search_threshold: 10#}
-{#        });#}
-{##}
-{#    </script>#}
-
+    <script>
+    function check_form(obj){
+        var score = $('#score').val()
+        if (score > 5 || score < 0){
+            alert('请输入0-5以内的数字')
+            return false
+        }
+        return true
+    }
+    </script>
 {% endblock %}
 
 

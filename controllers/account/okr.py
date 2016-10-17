@@ -1,4 +1,26 @@
 # -*- coding: utf-8 -*-
+#                    _ooOoo_
+#                   o8888888o
+#                   88" . "88
+#                   (| -_- |)
+#                   O\  =  /O
+#                ____/`---'\____
+#              .'  \\|     |//  `.
+#             /  \\|||  :  |||//  \
+#            /  _||||| -:- |||||-  \
+#            |   | \\\  -  /// |   |
+#            | \_|  ''\---/''  |   |
+#            \  .-\__  `-`  ___/-. /
+#          ___`. .'  /--.--\  `. . __
+#       ."" '<  `.___\_<|>_/___.'  >'"".
+#      | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+#      \  \ `-.   \_ __\ /__ _/   .-` /  /
+# ====== `-.____`-.___\_____/___.-`____.-'======
+#                    `=---='
+
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#              佛祖保佑       永无BUG
+
 from flask import request, redirect, url_for, Blueprint, flash, json, g, current_app
 from flask import render_template as tpl
 
@@ -237,6 +259,7 @@ def status(user_id, lid):
     if okr_status == 9 or okr_status == 10:
         comment = request.values.get('comment', '')
         score_okr = request.values.get('score', None)
+        print score_okr
         okr.comment = comment
         okr.score_okr = score_okr
     okr.status = okr_status
@@ -447,9 +470,8 @@ def mutual_evaluate(lid, uid):
                 total_score += ability_param[key] * 0.1
             elif k == 8:
                 total_score += ability_param[key] * 0.05
-        okr.total_score = total_score * 0.2
-        score_colleague = json.loads(okr.score_colleague)
-        score_colleague[str(uid)] = {'attitude_param': attitude_param, 'ability_param': ability_param}
+        score_colleague[str(uid)] = {'attitude_param': attitude_param, 'ability_param': ability_param,
+                                     'total_score': total_score * 0.2}
         okr.score_colleague = json.dumps(score_colleague)
         if okr.is_mutual_evaluation_done():
             okr.status = 12
@@ -471,4 +493,28 @@ def mutual_evaluate(lid, uid):
 
 @account_okr_bp.route('/<lid>/to_excel', methods=['GET'])
 def to_excel(lid):
+    okr = Okr.get(lid)
+    # 每半年的kpi得分由三部分组成,两季度的okr得分score_okr(60%), score_leader(20%), score_colleague(20%)
+    year = okr.year
+    quarter = okr.quarter
+    if quarter == 2:
+        score_okr_1 = Okr.query.filter_by(year=year, quarter=1).first().score_okr * 0.3
+    elif quarter == 4:
+        score_okr_1 = Okr.query.filter_by(year=year, quarter=3).first().score_okr * 0.3
+    else:
+        flash(u'不是下载的季度,别乱来!', 'danger')
+        return redirect(url_for('account_okr.index'))
+    score_okr_2 = okr.score_okr * 0.3
+    score_okr_final = score_okr_1 + score_okr_2
+    score_leader = json.loads(okr.score_leader)
+    score_leader_final = score_leader['knowledge_s'] * 0.04 + score_leader['positive_s'] * 0.04 \
+        + score_leader['team_s'] * 0.04 + score_leader['teach_s'] * 0.04 + score_leader['abide_s'] * 0.04
+    score_colleague = json.loads(okr.score_colleague)
+    score_colleague_tem = 0
+    for k, v in score_colleague.items():
+        score_colleague_tem += v['total_score']
+    score_colleague_final = score_colleague_tem * 0.2
+    score_kpi = score_okr_final + score_leader_final + score_colleague_final
+    okr.score_kpi = score_kpi
+    okr.save()
     return redirect(url_for('account_okr.index'))
