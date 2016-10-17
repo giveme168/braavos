@@ -73,6 +73,9 @@
                             <option value="{{k}}">{{k}}月</option>
                         {% endif %}
                     {% endfor %}
+                    {% for k in range(1, 5) %}
+                        <option value="Q{{k}}">Q{{k}}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="select_option screen">
@@ -142,6 +145,7 @@
         <table border='1'>
             <thead>
                 <tr>
+                    <th>业务类型</th>
                     <th>代理/直客</th>
                     <th>客户</th>
                     <th>Campaign</th>
@@ -188,6 +192,7 @@
             <tbody>
                 {% for o in orders %}
                 <tr>
+                    <td>{% if o.client_order.b_type %}增量{% else %}自营{% endif %}</td>
                     <td>{{o.client_order.agent.name}}</td>
                     <td>{{o.client_order.client.name}}</td>
                     <td>{{o.client_order.campaign}}</td>
@@ -264,7 +269,7 @@
                 </tr>
                 {% endfor %}
                 <tr>
-                    <td colspan=12 style="text-align: center;">总计</td>
+                    <td colspan=13 style="text-align: center;">总计</td>
                     <td {% if t_type in ['back_money', 'back_invoice'] %} colspan=4 {% elif t_type == 'back_invoice' %} colspan=3 {% else %} colspan=2 {% endif %}style="text-align: center;">{{orders|sum(attribute='money')|format_price}}</td>
                 </tr>
             </tbody>

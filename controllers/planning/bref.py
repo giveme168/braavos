@@ -74,7 +74,7 @@ def create():
             get_time=get_time,
             # 补充说明
             intent_medium=form.intent_medium.data,
-            suggest=form.suggest.data,
+            suggest=form.suggest.data[0:399],
             desc=form.desc.data,
             url='',
             status=1,
@@ -143,7 +143,7 @@ def update(bid):
         bref.get_time = get_time
         # 补充说明
         bref.intent_medium = form.intent_medium.data
-        bref.suggest = form.suggest.data
+        bref.suggest = form.suggest.data[0:399]
         bref.desc = form.desc.data
 
         bref.update_time = datetime.datetime.now(),

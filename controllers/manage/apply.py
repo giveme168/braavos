@@ -3,7 +3,8 @@ from flask import Blueprint, request, g, abort
 from flask import render_template as tpl
 
 from models.user import TEAM_TYPE_LEADER, TEAM_TYPE_SUPER_LEADER
-from models.client_order import (ClientOrder, CONTRACT_STATUS_DELETEAPPLY, CONTRACT_STATUS_DELETEAGREE)
+from models.client_order import (ClientOrder, CONTRACT_STATUS_DELETEAPPLY,
+                                 CONTRACT_STATUS_DELETEAGREE, CONTRACT_STATUS_DELETEFINANCE)
 from models.douban_order import DoubanOrder
 from models.invoice import (Invoice, INVOICE_STATUS_APPLY, MediumInvoicePay, MEDIUM_INVOICE_STATUS_APPLY,
                             MediumRebateInvoice, AgentInvoicePay, MEDIUM_INVOICE_STATUS_F_AGREE)
@@ -92,8 +93,8 @@ def order_del_check():
     if not g.user.is_super_leader():
         abort(403)
     orders = list(ClientOrder.query.filter_by(
-        contract_status=CONTRACT_STATUS_DELETEAGREE))
-    orders += list(DoubanOrder.query.filter_by(contract_status=CONTRACT_STATUS_DELETEAGREE))
+        contract_status=CONTRACT_STATUS_DELETEFINANCE))
+    orders += list(DoubanOrder.query.filter_by(contract_status=CONTRACT_STATUS_DELETEFINANCE))
     orders = [k for k in orders if k.status == 1]
     search_info = request.values.get('search_info', '')
     location = int(request.values.get('location', 0))
