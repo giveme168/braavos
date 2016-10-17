@@ -272,7 +272,14 @@ def _order_back_money_data(order, start_Q_month, end_Q_month, back_moneys):
 def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_moneys, all_outsource):
     dict_order = {}
     dict_order['client_name'] = order.client.name
+    dict_order['order_path'] = order.info_path()
     dict_order['money'] = order.money
+    dict_order['contract_status'] = order.contract_status
+    if order.__tablename__ == 'bra_client_order':
+        dict_order['media_info'] = '<br>'.join(['%s:%s' % (o.medium_group.name, o.media.name)
+                                                for o in order.medium_orders])
+    else:
+        dict_order['media_info'] = u'豆瓣'
     dict_order['agent_name'] = order.agent.name
     dict_order['contract'] = order.contract.strip()
     dict_order['campaign'] = order.campaign
@@ -354,6 +361,8 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
     # 按销售类型计算提成
     for saler in order.direct_sales:
         d_saler = {}
+        # 该销售是否发放提成，根绝完成率计算
+        d_saler['str_formula_status'] = True
         d_saler['id'] = saler.id
         d_saler['name'] = saler.name
         d_saler['type'] = u'直客'
@@ -403,6 +412,8 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                 if dict_order['b_type'] == 1:
                     completion = saler.completion_increment(belong_time)
                     if dict_order['profit'] < 0.15:
+                        if dict_order['profit'] < 0.05:
+                            d_saler['str_formula_status'] = False
                         c_money = b_money * dict_order['profit'] * commission * 5
                         d_saler['str_formula'] += u"%s(回款金额) * %s(利润率) * %s(提成比例) * 5 = %s(%s月 提成信息)<br/>" % (
                             '%.2f' % (b_money), str(dict_order['profit']), str(commission), str(c_money),
@@ -415,6 +426,8 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                             str(completion), str(commission), '%.2f' % (b_money),
                             str(day_rate), str(back_days), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
                 else:
+                    if dict_order['profit'] < 0.05:
+                        d_saler['str_formula_status'] = False
                     completion = saler.completion(belong_time)
                     c_money = completion * commission * b_money * day_rate
                     # 计算公式
@@ -427,6 +440,7 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
         # dict_order['total_commission_money'] += commission_money
     for saler in order.agent_sales:
         d_saler = {}
+        d_saler['str_formula_status'] = True
         d_saler['id'] = saler.id
         d_saler['name'] = saler.name
         d_saler['type'] = u'渠道'
@@ -474,6 +488,8 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                 if dict_order['b_type'] == 1:
                     completion = saler.completion_increment(belong_time)
                     if dict_order['profit'] < 0.15:
+                        if dict_order['profit'] < 0.05:
+                            d_saler['str_formula_status'] = False
                         c_money = b_money * dict_order['profit'] * commission * 5
                         d_saler['str_formula'] += u"%s(回款金额) * %s(利润率) * %s(提成比例) * 5 = %s(%s月 提成信息)<br/>" % (
                             '%.2f' % (b_money), str(dict_order['profit']), str(commission), str(c_money),
@@ -486,6 +502,8 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                             str(completion), str(commission), '%.2f' % (b_money),
                             str(day_rate), str(back_days), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
                 else:
+                    if dict_order['profit'] < 0.05:
+                        d_saler['str_formula_status'] = False
                     completion = saler.completion(belong_time)
                     c_money = completion * commission * b_money * day_rate
                     # 计算公式

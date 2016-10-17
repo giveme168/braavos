@@ -22,7 +22,7 @@
                     {% if not g.user.is_aduit() %}
                     <hr><div style="color:#999;">创建者: {{order.creator.name}} 创建时间: {{order.create_time.date()}}</div>
                     {% endif %}
-                    {% if order.contract_status == 20 %}
+                    {% if order.contract_status in [5, 20] %}
                     {% if not g.user.is_aduit() %}
                         <hr><div style="color:#999;">合同归档时间: {{order.finish_time_cn}}</div>
                     {% endif %}

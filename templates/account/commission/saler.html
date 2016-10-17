@@ -44,6 +44,7 @@
             <thead>
                 <tr>
                     <th>业务类型</th>
+                    <th>所属媒体</th>
                     <th>代理公司</th>
                     <th>项目名称</th>
                     <th>类型</th>
@@ -68,10 +69,11 @@
             </thead>
             <tbody>
                 {% for k in orders %}
-                <tr>
+                {% if k.contract_status != 20 %}<tr class="not-completed">{% else %}<tr>{% endif %}
                     <td rowspan="{{k.salers_count + 1}}">{% if k.b_type %}增量{% else %}自营{% endif %}</td>
+                    <td rowspan="{{k.salers_count + 1}}">{{k.media_info|safe}}</td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.agent_name}}</td>
-                    <td rowspan="{{k.salers_count + 1}}">{{k.campaign}}</td>
+                    <td rowspan="{{k.salers_count + 1}}"><a href="{{k.order_path}}" target="_blank">{{k.campaign}}</a></td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.industry_cn}}</td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.locations_cn}}</td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.contract}}</td>
@@ -87,17 +89,17 @@
                     <td rowspan="{{k.salers_count + 1}}">{{k.media_money|format_price}}</td>
                 </tr>
                     {% for s in k.agent_sales+k.direct_sales %}
-                    <tr>
+                    {% if k.contract_status != 20 %}<tr class="not-completed">{% else %}<tr>{% endif %}
                         <td>{{s.location_cn}}</td>
                         <td>{{s.type}}</td>
                         <td style="color:#{{s.color}}">{{s.name}}</td>
-                        <td>{{s.str_formula|safe}}</td>
+                        <td {% if not s.str_formula_status %} style="color: red;"{% endif %}>{{s.str_formula|safe}}</td>
                         <td>{{s.commission_money|format_price}}</td>
                     </tr>
                     {% endfor %}
                 {% endfor %}
                 <tr>
-                    <td colspan=6 style="text-align: center;">合计</td>
+                    <td colspan=7 style="text-align: center;">合计</td>
                     <td>{{orders|sum(attribute='money')|format_price}}</td>
                     <td colspan=3></td>
                     <td>{{orders|sum(attribute='invoice_sum')|format_price}}</td>
