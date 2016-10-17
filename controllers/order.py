@@ -690,12 +690,16 @@ def contract_status_change(order, action, emails, msg):
         order.finish_time = finish_time
         to_users = to_users + order.leaders + User.contracts()
     elif action == 20:
-        msg = request.values.get('finish_msg', '')
-        finish_time = request.values.get('finish_time', datetime.now())
-        action_msg = u"项目归档（确认）"
-        order.contract_status = CONTRACT_STATUS_FINISH
-        order.finish_time = finish_time
-        to_users = to_users + order.leaders + User.medias() + User.contracts()
+        if order.get_last_finish():
+            msg = request.values.get('finish_msg', '')
+            finish_time = request.values.get('finish_time', datetime.now())
+            action_msg = u"项目归档（确认）"
+            order.contract_status = CONTRACT_STATUS_FINISH
+            order.finish_time = finish_time
+            to_users = to_users + order.leaders + User.medias() + User.contracts()
+        else:
+            flash(u"请上传合同扫描件后再进行归档", 'danger')
+            return redirect(order.info_path())
     elif action == 21:
         self_rebate = int(request.values.get('self_rebate', '0'))
         self_rebate_value = float(request.values.get('self_rabate_value', '0'))
