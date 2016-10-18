@@ -26,7 +26,7 @@
             <a id="_medium_back_money_" href='{{url_for("saler_client_order_medium_back_money.index", order_id=order.id)}}'>媒体返点回款</a>
         </li>
         {% endif %}
-        {% if g.user.is_super_leader() or g.user.is_finance() or g.user.is_operater_leader() or g.user.is_aduit() %}
+        {% if g.user.is_super_leader() or g.user.is_finance() or g.user.is_operater_leader()%}
         <li id="_other_cost_li">
             <a id="_other_cost_" href='{{url_for("saler_client_order_other_cost.index", order_id=order.id)}}'>外包</a>
         </li>

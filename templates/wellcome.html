@@ -543,6 +543,7 @@
                     </ul>
                     <!--搜索部门结束-->
                 {% else %}
+                    {% if not g.user.is_aduit() %}
                     <!--致趣订单-->
                     <ul class="bussess">
                         <li class="order-management">
@@ -557,6 +558,7 @@
                         </li>
                     </ul>
                     <!--致趣订单结束-->
+                    {% endif %}
                 {% endif %}
                 {% if g.user.is_finance() or g.user.is_super_leader() or g.user.is_aduit() %}
                     {% if g.user.team.type == 24 %}

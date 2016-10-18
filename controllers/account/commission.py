@@ -317,7 +317,7 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
         dict_order['profit'] = 0
     else:
         dict_order['outsource_money'] = sum([o['money'] for o in all_outsource if o[
-                                            'order_id'] == order.id and o['type'] == 'douban'])
+                                            'order_id'] == order.id and o['type'] == 'client'])
         # 获取代理返点
         agent_rebate_value = order.client_order_agent_rebate_ai
         # 媒体返点
@@ -412,8 +412,6 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                 if dict_order['b_type'] == 1:
                     completion = saler.completion_increment(belong_time)
                     if dict_order['profit'] < 0.15:
-                        if dict_order['profit'] < 0.05:
-                            d_saler['str_formula_status'] = False
                         c_money = b_money * dict_order['profit'] * commission * 5
                         d_saler['str_formula'] += u"%s(回款金额) * %s(利润率) * %s(提成比例) * 5 = %s(%s月 提成信息)<br/>" % (
                             '%.2f' % (b_money), str(dict_order['profit']), str(commission), str(c_money),
@@ -426,7 +424,8 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                             str(completion), str(commission), '%.2f' % (b_money),
                             str(day_rate), str(back_days), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
                 else:
-                    if dict_order['profit'] < 0.05:
+                    ex_date = datetime.datetime.strptime('2016-07-01', '%Y-%m-%d').date()
+                    if dict_order['profit'] < 0.05 and order.client_start > ex_date:
                         d_saler['str_formula_status'] = False
                     completion = saler.completion(belong_time)
                     c_money = completion * commission * b_money * day_rate
@@ -488,8 +487,6 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                 if dict_order['b_type'] == 1:
                     completion = saler.completion_increment(belong_time)
                     if dict_order['profit'] < 0.15:
-                        if dict_order['profit'] < 0.05:
-                            d_saler['str_formula_status'] = False
                         c_money = b_money * dict_order['profit'] * commission * 5
                         d_saler['str_formula'] += u"%s(回款金额) * %s(利润率) * %s(提成比例) * 5 = %s(%s月 提成信息)<br/>" % (
                             '%.2f' % (b_money), str(dict_order['profit']), str(commission), str(c_money),
@@ -502,7 +499,8 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                             str(completion), str(commission), '%.2f' % (b_money),
                             str(day_rate), str(back_days), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
                 else:
-                    if dict_order['profit'] < 0.05:
+                    ex_date = datetime.datetime.strptime('2016-07-01', '%Y-%m-%d').date()
+                    if dict_order['profit'] < 0.05 and order.client_start > ex_date:
                         d_saler['str_formula_status'] = False
                     completion = saler.completion(belong_time)
                     c_money = completion * commission * b_money * day_rate

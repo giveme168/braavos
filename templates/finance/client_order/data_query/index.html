@@ -31,12 +31,14 @@
             <li id="_medium_rebate_invoice_li" style="width:130px;">
                 <a id="_medium_rebate_invoice_" href="{{url_for('finance_client_order_data_query.medium_rebate_invoice')}}">已开媒体返点发票</a>
             </li>
+            {% if not g.user.is_aduit()  %}
             <li id="_personal_outsource_li" style="width:110px;">
                 <a id="_personal_outsource_" href="{{url_for('finance_client_order_data_query.personal_outsource')}}">个人外包打款</a>
             </li>
             <li id="_outsource_li" style="width:110px;">
                 <a id="_outsource_" href="{{url_for('finance_client_order_data_query.outsource')}}">对公外包打款</a>
             </li>
+            {% endif %}
         </ul>
     </div>
     <div class="search-bar">
