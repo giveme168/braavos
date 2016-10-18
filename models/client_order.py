@@ -1403,7 +1403,7 @@ by %s\n
                     else:
                         agent_rebate = 0
                 if self.money:
-                    sale_money_rebate_data += m.sale_money / self.money * agent_rebate
+                    sale_money_rebate_data += self.money * agent_rebate / 100 * m.sale_money / self.money
                 else:
                     sale_money_rebate_data += 0
         return sale_money_rebate_data

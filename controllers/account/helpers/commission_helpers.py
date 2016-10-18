@@ -81,7 +81,7 @@ def write_report_excel(Q, now_year, orders):
             worksheet.merge_range(
                 th, 14, th + salers_count - 1, 14, orders[k]['outsource_money'], align_left)
             worksheet.merge_range(
-                th, 15, th + salers_count - 1, 15, '%.2f%%' % orders[k]['profit'], align_left)
+                th, 15, th + salers_count - 1, 15, '%.2f%%' % (orders[k]['profit'] * 100), align_left)
             worksheet.merge_range(
                 th, 16, th + salers_count - 1, 16, orders[k]['media_money'], align_left)
             for i in range(salers_count):
@@ -130,7 +130,7 @@ def write_report_excel(Q, now_year, orders):
                             'money_time'] or u'无', align_left)
             worksheet.write(th, 13, orders[k]['money_sum'], align_left)
             worksheet.write(th, 14, orders[k]['outsource_money'], align_left)
-            worksheet.write(th, 15, '%.2f%%' % orders[k]['profit'], align_left)
+            worksheet.write(th, 15, '%.2f%%' % (orders[k]['profit'] * 100), align_left)
             worksheet.write(th, 16, orders[k]['media_money'], align_left)
             worksheet.write(th, 17, sale_data[0]['location_cn'], align_left)
             worksheet.write(th, 18, sale_data[0]['type'], align_left)
