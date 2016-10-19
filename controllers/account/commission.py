@@ -275,6 +275,7 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
     dict_order['order_path'] = order.info_path()
     dict_order['money'] = order.money
     dict_order['contract_status'] = order.contract_status
+    dict_order['__tablename__'] = order.__tablename__
     if order.__tablename__ == 'bra_client_order':
         dict_order['media_info'] = '<br>'.join(['%s:%s' % (o.medium_group.name, o.media.name)
                                                 for o in order.medium_orders])

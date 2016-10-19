@@ -69,7 +69,7 @@
             </thead>
             <tbody>
                 {% for k in orders %}
-                {% if k.contract_status != 20 %}<tr class="not-completed">{% else %}<tr>{% endif %}
+                {% if k.contract_status != 20 and k.__tablename__ == 'bra_client_order'%}<tr class="not-completed">{% else %}<tr>{% endif %}
                     <td rowspan="{{k.salers_count + 1}}">{% if k.b_type %}增量{% else %}自营{% endif %}</td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.media_info|safe}}</td>
                     <td rowspan="{{k.salers_count + 1}}">{{k.agent_name}}</td>

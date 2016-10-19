@@ -1521,7 +1521,7 @@ by %s\n
 
     @property
     def b_type(self):
-        ex_date = datetime.strptime('2016-07-01', '%Y-%m-%d').date()
+        ex_date = datetime.datetime.strptime('2016-07-01', '%Y-%m-%d').date()
         if self.client_start < ex_date:
             return 0
         else:

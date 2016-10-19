@@ -26,7 +26,7 @@ def write_report_excel(Q, now_year, orders):
         worksheet.write(0, k, keys[k], align_center)
     th = 1
     for k in range(len(orders)):
-        if orders[k]['contract_status'] != 20:
+        if orders[k]['contract_status'] != 20 and orders[k]['__tablename__'] == 'bra_client_order':
             align_left = workbook.add_format(
                 {'align': 'left', 'valign': 'vcenter', 'border': 1, 'fg_color': 'FF8888'})
             text_format = workbook.add_format(
