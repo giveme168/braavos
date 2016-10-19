@@ -270,12 +270,18 @@ def _order_back_money_data(order, start_Q_month, end_Q_month, back_moneys):
 
 # 格式化合同
 def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_moneys, all_outsource):
+    # 2016年Q3时间节点
+    ex_date = datetime.datetime.strptime('2016-07-01', '%Y-%m-%d').date()
     dict_order = {}
     dict_order['client_name'] = order.client.name
     dict_order['order_path'] = order.info_path()
     dict_order['money'] = order.money
     dict_order['contract_status'] = order.contract_status
-    dict_order['__tablename__'] = order.__tablename__
+    # 合同是否归档，从2016年Q3开始计算
+    if dict_order['contract_status'] != 20 and order.client_start > ex_date:
+        dict_order['file_status'] = False
+    else:
+        dict_order['file_status'] = True
     if order.__tablename__ == 'bra_client_order':
         dict_order['media_info'] = '<br>'.join(['%s:%s' % (o.medium_group.name, o.media.name)
                                                 for o in order.medium_orders])
@@ -331,7 +337,6 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
             media_rebate_value += m.client_order_agent_rebate_ai
             medium_money_total += m.medium_money2
         # 分析订单业务类型：1，自营；2，增量；3，混搭（按增量计算）
-        ex_date = datetime.datetime.strptime('2016-07-01', '%Y-%m-%d').date()
         if order.client_start < ex_date:
             dict_order['b_type'] = 0
             dict_order['profit'] = 0
@@ -425,7 +430,6 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                             str(completion), str(commission), '%.2f' % (b_money),
                             str(day_rate), str(back_days), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
                 else:
-                    ex_date = datetime.datetime.strptime('2016-07-01', '%Y-%m-%d').date()
                     if dict_order['profit'] < 0.05 and order.client_start > ex_date:
                         d_saler['str_formula_status'] = False
                     completion = saler.completion(belong_time)
@@ -500,7 +504,6 @@ def _order_to_dict(order, start_Q_month, end_Q_month, back_moneys, now_Q_back_mo
                             str(completion), str(commission), '%.2f' % (b_money),
                             str(day_rate), str(back_days), '%.2f' % (c_money), belong_time.strftime('%Y-%m'))
                 else:
-                    ex_date = datetime.datetime.strptime('2016-07-01', '%Y-%m-%d').date()
                     if dict_order['profit'] < 0.05 and order.client_start > ex_date:
                         d_saler['str_formula_status'] = False
                     completion = saler.completion(belong_time)
