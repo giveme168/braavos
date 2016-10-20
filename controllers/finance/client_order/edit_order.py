@@ -5,6 +5,7 @@ from flask import Blueprint, request, g, abort
 from flask import render_template as tpl
 from models.user import User
 from models.client_order import EditClientOrder, SUBJECT_CN
+from controllers.finance.helpers.edit_order_helpers import write_edit_order_excel
 
 from libs.paginator import Paginator
 
@@ -23,12 +24,7 @@ def index():
     search_info = request.values.get('search_info', '')
     orders = [order for order in EditClientOrder.query.filter_by(contract_status=10)
               if order.create_time.year == year and order.create_time.month == month]
-    paginator = Paginator(orders, 50)
-    try:
-        orders = paginator.page(page)
-    except:
-        orders = paginator.page(paginator.num_pages)
-    for order in orders.object_list:
+    for order in orders:
         edit_objs = []
         prim_client_order_data = json.loads(order.prim_client_order_data)
         if order.agent.name != prim_client_order_data['agent_name']:
@@ -168,5 +164,12 @@ def index():
                     now = u'无媒体单笔返点'
                 edit_objs.append([last, now])
         order.edit_objs = edit_objs
+    if request.values.get('action') == 'excel':
+        return write_edit_order_excel(orders, year, month)
+    paginator = Paginator(orders, 50)
+    try:
+        orders = paginator.page(page)
+    except:
+        orders = paginator.page(paginator.num_pages)
     return tpl('/finance/client_order/edit_order/index.html', orders=orders, year=year, month=month,
                search_info=search_info, params='&search_info=%s&year=%s&month=%s' % (search_info, year, month))

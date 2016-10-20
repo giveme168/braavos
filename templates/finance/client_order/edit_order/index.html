@@ -30,6 +30,9 @@
             <div class="select_option screen">
                 <input type="button" value="筛选" onclick="javascript:search();">
             </div>
+            <div class="select_option return">
+                <input type="button" value="下载" onclick="javascript:download();">
+            </div>
         </form>
     </div>
     <div class='tabulation'>
@@ -88,6 +91,13 @@
             '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
             '&month=' + $('#month').val() +
             '&year='+$('#year').val();
+    }
+    function download(){
+        window.location.href = window.location.pathname +
+            '?searchinfo=' + encodeURIComponent($('#search_info').val()) +
+            '&month=' + $('#month').val() +
+            '&year='+$('#year').val()+
+            '&action=excel';
     }
     $(function() {
         $("select").chosen({placeholder_text:"请选择...", disable_search_threshold: 20, search_contains: false}); 
