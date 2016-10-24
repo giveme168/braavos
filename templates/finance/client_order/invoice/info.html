@@ -336,6 +336,10 @@
             <th>操作</th>
             <td><a href="{{url_for('finance_client_order_invoice.delete_invoice', invoice_id=invoice.id)}}" style="color:red;">删除发票</a></td>
           </tr>
+          <tr style="color:red;">
+            <th>我方公司主体</th>
+            <td>{{invoice.client_order.subject_cn}}</td>
+          </tr>
           <tr>
             <th>开票时间</th>
             <td>{{invoice.create_time_cn}}</td>
